@@ -407,6 +407,11 @@ namespace BrightData.Numerics
 		    return !_vector.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 	    }
 
+        public void RoundInPlace(float lower = 0f, float upper = 1f, float mid = 0.5f)
+        {
+            _vector.MapInplace(v => v >= mid ? upper : lower);
+        }
+
         public ILinearAlgebraProvider LinearAlgebraProvider => Context.LinearAlgebraProvider;
     }
 }

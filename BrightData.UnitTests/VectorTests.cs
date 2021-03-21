@@ -798,5 +798,26 @@ namespace BrightData.UnitTests
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
             gpuVector.IsEntirelyFinite().Should().BeFalse();
         }
+
+        [Fact]
+        public void TestRoundInPlace()
+        {
+            using var vector = _cpu.CreateVector(0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f);
+            using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
+
+            vector.RoundInPlace();
+            gpuVector.RoundInPlace();
+            FloatMath.AreApproximatelyEqual(gpuVector.AsIndexable(), vector.AsIndexable()).Should().BeTrue();
+
+            var data = vector.Data;
+            data[0].Should().Be(1f);
+            data[1].Should().Be(1f);
+            data[2].Should().Be(1f);
+            data[3].Should().Be(1f);
+            data[4].Should().Be(0f);
+            data[5].Should().Be(0f);
+            data[6].Should().Be(0f);
+            data[7].Should().Be(0f);
+        }
     }
 }

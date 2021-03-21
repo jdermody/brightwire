@@ -4910,6 +4910,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IFloatVector.RoundInPlace(System.Single,System.Single,System.Single)">
+            <summary>
+            Rounds each value to either upper (if >= mid) or lower
+            </summary>
+            <param name="lower"></param>
+            <param name="upper"></param>
+            <param name="mid"></param>
+        </member>
         <member name="T:BrightData.IIndexableFloatVector">
             <summary>
             Returns an indexable vector (in which elements can be directly indexed)
@@ -6345,6 +6353,14 @@
             Returns the index with the lowest value
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.RoundInPlace(System.Nullable{`0},System.Nullable{`0},System.Nullable{`0})">
+            <summary>
+            Rounds each value to either upper (if >= mid) or lower
+            </summary>
+            <param name="lower"></param>
+            <param name="upper"></param>
+            <param name="mid"></param>
         </member>
         <member name="T:BrightData.LinearAlgebra.Vector`1">
             <summary>

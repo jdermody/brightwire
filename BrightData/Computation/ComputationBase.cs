@@ -36,6 +36,7 @@ namespace BrightData.Computation
         public abstract T MaxValue { get; }
         public abstract bool IsZero(T value);
         public abstract bool IsEqualOrLessThanZero(T value);
+        public abstract bool IsGreaterOrEqualTo(T value, T compareTo);
         public bool IsNotZero(T value) => !IsZero(value);
         public abstract bool IsNaN(T value);
         public abstract bool IsInfinity(T value);
@@ -43,6 +44,7 @@ namespace BrightData.Computation
         public abstract T Negate(T value);
         public abstract T Zero { get; }
         public abstract T One { get; }
+        public abstract T Two { get; }
         public abstract T ZeroZeroOne { get; }
 
         public ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
@@ -231,6 +233,11 @@ namespace BrightData.Computation
         }
 
         public ITensorSegment<T> Pow(ITensorSegment<T> segment, T power) => Transform(segment, v => Pow(v, power));
+        public void RoundInPlace(ITensorSegment<T> segment, T lower, T upper, T? mid)
+        {
+            var compareTo = mid ?? Add(lower, Divide(Subtract(upper, lower), Two));
+            MutateInPlace(segment, v => IsGreaterOrEqualTo(v, compareTo) ? upper : lower);
+        }
 
         public abstract T Get(uint val);
         public abstract T Get(float val);

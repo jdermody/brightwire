@@ -567,11 +567,15 @@ namespace BrightData
         ITensorSegment<T> Softmax(ITensorSegment<T> segment);
         Matrix<T> SoftmaxDerivative(ITensorSegment<T> segment);
         ITensorSegment<T> Pow(ITensorSegment<T> segment, T power);
+        void RoundInPlace(ITensorSegment<T> segment, T lower, T upper, T? mid);
 
         T Get(uint val);
         T Get(float val);
         T Get(double val);
         T Get(decimal val);
+
+        public T Zero { get; }
+        public T One { get; }
 #pragma warning restore 1591
     }
 

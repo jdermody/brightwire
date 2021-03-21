@@ -153,7 +153,8 @@ namespace BrightData.Cuda
 			_tensorReverseMaxPool,
 			_tensorReverseIm2Col,
 			_isFinite,
-			_calculateDistance
+			_calculateDistance,
+			_roundInPlace
 		;
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
@@ -240,6 +241,7 @@ namespace BrightData.Cuda
 			_tensorReverseIm2Col = _kernel.LoadFunction("TensorReverseIm2Col");
 			_isFinite = _kernel.LoadFunction("IsFinite");
 			_calculateDistance = _kernel.LoadFunction("CalculateDistances");
+            _roundInPlace = _kernel.LoadFunction("RoundInPlace");
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -594,6 +596,11 @@ namespace BrightData.Cuda
 		{
 			Invoke(_constrain, size, a.DevicePointer, size, min, max);
 		}
+        
+        public void RoundInPlace(IDeviceMemoryPtr a, uint size, float lower, float upper, float mid)
+        {
+            Invoke(_roundInPlace, size, a.DevicePointer, size, lower, upper, mid);
+        }
 
 		internal IDeviceMemoryPtr Pow(IDeviceMemoryPtr a, uint size, float power)
 		{
@@ -615,7 +622,7 @@ namespace BrightData.Cuda
 			Invoke(_l1Regularisation, size, a.DevicePointer, size, coefficient);
 		}
 
-		internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
+        internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var ret = Allocate(size);
 			Invoke(_euclideanDistance, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
@@ -1192,5 +1199,5 @@ namespace BrightData.Cuda
 		{
 			return Offset(ptr, blockSize * offsetIndex, blockSize);
 		}
-	}
+    }
 }

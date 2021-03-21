@@ -42,6 +42,7 @@ namespace BrightData.Computation
         public override uint MaxValue => uint.MaxValue;
         public override bool IsZero(uint value) => value == 0;
         public override bool IsEqualOrLessThanZero(uint value) => value == 0;
+        public override bool IsGreaterOrEqualTo(uint value, uint compareTo) => value >= compareTo;
 
         public override bool IsNaN(uint value) => false;
         public override bool IsInfinity(uint value) => false;
@@ -50,8 +51,9 @@ namespace BrightData.Computation
 
         public override uint Negate(uint value) => throw new NotSupportedException();
 
-        public override uint Zero => 0;
-        public override uint One => 1;
+        public override uint Zero { get; } = 0;
+        public override uint One { get; } = 1;
+        public override uint Two { get; } = 2;
         public override uint ZeroZeroOne => throw new NotSupportedException();
 
         public override uint Get(uint val) => Convert.ToUInt32(val);

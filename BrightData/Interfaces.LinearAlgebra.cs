@@ -453,6 +453,14 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         bool IsEntirelyFinite();
+
+        /// <summary>
+        /// Rounds each value to either upper (if >= mid) or lower
+        /// </summary>
+        /// <param name="lower"></param>
+        /// <param name="upper"></param>
+        /// <param name="mid"></param>
+        void RoundInPlace(float lower = 0f, float upper = 1f, float mid = 0.5f);
     }
 
     /// <summary>

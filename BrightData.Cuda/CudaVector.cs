@@ -467,7 +467,12 @@ namespace BrightData.Cuda
 			return _cuda.IsFinite(_data, _data.Size);
 		}
 
-		public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns)
+        public void RoundInPlace(float lower = 0f, float upper = 1f, float mid = 0.5f)
+        {
+            _cuda.RoundInPlace(_data, _data.Size, lower, upper, mid);
+        }
+
+        public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _data.Size);
 			return new CudaMatrix(_cuda, rows, columns, _data, false);

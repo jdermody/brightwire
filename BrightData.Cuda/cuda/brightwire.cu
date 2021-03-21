@@ -267,6 +267,17 @@ extern "C"
         }
 	}
 
+    __global__ void RoundInPlace(float* __restrict data, uint count, float lower, float upper, float mid)
+	{
+        for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
+            float val = data[index];
+			if (val >= mid)
+				data[index] = upper;
+			else
+				data[index] = lower;
+        }
+	}
+
 	__global__ void Pow(const float* __restrict a, float* __restrict b, uint count, float power)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {

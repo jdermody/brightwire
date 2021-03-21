@@ -180,6 +180,11 @@ namespace BrightData.Computation
         }
 
         public ITensorSegment<float> Pow(ITensorSegment<float> segment, float power) => Transform(segment, v => FloatMath.Pow(v, power));
+        public void RoundInPlace(ITensorSegment<float> segment, float lower, float upper, float? mid)
+        {
+            var compareTo = mid ?? lower + (upper - lower) / 2;
+            MutateInPlace(segment, v => v >= compareTo ? upper : lower);
+        }
 
         public float NextRandom() => Convert.ToSingle(_context.Random.NextDouble());
 
@@ -229,5 +234,7 @@ namespace BrightData.Computation
         public float Get(float val) => Convert.ToSingle(val);
         public float Get(double val) => Convert.ToSingle(val);
         public float Get(decimal val) => Convert.ToSingle(val);
+        public float Zero { get; } = 0f;
+        public float One { get; } = 1f;
     }
 }

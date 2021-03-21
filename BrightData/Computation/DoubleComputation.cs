@@ -44,6 +44,7 @@ namespace BrightData.Computation
         public override double MaxValue => double.MaxValue;
         public override bool IsZero(double value) => Math.Abs(value) < FloatMath.AlmostZero;
         public override bool IsEqualOrLessThanZero(double value) => value <= 0;
+        public override bool IsGreaterOrEqualTo(double value, double compareTo) => value >= compareTo;
 
         public override bool IsNaN(double value) => double.IsNaN(value);
 
@@ -53,9 +54,10 @@ namespace BrightData.Computation
 
         public override double Negate(double value) => -value;
 
-        public override double Zero => 0;
-        public override double One => 1;
-        public override double ZeroZeroOne => 0.01;
+        public override double Zero { get; } = 0;
+        public override double One { get; } = 1;
+        public override double Two { get; } = 2;
+        public override double ZeroZeroOne { get; } = 0.01;
 
         public override double Get(uint val) => Convert.ToDouble(val);
         public override double Get(float val) => Convert.ToDouble(val);

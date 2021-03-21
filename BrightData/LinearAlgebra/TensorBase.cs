@@ -472,5 +472,13 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <returns></returns>
         public uint MinimumIndex() => GetMinAndMaxValues().MinIndex;
+
+        /// <summary>
+        /// Rounds each value to either upper (if >= mid) or lower
+        /// </summary>
+        /// <param name="lower"></param>
+        /// <param name="upper"></param>
+        /// <param name="mid"></param>
+        public void RoundInPlace(T? lower, T? upper, T? mid) => Computation.RoundInPlace(_segment, lower ?? Computation.One, upper ?? Computation.Zero, mid);
     }
 }

@@ -39,6 +39,7 @@ namespace BrightData.Computation
         public override decimal MaxValue => decimal.MaxValue;
         public override bool IsZero(decimal value) => Math.Abs(value) <= (decimal)FloatMath.AlmostZero;
         public override bool IsEqualOrLessThanZero(decimal value) => value <= 1m;
+        public override bool IsGreaterOrEqualTo(decimal value, decimal compareTo) => value >= compareTo;
 
         public override bool IsNaN(decimal value) => false;
         public override bool IsInfinity(decimal value) => false;
@@ -47,9 +48,10 @@ namespace BrightData.Computation
 
         public override decimal Negate(decimal value) => value * -1m;
 
-        public override decimal Zero => 0m;
-        public override decimal One => 1m;
-        public override decimal ZeroZeroOne => 0.01m;
+        public override decimal Zero { get; } = 0m;
+        public override decimal One { get; } = 1m;
+        public override decimal Two { get; } = 2m;
+        public override decimal ZeroZeroOne { get; } = 0.01m;
 
         public override decimal Get(uint val) => Convert.ToDecimal(val);
         public override decimal Get(float val) => Convert.ToDecimal(val);

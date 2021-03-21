@@ -127,6 +127,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public float GetAt(uint index) => Data[index];
         public void SetAt(uint index, float value) => Data[index] = value;
         public bool IsEntirelyFinite() => Data.IsEntirelyFinite();
+        public void RoundInPlace(float lower = 0f, float upper = 1f, float mid = 0.5f) => Data.RoundInPlace(lower, upper, mid);
 
         public float this[uint index]
         {
