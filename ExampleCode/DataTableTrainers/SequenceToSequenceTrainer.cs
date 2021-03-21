@@ -5,7 +5,6 @@ using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using MathNet.Numerics.LinearAlgebra.Complex;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -159,7 +158,8 @@ namespace ExampleCode.DataTableTrainers
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.Train(20, testData, model => bestModel = model.Graph);
+            engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE/3);
+            engine.Train(30, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);

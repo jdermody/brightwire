@@ -326,6 +326,8 @@ namespace ExampleCode.DataTableTrainers
         float[]? GetInputVector(float c1, float c2, string word)
         {
             var embedding = Data.Embeddings.Get(word);
+            if(embedding == null && word.StartsWith("not_"))
+                embedding = Data.Embeddings.Get(word[4..]);
             if (embedding != null) {
                 var ret = new float[embedding.Length + 2];
                 Array.Copy(embedding, ret, embedding.Length);

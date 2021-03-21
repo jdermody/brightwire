@@ -208,7 +208,7 @@ namespace ExampleCode.DataSet
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
         {
             const int SEQUENCE_LENGTH = 4;
-            var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH, SEQUENCE_LENGTH, false);
+            var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH-1, SEQUENCE_LENGTH+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Input");
