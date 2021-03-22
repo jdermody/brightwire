@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>3.0.0-beta</Version>
+    <Version>3.0.0</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product />
@@ -13,7 +13,7 @@
     <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
     <PackageTags>cuda gpu</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>Beta release</PackageReleaseNotes>
+    <PackageReleaseNotes>Initial 3.0 release - Support for CUDA 11</PackageReleaseNotes>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -40,42 +40,55 @@
     <None Remove="cuda\brightwire_80.ptx" />
     <Content Include="cuda\brightwire.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_35.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_37.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_50.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_52.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_53.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_60.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_61.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_62.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_70.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_72.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_75.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_80.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <None Include="..\bw_favicon.png">
       <Pack>True</Pack>
