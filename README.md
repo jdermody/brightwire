@@ -27,11 +27,8 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 * [GRU Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)
 * [Sequence to Sequence Neural Networks with LSTM](http://www.jackdermody.net/brightwire/article/Sequence_to_Sequence_with_LSTM)
 * [Convolutional Neural Networks](http://www.jackdermody.net/brightwire/article/Convolutional_Neural_Networks)
-* [Deep Feed Forward Neural Networks with Batch Normalization and SELU](http://www.jackdermody.net/brightwire/article/Extending_Bright_Wire:_Custom_Activation_Function)
 
 ## Nuget Installation
-
-Version 3 is currently in beta release so when downloading from NuGet, make sure that pre-release packages are selected.
 
 To install the cpu version (no CUDA support) use:
 
@@ -46,27 +43,6 @@ To add CUDA support use:
 Install-Package BrightWire
 Install-Package BrightWire.Cuda
 ```
-
-Note: When using the CUDA version, make sure that the `/cuda/brightwire.ptx` file is copied to the output directory (Properties/Copy To Output Directory).
-
-### Recompiling the PTX
-
-It's likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
-
-If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/BrightWire.CUDA.Net4.x64/cuda/readme.txt).
-
-Example command for NVIDIA GeForce GTX770M (CUDA 3.0)
-
-```
-nvcc kernel.cu -use_fast_math -ptx -m 64 -arch compute_30 -code sm_30 -o kernel.ptx
-```
-
-## Linux Support
-
-### With CUDA
-
-Bright Wire can also work with CUDA on Mono. When you build your solution, you will need to extract `ConfigForLinux.zip` archive from [here](https://github.com/kunzmi/managedCuda/releases) to your output path.
-That way, CUDA won't look for `nvcuda` on Linux, but for libcuda shared object. You can even run on your Optimus enabled laptop (tested with GTX770M with Bumblebee) with `optirun mono [binary_name]`.
 
 ## Features
 
@@ -108,5 +84,5 @@ That way, CUDA won't look for `nvcuda` on Linux, but for libcuda shared object. 
 * In-memory and file based data processing
 
 ## Dependencies
-* [ManagedCuda](https://github.com/kunzmi/managedCuda) (only required for CUDA version of BrightWire)
+* [ManagedCuda](https://github.com/kunzmi/managedCuda) (for CUDA version of BrightWire)
 * [MathNet.Numerics](https://github.com/mathnet/mathnet-numerics)
