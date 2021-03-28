@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -49,25 +50,32 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             // if all inputs have been received
             if (input.IsComplete) {
                 var error = input.GetError();
+                var returnedError = false;
                 if (error != null) {
-                    var parents = _ancestors.Select(d => d._history!.Source).ToArray();
-                    var sendTo = _history!.Backpropagation?.Backward(error, context, parents);
+                    var sendTo = _history!.Backpropagation?.Backward(error, context, _ancestors.Select(d => d._history!.Source).ToArray());
                     if(sendTo != null) {
                         foreach (var (signal, nextContext, toNode) in sendTo) {
-                            var context2 = (TrainingGraphSequenceContext) nextContext;
-                            var executionNode = context2.GetExecutionNode(toNode);
-                            foreach (var ret in executionNode.Backpropagate(nextContext, signal, this))
-                                yield return ret;
+                            if (toNode != null) {
+                                var context2 = (TrainingGraphSequenceContext) nextContext;
+                                var executionNode = context2.GetExecutionNode(toNode);
+                                foreach (var ret in executionNode.Backpropagate(nextContext, signal, this))
+                                    yield return ret;
+                            }
+                            else {
+                                yield return signal;
+                                returnedError = true;
+                            }
                         }
                     }
                     else {
                         foreach (var item in _ancestors) {
-                            foreach(var ret in item.Backpropagate(context, error, this))
+                            foreach (var ret in item.Backpropagate(context, error, this)) {
                                 yield return ret;
+                            }
                         }
                     }
 
-                    if (!_ancestors.Any())
+                    if (!_ancestors.Any() && !returnedError)
                         yield return error;
                 }
             }

@@ -87,6 +87,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return output;
         }
 
+        public IFloatMatrix Forward(IFloatMatrix input) => FeedForwardInternal(input, _weight);
+
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();

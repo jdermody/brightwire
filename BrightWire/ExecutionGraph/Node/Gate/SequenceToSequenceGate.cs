@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
                 memoryFeeder.LoadNextFromMemory = true;
 
-                context.ExecutionContext.RegisterAdditionalMiniBatch(nextBatch, signal, OnStartEncoder, OnEndEncoder);
+                context.ExecutionContext.RegisterAdditionalMiniBatch(nextBatch, signal, OnStartEncoder, OnEndDecoder);
             }
 
             return (this, GraphData.Null, null);
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 wire.SendTo.Forward(data, context, wire.Channel);
         }
 
-        void OnEndEncoder(IGraphSequenceContext[] context)
+        void OnEndDecoder(IGraphSequenceContext[] context)
         {
             var firstContext = context.FirstOrDefault();
             var learningContext = firstContext?.LearningContext;
@@ -63,6 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     var hiddenBackward = firstContext!.GetData("hidden-backward").Single(d => d.Name == _decoderName);
                     gradient.GetMatrix().AddInPlace(hiddenBackward.Data.GetMatrix());
 
+                    // backpropagate the encoder
                     foreach (var item in _encoderContext!.Reverse())
                         learningContext.DeferBackpropagation(null, delta => item.Backpropagate(delta));
                     learningContext.BackpropagateThroughTime(gradient);
