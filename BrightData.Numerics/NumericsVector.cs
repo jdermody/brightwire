@@ -201,7 +201,7 @@ namespace BrightData.Numerics
 
         public (float Min, float Max) GetMinMax()
         {
-            float min = 0f, max = 0f;
+            float min = float.MaxValue, max = float.MinValue;
             foreach (var val in _vector.Enumerate(Zeros.AllowSkip)) {
                 if (val > max)
                     max = val;
