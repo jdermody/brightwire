@@ -54,6 +54,12 @@ namespace BrightWire
         IGraphData ReplaceWith(IFloatMatrix matrix);
 
         /// <summary>
+        /// Returns the value at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        float this[uint index] { get; }
+
+        /// <summary>
         /// True if this graph data has been set (false for null)
         /// </summary>
         public bool HasValue { get; }
@@ -706,6 +712,16 @@ namespace BrightWire
         void UpdateWeights(IFloatMatrix delta, ILearningContext context);
     }
 
+    /// <summary>
+    /// Nodes that contain a feed forward layer
+    /// </summary>
+    public interface IHaveFeedForward
+    {
+        /// <summary>
+        /// Feed forward layer
+        /// </summary>
+        IFeedForward FeedForward { get; }
+    }
 
     /// <summary>
     /// Node that exposes an action

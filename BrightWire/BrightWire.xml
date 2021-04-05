@@ -1520,6 +1520,11 @@
             The list of sub nodes
             </summary>
         </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Layer.SelfAttention">
+            <summary>
+            Implementation of self attention from: https://arxiv.org/abs/1409.0473
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.SimpleRecurrent">
             <summary>
             Simple recurrent neural network
@@ -2652,6 +2657,12 @@
             </summary>
             <param name="matrix">The matrix to use as a replacement</param>
         </member>
+        <member name="P:BrightWire.IGraphData.Item(System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="index"></param>
+        </member>
         <member name="P:BrightWire.IGraphData.HasValue">
             <summary>
             True if this graph data has been set (false for null)
@@ -3279,6 +3290,16 @@
             </summary>
             <param name="delta">Weight delta matrix</param>
             <param name="context">Graph learning context</param>
+        </member>
+        <member name="T:BrightWire.IHaveFeedForward">
+            <summary>
+            Nodes that contain a feed forward layer
+            </summary>
+        </member>
+        <member name="P:BrightWire.IHaveFeedForward.FeedForward">
+            <summary>
+            Feed forward layer
+            </summary>
         </member>
         <member name="T:BrightWire.IHaveAction">
             <summary>

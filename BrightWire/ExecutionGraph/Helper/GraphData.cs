@@ -39,6 +39,8 @@ namespace BrightWire.ExecutionGraph.Helper
             throw new System.NotImplementedException();
         }
 
+        public float this[uint index] => throw new System.NotImplementedException();
+
         public IFloatMatrix[] GetSubMatrices()
         {
             throw new System.NotImplementedException();
@@ -47,6 +49,37 @@ namespace BrightWire.ExecutionGraph.Helper
         public bool HasValue { get; } = false;
 
         public override string ToString() => "Null graph data";
+    }
+
+    class SingleGraphData : IGraphData
+    {
+        readonly float _value;
+
+        public uint Rows { get; } = 1;
+        public uint Columns { get; } = 1;
+        public uint Depth { get; } = 1;
+        public uint Count { get; } = 1;
+
+        public SingleGraphData(float data) => _value = data;
+
+        public IFloatMatrix GetMatrix()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public I4DFloatTensor? Get4DTensor()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IGraphData ReplaceWith(IFloatMatrix matrix)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public float this[uint index] => _value;
+        public bool HasValue { get; } = true;
+        public override string ToString() => $"Single graph data ({_value})";
     }
 
     /// <summary>
@@ -69,6 +102,9 @@ namespace BrightWire.ExecutionGraph.Helper
         public IFloatMatrix GetMatrix() => _matrix;
         public I4DFloatTensor? Get4DTensor() => null;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new MatrixGraphData(matrix);
+
+        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
+
         public IFloatMatrix[] GetSubMatrices()
         {
             return new[] {
@@ -123,6 +159,7 @@ namespace BrightWire.ExecutionGraph.Helper
         }
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth})";
+        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
     }
 
     /// <summary>
@@ -168,5 +205,6 @@ namespace BrightWire.ExecutionGraph.Helper
         }
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count})";
+        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
     }
 }

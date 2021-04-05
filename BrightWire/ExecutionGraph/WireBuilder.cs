@@ -6,6 +6,7 @@ using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
+using BrightWire.ExecutionGraph.Node.Layer;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -459,9 +460,22 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder WriteNodeMemoryToSlot(string slotName, string nodeName, string? name = null)
         {
-            if (!(Find(nodeName) is IHaveMemoryNode memoryNode))
-                throw new ArgumentException($"Node not found: {nodeName}");
-            AddForwardAction(new CopyNamedMemory(slotName, memoryNode), name);
+            AddForwardAction(new CopyNamedMemory(slotName, FindMemoryNode(nodeName)), name);
+            return this;
+        }
+
+        IHaveMemoryNode FindMemoryNode(string name)
+        {
+            if (!(Find(name) is IHaveMemoryNode memoryNode))
+                throw new ArgumentException($"Node not found: {name}");
+            return memoryNode;
+        }
+
+        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderDecoderSize, string? name = null)
+        {
+            var layer = _factory.CreateFeedForward(encoderDecoderSize * 2, 1, name != null ? null + "_attention" : null);
+            SetNode(new SelfAttention(encoderName, decoderName, (FeedForward)layer, name));
+            SetNewSize(encoderDecoderSize * 2);
             return this;
         }
 
