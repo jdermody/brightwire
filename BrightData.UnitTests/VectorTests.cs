@@ -24,6 +24,9 @@ namespace BrightData.UnitTests
             using (var gpuA = _cuda.CreateVector(values))
                 gpuResults = gpuA.AsIndexable();
             FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
+
+            using var simpleA = _simple.CreateVector(values);
+            FloatMath.AreApproximatelyEqual(simpleA.AsIndexable(), a).Should().BeTrue();
         }
 
         [Fact]

@@ -23,7 +23,7 @@ namespace BrightData.LinearAlgebra
         {
             var segment = Context.CreateSegment<float>(length);
             if(setToZero)
-                segment.InitializeTo(0f);
+                segment.Initialize(0f);
             return new FloatVector(new Vector<float>(segment));
         }
 

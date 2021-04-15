@@ -78,19 +78,19 @@ namespace BrightData.Memory
                 this[index++] = ptr[(int)i];
         }
 
-        public void InitializeFrom(Func<uint, T> initializer)
+        public void Initialize(Func<uint, T> initializer)
         {
             for (uint i = 0; i < Size; i++)
                 this[i] = initializer(i);
         }
 
-        public void InitializeTo(T initializer)
+        public void Initialize(T initializer)
         {
             for (uint i = 0; i < Size; i++)
                 this[i] = initializer;
         }
 
-        public void Initialize(T[] initialData) => InitializeFrom(i => initialData[i]);
+        public void Initialize(T[] initialData) => Initialize(i => initialData[i]);
 
         public unsafe void WriteTo(Stream stream)
         {
@@ -106,16 +106,19 @@ namespace BrightData.Memory
             stream.Write(buffer);
         }
 
-        public void CopyTo(T[] array)
+        public void CopyTo(T[] array, uint sourceIndex, uint destinationIndex, uint count)
         {
-            for (uint i = 0; i < Size; i++)
-                array[i] = this[i];
+            var size = Math.Min(Size, count);
+            for (uint i = sourceIndex; i < size; i++)
+                array[destinationIndex + i] = this[i];
         }
 
         public void CopyTo(ITensorSegment<T> segment)
         {
-            segment.InitializeFrom(i => this[i]);
+            segment.Initialize(i => this[i]);
         }
+
+        public System.Numerics.Vector<T> AsNumericsVector(int start) => new System.Numerics.Vector<T>(Values.Skip(start).Take(System.Numerics.Vector<T>.Count).ToArray());
 
         public override string ToString()
         {

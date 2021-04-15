@@ -143,34 +143,57 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Vector<T> RowSums()
-        {
-            throw new NotImplementedException();
-        }
+        public Vector<T> RowSums() => Context.CreateVector(Rows.Select(r => r.Sum()).ToArray());
 
         /// <summary>
         /// Returns the sum of each column as a vector
         /// </summary>
         /// <returns></returns>
-        public Vector<T> ColumnSums()
-        {
-            throw new NotImplementedException();
-        }
+        public Vector<T> ColumnSums() => Context.CreateVector(Columns.Select(r => r.Sum()).ToArray());
 
         /// <summary>
         /// Multiplies the matrix with a vector
         /// </summary>
         /// <param name="vector">Vector to multiply</param>
         /// <returns></returns>
-        public Matrix<T> Multiply(Vector<T> vector)
-        {
-            throw new NotImplementedException();
-        }
+        public Matrix<T> Multiply(Vector<T> vector) => Multiply(vector.Reshape(null, 1));
 
         /// <inheritdoc />
         protected override Matrix<T> Create(ITensorSegment<T> segment)
         {
             return new Matrix<T>(segment, RowCount, ColumnCount);
+        }
+
+        public Matrix<T> Map(Func<T, T> mutator)
+        {
+            var ret = MapParallel((i, v) => mutator(v));
+            return new Matrix<T>(ret, RowCount, ColumnCount);
+        }
+
+        public Matrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
+        {
+            var ret = MapParallel((ind, val) => {
+                var i = ind % RowCount;
+                var j = ind / ColumnCount;
+                return mutator(i, j, val);
+            });
+            return new Matrix<T>(ret, RowCount, ColumnCount);
+        }
+
+        public void MapInPlace(Func<T, T> mutator)
+        {
+            using var ret = MapParallel((i, v) => mutator(v));
+            ret.CopyTo(_segment);
+        }
+
+        public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
+        {
+            using var ret = MapParallel((ind, val) => {
+                var i = ind % RowCount;
+                var j = ind / ColumnCount;
+                return mutator(i, j, val);
+            });
+            ret.CopyTo(_segment);
         }
     }
 }

@@ -485,11 +485,6 @@ namespace BrightData
         float[] ToArray();
 
         /// <summary>
-        /// Returns the underlying array used as storage (changes to this array will affect the vector as well)
-        /// </summary>
-        float[] GetInternalArray();
-
-        /// <summary>
         /// Creates a new vector (without in place modification) in which new values are appended onto the end of the current vector
         /// </summary>
         /// <param name="data">The values to append</param>
@@ -906,11 +901,6 @@ namespace BrightData
         /// Returns the matrix as xml
         /// </summary>
         string AsXml { get; }
-
-        /// <summary>
-        /// Returns the underlying array used as storage (changes to this array will affect the matrix as well)
-        /// </summary>
-        float[] GetInternalArray();
     }
 
     /// <summary>
@@ -1085,11 +1075,6 @@ namespace BrightData
         /// Returns the matrix as xml
         /// </summary>
         string AsXml { get; }
-
-        /// <summary>
-        /// Returns the underlying array used as storage (changes to this array will affect the tensor as well)
-        /// </summary>
-        float[] GetInternalArray();
     }
 
     /// <summary>
@@ -1191,11 +1176,6 @@ namespace BrightData
         I4DFloatTensor ReverseIm2Col(IFloatMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
-        /// Sums the columns of each sub-tensor's sub matrix
-        /// </summary>
-        IFloatVector ColumnSums();
-
-        /// <summary>
         /// Converts the tensor to a vector
         /// </summary>
         /// <returns></returns>
@@ -1210,7 +1190,7 @@ namespace BrightData
         /// <summary>
         /// Converts the current tensor
         /// </summary>
-        Tensor3D<float>[] Data { get; set; }
+        Tensor3D<float>[] Data { get; }
     }
 
     /// <summary>
@@ -1236,10 +1216,5 @@ namespace BrightData
         /// Returns the matrix as xml
         /// </summary>
         string AsXml { get; }
-
-        /// <summary>
-        /// Returns the underlying array used as storage (changes to this array will affect the tensor as well)
-        /// </summary>
-        float[] GetInternalArray();
     }
 }

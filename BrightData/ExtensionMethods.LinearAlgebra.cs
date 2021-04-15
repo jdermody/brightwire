@@ -22,7 +22,7 @@ namespace BrightData
         {
             var segment = context.CreateSegment<T>(size);
             if (initializer != null)
-                segment.InitializeFrom(initializer);
+                segment.Initialize(initializer);
             return new Vector<T>(segment);
         }
 
@@ -37,7 +37,7 @@ namespace BrightData
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initialValue = default) where T : struct
         {
             var segment = context.CreateSegment<T>(size);
-            segment.InitializeTo(initialValue);
+            segment.Initialize(initialValue);
             return new Vector<T>(segment);
         }
 
@@ -82,7 +82,7 @@ namespace BrightData
         {
             var segment = context.CreateSegment<T>(rows * columns);
             if (initializer != null)
-                segment.InitializeFrom(i => initializer(i / columns, i % columns));
+                segment.Initialize(i => initializer(i / columns, i % columns));
             return new Matrix<T>(segment, rows, columns);
         }
 
@@ -98,7 +98,7 @@ namespace BrightData
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initialValue) where T : struct
         {
             var segment = context.CreateSegment<T>(rows * columns);
-            segment.InitializeTo(initialValue);
+            segment.Initialize(initialValue);
             return new Matrix<T>(segment, rows, columns);
         }
 
@@ -636,7 +636,7 @@ namespace BrightData
         public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
         {
             var computation = tensor.Computation;
-            tensor.Segment.InitializeFrom(i => computation.NextRandom());
+            tensor.Segment.Initialize(i => computation.NextRandom());
         }
 
         /// <summary>
@@ -647,7 +647,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
         {
-            tensor.Segment.InitializeTo(value);
+            tensor.Segment.Initialize(value);
         }
 
         /// <summary>
@@ -658,7 +658,7 @@ namespace BrightData
         /// <param name="initializer">Callback for each element</param>
         public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
         {
-            tensor.Segment.InitializeFrom(initializer);
+            tensor.Segment.Initialize(initializer);
         }
 
         /// <summary>
@@ -704,7 +704,7 @@ namespace BrightData
         {
             var context = vector.Context;
             var segment = context.CreateSegment<float>(vector.Size);
-            segment.InitializeFrom(i => mutator(vector[i]));
+            segment.Initialize(i => mutator(vector[i]));
             return new Vector<float>(segment);
         }
 
@@ -719,7 +719,7 @@ namespace BrightData
         {
             var context = vector.Context;
             var segment = context.CreateSegment<float>(vector.Size);
-            segment.InitializeFrom(i => mutator(vector[i], other[i]));
+            segment.Initialize(i => mutator(vector[i], other[i]));
             return new Vector<float>(segment);
         }
 
@@ -772,6 +772,23 @@ namespace BrightData
                 return context.CreateMatrixFromRows(ret);
             }
             return new Matrix<float>(context, reader);
+        }
+
+        /// <summary>
+        /// Sums the columns of each sub-tensor's sub matrix
+        /// </summary>
+        public static IFloatVector ColumnSums(this I4DFloatTensor tensor)
+        {
+            IFloatVector? ret = null;
+            for (uint i = 0, count = tensor.Count; i < count; i++) {
+                var tensorAsMatrix = tensor.GetTensorAt(i).ReshapeAsMatrix();
+                var columnSums = tensorAsMatrix.ColumnSums();
+                if (ret == null)
+                    ret = columnSums;
+                else
+                    ret.AddInPlace(columnSums);
+            }
+            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
         }
     }
 }

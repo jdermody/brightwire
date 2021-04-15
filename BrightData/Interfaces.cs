@@ -465,7 +465,6 @@ namespace BrightData
         /// </summary>
         IEnumerable<T> Values { get; }
 
-
         /// <summary>
         /// Initialize the segment from a stream
         /// </summary>
@@ -476,13 +475,13 @@ namespace BrightData
         /// Initialize the segment from a callback
         /// </summary>
         /// <param name="initializer">Functions that returns values for each indexed value</param>
-        void InitializeFrom(Func<uint, T> initializer);
+        void Initialize(Func<uint, T> initializer);
 
         /// <summary>
         /// Initialize the segment to a single value
         /// </summary>
         /// <param name="initialValue">Initial value</param>
-        void InitializeTo(T initialValue);
+        void Initialize(T initialValue);
 
         /// <summary>
         /// Initialize from an array
@@ -497,16 +496,24 @@ namespace BrightData
         void WriteTo(Stream writerBaseStream);
 
         /// <summary>
-        /// Copies all values to an existing array
+        /// Copies values from this segment to an existing array
         /// </summary>
         /// <param name="array"></param>
-        void CopyTo(T[] array);
-        
+        /// <param name="sourceIndex">Index to start copying from</param>
+        /// <param name="destinationIndex">Index to start writing to</param>
+        /// <param name="count">Number of values to copy</param>
+        void CopyTo(T[] array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
+
         /// <summary>
         /// Copies all values to another segment
         /// </summary>
         /// <param name="segment"></param>
         void CopyTo(ITensorSegment<T> segment);
+
+        /// <summary>
+        /// Returns part of the segment as a numerics vector
+        /// </summary>
+        System.Numerics.Vector<T> AsNumericsVector(int start);
     }
 
     /// <summary>

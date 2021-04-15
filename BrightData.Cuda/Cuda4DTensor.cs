@@ -204,19 +204,5 @@ namespace BrightData.Cuda
 			var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
 			return new Cuda4DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Count, ret.Data, true);
 		}
-
-		public IFloatVector ColumnSums()
-        {
-            IFloatVector? ret = null;
-            for (uint i = 0; i < Count; i++) {
-                var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
-                var columnSums = tensorAsMatrix.ColumnSums();
-                if (ret == null)
-                    ret = columnSums;
-                else
-                    ret.AddInPlace(columnSums);
-            }
-            return ret ?? LinearAlgebraProvider.CreateVector(ColumnCount);
-        }
     }
 }

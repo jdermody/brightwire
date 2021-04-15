@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BrightData.LinearAlgebra
 {
@@ -66,5 +67,29 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="array">Array to copy from</param>
         public void CopyFrom(T[] array) => _segment.Initialize(array);
+
+        public Vector<T> Map(Func<T, T> mutator)
+        {
+            var ret = MapParallel((i, v) => mutator(v));
+            return new Vector<T>(ret);
+        }
+
+        public Vector<T> MapIndexed(Func<uint, T, T> mutator)
+        {
+            var ret = MapParallel(mutator);
+            return new Vector<T>(ret);
+        }
+
+        public void MapInPlace(Func<T, T> mutator)
+        {
+            using var ret = MapParallel((i, v) => mutator(v));
+            ret.CopyTo(_segment);
+        }
+
+        public void MapIndexedInPlace(Func<uint, T, T> mutator)
+        {
+            using var ret = MapParallel(mutator);
+            ret.CopyTo(_segment);
+        }
     }
 }

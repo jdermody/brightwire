@@ -42,8 +42,11 @@ namespace BrightData.Numerics
 	        var rowSize = _rows * _columns * _depth;
 	        var data = new float[rowSize * _count];
 	        foreach (var matrix in tensorList) {
-		        Array.Copy(matrix.GetInternalArray(), 0, data, offset, rowSize);
-		        offset += rowSize;
+                if(matrix is Numerics3DTensor numerics)
+		            Array.Copy(numerics.GetInternalArray(), 0, data, offset, rowSize);
+                else
+                    matrix.Data.Segment.CopyTo(data, 0, offset, rowSize);
+                offset += rowSize;
 	        }
 
 	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_count, data));
@@ -165,21 +168,7 @@ namespace BrightData.Numerics
 		    return _data.ReshapeAsVector();
 	    }
 
-        public IFloatVector ColumnSums()
-        {
-            IFloatVector? ret = null;
-            for (uint i = 0; i < Count; i++) {
-                var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
-                var columnSums = tensorAsMatrix.ColumnSums();
-                if (ret == null)
-                    ret = columnSums;
-                else
-                    ret.AddInPlace(columnSums);
-            }
-            return ret ?? Context.LinearAlgebraProvider.CreateVector(ColumnCount);
-        }
-
-	    public float this[uint row, uint column, uint depth, uint index] {
+        public float this[uint row, uint column, uint depth, uint index] {
 		    get => _data[RowIndex(row, column, depth), index];
 		    set => _data[RowIndex(row, column, depth), index] = value;
 	    }

@@ -3276,6 +3276,11 @@
             </summary>
             <param name="segment"></param>
         </member>
+        <member name="M:BrightData.ITensorSegment`1.AsNumericsVector(System.Int32)">
+            <summary>
+            Returns part of the segment as a numerics vector
+            </summary>
+        </member>
         <member name="T:BrightData.INumericComputation`1">
             <summary>
             Typed generic computation

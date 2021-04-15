@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using BrightData.Helper;
 
 namespace BrightData.LinearAlgebra
@@ -480,5 +481,13 @@ namespace BrightData.LinearAlgebra
         /// <param name="upper"></param>
         /// <param name="mid"></param>
         public void RoundInPlace(T? lower, T? upper, T? mid) => Computation.RoundInPlace(_segment, lower ?? Computation.One, upper ?? Computation.Zero, mid);
+
+        protected ITensorSegment<T> MapParallel(Func<uint, T, T> mapper)
+        {
+            using var ret = Context.CreateSegment<T>(Size);
+            // ReSharper disable once AccessToDisposedClosure
+            Parallel.For(0, (int) Size, i => ret[i] = mapper((uint) i, _segment[i]));
+            return ret;
+        }
     }
 }

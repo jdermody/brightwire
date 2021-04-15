@@ -46,16 +46,17 @@ namespace BrightData.Memory
         public IEnumerable<T> Values => _data;
         public void InitializeFrom(Stream stream) => stream.Read(MemoryMarshal.Cast<T, byte>(_data));
 
-        public void InitializeFrom(Func<uint, T> initializer)
+        public void Initialize(Func<uint, T> initializer)
         {
             for (uint i = 0; i < Size; i++)
                 _data[(int) i] = initializer(i);
         }
-        public void InitializeTo(T initializer) => Array.Fill(_data, initializer);
+        public void Initialize(T initializer) => Array.Fill(_data, initializer);
         public void Initialize(T[] initialData) => Array.Copy(initialData, _data, _data.Length);
         public void WriteTo(Stream stream) => stream.Write(MemoryMarshal.Cast<T, byte>(_data));
-        public void CopyTo(T[] array) => Array.Copy(_data, array, _data.Length);
-        public void CopyTo(ITensorSegment<T> segment) => segment.InitializeFrom(i => _data[i]);
+        public void CopyTo(T[] array, uint sourceIndex, uint destinationIndex, uint count) => Array.Copy(_data, (int)sourceIndex, array, (int)destinationIndex, Math.Min(_data.Length, count));
+        public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(i => _data[i]);
+        public System.Numerics.Vector<T> AsNumericsVector(int start) => new System.Numerics.Vector<T>(_data, start);
 
         public override string ToString()
         {

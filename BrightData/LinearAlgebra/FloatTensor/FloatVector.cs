@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.Analysis;
 using BrightData.Transformation;
 
@@ -25,12 +27,14 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public IFloatVector Subtract(IFloatVector vector) => new FloatVector(Data.Subtract(vector.Data));
         public float L1Norm()
         {
-            throw new NotImplementedException();
+            using var abs = Data.Abs();
+            return abs.Sum();
         }
 
         public float L2Norm()
         {
-            throw new NotImplementedException();
+            using var squared = Data.PointwiseMultiply(Data);
+            return MathF.Sqrt(squared.Sum());
         }
 
         public uint MaximumIndex() => Data.MaximumIndex();
@@ -52,12 +56,16 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public float ManhattanDistance(IFloatVector vector) => Data.ManhattanDistance(vector.Data);
         public float MeanSquaredDistance(IFloatVector vector)
         {
-            throw new NotImplementedException();
+            using var diff = Data.Subtract(vector.Data);
+            var num = diff.L2Norm();
+            return num * num / Count;
         }
 
         public float SquaredEuclidean(IFloatVector vector)
         {
-            throw new NotImplementedException();
+            using var diff = Data.Subtract(vector.Data);
+            var num = diff.L2Norm();
+            return num * num;
         }
 
         public (float Min, float Max) GetMinMax()
@@ -82,34 +90,71 @@ namespace BrightData.LinearAlgebra.FloatTensor
             
             // normalize
             var normalizer = new NormalizeTransformation(type, metaData);
-            Data.Segment.InitializeFrom(i => Convert.ToSingle(normalizer.Normalize(this[i])));
+            Data.Segment.Initialize(i => Convert.ToSingle(normalizer.Normalize(this[i])));
         }
 
         public IFloatVector Softmax() => new FloatVector(Data.Softmax());
         public IFloatMatrix SoftmaxDerivative() => new FloatMatrix(Data.SoftmaxDerivative());
 
+        Func<IFloatVector, float> GetDistanceFunc(DistanceMetric distance)
+        {
+            return distance switch {
+                DistanceMetric.Cosine => CosineDistance,
+                DistanceMetric.Euclidean => EuclideanDistance,
+                DistanceMetric.Manhattan => ManhattanDistance,
+                DistanceMetric.MeanSquared => MeanSquaredDistance,
+                DistanceMetric.SquaredEuclidean => SquaredEuclidean,
+                _ => throw new NotImplementedException()
+            };
+        }
+
         public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
         {
-            throw new NotImplementedException();
+            var distanceFunc = GetDistanceFunc(distance);
+            var ret = new float[data.Length];
+            Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
+            return new FloatVector(Data.Context.CreateVector(ret));
         }
 
-        public float FindDistance(IFloatVector other, DistanceMetric distance)
-        {
-            throw new NotImplementedException();
-        }
+        public float FindDistance(IFloatVector other, DistanceMetric distance) => GetDistanceFunc(distance)(other);
 
-        public IFloatVector CosineDistance(IFloatVector[] data, ref float[]? dataNorm)
+        IFloatVector IFloatVector.CosineDistance(IFloatVector[] data, ref float[]? dataNorm)
         {
-            throw new NotImplementedException();
+            var norm = Data.DotProduct(Data);
+            dataNorm ??= data.Select(d => d.Data.DotProduct(d.Data)).ToArray();
+
+            var ret = new float[data.Length];
+            for (var i = 0; i < data.Length; i++)
+                ret[i] = 1f - DotProduct(data[i]) / (MathF.Sqrt(norm) * MathF.Sqrt(dataNorm[i]));
+            return new FloatVector(Data.Context.CreateVector(ret));
         }
 
         public IFloatVector Log() => new FloatVector(Data.Log());
         public IFloatVector Sigmoid() => new FloatVector(Data.Sigmoid());
         public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns) => new FloatMatrix(Data.Reshape(rows, columns));
-        public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth) => new Float3DTensor(Data.Reshape(depth, rows, columns));
+
+        public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
+        {
+            Debug.Assert(rows * columns * depth == Count);
+            if (depth > 1) {
+                var slice = Split(depth);
+                var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns).Data).ToArray();
+                return new Float3DTensor(Data.Context.CreateTensor3D(matrixList));
+            }
+            var matrix = ReshapeAsMatrix(rows, columns).Data;
+            return new Float3DTensor(Data.Context.CreateTensor3D(new[] { matrix }));
+        }
+
         public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
         {
-            throw new NotImplementedException();
+            Debug.Assert(rows * columns * depth * count == Count);
+            if (count > 1) {
+                var slice = Split(count);
+                var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).Data).ToArray();
+                return new Float4DTensor(tensorList);
+            }
+            var tensor = ReshapeAs3DTensor(rows, columns, depth).Data;
+            return new Float4DTensor(new[] { tensor });
         }
 
         public IFloatVector[] Split(uint blockCount) => Data
@@ -120,7 +165,18 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
         public void RotateInPlace(uint blockCount = 1)
         {
-            throw new NotImplementedException();
+            var blockSize = Count / blockCount;
+
+            for (uint i = 0, len = Count; i < len; i += 2) {
+                var blockIndex = i / blockSize;
+                var blockOffset = i % blockSize;
+
+                var index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
+                var index2 = blockIndex * blockSize + blockOffset; 
+                var temp = this[index1];
+                this[index1] = this[index2];
+                this[index2] = temp;
+            }
         }
 
         public IFloatVector Reverse() => new FloatVector(Data.Reverse());
@@ -137,11 +193,6 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
         public IEnumerable<float> Values => Data.Values;
         public float[] ToArray() => Data.ToArray();
-
-        public float[] GetInternalArray()
-        {
-            throw new NotImplementedException();
-        }
 
         public IIndexableFloatVector Append(float[] data)
         {

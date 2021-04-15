@@ -42,8 +42,11 @@ namespace BrightData.Numerics
 	        var rowSize = _rows * _columns;
 	        var data = new float[rowSize * _depth];
 	        foreach (var matrix in matrixList) {
-		        Array.Copy(matrix.GetInternalArray(), 0, data, offset, rowSize);
-		        offset += rowSize;
+                if(matrix is NumericsMatrix numerics)
+		            Array.Copy(numerics.GetInternalArray(), 0, data, offset, rowSize);
+                else
+                    matrix.Data.Segment.CopyTo(data, 0, offset, rowSize);
+                offset += rowSize;
 	        }
 
 	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_depth, data));
@@ -110,7 +113,7 @@ namespace BrightData.Numerics
                     for (uint j = 0; j < newColumns; j++) {
                         if (i < padding || j < padding)
                             continue;
-                        else if (i >= newRows - padding || j >= newColumns - padding)
+                        if (i >= newRows - padding || j >= newColumns - padding)
                             continue;
                         ret[i, j, k] = this[i - padding, j - padding, k];
                     }
