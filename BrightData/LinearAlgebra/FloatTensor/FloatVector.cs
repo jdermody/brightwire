@@ -18,8 +18,8 @@ namespace BrightData.LinearAlgebra.FloatTensor
         }
 
         public bool IsValid { get; } = true;
-        public IFloatMatrix ReshapeAsColumnMatrix() => new FloatMatrix(Data.Reshape(1, Data.Size));
-        public IFloatMatrix ReshapeAsRowMatrix() => new FloatMatrix(Data.Reshape(Data.Size, 1));
+        public IFloatMatrix ReshapeAsColumnMatrix() => new FloatMatrix(Data.Reshape(Data.Size, 1));
+        public IFloatMatrix ReshapeAsRowMatrix() => new FloatMatrix(Data.Reshape(1, Data.Size));
 
         public uint Count => Data.Size;
         public Vector<float> Data { get; set; }
@@ -39,7 +39,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
         public uint MaximumIndex() => Data.MaximumIndex();
         public uint MinimumIndex() => Data.MinimumIndex();
-        public void Multiply(float scalar) => Data.Multiply(scalar);
+        public void Multiply(float scalar) => Data.MultiplyInPlace(scalar);
         public void Add(float scalar) => Data.AddInPlace(scalar);
         public void AddInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1) => Data.AddInPlace(vector.Data, coefficient1, coefficient2);
         public void SubtractInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1) => Data.SubtractInPlace(vector.Data, coefficient1, coefficient2);

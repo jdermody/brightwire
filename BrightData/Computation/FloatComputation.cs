@@ -271,7 +271,7 @@ namespace BrightData.Computation
             var vectorSize = System.Numerics.Vector<float>.Count;
             var i = 0;
             if (size >= vectorSize) {
-                for (; i <= size; i += vectorSize) {
+                for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     var s2 = other.AsNumericsVector(i);
                     func1(s1, s2).CopyTo(ret, i);
@@ -296,7 +296,7 @@ namespace BrightData.Computation
             var size = segment.Size;
             var i = 0;
             if (size >= vectorSize) {
-                for (; i <= size; i += vectorSize) {
+                for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     transfomer1(s1).CopyTo(ret, i);
                 }
@@ -331,7 +331,7 @@ namespace BrightData.Computation
             var size = segment.Size;
             var i = 0;
             if (size >= vectorSize) {
-                for (; i <= size; i += vectorSize) {
+                for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     var s2 = other.AsNumericsVector(i);
                     func1(s1, s2).CopyTo(ret, i);
@@ -355,7 +355,7 @@ namespace BrightData.Computation
             var size = segment.Size;
             var i = 0;
             if (size >= vectorSize) {
-                for (; i <= size; i += vectorSize) {
+                for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     mutator1(s1).CopyTo(ret, i);
                 }

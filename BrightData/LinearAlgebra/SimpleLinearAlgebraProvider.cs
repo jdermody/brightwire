@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.LinearAlgebra.FloatTensor;
 
 namespace BrightData.LinearAlgebra
@@ -70,41 +72,55 @@ namespace BrightData.LinearAlgebra
 
         public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
         {
-            throw new NotImplementedException();
+            var tensor = Context.CreateTensor4D<float>(count, depth, rows, columns);
+            if(setToZero)
+                tensor.Initialize(0f);
+            return new Float4DTensor(tensor.Tensors.ToArray());
         }
 
         public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
         {
-            throw new NotImplementedException();
+            return new Float4DTensor(tensors.Select(t => t.Data).ToArray());
         }
 
         public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
         {
-            throw new NotImplementedException();
+            return new Float4DTensor(tensors);
         }
 
         public void PushLayer()
         {
-            throw new NotImplementedException();
+            Context.MemoryLayer.Push();
         }
 
         public void PopLayer()
         {
-            throw new NotImplementedException();
+            Context.MemoryLayer.Pop();
         }
 
         public bool IsStochastic { get; }
         public bool IsGpu { get; } = false;
 
 
-        public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric)
+        public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
         {
-            throw new NotImplementedException();
+            var rows = compareTo.Count;
+            var columns = vectors.Length;
+            Debug.Assert(vectors[0].Count == compareTo[0].Count);
+            var ret = Context.CreateMatrix<float>((uint)rows, (uint)columns, 0f);
+
+            Parallel.ForEach(vectors, (column1, _, i) => {
+                Parallel.ForEach(compareTo, (column2, __, j) => {
+                    ret[(uint)j, (uint)i] = column1.FindDistance(column2, distanceMetric);
+                });
+            });
+
+            return new FloatMatrix(ret);
         }
 
         public IFloatVector CreateVector(ITensorSegment<float> data)
         {
-            throw new NotImplementedException();
+            return new FloatVector(new Vector<float>(data));
         }
     }
 }

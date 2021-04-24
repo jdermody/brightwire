@@ -114,10 +114,12 @@ namespace BrightWire.Helper
 
             var matrix = data.AsIndexable();
 				
-            if (len == 1)
-                return (0, matrix[0, columnIndex]);
-            else if(len == 0)
-                throw new Exception("Cannot find minimum with zero length");
+            switch (len) {
+                case 1:
+                    return (0, matrix[0, columnIndex]);
+                case 0:
+                    throw new Exception("Cannot find minimum with zero length");
+            }
 
             uint bestIndex = uint.MaxValue;
             var min = float.MaxValue;

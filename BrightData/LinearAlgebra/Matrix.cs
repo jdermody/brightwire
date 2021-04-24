@@ -120,9 +120,12 @@ namespace BrightData.LinearAlgebra
         {
             var ret = new Matrix<T>(Context.CreateSegment<T>(Size), RowCount, other.ColumnCount);
             Parallel.For(0, ret.Size, ind => {
-                var i = (uint)(ind % RowCount);
-                var j = (uint)(ind / other.ColumnCount);
-                ret[i, j] = Row(i).DotProduct(other.Column(j));
+            //for (uint ind = 0; ind < ret.Size; ind++) {
+                var i = (uint) (ind % RowCount);
+                var j = (uint) (ind / RowCount);
+                var val = Row(i).DotProduct(other.Column(j));
+                ret[i, j] = val;
+            //}
             });
             return ret;
         }
