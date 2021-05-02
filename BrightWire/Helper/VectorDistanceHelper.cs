@@ -102,16 +102,6 @@ namespace BrightWire.Helper
 		(uint Index, float Value) GetMinimum(IFloatMatrix data, uint columnIndex)
 		{
             var len = _comparison.Count;
-
-			if (_lap.IsGpu) {
-				if (len == 1)
-					return (0, data.GetAt(0, columnIndex));
-
-				var column = data.Column(columnIndex);
-				var index = column.MinimumIndex();
-				return (index, column.GetAt(index));
-			}
-
             var matrix = data.AsIndexable();
 				
             switch (len) {

@@ -194,13 +194,13 @@ namespace BrightData.Cuda
 			return _cuda.Blas.Norm2(_data.DeviceVariable, 1);
 		}
 
-		public uint MaximumIndex()
+		public uint MaximumAbsoluteIndex()
 		{
 			Debug.Assert(IsValid);
 			return (uint)_cuda.Blas.Max(_data.DeviceVariable, 1) - 1;
 		}
 
-		public uint MinimumIndex()
+		public uint MinimumAbsoluteIndex()
 		{
 			Debug.Assert(IsValid);
 			return (uint)_cuda.Blas.Min(_data.DeviceVariable, 1) - 1;

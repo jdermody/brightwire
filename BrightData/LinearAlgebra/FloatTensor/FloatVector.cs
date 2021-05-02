@@ -37,8 +37,8 @@ namespace BrightData.LinearAlgebra.FloatTensor
             return MathF.Sqrt(squared.Sum());
         }
 
-        public uint MaximumIndex() => Data.MaximumIndex();
-        public uint MinimumIndex() => Data.MinimumIndex();
+        public uint MaximumAbsoluteIndex() => Data.MaximumAbsoluteIndex();
+        public uint MinimumAbsoluteIndex() => Data.MinimumAbsoluteIndex();
         public void Multiply(float scalar) => Data.MultiplyInPlace(scalar);
         public void Add(float scalar) => Data.AddInPlace(scalar);
         public void AddInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1) => Data.AddInPlace(vector.Data, coefficient1, coefficient2);

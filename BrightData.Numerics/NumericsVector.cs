@@ -67,12 +67,12 @@ namespace BrightData.Numerics
             return Convert.ToSingle(_vector.L2Norm());
         }
 
-        public uint MaximumIndex()
+        public uint MaximumAbsoluteIndex()
         {
             return (uint)_vector.Map(Math.Abs).MaximumIndex();
         }
 
-        public uint MinimumIndex()
+        public uint MinimumAbsoluteIndex()
         {
             return (uint)_vector.Map(Math.Abs).MinimumIndex();
         }

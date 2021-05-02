@@ -4678,7 +4678,7 @@
             Returns the index of the vector with the greatest value
             </summary>
         </member>
-        <member name="M:BrightData.IFloatVector.MinimumIndex">
+        <member name="M:BrightData.IFloatVector.MinimumAbsoluteIndex">
             <summary>
             Returns the index of the vector with the smallest value
             </summary>
@@ -6353,7 +6353,7 @@
             Returns the index with the highest value
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumIndex">
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumAbsoluteIndex">
             <summary>
             Returns the index with the lowest value
             </summary>

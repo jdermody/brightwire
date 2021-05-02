@@ -214,16 +214,16 @@ namespace BrightData.UnitTests
         public void VectorMaximumIndex()
         {
             var a = _cpu.CreateVector(1.0f, 2.0f, 1.0f, 1.0f).AsIndexable();
-            var res1 = a.MaximumIndex();
+            var res1 = a.MaximumAbsoluteIndex();
 
             uint res2;
             using (var gpuA = _cuda.CreateVector(a))
-                res2 = gpuA.MaximumIndex();
+                res2 = gpuA.MaximumAbsoluteIndex();
             FloatMath.AreApproximatelyEqual(res1, res2).Should().BeTrue();
 
             uint res3;
             using (var simpleA = _simple.CreateVector(a))
-                res3 = simpleA.MaximumIndex();
+                res3 = simpleA.MaximumAbsoluteIndex();
             FloatMath.AreApproximatelyEqual(res1, res3).Should().BeTrue();
         }
 
@@ -231,16 +231,16 @@ namespace BrightData.UnitTests
         public void VectorMinimumIndex()
         {
             var a = _cpu.CreateVector(3.0f, -2.0f, 1.0f, 2.0f).AsIndexable();
-            var res1 = a.MinimumIndex();
+            var res1 = a.MinimumAbsoluteIndex();
 
             uint res2;
             using (var gpuA = _cuda.CreateVector(a))
-                res2 = gpuA.MinimumIndex();
+                res2 = gpuA.MinimumAbsoluteIndex();
             FloatMath.AreApproximatelyEqual(res1, res2).Should().BeTrue();
 
             uint res3;
             using (var simpleA = _simple.CreateVector(a))
-                res3 = simpleA.MinimumIndex();
+                res3 = simpleA.MinimumAbsoluteIndex();
             FloatMath.AreApproximatelyEqual(res1, res3).Should().BeTrue();
         }
 

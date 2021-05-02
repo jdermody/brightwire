@@ -391,6 +391,16 @@ namespace BrightData.LinearAlgebra
         public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Computation.GetMinAndMaxValues(_segment);
 
         /// <summary>
+        /// Finds the min and max absolute values and indices from this tensnor
+        /// </summary>
+        /// <returns></returns>
+        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxAbsoluteValues()
+        {
+            using var temp = Abs();
+            return Computation.GetMinAndMaxValues(temp.Segment);
+        }
+
+        /// <summary>
         /// Checks if each element is entirely finite (not infinity, NaN etc)
         /// </summary>
         /// <returns>True if all elements are finite</returns>
@@ -473,6 +483,17 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <returns></returns>
         public uint MinimumIndex() => GetMinAndMaxValues().MinIndex;
+
+        /// <summary>
+        /// Returns the index with the highest absolute value
+        /// </summary>
+        public uint MaximumAbsoluteIndex() => GetMinAndMaxAbsoluteValues().MaxIndex;
+
+        /// <summary>
+        /// Returns the index with the lowest absolute value
+        /// </summary>
+        /// <returns></returns>
+        public uint MinimumAbsoluteIndex() => GetMinAndMaxAbsoluteValues().MinIndex;
 
         /// <summary>
         /// Rounds each value to either upper (if >= mid) or lower

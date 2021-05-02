@@ -213,14 +213,14 @@ namespace BrightData
         float L2Norm();
 
         /// <summary>
-        /// Returns the index of the vector with the greatest value
+        /// Returns the index of the vector with the greatest absolute value
         /// </summary>
-        uint MaximumIndex();
+        uint MaximumAbsoluteIndex();
 
         /// <summary>
-        /// Returns the index of the vector with the smallest value
+        /// Returns the index of the vector with the smallest absolute value
         /// </summary>
-        uint MinimumIndex();
+        uint MinimumAbsoluteIndex();
 
         /// <summary>
         /// Multiples (in place) by a scalar
