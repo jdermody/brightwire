@@ -118,7 +118,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public Matrix<T> Multiply(Matrix<T> other)
         {
-            var ret = new Matrix<T>(Context.CreateSegment<T>(Size), RowCount, other.ColumnCount);
+            var ret = new Matrix<T>(Context.CreateSegment<T>(RowCount * other.ColumnCount), RowCount, other.ColumnCount);
             Parallel.For(0, ret.Size, ind => {
             //for (uint ind = 0; ind < ret.Size; ind++) {
                 var i = (uint) (ind % RowCount);
@@ -173,27 +173,27 @@ namespace BrightData.LinearAlgebra
             return new Matrix<T>(ret, RowCount, ColumnCount);
         }
 
-        public Matrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
-        {
-            var ret = MapParallel((ind, val) => {
-                var i = ind % RowCount;
-                var j = ind / ColumnCount;
-                return mutator(i, j, val);
-            });
-            return new Matrix<T>(ret, RowCount, ColumnCount);
-        }
-
         public void MapInPlace(Func<T, T> mutator)
         {
             using var ret = MapParallel((i, v) => mutator(v));
             ret.CopyTo(_segment);
         }
 
+        public Matrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
+        {
+            var ret = MapParallel((ind, val) => {
+                var i = ind / ColumnCount;
+                var j = ind % ColumnCount;
+                return mutator(i, j, val);
+            });
+            return new Matrix<T>(ret, RowCount, ColumnCount);
+        }
+
         public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
         {
             using var ret = MapParallel((ind, val) => {
-                var i = ind % RowCount;
-                var j = ind / ColumnCount;
+                var i = ind / ColumnCount;
+                var j = ind % ColumnCount;
                 return mutator(i, j, val);
             });
             ret.CopyTo(_segment);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BrightData.Helper;
 
 namespace BrightData.LinearAlgebra.FloatTensor
 {
@@ -28,7 +29,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public IFloatVector RowSums() => new FloatVector(Data.RowSums());
         public IFloatVector ColumnSums() => new FloatVector(Data.ColumnSums());
         public IFloatMatrix Transpose() => new FloatMatrix(Data.Transpose());
-        public void Multiply(float scalar) => Data.Multiply(scalar);
+        public void Multiply(float scalar) => Data.MultiplyInPlace(scalar);
         public IFloatMatrix Multiply(IFloatVector vector) => new FloatMatrix(Data.Multiply(vector.Data));
         public void AddInPlace(IFloatMatrix matrix, float coefficient1 = 1, float coefficient2 = 1) => Data.AddInPlace(matrix.Data, coefficient1, coefficient2);
         public void SubtractInPlace(IFloatMatrix matrix, float coefficient1 = 1, float coefficient2 = 1) => Data.SubtractInPlace(matrix.Data, coefficient1, coefficient2);
@@ -84,7 +85,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public IFloatMatrix Clone() => new FloatMatrix(Data.Clone());
         public void Clear() => Data.Segment.Initialize(0f);
 
-        public IFloatMatrix Sqrt() => new FloatMatrix(Data.Sqrt());
+        public IFloatMatrix Sqrt() => new FloatMatrix(Data.Map(x => FloatMath.Sqrt(x)));
         public IFloatMatrix Pow(float power) => new FloatMatrix(Data.Pow(power));
 
         public IFloatMatrix PointwiseDivide(IFloatMatrix matrix) => new FloatMatrix(Data.PointwiseDivide(matrix.Data));
