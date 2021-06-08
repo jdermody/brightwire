@@ -118,13 +118,13 @@ namespace BrightData.Numerics
         /// <inheritdoc />
 		public void PushLayer()
         {
-            // nop
+            Context.MemoryLayer.Push();
         }
 
         /// <inheritdoc />
         public void PopLayer()
         {
-            // nop
+            Context.MemoryLayer.Pop();
         }
 
         /// <inheritdoc />

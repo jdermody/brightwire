@@ -13,6 +13,9 @@ namespace BrightData.Memory
         readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new ConcurrentDictionary<string, ConcurrentBag<Array>>();
         readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();
         long _requestIndex = 0;
+        #if DEBUG
+        readonly ConcurrentDictionary<long, uint> _registeredBlocks = new ConcurrentDictionary<long, uint>();
+        #endif
 
         public TensorPool(long maxCacheSize)
         {
@@ -31,6 +34,21 @@ namespace BrightData.Memory
             return ret;
         }
 
+#if DEBUG
+        public void Register(IReferenceCountedMemory block, uint size)
+        {
+            _registeredBlocks.AddOrUpdate(block.AllocationIndex, 
+                v => size, 
+                (v, b) => throw new Exception("Unexpected")
+            );
+        }
+
+        public void Unregister(IReferenceCountedMemory block)
+        {
+            _registeredBlocks.TryRemove(block.AllocationIndex, out var _);
+        }
+#endif
+
         public void Reuse<T>(T[] block) where T: struct
         {
             _cache.AddOrUpdate(
@@ -39,7 +57,9 @@ namespace BrightData.Memory
                 (key, bag) => {
                     bag.Add(block);
                     return bag;
-                });
+                }
+            );
+            CacheSize += block.Length;
 
             // check if we should drop items from the cache
             if (CacheSize > MaxCacheSize)
@@ -69,6 +89,11 @@ namespace BrightData.Memory
 
         public void Dispose()
         {
+#if DEBUG
+            foreach (var item in _registeredBlocks) {
+                Console.WriteLine($"Block {item.Key} ({item.Value}) was not released");
+            }
+#endif
         }
     }
 }

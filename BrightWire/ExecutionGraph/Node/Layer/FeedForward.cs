@@ -110,7 +110,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _outputSize = (uint)reader.ReadInt32();
 
             // read the bias parameters
-            var bias = factory.Context.ReadVectorFrom(reader);
+            using var bias = factory.Context.ReadVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
@@ -118,7 +118,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _bias.Data = bias;
 
             // read the weight parameters
-            var weight = factory.Context.ReadMatrixFrom(reader);
+            using var weight = factory.Context.ReadMatrixFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_weight == null)
                 _weight = lap.CreateMatrix(weight);

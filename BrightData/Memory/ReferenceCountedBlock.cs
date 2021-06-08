@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace BrightData.Memory
 {
@@ -11,6 +13,9 @@ namespace BrightData.Memory
     {
         // ReSharper disable once StaticMemberInGenericType
         static long _allocationIndex = 0;
+#if DEBUG
+        public static int _badAlloc = -1;
+#endif
 
         protected readonly T[] _data;
         int _refCount = 0;
@@ -21,15 +26,31 @@ namespace BrightData.Memory
             Size = (uint) _data.Length;
             AllocationIndex = Interlocked.Increment(ref _allocationIndex);
             Context = context;
+#if DEBUG
+            if (AllocationIndex == _badAlloc)
+                Debugger.Break();
+            Context.TensorPool.Register(this, Size);
+#endif
         }
 
         public uint Size { get; }
-        public int AddRef() => Interlocked.Increment(ref _refCount);
+
+        public int AddRef()
+        {
+#if DEBUG
+            if (!IsValid)
+                Debugger.Break();
+#endif
+            return Interlocked.Increment(ref _refCount);
+        } 
         public IBrightDataContext Context { get; }
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
             if (ret == 0) {
+#if DEBUG
+                Context.TensorPool.Unregister(this);
+#endif
                 Context.TensorPool.Reuse(_data);
                 IsValid = false;
             }

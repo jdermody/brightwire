@@ -2423,6 +2423,11 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ColumnSums(BrightData.I4DFloatTensor)">
+            <summary>
+            Sums the columns of each sub-tensor's sub matrix
+            </summary>
+        </member>
         <member name="T:BrightData.Helper.ColumnTypeClassifier">
             <summary>
             Classifies data table column types
@@ -3240,13 +3245,13 @@
             </summary>
             <param name="stream"></param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.InitializeFrom(System.Func{System.UInt32,`0})">
+        <member name="M:BrightData.ITensorSegment`1.Initialize(System.Func{System.UInt32,`0})">
             <summary>
             Initialize the segment from a callback
             </summary>
             <param name="initializer">Functions that returns values for each indexed value</param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.InitializeTo(`0)">
+        <member name="M:BrightData.ITensorSegment`1.Initialize(`0)">
             <summary>
             Initialize the segment to a single value
             </summary>
@@ -3264,11 +3269,14 @@
             </summary>
             <param name="writerBaseStream"></param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(`0[])">
+        <member name="M:BrightData.ITensorSegment`1.CopyTo(`0[],System.UInt32,System.UInt32,System.UInt32)">
             <summary>
-            Copies all values to an existing array
+            Copies values from this segment to an existing array
             </summary>
             <param name="array"></param>
+            <param name="sourceIndex">Index to start copying from</param>
+            <param name="destinationIndex">Index to start writing to</param>
+            <param name="count">Number of values to copy</param>
         </member>
         <member name="M:BrightData.ITensorSegment`1.CopyTo(BrightData.ITensorSegment{`0})">
             <summary>
@@ -4673,14 +4681,14 @@
             Calculates the euclidean (L2) norm: https://en.wikipedia.org/wiki/Norm_(mathematics)
             </summary>
         </member>
-        <member name="M:BrightData.IFloatVector.MaximumIndex">
+        <member name="M:BrightData.IFloatVector.MaximumAbsoluteIndex">
             <summary>
-            Returns the index of the vector with the greatest value
+            Returns the index of the vector with the greatest absolute value
             </summary>
         </member>
         <member name="M:BrightData.IFloatVector.MinimumAbsoluteIndex">
             <summary>
-            Returns the index of the vector with the smallest value
+            Returns the index of the vector with the smallest absolute value
             </summary>
         </member>
         <member name="M:BrightData.IFloatVector.Multiply(System.Single)">
@@ -4942,11 +4950,6 @@
         <member name="M:BrightData.IIndexableFloatVector.ToArray">
             <summary>
             Converts the vector to an array
-            </summary>
-        </member>
-        <member name="M:BrightData.IIndexableFloatVector.GetInternalArray">
-            <summary>
-            Returns the underlying array used as storage (changes to this array will affect the vector as well)
             </summary>
         </member>
         <member name="M:BrightData.IIndexableFloatVector.Append(System.Single[])">
@@ -5365,11 +5368,6 @@
             Returns the matrix as xml
             </summary>
         </member>
-        <member name="M:BrightData.IIndexableFloatMatrix.GetInternalArray">
-            <summary>
-            Returns the underlying array used as storage (changes to this array will affect the matrix as well)
-            </summary>
-        </member>
         <member name="T:BrightData.I3DFloatTensor">
             <summary>
             A list of matrices
@@ -5542,11 +5540,6 @@
             Returns the matrix as xml
             </summary>
         </member>
-        <member name="M:BrightData.IIndexable3DFloatTensor.GetInternalArray">
-            <summary>
-            Returns the underlying array used as storage (changes to this array will affect the tensor as well)
-            </summary>
-        </member>
         <member name="T:BrightData.I4DFloatTensor">
             <summary>
             A list of 3D tensors
@@ -5645,11 +5638,6 @@
             <param name="yStride">Filter y stride</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.I4DFloatTensor.ColumnSums">
-            <summary>
-            Sums the columns of each sub-tensor's sub matrix
-            </summary>
-        </member>
         <member name="M:BrightData.I4DFloatTensor.ReshapeAsVector">
             <summary>
             Converts the tensor to a vector
@@ -5689,11 +5677,6 @@
         <member name="P:BrightData.IIndexable4DFloatTensor.AsXml">
             <summary>
             Returns the matrix as xml
-            </summary>
-        </member>
-        <member name="M:BrightData.IIndexable4DFloatTensor.GetInternalArray">
-            <summary>
-            Returns the underlying array used as storage (changes to this array will affect the tensor as well)
             </summary>
         </member>
         <member name="T:BrightData.LinearAlgebra.Matrix`1">
@@ -6287,6 +6270,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.GetMinAndMaxAbsoluteValues">
+            <summary>
+            Finds the min and max absolute values and indices from this tensnor
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.IsEntirelyFinite">
             <summary>
             Checks if each element is entirely finite (not infinity, NaN etc)
@@ -6353,9 +6342,20 @@
             Returns the index with the highest value
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumAbsoluteIndex">
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumIndex">
             <summary>
             Returns the index with the lowest value
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MaximumAbsoluteIndex">
+            <summary>
+            Returns the index with the highest absolute value
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumAbsoluteIndex">
+            <summary>
+            Returns the index with the lowest absolute value
             </summary>
             <returns></returns>
         </member>
@@ -6366,6 +6366,13 @@
             <param name="lower"></param>
             <param name="upper"></param>
             <param name="mid"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MapParallel(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Parallel application of mapping function to each element of the tensor
+            </summary>
+            <param name="mapper">Mapping function to apply</param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.Vector`1">
             <summary>

@@ -1169,11 +1169,13 @@ namespace BrightData.Cuda
 		public void PushLayer()
 		{
 			_cache.PushLayer();
+            DataContext.MemoryLayer.Push();
 		}
 
 		public void PopLayer()
 		{
 			_cache.PopLayer();
+            DataContext.MemoryLayer.Pop();
 		}
 
 		internal IDeviceMemoryPtr Allocate(uint size, bool setToZero = false)

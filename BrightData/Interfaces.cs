@@ -246,7 +246,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
         /// <returns></returns>
-        T Read<T>(BinaryReader reader) where T: notnull;
+        T Read<T>(BinaryReader reader) where T : notnull;
 
         /// <summary>
         /// Reads a typed array from a binary reader
@@ -286,6 +286,11 @@ namespace BrightData
         /// Current size of cached arrays
         /// </summary>
         long CacheSize { get; }
+
+#if DEBUG
+        void Register(IReferenceCountedMemory block, uint size);
+        void Unregister(IReferenceCountedMemory block);
+#endif
     }
 
     /// <summary>
@@ -696,7 +701,7 @@ namespace BrightData
     /// <typeparam name="TF"></typeparam>
     /// <typeparam name="TT"></typeparam>
     public interface ICanConvert<in TF, out TT> : ICanConvert
-        where TF : notnull 
+        where TF : notnull
         where TT : notnull
     {
         /// <summary>
@@ -754,7 +759,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IDistribution<out T>
-        where T: struct
+        where T : struct
     {
         /// <summary>
         /// Samples a value from the distribution
