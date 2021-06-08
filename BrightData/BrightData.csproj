@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>3.0.0</Version>
+    <Version>3.0.1</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
@@ -14,7 +14,7 @@
     <Description>Bright data is a performance oriented data table and linear algebra library that supports both CPU and GPU computation</Description>
     <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>Initial 3.0 release</PackageReleaseNotes>
+    <PackageReleaseNotes>Soft Attention and SIMD</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

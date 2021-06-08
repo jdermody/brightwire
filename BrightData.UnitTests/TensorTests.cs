@@ -102,8 +102,8 @@ namespace BrightData.UnitTests
             using var gpuTensor = Apply(_cuda, cpuTensor, a => a.AddPadding(1));
             FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), gpuTensor.AsIndexable());
 
-            using var simpleTensor = Apply(_simple, cpuTensor, a => a.AddPadding(1));
-            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleTensor.AsIndexable());
+            //using var simpleTensor = Apply(_simple, cpuTensor, a => a.AddPadding(1));
+            //FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleTensor.AsIndexable());
         }
 
 		[Fact]
@@ -128,8 +128,8 @@ namespace BrightData.UnitTests
             using var gpuTensor = Apply(_cuda, cpuTensor, a => a.AddPadding(2));
             FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), gpuTensor.AsIndexable());
 
-            using var simpleTensor = Apply(_simple, cpuTensor, a => a.AddPadding(2));
-            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleTensor.AsIndexable());
+            //using var simpleTensor = Apply(_simple, cpuTensor, a => a.AddPadding(2));
+            //FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleTensor.AsIndexable());
         }
 
 		void CheckTensorIm2Col(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomData)
@@ -470,8 +470,8 @@ namespace BrightData.UnitTests
             var gpuResult = Apply(_cuda, cpuTensor, a => a.AddPadding(1));
             FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
 
-            var simpleResult = Apply(_simple, cpuTensor, a => a.AddPadding(1));
-            FloatMath.AreApproximatelyEqual(simpleResult, cpuResult);
+            //var simpleResult = Apply(_simple, cpuTensor, a => a.AddPadding(1));
+            //FloatMath.AreApproximatelyEqual(simpleResult, cpuResult);
         }
 
 		[Fact]
@@ -712,11 +712,11 @@ namespace BrightData.UnitTests
             FloatMath.AreApproximatelyEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
             FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
 
-            using var simpleTensor = _simple.Create4DTensor(cpuTensor.Data);
-            using var simpleMatrix = simpleTensor.ReshapeAsMatrix();
-            using var simpleTensor2 = simpleMatrix.ReshapeAs4DTensor(3, 4, 2);
-            FloatMath.AreApproximatelyEqual(simpleTensor.AsIndexable(), simpleTensor2.AsIndexable());
-            FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), simpleMatrix.AsIndexable());
+            //using var simpleTensor = _simple.Create4DTensor(cpuTensor.Data);
+            //using var simpleMatrix = simpleTensor.ReshapeAsMatrix();
+            //using var simpleTensor2 = simpleMatrix.ReshapeAs4DTensor(3, 4, 2);
+            //FloatMath.AreApproximatelyEqual(simpleTensor.AsIndexable(), simpleTensor2.AsIndexable());
+            //FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), simpleMatrix.AsIndexable());
         }
 
 		[Fact]

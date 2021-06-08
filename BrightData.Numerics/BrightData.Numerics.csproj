@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>3.0.0</Version>
+    <Version>3.0.1</Version>
     <Authors>Jack Dermody</Authors>
     <Product>Bright ML</Product>
     <Description>Numerics provider for Bright Data - allows CPU computation, including with MKL</Description>
@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
     <PackageTags>mkl</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>Initial 3.0 release</PackageReleaseNotes>
+    <PackageReleaseNotes>Soft Attention and SIMD</PackageReleaseNotes>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
