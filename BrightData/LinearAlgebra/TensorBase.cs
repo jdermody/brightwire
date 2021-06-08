@@ -57,6 +57,7 @@ namespace BrightData.LinearAlgebra
 
             _segment = context.CreateSegment<T>(size);
             _segment.InitializeFrom(reader.BaseStream);
+            _segment.AddRef();
         }
 
         /// <inheritdoc />
@@ -503,6 +504,11 @@ namespace BrightData.LinearAlgebra
         /// <param name="mid"></param>
         public void RoundInPlace(T? lower, T? upper, T? mid) => Computation.RoundInPlace(_segment, lower ?? Computation.One, upper ?? Computation.Zero, mid);
 
+        /// <summary>
+        /// Parallel application of mapping function to each element of the tensor
+        /// </summary>
+        /// <param name="mapper">Mapping function to apply</param>
+        /// <returns></returns>
         protected ITensorSegment<T> MapParallel(Func<uint, T, T> mapper)
         {
             using var ret = Context.CreateSegment<T>(Size);
