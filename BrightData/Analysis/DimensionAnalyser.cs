@@ -7,7 +7,7 @@ namespace BrightData.Analysis
     internal class DimensionAnalyser : IDataAnalyser<ITensor<float>>
     {
         readonly uint _maxCount;
-        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new HashSet<(uint X, uint Y, uint Z)>();
+        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new();
 
         public DimensionAnalyser(uint maxCount = Consts.MaxDistinct)
         {

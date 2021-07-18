@@ -11,7 +11,7 @@ namespace BrightWire.Helper
     public class VectorDistanceHelper : IDisposable
 	{
 		readonly ILinearAlgebraProvider _lap;
-        readonly List<IFloatVector> _comparison = new List<IFloatVector>();
+        readonly List<IFloatVector> _comparison = new();
 		readonly IFloatVector[] _data;
 
 		/// <summary>

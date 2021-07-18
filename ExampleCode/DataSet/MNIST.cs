@@ -51,7 +51,7 @@ namespace ExampleCode.DataSet
 
         public MnistVectorTrainer GetVectorTrainer()
         {
-            return new MnistVectorTrainer(
+            return new(
                 BuildVectorToVectorDataTable(_context, TrainingImages),
                 BuildVectorToVectorDataTable(_context, TestImages)
             );
@@ -59,7 +59,7 @@ namespace ExampleCode.DataSet
 
         public MnistTensorTrainer GetTensorTrainer()
         {
-            return new MnistTensorTrainer(
+            return new(
                 Build3DTensorToVectorDataTable(_context, TrainingImages),
                 Build3DTensorToVectorDataTable(_context, TestImages)
             );

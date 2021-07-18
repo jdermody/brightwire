@@ -33,14 +33,14 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="index">Row index</param>
         /// <returns></returns>
-        public Vector<T> Row(uint index) => new Vector<T>(new TensorSegmentWrapper<T>(_segment, index * ColumnCount, 1, ColumnCount));
+        public Vector<T> Row(uint index) => new(new TensorSegmentWrapper<T>(_segment, index * ColumnCount, 1, ColumnCount));
 
         /// <summary>
         /// Returns a column as a vector
         /// </summary>
         /// <param name="index">Column index</param>
         /// <returns></returns>
-        public Vector<T> Column(uint index) => new Vector<T>(new TensorSegmentWrapper<T>(_segment, index, ColumnCount, RowCount));
+        public Vector<T> Column(uint index) => new(new TensorSegmentWrapper<T>(_segment, index, ColumnCount, RowCount));
 
         /// <summary>
         /// All rows
@@ -162,10 +162,7 @@ namespace BrightData.LinearAlgebra
         public Matrix<T> Multiply(Vector<T> vector) => Multiply(vector.Reshape(null, 1));
 
         /// <inheritdoc />
-        protected override Matrix<T> Create(ITensorSegment<T> segment)
-        {
-            return new Matrix<T>(segment, RowCount, ColumnCount);
-        }
+        protected override Matrix<T> Create(ITensorSegment<T> segment) => new(segment, RowCount, ColumnCount);
 
         public Matrix<T> Map(Func<T, T> mutator)
         {

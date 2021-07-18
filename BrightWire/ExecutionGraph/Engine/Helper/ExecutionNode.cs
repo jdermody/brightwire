@@ -11,8 +11,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class ExecutionNode
     {
-        readonly List<ExecutionNode> _ancestors = new List<ExecutionNode>();
-        readonly List<ExecutionNode> _descendants = new List<ExecutionNode>();
+        readonly List<ExecutionNode> _ancestors = new();
+        readonly List<ExecutionNode> _descendants = new();
         readonly Lazy<BackpropagationInput> _inputError;
         ExecutionHistory? _history = null;
 

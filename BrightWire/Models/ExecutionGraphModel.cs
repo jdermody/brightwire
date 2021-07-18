@@ -135,7 +135,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The primary input node
         /// </summary>
-        public Node InputNode { get; set; } = new Node();
+        public Node InputNode { get; set; } = new();
 
         /// <summary>
         /// Other connected nodes

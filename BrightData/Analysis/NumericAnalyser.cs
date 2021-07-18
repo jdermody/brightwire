@@ -7,7 +7,7 @@ namespace BrightData.Analysis
     internal class NumericAnalyser : IDataAnalyser<double>
 	{
 		readonly uint _writeCount, _maxCount;
-		readonly SortedDictionary<double, ulong> _distinct = new SortedDictionary<double, ulong>();
+		readonly SortedDictionary<double, ulong> _distinct = new();
 
 		double _mean, _m2, _min, _max, _mode, _l1, _l2;
 		ulong _total, _highestCount;

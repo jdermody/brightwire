@@ -71,7 +71,7 @@ namespace BrightWire
 	/// Markov model trainer
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IMarkovModelTrainer<in T> : ICanSerialiseToStream
+	public interface IMarkovModelTrainer<in T>
 	{
 		/// <summary>
 		/// Adds a sequence of items to the trainer

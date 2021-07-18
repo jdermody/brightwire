@@ -12,8 +12,8 @@ namespace BrightData
     /// <inheritdoc />
     public class MetaData : IMetaData
     {
-        readonly Dictionary<string, IConvertible> _values = new Dictionary<string, IConvertible>();
-        readonly List<string> _orderedValues = new List<string>();
+        readonly Dictionary<string, IConvertible> _values = new();
+        readonly List<string> _orderedValues = new();
 
         /// <summary>
         /// Constructor

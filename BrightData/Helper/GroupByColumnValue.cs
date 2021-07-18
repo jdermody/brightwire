@@ -7,7 +7,7 @@ namespace BrightData.Helper
     internal class GroupByColumnValue
     {
         readonly uint[] _columnIndex;
-        readonly Dictionary<string, List<uint>> _groups = new Dictionary<string, List<uint>>();
+        readonly Dictionary<string, List<uint>> _groups = new();
 
         public GroupByColumnValue(params uint[] columnIndex)
         {

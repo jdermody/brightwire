@@ -433,7 +433,7 @@ namespace BrightData.LinearAlgebra
         /// Reshapes to a vector
         /// </summary>
         /// <returns></returns>
-        public Vector<T> Reshape() => new Vector<T>(GetDataCopy());
+        public Vector<T> Reshape() => new(GetDataCopy());
 
         /// <summary>
         /// Reshapes to a matrix

@@ -262,7 +262,7 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter">
             <summary>
-            Segment table adaptor for tables with vector data
+            Segment table adapter for tables with vector data
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.WeightedIndexListDataTableAdapter">
@@ -2595,24 +2595,6 @@
             <summary>
             K Nearest Neighbour classification trainer
             </summary>
-        </member>
-        <member name="T:BrightWire.ICanSerialiseToStream">
-            <summary>
-            Standard serialisation interface
-            </summary>
-        </member>
-        <member name="M:BrightWire.ICanSerialiseToStream.SerialiseTo(System.IO.Stream)">
-            <summary>
-            Writes the current object state to the stream
-            </summary>
-            <param name="stream">Stream to write to</param>
-        </member>
-        <member name="M:BrightWire.ICanSerialiseToStream.DeserialiseFrom(System.IO.Stream,System.Boolean)">
-            <summary>
-            Reads the current object state from the stream
-            </summary>
-            <param name="stream">Stream to read from</param>
-            <param name="clear">True to clear the existing state</param>
         </member>
         <member name="T:BrightWire.IGraphData">
             <summary>

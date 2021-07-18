@@ -13,7 +13,7 @@ namespace BrightWire.Unsupervised
     internal class KMeans : IDisposable
 	{
 		readonly VectorDistanceHelper _distance;
-		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new List<(uint[], IFloatVector)>();
+		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new();
 		readonly IFloatVector[] _data;
 
 		public KMeans(IBrightDataContext context, uint k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)

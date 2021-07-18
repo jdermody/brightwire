@@ -51,7 +51,7 @@ namespace BrightWire.Unsupervised
 
         class DistanceMatrix
         {
-            readonly Dictionary<(Centroid, Centroid), float> _distance = new Dictionary<(Centroid, Centroid), float>();
+            readonly Dictionary<(Centroid, Centroid), float> _distance = new();
 
             public bool HasDistance(Centroid item1, Centroid item2)
             {
@@ -76,7 +76,7 @@ namespace BrightWire.Unsupervised
 
         readonly uint _k;
         readonly DistanceMetric _distanceMetric;
-        readonly DistanceMatrix _distanceMatrix = new DistanceMatrix();
+        readonly DistanceMatrix _distanceMatrix = new();
         readonly List<Centroid> _centroid;
 
         public Hierachical(uint k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)

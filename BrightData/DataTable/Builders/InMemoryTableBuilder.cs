@@ -11,8 +11,8 @@ namespace BrightData.DataTable.Builders
     /// </summary>
     public class InMemoryTableBuilder : IHaveDataContext
     {
-        readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new List<(ColumnType Type, IMetaData MetaData)>();
-        readonly List<object[]> _rows = new List<object[]>();
+        readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new();
+        readonly List<object[]> _rows = new();
 
         /// <inheritdoc />
         public IBrightDataContext Context { get; }

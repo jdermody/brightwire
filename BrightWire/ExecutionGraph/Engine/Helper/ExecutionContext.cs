@@ -12,10 +12,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     internal class ExecutionContext : IGraphExecutionContext
     {
         readonly ICreateGraphContext _createGraphContext;
-        readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
-        readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new ConcurrentDictionary<string, IFloatMatrix>();
-        readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphSequenceContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, Action<IGraphSequenceContext>>();
-        readonly ConcurrentStack<(IMiniBatch Batch, IGraphData Data, Action<IGraphSequenceContext, IGraphData> Start, Action<IGraphSequenceContext[]> End)> _additionalBatches = new ConcurrentStack<(IMiniBatch, IGraphData, Action<IGraphSequenceContext, IGraphData>, Action<IGraphSequenceContext[]>)>();
+        readonly ConcurrentQueue<IGraphOperation> _operationList = new();
+        readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new();
+        readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphSequenceContext>> _continuationTable = new();
+        readonly ConcurrentStack<(IMiniBatch Batch, IGraphData Data, Action<IGraphSequenceContext, IGraphData> Start, Action<IGraphSequenceContext[]> End)> _additionalBatches = new();
 
 	    public ExecutionContext(ILinearAlgebraProvider lap, ICreateGraphContext createGraphContext)
         {

@@ -9,8 +9,8 @@ namespace BrightWire.Bayesian.Training
     // http://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html
     internal class BernoulliNaiveBayesTrainer
     {
-        readonly HashSet<uint> _vocabulary = new HashSet<uint>();
-        readonly Dictionary<string, List<IndexList>> _documentClass = new Dictionary<string, List<IndexList>>();
+        readonly HashSet<uint> _vocabulary = new();
+        readonly Dictionary<string, List<IndexList>> _documentClass = new();
 
         public void AddClassification(string documentClass, IndexList indexList)
         {

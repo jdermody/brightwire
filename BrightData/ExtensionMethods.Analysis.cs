@@ -109,56 +109,56 @@ namespace BrightData
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DateAnalysis GetDateAnalysis(this IMetaData metaData) => new DateAnalysis(metaData);
+        public static DateAnalysis GetDateAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the dimension analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DimensionAnalysis GetDimensionAnalysis(this IMetaData metaData) => new DimensionAnalysis(metaData);
+        public static DimensionAnalysis GetDimensionAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the frequency analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static FrequencyAnalysis GetFrequencyAnalysis(this IMetaData metaData) => new FrequencyAnalysis(metaData);
+        public static FrequencyAnalysis GetFrequencyAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the index analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new IndexAnalysis(metaData);
+        public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the numeric analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new NumericAnalysis(metaData);
+        public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the string analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new StringAnalysis(metaData);
+        public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the categories that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DictionaryValues GetDictionaryValues(this IMetaData metaData) => new DictionaryValues(metaData);
+        public static DictionaryValues GetDictionaryValues(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static NormalizeTransformation GetNormalization(this IMetaData metaData) => new NormalizeTransformation(metaData);
+        public static NormalizeTransformation GetNormalization(this IMetaData metaData) => new(metaData);
 
         /// <summary>
         /// Analyzes numbers in a sequence

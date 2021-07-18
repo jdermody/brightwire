@@ -10,8 +10,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class BackpropagationInput
     {
-        readonly HashSet<NodeBase> _input = new HashSet<NodeBase>();
-        readonly Dictionary<NodeBase, IGraphData?> _error = new Dictionary<NodeBase, IGraphData?>();
+        readonly HashSet<NodeBase> _input = new();
+        readonly Dictionary<NodeBase, IGraphData?> _error = new();
         readonly IGraphData? _nodeOutput;
 
         public BackpropagationInput(ExecutionHistory? history, ExecutionNode[] input)

@@ -7,7 +7,7 @@ namespace BrightData.Helper
     /// </summary>
     public class StringIndexer : IIndexStrings
     {
-        readonly Dictionary<string, uint> _index = new Dictionary<string, uint>();
+        readonly Dictionary<string, uint> _index = new();
 
         StringIndexer()
         {

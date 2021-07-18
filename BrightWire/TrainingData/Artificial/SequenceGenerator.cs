@@ -139,6 +139,6 @@ namespace BrightWire.TrainingData.Artificial
             // ReSharper disable once IteratorNeverReturns
         }
 
-        public string Decode(IEnumerable<uint> characters) => new String(characters.Select(i => Dictionary[i]).ToArray());
+        public string Decode(IEnumerable<uint> characters) => new(characters.Select(i => Dictionary[i]).ToArray());
     }
 }

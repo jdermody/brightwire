@@ -12,7 +12,7 @@ namespace BrightData.UnitTests
     {
         public class InMemoryStreamProvider : IProvideTempStreams
         {
-            readonly Dictionary<string, MemoryStream> _streams = new Dictionary<string, MemoryStream>();
+            readonly Dictionary<string, MemoryStream> _streams = new();
 
             public void Dispose()
             {
@@ -30,7 +30,7 @@ namespace BrightData.UnitTests
 
             public bool HasStream(string uniqueId) => _streams.ContainsKey(uniqueId);
         }
-        readonly InMemoryStreamProvider _streamProvider = new InMemoryStreamProvider();
+        readonly InMemoryStreamProvider _streamProvider = new();
 
         /// <summary>
         /// Buffer size configurations to test

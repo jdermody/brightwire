@@ -38,7 +38,7 @@ namespace BrightData.Helper
             DateTicks,
             ChangeType
         }
-        readonly Dictionary<(uint Index, Type TargetType), TypeConversion> _typeConversionTable = new Dictionary<(uint Index, Type TargetType), TypeConversion>();
+        readonly Dictionary<(uint Index, Type TargetType), TypeConversion> _typeConversionTable = new();
 
         public DataTableConverter(IRowOrientedDataTable dataTable)
         {

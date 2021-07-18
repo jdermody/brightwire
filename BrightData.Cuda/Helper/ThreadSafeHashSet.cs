@@ -12,8 +12,8 @@ namespace BrightData.Cuda.Helper
     /// <typeparam name="T">The wrapped type</typeparam>
     internal class ThreadSafeHashSet<T> : IDisposable
     {
-        readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        readonly HashSet<T> _hashSet = new HashSet<T>();
+        readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
+        readonly HashSet<T> _hashSet = new();
 
         ~ThreadSafeHashSet()
         {

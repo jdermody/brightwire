@@ -4,7 +4,7 @@ namespace BrightData.Analysis
 {
     internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
     {
-        readonly ConvertToDouble<T> _converter = new ConvertToDouble<T>();
+        readonly ConvertToDouble<T> _converter = new();
 
         public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {

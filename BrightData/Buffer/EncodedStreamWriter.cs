@@ -56,7 +56,7 @@ namespace BrightData.Buffer
 
         internal class StringEncoder : ICanWriteToBinaryWriter
         {
-            readonly Dictionary<string, ushort> _table = new Dictionary<string, ushort>();
+            readonly Dictionary<string, ushort> _table = new();
             readonly ICanEnumerate<string> _buffer;
 
             public StringEncoder(ICanEnumerate<string> buffer)
@@ -102,7 +102,7 @@ namespace BrightData.Buffer
 
         internal class StructEncoder<T> : ICanWriteToBinaryWriter where T : struct
         {
-            readonly Dictionary<T, ushort> _table = new Dictionary<T, ushort>();
+            readonly Dictionary<T, ushort> _table = new();
             readonly ICanEnumerate<T> _buffer;
 
             public StructEncoder(ICanEnumerate<T> buffer)
@@ -251,7 +251,7 @@ namespace BrightData.Buffer
             Debug.Assert(i == count);
 #endif
             if (index > 0)
-                stream.Write(MemoryMarshal.Cast<T, byte>(((ReadOnlySpan<T>)temp).Slice(0, index)));
+                stream.Write(MemoryMarshal.Cast<T, byte>(((ReadOnlySpan<T>)temp)[..index]));
         }
     }
 }

@@ -12,8 +12,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
     {
-        readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
-        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new Dictionary<NodeBase, ExecutionNode>();
+        readonly List<ExecutionHistory> _forward = new();
+        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 

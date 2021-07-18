@@ -10,7 +10,7 @@ namespace BrightData.Helper
     public class TempStreamManager : IProvideTempStreams
     {
         readonly string _basePath;
-        readonly ConcurrentDictionary<string, FileStream> _streamTable = new ConcurrentDictionary<string, FileStream>();
+        readonly ConcurrentDictionary<string, FileStream> _streamTable = new();
 
         /// <summary>
         /// Constructor

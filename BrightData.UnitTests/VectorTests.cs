@@ -167,7 +167,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.Subtract(b));
             FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.Subtract(b));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.Subtract(b));
             FloatMath.AreApproximatelyEqual(c, simpleResults).Should().BeTrue();
         }
 
@@ -181,7 +181,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseMultiply(b));
             FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseMultiply(b));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseMultiply(b));
             FloatMath.AreApproximatelyEqual(c, simpleResults).Should().BeTrue();
         }
 
@@ -245,7 +245,7 @@ namespace BrightData.UnitTests
             var b = _cpu.CreateVector(5, i => i).AsIndexable();
 
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.AddInPlace(b, 2.5f, 3.5f));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.AddInPlace(b, 2.5f, 3.5f));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.AddInPlace(b, 2.5f, 3.5f));
 
             a.AddInPlace(b, 2.5f, 3.5f);
             FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
@@ -259,7 +259,7 @@ namespace BrightData.UnitTests
             var b = _cpu.CreateVector(5, i => i).AsIndexable();
 
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.SubtractInPlace(b, 2.5f, 3.5f));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.SubtractInPlace(b, 2.5f, 3.5f));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.SubtractInPlace(b, 2.5f, 3.5f));
 
             a.SubtractInPlace(b, 2.5f, 3.5f);
             FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
@@ -289,7 +289,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, a => a.GetNewVectorFromIndexes(array));
             FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, a => a.GetNewVectorFromIndexes(array));;
+            var simpleResults = Apply(_simple, a, a => a.GetNewVectorFromIndexes(array));
             FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
         }
 
@@ -339,7 +339,7 @@ namespace BrightData.UnitTests
             const float OPERAND = 2f;
 
             var gpuResults = Apply(_cuda, cpuResults, a => a.Multiply(OPERAND));
-            var simpleResults = Apply(_simple, cpuResults, a => a.Multiply(OPERAND));;
+            var simpleResults = Apply(_simple, cpuResults, a => a.Multiply(OPERAND));
 
             cpuResults.Multiply(OPERAND);
             FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
@@ -493,7 +493,7 @@ namespace BrightData.UnitTests
             var gpu = Apply(_cuda, a, a => a.L1Norm());
             FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
 
-            var simple = Apply(_simple, a, a => a.L1Norm());;
+            var simple = Apply(_simple, a, a => a.L1Norm());
             FloatMath.AreApproximatelyEqual(cpu, simple).Should().BeTrue();
         }
 
@@ -608,7 +608,7 @@ namespace BrightData.UnitTests
             IIndexableFloatVector gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
             FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
 
-            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Euclidean);;
+            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Euclidean);
             FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
         }
 
@@ -625,7 +625,7 @@ namespace BrightData.UnitTests
             IIndexableFloatVector gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Manhattan);
             FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
 
-            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Manhattan);;
+            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Manhattan);
             FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
         }
 
@@ -642,7 +642,7 @@ namespace BrightData.UnitTests
             IIndexableFloatVector gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Cosine);
             FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
 
-            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Cosine);;
+            IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Cosine);
             FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
         }
 

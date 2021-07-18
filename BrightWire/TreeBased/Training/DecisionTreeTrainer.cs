@@ -80,8 +80,8 @@ namespace BrightWire.TreeBased.Training
         }
         class InMemoryRow
         {
-	        readonly Dictionary<uint, string> _category = new Dictionary<uint, string>();
-            readonly Dictionary<uint, double> _continuous = new Dictionary<uint, double>();
+	        readonly Dictionary<uint, string> _category = new();
+            readonly Dictionary<uint, double> _continuous = new();
 
             public InMemoryRow(IConvertibleRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
@@ -104,8 +104,8 @@ namespace BrightWire.TreeBased.Training
         }
         class TableInfo
         {
-            readonly HashSet<uint> _categorical = new HashSet<uint>();
-            readonly HashSet<uint> _continuous = new HashSet<uint>();
+            readonly HashSet<uint> _categorical = new();
+            readonly HashSet<uint> _continuous = new();
 
             public TableInfo(IRowOrientedDataTable table)
             {
@@ -126,7 +126,7 @@ namespace BrightWire.TreeBased.Training
             }
             public IEnumerable<uint> CategoricalColumns => _categorical;
 	        public IEnumerable<uint> ContinuousColumns => _continuous;
-	        public List<InMemoryRow> Data { get; } = new List<InMemoryRow>();
+	        public List<InMemoryRow> Data { get; } = new();
 			public uint ClassColumnIndex { get; }
 		}
         class Node

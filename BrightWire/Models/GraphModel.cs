@@ -22,7 +22,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The primary execution graph
         /// </summary>
-        public ExecutionGraphModel Graph { get; set; } = new ExecutionGraphModel();
+        public ExecutionGraphModel Graph { get; set; } = new();
 
         /// <summary>
         /// Optional data source associated with the model

@@ -6,7 +6,7 @@ namespace BrightData.Analysis
 {
     internal class DateAnalyser : FrequencyAnalyser<DateTime>
     {
-        readonly HashSet<long> _distinct = new HashSet<long>();
+        readonly HashSet<long> _distinct = new();
         readonly uint _maxCount;
 
         public DateAnalyser(uint maxCount = Consts.MaxDistinct)

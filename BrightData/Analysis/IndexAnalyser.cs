@@ -6,7 +6,7 @@ namespace BrightData.Analysis
     internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
         readonly uint _writeCount, _maxCount;
-        readonly Dictionary<uint, uint> _indexFrequency = new Dictionary<uint, uint>();
+        readonly Dictionary<uint, uint> _indexFrequency = new();
         uint _min = uint.MaxValue, _max = uint.MinValue;
 
         public IndexAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)

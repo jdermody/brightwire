@@ -14,7 +14,7 @@ namespace BrightWire.Bayesian.Training
     {
         class FrequencyAnalysis
         {
-            readonly Dictionary<uint, IDataAnalyser> _column = new Dictionary<uint, IDataAnalyser>();
+            readonly Dictionary<uint, IDataAnalyser> _column = new();
 
             public FrequencyAnalysis(IDataTable table, uint ignoreColumnIndex)
             {

@@ -46,11 +46,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
-        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
+        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
+        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
 
-        Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
-        Dictionary<uint, IGraphSequenceContext> _contextTable = new Dictionary<uint, IGraphSequenceContext>();
+        Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
+        Dictionary<uint, IGraphSequenceContext> _contextTable = new();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)

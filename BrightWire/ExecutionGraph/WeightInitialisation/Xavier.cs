@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     {
         readonly float _parameter;
         readonly ILinearAlgebraProvider _lap;
-        readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new Dictionary<(uint, uint), IContinuousDistribution>();
+        readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new();
 
         public Xavier(ILinearAlgebraProvider lap, float parameter = 6)
         {

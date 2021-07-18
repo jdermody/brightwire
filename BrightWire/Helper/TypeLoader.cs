@@ -10,17 +10,13 @@ namespace BrightWire.Helper
     {
 	    public static Type LoadType(string typeName)
 	    {
-		    var type = Type.GetType(typeName, false);
-		    if (type == null) {
-			    // check if the type exists in the current assembly
-			    type = Type.GetType(
-				    typeName, 
-				    assemblyName => Assembly.GetExecutingAssembly(), 
-				    (assembly, typeName2, caseInsensitive) => assembly?.GetType(typeName2, false, caseInsensitive),
-				    true
-			    );
-		    }
-			if(type == null)
+		    var type = Type.GetType(typeName, false) ?? Type.GetType(
+                typeName, 
+                assemblyName => Assembly.GetExecutingAssembly(), 
+                (assembly, typeName2, caseInsensitive) => assembly?.GetType(typeName2, false, caseInsensitive),
+                true
+            );
+            if(type == null)
 				throw new ArgumentException($"Unable to find: {typeName}");
 			return type;
 	    }

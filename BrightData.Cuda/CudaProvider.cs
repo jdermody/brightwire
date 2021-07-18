@@ -87,13 +87,13 @@ namespace BrightData.Cuda
 
 			public KernelExecution CreateExecution(CUfunction function, dim3 block, dim3 thread)
 			{
-				return new KernelExecution(function, block, thread);
+				return new(function, block, thread);
 			}
 		}
 
 		readonly CudaContext _cuda;
 		readonly CudaBlas _blas;
-		readonly Lazy<CudaSolveDense> _solver = new Lazy<CudaSolveDense>();
+		readonly Lazy<CudaSolveDense> _solver = new();
 		readonly KernelModule _kernel;
 		readonly ILinearAlgebraProvider _numerics;
 		readonly DeviceMemory _cache;
@@ -156,7 +156,7 @@ namespace BrightData.Cuda
 			_calculateDistance,
 			_roundInPlace
 		;
-		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
+		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
 
 		public CudaProvider(IBrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint memoryCacheSize)
@@ -959,31 +959,30 @@ namespace BrightData.Cuda
 		) {
 			var ret = Allocate(outputRows * outputColumns * outputDepth * count, true);
 
-			using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride))) {
-				var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
-				Invoke(_tensorReverseIm2Col, size,
-					size,
-					tensor.DevicePointer,
-					filters.DevicePointer,
-					ret.DevicePointer,
-					convolutions.X.DevicePointer,
-					convolutions.Y.DevicePointer,
-					rows,
-					columns,
-					depth,
-					count,
-					convolutions.Count,
-					filterWidth,
-					filterHeight,
-					xStride,
-					yStride,
-					outputRows,
-					outputColumns,
-					outputDepth
-				);
-			}
+            using var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride));
+            var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
+            Invoke(_tensorReverseIm2Col, size,
+                size,
+                tensor.DevicePointer,
+                filters.DevicePointer,
+                ret.DevicePointer,
+                convolutions.X.DevicePointer,
+                convolutions.Y.DevicePointer,
+                rows,
+                columns,
+                depth,
+                count,
+                convolutions.Count,
+                filterWidth,
+                filterHeight,
+                xStride,
+                yStride,
+                outputRows,
+                outputColumns,
+                outputDepth
+            );
 
-			return (ret, outputRows, outputColumns, outputDepth, count);
+            return (ret, outputRows, outputColumns, outputDepth, count);
 		}
 
 		public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)

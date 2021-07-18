@@ -105,7 +105,7 @@ namespace BrightData.Transformation
 
         class CategoricalIndexConverter<T> : ConvertViaString<T, int> where T : notnull
         {
-            readonly Dictionary<string, int> _categoryIndex = new Dictionary<string, int>();
+            readonly Dictionary<string, int> _categoryIndex = new();
 
             protected override int Convert(string str)
             {
@@ -174,7 +174,7 @@ namespace BrightData.Transformation
         readonly ColumnConversionType _toType;
         readonly ITransformColumn? _converter;
 
-        static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T", "1" };
+        static readonly HashSet<string> TrueStrings = new() { "Y", "YES", "TRUE", "T", "1" };
         static readonly ITransformColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
         static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly ITransformColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
@@ -351,19 +351,19 @@ namespace BrightData.Transformation
 
         public static implicit operator ColumnConversion(ColumnConversionType type)
         {
-            return new ColumnConversion(null, type);
+            return new(null, type);
         }
 
         public static implicit operator ColumnConversion((uint Index, ColumnConversionType Type) column)
         {
-            return new ColumnConversion(column.Index, column.Type);
+            return new(column.Index, column.Type);
         }
 
         public static implicit operator ColumnConversion((uint Index, ITransformColumn Converter) column)
         {
-            return new ColumnConversion(column.Index, column.Converter);
+            return new(column.Index, column.Converter);
         }
 
-        public static ColumnConversion Create<TF, TT>(uint index, Func<TF, TT> converter) where TF: notnull where TT: notnull => new ColumnConversion(index, new Converter<TF, TT>(converter));
+        public static ColumnConversion Create<TF, TT>(uint index, Func<TF, TT> converter) where TF: notnull where TT: notnull => new(index, new Converter<TF, TT>(converter));
     }
 }

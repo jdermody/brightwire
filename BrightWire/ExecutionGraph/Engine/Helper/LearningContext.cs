@@ -12,12 +12,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class LearningContext : ILearningContext
     {
-	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
-        readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Func<IGraphData?, IGraphData?>)>();
-        readonly List<(NodeBase Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new List<(NodeBase, IFloatMatrix, Action<IFloatMatrix>)>();
-        readonly List<(NodeBase Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new List<(NodeBase, IFloatVector, Action<IFloatVector>)>();
-        readonly HashSet<NodeBase> _updatesDisabled = new HashSet<NodeBase>();
-        readonly Stopwatch _timer = new Stopwatch();
+	    readonly Dictionary<uint, float> _learningRateSchedule = new();
+        readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new();
+        readonly List<(NodeBase Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new();
+        readonly List<(NodeBase Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new();
+        readonly HashSet<NodeBase> _updatesDisabled = new();
+        readonly Stopwatch _timer = new();
 
         public LearningContext(GraphFactory graphFactory, IErrorMetric errorMetric)
         {

@@ -264,7 +264,7 @@ namespace BrightData.Buffer
                     var remaining = count - totalRead;
                     var ptr = remaining >= tempBufferSize
                         ? temp
-                        : ((Span<T>) temp).Slice(0, (int) remaining);
+                        : ((Span<T>) temp)[..(int) remaining];
                     var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(ptr)) / sizeofT;
                     for (var i = 0; i < readCount; i++)
                             yield return temp[i];

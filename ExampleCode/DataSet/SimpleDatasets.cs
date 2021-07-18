@@ -203,7 +203,7 @@ namespace ExampleCode.DataSet
             return new SequenceToSequenceTrainer(grammar, context, builder.BuildRowOriented());
         }
 
-        static string Reverse(string str) => new string(str.Reverse().ToArray());
+        static string Reverse(string str) => new(str.Reverse().ToArray());
 
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
         {
@@ -374,7 +374,7 @@ namespace ExampleCode.DataSet
 
         static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string? remoteUrl = null)
         {
-            return new StreamReader(GetStream(context, fileName, remoteUrl));
+            return new(GetStream(context, fileName, remoteUrl));
         }
 
         static Stream GetStream(this IBrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
@@ -396,7 +396,7 @@ namespace ExampleCode.DataSet
 
                 // get the stream
                 var responseStream = response.Content.ReadAsStreamAsync().Result;
-                var mediaType = response.Content.Headers.ContentType.MediaType;
+                var mediaType = response.Content.Headers.ContentType?.MediaType;
                 if (mediaType == "application/gzip" || mediaType == "application/x-gzip")
                     responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
 

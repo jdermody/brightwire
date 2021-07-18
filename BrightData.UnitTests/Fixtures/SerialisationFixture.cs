@@ -7,8 +7,8 @@ namespace BrightData.UnitTests.Fixtures
 {
     public class SerialisationFixture : IDisposable
     {
-        public BrightDataContext Context { get; } = new BrightDataContext(0);
-        public MemoryStream Stream { get; } = new MemoryStream();
+        public BrightDataContext Context { get; } = new(0);
+        public MemoryStream Stream { get; } = new();
         public BinaryWriter Writer { get; }
         public DataEncoder Encoder { get; }
 

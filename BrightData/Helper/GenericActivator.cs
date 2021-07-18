@@ -41,7 +41,7 @@ namespace BrightData.Helper
             ;
         }
 
-        static readonly ConcurrentDictionary<Type, Delegate> TypeCreators = new ConcurrentDictionary<Type, Delegate>();
+        static readonly ConcurrentDictionary<Type, Delegate> TypeCreators = new();
 
         /// <summary>
         /// Creates a new object (via default constructor)

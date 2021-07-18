@@ -11,7 +11,7 @@ namespace ExampleCode.DataTableTrainers
 
         public SequentialWindowStockDataTrainer GetSequentialWindow(uint windowSize = 14)
         {
-            return new SequentialWindowStockDataTrainer(
+            return new(
                 Table.CreateSequentialWindow(windowSize, 0, 1, 2, 3, 4)
             );
         }

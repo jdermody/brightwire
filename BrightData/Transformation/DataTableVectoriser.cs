@@ -182,7 +182,7 @@ namespace BrightData.Transformation
 
         class OneHotEncodeVectorised : VectoriserBase<object>, IHaveOutputLabel
         {
-            readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
+            readonly Dictionary<string, uint> _stringIndex = new();
             readonly float[] _buffer;
             uint _nextIndex = 0;
 
@@ -242,7 +242,7 @@ namespace BrightData.Transformation
 
         class OneHotEncode : VectoriserBase<object>, IHaveOutputLabel
         {
-            readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
+            readonly Dictionary<string, uint> _stringIndex = new();
             uint _nextIndex = 0;
 
             public OneHotEncode(ISingleTypeTableSegment column)
@@ -293,7 +293,7 @@ namespace BrightData.Transformation
             }
         }
 
-        readonly List<IColumnVectoriser> _input = new List<IColumnVectoriser>();
+        readonly List<IColumnVectoriser> _input = new();
 
         public uint OutputSize => (uint)_input.Sum(c => c.Size);
         public uint RowCount { get; }

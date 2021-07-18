@@ -118,7 +118,7 @@ namespace BrightData.Memory
             segment.Initialize(i => this[i]);
         }
 
-        public System.Numerics.Vector<T> AsNumericsVector(int start) => new System.Numerics.Vector<T>(Values.Skip(start).Take(System.Numerics.Vector<T>.Count).ToArray());
+        public System.Numerics.Vector<T> AsNumericsVector(int start) => new(Values.Skip(start).Take(System.Numerics.Vector<T>.Count).ToArray());
 
         public override string ToString()
         {

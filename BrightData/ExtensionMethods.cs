@@ -496,7 +496,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new DataEncoder(context);
+        public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new(context);
 
         /// <summary>
         /// Converts the object to a serialized buffer

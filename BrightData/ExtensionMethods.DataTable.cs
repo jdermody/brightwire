@@ -833,7 +833,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static InMemoryTableBuilder BuildTable(this IBrightDataContext context) => new InMemoryTableBuilder(context);
+        public static InMemoryTableBuilder BuildTable(this IBrightDataContext context) => new(context);
 
         /// <summary>
         /// Splits a data table into training and test tables (rows are randomly selected for either)
@@ -893,7 +893,7 @@ namespace BrightData
         class ColumnReader<T> : IConsumeColumnData<T>, IHaveFloatArray
             where T : struct
         {
-            readonly List<float> _data = new List<float>();
+            readonly List<float> _data = new();
             readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
             public ColumnReader(uint columnIndex, ColumnType type)

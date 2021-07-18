@@ -10,8 +10,8 @@ namespace BrightData.Memory
     /// </summary>
     internal class TensorPool : ITensorPool, IDisposable
     {
-        readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new ConcurrentDictionary<string, ConcurrentBag<Array>>();
-        readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();
+        readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new();
+        readonly ConcurrentDictionary<string, long> _requestHistory = new();
         long _requestIndex = 0;
         #if DEBUG
         readonly ConcurrentDictionary<long, uint> _registeredBlocks = new ConcurrentDictionary<long, uint>();

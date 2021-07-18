@@ -8,8 +8,8 @@ namespace BrightWire.TrainingData.Helper
     /// </summary>
     public class StringTableBuilder
     {
-        readonly Dictionary<string, uint> _stringTable = new Dictionary<string, uint>();
-        readonly List<string> _stringList = new List<string>();
+        readonly Dictionary<string, uint> _stringTable = new();
+        readonly List<string> _stringList = new();
 
         /// <summary>
         /// Creates an empty string table builder
@@ -61,7 +61,7 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// Serialises the string table
         /// </summary>
-        public StringTable StringTable => new StringTable {
+        public StringTable StringTable => new() {
 	        Data = _stringList.ToArray()
         };
 

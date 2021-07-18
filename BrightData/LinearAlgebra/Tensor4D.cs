@@ -94,7 +94,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         protected override Tensor4D<T> Create(ITensorSegment<T> segment)
         {
-            return new Tensor4D<T>(segment, Count, Depth, RowCount, ColumnCount);
+            return new(segment, Count, Depth, RowCount, ColumnCount);
         }
     }
 }

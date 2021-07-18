@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -13,7 +14,7 @@ namespace BrightWire.Bayesian.Training
     /// <typeparam name="T"></typeparam>
     internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T> where T : notnull
     {
-        readonly Dictionary<(T, T), List<T>> _data = new Dictionary<(T, T), List<T>>();
+        readonly Dictionary<(T, T), List<T>> _data = new();
         readonly int _minObservations;
         readonly T _empty;
 
@@ -64,31 +65,11 @@ namespace BrightWire.Bayesian.Training
 
             return new MarkovModel2<T>(ret);
         }
-
-        public void DeserialiseFrom(Stream stream, bool clear)
-        {
-            var formatter = new BinaryFormatter();
-            var state = (Dictionary<Tuple<T, T>, List<T>>)formatter.Deserialize(stream);
-
-            if(clear)
-                _data.Clear();
-            foreach (var item in state)
-                _data.Add((item.Key.Item1, item.Key.Item2), item.Value);
-        }
-
-        public void SerialiseTo(Stream stream)
-        {
-            var formatter = new BinaryFormatter();
-
-            // serialise as Tuple as ValueTuple is not binary serializable
-            var tempDictionary = _data.ToDictionary(kv => Tuple.Create(kv.Key.Item1, kv.Key.Item2), kv => kv.Value);
-            formatter.Serialize(stream, tempDictionary);
-        }
     }
 
     internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T> where T: notnull
     {
-        readonly Dictionary<(T, T, T), List<T>> _data = new Dictionary<(T, T, T), List<T>>();
+        readonly Dictionary<(T, T, T), List<T>> _data = new();
         readonly int _minObservations;
         readonly T _empty;
 
@@ -139,26 +120,6 @@ namespace BrightWire.Bayesian.Training
             }
 
             return new MarkovModel3<T>(ret);
-        }
-
-        public void DeserialiseFrom(Stream stream, bool clear)
-        {
-            var formatter = new BinaryFormatter();
-            var state = (Dictionary<Tuple<T, T, T>, List <T>>)formatter.Deserialize(stream);
-
-            if(clear)
-                _data.Clear();
-            foreach (var item in state)
-                _data.Add((item.Key.Item1, item.Key.Item2, item.Key.Item3), item.Value);
-        }
-
-        public void SerialiseTo(Stream stream)
-        {
-            var formatter = new BinaryFormatter();
-
-            // serialise as Tuple as ValueTuple is not binary serializable
-            var tempDictionary = _data.ToDictionary(kv => Tuple.Create(kv.Key.Item1, kv.Key.Item2, kv.Key.Item3), kv => kv.Value);
-            formatter.Serialize(stream, tempDictionary);
         }
     }
 }

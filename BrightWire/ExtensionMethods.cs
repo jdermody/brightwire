@@ -142,7 +142,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new GraphFactory(context.LinearAlgebraProvider);
+        public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new(context.LinearAlgebraProvider);
 
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="lap"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new GraphFactory(lap);
+        public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new(lap);
 
         /// <summary>
         /// Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows

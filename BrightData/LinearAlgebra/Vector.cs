@@ -25,7 +25,7 @@ namespace BrightData.LinearAlgebra
         /// Creates a vector from a tensor segment
         /// </summary>
         /// <param name="segment">Tensor segment that will be used</param>
-        protected override Vector<T> Create(ITensorSegment<T> segment) => new Vector<T>(segment);
+        protected override Vector<T> Create(ITensorSegment<T> segment) => new(segment);
 
         /// <summary>
         /// Returns the value at the specified index

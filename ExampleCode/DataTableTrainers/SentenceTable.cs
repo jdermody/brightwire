@@ -12,8 +12,8 @@ namespace ExampleCode.DataTableTrainers
     internal class SentenceTable
     {
         readonly IRowOrientedDataTable _sentenceTable;
-        readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
-        readonly List<string> _strings = new List<string>();
+        readonly Dictionary<string, uint> _stringIndex = new();
+        readonly List<string> _strings = new();
         readonly uint _empty;
 
         public SentenceTable(IBrightDataContext context, IEnumerable<string[]> sentences)

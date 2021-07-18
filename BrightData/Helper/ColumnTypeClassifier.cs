@@ -7,7 +7,7 @@ namespace BrightData.Helper
     /// </summary>
     public static class ColumnTypeClassifier
     {
-        static readonly HashSet<ColumnType> NumericType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> NumericType = new() {
             ColumnType.Double,
             ColumnType.Decimal,
             ColumnType.Float,
@@ -16,17 +16,17 @@ namespace BrightData.Helper
             ColumnType.Long,
             ColumnType.Byte
         };
-        static readonly HashSet<ColumnType> ContinuousType = new HashSet<ColumnType>(NumericType) {
+        static readonly HashSet<ColumnType> ContinuousType = new(NumericType) {
             ColumnType.Date
         };
-        static readonly HashSet<ColumnType> BlittableType = new HashSet<ColumnType>(ContinuousType) {
+        static readonly HashSet<ColumnType> BlittableType = new(ContinuousType) {
             ColumnType.Boolean
         };
-        static readonly HashSet<ColumnType> CategoricalType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> CategoricalType = new() {
             ColumnType.Boolean,
             ColumnType.String,
         };
-        static readonly HashSet<ColumnType> DecimalType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> DecimalType = new() {
             ColumnType.Double,
             ColumnType.Decimal,
             ColumnType.Float

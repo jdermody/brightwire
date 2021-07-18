@@ -8,7 +8,7 @@ namespace BrightData.Memory
     /// </summary>
     internal class DisposableLayers : IDisposableLayers
     {
-        readonly ConcurrentStack<ConcurrentBag<IDisposable>> _layers = new ConcurrentStack<ConcurrentBag<IDisposable>>();
+        readonly ConcurrentStack<ConcurrentBag<IDisposable>> _layers = new();
 
         public void Add(IDisposable disposable)
         {

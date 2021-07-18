@@ -65,7 +65,7 @@ namespace BrightData
         /// <returns></returns>
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
         {
-            return new Vector<T>(context, reader);
+            return new(context, reader);
         }
 
 
@@ -111,7 +111,7 @@ namespace BrightData
         /// <returns></returns>
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
         {
-            return new Matrix<T>(context, reader);
+            return new(context, reader);
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace BrightData
         /// <returns></returns>
         public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
         {
-            return new Tensor3D<T>(context, reader);
+            return new(context, reader);
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace BrightData
         /// <returns></returns>
         public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
         {
-            return new Tensor4D<T>(context, reader);
+            return new(context, reader);
         }
 
         /// <summary>

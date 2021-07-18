@@ -11,7 +11,7 @@ namespace BrightData.Input
         readonly StreamReader _stream;
         readonly char _delimiter, _quote;
         readonly char[] _buffer;
-        readonly List<StringBuilder> _columns = new List<StringBuilder>();
+        readonly List<StringBuilder> _columns = new();
         int _currIndex;
         bool _inQuote;
 

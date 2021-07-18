@@ -256,7 +256,7 @@ namespace BrightData.DataTable
         static short ReadInt16(BinaryReader reader) => reader.ReadInt16();
         static float ReadSingle(BinaryReader reader) => reader.ReadSingle();
         static bool ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
-        static DateTime ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
+        static DateTime ReadDate(BinaryReader reader) => new(reader.ReadInt64());
         static long ReadInt64(BinaryReader reader) => reader.ReadInt64();
         static sbyte ReadByte(BinaryReader reader) => reader.ReadSByte();
         IndexList ReadIndexList(BinaryReader reader) => Context.CreateIndexList(reader);
@@ -265,7 +265,7 @@ namespace BrightData.DataTable
         Matrix<float> ReadMatrix(BinaryReader reader) => Context.CreateMatrix<float>(reader);
         Tensor3D<float> ReadTensor3D(BinaryReader reader) => Context.CreateTensor3D<float>(reader);
         Tensor4D<float> ReadTensor4D(BinaryReader reader) => Context.CreateTensor4D<float>(reader);
-        static BinaryData ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
+        static BinaryData ReadBinaryData(BinaryReader reader) => new(reader);
 
         IColumnReader GetReader(ColumnType type)
         {

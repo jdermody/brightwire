@@ -5,7 +5,7 @@ using BrightData.LinearAlgebra;
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Segment table adaptor for tables with vector data
+    /// Segment table adapter for tables with vector data
     /// </summary>
     internal class VectorBasedDataTableAdapter : RowBasedDataTableAdapterBase
     {

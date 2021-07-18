@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Helper
             /// <inheritdoc />
             public override string ToString() => $"{SequenceIndex} - {Type}";
         }
-        readonly List<Sequence> _sequence = new List<Sequence>();
+        readonly List<Sequence> _sequence = new();
 	    int _index = 0;
 
 		/// <summary>

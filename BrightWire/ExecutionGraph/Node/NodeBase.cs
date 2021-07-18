@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node
     {
         string _id;
         string? _name;
-        List<WireToNode> _output = new List<WireToNode>();
+        List<WireToNode> _output = new();
 
         /// <summary>
         /// Constructor

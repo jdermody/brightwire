@@ -108,8 +108,8 @@ namespace BrightData.Cuda.Helper
         }
         class Layer
         {
-            readonly List<IDisposable> _disposable = new List<IDisposable>();
-            readonly List<Block> _ptr = new List<Block>();
+            readonly List<IDisposable> _disposable = new();
+            readonly List<Block> _ptr = new();
 
             public void Add(IDisposable disposable) => _disposable.Add(disposable);
             public void Add(Block ptr) => _ptr.Add(ptr);
@@ -122,8 +122,8 @@ namespace BrightData.Cuda.Helper
             }
         }
         readonly int _maxSize;
-        readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
-        readonly ConcurrentDictionary<uint, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<uint, ThreadSafeHashSet<Block>>();
+        readonly ConcurrentStack<Layer> _layer = new();
+        readonly ConcurrentDictionary<uint, ThreadSafeHashSet<Block>> _cache = new();
         int _index = 0;
 
         public DeviceMemory(int maxSize)

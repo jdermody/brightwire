@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph
 	public class GraphFactory
 	{
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor();
-		readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
+		readonly Stack<IPropertySet> _propertySetStack = new();
 		readonly IPropertySet _defaultPropertySet;
 
 		/// <summary>
@@ -483,7 +483,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
 		public WireBuilder Connect(IGraphTrainingEngine engine)
 		{
-			return new WireBuilder(this, engine);
+			return new(this, engine);
 		}
 
 		/// <summary>
@@ -494,7 +494,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public WireBuilder Connect(uint inputSize, NodeBase node)
 		{
-			return new WireBuilder(this, inputSize, node);
+			return new(this, inputSize, node);
 		}
 
         /// <summary>
@@ -802,7 +802,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Prebuilt regularisation
 		/// </summary>
-		public RegularisationProvider Regularisation { get; } = new RegularisationProvider();
+		public RegularisationProvider Regularisation { get; } = new();
 
 		/// <summary>
 		/// Prebuilt gradient descent optimisers
@@ -837,7 +837,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Prebuilt gradient descent optimisers
 		/// </summary>
-		public GradientDescentProvider GradientDescent { get; } = new GradientDescentProvider();
+		public GradientDescentProvider GradientDescent { get; } = new();
 
 		/// <summary>
 		/// Error metrics
@@ -867,7 +867,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Error metrics
 		/// </summary>
-		public ErrorMetricProvider ErrorMetric { get; } = new ErrorMetricProvider();
+		public ErrorMetricProvider ErrorMetric { get; } = new();
 
 		/// <summary>
 		/// Prebuilt weight initialisers

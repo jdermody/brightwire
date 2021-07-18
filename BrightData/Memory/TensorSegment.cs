@@ -56,7 +56,7 @@ namespace BrightData.Memory
         public void WriteTo(Stream stream) => stream.Write(MemoryMarshal.Cast<T, byte>(_data));
         public void CopyTo(T[] array, uint sourceIndex, uint destinationIndex, uint count) => Array.Copy(_data, (int)sourceIndex, array, (int)destinationIndex, Math.Min(_data.Length, count));
         public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(i => _data[i]);
-        public System.Numerics.Vector<T> AsNumericsVector(int start) => new System.Numerics.Vector<T>(_data, start);
+        public System.Numerics.Vector<T> AsNumericsVector(int start) => new(_data, start);
 
         public override string ToString()
         {

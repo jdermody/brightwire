@@ -87,7 +87,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         protected override Tensor3D<T> Create(ITensorSegment<T> segment)
         {
-            return new Tensor3D<T>(segment, Depth, RowCount, ColumnCount);
+            return new(segment, Depth, RowCount, ColumnCount);
         }
 
         /// <summary>

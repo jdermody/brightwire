@@ -13,9 +13,9 @@ namespace BrightData
     public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
         ILinearAlgebraProvider _lap;
-        readonly ConcurrentDictionary<string, object> _attachedProperties = new ConcurrentDictionary<string, object>();
+        readonly ConcurrentDictionary<string, object> _attachedProperties = new();
         readonly TensorPool _tensorPool;
-        readonly DisposableLayers _memoryLayers = new DisposableLayers();
+        readonly DisposableLayers _memoryLayers = new();
         readonly FloatComputation _floatComputation;
         readonly DoubleComputation _doubleComputation;
         readonly DecimalComputation _decimalComputation;

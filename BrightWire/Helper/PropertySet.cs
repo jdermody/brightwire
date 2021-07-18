@@ -13,7 +13,7 @@ namespace BrightWire.Helper
         public const string TemplateGradientDescentDescriptorLabel = "bw:template-gradient-descent-descriptor";
         public const string GradientDescentDescriptorLabel = "bw:gradient-descent-descriptor";
 
-        readonly Dictionary<string, object> _data = new Dictionary<string, object>();
+        readonly Dictionary<string, object> _data = new();
 
 		public PropertySet(ILinearAlgebraProvider lap)
         {

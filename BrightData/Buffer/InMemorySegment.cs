@@ -8,9 +8,9 @@ namespace BrightData.Buffer
 {
     class InMemorySegment<T> : IDataTableSegment<T> where T : notnull
     {
-        readonly InMemoryBuffer<T> _buffer = new InMemoryBuffer<T>();
+        readonly InMemoryBuffer<T> _buffer = new();
         readonly ushort _maxDistinct;
-        readonly HashSet<T> _unique = new HashSet<T>();
+        readonly HashSet<T> _unique = new();
         bool _isDistinct = true;
 
         public InMemorySegment(IBrightDataContext context, ColumnType type, IMetaData metaData, ushort maxDistinct)

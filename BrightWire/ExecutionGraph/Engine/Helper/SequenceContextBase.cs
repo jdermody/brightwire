@@ -8,8 +8,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class SequenceContextBase
     {
-        readonly Dictionary<string, List<(string Name, IGraphData Data)>> _namedData = new Dictionary<string, List<(string, IGraphData)>>();
-        readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
+        readonly Dictionary<string, List<(string Name, IGraphData Data)>> _namedData = new();
+        readonly Dictionary<int, IGraphData> _output = new();
 
         public SequenceContextBase(IMiniBatchSequence batchSequence)
         {

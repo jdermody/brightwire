@@ -82,7 +82,7 @@ namespace BrightWire.Models.TreeBased
         /// <summary>
         /// The root of the tree
         /// </summary>
-        public Node Root { get; set; } = new Node();
+        public Node Root { get; set; } = new();
 
         /// <summary>
         /// Converts the tree to XML

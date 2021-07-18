@@ -107,12 +107,12 @@ namespace BrightData.Transformation
 
         public static implicit operator ColumnNormalization(NormalizationType type)
         {
-            return new ColumnNormalization(null, type);
+            return new(null, type);
         }
 
         public static implicit operator ColumnNormalization((uint Index, NormalizationType Type) column)
         {
-            return new ColumnNormalization(column.Index, column.Type);
+            return new(column.Index, column.Type);
         }
     }
 }

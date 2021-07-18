@@ -12,7 +12,7 @@ namespace BrightData.DataTable
     /// </summary>
     internal abstract class DataTableBase : IHaveMetaData, IHaveDataContext
     {
-        readonly MetaData _tableMetaData = new MetaData();
+        readonly MetaData _tableMetaData = new();
 
         protected DataTableBase(IBrightDataContext context)
         {

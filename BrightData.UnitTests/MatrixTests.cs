@@ -172,7 +172,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, a => a.Transpose());
             FloatMath.AreApproximatelyEqual(gpuResults, aT.AsIndexable()).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, a => a.Transpose());;
+            var simpleResults = Apply(_simple, a, a => a.Transpose());
             FloatMath.AreApproximatelyEqual(simpleResults, aT.AsIndexable()).Should().BeTrue();
         }
 
@@ -222,7 +222,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.TransposeAndMultiply(b));
             FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeAndMultiply(b));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeAndMultiply(b));
             FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
         }
 
@@ -236,7 +236,7 @@ namespace BrightData.UnitTests
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.TransposeThisAndMultiply(b));
             FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
 
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeThisAndMultiply(b));;
+            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeThisAndMultiply(b));
             FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
         }
 
@@ -344,12 +344,12 @@ namespace BrightData.UnitTests
         public void MatrixMultiplyScalar()
         {
             var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            const float scalar = 2.5f;
+            const float SCALAR = 2.5f;
 
-            var gpuResults = Apply(_cuda, a, a => a.Multiply(scalar));
-            var simpleResults = Apply(_simple, a, a => a.Multiply(scalar));
+            var gpuResults = Apply(_cuda, a, a => a.Multiply(SCALAR));
+            var simpleResults = Apply(_simple, a, a => a.Multiply(SCALAR));
 
-            a.Multiply(scalar);
+            a.Multiply(SCALAR);
             FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
             FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
         }

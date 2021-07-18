@@ -7,7 +7,7 @@ namespace BrightData.Analysis
         where T: notnull
     {
         readonly uint _writeCount, _maxCount;
-        readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();
+        readonly Dictionary<string, ulong> _valueCount = new();
 
         ulong _highestCount = 0;
         string? _mostFrequent = null;

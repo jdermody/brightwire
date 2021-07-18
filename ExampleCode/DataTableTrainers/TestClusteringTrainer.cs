@@ -65,9 +65,9 @@ namespace ExampleCode.DataTableTrainers
                 ));
             }
         }
-        readonly StringTableBuilder _stringTable = new StringTableBuilder();
+        readonly StringTableBuilder _stringTable = new();
         readonly IFloatVector[] _vectors;
-        readonly Dictionary<IFloatVector, AaaiDocument> _documentTable = new Dictionary<IFloatVector, AaaiDocument>();
+        readonly Dictionary<IFloatVector, AaaiDocument> _documentTable = new();
         readonly uint _groupCount;
 
         public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)

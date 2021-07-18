@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		//	_executionResults.Clear();
   //      }
 
-        public ExecutionGraphSequenceContext CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) => new ExecutionGraphSequenceContext(executionContext, sequence);
+        public ExecutionGraphSequenceContext CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) => new(executionContext, sequence);
 
         IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{

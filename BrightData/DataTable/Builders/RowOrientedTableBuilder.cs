@@ -24,8 +24,8 @@ namespace BrightData.DataTable.Builders
             public ColumnType Type { get; }
             public IMetaData Metadata { get; }
         }
-        readonly List<Column> _columns = new List<Column>();
-        readonly List<uint> _rowOffset = new List<uint>();
+        readonly List<Column> _columns = new();
+        readonly List<uint> _rowOffset = new();
         readonly Stream _stream;
         readonly BinaryWriter _writer;
         readonly IMetaData _metaData;
