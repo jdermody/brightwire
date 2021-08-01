@@ -303,9 +303,19 @@ namespace BrightData
         /// <param name="columnIndices">Column indices to retrieve</param>
         public static IEnumerable<IMetaData> ColumnMetaData(this IDataTable dataTable, params uint[] columnIndices)
         {
-            foreach (var index in columnIndices)
+            foreach (var index in dataTable.AllOrSelectedColumnIndices(columnIndices))
                 yield return dataTable.ColumnMetaData(index);
         }
+
+        /// <summary>
+        /// Returns selected column indices or all if nothing selected
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices">Column indices to retrieve</param>
+        /// <returns></returns>
+        public static IEnumerable<uint> AllOrSelectedColumnIndices(this IDataTable dataTable, uint[] columnIndices) => columnIndices.Length > 0
+            ? columnIndices
+            : dataTable.ColumnIndices();
 
         /// <summary>
         /// Creates a column analyser
@@ -928,7 +938,7 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
         {
-            var readers = columnIndices.Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
+            var readers = dataTable.AllOrSelectedColumnIndices(columnIndices).Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
             dataTable.ReadTyped(readers.Select(r => r.Consumer));
             var context = dataTable.Context;
             return readers.Select(r => context.CreateVector(r.Array.Data));
@@ -940,7 +950,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices</param>
         /// <returns></returns>
-        public static IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(this IDataTable dataTable, params uint[] columnIndices) => dataTable.ColumnAnalysis(columnIndices);
+        public static IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(this IDataTable dataTable, params uint[] columnIndices) => dataTable.ColumnAnalysis(AllOrSelectedColumnIndices(dataTable, columnIndices));
 
         /// <summary>
         /// Returns analysed column meta data for all columns in the data table

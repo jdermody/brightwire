@@ -1417,6 +1417,14 @@
             <param name="dataTable"></param>
             <param name="columnIndices">Column indices to retrieve</param>
         </member>
+        <member name="M:BrightData.ExtensionMethods.AllOrSelectedColumnIndices(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns selected column indices or all if nothing selected
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices">Column indices to retrieve</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.ColumnType,BrightData.IMetaData,System.UInt32,System.UInt32)">
             <summary>
             Creates a column analyser
@@ -2933,6 +2941,11 @@
             </summary>
             <param name="key">Name of the value</param>
         </member>
+        <member name="P:BrightData.IMetaData.AllKeys">
+            <summary>
+            Returns all keys that have been set
+            </summary>
+        </member>
         <member name="T:BrightData.IHaveMetaData">
             <summary>
             Indicates that the type has a meta data store
@@ -2993,6 +3006,11 @@
         <member name="P:BrightData.ITensor.Rank">
             <summary>
             Size of the Shape array
+            </summary>
+        </member>
+        <member name="P:BrightData.ITensor.IsValid">
+            <summary>
+            True if the underlying memory has been properly scoped
             </summary>
         </member>
         <member name="T:BrightData.ITensor`1">
@@ -3911,6 +3929,13 @@
             <param name="filePath">File path</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IDataTable.ForEachRow(System.Collections.Generic.IEnumerable{System.UInt32},System.Action{System.Object[]})">
+            <summary>
+            Invokes the callback on each specified row of the table
+            </summary>
+            <param name="rowIndices">Row indices to select</param>
+            <param name="callback">Callback to invoke on each selected row</param>
+        </member>
         <member name="T:BrightData.IColumnOrientedDataTable">
             <summary>
             Column oriented data table
@@ -4041,13 +4066,6 @@
             </summary>
             <param name="filePath"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.ForEachRow(System.Collections.Generic.IEnumerable{System.UInt32},System.Action{System.Object[]})">
-            <summary>
-            Invokes the callback on each specified row of the table
-            </summary>
-            <param name="rowIndices">Row indices to select</param>
-            <param name="callback">Callback to invoke on each selected row</param>
         </member>
         <member name="M:BrightData.IRowOrientedDataTable.Bag(System.UInt32,System.String)">
             <summary>
@@ -5976,6 +5994,9 @@
         <member name="P:BrightData.LinearAlgebra.TensorBase`2.Context">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.TensorBase`2.IsValid">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.ToArray">
             <summary>
             Converts the data to an array
@@ -6513,6 +6534,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.MetaData.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.MetaData.AllKeys">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Serialisation.SerialisationHelper">

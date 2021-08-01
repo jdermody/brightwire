@@ -283,6 +283,13 @@ namespace BrightData
         /// <param name="filePath">File path</param>
         /// <returns></returns>
         IDataTable WriteTo(string filePath);
+
+        /// <summary>
+        /// Invokes the callback on each specified row of the table
+        /// </summary>
+        /// <param name="rowIndices">Row indices to select</param>
+        /// <param name="callback">Callback to invoke on each selected row</param>
+        void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
     }
 
     /// <summary>
@@ -416,13 +423,6 @@ namespace BrightData
         /// <param name="filePath"></param>
         /// <returns></returns>
         IColumnOrientedDataTable AsColumnOriented(string? filePath = null);
-
-        /// <summary>
-        /// Invokes the callback on each specified row of the table
-        /// </summary>
-        /// <param name="rowIndices">Row indices to select</param>
-        /// <param name="callback">Callback to invoke on each selected row</param>
-        void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
 
         /// <summary>
         /// Samples (with replacement) from the data table

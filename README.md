@@ -4,7 +4,7 @@ Bright Wire is an extensible machine learning library for .NET with GPU support 
 
 ## Getting Started
 
-Bright Wire is a .net core 3.1 class library.
+Bright Wire is a .net 5 class library.
 
 The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire-v2
 

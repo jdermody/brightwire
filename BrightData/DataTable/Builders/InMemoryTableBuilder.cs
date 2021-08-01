@@ -34,10 +34,7 @@ namespace BrightData.DataTable.Builders
         /// <param name="columnIndices">Column indices to copy</param>
         public void CopyColumnsFrom(IDataTable table, params uint[] columnIndices)
         {
-            if (columnIndices.Length == 0)
-                columnIndices = table.ColumnIndices().ToArray();
-
-            var columnSet = new HashSet<uint>(columnIndices);
+            var columnSet = new HashSet<uint>(table.AllOrSelectedColumnIndices(columnIndices));
             var columnTypes = table.ColumnTypes.Zip(table.AllColumnsMetaData(), (t, m) => (Type: t, MetaData: m))
                 .Select((c, i) => (Column: c, Index: (uint) i));
 

@@ -144,6 +144,11 @@ namespace BrightData
         /// </summary>
         /// <param name="key">Name of the value</param>
         void Remove(string key);
+
+        /// <summary>
+        /// Returns all keys that have been set
+        /// </summary>
+        IEnumerable<string> AllKeys { get; }
     }
 
     /// <summary>
@@ -209,6 +214,11 @@ namespace BrightData
         /// Size of the Shape array
         /// </summary>
         uint Rank { get; }
+
+        /// <summary>
+        /// True if the underlying memory has been properly scoped
+        /// </summary>
+        bool IsValid { get; }
     }
 
     /// <summary>

@@ -122,7 +122,7 @@ namespace BrightData.DataTable
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
-            var selectedColumnIndices = AllOrSpecifiedColumns(columnIndices);
+            var selectedColumnIndices = this.AllOrSelectedColumnIndices(columnIndices);
 
             // TODO: compress the columns based on frequency statistics
             var columns = selectedColumnIndices.Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
@@ -334,6 +334,9 @@ namespace BrightData.DataTable
         public IRowOrientedDataTable CopyRows(params uint[] rowIndices) => CopyRows(null, rowIndices);
         public IRowOrientedDataTable CopyRows(string? filePath, params uint[] rowIndices)
         {
+            if (rowIndices.Length == 0)
+                rowIndices = AllOrSpecifiedRows(rowIndices).ToArray();
+
             return Copy(rowIndices, filePath);
         }
 

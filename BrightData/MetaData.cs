@@ -230,5 +230,8 @@ namespace BrightData
             if(_values.Remove(key))
                 _orderedValues.Remove(key);
         }
+
+        /// <inheritdoc />
+        public IEnumerable<string> AllKeys => _orderedValues;
     }
 }

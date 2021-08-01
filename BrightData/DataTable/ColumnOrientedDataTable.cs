@@ -152,11 +152,32 @@ namespace BrightData.DataTable
         }
 
         public IMetaData ColumnMetaData(uint columnIndex) => _columns[columnIndex].Info.MetaData;
+        public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
+        {
+            var rowSet = new HashSet<uint>(rowIndices);
+
+            lock (_columns) {
+                var columns = AllColumns().Select(c => c.Enumerate().GetEnumerator()).ToArray();
+                var rowCount = rowSet.Max();
+
+                for (uint i = 0; i < rowCount+1; i++) {
+                    if (rowSet.Contains(i)) {
+                        var row = new object[ColumnCount];
+                        for (uint j = 0; j < ColumnCount; j++) {
+                            var column = columns[j];
+                            column.MoveNext();
+                            row[j] = column.Current;
+                        }
+                        callback(row);
+                    }
+                }
+            }
+        }
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             var table = new Dictionary<uint, ISingleTypeTableSegment>();
-            foreach (var index in AllOrSpecifiedColumns(columnIndices).OrderBy(i => i).Distinct())
+            foreach (var index in this.AllOrSelectedColumnIndices(columnIndices).OrderBy(i => i).Distinct())
                 table.Add(index, _columns[index].Segment);
             return columnIndices.Select(i => table[i]);
         }

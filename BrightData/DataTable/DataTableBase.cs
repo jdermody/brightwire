@@ -34,10 +34,6 @@ namespace BrightData.DataTable
 
         protected abstract IDataTable Table { get; }
 
-        protected IEnumerable<uint> AllOrSpecifiedColumns(uint[] indices) => indices.Length == 0 
-            ? ColumnCount.AsRange()
-            : indices;
-
         protected IEnumerable<uint> AllOrSpecifiedRows(uint[] indices) => indices.Length == 0
             ? RowCount.AsRange()
             : indices;

@@ -311,8 +311,7 @@ namespace BrightData.Transformation
 
         public DataTableVectoriser(IDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
         {
-            if (columnIndices.Length == 0)
-                columnIndices = dataTable.ColumnIndices().ToArray();
+            columnIndices = dataTable.AllOrSelectedColumnIndices(columnIndices).ToArray();
 
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
