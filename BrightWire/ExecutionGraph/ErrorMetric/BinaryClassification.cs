@@ -25,6 +25,16 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return ret / output.Size;
         }
 
+        public float Compute(float[] output, float[] targetOutput)
+        {
+            float ret = 0;
+            for (var i = 0; i < output.Length; i++) {
+                var val = (output[i] >= 0.5) ? 1.0f : 0.0f;
+                ret += (Math.Abs(val - targetOutput[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
+            }
+            return ret / output.Length;
+        }
+
         public bool DisplayAsPercentage => true;
     }
 }

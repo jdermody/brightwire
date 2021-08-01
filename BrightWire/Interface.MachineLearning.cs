@@ -27,6 +27,14 @@ namespace BrightWire
 		/// <returns></returns>
 		float Compute(Vector<float> output, Vector<float> targetOutput);
 
+        /// <summary>
+        /// Computes the error between the output vector and target vector
+        /// </summary>
+        /// <param name="output">The vector that was the output of the model</param>
+        /// <param name="targetOutput">The vector that the model was expected to output</param>
+        /// <returns></returns>
+        float Compute(float[] output, float[] targetOutput);
+
 		/// <summary>
 		/// Calculates the gradient of the error function
 		/// </summary>

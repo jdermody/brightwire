@@ -20,6 +20,13 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return outputIndex == expectedIndex ? 1f : 0f;
         }
 
+        public float Compute(float[] output, float[] expectedOutput)
+        {
+            var outputIndex = output.MaximumIndex();
+            var expectedIndex = expectedOutput.MaximumIndex();
+            return outputIndex == expectedIndex ? 1f : 0f;
+        }
+
         public bool DisplayAsPercentage => true;
     }
 }

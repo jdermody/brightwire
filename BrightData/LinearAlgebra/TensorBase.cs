@@ -97,6 +97,9 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public IBrightDataContext Context { get; private set; } = null!;
 
+        /// <inheritdoc />
+        public bool IsValid => _segment.IsValid;
+
         /// <summary>
         /// Converts the data to an array
         /// </summary>

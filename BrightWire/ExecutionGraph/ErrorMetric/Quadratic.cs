@@ -23,6 +23,12 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));
         }
 
+        public float Compute(float[] output, float[] targetOutput)
+        {
+            var diff = output.Zip(targetOutput, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
+            return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));
+        }
+
         public bool DisplayAsPercentage => false;
     }
 }

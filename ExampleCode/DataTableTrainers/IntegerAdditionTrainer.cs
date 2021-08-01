@@ -53,11 +53,11 @@ namespace ExampleCode.DataTableTrainers
                 var results = executionEngine.Execute(testData2).ToArray();
 
                 // group the output
-                var groupedResults = new (Vector<float>[] Input, Vector<float>[] Target, Vector<float>[] Output)[8];
+                var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];
                 for (var i = 0; i < 8; i++) {
-                    var input = new Vector<float>[32];
-                    var target = new Vector<float>[32];
-                    var output = new Vector<float>[32];
+                    var input = new float[32][];
+                    var target = new float[32][];
+                    var output = new float[32][];
                     for (var j = 0; j < 32; j++) {
                         input[j] = results[j].Input![i];
                         target[j] = results[j].Target![i];

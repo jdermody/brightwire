@@ -3331,6 +3331,14 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.IErrorMetric.Compute(System.Single[],System.Single[])">
+            <summary>
+            Computes the error between the output vector and target vector
+            </summary>
+            <param name="output">The vector that was the output of the model</param>
+            <param name="targetOutput">The vector that the model was expected to output</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
             <summary>
             Calculates the gradient of the error function
@@ -4523,7 +4531,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.LinearAlgebra.Vector{System.Single}[])">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,System.Collections.Generic.IEnumerable{BrightData.LinearAlgebra.Vector{System.Single}})">
             <summary>
             Constructor
             </summary>

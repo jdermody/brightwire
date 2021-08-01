@@ -32,6 +32,18 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return ret / len;
         }
 
+        public float Compute(float[] output, float[] targetOutput)
+        {
+            float ret = 0;
+            var len = output.Length;
+            for (var i = 0; i < len; i++) {
+                var a = output[i];
+                var y = targetOutput[i];
+                ret += FloatMath.Constrain(-y * FloatMath.Log(a) - (1.0f - y) * FloatMath.Log(1.0f - a));
+            }
+            return ret / len;
+        }
+
         public bool DisplayAsPercentage => false;
     }
 }

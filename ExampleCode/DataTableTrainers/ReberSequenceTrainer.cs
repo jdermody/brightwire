@@ -131,7 +131,7 @@ namespace ExampleCode.DataTableTrainers
                 if (result != null) {
                     var sb = new StringBuilder();
                     for (var i = 0; i < 32; i++) {
-                        var next = result!.Output[0].Values
+                        var next = result!.Output[0]
                             .Select((v, j) => ((double) v, j))
                             .Where(d => d.Item1 >= 0.1f)
                             .ToList();

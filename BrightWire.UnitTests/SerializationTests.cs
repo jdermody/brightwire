@@ -14,6 +14,11 @@ namespace BrightWire.UnitTests
     {
         public class CustomErrorMetric : IErrorMetric
         {
+            public float Compute(float[] output, float[] targetOutput)
+            {
+                return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
+            }
+
             public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
@@ -56,7 +61,7 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(Vector<float> value) => value[0] > 0.5f;
+            static bool Handle(float[] value) => value[0] > 0.5f;
             results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target)).All(x => x)
                 .Should().BeTrue();
         }

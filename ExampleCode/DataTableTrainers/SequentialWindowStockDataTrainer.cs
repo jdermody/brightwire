@@ -44,7 +44,7 @@ namespace ExampleCode.DataTableTrainers
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
                 var expectedOutput = Test.Column<Vector<float>>(1).ToArray();
 
-                var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
+                var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i].ToArray())).Average();
                 Console.WriteLine($"Final quadratic prediction error: {score}");
             }
         }

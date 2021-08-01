@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.Models
@@ -15,33 +16,33 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, Vector<float>[] output)
+        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<Vector<float>> output)
         {
             _miniBatch = miniBatch;
-            Output = output;
-			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToArray();
-			Input = _miniBatch.Input?.GetMatrix().Data.Rows.ToArray();
-		}
+            Output = output.Select(d => d.ToArray()).ToArray();
+            Target = _miniBatch.Target?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
+            Input = _miniBatch.Input?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
+        }
 
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public Vector<float>[] Output { get; }
+		public float[][] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public Vector<float>[]? Target { get; }
+		public float[][]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public Vector<float>[]? Input { get; }
+		public float[][]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public Vector<float>[]? Error { get; set; } = null;
+        public float[][]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch

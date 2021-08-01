@@ -790,5 +790,52 @@ namespace BrightData
             }
             return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
         }
+
+        public static (float Value, uint Index) Minimum(this float[] vector)
+        {
+            var ret = uint.MaxValue;
+            var lowestValue = float.MaxValue;
+
+            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
+                var val = vector[i];
+                if (val < lowestValue) {
+                    lowestValue = val;
+                    ret = i;
+                }
+            }
+
+            return (lowestValue, ret);
+        }
+        public static uint MinimumIndex(this float[] vector) => Minimum(vector).Index;
+        public static float MinimumValue(this float[] vector) => Minimum(vector).Value;
+
+        public static (float Value, uint Index) Maximum(this float[] vector)
+        {
+            var ret = uint.MaxValue;
+            var highestValue = float.MinValue;
+
+            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
+                var val = vector[i];
+                if (val > highestValue) {
+                    highestValue = val;
+                    ret = i;
+                }
+            }
+
+            return (highestValue, ret);
+        }
+        public static uint MaximumIndex(this float[] vector) => Maximum(vector).Index;
+        public static float MaximumValue(this float[] vector) => Maximum(vector).Value;
+
+        public static float[] Softmax(this float[] vector)
+        {
+            var max = MaximumValue(vector);
+
+            var softmax = vector.Select(v => MathF.Exp(v - max)).ToArray();
+            var sum = softmax.Sum();
+            if (!sum.Equals(0))
+                softmax = softmax.Select(v => v / sum).ToArray();
+            return softmax;
+        }
     }
 }
