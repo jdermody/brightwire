@@ -16,6 +16,7 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly GraphFactory _factory;
         float? _lastTestError = null;
+        InputFeeder _start;
 
         public TrainingEngine(GraphFactory factory, IDataSource dataSource, IErrorMetric errorMetric)
         {
@@ -23,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = dataSource;
             LinearAlgebraProvider = factory.LinearAlgebraProvider;
             LearningContext = new LearningContext(factory, errorMetric);
-            Start = new InputFeeder(0, "engine-input-feeder");
+            Start = _start = new InputFeeder(0, "engine-input-feeder");
         }
 
         public IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
@@ -31,6 +32,10 @@ namespace BrightWire.ExecutionGraph.Engine
             return new TrainingGraphSequenceContext(learningContext, executionContext, sequence);
         }
 
+        public void SetStartNode(NodeBase? startNode)
+        {
+            Start = startNode ?? _start;
+        }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
         public ExecutionGraphModel Graph => Start.GetGraph();
         public IDataSource DataSource { get; }
@@ -68,7 +73,7 @@ namespace BrightWire.ExecutionGraph.Engine
             return Train(executionContext, null, batch);
         }
 
-        public NodeBase Start { get; }
+        public NodeBase Start { get; private set; }
 
         public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
         {
@@ -226,6 +231,8 @@ namespace BrightWire.ExecutionGraph.Engine
         void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
+            if(node is null && !String.IsNullOrEmpty(nodeModel.Name))
+                node = Start.FindByName(nodeModel.Name);
 			node?.LoadParameters(factory, nodeModel);
 		}
     }

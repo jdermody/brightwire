@@ -633,7 +633,7 @@ namespace BrightWire
         ILearningContext LearningContext { get; }
 
         /// <summary>
-        /// Loads model parameters into the existing graph
+        /// Loads model parameters into the existing graph (based on matching ids or names)
         /// </summary>
         /// <param name="factory">Graph factory</param>
         /// <param name="graph">Model to load parameters from</param>
@@ -650,6 +650,12 @@ namespace BrightWire
         /// Resets the learning context epoch and the best test result
         /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Sets the engine's start node (can be used to load a previously saved graph)
+        /// </summary>
+        /// <param name="startNode">Node to use as the engine's start node</param>
+        void SetStartNode(NodeBase? startNode);
     }
 
     /// <summary>
