@@ -88,6 +88,14 @@ namespace BrightData
         public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
 
         /// <summary>
+        /// Creates a weighted index list from weighted indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
+        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(context, indexList);
+
+        /// <summary>
         /// Creates a weighted index list from a binary reader
         /// </summary>
         /// <param name="context"></param>
@@ -403,10 +411,10 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A new weighted classification set</returns>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Tfidf(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var indexOccurence = new Dictionary<uint, uint>();
-            var classificationSum = new Dictionary<string, double>();
+            var classificationSum = new Dictionary<T, double>();
 
             // find the overall count of each index
             foreach (var classification in data.GroupBy(c => c.Label))
@@ -429,7 +437,7 @@ namespace BrightData
 
             // calculate tf-idf for each document
             var numDocs = (double)data.Count;
-            var ret = new List<(string Label, WeightedIndexList Data)>();
+            var ret = new List<(T Label, WeightedIndexList Data)>();
             foreach (var (label, weightedIndexList) in data)
             {
                 var totalWords = classificationSum[label];

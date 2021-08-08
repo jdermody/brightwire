@@ -1014,6 +1014,14 @@
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
+            <summary>
+            Creates a weighted index list from weighted indices
+            </summary>
+            <param name="context"></param>
+            <param name="indexList">Weighted indices</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a weighted index list from a binary reader
@@ -1214,7 +1222,7 @@
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Tfidf(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
             <summary>
             Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Tf%E2%80%93idf

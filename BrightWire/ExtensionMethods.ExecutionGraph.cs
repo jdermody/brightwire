@@ -56,7 +56,7 @@ namespace BrightWire
             return ret;
         }
 
-        static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)
+        public static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)
         {
             var curr = Convert.ToInt32(progress * 100);
             if (curr > previousPercentage) {
@@ -134,7 +134,7 @@ namespace BrightWire
                     nodeTable.Add(n.Id, n);
             }
 
-            // let each node know it has been deserialised and access to the entire graph
+            // let each node know it has been deserialised and can access the entire graph
             foreach(var item in nodeTable)
                 item.Value.OnDeserialise(nodeTable);
 
