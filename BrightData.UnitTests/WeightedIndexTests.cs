@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData.Helper;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 

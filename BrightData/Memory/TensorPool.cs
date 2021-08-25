@@ -14,7 +14,7 @@ namespace BrightData.Memory
         readonly ConcurrentDictionary<string, long> _requestHistory = new();
         long _requestIndex = 0;
         #if DEBUG
-        readonly ConcurrentDictionary<long, uint> _registeredBlocks = new ConcurrentDictionary<long, uint>();
+        readonly ConcurrentDictionary<long, uint> _registeredBlocks = new();
         #endif
 
         public TensorPool(long maxCacheSize)

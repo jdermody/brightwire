@@ -11,14 +11,16 @@ namespace BrightData.DataTable.Builders
     /// </summary>
     internal class ColumnOrientedTableBuilder : IDisposable
     {
+        readonly string? _filePath;
         readonly Stream _stream;
         readonly BinaryWriter _writer;
         bool _hasClosedStream = false;
 
         public ColumnOrientedTableBuilder(string? filePath = null)
         {
+            _filePath = filePath;
             _stream = filePath != null 
-                ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite) 
+                ? new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite) 
                 : new MemoryStream();
             _writer = new BinaryWriter(_stream, Encoding.UTF8, true);
         }
@@ -43,7 +45,7 @@ namespace BrightData.DataTable.Builders
             _stream.Seek(0, SeekOrigin.End);
         }
 
-        long Write(IMetaData metaData, ColumnType type, ICanWriteToBinaryWriter column)
+        long Write(IMetaData metaData, BrightDataType type, ICanWriteToBinaryWriter column)
         {
             _writer.Flush();
             var position = _stream.Position;
@@ -69,6 +71,9 @@ namespace BrightData.DataTable.Builders
             _writer.Write((byte)DataTableOrientation.ColumnOriented);
             _writer.Write(columnCount);
             _writer.Write(rowCount);
+
+            if (_filePath is not null)
+                metaData.Set(Consts.FilePath, _filePath);
             metaData.WriteTo(_writer);
         }
 

@@ -18,7 +18,7 @@ namespace BrightData.DataTable
         {
             void Copy(uint maxRows);
         }
-        class ConsumerBinding<T> : IConsumerBinding where T: notnull
+        class ConsumerBinding<T> : IConsumerBinding where T : notnull
         {
             readonly IDataTableSegment<T> _segment;
             readonly IConsumeColumnData<T> _consumer;
@@ -34,10 +34,7 @@ namespace BrightData.DataTable
                 uint index = 0;
                 using var enumerator = _segment.EnumerateTyped().GetEnumerator();
                 while (index < maxRows && enumerator.MoveNext())
-                {
-                    _consumer.Add(enumerator.Current);
-                    ++index;
-                }
+                    _consumer.Add(enumerator.Current, index++);
             }
         }
         interface IAnalyserBinding
@@ -74,7 +71,7 @@ namespace BrightData.DataTable
             MetaData.ReadFrom(reader);
 
             _columns = new (IColumnInfo Info, ISingleTypeTableSegment Segment)[ColumnCount];
-            ColumnTypes = new ColumnType[ColumnCount];
+            ColumnTypes = new BrightDataType[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var nextColumnPosition = reader.ReadInt64();
                 _columns[i] = Load(i, reader, 32768, streamCloner);
@@ -85,7 +82,7 @@ namespace BrightData.DataTable
 
         (IColumnInfo Info, ISingleTypeTableSegment Segment) Load(uint index, BinaryReader reader, uint inMemorySize, ICloneStreams streamCloner)
         {
-            var columnType = (ColumnType) reader.ReadByte();
+            var columnType = (BrightDataType)reader.ReadByte();
             var metadata = new MetaData(reader);
 
             // ensure the metadata has the index and type
@@ -111,7 +108,7 @@ namespace BrightData.DataTable
         }
 
         public override DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
-        public ColumnType[] ColumnTypes { get; }
+        public BrightDataType[] ColumnTypes { get; }
         public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue)
         {
             ForEachRow((row, index) => callback(row), maxRows);
@@ -151,6 +148,20 @@ namespace BrightData.DataTable
             return ret;
         }
 
+        public IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices)
+        {
+            var groups = new Dictionary<string, IHybridBuffer[]>();
+            ForEachRow((row, rowIndex) => {
+                var label = GetGroupLabel(columnIndices, row);
+                if (!groups.TryGetValue(label, out var data))
+                    groups.Add(label, data = _columns.Select(c => c.Info.MetaData.GetGrowableSegment(c.Info.ColumnType, Context, Context.TempStreamProvider)).ToArray());
+                foreach(var (obj, buffer) in row.Zip(data))
+                    buffer.Add(obj, rowIndex);
+            });
+
+            return groups.OrderBy(g => g.Key).Select(kv => (kv.Key, kv.Value));
+        }
+
         public IMetaData ColumnMetaData(uint columnIndex) => _columns[columnIndex].Info.MetaData;
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
@@ -160,7 +171,7 @@ namespace BrightData.DataTable
                 var columns = AllColumns().Select(c => c.Enumerate().GetEnumerator()).ToArray();
                 var rowCount = rowSet.Max();
 
-                for (uint i = 0; i < rowCount+1; i++) {
+                for (uint i = 0; i < rowCount + 1; i++) {
                     if (rowSet.Contains(i)) {
                         var row = new object[ColumnCount];
                         for (uint j = 0; j < ColumnCount; j++) {
@@ -226,11 +237,6 @@ namespace BrightData.DataTable
             return builder.Build(Context);
         }
 
-        public IColumnOrientedDataTable Convert(params IColumnTransformationParam[] conversionParams)
-        {
-            return Transform(conversionParams, null);
-        }
-
         IColumnOrientedDataTable Transform(IEnumerable<IColumnTransformationParam> input, string? filePath)
         {
             using var tempStream = new TempStreamManager();
@@ -242,7 +248,8 @@ namespace BrightData.DataTable
                 if (item.ColumnIndex.HasValue && item.ColumnIndex.Value < ColumnCount) {
                     columnConversionTable[item.ColumnIndex.Value] = item;
                     nextIndex = item.ColumnIndex.Value + 1;
-                } else if (nextIndex < ColumnCount)
+                }
+                else if (nextIndex < ColumnCount)
                     columnConversionTable[nextIndex++] = item;
             }
 
@@ -256,7 +263,7 @@ namespace BrightData.DataTable
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
                         var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
                         var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
-                        var param = new object[] {column, converter, buffer};
+                        var param = new object[] { column, converter, buffer };
                         var conversionContext = GenericActivator.Create<ITransformationContext>(contextType, param);
                         columnConversions.Add(segment, conversionContext);
                     }
@@ -271,7 +278,7 @@ namespace BrightData.DataTable
                     if (columnConversions.TryGetValue(column, out var converter)) {
                         var convertedCount = converter.Transform();
                         if (convertedCount == RowCount) {
-                            convertedColumns.Add((ISingleTypeTableSegment) converter.Buffer);
+                            convertedColumns.Add((ISingleTypeTableSegment)converter.Buffer);
                             wasConverted = true;
                         }
                     }
@@ -293,7 +300,6 @@ namespace BrightData.DataTable
             return Transform(conversionParams, filePath);
         }
 
-        public IColumnOrientedDataTable CopyColumns(params uint[] columnIndices) => CopyColumns(null, columnIndices);
         public IColumnOrientedDataTable CopyColumns(string? filePath, params uint[] columnIndices)
         {
             return Columns(columnIndices).ToList().BuildColumnOrientedTable(MetaData, Context, RowCount, filePath);
@@ -310,17 +316,11 @@ namespace BrightData.DataTable
             return Transform(param, filePath);
         }
 
-        public IColumnOrientedDataTable Normalize(params IColumnTransformationParam[] param)
-        {
-            return Transform(param, null);
-        }
-
         public IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] param)
         {
             return Transform(param, filePath);
         }
 
-        public IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others) => ConcatColumns(null, others);
         public IColumnOrientedDataTable ConcatColumns(string? filePath, params IColumnOrientedDataTable[] others)
         {
             if (others.Any(t => t.RowCount != RowCount))
@@ -347,14 +347,13 @@ namespace BrightData.DataTable
                 if (predicate(row)) {
                     ++rowCount;
                     for (int i = 0; i < ColumnCount; i++)
-                        buffers[i].Add(row[i]);
+                        buffers[i].Add(row[i], index);
                 }
             });
 
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(MetaData, Context, rowCount, filePath);
         }
 
-        public IColumnOrientedDataTable ReinterpretColumns(params IReinterpretColumnsParam[] columns) => ReinterpretColumns(null, columns);
         public IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumnsParam[] columns)
         {
             using var tempStream = new TempStreamManager();
@@ -362,13 +361,12 @@ namespace BrightData.DataTable
             var reinterpreted = columns.SelectMany(c => c.ColumnIndices.Select(i => (Column: c, Index: i)))
                 .ToDictionary(d => d.Index, d => d.Column);
 
-            foreach (var (info, segment) in _columns)
-            {
-                if (reinterpreted.TryGetValue(info.Index, out var rc))
-                {
+            foreach (var (info, segment) in _columns) {
+                if (reinterpreted.TryGetValue(info.Index, out var rc)) {
                     if (info.Index == rc.ColumnIndices[0])
                         newColumns.AddRange(rc.GetNewColumns(Context, tempStream, (uint)newColumns.Count, rc.ColumnIndices.Select(i => _columns[i]).ToArray()));
-                }else
+                }
+                else
                     newColumns.Add(segment);
             }
 

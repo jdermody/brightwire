@@ -26,9 +26,9 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Segment table column type
+    /// Data types enumeration
     /// </summary>
-    public enum ColumnType : byte
+    public enum BrightDataType : byte
     {
         /// <summary>
         /// Nothing
@@ -148,7 +148,7 @@ namespace BrightData
         /// <summary>
         /// The single type of the segment
         /// </summary>
-        ColumnType SingleType { get; }
+        BrightDataType SingleType { get; }
 
         /// <summary>
         /// Enumerate each item (casting to object)
@@ -175,7 +175,7 @@ namespace BrightData
         /// <summary>
         /// The column type of each value
         /// </summary>
-        ColumnType[] Types { get; }
+        BrightDataType[] Types { get; }
 
         /// <summary>
         /// The value at each index (cast to object)
@@ -216,7 +216,7 @@ namespace BrightData
         /// <summary>
         /// The type of each column
         /// </summary>
-        ColumnType[] ColumnTypes { get; }
+        BrightDataType[] ColumnTypes { get; }
 
         /// <summary>
         /// How the table is aligned (either row or column)
@@ -290,6 +290,13 @@ namespace BrightData
         /// <param name="rowIndices">Row indices to select</param>
         /// <param name="callback">Callback to invoke on each selected row</param>
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
+
+        /// <summary>
+        /// Groups columns into groups based on the specified column values
+        /// </summary>
+        /// <param name="columnIndices">Column indices to group on</param>
+        /// <returns>Groups of column buffers</returns>
+        IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices);
     }
 
     /// <summary>
@@ -307,17 +314,18 @@ namespace BrightData
         /// <summary>
         /// Creates a new table with columns that have been converted
         /// </summary>
-        /// <param name="conversion">Column conversion parameters</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable Convert(params IColumnTransformationParam[] conversion);
-
-        /// <summary>
-        /// Creates a new table with columns that have been converted
-        /// </summary>
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
         IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversion);
+
+        /// <summary>
+        /// Normalizes the data in all columns of the table
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <param name="conversion">Column normalization parameters</param>
+        /// <returns></returns>
+        IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] conversion);
 
         /// <summary>
         /// Normalizes the data in all columns of the table
@@ -328,40 +336,12 @@ namespace BrightData
         IColumnOrientedDataTable Normalize(NormalizationType type, string? filePath = null);
 
         /// <summary>
-        /// Normalizes the data in all columns of the table
-        /// </summary>
-        /// <param name="conversion">Column normalization parameters</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable Normalize(params IColumnTransformationParam[] conversion);
-
-        /// <summary>
-        /// Normalizes the data in all columns of the table
-        /// </summary>
-        /// <param name="filePath">File path to store new table on disk</param>
-        /// <param name="conversion">Column normalization parameters</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] conversion);
-
-        /// <summary>
-        /// Copies the selected columns to a new data table
-        /// </summary>
-        /// <param name="columnIndices">Column indices to copy</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable CopyColumns(params uint[] columnIndices);
-
-        /// <summary>
         /// Copies the selected columns to a new data table
         /// </summary>
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="columnIndices">Column indices to copy</param>
         /// <returns></returns>
         IColumnOrientedDataTable CopyColumns(string? filePath, params uint[] columnIndices);
-
-        /// <summary>
-        /// Creates a new data table with this concatenated with other column oriented data tables
-        /// </summary>
-        /// <param name="others">Other tables to concatenate</param>
-        IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
 
         /// <summary>
         /// Creates a new data table with this concatenated with other column oriented data tables
@@ -378,13 +358,6 @@ namespace BrightData
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <returns></returns>
         IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string? filePath = null);
-
-        /// <summary>
-        /// Many to one or one to many style column transformations
-        /// </summary>
-        /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable ReinterpretColumns(params IReinterpretColumnsParam[] columns);
 
         /// <summary>
         /// Many to one or one to many style column transformations
@@ -448,24 +421,10 @@ namespace BrightData
         /// <summary>
         /// Creates a new table of this concatenated with other row oriented data tables
         /// </summary>
-        /// <param name="others">Other row oriented data tables to concatenate</param>
-        /// <returns></returns>
-        IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
-
-        /// <summary>
-        /// Creates a new table of this concatenated with other row oriented data tables
-        /// </summary>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="others">Other row oriented data tables to concatenate</param>
         /// <returns></returns>
         IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others);
-
-        /// <summary>
-        /// Copy specified rows from this to a new data table
-        /// </summary>
-        /// <param name="rowIndices">Row indices to copy</param>
-        /// <returns></returns>
-        IRowOrientedDataTable CopyRows(params uint[] rowIndices);
 
         /// <summary>
         /// Copy specified rows from this to a new data table
@@ -490,13 +449,6 @@ namespace BrightData
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <returns></returns>
         IRowOrientedDataTable Sort(uint columnIndex, bool ascending, string? filePath = null);
-
-        /// <summary>
-        /// Splits this table into many data tables based on the value from a column
-        /// </summary>
-        /// <param name="columnIndex">Column index to group on</param>
-        /// <returns></returns>
-        IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex);
 
         /// <summary>
         /// Returns the first row as a string
@@ -639,7 +591,7 @@ namespace BrightData
         /// <param name="input"></param>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        bool Convert(TF input, IHybridBuffer<TT> buffer);
+        bool Convert(TF input, IHybridBuffer<TT> buffer, uint index);
     }
 
     /// <summary>
@@ -672,7 +624,7 @@ namespace BrightData
         /// <summary>
         /// Column type
         /// </summary>
-        ColumnType ColumnType { get; }
+        BrightDataType ColumnType { get; }
 
         /// <summary>
         /// Encoded dictionary
@@ -699,7 +651,7 @@ namespace BrightData
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <returns></returns>
-        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public ITransformColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     /// <summary>
@@ -796,7 +748,7 @@ namespace BrightData
         /// <summary>
         /// Column type of incoming data
         /// </summary>
-        ColumnType ColumnType { get; }
+        BrightDataType ColumnType { get; }
     }
 
     /// <summary>

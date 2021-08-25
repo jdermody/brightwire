@@ -22,7 +22,7 @@ namespace ExampleCode.DataTableTrainers
             _empty = GetStringIndex("");
 
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.IndexList, "Sentences");
+            builder.AddColumn(BrightDataType.IndexList, "Sentences");
             foreach(var sentence in sentences)
                 builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
             _sentenceTable = builder.BuildRowOriented();

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -12,10 +13,10 @@ namespace BrightWire.UnitTests
         public void Knn()
         {
             var dataTable = _context.BuildTable();
-            dataTable.AddColumn(ColumnType.Float, "height");
-            dataTable.AddColumn(ColumnType.Int, "weight");
-            dataTable.AddColumn(ColumnType.Int, "foot-size");
-            dataTable.AddColumn(ColumnType.String, "gender").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.Float, "height");
+            dataTable.AddColumn(BrightDataType.Int, "weight");
+            dataTable.AddColumn(BrightDataType.Int, "foot-size");
+            dataTable.AddColumn(BrightDataType.String, "gender").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");

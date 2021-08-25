@@ -1,4 +1,8 @@
-﻿using Xunit;
+﻿using System;
+using BrightData.Helper;
+using BrightData.UnitTests.Fixtures;
+using Xunit;
+using FluentAssertions;
 
 namespace BrightData.UnitTests
 {
@@ -51,13 +55,13 @@ namespace BrightData.UnitTests
 		[Fact]
         public void EncodeInt()
         {
-            Encode(123);
+            Encode((int)123);
         }
 
         [Fact]
         public void EncodeIntArray()
         {
-            EncodeArray(new [] {1, 2, 3});
+            EncodeArray(new int[] {1, 2, 3});
         }
 		[Fact]
         public void EncodeShort()

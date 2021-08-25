@@ -1,6 +1,7 @@
 using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
+using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using FluentAssertions;
 using Xunit;
@@ -20,10 +21,10 @@ namespace BrightWire.UnitTests
 		public void DefaultDataSource()
 		{
 			var builder = _context.BuildTable();
-			builder.AddColumn(ColumnType.Float, "val1");
-			builder.AddColumn(ColumnType.Double, "val2");
-			builder.AddColumn(ColumnType.String, "val3");
-			builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+			builder.AddColumn(BrightDataType.Float, "val1");
+			builder.AddColumn(BrightDataType.Double, "val2");
+			builder.AddColumn(BrightDataType.String, "val3");
+			builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
 
 			builder.AddRow(0.5f, 1.1, "d", "a");
 			builder.AddRow(0.2f, 1.5, "c", "b");

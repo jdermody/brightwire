@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using BrightData.UnitTests.Helper;
+using FluentAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

@@ -7,29 +7,29 @@ namespace BrightData.Helper
     /// </summary>
     public static class ColumnTypeClassifier
     {
-        static readonly HashSet<ColumnType> NumericType = new() {
-            ColumnType.Double,
-            ColumnType.Decimal,
-            ColumnType.Float,
-            ColumnType.Int,
-            ColumnType.Short,
-            ColumnType.Long,
-            ColumnType.Byte
+        static readonly HashSet<BrightDataType> NumericType = new() {
+            BrightDataType.Double,
+            BrightDataType.Decimal,
+            BrightDataType.Float,
+            BrightDataType.Int,
+            BrightDataType.Short,
+            BrightDataType.Long,
+            BrightDataType.Byte
         };
-        static readonly HashSet<ColumnType> ContinuousType = new(NumericType) {
-            ColumnType.Date
+        static readonly HashSet<BrightDataType> ContinuousType = new(NumericType) {
+            BrightDataType.Date
         };
-        static readonly HashSet<ColumnType> BlittableType = new(ContinuousType) {
-            ColumnType.Boolean
+        static readonly HashSet<BrightDataType> BlittableType = new(ContinuousType) {
+            BrightDataType.Boolean
         };
-        static readonly HashSet<ColumnType> CategoricalType = new() {
-            ColumnType.Boolean,
-            ColumnType.String,
+        static readonly HashSet<BrightDataType> CategoricalType = new() {
+            BrightDataType.Boolean,
+            BrightDataType.String,
         };
-        static readonly HashSet<ColumnType> DecimalType = new() {
-            ColumnType.Double,
-            ColumnType.Decimal,
-            ColumnType.Float
+        static readonly HashSet<BrightDataType> DecimalType = new() {
+            BrightDataType.Double,
+            BrightDataType.Decimal,
+            BrightDataType.Float
         };
 
         /// <summary>
@@ -37,35 +37,35 @@ namespace BrightData.Helper
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
-        public static bool IsDecimal(ColumnType columnType) => DecimalType.Contains(columnType);
+        public static bool IsDecimal(BrightDataType columnType) => DecimalType.Contains(columnType);
 
         /// <summary>
         /// Checks for a numeric type (floating point or integer)
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
-        public static bool IsNumeric(ColumnType columnType) => NumericType.Contains(columnType);
+        public static bool IsNumeric(BrightDataType columnType) => NumericType.Contains(columnType);
 
         /// <summary>
         /// Checks for a continuous type (non categorical)
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
-        public static bool IsContinuous(ColumnType columnType) => ContinuousType.Contains(columnType);
+        public static bool IsContinuous(BrightDataType columnType) => ContinuousType.Contains(columnType);
 
         /// <summary>
         /// Checks for a categorical type (non continuous)
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
-        public static bool IsCategorical(ColumnType columnType) => CategoricalType.Contains(columnType);
+        public static bool IsCategorical(BrightDataType columnType) => CategoricalType.Contains(columnType);
 
         /// <summary>
         /// Checks if the type has an independent memory layout across managed and unmanaged code
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
-        public static bool IsBlittable(ColumnType columnType) => BlittableType.Contains(columnType);
+        public static bool IsBlittable(BrightDataType columnType) => BlittableType.Contains(columnType);
 
         /// <summary>
         /// Returns the set of possible column classifications
@@ -73,7 +73,7 @@ namespace BrightData.Helper
         /// <param name="type">Column type to check</param>
         /// <param name="metaData">Column metadata</param>
         /// <returns></returns>
-        public static ColumnClass GetClass(ColumnType type, IMetaData metaData)
+        public static ColumnClass GetClass(BrightDataType type, IMetaData metaData)
         {
             var ret = ColumnClass.Unknown;
             if (metaData.IsCategorical() || IsCategorical(type))

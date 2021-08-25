@@ -3,6 +3,7 @@ using System.Linq;
 using BrightData;
 using BrightData.Helper;
 using BrightData.UnitTests;
+using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;

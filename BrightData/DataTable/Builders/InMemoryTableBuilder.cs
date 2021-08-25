@@ -11,7 +11,7 @@ namespace BrightData.DataTable.Builders
     /// </summary>
     public class InMemoryTableBuilder : IHaveDataContext
     {
-        readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new();
+        readonly List<(BrightDataType Type, IMetaData MetaData)> _columns = new();
         readonly List<object[]> _rows = new();
 
         /// <inheritdoc />
@@ -52,7 +52,7 @@ namespace BrightData.DataTable.Builders
         /// <param name="type">Type of the column</param>
         /// <param name="name">Name of the column</param>
         /// <returns></returns>
-        public IMetaData AddColumn(ColumnType type, string? name = null)
+        public IMetaData AddColumn(BrightDataType type, string? name = null)
         {
             var ret = new MetaData();
             ret.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
@@ -68,7 +68,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
         {
-            var metaData = AddColumn(ColumnType.Vector, name);
+            var metaData = AddColumn(BrightDataType.Vector, name);
             metaData.Set(Consts.XDimension, size);
             return metaData;
         }
@@ -82,7 +82,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSizeMatrixColumn(uint rows, uint columns, string? name = null)
         {
-            var metaData = AddColumn(ColumnType.Matrix, name);
+            var metaData = AddColumn(BrightDataType.Matrix, name);
             metaData.Set(Consts.XDimension, columns);
             metaData.Set(Consts.YDimension, rows);
             return metaData;
@@ -98,7 +98,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name = null)
         {
-            var metaData = AddColumn(ColumnType.Tensor3D, name);
+            var metaData = AddColumn(BrightDataType.Tensor3D, name);
             metaData.Set(Consts.XDimension, columns);
             metaData.Set(Consts.YDimension, rows);
             metaData.Set(Consts.ZDimension, depth);
@@ -118,26 +118,26 @@ namespace BrightData.DataTable.Builders
             _rows.Add(data);
         }
 
-        object EnsureType(int columnIndex, object val, ColumnType type)
+        object EnsureType(int columnIndex, object val, BrightDataType type)
         {
             return type switch {
-                ColumnType.Matrix => EnsureMatrix(columnIndex, (Matrix<float>) val),
-                ColumnType.BinaryData => (BinaryData) val,
-                ColumnType.Boolean => Convert.ToBoolean(val),
-                ColumnType.Byte => Convert.ToSByte(val),
-                ColumnType.Date => Convert.ToDateTime(val),
-                ColumnType.Decimal => Convert.ToDecimal(val),
-                ColumnType.Short => Convert.ToInt16(val),
-                ColumnType.Int => Convert.ToInt32(val),
-                ColumnType.Long => Convert.ToInt64(val),
-                ColumnType.Float => Convert.ToSingle(val),
-                ColumnType.Double => Convert.ToDouble(val),
-                ColumnType.String => val.ToString(),
-                ColumnType.IndexList => (IndexList) val,
-                ColumnType.WeightedIndexList => (WeightedIndexList) val,
-                ColumnType.Vector => EnsureVector(columnIndex, (Vector<float>)val),
-                ColumnType.Tensor3D => EnsureTensor(columnIndex, (Tensor3D<float>) val),
-                ColumnType.Tensor4D => (Tensor4D<float>) val,
+                BrightDataType.Matrix => EnsureMatrix(columnIndex, (Matrix<float>) val),
+                BrightDataType.BinaryData => (BinaryData) val,
+                BrightDataType.Boolean => Convert.ToBoolean(val),
+                BrightDataType.Byte => Convert.ToSByte(val),
+                BrightDataType.Date => Convert.ToDateTime(val),
+                BrightDataType.Decimal => Convert.ToDecimal(val),
+                BrightDataType.Short => Convert.ToInt16(val),
+                BrightDataType.Int => Convert.ToInt32(val),
+                BrightDataType.Long => Convert.ToInt64(val),
+                BrightDataType.Float => Convert.ToSingle(val),
+                BrightDataType.Double => Convert.ToDouble(val),
+                BrightDataType.String => val.ToString(),
+                BrightDataType.IndexList => (IndexList) val,
+                BrightDataType.WeightedIndexList => (WeightedIndexList) val,
+                BrightDataType.Vector => EnsureVector(columnIndex, (Vector<float>)val),
+                BrightDataType.Tensor3D => EnsureTensor(columnIndex, (Tensor3D<float>) val),
+                BrightDataType.Tensor4D => (Tensor4D<float>) val,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw new ArgumentException("Value cannot be null");
         }
@@ -203,6 +203,7 @@ namespace BrightData.DataTable.Builders
 
             var tempStream = new TempStreamManager();
             var columns = _columns.Select(c => c.MetaData.GetGrowableSegment(c.Type, Context, tempStream)).ToList();
+            uint index = 0;
             foreach (var row in _rows) {
                 for (var i = 0; i < _columns.Count; i++) {
                     var val = i < row.Length 
@@ -210,8 +211,10 @@ namespace BrightData.DataTable.Builders
                         : _columns[i].Type.GetDefaultValue();
                     if (val == null)
                         throw new Exception("Values cannot be null");
-                    columns[i].Add(val);
+                    columns[i].Add(val, index);
                 }
+
+                ++index;
             }
 
             var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();

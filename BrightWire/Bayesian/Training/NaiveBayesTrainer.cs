@@ -38,8 +38,8 @@ namespace BrightWire.Bayesian.Training
 
             public void Process(object[] row)
             {
-                foreach (var item in _column)
-                    item.Value.AddObject(row[item.Key]);
+                foreach (var (key, value) in _column)
+                    value.AddObject(row[key]);
                 ++Total;
             }
 
@@ -56,7 +56,7 @@ namespace BrightWire.Bayesian.Training
             // analyse each row by its classification
             var rowsByClassification = new Dictionary<string, FrequencyAnalysis>();
             ulong rowCount = 0;
-            table.ForEachRow((row, index) => {
+            table.ForEachRow(row => {
                 var target = row[targetColumn].ToString();
                 if (target != null) {
                     if (!rowsByClassification.TryGetValue(target, out var analysis))
@@ -68,13 +68,11 @@ namespace BrightWire.Bayesian.Training
 
             // create the per-class summaries from the frequency table
             var classList = new List<NaiveBayes.ClassSummary>();
-            foreach (var classSummary in rowsByClassification) {
-                var classLabel = classSummary.Key;
-                var frequency = classSummary.Value;
+            foreach (var (classLabel, frequency) in rowsByClassification) {
                 var columnList = new List<NaiveBayes.Column>();
-                foreach (var column in frequency.Columns) {
+                foreach (var (key, dataAnalyser) in frequency.Columns) {
                     var metaData = new MetaData();
-                    column.Value.WriteTo(metaData);
+                    dataAnalyser.WriteTo(metaData);
                     if (metaData.IsNumeric()) {
                         var analysis = metaData.GetNumericAnalysis();
                         var variance = analysis.SampleVariance;
@@ -82,7 +80,7 @@ namespace BrightWire.Bayesian.Training
                             var mean = analysis.Mean;
                             columnList.Add(new NaiveBayes.Column {
                                 Type = NaiveBayes.ColumnType.ContinuousGaussian,
-                                ColumnIndex = column.Key,
+                                ColumnIndex = key,
                                 Mean = mean,
                                 Variance = variance.Value
                             });
@@ -104,15 +102,14 @@ namespace BrightWire.Bayesian.Training
 
                             columnList.Add(new NaiveBayes.Column {
                                 Type = NaiveBayes.ColumnType.Categorical,
-                                ColumnIndex = column.Key,
+                                ColumnIndex = key,
                                 Probability = list.ToArray()
                             });
                         }
                     }
                 }
 
-
-                var probability = (double)classSummary.Value.Total / rowCount;
+                var probability = (double)frequency.Total / rowCount;
                 classList.Add(new NaiveBayes.ClassSummary {
                     Label = classLabel,
                     ColumnSummary = columnList.ToArray(),

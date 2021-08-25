@@ -12,15 +12,15 @@ namespace BrightData
     /// </summary>
     public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
-        ILinearAlgebraProvider _lap;
+        ILinearAlgebraProvider                        _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
-        readonly TensorPool _tensorPool;
-        readonly DisposableLayers _memoryLayers = new();
-        readonly FloatComputation _floatComputation;
-        readonly DoubleComputation _doubleComputation;
-        readonly DecimalComputation _decimalComputation;
-        readonly UIntComputation _uintComputation;
-        readonly DataEncoder _dataReader;
+        readonly TensorPool                           _tensorPool;
+        readonly DisposableLayers                     _memoryLayers = new();
+        readonly FloatComputation                     _floatComputation;
+        readonly DoubleComputation                    _doubleComputation;
+        readonly DecimalComputation                   _decimalComputation;
+        readonly UIntComputation                      _uintComputation;
+        readonly DataEncoder                          _dataReader;
 
         /// <summary>
         /// Constructor
@@ -71,11 +71,11 @@ namespace BrightData
         {
             var typeCode = Type.GetTypeCode(typeof(T));
             return typeCode switch {
-                TypeCode.Single => (INumericComputation<T>) _floatComputation,
-                TypeCode.Double => (INumericComputation<T>) _doubleComputation,
+                TypeCode.Single  => (INumericComputation<T>) _floatComputation,
+                TypeCode.Double  => (INumericComputation<T>) _doubleComputation,
                 TypeCode.Decimal => (INumericComputation<T>) _decimalComputation,
-                TypeCode.UInt32 => (INumericComputation<T>) _uintComputation,
-                _ => throw new NotImplementedException()
+                TypeCode.UInt32  => (INumericComputation<T>) _uintComputation,
+                _                => throw new NotImplementedException()
             };
         }
 
@@ -97,6 +97,9 @@ namespace BrightData
 
         /// <inheritdoc />
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;
+
+        /// <inheritdoc />
+        public T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull => (T)_attachedProperties.GetOrAdd(name, key => defaultValueCreator());
 
         /// <inheritdoc />
         public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;

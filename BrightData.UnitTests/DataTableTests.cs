@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
+using BrightData.UnitTests.Helper;
 using BrightWire;
 using FluentAssertions;
 using Xunit;
@@ -15,14 +16,14 @@ namespace BrightData.UnitTests
         public void TestColumnTypes()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Boolean, "boolean");
-            builder.AddColumn(ColumnType.Byte, "byte");
-            builder.AddColumn(ColumnType.Date, "date");
-            builder.AddColumn(ColumnType.Double, "double");
-            builder.AddColumn(ColumnType.Float, "float");
-            builder.AddColumn(ColumnType.Int, "int");
-            builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.String, "string");
+            builder.AddColumn(BrightDataType.Boolean, "boolean");
+            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.Date, "date");
+            builder.AddColumn(BrightDataType.Double, "double");
+            builder.AddColumn(BrightDataType.Float, "float");
+            builder.AddColumn(BrightDataType.Int, "int");
+            builder.AddColumn(BrightDataType.Long, "long");
+            builder.AddColumn(BrightDataType.String, "string");
 
             var now = DateTime.Now;
             builder.AddRow(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
@@ -40,14 +41,14 @@ namespace BrightData.UnitTests
 
         }
 
-        void CompareRows(IDataTableSegment row1, IDataTableSegment row2)
+        static void CompareRows(IDataTableSegment row1, IDataTableSegment row2)
         {
             row1.Size.Should().Be(row2.Size);
             for (uint i = 0; i < row1.Size; i++)
                 row1[i].Should().BeEquivalentTo(row2[i]);
         }
 
-        void CompareTables(IRowOrientedDataTable table1, IRowOrientedDataTable table2)
+        static void CompareTables(IRowOrientedDataTable table1, IRowOrientedDataTable table2)
         {
             var rand = new Random();
             table1.ColumnCount.Should().Be(table2.ColumnCount);
@@ -62,7 +63,7 @@ namespace BrightData.UnitTests
             }
         }
 
-        void RandomSample(IConvertibleTable table, Action<uint, IConvertibleRow> callback)
+        static void RandomSample(IConvertibleTable table, Action<uint, IConvertibleRow> callback)
         {
             var rand = new Random();
             for (var i = 0; i < 128; i++) {
@@ -74,14 +75,14 @@ namespace BrightData.UnitTests
         static IRowOrientedDataTable CreateComplexTable(IBrightDataContext context)
         {
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Boolean, "boolean");
-            builder.AddColumn(ColumnType.Byte, "byte");
-            builder.AddColumn(ColumnType.Date, "date");
-            builder.AddColumn(ColumnType.Double, "double");
-            builder.AddColumn(ColumnType.Float, "float");
-            builder.AddColumn(ColumnType.Int, "int");
-            builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.String, "string");
+            builder.AddColumn(BrightDataType.Boolean, "boolean");
+            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.Date, "date");
+            builder.AddColumn(BrightDataType.Double, "double");
+            builder.AddColumn(BrightDataType.Float, "float");
+            builder.AddColumn(BrightDataType.Int, "int");
+            builder.AddColumn(BrightDataType.Long, "long");
+            builder.AddColumn(BrightDataType.String, "string");
 
             for (var i = 1; i <= 10; i++)
                 builder.AddRow(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
@@ -115,7 +116,7 @@ namespace BrightData.UnitTests
         IRowOrientedDataTable GetSimpleTable()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Int, "val");
+            builder.AddColumn(BrightDataType.Int, "val");
 
             for (var i = 0; i < 10000; i++)
                 builder.AddRow(i);
@@ -126,7 +127,7 @@ namespace BrightData.UnitTests
         {
             var table = GetSimpleTable();
             var table2 = table.Project(r => new object[] { Convert.ToDouble(r[0]) });
-            table2!.ColumnTypes[0].Should().Be(ColumnType.Double);
+            table2!.ColumnTypes[0].Should().Be(BrightDataType.Double);
             return table2;
         }
 
@@ -297,9 +298,9 @@ namespace BrightData.UnitTests
         public void TestTargetColumnIndex()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String, "a");
-            builder.AddColumn(ColumnType.String, "b").SetTarget(true);
-            builder.AddColumn(ColumnType.String, "c");
+            builder.AddColumn(BrightDataType.String, "a");
+            builder.AddColumn(BrightDataType.String, "b").SetTarget(true);
+            builder.AddColumn(BrightDataType.String, "c");
             builder.AddRow("a", "b", "c");
             var table = builder.BuildRowOriented();
 
@@ -312,9 +313,9 @@ namespace BrightData.UnitTests
         public void AsMatrix()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+            builder.AddColumn(BrightDataType.Float, "val1");
+            builder.AddColumn(BrightDataType.Double, "val2");
+            builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
@@ -332,9 +333,9 @@ namespace BrightData.UnitTests
         public void AsMatrix2()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+            builder.AddColumn(BrightDataType.Float, "val1");
+            builder.AddColumn(BrightDataType.Double, "val2");
+            builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
@@ -353,10 +354,10 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
-            builder.AddColumn(ColumnType.String, "cls2");
+            builder.AddColumn(BrightDataType.Float, "val1");
+            builder.AddColumn(BrightDataType.Double, "val2");
+            builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
+            builder.AddColumn(BrightDataType.String, "cls2");
 
             builder.AddRow(0.5f, 1.1, "a", "a2");
             builder.AddRow(0.2f, 1.5, "b", "b2");
@@ -381,9 +382,9 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+            builder.AddColumn(BrightDataType.Float, "val1");
+            builder.AddColumn(BrightDataType.Double, "val2");
+            builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
@@ -404,9 +405,9 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+            builder.AddColumn(BrightDataType.Float, "val1");
+            builder.AddColumn(BrightDataType.Double, "val2");
+            builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
@@ -425,8 +426,8 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.String, "actual");
-            builder.AddColumn(ColumnType.String, "expected");
+            builder.AddColumn(BrightDataType.String, "actual");
+            builder.AddColumn(BrightDataType.String, "expected");
 
             const int CAT_CAT = 5;
             const int CAT_DOG = 2;
@@ -458,7 +459,7 @@ namespace BrightData.UnitTests
             confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(RABBIT_RABBIT);
         }
 
-        static void CheckTableConversion<T>(InMemoryTableBuilder builder, ColumnConversionType conversionType, ColumnType columnType)
+        static void CheckTableConversion<T>(InMemoryTableBuilder builder, ColumnConversionType conversionType, BrightDataType columnType)
         {
             var table = builder.BuildColumnOriented();
             var converted = table.Convert(conversionType.ConvertColumn(0), conversionType.ConvertColumn(1)).AsRowOriented();
@@ -471,8 +472,8 @@ namespace BrightData.UnitTests
         public void BooleanColumnConversion()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
-            builder.AddColumn(ColumnType.Boolean);
+            builder.AddColumn(BrightDataType.String);
+            builder.AddColumn(BrightDataType.Boolean);
 
             builder.AddRow("True", true);
             builder.AddRow("Y", true);
@@ -485,15 +486,15 @@ namespace BrightData.UnitTests
             builder.AddRow("f", false);
             builder.AddRow("0", false);
 
-            CheckTableConversion<bool>(builder, ColumnConversionType.ToBoolean, ColumnType.Boolean);
+            CheckTableConversion<bool>(builder, ColumnConversionType.ToBoolean, BrightDataType.Boolean);
         }
 
         [Fact]
         public void DateColumnConversion()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
-            builder.AddColumn(ColumnType.Date);
+            builder.AddColumn(BrightDataType.String);
+            builder.AddColumn(BrightDataType.Date);
 
             void AddRow(string dateStr) => builder.AddRow(dateStr, DateTime.Parse(dateStr));
 
@@ -513,48 +514,48 @@ namespace BrightData.UnitTests
             AddRow(date.ToString("u"));
             AddRow(date.ToString("U"));
 
-            CheckTableConversion<DateTime>(builder, ColumnConversionType.ToDate, ColumnType.Date);
+            CheckTableConversion<DateTime>(builder, ColumnConversionType.ToDate, BrightDataType.Date);
         }
 
         [Fact]
         public void ByteColumnConversion()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
-            builder.AddColumn(ColumnType.Byte);
+            builder.AddColumn(BrightDataType.String);
+            builder.AddColumn(BrightDataType.Byte);
 
             for (int i = 0, len = sbyte.MaxValue - sbyte.MinValue; i < len; i++) {
                 var val = (sbyte) (sbyte.MinValue + i);
                 builder.AddRow(val.ToString(), val);
             }
-            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, ColumnType.Byte);
+            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, BrightDataType.Byte);
         }
 
         [Fact]
         public void ShortColumnConversion()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
-            builder.AddColumn(ColumnType.Short);
+            builder.AddColumn(BrightDataType.String);
+            builder.AddColumn(BrightDataType.Short);
 
             foreach(var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
                 builder.AddRow(val.ToString(), val);
 
-            CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, ColumnType.Short);
+            CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, BrightDataType.Short);
         }
 
         [Fact]
         public void IntColumnConversion()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
-            builder.AddColumn(ColumnType.Int);
+            builder.AddColumn(BrightDataType.String);
+            builder.AddColumn(BrightDataType.Int);
 
             builder.AddRow(int.MinValue, int.MinValue.ToString());
             builder.AddRow(0, "0");
             builder.AddRow(int.MaxValue, int.MaxValue.ToString());
 
-            CheckTableConversion<int>(builder, ColumnConversionType.ToNumeric, ColumnType.Int);
+            CheckTableConversion<int>(builder, ColumnConversionType.ToNumeric, BrightDataType.Int);
         }
 
         

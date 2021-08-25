@@ -3,9 +3,9 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using FluentAssertions;
 
-namespace BrightData.UnitTests
+namespace BrightData.UnitTests.Helper
 {
-    public class UnitTestBase
+    public class UnitTestBase : IDisposable
     {
         protected readonly BrightDataContext _context = new(0);
 
@@ -18,6 +18,11 @@ namespace BrightData.UnitTests
         public void CheckEquivalent<T>(ITensor<T> tensor1, ITensor<T> tensor2) where T: struct
         {
             tensor1.Should().BeEquivalentTo(tensor2, options => options.Excluding(t => t.Segment.AllocationIndex));
+        }
+
+        public virtual void Dispose()
+        {
+            _context.Dispose();
         }
     }
 }

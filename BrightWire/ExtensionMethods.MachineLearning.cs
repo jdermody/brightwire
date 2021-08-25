@@ -203,7 +203,7 @@ namespace BrightWire
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
-                .Single(c => c.ColumnType == ColumnType.IndexList);
+                .Single(c => c.ColumnType == BrightDataType.IndexList);
             if (indexListColumn.Index == targetColumnIndex)
                 throw new ArgumentException("No index list column of features");
 
@@ -235,7 +235,7 @@ namespace BrightWire
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
-                .Single(c => c.ColumnType == ColumnType.IndexList);
+                .Single(c => c.ColumnType == BrightDataType.IndexList);
 
             var data = table.AsConvertible()
                 .Map(row => (row.GetTyped<string>(targetColumnIndex), row.GetTyped<IndexList>(indexListColumn.Index)));

@@ -33,7 +33,7 @@ namespace BrightData.Buffer
             }
         }
 
-        public void Add(T item)
+        public void Add(T item, uint index)
         {
             if (_index == _maxCount) {
                 var stream = _tempStream.Get(_id);
@@ -75,7 +75,7 @@ namespace BrightData.Buffer
         public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?) _distinctSet?.Count;
-        public void Add(object obj) => Add((T) obj);
+        public void Add(object obj, uint index) => Add((T)obj, index);
 
         protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
         protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);

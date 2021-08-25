@@ -9,7 +9,7 @@ namespace BrightData.Buffer
         readonly List<T> _data = new();
 
         public IEnumerable<T> EnumerateTyped() => _data;
-        public void Add(T obj) => _data.Add(obj);
+        public void Add(T obj, uint index) => _data.Add(obj);
 
         public uint Size => (uint)_data.Count;
     }

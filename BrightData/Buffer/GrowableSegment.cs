@@ -12,7 +12,7 @@ namespace BrightData.Buffer
     {
         readonly IHybridBuffer<T> _buffer;
 
-        public GrowableSegment(ColumnType type, IMetaData metaData, IHybridBuffer<T> buffer)
+        public GrowableSegment(BrightDataType type, IMetaData metaData, IHybridBuffer<T> buffer)
         {
             _buffer = buffer;
             MetaData = metaData;
@@ -30,7 +30,7 @@ namespace BrightData.Buffer
         public IMetaData MetaData { get; }
 
         /// <inheritdoc />
-        public ColumnType SingleType { get; }
+        public BrightDataType SingleType { get; }
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
@@ -41,8 +41,8 @@ namespace BrightData.Buffer
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Size;
         public bool IsEncoded { get; } = true;
-        public void Add(object? obj) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
-        public void Add(T obj) => _buffer.Add(obj);
+        public void Add(object? obj, uint index) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"), index);
+        public void Add(T obj, uint index) => _buffer.Add(obj, index);
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
     }
 }

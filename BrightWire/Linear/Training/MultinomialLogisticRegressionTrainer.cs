@@ -28,7 +28,7 @@ namespace BrightWire.Linear.Training
             var trainingTables = targetGroups.Select(d => {
                 var builder = context.BuildTable();
                 builder.CopyColumnsFrom(table, featureColumns);
-                builder.AddColumn(ColumnType.Float, "Target").SetTarget(true);
+                builder.AddColumn(BrightDataType.Float, "Target").SetTarget(true);
 
                 // add the rows for this classification
                 foreach (var row in d.Value) {

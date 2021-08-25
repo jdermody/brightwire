@@ -7,9 +7,9 @@
         readonly IDataAnalyser<T> _analyser;
 
         public uint ColumnIndex { get; }
-        public ColumnType ColumnType { get; }
+        public BrightDataType ColumnType { get; }
 
-        public ColumnAnalyser(uint columnIndex, ColumnType type, IMetaData metaData, IDataAnalyser<T> analyser)
+        public ColumnAnalyser(uint columnIndex, BrightDataType type, IMetaData metaData, IDataAnalyser<T> analyser)
         {
             _metaData = metaData;
             _analyser = analyser;
@@ -17,7 +17,7 @@
             ColumnType = type;
         }
 
-        public void Add(T value)
+        public void Add(T value, uint index)
         {
             _analyser.Add(value);
         }

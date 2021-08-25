@@ -66,7 +66,7 @@ namespace BrightData
         /// <param name="reader">The binary reader</param>
         public static IndexList CreateIndexList(this IBrightDataContext context, BinaryReader reader)
         {
-            var ret = new IndexList(context, new uint[0]);
+            var ret = new IndexList(context, Array.Empty<uint>());
             ret.Initialize(context, reader);
             return ret;
         }
@@ -188,7 +188,7 @@ namespace BrightData
         public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
             var input = Enumerable.Range(0, seq.Length).ToList();
-            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
+            int trainingCount = System.Convert.ToInt32(seq.Length * trainPercentage);
             return (
                 input.Take(trainingCount).Select(i => seq[i]).ToArray(),
                 input.Skip(trainingCount).Select(i => seq[i]).ToArray()
@@ -273,7 +273,7 @@ namespace BrightData
         /// <returns></returns>
         public static ICanConvert<T, float> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
         {
-            return context.Set($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
+            return context.Get($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
         }
 
         /// <summary>
@@ -347,6 +347,13 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Returns the file path associated with the meta data (if any)
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <returns>File path</returns>
+        public static string GetFilePath(this IMetaData metaData) => metaData.Get(Consts.FilePath, "");
+
+        /// <summary>
         /// Converts the indexed classifications to weighted indexed classifications
         /// </summary>
         /// <param name="data"></param>
@@ -411,7 +418,7 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A new weighted classification set</returns>
-        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, IBrightDataContext context) where T: notnull
         {
             var indexOccurence = new Dictionary<uint, uint>();
             var classificationSum = new Dictionary<T, double>();
@@ -449,7 +456,7 @@ namespace BrightData
                     var docsWithTerm = (double)indexOccurence[index];
                     var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
                     var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndexList.Item(index, Convert.ToSingle(score)));
+                    classificationIndex.Add(new WeightedIndexList.Item(index, System.Convert.ToSingle(score)));
                 }
                 ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
             }

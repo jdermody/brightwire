@@ -622,7 +622,7 @@
             <param name="table">Table to copy from</param>
             <param name="columnIndices">Column indices to copy</param>
         </member>
-        <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddColumn(BrightData.ColumnType,System.String)">
+        <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddColumn(BrightData.DataType,System.String)">
             <summary>
             Adds a new column
             </summary>
@@ -1275,7 +1275,7 @@
             <param name="writable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.DataType)">
             <summary>
             Converts from a column type to a Type
             </summary>
@@ -1289,56 +1289,56 @@
             <param name="dataType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsStructable(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsBlittable(BrightData.DataType)">
             <summary>
             Checks if the column type is blittable
             </summary>
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.DataType)">
             <summary>
             Checks if the column type is numeric
             </summary>
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsDecimal(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsDecimal(BrightData.DataType)">
             <summary>
             Checks if the column type is decimal
             </summary>
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsContinuous(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsContinuous(BrightData.DataType)">
             <summary>
             Checks if the column type is continuous
             </summary>
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsInteger(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsInteger(BrightData.DataType)">
             <summary>
             Checks if the column type is an integer
             </summary>
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsIndexedList(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsIndexedList(BrightData.DataType)">
             <summary>
             Checks if the column type is an indexed list (or weighted index list)
             </summary>
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsTensor(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.IsTensor(BrightData.DataType)">
             <summary>
             Checks if the column type is a tensor
             </summary>
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.DataType(BrightData.IDataTableSegment)">
+        <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.IDataTableSegment)">
             <summary>
             Returns the underlying Type for a data table segment
             </summary>
@@ -1433,7 +1433,7 @@
             <param name="columnIndices">Column indices to retrieve</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.ColumnType,BrightData.IMetaData,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.DataType,BrightData.IMetaData,System.UInt32,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
@@ -1542,7 +1542,7 @@
             <param name="table"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.IMetaData,BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.IMetaData,BrightData.DataType)">
             <summary>
             Sets the column type in a meta data store
             </summary>
@@ -1550,7 +1550,7 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetGrowableSegment(BrightData.IMetaData,BrightData.ColumnType,BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.GetGrowableSegment(BrightData.IMetaData,BrightData.DataType,BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates an appendable buffer for a column type
             </summary>
@@ -1586,7 +1586,7 @@
             <param name="filePath">File path to save on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ChangeColumnType(BrightData.IColumnInfo,BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.ChangeColumnType(BrightData.IColumnInfo,BrightData.DataType)">
             <summary>
             Creates a column info with a new column type
             </summary>
@@ -1758,7 +1758,7 @@
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDefaultValue(BrightData.ColumnType)">
+        <member name="M:BrightData.ExtensionMethods.GetDefaultValue(BrightData.DataType)">
             <summary>
             Returns a default value for a column type
             </summary>
@@ -1806,7 +1806,7 @@
             <param name="columnIndex"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(System.UInt32[],BrightData.ColumnType,System.String)">
+        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(System.UInt32[],BrightData.DataType,System.String)">
             <summary>
             Creates a reinterpret columns parameter
             </summary>
@@ -2449,42 +2449,42 @@
             Classifies data table column types
             </summary>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsDecimal(BrightData.ColumnType)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsDecimal(BrightData.DataType)">
             <summary>
             Checks for a decimal type (floating point)
             </summary>
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsNumeric(BrightData.ColumnType)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsNumeric(BrightData.DataType)">
             <summary>
             Checks for a numeric type (floating point or integer)
             </summary>
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsContinuous(BrightData.ColumnType)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsContinuous(BrightData.DataType)">
             <summary>
             Checks for a continuous type (non categorical)
             </summary>
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsCategorical(BrightData.ColumnType)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsCategorical(BrightData.DataType)">
             <summary>
             Checks for a categorical type (non continuous)
             </summary>
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsBlittable(BrightData.ColumnType)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.IsBlittable(BrightData.DataType)">
             <summary>
             Checks if the type has an independent memory layout across managed and unmanaged code
             </summary>
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.ColumnType,BrightData.IMetaData)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.DataType,BrightData.IMetaData)">
             <summary>
             Returns the set of possible column classifications
             </summary>
@@ -3697,97 +3697,97 @@
             Data table is a series of columns, optimised for column based processing
             </summary>
         </member>
-        <member name="T:BrightData.ColumnType">
+        <member name="T:BrightData.DataType">
             <summary>
-            Segment table column type
+            Data types enumeration
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Unknown">
+        <member name="F:BrightData.DataType.Unknown">
             <summary>
             Nothing
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Boolean">
+        <member name="F:BrightData.DataType.Boolean">
             <summary>
             Boolean values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Byte">
+        <member name="F:BrightData.DataType.Byte">
             <summary>
             Byte values (-128 to 128)
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Short">
+        <member name="F:BrightData.DataType.Short">
             <summary>
             Short values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Int">
+        <member name="F:BrightData.DataType.Int">
             <summary>
             Integer values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Long">
+        <member name="F:BrightData.DataType.Long">
             <summary>
             Long values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Float">
+        <member name="F:BrightData.DataType.Float">
             <summary>
             Float values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Double">
+        <member name="F:BrightData.DataType.Double">
             <summary>
             Double values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Decimal">
+        <member name="F:BrightData.DataType.Decimal">
             <summary>
             Decimal values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.String">
+        <member name="F:BrightData.DataType.String">
             <summary>
             String values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Date">
+        <member name="F:BrightData.DataType.Date">
             <summary>
             Date values
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.IndexList">
+        <member name="F:BrightData.DataType.IndexList">
             <summary>
             List of indices
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.WeightedIndexList">
+        <member name="F:BrightData.DataType.WeightedIndexList">
             <summary>
             Weighted list of indices
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Vector">
+        <member name="F:BrightData.DataType.Vector">
             <summary>
             Vector of floats
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Matrix">
+        <member name="F:BrightData.DataType.Matrix">
             <summary>
             Matrix of floats
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Tensor3D">
+        <member name="F:BrightData.DataType.Tensor3D">
             <summary>
             3D tensor of floats
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.Tensor4D">
+        <member name="F:BrightData.DataType.Tensor4D">
             <summary>
             4D tensor of floats
             </summary>
         </member>
-        <member name="F:BrightData.ColumnType.BinaryData">
+        <member name="F:BrightData.DataType.BinaryData">
             <summary>
             Binary data
             </summary>
@@ -4333,7 +4333,7 @@
             Column index
             </summary>
         </member>
-        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.DataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Gets a column transformer
             </summary>
@@ -6668,7 +6668,7 @@
         <member name="P:BrightData.Transformation.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.DataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Transformation.ColumnNormalization">
@@ -6727,6 +6727,9 @@
             </summary>
             <typeparam name="TF"></typeparam>
             <typeparam name="TT"></typeparam>
+        </member>
+        <member name="P:BrightData.TypeInfo.FieldInfoBase`1.UnderlyingType">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>

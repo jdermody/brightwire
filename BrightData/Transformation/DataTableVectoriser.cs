@@ -404,10 +404,10 @@ namespace BrightData.Transformation
             if ((columnClass & ColumnClass.Tensor) != 0)
                 return new TensorVectoriser(analysedMetaData.Get<uint>(Consts.Size), column);
 
-            if (type == ColumnType.WeightedIndexList)
+            if (type == BrightDataType.WeightedIndexList)
                 return new WeightedIndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
 
-            if (type == ColumnType.IndexList)
+            if (type == BrightDataType.IndexList)
                 return new IndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
 
             throw new NotImplementedException();

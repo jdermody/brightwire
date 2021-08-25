@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -13,8 +14,8 @@ namespace BrightWire.UnitTests
         public void TestRegression()
         {
             var dataTable = _context.BuildTable();
-            dataTable.AddColumn(ColumnType.Float, "value");
-            dataTable.AddColumn(ColumnType.Float, "result").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.Float, "value");
+            dataTable.AddColumn(BrightDataType.Float, "result").SetTarget(true);
 
             // simple linear relationship: result is twice value
             dataTable.AddRow(1f, 2f);
@@ -46,8 +47,8 @@ namespace BrightWire.UnitTests
         public void TestLogisticRegression()
         {
             var dataTable = _context.BuildTable();
-            dataTable.AddColumn(ColumnType.Float, "hours");
-            dataTable.AddColumn(ColumnType.Boolean, "pass").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.Float, "hours");
+            dataTable.AddColumn(BrightDataType.Boolean, "pass").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Logistic_regression
             dataTable.AddRow(0.5f, false);
@@ -93,10 +94,10 @@ namespace BrightWire.UnitTests
         public void TestMultinomialLogisticRegression()
         {
             var dataTable = _context.BuildTable();
-            dataTable.AddColumn(ColumnType.Float, "height");
-            dataTable.AddColumn(ColumnType.Int, "weight");
-            dataTable.AddColumn(ColumnType.Int, "foot-size");
-            dataTable.AddColumn(ColumnType.String, "gender").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.Float, "height");
+            dataTable.AddColumn(BrightDataType.Int, "weight");
+            dataTable.AddColumn(BrightDataType.Int, "foot-size");
+            dataTable.AddColumn(BrightDataType.String, "gender").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");

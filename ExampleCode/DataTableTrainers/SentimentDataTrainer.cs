@@ -211,8 +211,8 @@ namespace ExampleCode.DataTableTrainers
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(features.Size, "Vector");
-                    builder.AddColumn(ColumnType.IndexList, "Index List");
-                    builder.AddColumn(ColumnType.String, "Target");
+                    builder.AddColumn(BrightDataType.IndexList, "Index List");
+                    builder.AddColumn(BrightDataType.String, "Target");
                     builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").SetTarget(true);
                 }
                 builder.AddRow(features, indexList, classification, context.CreateVector(vector));
@@ -307,8 +307,8 @@ namespace ExampleCode.DataTableTrainers
         IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Matrix);
-            builder.AddColumn(ColumnType.Matrix).SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix);
+            builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
 
             var empty = new float[102];
             foreach (var row in data) {

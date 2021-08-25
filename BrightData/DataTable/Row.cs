@@ -10,7 +10,7 @@ namespace BrightData.DataTable
     {
         readonly object[] _data;
 
-        public Row(ColumnType[] types, object[] data)
+        public Row(BrightDataType[] types, object[] data)
         {
             Types = types;
             _data = data;
@@ -18,7 +18,7 @@ namespace BrightData.DataTable
 
         public object this[uint index] => _data[index];
 
-        public ColumnType[] Types { get; }
+        public BrightDataType[] Types { get; }
         public uint Size => (uint)_data.Length;
         public IEnumerable<object> Data => _data;
 
@@ -27,9 +27,9 @@ namespace BrightData.DataTable
             return string.Join(",", _data.Zip(Types, (d, t) => $"{Format(d, t)} [{t}]"));
         }
 
-        string Format(object obj, ColumnType type)
+        string Format(object obj, BrightDataType type)
         {
-            if (type == ColumnType.String)
+            if (type == BrightDataType.String)
                 return $"\"{obj}\"";
             return obj.ToString() ?? "???";
         }

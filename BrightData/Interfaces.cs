@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Metadata;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -149,6 +150,11 @@ namespace BrightData
         /// Returns all keys that have been set
         /// </summary>
         IEnumerable<string> AllKeys { get; }
+
+        /// <summary>
+        /// Creates a clone of the current metadata
+        /// </summary>
+        IMetaData Clone();
     }
 
     /// <summary>
@@ -393,6 +399,15 @@ namespace BrightData
         /// <param name="defaultValue">Default value if not already set</param>
         /// <returns></returns>
         T Get<T>(string name, T defaultValue) where T : notnull;
+
+        /// <summary>
+        /// Returns transient, context specific meta data
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of value</param>
+        /// <param name="defaultValueCreator">Returns a default value if not already set</param>
+        /// <returns></returns>
+        T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull;
 
         /// <summary>
         /// Returns optional context specific meta data
@@ -805,6 +820,11 @@ namespace BrightData
     public interface IProvideTempStreams : IDisposable
     {
         /// <summary>
+        /// Returns the path to a new temp file
+        /// </summary>
+        string GetNewTempPath();
+
+        /// <summary>
         /// Returns an existing or creates a new temporary stream
         /// </summary>
         /// <param name="uniqueId">Id that uniquely identifies the context</param>
@@ -839,7 +859,7 @@ namespace BrightData
         /// Adds an object to the buffer
         /// </summary>
         /// <param name="obj">Object to add</param>
-        void Add(object obj);
+        void Add(object obj, uint index);
     }
 
     /// <summary>
@@ -852,7 +872,7 @@ namespace BrightData
         /// Adds a new item
         /// </summary>
         /// <param name="value">Item to add</param>
-        void Add(T value);
+        void Add(T value, uint index);
     }
 
     /// <summary>
@@ -1011,5 +1031,26 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         ICanReadSection Clone();
+    }
+
+    public enum DataSpecificationType
+    {
+        Field,
+        Composite
+    }
+
+    public interface IDataTypeSpecification
+    {
+        string? Name { get; }
+        IDataTypeSpecification[]? Children { get; }
+        Type UnderlyingType { get; }
+        DataSpecificationType SpecificationType { get; }
+        bool CanRepeat { get; }
+    }
+
+    public interface IDataTypeSpecification<T> : IDataTypeSpecification where T: notnull
+    {
+        bool IsValid(T instance);
+        void AddPredicate(Predicate<T> predicate);
     }
 }

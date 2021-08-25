@@ -95,7 +95,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateHybridStringBuffer(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Add(indexTranslator(i), i);
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
@@ -112,7 +112,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateHybridObjectBuffer<T>(context, bufferSize);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Add(indexTranslator(i), i);
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
@@ -129,7 +129,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateHybridStructBuffer<T>(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Add(indexTranslator(i), i);
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);

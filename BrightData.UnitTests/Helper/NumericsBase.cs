@@ -1,26 +1,25 @@
-﻿using System;
-using BrightData.Numerics;
+﻿using BrightData.Numerics;
 
-namespace BrightData.UnitTests
+namespace BrightData.UnitTests.Helper
 {
-    public class NumericsBase : IDisposable
+
+
+    public class NumericsBase : UnitTestBase
     {
-        protected readonly IBrightDataContext _context;
         protected readonly ILinearAlgebraProvider _simple;
         protected readonly ILinearAlgebraProvider _cpu;
 
         public NumericsBase()
         {
-            _context = new BrightDataContext();
             _simple = _context.LinearAlgebraProvider;
             _cpu = _context.UseNumericsLinearAlgebra();
         }
 
-        public virtual void Dispose()
+        public override void Dispose()
         {
             _cpu.Dispose();
             _simple.Dispose();
-            _context.Dispose();
+            base.Dispose();
         }
     }
 }

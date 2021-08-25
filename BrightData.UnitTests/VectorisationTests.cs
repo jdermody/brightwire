@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -13,15 +14,15 @@ namespace BrightData.UnitTests
         public IColumnOrientedDataTable GetTable()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Boolean, "bool");
-            builder.AddColumn(ColumnType.Byte, "byte");
-            builder.AddColumn(ColumnType.Decimal, "decimal");
-            builder.AddColumn(ColumnType.Double, "double");
-            builder.AddColumn(ColumnType.Float, "float");
-            builder.AddColumn(ColumnType.Int, "int");
-            builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.IndexList, "index-list");
-            builder.AddColumn(ColumnType.WeightedIndexList, "weighted-index-list");
+            builder.AddColumn(BrightDataType.Boolean, "bool");
+            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.Decimal, "decimal");
+            builder.AddColumn(BrightDataType.Double, "double");
+            builder.AddColumn(BrightDataType.Float, "float");
+            builder.AddColumn(BrightDataType.Int, "int");
+            builder.AddColumn(BrightDataType.Long, "long");
+            builder.AddColumn(BrightDataType.IndexList, "index-list");
+            builder.AddColumn(BrightDataType.WeightedIndexList, "weighted-index-list");
             builder.AddFixedSizeVectorColumn(3, "vector");
 
             var indexList = _context.CreateIndexList(1, 2, 3);
@@ -34,7 +35,7 @@ namespace BrightData.UnitTests
         public IColumnOrientedDataTable GetTable2()
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(BrightDataType.String);
 
             builder.AddRow("a");
             builder.AddRow("b");

@@ -209,7 +209,7 @@ namespace BrightData
             foreach (var item in _orderedValues) {
                 if (nonNull.TryGetValue(item, out var val)) {
                     var str = Write(val);
-                    if(!String.IsNullOrWhiteSpace(str))
+                    if(!string.IsNullOrWhiteSpace(str))
                         yield return (item, val, str);
                 }
             }
@@ -218,7 +218,7 @@ namespace BrightData
         /// <inheritdoc />
         public override string ToString()
         {
-            return String.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
+            return string.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
         }
 
         /// <inheritdoc />
@@ -233,5 +233,13 @@ namespace BrightData
 
         /// <inheritdoc />
         public IEnumerable<string> AllKeys => _orderedValues;
+
+        /// <inheritdoc />
+        public IMetaData Clone()
+        {
+            var ret = new MetaData();
+            CopyTo(ret);
+            return ret;
+        }
     }
 }

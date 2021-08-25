@@ -2,7 +2,7 @@
 using System.IO;
 using BrightData.Cuda;
 
-namespace BrightData.UnitTests
+namespace BrightData.UnitTests.Helper
 {
     public class CudaBase : NumericsBase
     {

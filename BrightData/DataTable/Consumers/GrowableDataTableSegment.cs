@@ -29,24 +29,25 @@ namespace BrightData.DataTable.Consumers
 
         public GrowableDataTableSegment(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream, IEnumerable<T> data) : this(context, column, size, tempStream)
         {
+            uint index = 0;
             foreach (var item in data)
-                _segment.Add(item);
+                _segment.Add(item, index++);
         }
 
         public void Dispose() => _segment.Dispose();
 
-        public void Add(object value) => Add((T) value);
-        public void Add(T value) => _segment.Add(value);
+        public void Add(object value, uint index) => Add((T) value, index);
+        public void Add(T value, uint index) => _segment.Add(value, index);
         public IBrightDataContext Context { get; }
         public IEnumerable<T> EnumerateTyped() => _segment.EnumerateTyped();
         public IEnumerable<object> Enumerate() => EnumerateTyped().Cast<object>();
-        public ColumnType[] Types { get; }
+        public BrightDataType[] Types { get; }
         public uint Size { get; }
         public IEnumerable<object?> Data => _segment.Enumerate();
         public IMetaData MetaData { get; }
-        public ColumnType SingleType { get; }
+        public BrightDataType SingleType { get; }
         public uint ColumnIndex { get; }
-        public ColumnType ColumnType => SingleType;
+        public BrightDataType ColumnType => SingleType;
         public void WriteTo(BinaryWriter writer) => _segment.WriteTo(writer);
     }
 }

@@ -66,7 +66,7 @@ namespace BrightData.Helper
         {
             var targetType = typeof(T);
             var key = (index, targetType);
-            if (!_typeConversionTable.TryGetValue(key, out TypeConversion typeConversion)) {
+            if (!_typeConversionTable.TryGetValue(key, out var typeConversion)) {
                 var retType = ret.GetType();
                 if (retType == targetType || targetType.GetTypeInfo().IsAssignableFrom(retType.GetTypeInfo()))
                     typeConversion = TypeConversion.Cast;

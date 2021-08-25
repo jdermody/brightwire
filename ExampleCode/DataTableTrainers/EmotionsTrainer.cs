@@ -41,7 +41,7 @@ namespace ExampleCode.DataTableTrainers
             using var converted = table.Convert(columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var reinterpeted = converted.ReinterpretColumns(targetColumns.ReinterpretColumns(ColumnType.IndexList, "Targets"));
+            using var reinterpeted = converted.ReinterpretColumns(targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
             reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
 
             using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());

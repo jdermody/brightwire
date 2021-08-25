@@ -24,10 +24,10 @@ namespace BrightData.Transformation
                 _converter = converter;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
                 var converted = _converter(input);
-                buffer.Add(converted);
+                buffer.Add(converted, index);
                 return true;
             }
 
@@ -46,9 +46,9 @@ namespace BrightData.Transformation
         {
             protected abstract TT Convert(string str);
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")));
+                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")), index);
                 return true;
             }
 
@@ -62,9 +62,9 @@ namespace BrightData.Transformation
 
         class AnyToString<T> : ITransformColumn<T, string> where T : notnull
         {
-            public bool Convert(T input, IHybridBuffer<string> buffer)
+            public bool Convert(T input, IHybridBuffer<string> buffer, uint index)
             {
-                buffer.Add(input.ToString() ?? throw new Exception("String was null"));
+                buffer.Add(input.ToString() ?? throw new Exception("String was null"), index);
                 return true;
             }
 
@@ -87,10 +87,10 @@ namespace BrightData.Transformation
 
             public Type From { get; } = typeof(TF);
             public Type To { get; } = typeof(TT);
-            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
                 if (_list.MoveNext()) {
-                    buffer.Add(_list.Current);
+                    buffer.Add(_list.Current, index);
                     return true;
                 }
 
@@ -118,7 +118,7 @@ namespace BrightData.Transformation
             public override void Finalise(IMetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
-                metaData.SetType(ColumnType.Int);
+                metaData.SetType(BrightDataType.Int);
                 metaData.SetIsCategorical(true);
 
                 foreach (var category in _categoryIndex.OrderBy(d => d.Value))
@@ -135,9 +135,9 @@ namespace BrightData.Transformation
                 _converter = StaticConverters.GetConverter<TF, TT>();
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter.Convert(input));
+                buffer.Add(_converter.Convert(input), index);
                 return true;
             }
 
@@ -160,9 +160,9 @@ namespace BrightData.Transformation
                 _finalise = finalise;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter(input));
+                buffer.Add(_converter(input), index);
                 return true;
             }
 
@@ -212,7 +212,7 @@ namespace BrightData.Transformation
         public uint? ColumnIndex { get; }
 
         /// <inheritdoc />
-        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ITransformColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;
@@ -222,19 +222,19 @@ namespace BrightData.Transformation
                     return null;
 
                 // to boolean
-                case ColumnConversionType.ToBoolean when fromType == ColumnType.Boolean:
+                case ColumnConversionType.ToBoolean when fromType == BrightDataType.Boolean:
                     return null;
-                case ColumnConversionType.ToBoolean when fromType == ColumnType.String:
+                case ColumnConversionType.ToBoolean when fromType == BrightDataType.String:
                     return StringToBool;
 
                 // to date
-                case ColumnConversionType.ToDate when fromType == ColumnType.Date:
+                case ColumnConversionType.ToDate when fromType == BrightDataType.Date:
                     return null;
-                case ColumnConversionType.ToDate when fromType == ColumnType.String:
+                case ColumnConversionType.ToDate when fromType == BrightDataType.String:
                     return StringToDate;
 
                 // to string
-                case ColumnConversionType.ToString when fromType == ColumnType.String:
+                case ColumnConversionType.ToString when fromType == BrightDataType.String:
                     return null;
                 case ColumnConversionType.ToString:
                     return GenericActivator.Create<ITransformColumn>(typeof(AnyToString<>).MakeGenericType(fromType.GetDataType()));
@@ -244,6 +244,7 @@ namespace BrightData.Transformation
                     var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
+                    uint index = 0;
                     foreach (var val in column.Enumerate()) {
                         var str = val.ToString();
                         if (double.TryParse(str, out var num)) {
@@ -253,25 +254,27 @@ namespace BrightData.Transformation
                                 max = num;
                             if (isInteger && Math.Abs(num % 1) > FloatMath.AlmostZero)
                                 isInteger = false;
-                            buffer.Add(num);
+                            buffer.Add(num, index);
                         } else
-                            buffer.Add(double.NaN);
+                            buffer.Add(double.NaN, index);
+
+                        ++index;
                     }
-                    ColumnType toType;
+                    BrightDataType toType;
                     if (isInteger) {
                         if (min >= sbyte.MinValue && max <= sbyte.MaxValue)
-                            toType = ColumnType.Byte;
+                            toType = BrightDataType.Byte;
                         else if (min >= short.MinValue && max <= short.MaxValue)
-                            toType = ColumnType.Short;
+                            toType = BrightDataType.Short;
                         else if (min >= int.MinValue && max <= int.MaxValue)
-                            toType = ColumnType.Int;
+                            toType = BrightDataType.Int;
                         else
-                            toType = ColumnType.Long;
+                            toType = BrightDataType.Long;
                     } else {
                         if (min >= float.MinValue && max <= float.MaxValue)
-                            toType = ColumnType.Float;
+                            toType = BrightDataType.Float;
                         else
-                            toType = ColumnType.Double;
+                            toType = BrightDataType.Double;
                     }
                 
                     var enumerable = GetEnumerableNumbers(toType, buffer.EnumerateTyped());
@@ -280,43 +283,43 @@ namespace BrightData.Transformation
                 }
 
                 case ColumnConversionType.ToByte:
-                    return GetStandardConverter(fromType, ColumnType.Byte);
+                    return GetStandardConverter(fromType, BrightDataType.Byte);
                 case ColumnConversionType.ToShort:
-                    return GetStandardConverter(fromType, ColumnType.Short);
+                    return GetStandardConverter(fromType, BrightDataType.Short);
                 case ColumnConversionType.ToInt:
-                    return GetStandardConverter(fromType, ColumnType.Int);
+                    return GetStandardConverter(fromType, BrightDataType.Int);
                 case ColumnConversionType.ToLong:
-                    return GetStandardConverter(fromType, ColumnType.Long);
+                    return GetStandardConverter(fromType, BrightDataType.Long);
                 case ColumnConversionType.ToFloat:
-                    return GetStandardConverter(fromType, ColumnType.Float);
+                    return GetStandardConverter(fromType, BrightDataType.Float);
                 case ColumnConversionType.ToDouble:
-                    return GetStandardConverter(fromType, ColumnType.Double);
+                    return GetStandardConverter(fromType, BrightDataType.Double);
                 case ColumnConversionType.ToDecimal:
-                    return GetStandardConverter(fromType, ColumnType.Decimal);
+                    return GetStandardConverter(fromType, BrightDataType.Decimal);
 
                 // to categorical index
                 case ColumnConversionType.ToCategoricalIndex:
                     return GenericActivator.Create<ITransformColumn>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
 
-                case ColumnConversionType.ToIndexList when fromType == ColumnType.IndexList:
+                case ColumnConversionType.ToIndexList when fromType == BrightDataType.IndexList:
                     return null;
-                case ColumnConversionType.ToIndexList when fromType == ColumnType.WeightedIndexList:
+                case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
-                case ColumnConversionType.ToIndexList when fromType == ColumnType.Vector:
+                case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
                     return VectorToIndexList;
 
-                case ColumnConversionType.ToVector when fromType == ColumnType.Vector:
+                case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
                     return null;
-                case ColumnConversionType.ToVector when fromType == ColumnType.WeightedIndexList:
+                case ColumnConversionType.ToVector when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToVector;
-                case ColumnConversionType.ToVector when fromType == ColumnType.IndexList:
+                case ColumnConversionType.ToVector when fromType == BrightDataType.IndexList:
                     return IndexListToVector;
 
-                case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.WeightedIndexList:
+                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:
                     return null;
-                case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.IndexList:
+                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
                     return IndexListToWeightedIndexList;
-                case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.Vector:
+                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.Vector:
                     return VectorToWeightedIndexList;
 
                 default:
@@ -324,13 +327,13 @@ namespace BrightData.Transformation
             }
         }
 
-        ITransformColumn GetStandardConverter(ColumnType fromType, ColumnType toType)
+        static ITransformColumn GetStandardConverter(BrightDataType fromType, BrightDataType toType)
         {
             var converterType = typeof(StandardConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
             return GenericActivator.Create<ITransformColumn>(converterType);
         }
 
-        IEnumerable GetEnumerableNumbers(ColumnType toType, IEnumerable<double> numbers)
+        static IEnumerable GetEnumerableNumbers(BrightDataType toType, IEnumerable<double> numbers)
         {
             IEnumerable<T> ConvertIntegers<T>(IEnumerable<double> list, Func<double, T> converter)
             {
@@ -338,13 +341,13 @@ namespace BrightData.Transformation
             }
 
             return toType switch {
-                ColumnType.Double => numbers,
-                ColumnType.Float => numbers.Select(Convert.ToSingle),
-                ColumnType.Decimal => ConvertIntegers(numbers, Convert.ToDecimal),
-                ColumnType.Long => ConvertIntegers(numbers, Convert.ToInt64),
-                ColumnType.Int => ConvertIntegers(numbers, Convert.ToInt32),
-                ColumnType.Short => ConvertIntegers(numbers, Convert.ToInt16),
-                ColumnType.Byte => ConvertIntegers(numbers, Convert.ToSByte),
+                BrightDataType.Double => numbers,
+                BrightDataType.Float => numbers.Select(Convert.ToSingle),
+                BrightDataType.Decimal => ConvertIntegers(numbers, Convert.ToDecimal),
+                BrightDataType.Long => ConvertIntegers(numbers, Convert.ToInt64),
+                BrightDataType.Int => ConvertIntegers(numbers, Convert.ToInt32),
+                BrightDataType.Short => ConvertIntegers(numbers, Convert.ToInt16),
+                BrightDataType.Byte => ConvertIntegers(numbers, Convert.ToSByte),
                 _ => throw new Exception("Invalid column type for numeric")
             };
         }

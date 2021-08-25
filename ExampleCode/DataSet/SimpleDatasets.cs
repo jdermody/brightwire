@@ -184,8 +184,8 @@ namespace ExampleCode.DataSet
             var grammar = new SequenceGenerator(context, dictionarySize: DICTIONARY_SIZE, minSize: SIZE-1, maxSize: SIZE+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Matrix, "Sequence");
-            builder.AddColumn(ColumnType.Vector, "Summary").SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix, "Sequence");
+            builder.AddColumn(BrightDataType.Vector, "Summary").SetTarget(true);
 
             foreach (var sequence in sequences) {
                 var index = 0;
@@ -211,8 +211,8 @@ namespace ExampleCode.DataSet
             var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH-1, SEQUENCE_LENGTH+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Matrix, "Input");
-            builder.AddColumn(ColumnType.Matrix, "Output").SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix, "Input");
+            builder.AddColumn(BrightDataType.Matrix, "Output").SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -227,10 +227,10 @@ namespace ExampleCode.DataSet
         public static LinearTrainer SimpleLinear(this IBrightDataContext context)
         {
             var dataTableBuilder = context.BuildTable();
-            dataTableBuilder.AddColumn(ColumnType.Float, "capital costs");
-            dataTableBuilder.AddColumn(ColumnType.Float, "labour costs");
-            dataTableBuilder.AddColumn(ColumnType.Float, "energy costs");
-            dataTableBuilder.AddColumn(ColumnType.Float, "output").SetTarget(true);
+            dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
+            dataTableBuilder.AddColumn(BrightDataType.Float, "labour costs");
+            dataTableBuilder.AddColumn(BrightDataType.Float, "energy costs");
+            dataTableBuilder.AddColumn(BrightDataType.Float, "output").SetTarget(true);
 
             dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
             dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);

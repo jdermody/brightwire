@@ -11,13 +11,13 @@ namespace BrightData.DataTable
     {
         public ColumnInfo(BinaryReader reader, uint index)
         {
-            ColumnType = (ColumnType)reader.ReadSByte();
+            ColumnType = (BrightDataType)reader.ReadSByte();
             MetaData = new MetaData(reader);
             MetaData.Set(Consts.Index, index);
             Index = index;
         }
 
-        public ColumnInfo(uint index, ColumnType type, IMetaData metaData)
+        public ColumnInfo(uint index, BrightDataType type, IMetaData metaData)
         {
             Index = index;
             ColumnType = type;
@@ -26,7 +26,7 @@ namespace BrightData.DataTable
         }
 
         public uint Index { get; }
-        public ColumnType ColumnType { get; }
+        public BrightDataType ColumnType { get; }
         public IHaveDictionary? Dictionary { get; } = null;
         public IMetaData MetaData { get; }
 

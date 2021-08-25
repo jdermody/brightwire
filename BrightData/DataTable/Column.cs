@@ -14,7 +14,7 @@ namespace BrightData.DataTable
         readonly ICanEnumerate<T> _reader;
         readonly ICanReadSection _stream;
 
-        public Column(uint index, ColumnType columnType, MetaData metaData, IBrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)
+        public Column(uint index, BrightDataType columnType, MetaData metaData, IBrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)
         {
             _metadata = metaData;
 
@@ -28,7 +28,7 @@ namespace BrightData.DataTable
         }
 
         public uint Index { get; }
-        public ColumnType ColumnType { get; }
+        public BrightDataType ColumnType { get; }
         public IMetaData MetaData => _metadata;
 
         public void Dispose()
@@ -42,8 +42,8 @@ namespace BrightData.DataTable
         }
 
         public IBrightDataContext Context { get; }
-        public ColumnType SingleType { get; }
-        public ColumnType[] Types { get; }
+        public BrightDataType SingleType { get; }
+        public BrightDataType[] Types { get; }
         public uint Size => _reader.Size;
 
         public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();

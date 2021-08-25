@@ -29,13 +29,13 @@ namespace BrightData.UnitTests
 		[Fact]
         public void Encode<#= Char.ToUpper(input[0]) + input.Substring(1) #>()
         {
-            _Encode((<#= input #>)123);
+            Encode((<#= input #>)123);
         }
 
         [Fact]
         public void Encode<#= Char.ToUpper(input[0]) + input.Substring(1) #>Array()
         {
-            _EncodeArray(new <#= input #>[] {1, 2, 3});
+            EncodeArray(new <#= input #>[] {1, 2, 3});
         }
 <#	} #>
     }

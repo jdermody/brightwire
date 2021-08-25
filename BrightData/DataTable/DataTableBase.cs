@@ -51,7 +51,7 @@ namespace BrightData.DataTable
         public IRowOrientedDataTable? Project(Func<object[], object[]?> projector, string? filePath = null)
         {
             var mutatedRows = new List<object[]>();
-            var columnTypes = new Dictionary<uint, ColumnType>();
+            var columnTypes = new Dictionary<uint, BrightDataType>();
 
             ForEachRow(row => {
                 var projected = projector(row);
@@ -90,13 +90,19 @@ namespace BrightData.DataTable
             if (Orientation == DataTableOrientation.RowOriented) {
                 var table = (IRowOrientedDataTable) this;
                 return table.Clone(filePath);
-            }else if (Orientation == DataTableOrientation.ColumnOriented) {
+            }
+            
+            if (Orientation == DataTableOrientation.ColumnOriented) {
                 var table = (IColumnOrientedDataTable) this;
                 return table.Clone(filePath);
             }
 
             throw new NotImplementedException();
         }
+
+        protected string GetGroupLabel(uint[] columnIndices, object[] row) => String.Join('|', 
+            columnIndices.Select(ci => row[ci].ToString() ?? throw new Exception("Cannot group by string when value is null"))
+        ) ?? throw new Exception("No column indices");
 
         //public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);
         //public IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices)

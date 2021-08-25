@@ -24,13 +24,13 @@ namespace BrightData.Transformation
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
-            public bool Convert(T input, IHybridBuffer<float> buffer)
+            public bool Convert(T input, IHybridBuffer<float> buffer, uint index)
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
                 var val = _convertToFloat.Convert(normalized);
 
-                buffer.Add(val);
+                buffer.Add(val, index);
                 return true;
             }
 
@@ -60,12 +60,12 @@ namespace BrightData.Transformation
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
-            public bool Convert(T input, IHybridBuffer<double> buffer)
+            public bool Convert(T input, IHybridBuffer<double> buffer, uint index)
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
 
-                buffer.Add(normalized);
+                buffer.Add(normalized, index);
                 return true;
             }
 
@@ -85,7 +85,7 @@ namespace BrightData.Transformation
             public double Subtract => _normalize.Subtract;
         }
 
-        public ITransformColumn GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ITransformColumn GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = _toFloat

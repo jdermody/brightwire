@@ -25,9 +25,9 @@ namespace BrightData.Transformation
         public uint Transform()
         {
             // write the transformed values
-            uint ret = 0;
+            uint ret = 0, index = 0;
             foreach (var item in _column.EnumerateTyped()) {
-                var wasConverted = _converter.Convert(item, _buffer);
+                var wasConverted = _converter.Convert(item, _buffer, index++);
                 if (wasConverted)
                     ++ret;
             }

@@ -14,14 +14,14 @@ namespace BrightData.DataTable.Builders
     {
         class Column
         {
-            public Column(uint index, ColumnType type, IMetaData metadata, string name)
+            public Column(uint index, BrightDataType type, IMetaData metadata, string name)
             {
                 Type = type;
                 Metadata = metadata;
                 Metadata.Set(Consts.Name, name);
                 Metadata.Set(Consts.Index, index);
             }
-            public ColumnType Type { get; }
+            public BrightDataType Type { get; }
             public IMetaData Metadata { get; }
         }
         readonly List<Column> _columns = new();
@@ -38,8 +38,11 @@ namespace BrightData.DataTable.Builders
         {
             _metaData = metaData;
             _rowCount = rowCount;
-            _stream = filePath != null ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) : new MemoryStream();
+            _stream = filePath != null ? new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) : new MemoryStream();
             _writer = new BinaryWriter(_stream, Encoding.UTF8, true);
+
+            if (filePath is not null)
+                _metaData.Set(Consts.FilePath, filePath);
         }
 
         public void Dispose()
@@ -49,7 +52,7 @@ namespace BrightData.DataTable.Builders
                 _stream.Dispose();
         }
 
-        public IMetaData AddColumn(ColumnType type, IMetaData metaData)
+        public IMetaData AddColumn(BrightDataType type, IMetaData metaData)
         {
             string name = DataTableBase.DefaultColumnName(metaData.GetName(), _columns.Count);
             var column = new Column((uint) _columns.Count, type, metaData, name);
@@ -57,9 +60,10 @@ namespace BrightData.DataTable.Builders
             return column.Metadata;
         }
 
-        public IMetaData AddColumn(ColumnType type, string name) => Add(type, name);
-        public IMetaData AddColumn(ColumnType type) => Add(type, null);
-        IMetaData Add(ColumnType type, string? name)
+        public IMetaData TableMetaData => _metaData;
+        public IMetaData AddColumn(BrightDataType type, string name) => Add(type, name);
+        public IMetaData AddColumn(BrightDataType type) => Add(type, null);
+        IMetaData Add(BrightDataType type, string? name)
         {
             var metadata = new MetaData();
             metadata.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
@@ -68,7 +72,7 @@ namespace BrightData.DataTable.Builders
 
         public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
         {
-            var metaData = Add(ColumnType.Vector, name);
+            var metaData = Add(BrightDataType.Vector, name);
             metaData.Set(Consts.XDimension, size);
             return metaData;
         }
@@ -145,27 +149,27 @@ namespace BrightData.DataTable.Builders
             return new RowOrientedDataTable(context, _stream, true);
         }
 
-        void WriteValueTo(BinaryWriter writer, ColumnType type, object val)
+        void WriteValueTo(BinaryWriter writer, BrightDataType type, object val)
         {
-            if (type == ColumnType.Date)
+            if (type == BrightDataType.Date)
                 writer.Write(((DateTime)val).Ticks);
-            else if (type == ColumnType.Boolean)
+            else if (type == BrightDataType.Boolean)
                 writer.Write((bool)val);
-            else if (type == ColumnType.Double)
+            else if (type == BrightDataType.Double)
                 writer.Write((double)val);
-            else if (type == ColumnType.Decimal)
+            else if (type == BrightDataType.Decimal)
                 writer.Write((decimal)val);
-            else if (type == ColumnType.Float)
+            else if (type == BrightDataType.Float)
                 writer.Write((float)val);
-            else if (type == ColumnType.Short)
+            else if (type == BrightDataType.Short)
                 writer.Write((short)val);
-            else if (type == ColumnType.Int)
+            else if (type == BrightDataType.Int)
                 writer.Write((int)val);
-            else if (type == ColumnType.Long)
+            else if (type == BrightDataType.Long)
                 writer.Write((long)val);
-            else if (type == ColumnType.String)
+            else if (type == BrightDataType.String)
                 writer.Write((string)val);
-            else if (type == ColumnType.Byte)
+            else if (type == BrightDataType.Byte)
                 writer.Write((sbyte)val);
             else if (val is ICanWriteToBinaryWriter canWrite)
                 canWrite.WriteTo(writer);

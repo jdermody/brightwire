@@ -11,14 +11,14 @@ namespace BrightData.Transformation
     /// </summary>
     internal class ReinterpretColumns : IReinterpretColumnsParam
     {
-        public ReinterpretColumns(ColumnType newType, string name, params uint[] columnIndices)
+        public ReinterpretColumns(BrightDataType newType, string name, params uint[] columnIndices)
         {
             NewType = newType;
             Name = name;
             ColumnIndices = columnIndices;
         }
 
-        public ColumnType NewType { get; }
+        public BrightDataType NewType { get; }
         public string Name { get; }
         public uint[] ColumnIndices { get; }
 
@@ -27,13 +27,13 @@ namespace BrightData.Transformation
             if (ColumnIndices.Length >= 1)
             {
                 // convert many columns to single index list
-                if (NewType == ColumnType.IndexList)
+                if (NewType == BrightDataType.IndexList)
                     yield return new ManyToOne<IndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToIndexList);
-                else if(NewType == ColumnType.WeightedIndexList)
+                else if(NewType == BrightDataType.WeightedIndexList)
                     yield return new ManyToOne<WeightedIndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToWeightedIndexList);
-                else if (NewType == ColumnType.Vector)
+                else if (NewType == BrightDataType.Vector)
                     yield return new ManyToOne<Vector<float>>(context, tempStreams, Name, initialColumnIndex, columns, ToVector);
-                else if (NewType == ColumnType.String)
+                else if (NewType == BrightDataType.String)
                     yield return new ManyToOne<string>(context, tempStreams, Name, initialColumnIndex, columns, ToString);
             }
             else
@@ -83,7 +83,7 @@ namespace BrightData.Transformation
             ) {
                 Index = newColumnIndex;
                 Size = sourceColumns.First().Segment.Size;
-                MetaData.SetType(ColumnType.IndexList);
+                MetaData.SetType(BrightDataType.IndexList);
                 MetaData.Set(Consts.Index, newColumnIndex);
                 MetaData.Set(Consts.Name, name);
                 _buffer = (IHybridBuffer<T>)MetaData.GetGrowableSegment(SingleType, context, tempStreams);
@@ -92,11 +92,12 @@ namespace BrightData.Transformation
                 var len = sourceColumns.Count;
                 var buffer = new object[len];
                 var enumerators = sourceColumns.Select(c => c.Segment.Enumerate().GetEnumerator()).ToList();
+                uint index = 0;
                 while (enumerators.All(e => e.MoveNext()))
                 {
                     for (var i = 0; i < len; i++)
                         buffer[i] = enumerators[i].Current;
-                    _buffer.Add(converter(context, buffer));
+                    _buffer.Add(converter(context, buffer), index++);
                 }
             }
 
@@ -109,7 +110,7 @@ namespace BrightData.Transformation
                 // nop
             }
 
-            public ColumnType SingleType { get; } = ColumnType.IndexList;
+            public BrightDataType SingleType { get; } = BrightDataType.IndexList;
             public IEnumerable<object> Enumerate() => _buffer.Enumerate();
             public uint Size { get; }
         }

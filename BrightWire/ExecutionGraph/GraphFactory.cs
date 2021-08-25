@@ -209,33 +209,33 @@ namespace BrightWire.ExecutionGraph
 			var targetColumnType = columns[targetColumn];
 			var featureColumnType = featureColumnTypes.FirstOrDefault();
 
-			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
+			if (featureColumnType != BrightDataType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
-				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
+				if (featureColumnType == BrightDataType.Matrix && targetColumnType == BrightDataType.Matrix)
 					return new SequentialDataTableAdapter(dataTable, featureColumns);
 
 				// one to one
-				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
+				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Vector)
 					return new VectorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// one to many
-				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
+				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Matrix)
 					return new OneToManyDataTableAdapter(dataTable, featureColumns);
 
 				// many to one
-				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
+				if (featureColumnType == BrightDataType.Matrix && targetColumnType == BrightDataType.Vector)
 					return new ManyToOneDataTableAdapter(dataTable, featureColumns);
 
 				// volume classification
-				if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
+				if (featureColumnType == BrightDataType.Tensor3D && targetColumnType == BrightDataType.Vector)
 					return new TensorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// index list
-				if (featureColumnType == ColumnType.IndexList)
+				if (featureColumnType == BrightDataType.IndexList)
 					return new IndexListDataTableAdapter(dataTable, null, featureColumns);
 
 				// weighted index list
-				if (featureColumnType == ColumnType.WeightedIndexList)
+				if (featureColumnType == BrightDataType.WeightedIndexList)
 					return new WeightedIndexListDataTableAdapter(dataTable, null, featureColumns);
 			}
 

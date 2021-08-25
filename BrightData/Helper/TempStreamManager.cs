@@ -11,6 +11,7 @@ namespace BrightData.Helper
     {
         readonly string _basePath;
         readonly ConcurrentDictionary<string, FileStream> _streamTable = new();
+        readonly ConcurrentBag<string> _tempPaths = new();
 
         /// <summary>
         /// Constructor
@@ -19,6 +20,14 @@ namespace BrightData.Helper
         public TempStreamManager(string? basePath = null)
         {
             _basePath = basePath ?? Path.GetTempPath();
+        }
+
+        /// <inheritdoc />
+        public string GetNewTempPath()
+        {
+            var ret = Path.Combine(_basePath, Guid.NewGuid().ToString("n"));
+            _tempPaths.Add(ret);
+            return ret;
         }
 
         /// <summary>
@@ -41,12 +50,18 @@ namespace BrightData.Helper
 
         void IDisposable.Dispose()
         {
-            foreach (var stream in _streamTable) {
-                stream.Value.Flush();
-                stream.Value.Dispose();
-                File.Delete(stream.Value.Name);
+            foreach (var (_, value) in _streamTable) {
+                value.Flush();
+                value.Dispose();
+                File.Delete(value.Name);
             }
             _streamTable.Clear();
+
+            foreach (var filePath in _tempPaths) {
+                if(File.Exists(filePath))
+                    File.Delete(filePath);
+            }
+            _tempPaths.Clear();
         }
     }
 }
