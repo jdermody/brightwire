@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.Transformation;
@@ -16,7 +17,7 @@ namespace BrightData.DataTable
     {
         interface IConsumerBinding
         {
-            void Copy(uint maxRows);
+            void Copy(uint maxRows, CancellationToken ct = default);
         }
         class ConsumerBinding<T> : IConsumerBinding where T : notnull
         {
@@ -29,17 +30,17 @@ namespace BrightData.DataTable
                 _consumer = (IConsumeColumnData<T>)consumer;
             }
 
-            public void Copy(uint maxRows)
+            public void Copy(uint maxRows, CancellationToken ct)
             {
                 uint index = 0;
                 using var enumerator = _segment.EnumerateTyped().GetEnumerator();
-                while (index < maxRows && enumerator.MoveNext())
+                while (index < maxRows && enumerator.MoveNext() && !ct.IsCancellationRequested)
                     _consumer.Add(enumerator.Current, index++);
             }
         }
         interface IAnalyserBinding
         {
-            void Analyse();
+            void Analyse(CancellationToken ct = default);
         }
         class AnalyserBinding<T> : IAnalyserBinding where T : notnull
         {
@@ -52,10 +53,13 @@ namespace BrightData.DataTable
                 _segment = (IDataTableSegment<T>)segment;
             }
 
-            public void Analyse()
+            public void Analyse(CancellationToken ct)
             {
-                foreach (var item in _segment.EnumerateTyped())
+                foreach (var item in _segment.EnumerateTyped()) {
+                    if (ct.IsCancellationRequested)
+                        break;
                     _analyser.Add(item);
+                }
             }
         }
 
@@ -139,7 +143,7 @@ namespace BrightData.DataTable
                         segment,
                         analyser
                     );
-                    binding.Analyse();
+                    binding.Analyse(Context.CancellationToken);
                     analyser.WriteTo(ret);
                     ret.Set(Consts.HasBeenAnalysed, true);
                 }
@@ -170,26 +174,26 @@ namespace BrightData.DataTable
             lock (_columns) {
                 var columns = AllColumns().Select(c => c.Enumerate().GetEnumerator()).ToArray();
                 var rowCount = rowSet.Max();
+                var ct = Context.CancellationToken;
 
-                for (uint i = 0; i < rowCount + 1; i++) {
-                    if (rowSet.Contains(i)) {
-                        var row = new object[ColumnCount];
-                        for (uint j = 0; j < ColumnCount; j++) {
-                            var column = columns[j];
-                            column.MoveNext();
-                            row[j] = column.Current;
-                        }
-                        callback(row);
+                for (uint i = 0; i < rowCount + 1 && !ct.IsCancellationRequested; i++) {
+                    if (!rowSet.Contains(i)) 
+                        continue;
+
+                    var row = new object[ColumnCount];
+                    for (uint j = 0; j < ColumnCount; j++) {
+                        var column = columns[j];
+                        column.MoveNext();
+                        row[j] = column.Current;
                     }
+                    callback(row);
                 }
             }
         }
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
-            var table = new Dictionary<uint, ISingleTypeTableSegment>();
-            foreach (var index in this.AllOrSelectedColumnIndices(columnIndices).OrderBy(i => i).Distinct())
-                table.Add(index, _columns[index].Segment);
+            var table = this.AllOrSelectedColumnIndices(columnIndices).OrderBy(i => i).Distinct().ToDictionary(index => index, index => _columns[index].Segment);
             return columnIndices.Select(i => table[i]);
         }
 
@@ -202,7 +206,7 @@ namespace BrightData.DataTable
                     consumer
                 ));
                 foreach (var binding in bindings)
-                    binding?.Copy(maxRows);
+                    binding.Copy(maxRows, Context.CancellationToken);
             }
         }
 
@@ -211,8 +215,9 @@ namespace BrightData.DataTable
             lock (_columns) {
                 var columns = AllColumns().Select(c => c.Enumerate().GetEnumerator()).ToArray();
                 var rowCount = Math.Min(maxRows, RowCount);
+                var ct = Context.CancellationToken;
 
-                for (uint i = 0; i < rowCount; i++) {
+                for (uint i = 0; i < rowCount && !ct.IsCancellationRequested; i++) {
                     var row = new object[ColumnCount];
                     for (uint j = 0; j < ColumnCount; j++) {
                         var column = columns[j];
@@ -276,7 +281,7 @@ namespace BrightData.DataTable
                     var wasConverted = false;
                     var column = _columns[i].Segment;
                     if (columnConversions.TryGetValue(column, out var converter)) {
-                        var convertedCount = converter.Transform();
+                        var convertedCount = converter.Transform(Context.CancellationToken);
                         if (convertedCount == RowCount) {
                             convertedColumns.Add((ISingleTypeTableSegment)converter.Buffer);
                             wasConverted = true;

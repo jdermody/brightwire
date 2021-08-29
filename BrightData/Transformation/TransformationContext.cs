@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace BrightData.Transformation
 {
@@ -22,11 +23,14 @@ namespace BrightData.Transformation
             _buffer = buffer;
         }
 
-        public uint Transform()
+        public uint Transform(CancellationToken ct)
         {
             // write the transformed values
             uint ret = 0, index = 0;
             foreach (var item in _column.EnumerateTyped()) {
+                if (ct.IsCancellationRequested)
+                    break;
+
                 var wasConverted = _converter.Convert(item, _buffer, index++);
                 if (wasConverted)
                     ++ret;
@@ -36,8 +40,10 @@ namespace BrightData.Transformation
             var columnMetadata = _column.MetaData;
             var segment = (ISingleTypeTableSegment) _buffer;
             var metaData = segment.MetaData;
-            columnMetadata.CopyTo(metaData);
+            columnMetadata.CopyTo(metaData, Consts.SimpleMetaData);
             metaData.SetType(segment.SingleType);
+            if(segment.SingleType.IsNumeric())
+                metaData.Set(Consts.IsNumeric, true);
             _converter.Finalise(metaData);
             return ret;
         }

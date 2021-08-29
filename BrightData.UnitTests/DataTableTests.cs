@@ -215,8 +215,7 @@ namespace BrightData.UnitTests
         {
             using var table = CreateComplexTable(_context);
             foreach (var (_, rowOrientedDataTable) in table.GroupBy(0)) {
-                rowOrientedDataTable.RowCount.Should().Be(table.RowCount / 2);
-                rowOrientedDataTable.Dispose();
+                rowOrientedDataTable[0].Size.Should().Be(table.RowCount / 2);
             }
         }
 

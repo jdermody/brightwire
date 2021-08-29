@@ -156,7 +156,7 @@ namespace BrightWire.ExecutionGraph
 		public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
-			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
+			return new ExecutionEngine(Context, LinearAlgebraProvider, graph, input);
 		}
 
 		/// <summary>

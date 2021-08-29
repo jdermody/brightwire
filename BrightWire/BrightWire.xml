@@ -1586,7 +1586,7 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(System.Threading.CancellationToken,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the graph
             </summary>
@@ -2841,14 +2841,14 @@
             How many operations remain queued
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphSequenceContext})">
+        <member name="M:BrightWire.IGraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphSequenceContext,System.Threading.CancellationToken})">
             <summary>
             Registers a continuation that will be executed after the current sequence has been processed in full
             </summary>
             <param name="sequence">Sequence index</param>
             <param name="callback">Continuation</param>
         </member>
-        <member name="M:BrightWire.IGraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.IMiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphSequenceContext,BrightWire.IGraphData},System.Action{BrightWire.IGraphSequenceContext[]})">
+        <member name="M:BrightWire.IGraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.IMiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphSequenceContext,BrightWire.IGraphData,System.Threading.CancellationToken},System.Action{BrightWire.IGraphSequenceContext[]})">
             <summary>
             Registers an additional mini batch to execute after the current mini batch has completed
             </summary>
@@ -3179,7 +3179,7 @@
             Executes a training epoch on the graph
             </summary>
             <param name="executionContext">Graph execution context</param>
-            <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+            <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
             <returns>Graph training error</returns>
         </member>
         <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Boolean,System.Boolean})">
@@ -3188,7 +3188,7 @@
             </summary>
             <param name="testDataSource">Segment source with test data</param>
             <param name="batchSize">Initial size of each mini batch</param>
-            <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+            <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
             <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
             <returns>True if the model performance has improved since the last test</returns>
         </member>
@@ -3521,11 +3521,6 @@
             </summary>
             <param name="node">The node to modify</param>
             <param name="enableUpdates">True if the node can make updates via backpropagation</param>
-        </member>
-        <member name="P:BrightWire.ILearningContext.MessageLog">
-            <summary>
-            Sends the message to some output
-            </summary>
         </member>
         <member name="E:BrightWire.ILearningContext.BeforeEpochStarts">
             <summary>

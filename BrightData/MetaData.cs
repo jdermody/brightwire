@@ -53,8 +53,12 @@ namespace BrightData
             var keys = _orderedValues.ToList();
 
             foreach (var key in keys) {
-                other._orderedValues.Add(key);
-                other._values[key] = _values[key];
+                if (other._values.ContainsKey(key))
+                    other._values[key] = _values[key];
+                else {
+                    other._orderedValues.Add(key);
+                    other._values.Add(key, _values[key]);
+                }
             }
         }
 
@@ -66,8 +70,12 @@ namespace BrightData
             var keys = _orderedValues.AsEnumerable().Where(k => keySet.Contains(k));
 
             foreach (var key in keys) {
-                other._orderedValues.Add(key);
-                other._values.Add(key, _values[key]);
+                if (other._values.ContainsKey(key))
+                    other._values[key] = _values[key];
+                else {
+                    other._orderedValues.Add(key);
+                    other._values.Add(key, _values[key]);
+                }
             }
         }
 
@@ -194,13 +202,12 @@ namespace BrightData
         static string Write(IConvertible value)
         {
             var typeCode = value.GetTypeCode();
-            if (typeCode == TypeCode.Double)
-                return ((double)value).ToString("G17");
-            if (typeCode == TypeCode.Single)
-                return ((float)value).ToString("G9");
-            if(typeCode == TypeCode.DateTime)
-                return ((DateTime)value).ToString("o");
-            return value.ToString(CultureInfo.InvariantCulture);
+            return typeCode switch {
+                TypeCode.Double => ((double) value).ToString("G17"),
+                TypeCode.Single => ((float) value).ToString("G9"),
+                TypeCode.DateTime => ((DateTime) value).ToString("o"),
+                _ => value.ToString(CultureInfo.InvariantCulture)
+            };
         }
 
         IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()

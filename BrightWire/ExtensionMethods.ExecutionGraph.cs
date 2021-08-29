@@ -28,22 +28,19 @@ namespace BrightWire
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider, engine);
-            var progress = -1;
-            var sw = Stopwatch.StartNew();
+            var executionContext = new ExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
+            var userNotifications = engine.LinearAlgebraProvider.Context.UserNotifications;
             // ReSharper disable once AccessToModifiedClosure
-            engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage));
 
             var count = 0;
             GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
-                progress = -1;
-                sw.Restart();
-                engine.Train(executionContext, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+                userNotifications?.OnStartOperation();
+                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(percentage));
                 if (++count == testCadence) {
-                    progress = -1;
-                    sw.Restart();
-                    if (engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
+                    userNotifications?.OnStartOperation();
+                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -51,36 +48,10 @@ namespace BrightWire
                     }
                     count = 0;
                 }
+                userNotifications?.OnCompleteOperation();
             }
 
             return ret;
-        }
-
-        public static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)
-        {
-            var curr = Convert.ToInt32(progress * 100);
-            if (curr > previousPercentage) {
-                var sb = new StringBuilder();
-                sb.Append('\r');
-                var i = 0;
-                for (; i < curr; i++)
-                    sb.Append('█');
-                var fore = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Write(sb.ToString());
-
-                sb.Clear();
-                for (; i < 100; i++)
-                    sb.Append('█');
-                sb.Append($" {progress:P0}");
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.Write(sb.ToString());
-
-                Console.ForegroundColor = fore;
-                Console.Write($" {sw.Elapsed.Minutes:00}:{sw.Elapsed.Seconds:00}:{sw.Elapsed.Milliseconds:0000}");
-
-                previousPercentage = curr;
-            }
         }
 
         /// <summary>

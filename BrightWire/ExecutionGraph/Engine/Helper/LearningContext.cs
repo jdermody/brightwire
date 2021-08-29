@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             BeforeEpochStarts?.Invoke(this);
             if (_learningRateSchedule.TryGetValue(++CurrentEpoch, out float newLearningRate)) {
                 LearningRate = newLearningRate;
-                MessageLog($"Learning rate changed to {newLearningRate}");
+                GraphFactory.Context.UserNotifications?.OnMessage($"Learning rate changed to {newLearningRate}");
             }
 
             RowCount = 0;
@@ -131,7 +131,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _updatesDisabled.Add(node);
         }
 
-        public Action<string> MessageLog { get; set; } = Console.WriteLine;
         public event Action<ILearningContext>? BeforeEpochStarts;
         public event Action<ILearningContext>? AfterEpochEnds;
     }

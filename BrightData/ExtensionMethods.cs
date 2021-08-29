@@ -347,6 +347,17 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Sets the name
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="name">Name</param>
+        public static IMetaData SetName(this IMetaData metaData, string name)
+        {
+            metaData.Set(Consts.Name, name);
+            return metaData;
+        }
+
+        /// <summary>
         /// Returns the file path associated with the meta data (if any)
         /// </summary>
         /// <param name="metaData"></param>

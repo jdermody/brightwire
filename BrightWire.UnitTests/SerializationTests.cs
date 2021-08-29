@@ -52,7 +52,7 @@ namespace BrightWire.UnitTests
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagation();
-            engine.Train(300, data, bn => _bestNetwork = bn);
+            engine.Train(400, data, bn => _bestNetwork = bn);
 
             var executionEngine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(executionEngine, data);
@@ -63,8 +63,8 @@ namespace BrightWire.UnitTests
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
             static bool Handle(float[] value) => value[0] > 0.5f;
-            results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target)).All(x => x)
-                .Should().BeTrue();
+            var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
+            zippedResults.All(x => x).Should().BeTrue();
         }
 
         [Fact]

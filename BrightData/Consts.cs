@@ -72,6 +72,11 @@
         /// <summary>
         /// Standard metadata
         /// </summary>
+        public static readonly string[] SimpleMetaData = { Index, Name, IsTarget };
+
+        /// <summary>
+        /// Standard metadata
+        /// </summary>
         public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget };
     }
 }

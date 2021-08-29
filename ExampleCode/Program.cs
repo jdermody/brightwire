@@ -23,33 +23,33 @@ namespace ExampleCode
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            Control.UseNativeMKL();
+            //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            useCuda = true;
+            //useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //Xor(context);
-            //IrisClassification(context);
-            //IrisClustering(context);
-            //MarkovChains(context);
-            //TextClustering(context);
-            //IntegerAddition(context);
-            //ReberPrediction(context);
-            //OneToMany(context, useCuda);
-            //ManyToOne(context, useCuda);
-            //SequenceToSequence(context, useCuda);
-            //StockData(context, useCuda);
-            //SimpleLinearTest(context);
-            //PredictBicyclesWithLinearModel(context);
-            //PredictBicyclesWithNeuralNetwork(context);
-            //MultiLabelSingleClassifier(context);
-            //MultiLabelMultiClassifiers(context);
-            //MnistFeedForward(context, useCuda);
-            //MnistConvolutional(context, useCuda);
-            //TrainIncomePrediction(context);
+            Xor(context);
+            IrisClassification(context);
+            IrisClustering(context);
+            MarkovChains(context);
+            TextClustering(context);
+            IntegerAddition(context);
+            ReberPrediction(context);
+            OneToMany(context, useCuda);
+            ManyToOne(context, useCuda);
+            SequenceToSequence(context, useCuda);
+            StockData(context, useCuda);
+            SimpleLinearTest(context);
+            PredictBicyclesWithLinearModel(context);
+            PredictBicyclesWithNeuralNetwork(context);
+            MultiLabelSingleClassifier(context);
+            MultiLabelMultiClassifiers(context);
+            MnistFeedForward(context, useCuda);
+            MnistConvolutional(context, useCuda);
+            TrainIncomePrediction(context);
             SentimentClassification(context);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace BrightData.Input
 {
@@ -23,20 +24,22 @@ namespace BrightData.Input
             _buffer = new char[bufferSize];
         }
 
-        public Action<int>? OnProgress { get; set; }
+        public Action<float>? OnProgress { get; set; }
         public Action? OnComplete { get; set; }
 
-        public IEnumerable<List<StringBuilder>> Parse()
+        public IEnumerable<List<StringBuilder>> Parse(CancellationToken ct = default)
         {
             while(!_stream.EndOfStream) {
+                if (ct.IsCancellationRequested) 
+                    yield break;
+
                 foreach(var line in ReadPage())
                     yield return line;
 
                 // signal progress
-                OnProgress?.Invoke((int) (_stream.BaseStream.Position * 100 / _stream.BaseStream.Length));
+                OnProgress?.Invoke((float)_stream.BaseStream.Position / _stream.BaseStream.Length);
             }
-
-            // check for the last line that may not have and end of line character
+            // check for the last line that may not have an end of line character
             if (_columns.Any(c => c.Length > 0))
                 yield return _columns;
 

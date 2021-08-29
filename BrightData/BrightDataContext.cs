@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using BrightData.Computation;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -115,5 +116,10 @@ namespace BrightData
 
         /// <inheritdoc />
         public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
+
+        /// <inheritdoc />
+        public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
+
+        public CancellationToken CancellationToken { get; set; } = default;
     }
 }

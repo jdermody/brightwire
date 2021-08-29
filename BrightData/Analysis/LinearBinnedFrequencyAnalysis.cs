@@ -20,6 +20,9 @@ namespace BrightData.Analysis
 
         public void Add(double val)
         {
+            if (double.IsNaN(val))
+                return;
+
             if (val < _min)
                 _belowRange++;
             else if (val > _max)

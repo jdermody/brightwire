@@ -108,7 +108,11 @@ namespace BrightData.DataTable
         {
             lock (this) {
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                var ct = Context.CancellationToken;
                 foreach (var index in rowIndices) {
+                    if (ct.IsCancellationRequested)
+                        break;
+
                     if (index < _rowOffset.Length) {
                         _stream.Seek(_rowOffset[index], SeekOrigin.Begin);
                         var row = new object[_columns.Length];
@@ -169,7 +173,7 @@ namespace BrightData.DataTable
         public IRowOrientedDataTable Clone(string? filePath = null)
         {
             if (filePath is not null && _stream is FileStream fileStream && fileStream.Name == filePath) {
-                throw new Exception("Cannot clone a currently open row oriented table");
+                throw new Exception("Cannot clone a currently open row oriented table and write to the same path");
             }
             using var builder = GetBuilderForSelf(RowCount, filePath);
 
@@ -189,8 +193,9 @@ namespace BrightData.DataTable
             lock (this) {
                 _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                var ct = Context.CancellationToken;
 
-                for (uint i = 0; i < rowCount; i++) {
+                for (uint i = 0; i < rowCount && !ct.IsCancellationRequested; i++) {
                     var row = new object[ColumnCount];
                     for (int j = 0, len = _columnReaders.Length; j < len; j++)
                         row[j] = _columnReaders[j].Read(reader);
@@ -216,8 +221,9 @@ namespace BrightData.DataTable
             lock (this) {
                 _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
                 using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                var ct = Context.CancellationToken;
 
-                for (uint i = 0; i < rowCount; i++) {
+                for (uint i = 0; i < rowCount && !ct.IsCancellationRequested; i++) {
                     for (uint j = 0, len = ColumnCount; j < len; j++) {
                         if (bindings.TryGetValue(j, out var binding))
                             binding.Read(reader, i);

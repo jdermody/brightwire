@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
+using System.Threading;
+using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -445,6 +447,16 @@ namespace BrightData
         /// </summary>
         /// <param name="seed">Random seed (or null to randomly initialize)</param>
         public void ResetRandom(int? seed);
+
+        /// <summary>
+        /// Progress notifications for long running operations
+        /// </summary>
+        public INotifyUser? UserNotifications { get; set; }
+
+        /// <summary>
+        /// Cancellation token for the current context
+        /// </summary>
+        CancellationToken CancellationToken { get; }
     }
 
     /// <summary>
@@ -872,6 +884,7 @@ namespace BrightData
         /// Adds a new item
         /// </summary>
         /// <param name="value">Item to add</param>
+        /// <param name="index">Row index</param>
         void Add(T value, uint index);
     }
 
@@ -1052,5 +1065,13 @@ namespace BrightData
     {
         bool IsValid(T instance);
         void AddPredicate(Predicate<T> predicate);
+    }
+
+    public interface INotifyUser
+    {
+        void OnStartOperation(string? msg = null);
+        void OnOperationProgress(float progressPercent);
+        void OnCompleteOperation();
+        void OnMessage(string msg);
     }
 }

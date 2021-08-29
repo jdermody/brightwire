@@ -3,6 +3,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
@@ -265,7 +266,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="sequence">Sequence index</param>
         /// <param name="callback">Continuation</param>
-        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext> callback);
+        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext, CancellationToken> callback);
 
         /// <summary>
         /// Registers an additional mini batch to execute after the current mini batch has completed
@@ -274,7 +275,7 @@ namespace BrightWire
         /// <param name="data">Initial data</param>
         /// <param name="startCallback">Callback when starting the batch</param>
         /// <param name="endCallback">Callback when ending the batch</param>
-        void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData> startCallback, Action<IGraphSequenceContext[]> endCallback);
+        void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData, CancellationToken> startCallback, Action<IGraphSequenceContext[]> endCallback);
 
         /// <summary>
         /// True if there are registered continuations or additional mini batches to execute
@@ -608,7 +609,7 @@ namespace BrightWire
 	    /// Executes a training epoch on the graph
 	    /// </summary>
 	    /// <param name="executionContext">Graph execution context</param>
-	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+	    /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
 	    /// <returns>Graph training error</returns>
 	    void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
 
@@ -617,7 +618,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="testDataSource">Segment source with test data</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
-        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
         /// <returns>True if the model performance has improved since the last test</returns>
         bool Test(
@@ -626,6 +627,8 @@ namespace BrightWire
             Action<float>? batchCompleteCallback = null,
             Action<float, bool, bool>? values = null
         );
+
+        IBrightDataContext Context { get; }
 
         /// <summary>
         /// Graph learning context

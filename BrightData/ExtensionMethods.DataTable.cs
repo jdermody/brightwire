@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using BrightData.Analysis;
 using BrightData.Buffer;
 using BrightData.Converter;
@@ -356,23 +357,22 @@ namespace BrightData
         /// Parse CSV in memory without writing to disk (for small data sets)
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="reader"></param>
-        /// <param name="hasHeader"></param>
-        /// <param name="delimiter"></param>
-        /// <param name="writeProgress"></param>
-        /// <param name="maxRows"></param>
-        /// <param name="maxDistinct"></param>
+        /// <param name="reader">Stream reader that contains CSV data</param>
+        /// <param name="hasHeader">True if the data contains a header</param>
+        /// <param name="delimiter">CSV delimiter character</param>
+        /// <param name="maxRows">Maximum number of rows to read</param>
+        /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static IColumnOrientedDataTable ParseCsvIntoMemory(this IBrightDataContext context,
             StreamReader reader,
             bool hasHeader,
             char delimiter = ',',
-            bool writeProgress = false,
             int maxRows = int.MaxValue,
             ushort maxDistinct = 1024
         )
         {
+            var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
             var columns = new List<InMemorySegment<string>>();
             var isFirst = hasHeader;
@@ -385,14 +385,19 @@ namespace BrightData
                 metaData.Set(Consts.Source, fs.Name);
             }
 
-            if (writeProgress) {
-                var progress = -1;
-                Console.WriteLine($"Parsing CSV...");
-                parser.OnProgress = p => p.WriteProgress(ref progress);
-                parser.OnComplete = Console.WriteLine;
+            if (userNotification is not null) {
+                userNotification.OnStartOperation("Parsing CSV into memory...");
+                parser.OnProgress = p => userNotification.OnOperationProgress(p);
+                parser.OnComplete = () => {
+                    userNotification.OnCompleteOperation();
+                    userNotification.OnMessage(" - Complete");
+                };
             }
 
+            var ct = context.CancellationToken;
             foreach (var row in parser.Parse().Take(maxRows)) {
+                if (ct.IsCancellationRequested)
+                    break;
                 var cols = row.Count;
 
                 for (var i = columns.Count; i < cols; i++)
@@ -417,12 +422,6 @@ namespace BrightData
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
-            if (writeProgress) {
-                Console.WriteLine();
-                Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
-                int index = 1;
-                return segments.BuildColumnOrientedTable(metaData, context, rowCount, null, segment => Console.Write($"{index++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
-            }
             return segments.BuildColumnOrientedTable(metaData, context, rowCount, null);
         }
 
@@ -434,7 +433,6 @@ namespace BrightData
         /// <param name="hasHeader">True if the CSV has a text based header</param>
         /// <param name="delimiter">CSV delimiter</param>
         /// <param name="fileOutputPath">Optional path to save final table</param>
-        /// <param name="writeProgress"></param>
         /// <param name="maxRows">Maximum number of rows of CSV to read</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
@@ -445,12 +443,12 @@ namespace BrightData
             bool hasHeader,
             char delimiter = ',',
             string? fileOutputPath = null,
-            bool writeProgress = false,
             int maxRows = int.MaxValue,
             uint inMemoryRowCount = 32768,
             ushort maxDistinct = 1024,
             string? tempBasePath = null)
         {
+            var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
             using var tempStreams = new TempStreamManager(tempBasePath);
             var columns = new List<GrowableSegment<string>>();
@@ -464,17 +462,23 @@ namespace BrightData
                 metaData.Set(Consts.Source, fs.Name);
             }
 
-            if (writeProgress) {
-                var progress = -1;
-                Console.WriteLine($"Parsing CSV...");
-                parser.OnProgress = p => p.WriteProgress(ref progress);
-                parser.OnComplete = Console.WriteLine;
+            // set up notifications
+            if (userNotification is not null) {
+                userNotification.OnStartOperation("Parsing CSV...");
+                parser.OnProgress = p => userNotification.OnOperationProgress(p);
+                parser.OnComplete = () => {
+                    userNotification.OnCompleteOperation();
+                    userNotification.OnMessage(" - Complete");
+                };
             }
 
             uint index = 0;
+            var ct = context.CancellationToken;
             foreach (var row in parser.Parse().Take(maxRows)) {
-                var cols = row.Count;
+                if (ct.IsCancellationRequested)
+                    break;
 
+                var cols = row.Count;
                 for (var i = columns.Count; i < cols; i++) {
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     columns.Add(new GrowableSegment<string>(BrightDataType.String, new MetaData(), buffer));
@@ -500,31 +504,7 @@ namespace BrightData
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
-            if (writeProgress) {
-                Console.WriteLine();
-                Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
-                int lineCount = 1;
-                return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath, segment => Console.Write($"{lineCount++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
-            }
             return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath);
-        }
-
-        /// <summary>
-        /// Writes a progress bar to the console
-        /// </summary>
-        /// <param name="newProgress">Current progress</param>
-        /// <param name="oldProgress">Previous progress</param>
-        /// <param name="max">Maximum progress</param>
-        public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
-        {
-            if (newProgress > oldProgress) {
-                var sb = new StringBuilder();
-                sb.Append('\r');
-                for (var i = 0; i < max; i++)
-                    sb.Append(i < newProgress ? '█' : '_');
-                sb.Append($" ({oldProgress = newProgress}%)");
-                Console.Write(sb.ToString());
-            }
         }
 
         /// <summary>
@@ -734,28 +714,22 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="rowCount">Number of rows</param>
         /// <param name="filePath">File path to save on disk (optional)</param>
-        /// <param name="onBeforeWrite">Callback before writing each column (optional)</param>
-        /// <param name="onAfterWrite">Callback after writing each column (optional)</param>
         /// <returns></returns>
         public static IColumnOrientedDataTable BuildColumnOrientedTable(
             this List<ISingleTypeTableSegment> segments,
             IMetaData metaData,
             IBrightDataContext context,
             uint rowCount,
-            string? filePath = null,
-            Action<ISingleTypeTableSegment>? onBeforeWrite = null,
-            Action<long>? onAfterWrite = null)
-        {
+            string? filePath = null
+        ) {
             var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(columnCount, rowCount, metaData);
             foreach (var segment in segments) {
-                onBeforeWrite?.Invoke(segment);
                 var position = builder.Write(segment);
                 var endPosition = builder.GetCurrentPosition();
-                onAfterWrite?.Invoke(endPosition - position);
                 columnOffsets.Add((position, endPosition));
             }
             builder.WriteColumnOffsets(columnOffsets);
@@ -1340,6 +1314,6 @@ namespace BrightData
         /// </summary>
         /// <param name="rowIndices">Row indices to copy</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable CopyRows(this IRowOrientedDataTable dataTable, params uint[] rowIndices) => dataTable.CopyRows(rowIndices);
+        public static IRowOrientedDataTable CopyRows(this IRowOrientedDataTable dataTable, params uint[] rowIndices) => dataTable.CopyRows(null, rowIndices);
     }
 }

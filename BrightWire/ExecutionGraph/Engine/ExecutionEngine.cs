@@ -14,8 +14,11 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
     internal class ExecutionEngine : IGraphExecutionEngine
 	{
-        public ExecutionEngine(ILinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
+        readonly IBrightDataContext _context;
+
+        public ExecutionEngine(IBrightDataContext context, ILinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
         {
+            _context = context;
             LinearAlgebraProvider = lap;
 			Graph = graph;
 			Start = start;
@@ -55,17 +58,18 @@ namespace BrightWire.ExecutionGraph.Engine
         IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
             var table = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
+            var ct = _context.CancellationToken;
 
             if (batch.IsSequential) {
 				IMiniBatchSequence? curr;
-				while ((curr = batch.GetNextSequence()) != null) {
+				while ((curr = batch.GetNextSequence()) != null && !ct.IsCancellationRequested) {
 					var context = CreateContext(executionContext, curr);
-                    Start.Forward(GraphData.Null, context);
+                    Start.Forward(ct, GraphData.Null, context);
                     table.Add(curr, context);
                 }
 			} else {
 				var context = CreateContext(executionContext, batch.CurrentSequence);
-                Start.Forward(GraphData.Null, context);
+                Start.Forward(ct, GraphData.Null, context);
                 yield return context;
             }
 
@@ -100,14 +104,14 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
 
-        public IGraphExecutionContext CreateExecutionContext() => new ExecutionContext(LinearAlgebraProvider, this);
+        public IGraphExecutionContext CreateExecutionContext() => new ExecutionContext(_context, LinearAlgebraProvider, this);
 
         public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
         {
             LinearAlgebraProvider.PushLayer();
             DataSource = dataSource;
             var provider = new MiniBatchProvider(dataSource, null);
-            using var executionContext = new ExecutionContext(LinearAlgebraProvider, this);
+            using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
             float operationCount = executionContext.RemainingOperationCount;
@@ -137,7 +141,7 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PushLayer();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(DataSource, null);
-            using var executionContext = new ExecutionContext(LinearAlgebraProvider, this);
+            using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
@@ -183,7 +187,7 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PushLayer();
             DataSource = new SequentialRowDataSource(input, LinearAlgebraProvider);
             var provider = new MiniBatchProvider(DataSource, null);
-            using var executionContext = new ExecutionContext(LinearAlgebraProvider, this);
+            using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 

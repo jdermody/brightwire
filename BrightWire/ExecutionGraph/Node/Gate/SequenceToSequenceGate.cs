@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -45,10 +46,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, GraphData.Null, null);
         }
 
-        void OnStartEncoder(IGraphSequenceContext context, IGraphData data)
+        void OnStartEncoder(IGraphSequenceContext context, IGraphData data, CancellationToken ct)
         {
             foreach (var wire in Output)
-                wire.SendTo.Forward(data, context, wire.Channel);
+                wire.SendTo.Forward(ct, data, context, wire.Channel);
         }
 
         void OnEndDecoder(IGraphSequenceContext[] context)

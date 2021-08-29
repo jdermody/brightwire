@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -602,8 +603,9 @@ namespace BrightData
         /// <summary>
         /// Performs the transformation
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        uint Transform();
+        uint Transform(CancellationToken ct = default);
 
         /// <summary>
         /// Buffer that is written to

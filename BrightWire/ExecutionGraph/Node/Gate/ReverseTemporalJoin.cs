@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
@@ -66,7 +67,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _contextTable = new Dictionary<uint, IGraphSequenceContext>();
         }
 
-        void Continue(IGraphSequenceContext context)
+        void Continue(IGraphSequenceContext context, CancellationToken ct)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -79,7 +80,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             var next = data.ConcatRows(floatMatrix).AsGraphData();
             context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize, forwardParent, reverseParent));
             foreach(var wire in Output)
-                wire.SendTo.Forward(next, context, wire.Channel, this);
+                wire.SendTo.Forward(ct, next, context, wire.Channel, this);
         }
 
         protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)

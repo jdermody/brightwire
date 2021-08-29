@@ -93,7 +93,8 @@ namespace BrightData.Transformation
                 var buffer = new object[len];
                 var enumerators = sourceColumns.Select(c => c.Segment.Enumerate().GetEnumerator()).ToList();
                 uint index = 0;
-                while (enumerators.All(e => e.MoveNext()))
+                var ct = context.CancellationToken;
+                while (enumerators.All(e => e.MoveNext()) && !ct.IsCancellationRequested)
                 {
                     for (var i = 0; i < len; i++)
                         buffer[i] = enumerators[i].Current;

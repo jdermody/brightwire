@@ -150,7 +150,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
-                .AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, "self-attention")
+                //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, "self-attention")
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
@@ -167,14 +167,14 @@ namespace ExampleCode.DataTableTrainers
             var testResults = executionEngine.Execute(testData).ToList();
             var orderedOutput = testResults.OrderSequentialOutput();
 
-            var attention = testResults
-                .SelectMany(ec => ec.MiniBatchSequence.MiniBatch.GetGraphContexts().SelectMany(gc => gc.GetData("self-attention")))
-                .Select(d => (d.Name, Value: d.Data[0]))
-                .GroupBy(d => d.Name)
-                .ToDictionary(g => g.Key, d => d.Average(d2 => d2.Value));
+            //var attention = testResults
+            //    .SelectMany(ec => ec.MiniBatchSequence.MiniBatch.GetGraphContexts().SelectMany(gc => gc.GetData("self-attention")))
+            //    .Select(d => (d.Name, Value: d.Data[0]))
+            //    .GroupBy(d => d.Name)
+            //    .ToDictionary(g => g.Key, d => d.Average(d2 => d2.Value));
 
-            foreach(var item in attention)
-                Console.WriteLine($"{item.Key}: {item.Value}");
+            //foreach(var item in attention)
+            //    Console.WriteLine($"{item.Key}: {item.Value}");
 
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()

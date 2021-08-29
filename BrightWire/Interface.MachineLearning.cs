@@ -218,11 +218,6 @@ namespace BrightWire
         void EnableNodeUpdates(NodeBase node, bool enableUpdates);
 
         /// <summary>
-		/// Sends the message to some output
-		/// </summary>
-		Action<string> MessageLog { get; set; }
-
-		/// <summary>
 		/// Fired before each epoch starts
 		/// </summary>
 		event Action<ILearningContext> BeforeEpochStarts;
