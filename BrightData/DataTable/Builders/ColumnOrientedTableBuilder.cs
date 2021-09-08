@@ -45,7 +45,7 @@ namespace BrightData.DataTable.Builders
             _stream.Seek(0, SeekOrigin.End);
         }
 
-        long Write(IMetaData metaData, BrightDataType type, ICanWriteToBinaryWriter column)
+        long Write(ICanWriteToBinaryWriter metaData, BrightDataType type, ICanWriteToBinaryWriter column)
         {
             _writer.Flush();
             var position = _stream.Position;

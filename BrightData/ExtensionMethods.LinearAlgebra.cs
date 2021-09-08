@@ -837,5 +837,28 @@ namespace BrightData
                 softmax = softmax.Select(v => v / sum).ToArray();
             return softmax;
         }
+
+        /// <summary>
+        /// Reduce dimensions of the matrix with the singular value decomposition
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="dimensions">Number of dimensions to reduce to</param>
+        /// <returns></returns>
+        public static IFloatMatrix ReduceDimensions(this IFloatMatrix matrix, uint dimensions)
+        {
+            using var matrixT = matrix.Transpose();
+            var (u, vector, vt) = matrixT.Svd();
+
+            try {
+                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.AsIndexable().Values.Take((int)dimensions).ToArray());
+                using var v2 = vt.GetNewMatrixFromRows(dimensions.AsRange());
+                return s.Multiply(v2);
+            }
+            finally {
+                u.Dispose();
+                vector.Dispose();
+                vt.Dispose();
+            }
+        }
     }
 }

@@ -76,7 +76,7 @@ namespace BrightData.Buffer
         public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?) _distinctSet?.Count;
         public void Add(object obj, uint index) => Add((T)obj, index);
-
+        public Type DataType { get; } = typeof(T);
         protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
         protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);
     }

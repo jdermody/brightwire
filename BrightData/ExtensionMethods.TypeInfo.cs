@@ -14,7 +14,7 @@ namespace BrightData
         public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch {
             BrightDataType.BinaryData => new FieldSpecification<BinaryData>(name, canRepeat),
             BrightDataType.Boolean => new FieldSpecification<bool>(name, canRepeat),
-            BrightDataType.Byte => new FieldSpecification<byte>(name, canRepeat),
+            BrightDataType.SByte => new FieldSpecification<byte>(name, canRepeat),
             BrightDataType.Short => new FieldSpecification<short>(name, canRepeat),
             BrightDataType.Int => new FieldSpecification<int>(name, canRepeat),
             BrightDataType.Long => new FieldSpecification<long>(name, canRepeat),

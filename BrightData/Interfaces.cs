@@ -872,6 +872,11 @@ namespace BrightData
         /// </summary>
         /// <param name="obj">Object to add</param>
         void Add(object obj, uint index);
+
+        /// <summary>
+        /// Buffer data type
+        /// </summary>
+        Type DataType { get; }
     }
 
     /// <summary>
@@ -1049,7 +1054,8 @@ namespace BrightData
     public enum DataSpecificationType
     {
         Field,
-        Composite
+        Composite,
+        FieldSet
     }
 
     public interface IDataTypeSpecification

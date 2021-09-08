@@ -536,6 +536,11 @@
             Default memory cache size
             </summary>
         </member>
+        <member name="F:BrightData.Consts.RowProcessingNotificationCadence">
+            <summary>
+            Number of rows to process before notifying about progress
+            </summary>
+        </member>
         <member name="F:BrightData.Consts.SimpleMetaData">
             <summary>
             Standard metadata
@@ -1300,6 +1305,15 @@
             <param name="writable"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyUser,System.UInt32,System.UInt32,System.Single)">
+            <summary>
+            Notifies about the progress of a multi part operation
+            </summary>
+            <param name="notify"></param>
+            <param name="index">Index of current part</param>
+            <param name="total">Total number of parts</param>
+            <param name="progress">Process within the part</param>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
             Converts from a column type to a Type
@@ -1307,7 +1321,7 @@
             <param name="type">Column type</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnType(System.Type)">
+        <member name="M:BrightData.ExtensionMethods.GetBrightDataType(System.Type)">
             <summary>
             Converts from a Type to a ColumnType
             </summary>
@@ -1901,7 +1915,7 @@
             <param name="columnIndices">Column indices to copy</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(BrightData.IColumnOrientedDataTable,BrightData.IReinterpretColumnsParam[])">
+        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(BrightData.IColumnOrientedDataTable,BrightData.IReinterpretColumns[])">
             <summary>
             Many to one or one to many style column transformations
             </summary>
@@ -1920,6 +1934,91 @@
             Copy specified rows from this to a new data table
             </summary>
             <param name="rowIndices">Row indices to copy</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnTransformers(BrightData.IColumnOrientedDataTable,System.Collections.Generic.IEnumerable{BrightData.IColumnTransformationParam})">
+            <summary>
+            Gets column transformers
+            </summary>
+            <param name="dataTable"></param>
+            <param name="input">Column transformation parameter objects</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.IColumnOrientedDataTable,System.String,BrightData.IColumnTransformationParam[])">
+            <summary>
+            Normalizes the data in all columns of the table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <param name="conversionParams">Column normalization parameters</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.IColumnOrientedDataTable,System.String,BrightData.IColumnTransformationParam[])">
+            <summary>
+            Creates a new table with columns that have been converted
+            </summary>
+            <param name="dataTable"></param>
+            <param name="filePath">File path to store new table on disk</param>
+            <param name="conversionParams">Column conversion parameters</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnInfo(BrightData.IDataTable)">
+            <summary>
+            Returns column information
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.IColumnOrientedDataTable,BrightData.NormalizationType)">
+            <summary>
+            Normalizes the data in all columns of the table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="type">Normalization type</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.IColumnOrientedDataTable,System.String,BrightData.NormalizationType)">
+            <summary>
+            Normalizes the data in all columns of the table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <param name="type">Normalization type</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTableSignature(BrightData.IDataTable)">
+            <summary>
+            Gets the table signature based on column types
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWithNewColumnData(BrightData.IDataTable,BrightData.IHybridBuffer[],System.String)">
+            <summary>
+            Creates a new table using the same column information as this data table but with modified column data
+            </summary>
+            <param name="dataTable"></param>
+            <param name="buffers">New column buffers (correctly typed and one for each column)</param>
+            <param name="filePath">File path to save on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateColumnInfo(System.UInt32,BrightData.BrightDataType,BrightData.IMetaData)">
+            <summary>
+            Creates a column info
+            </summary>
+            <param name="columnIndex">Column index</param>
+            <param name="columnType">Column data type</param>
+            <param name="metaData">Column meta data (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetSegmentWithHybridBuffer(BrightData.IBrightDataContext,System.UInt32,BrightData.BrightDataType,BrightData.IMetaData)">
+            <summary>
+            Creates a table segment with an associated hybrid buffer
+            </summary>
+            <param name="context"></param>
+            <param name="columnIndex">Column index</param>
+            <param name="columnType">Column data type</param>
+            <param name="metaData">Column meta data (optional)</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
@@ -2505,6 +2604,14 @@
             Sums the columns of each sub-tensor's sub matrix
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ReduceDimensions(BrightData.IFloatMatrix,System.UInt32)">
+            <summary>
+            Reduce dimensions of the matrix with the singular value decomposition
+            </summary>
+            <param name="matrix"></param>
+            <param name="dimensions">Number of dimensions to reduce to</param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Helper.ColumnTypeClassifier">
             <summary>
             Classifies data table column types
@@ -2788,6 +2895,12 @@
             Builds a string table
             </summary>
         </member>
+        <member name="M:BrightData.Helper.StringIndexer.#ctor(System.String[])">
+            <summary>
+            Creates a string indexer
+            </summary>
+            <param name="strings">Initial strings in table</param>
+        </member>
         <member name="M:BrightData.Helper.StringIndexer.Create(System.String[])">
             <summary>
             Creates a string indexer
@@ -2804,6 +2917,11 @@
         <member name="P:BrightData.Helper.StringIndexer.OutputSize">
             <summary>
             Size of the string table
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.StringIndexer.OrderedStrings">
+            <summary>
+            Returns all strings by indexed order
             </summary>
         </member>
         <member name="T:BrightData.Helper.TempStreamManager">
@@ -3647,6 +3765,11 @@
             </summary>
             <param name="obj">Object to add</param>
         </member>
+        <member name="P:BrightData.IHybridBuffer.DataType">
+            <summary>
+            Buffer data type
+            </summary>
+        </member>
         <member name="T:BrightData.IAppendableBuffer`1">
             <summary>
             Append only buffer
@@ -3838,9 +3961,9 @@
             Boolean values
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.Byte">
+        <member name="F:BrightData.BrightDataType.SByte">
             <summary>
-            Byte values (-128 to 128)
+            Signed byte values (-128 to 128)
             </summary>
         </member>
         <member name="F:BrightData.BrightDataType.Short">
@@ -4089,28 +4212,12 @@
             <param name="filePath"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.Convert(System.String,BrightData.IColumnTransformationParam[])">
+        <member name="M:BrightData.IColumnOrientedDataTable.Transform(System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,BrightData.ITransformColumn}},System.String)">
             <summary>
-            Creates a new table with columns that have been converted
+            Transforms the table
             </summary>
-            <param name="filePath">File path to store new table on disk</param>
-            <param name="conversion">Column conversion parameters</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.Normalize(System.String,BrightData.IColumnTransformationParam[])">
-            <summary>
-            Normalizes the data in all columns of the table
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <param name="conversion">Column normalization parameters</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.Normalize(BrightData.NormalizationType,System.String)">
-            <summary>
-            Normalizes the data in all columns of the table
-            </summary>
-            <param name="type">Normalization type</param>
-            <param name="filePath">File path to store new table on disk (optional)</param>
+            <param name="transformations"></param>
+            <param name="filePath"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IColumnOrientedDataTable.CopyColumns(System.String,System.UInt32[])">
@@ -4137,7 +4244,7 @@
             <param name="filePath">File path to store new table on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.ReinterpretColumns(System.String,BrightData.IReinterpretColumnsParam[])">
+        <member name="M:BrightData.IColumnOrientedDataTable.ReinterpretColumns(System.String,BrightData.IReinterpretColumns[])">
             <summary>
             Many to one or one to many style column transformations
             </summary>
@@ -4195,7 +4302,7 @@
             <param name="rowIndices">Row indices to retrieve</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Concat(System.String,BrightData.IRowOrientedDataTable[])">
+        <member name="M:BrightData.IRowOrientedDataTable.ConcatRows(System.String,BrightData.IRowOrientedDataTable[])">
             <summary>
             Creates a new table of this concatenated with other row oriented data tables
             </summary>
@@ -4370,7 +4477,7 @@
             Transforms a column
             </summary>
         </member>
-        <member name="M:BrightData.ITransformationContext.Transform(System.Threading.CancellationToken)">
+        <member name="M:BrightData.ITransformationContext.Transform(System.Action{System.Single},System.Threading.CancellationToken)">
             <summary>
             Performs the transformation
             </summary>
@@ -4560,17 +4667,17 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IReinterpretColumnsParam">
+        <member name="T:BrightData.IReinterpretColumns">
             <summary>
             Reinterpret columns parameters
             </summary>
         </member>
-        <member name="P:BrightData.IReinterpretColumnsParam.ColumnIndices">
+        <member name="P:BrightData.IReinterpretColumns.ColumnIndices">
             <summary>
             Source column indices
             </summary>
         </member>
-        <member name="M:BrightData.IReinterpretColumnsParam.GetNewColumns(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.ValueTuple{BrightData.IColumnInfo,BrightData.ISingleTypeTableSegment}[])">
+        <member name="M:BrightData.IReinterpretColumns.GetNewColumns(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.ValueTuple{BrightData.IColumnInfo,BrightData.ISingleTypeTableSegment}[])">
             <summary>
             Gets new columns
             </summary>
@@ -6758,6 +6865,11 @@
             Parameters that define how to normalize a column of a data table
             </summary>
         </member>
+        <member name="T:BrightData.Transformation.ManyToOneColumn">
+            <summary>
+            Parameters that define how to reinterpret the columns in a data table
+            </summary>
+        </member>
         <member name="T:BrightData.Transformation.NormalizeTransformation">
             <summary>
             Normalization parameters
@@ -6797,11 +6909,6 @@
             </summary>
             <param name="val">Value to normalize</param>
             <returns>Normalized result</returns>
-        </member>
-        <member name="T:BrightData.Transformation.ReinterpretColumns">
-            <summary>
-            Parameters that define how to reinterpret the columns in a data table
-            </summary>
         </member>
         <member name="T:BrightData.Transformation.TransformationContext`2">
             <summary>

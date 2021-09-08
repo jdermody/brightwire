@@ -25,6 +25,11 @@
         /// </summary>
         public const uint DefaultMemoryCacheSize = 1024 * 1048576;
 
+        /// <summary>
+        /// Number of rows to process before notifying about progress
+        /// </summary>
+        public const uint RowProcessingNotificationCadence = 1000;
+
 #pragma warning disable 1591
         public const string Index                         = "Index";
         public const string Name                          = "Name";

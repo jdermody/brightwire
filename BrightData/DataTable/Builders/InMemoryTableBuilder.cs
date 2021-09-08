@@ -124,7 +124,7 @@ namespace BrightData.DataTable.Builders
                 BrightDataType.Matrix => EnsureMatrix(columnIndex, (Matrix<float>) val),
                 BrightDataType.BinaryData => (BinaryData) val,
                 BrightDataType.Boolean => Convert.ToBoolean(val),
-                BrightDataType.Byte => Convert.ToSByte(val),
+                BrightDataType.SByte => Convert.ToSByte(val),
                 BrightDataType.Date => Convert.ToDateTime(val),
                 BrightDataType.Decimal => Convert.ToDecimal(val),
                 BrightDataType.Short => Convert.ToInt16(val),

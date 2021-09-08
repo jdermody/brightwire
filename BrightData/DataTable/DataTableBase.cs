@@ -61,7 +61,7 @@ namespace BrightData.DataTable
                     {
                         for (uint i = 0, len = (uint)projected.Length; i < len; i++)
                         {
-                            var type = projected.GetType().GetColumnType();
+                            var type = projected.GetType().GetBrightDataType();
                             if (columnTypes.TryGetValue(i, out var existing) && existing != type)
                                 throw new Exception($"Column {i} type changed between mutations");
                             columnTypes.Add(i, type);
@@ -73,7 +73,7 @@ namespace BrightData.DataTable
 
             if (mutatedRows.Any())
             {
-                var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetColumnType());
+                var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetBrightDataType());
                 using var builder = new RowOrientedTableBuilder(MetaData, (uint)mutatedRows.Count, filePath);
                 foreach (var column in newColumnTypes)
                     builder.AddColumn(column);

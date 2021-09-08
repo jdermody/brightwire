@@ -23,10 +23,10 @@ namespace BrightData.Transformation
             _buffer = buffer;
         }
 
-        public uint Transform(CancellationToken ct)
+        public uint Transform(Action<float> progressNotification, CancellationToken ct)
         {
             // write the transformed values
-            uint ret = 0, index = 0;
+            uint ret = 0, index = 0, length = _column.Size;
             foreach (var item in _column.EnumerateTyped()) {
                 if (ct.IsCancellationRequested)
                     break;
@@ -34,6 +34,8 @@ namespace BrightData.Transformation
                 var wasConverted = _converter.Convert(item, _buffer, index++);
                 if (wasConverted)
                     ++ret;
+                if(index % Consts.RowProcessingNotificationCadence == 0)
+                    progressNotification((float) index / length);
             }
 
             // finalise

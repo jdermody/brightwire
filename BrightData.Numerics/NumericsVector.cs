@@ -104,10 +104,7 @@ namespace BrightData.Numerics
             return new NumericsMatrix(Context, DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
         }
 
-        public override string ToString()
-        {
-            return _vector.ToVectorString();
-        }
+        public override string ToString() => $"Vector ({Count}): {_vector.ToVectorString()}";
 
         public LinearAlgebra.Vector<float> Data
         {

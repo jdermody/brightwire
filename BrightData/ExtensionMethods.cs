@@ -537,5 +537,14 @@ namespace BrightData
             writer.Flush();
             return stream.ToArray();
         }
+
+        /// <summary>
+        /// Notifies about the progress of a multi part operation
+        /// </summary>
+        /// <param name="notify"></param>
+        /// <param name="index">Index of current part</param>
+        /// <param name="total">Total number of parts</param>
+        /// <param name="progress">Process within the part</param>
+        public static void NotifyProgress(this INotifyUser? notify, uint index, uint total, float progress) => notify?.OnOperationProgress((float) index / total + progress / total);
     }
 }
