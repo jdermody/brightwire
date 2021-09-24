@@ -34,14 +34,14 @@ To install the cpu version (no CUDA support) use:
 
 ```
 Install-Package BrightWire
-Install-Package BrightWire.Numerics
+Install-Package BrightData.Numerics
 ```
 
 To add CUDA support use:
 
 ```
 Install-Package BrightWire
-Install-Package BrightWire.Cuda
+Install-Package BrightData.Cuda
 ```
 
 ## Features
