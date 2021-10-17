@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product />
@@ -13,7 +13,7 @@
     <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
     <PackageTags>cuda gpu</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>Soft Attention and SIMD</PackageReleaseNotes>
+    <PackageReleaseNotes>updated to .net 5, added user notification interface and cancellation token handling, added index to buffer add method and renamed ColumnType to BrightDataType</PackageReleaseNotes>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -100,15 +100,21 @@
     </None>
     <None Include="managed-cuda\CudaBlas.netCore.dll">
       <Pack>True</Pack>
-      <PackagePath>lib/netcoreapp3.1</PackagePath>
+      <PackagePath>lib/net5.0</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </None>
     <None Include="managed-cuda\CudaSolve.netCore.dll">
       <Pack>True</Pack>
-      <PackagePath>lib/netcoreapp3.1</PackagePath>
+      <PackagePath>lib/net5.0</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </None>
     <None Include="managed-cuda\ManagedCuda.netCore.dll">
       <Pack>True</Pack>
-      <PackagePath>lib/netcoreapp3.1</PackagePath>
+      <PackagePath>lib/net5.0</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </None>
   </ItemGroup>
 

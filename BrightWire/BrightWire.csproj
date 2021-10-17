@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>Bright ML</Product>
@@ -15,7 +15,7 @@
     <PackageTags>machinelearning</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <PackageReleaseNotes>Soft Attention and SIMD</PackageReleaseNotes>
+    <PackageReleaseNotes>updated to .net 5, added user notification interface and cancellation token handling, added index to buffer add method and renamed ColumnType to BrightDataType</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
