@@ -1,10 +1,6 @@
 ﻿using BrightWire.Models.Bayesian;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.Json;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -26,7 +22,7 @@ namespace BrightWire.Bayesian.Training
 
         public void Add(IEnumerable<T> items)
         {
-			var foundInput = false;
+            var foundInput = false;
             T prevPrev = _empty, prev = _empty;
             foreach (var item in items) {
                 var head = (prevPrev, prev);
@@ -35,16 +31,15 @@ namespace BrightWire.Bayesian.Training
                 tempList.Add(item);
                 prevPrev = prev;
                 prev = item;
-	            foundInput = true;
+                foundInput = true;
             }
 
-	        if (foundInput)
-	        {
-		        var last = (prevPrev, prev);
-		        if (!_data.TryGetValue(last, out var tempList))
-			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(_empty);
-	        }
+            if (foundInput) {
+                var last = (prevPrev, prev);
+                if (!_data.TryGetValue(last, out var tempList))
+                    _data.Add(last, tempList = new List<T>());
+                tempList.Add(_empty);
+            }
         }
 
         public MarkovModel2<T> Build()
@@ -53,7 +48,7 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _data) {
                 var transitions = item.Value
                     .GroupBy(v => v)
-                    .Select(g => Tuple.Create(g.Key, g.Count()))
+                    .Select(g => (g.Key, g.Count()))
                     .Where(d => d.Item2 >= _minObservations)
                     .ToList()
                 ;
@@ -67,7 +62,7 @@ namespace BrightWire.Bayesian.Training
         }
     }
 
-    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T> where T: notnull
+    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T> where T : notnull
     {
         readonly Dictionary<(T, T, T), List<T>> _data = new();
         readonly int _minObservations;
@@ -91,16 +86,15 @@ namespace BrightWire.Bayesian.Training
                 prevPrevPrev = prevPrev;
                 prevPrev = prev;
                 prev = item;
-				foundInput = true;
+                foundInput = true;
             }
 
-	        if (foundInput)
-	        {
-		        var last = (prevPrevPrev, prevPrev, prev);
-		        if (!_data.TryGetValue(last, out var tempList))
-			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(_empty);
-	        }
+            if (foundInput) {
+                var last = (prevPrevPrev, prevPrev, prev);
+                if (!_data.TryGetValue(last, out var tempList))
+                    _data.Add(last, tempList = new List<T>());
+                tempList.Add(_empty);
+            }
         }
 
         public MarkovModel3<T> Build()
@@ -109,7 +103,7 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _data) {
                 var transitions = item.Value
                     .GroupBy(v => v)
-                    .Select(g => Tuple.Create(g.Key, g.Count()))
+                    .Select(g => (g.Key, g.Count()))
                     .Where(d => d.Item2 >= _minObservations)
                     .ToList()
                 ;

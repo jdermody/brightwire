@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -546,5 +547,14 @@ namespace BrightData
         /// <param name="total">Total number of parts</param>
         /// <param name="progress">Process within the part</param>
         public static void NotifyProgress(this INotifyUser? notify, uint index, uint total, float progress) => notify?.OnOperationProgress((float) index / total + progress / total);
+
+        /// <summary>
+        /// Writes a progress bar to the console
+        /// </summary>
+        /// <param name="progress">New progress (between 0 and 1)</param>
+        /// <param name="previousPercentage">Current progress percentage (max 100)</param>
+        /// <param name="sw">Stopwatch since start of operation</param>
+        /// <returns>True if the progress has increased</returns>
+        public static bool WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw) => ConsoleProgressNotification.WriteProgress(progress, ref previousPercentage, sw);
     }
 }

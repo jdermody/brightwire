@@ -65,7 +65,7 @@ namespace BrightWire.Unsupervised
 
             // weights gives cluster membership
             var documentClusters = weights.AsIndexable().Rows
-                .Select((c, i) => Tuple.Create(i, c.MaximumAbsoluteIndex()))
+                .Select((c, i) => (i, c.MaximumAbsoluteIndex()))
                 .ToList();
             weights.Dispose();
             features.Dispose();

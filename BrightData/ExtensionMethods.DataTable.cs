@@ -983,19 +983,34 @@ namespace BrightData
         /// <returns></returns>
         public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, bool oneHotEncodeToMultipleColumns, string? filePath = null)
         {
+            return Vectorise(dataTable, oneHotEncodeToMultipleColumns, dataTable.ColumnIndices(), filePath);
+        }
+
+        /// <summary>
+        /// Creates a new data table that has two vector columns, one for the features and the other for the target
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="oneHotEncodeToMultipleColumns"></param>
+        /// <param name="columnIndices">Columns to use</param>
+        /// <param name="filePath">Optional path to save data table to disk</param>
+        /// <returns></returns>
+        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, bool oneHotEncodeToMultipleColumns, IEnumerable<uint> columnIndices, string? filePath = null)
+        {
             var target = dataTable.GetTargetColumn();
-            var columnIndices = dataTable.ColumnIndices().ToList();
+            var columnIndexList = columnIndices.ToList();
+            if(columnIndexList.Count == 0)
+                columnIndexList.AddRange(dataTable.ColumnIndices());
             var builder = new RowOrientedTableBuilder(dataTable.MetaData, dataTable.RowCount, filePath);
 
             // create an optional output vectoriser
             DataTableVectoriser? outputVectoriser = null;
-            if (target.HasValue) {
+            if (target.HasValue && columnIndexList.Contains((target.Value))) {
                 outputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, target.Value);
-                columnIndices.Remove(target.Value);
+                columnIndexList.Remove(target.Value);
             }
 
             // create the input vectoriser
-            var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndices.ToArray());
+            var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndexList.ToArray());
             builder.AddFixedSizeVectorColumn(inputVectoriser.OutputSize, "Features");
             if (outputVectoriser != null)
                 builder.AddFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").SetTarget(true);
@@ -1432,6 +1447,9 @@ namespace BrightData
                     sb.Append(metaData.Get<uint>(Consts.XDimension));
                     sb.Append(')');
                 }
+
+                if (metaData.IsTarget())
+                    sb.Append('*');
             }
 
             return sb.ToString();
