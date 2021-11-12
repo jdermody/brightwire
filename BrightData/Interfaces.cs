@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Threading;
-using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -306,7 +304,17 @@ namespace BrightData
         long CacheSize { get; }
 
 #if DEBUG
+        /// <summary>
+        /// Register the reference counted memory block for debug and tracing
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="size"></param>
         void Register(IReferenceCountedMemory block, uint size);
+
+        /// <summary>
+        /// Unregister the reference counted memory block for debug and tracing
+        /// </summary>
+        /// <param name="block"></param>
         void Unregister(IReferenceCountedMemory block);
 #endif
     }
@@ -871,6 +879,7 @@ namespace BrightData
         /// Adds an object to the buffer
         /// </summary>
         /// <param name="obj">Object to add</param>
+        /// <param name="index">Index to set within the buffer</param>
         void Add(object obj, uint index);
 
         /// <summary>
@@ -1073,11 +1082,32 @@ namespace BrightData
         void AddPredicate(Predicate<T> predicate);
     }
 
+    /// <summary>
+    /// Notifies the user of operations and messages
+    /// </summary>
     public interface INotifyUser
     {
+        /// <summary>
+        /// Called at the start of an operation
+        /// </summary>
+        /// <param name="msg">Optional message associated with the operation</param>
         void OnStartOperation(string? msg = null);
+
+        /// <summary>
+        /// Called when the operation has progressed
+        /// </summary>
+        /// <param name="progressPercent">Progress percentage (between 0 and 1)</param>
         void OnOperationProgress(float progressPercent);
+
+        /// <summary>
+        /// Called when the operation has completed
+        /// </summary>
         void OnCompleteOperation();
+
+        /// <summary>
+        /// Called to notify the user
+        /// </summary>
+        /// <param name="msg">Message to user</param>
         void OnMessage(string msg);
     }
 }

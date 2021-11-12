@@ -68,7 +68,7 @@ namespace ExampleCode
                 context.UseNumericsLinearAlgebra();
                 Console.WriteLine("* (Numerics)");
             }
-            Console.WriteLine($"*");
+            Console.WriteLine("*");
             Console.WriteLine("*********************************************");
         }
 

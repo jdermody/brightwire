@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BrightData.Buffer;
 using BrightData.DataTable.Builders;
 using BrightData.DataTable.Consumers;
 using BrightData.Helper;
@@ -49,7 +48,7 @@ namespace BrightData.DataTable
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
         readonly IColumnReader[] _columnReaders;
-        Stream _stream;
+        readonly Stream _stream;
 
         public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context)
         {

@@ -1,4 +1,5 @@
-﻿using BrightWire.Bayesian;
+﻿using System;
+using BrightWire.Bayesian;
 using System.IO;
 using BrightData;
 using BrightWire.Helper;
@@ -54,7 +55,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of categories within the column and their probability (categorical only)
             /// </summary>
-            public CategorialProbability[] Probability { get; set; } = new CategorialProbability[0];
+            public CategorialProbability[] Probability { get; set; } = Array.Empty<CategorialProbability>();
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -108,7 +109,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The column data associated with this classification
             /// </summary>
-            public Column[] ColumnSummary { get; set; } = new Column[0];
+            public Column[] ColumnSummary { get; set; } = Array.Empty<Column>();
 
 	        /// <summary>
 	        /// The classification prior probability
@@ -125,7 +126,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A list of possible classifications and their data
         /// </summary>
-        public ClassSummary[] Class { get; set; } = new ClassSummary[0];
+        public ClassSummary[] Class { get; set; } = Array.Empty<ClassSummary>();
 
         /// <summary>
         /// Creates a classifier from this model

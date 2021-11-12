@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using BrightData.Analysis;
 using BrightData.Buffer;
 using BrightData.Converter;
@@ -1283,6 +1282,7 @@ namespace BrightData
         /// <summary>
         /// Creates a new table with columns that have been converted
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
         public static IColumnOrientedDataTable Convert(this IColumnOrientedDataTable dataTable, params IColumnTransformationParam[] conversion) => Convert(dataTable, null, conversion);
@@ -1290,6 +1290,7 @@ namespace BrightData
         /// <summary>
         /// Normalizes the data in all columns of the table
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="conversion">Column normalization parameters</param>
         /// <returns></returns>
         public static IColumnOrientedDataTable Normalize(this IColumnOrientedDataTable dataTable, params IColumnTransformationParam[] conversion) => Normalize(dataTable, null, conversion);
@@ -1297,12 +1298,14 @@ namespace BrightData
         /// <summary>
         /// Creates a new data table with this concatenated with other column oriented data tables
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="others">Other tables to concatenate</param>
         public static IColumnOrientedDataTable ConcatColumns(this IColumnOrientedDataTable dataTable, params IColumnOrientedDataTable[] others) => dataTable.ConcatColumns(null, others);
 
         /// <summary>
         /// Copies the selected columns to a new data table
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices to copy</param>
         /// <returns></returns>
         public static IColumnOrientedDataTable CopyColumns(this IColumnOrientedDataTable dataTable, params uint[] columnIndices) => dataTable.CopyColumns(null, columnIndices);
@@ -1310,6 +1313,7 @@ namespace BrightData
         /// <summary>
         /// Many to one or one to many style column transformations
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
         public static IColumnOrientedDataTable ReinterpretColumns(this IColumnOrientedDataTable dataTable, params IReinterpretColumns[] columns) => dataTable.ReinterpretColumns(null, columns);
@@ -1317,6 +1321,7 @@ namespace BrightData
         /// <summary>
         /// Creates a new table of this concatenated with other row oriented data tables
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="others">Other row oriented data tables to concatenate</param>
         /// <returns></returns>
         public static IRowOrientedDataTable Concat(this IRowOrientedDataTable dataTable, params IRowOrientedDataTable[] others) => dataTable.ConcatRows(null, others);
@@ -1324,6 +1329,7 @@ namespace BrightData
         /// <summary>
         /// Copy specified rows from this to a new data table
         /// </summary>
+        /// <param name="dataTable"></param>
         /// <param name="rowIndices">Row indices to copy</param>
         /// <returns></returns>
         public static IRowOrientedDataTable CopyRows(this IRowOrientedDataTable dataTable, params uint[] rowIndices) => dataTable.CopyRows(null, rowIndices);

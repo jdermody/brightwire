@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using BrightData.UnitTests.Helper;
+﻿using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 

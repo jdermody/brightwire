@@ -322,7 +322,7 @@ namespace BrightData.UnitTests
             using var simpleTensor = _simple.Create3DTensor(cpuTensor.Data);
             var (simpleMaxPool, simpleIndices) = simpleTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
             FloatMath.AreApproximatelyEqual(simpleMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
-            FloatMath.AreApproximatelyEqual(simpleIndices!.AsIndexable(), cpuIndices!.AsIndexable());
+            FloatMath.AreApproximatelyEqual(simpleIndices!.AsIndexable(), cpuIndices.AsIndexable());
             using var simpleReverseMaxPool = simpleMaxPool.ReverseMaxPool(simpleIndices, ROWS, COLUMNS, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
             FloatMath.AreApproximatelyEqual(simpleReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
         }

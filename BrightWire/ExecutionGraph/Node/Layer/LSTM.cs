@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph.Node.Layer

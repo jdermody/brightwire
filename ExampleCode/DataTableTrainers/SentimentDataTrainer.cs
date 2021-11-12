@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -49,7 +47,7 @@ namespace ExampleCode.DataTableTrainers
             var (training, test) = sentences.Shuffle(context.Random).ToArray().Split();
             _indexedSentencesTraining = BuildIndexedClassifications(context, training, _stringTable);
             _indexedSentencesTest = BuildIndexedClassifications(context, test, _stringTable);
-            _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
+            _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             _context = context;
         }
 
@@ -116,7 +114,7 @@ namespace ExampleCode.DataTableTrainers
             // create combined data tables with both index lists and encoded vectors
             var graph = engine.LearningContext.GraphFactory;
             var context = graph.Context;
-            var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
+            var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             var indexer = GetIndexer();
             var training = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
             var test = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
@@ -221,7 +219,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildRowOriented();
         }
 
-        static IIndexStrings GetIndexer() => StringIndexer.Create("negative", "positive");
+        static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
 
         public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {

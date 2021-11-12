@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,12 +29,12 @@ namespace BrightWire.Models
 		{
 			public int ClassificationIndex { get; set; }
 
-            public ActualClassification[] ActualClassifications { get; set; } = new ActualClassification[0];
+            public ActualClassification[] ActualClassifications { get; set; } = Array.Empty<ActualClassification>();
         }
 
-        public string[] ClassificationLabels { get; set; } = new string[0];
+        public string[] ClassificationLabels { get; set; } = Array.Empty<string>();
 
-        public ExpectedClassification[] Classifications { get; set; } = new ExpectedClassification[0];
+        public ExpectedClassification[] Classifications { get; set; } = Array.Empty<ExpectedClassification>();
 
 		public string AsXml
 		{

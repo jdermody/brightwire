@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node;
+﻿using System;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
@@ -17,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             Parents = parent != null 
                 ? new[] { parent } 
-                : new NodeBase[0];
+                : Array.Empty<NodeBase>();
 
             Source = source;
             Data = data;

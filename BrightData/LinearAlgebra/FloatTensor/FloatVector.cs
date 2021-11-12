@@ -142,7 +142,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
                 return new Float3DTensor(Data.Context.CreateTensor3D(matrixList));
             }
             var matrix = ReshapeAsMatrix(rows, columns).Data;
-            return new Float3DTensor(Data.Context.CreateTensor3D(new[] { matrix }));
+            return new Float3DTensor(Data.Context.CreateTensor3D(matrix));
         }
 
         public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
@@ -173,9 +173,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
                 var index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
                 var index2 = blockIndex * blockSize + blockOffset; 
-                var temp = this[index1];
-                this[index1] = this[index2];
-                this[index2] = temp;
+                (this[index1], this[index2]) = (this[index2], this[index1]);
             }
         }
 

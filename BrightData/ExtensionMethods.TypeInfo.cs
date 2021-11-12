@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.DataTypeSpecification;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -11,6 +9,14 @@ namespace BrightData
 {
     public partial class ExtensionMethods
     {
+        /// <summary>
+        /// Creates a data field specification for a data type
+        /// </summary>
+        /// <param name="dataType"></param>
+        /// <param name="name"></param>
+        /// <param name="canRepeat"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch {
             BrightDataType.BinaryData => new FieldSpecification<BinaryData>(name, canRepeat),
             BrightDataType.Boolean => new FieldSpecification<bool>(name, canRepeat),
@@ -32,6 +38,11 @@ namespace BrightData
             _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 
+        /// <summary>
+        /// Creates a type specification for a data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
         public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
 
         class ColumnFilter<T> : IConsumeColumnData<T> where T: notnull
@@ -61,6 +72,13 @@ namespace BrightData
             return GenericActivator.Create<IConsumeColumnData>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
         }
 
+        /// <summary>
+        /// Finds the row indices of any row that does not conform to the type specification
+        /// </summary>
+        /// <param name="typeInfo"></param>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
         {
             if (typeInfo.UnderlyingType != typeof(IDataTable))

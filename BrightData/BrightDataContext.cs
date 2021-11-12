@@ -120,6 +120,7 @@ namespace BrightData
         /// <inheritdoc />
         public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
 
+        /// <inheritdoc />
         public CancellationToken CancellationToken { get; set; } = default;
     }
 }

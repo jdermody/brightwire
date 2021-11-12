@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;

@@ -1,9 +1,4 @@
-﻿using System;
-using BrightData.Helper;
-using BrightData.UnitTests.Fixtures;
-using BrightData.UnitTests.Helper;
-using Xunit;
-using FluentAssertions;
+﻿using BrightData.UnitTests.Helper;
 
 namespace BrightData.UnitTests
 {

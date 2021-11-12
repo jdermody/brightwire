@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input

@@ -26,7 +26,7 @@ namespace BrightData.Helper
         /// </summary>
         /// <param name="strings">Initial strings in table</param>
         [Obsolete("Please use standard constructor instead")]
-        public static StringIndexer Create(params string[] strings) => new StringIndexer(strings);
+        public static StringIndexer Create(params string[] strings) => new(strings);
 
         /// <summary>
         /// Returns the index of a string (creates it if not already in table)

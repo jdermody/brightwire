@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using BrightData;
@@ -16,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly GraphFactory _factory;
         float? _lastTestError = null;
-        InputFeeder _start;
+        readonly InputFeeder _start;
 
         public TrainingEngine(GraphFactory factory, IDataSource dataSource, IErrorMetric errorMetric)
         {

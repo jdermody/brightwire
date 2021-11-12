@@ -391,6 +391,9 @@
         <member name="P:BrightData.BrightDataContext.UserNotifications">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.BrightDataContext.CancellationToken">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Buffer.EncodedStreamReader">
             <summary>
             Reads from potentially encoded storage
@@ -1911,6 +1914,7 @@
             <summary>
             Creates a new table with columns that have been converted
             </summary>
+            <param name="dataTable"></param>
             <param name="conversion">Column conversion parameters</param>
             <returns></returns>
         </member>
@@ -1918,6 +1922,7 @@
             <summary>
             Normalizes the data in all columns of the table
             </summary>
+            <param name="dataTable"></param>
             <param name="conversion">Column normalization parameters</param>
             <returns></returns>
         </member>
@@ -1925,12 +1930,14 @@
             <summary>
             Creates a new data table with this concatenated with other column oriented data tables
             </summary>
+            <param name="dataTable"></param>
             <param name="others">Other tables to concatenate</param>
         </member>
         <member name="M:BrightData.ExtensionMethods.CopyColumns(BrightData.IColumnOrientedDataTable,System.UInt32[])">
             <summary>
             Copies the selected columns to a new data table
             </summary>
+            <param name="dataTable"></param>
             <param name="columnIndices">Column indices to copy</param>
             <returns></returns>
         </member>
@@ -1938,6 +1945,7 @@
             <summary>
             Many to one or one to many style column transformations
             </summary>
+            <param name="dataTable"></param>
             <param name="columns">Parameters to determine which columns are reinterpreted</param>
             <returns></returns>
         </member>
@@ -1945,6 +1953,7 @@
             <summary>
             Creates a new table of this concatenated with other row oriented data tables
             </summary>
+            <param name="dataTable"></param>
             <param name="others">Other row oriented data tables to concatenate</param>
             <returns></returns>
         </member>
@@ -1952,6 +1961,7 @@
             <summary>
             Copy specified rows from this to a new data table
             </summary>
+            <param name="dataTable"></param>
             <param name="rowIndices">Row indices to copy</param>
             <returns></returns>
         </member>
@@ -2623,13 +2633,89 @@
             Sums the columns of each sub-tensor's sub matrix
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Minimum(System.Single[])">
+            <summary>
+            Find the minimum value and index in a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the minimum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumIndex(System.Single[])">
+            <summary>
+            Returns the index of the minimum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumValue(System.Single[])">
+            <summary>
+            Returns the minimum value
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Maximum(System.Single[])">
+            <summary>
+            Returns the maximum value and index within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the maximum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumIndex(System.Single[])">
+            <summary>
+            Returns the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumValue(System.Single[])">
+            <summary>
+            Returns the index of the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Softmax(System.Single[])">
+            <summary>
+            Calculates the softmax of a vector
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ReduceDimensions(BrightData.IFloatMatrix,System.UInt32)">
             <summary>
-            Reduce dimensions of the matrix with the singular value decomposition
+            Reduce dimensions of the matrix with a singular value decomposition
             </summary>
             <param name="matrix"></param>
             <param name="dimensions">Number of dimensions to reduce to</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
+            <summary>
+            Creates a data field specification for a data type
+            </summary>
+            <param name="dataType"></param>
+            <param name="name"></param>
+            <param name="canRepeat"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTypeSpecification(BrightData.IDataTable)">
+            <summary>
+            Creates a type specification for a data table
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.FindNonConformingRows(BrightData.IDataTypeSpecification,BrightData.IDataTable)">
+            <summary>
+            Finds the row indices of any row that does not conform to the type specification
+            </summary>
+            <param name="typeInfo"></param>
+            <param name="dataTable"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="T:BrightData.Helper.ColumnTypeClassifier">
             <summary>
@@ -2691,6 +2777,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.ConsoleProgressNotification.OnCompleteOperation">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnMessage(System.String)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.ConsoleProgressNotification.WriteProgress(System.Int32,System.Int32@,System.Int32)">
@@ -3783,6 +3872,7 @@
             Adds an object to the buffer
             </summary>
             <param name="obj">Object to add</param>
+            <param name="index">Index to set within the buffer</param>
         </member>
         <member name="P:BrightData.IHybridBuffer.DataType">
             <summary>
@@ -3944,6 +4034,34 @@
             Creates a new repeatable section reader
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.INotifyUser">
+            <summary>
+            Notifies the user of operations and messages
+            </summary>
+        </member>
+        <member name="M:BrightData.INotifyUser.OnStartOperation(System.String)">
+            <summary>
+            Called at the start of an operation
+            </summary>
+            <param name="msg">Optional message associated with the operation</param>
+        </member>
+        <member name="M:BrightData.INotifyUser.OnOperationProgress(System.Single)">
+            <summary>
+            Called when the operation has progressed
+            </summary>
+            <param name="progressPercent">Progress percentage (between 0 and 1)</param>
+        </member>
+        <member name="M:BrightData.INotifyUser.OnCompleteOperation">
+            <summary>
+            Called when the operation has completed
+            </summary>
+        </member>
+        <member name="M:BrightData.INotifyUser.OnMessage(System.String)">
+            <summary>
+            Called to notify the user
+            </summary>
+            <param name="msg">Message to user</param>
         </member>
         <member name="T:BrightData.DataTableOrientation">
             <summary>
@@ -4489,6 +4607,7 @@
             </summary>
             <param name="input"></param>
             <param name="buffer"></param>
+            <param name="index">Index within the buffer</param>
             <returns></returns>
         </member>
         <member name="T:BrightData.ITransformationContext">
@@ -4500,6 +4619,7 @@
             <summary>
             Performs the transformation
             </summary>
+            <param name="progressNotification">Progress notification callback</param>
             <param name="ct">Cancellation token</param>
             <returns></returns>
         </member>
@@ -6017,6 +6137,32 @@
         <member name="M:BrightData.LinearAlgebra.Matrix`1.Create(BrightData.ITensorSegment{`0})">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Map(System.Func{`0,`0})">
+            <summary>
+            Applies a mapping function to each value within the matrix - creating a new matrix as a result
+            </summary>
+            <param name="mutator">Mapping function</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.MapInPlace(System.Func{`0,`0})">
+            <summary>
+            Applies a mapping function to each value within the matrix
+            </summary>
+            <param name="mutator">Mapping function</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.MapIndexed(System.Func{System.UInt32,System.UInt32,`0,`0})">
+            <summary>
+            Applies an indexed mapping function to each value within the matrix - creating a new matrix as a result
+            </summary>
+            <param name="mutator">Mapping function</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.MapIndexedInPlace(System.Func{System.UInt32,System.UInt32,`0,`0})">
+            <summary>
+            Applies an indexed mapping function to each value within the matrix
+            </summary>
+            <param name="mutator">Mapping function</param>
+        </member>
         <member name="T:BrightData.LinearAlgebra.Tensor3D`1">
             <summary>
             3D tensor type
@@ -6651,6 +6797,32 @@
             Copies from an array into this vector
             </summary>
             <param name="array">Array to copy from</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.Map(System.Func{`0,`0})">
+            <summary>
+            Applies a mapping function to each value within the vector - creating a new vector as a result
+            </summary>
+            <param name="mutator">Mapping function</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.MapIndexed(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Applies an indexed mapping function to each value within the vector - creating a new vector as a result
+            </summary>
+            <param name="mutator">Mapping function</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.MapInPlace(System.Func{`0,`0})">
+            <summary>
+            Applies a mapping function to each value within the vector
+            </summary>
+            <param name="mutator">Mapping function</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.MapIndexedInPlace(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Applies an indexed mapping function to each value within the matrix
+            </summary>
+            <param name="mutator">Mapping function</param>
         </member>
         <member name="T:BrightData.Memory.DisposableLayers">
             <summary>

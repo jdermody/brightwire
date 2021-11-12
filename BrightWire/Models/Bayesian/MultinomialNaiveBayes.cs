@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightData;
 using BrightWire.Bayesian;
 using BrightWire.Helper;
@@ -55,7 +56,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of string indexes and their probability
             /// </summary>
-            public StringIndexProbability[] Index { get; set; } = new StringIndexProbability[0];
+            public StringIndexProbability[] Index { get; set; } = Array.Empty<StringIndexProbability>();
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -67,7 +68,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// The list of possible classifications
         /// </summary>
-        public Class[] ClassData { get; set; } = new Class[0];
+        public Class[] ClassData { get; set; } = Array.Empty<Class>();
 
         /// <summary>
         /// Creates a classifier from the model

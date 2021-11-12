@@ -377,10 +377,8 @@ namespace BrightData.Numerics
 
 			    var index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
 			    var index2 = blockIndex * blockSize + blockOffset; 
-			    var temp = this[index1];
-			    this[index1] = this[index2];
-			    this[index2] = temp;
-		    }
+			    (this[index1], this[index2]) = (this[index2], this[index1]);
+            }
 	    }
 
         public IFloatVector Reverse()

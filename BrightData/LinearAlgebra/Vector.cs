@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BrightData.LinearAlgebra
 {
@@ -68,24 +67,42 @@ namespace BrightData.LinearAlgebra
         /// <param name="array">Array to copy from</param>
         public void CopyFrom(T[] array) => _segment.Initialize(array);
 
+        /// <summary>
+        /// Applies a mapping function to each value within the vector - creating a new vector as a result
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
+        /// <returns></returns>
         public Vector<T> Map(Func<T, T> mutator)
         {
             var ret = MapParallel((i, v) => mutator(v));
             return new Vector<T>(ret);
         }
 
+        /// <summary>
+        /// Applies an indexed mapping function to each value within the vector - creating a new vector as a result
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
+        /// <returns></returns>
         public Vector<T> MapIndexed(Func<uint, T, T> mutator)
         {
             var ret = MapParallel(mutator);
             return new Vector<T>(ret);
         }
 
+        /// <summary>
+        /// Applies a mapping function to each value within the vector
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
         public void MapInPlace(Func<T, T> mutator)
         {
             using var ret = MapParallel((i, v) => mutator(v));
             ret.CopyTo(_segment);
         }
 
+        /// <summary>
+        /// Applies an indexed mapping function to each value within the matrix
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
         public void MapIndexedInPlace(Func<uint, T, T> mutator)
         {
             using var ret = MapParallel(mutator);

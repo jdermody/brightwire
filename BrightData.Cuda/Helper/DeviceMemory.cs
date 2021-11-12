@@ -116,7 +116,7 @@ namespace BrightData.Cuda.Helper
             public void Release()
             {
                 foreach (var item in _disposable)
-                    item?.Dispose();
+                    item.Dispose();
                 foreach (var item in _ptr)
                     item.Free();
             }

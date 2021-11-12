@@ -575,6 +575,7 @@ namespace BrightData
         /// </summary>
         /// <param name="input"></param>
         /// <param name="buffer"></param>
+        /// <param name="index">Index within the buffer</param>
         /// <returns></returns>
         bool Convert(TF input, IHybridBuffer<TT> buffer, uint index);
     }
@@ -587,6 +588,7 @@ namespace BrightData
         /// <summary>
         /// Performs the transformation
         /// </summary>
+        /// <param name="progressNotification">Progress notification callback</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
         uint Transform(Action<float> progressNotification, CancellationToken ct = default);

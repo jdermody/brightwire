@@ -164,18 +164,32 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         protected override Matrix<T> Create(ITensorSegment<T> segment) => new(segment, RowCount, ColumnCount);
 
+        /// <summary>
+        /// Applies a mapping function to each value within the matrix - creating a new matrix as a result
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
+        /// <returns></returns>
         public Matrix<T> Map(Func<T, T> mutator)
         {
             var ret = MapParallel((i, v) => mutator(v));
             return new Matrix<T>(ret, RowCount, ColumnCount);
         }
 
+        /// <summary>
+        /// Applies a mapping function to each value within the matrix
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
         public void MapInPlace(Func<T, T> mutator)
         {
             using var ret = MapParallel((i, v) => mutator(v));
             ret.CopyTo(_segment);
         }
 
+        /// <summary>
+        /// Applies an indexed mapping function to each value within the matrix - creating a new matrix as a result
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
+        /// <returns></returns>
         public Matrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
         {
             var ret = MapParallel((ind, val) => {
@@ -186,6 +200,10 @@ namespace BrightData.LinearAlgebra
             return new Matrix<T>(ret, RowCount, ColumnCount);
         }
 
+        /// <summary>
+        /// Applies an indexed mapping function to each value within the matrix
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
         public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
         {
             using var ret = MapParallel((ind, val) => {
