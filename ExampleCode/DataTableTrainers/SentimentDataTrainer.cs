@@ -309,11 +309,11 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
 
             var empty = new float[102];
-            foreach (var row in data) {
-                var c1 = bernoulli.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
-                var c2 = multinomial.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
-                var input = row.Data.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, row.Classification == "positive"));
+            foreach (var (classification, indexList) in data) {
+                var c1 = bernoulli.Classify(indexList).First().Label == "positive" ? 1f : 0f;
+                var c2 = multinomial.Classify(indexList).First().Label == "positive" ? 1f : 0f;
+                var input = indexList.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, classification == "positive"));
                 
                 builder.AddRow(_context.CreateMatrixFromRows(input), output);
             }
@@ -321,7 +321,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildRowOriented();
         }
 
-        float[]? GetInputVector(float c1, float c2, string word)
+        static float[]? GetInputVector(float c1, float c2, string word)
         {
             var embedding = Data.Embeddings.Get(word);
             if(embedding == null && word.StartsWith("not_"))
@@ -337,7 +337,7 @@ namespace ExampleCode.DataTableTrainers
             return null;
         }
 
-        float GetOutputValue(uint columnIndex, bool isPositive) => columnIndex switch {
+        static float GetOutputValue(uint columnIndex, bool isPositive) => columnIndex switch {
             0 when isPositive => 1f,
             1 when !isPositive => 1f,
             _ => 0f

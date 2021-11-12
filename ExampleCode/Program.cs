@@ -50,7 +50,7 @@ namespace ExampleCode
             MnistFeedForward(context);
             MnistConvolutional(context, useCuda);
             TrainIncomePrediction(context);
-            SentimentClassification(context);
+            SentimentClassification(context, useCuda);
         }
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
@@ -146,9 +146,9 @@ namespace ExampleCode
             context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(IBrightDataContext context)
+        static void SentimentClassification(IBrightDataContext context, bool useCuda)
         {
-            Start(context, true);
+            Start(context, useCuda);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
