@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightData.UnitTests;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;

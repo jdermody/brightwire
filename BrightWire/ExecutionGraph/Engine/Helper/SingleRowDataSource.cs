@@ -1,5 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using System;
+﻿using System;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
@@ -36,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 IsSequential = isSequential;
             }
 
-            public uint[] Rows { get; } = { (uint)0 };
+            public uint[] Rows { get; } = { 0 };
             public IDataSource DataSource { get; }
             public bool IsSequential { get; }
             public uint BatchSize => 1;

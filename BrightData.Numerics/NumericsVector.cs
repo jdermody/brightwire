@@ -104,10 +104,7 @@ namespace BrightData.Numerics
             return new NumericsMatrix(Context, DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
         }
 
-        public override string ToString()
-        {
-            return _vector.ToVectorString();
-        }
+        public override string ToString() => $"Vector ({Count}): {_vector.ToVectorString()}";
 
         public LinearAlgebra.Vector<float> Data
         {
@@ -380,10 +377,8 @@ namespace BrightData.Numerics
 
 			    var index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
 			    var index2 = blockIndex * blockSize + blockOffset; 
-			    var temp = this[index1];
-			    this[index1] = this[index2];
-			    this[index2] = temp;
-		    }
+			    (this[index1], this[index2]) = (this[index2], this[index1]);
+            }
 	    }
 
         public IFloatVector Reverse()

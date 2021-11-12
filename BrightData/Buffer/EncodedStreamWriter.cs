@@ -42,7 +42,7 @@ namespace BrightData.Buffer
             if (typeOfT == typeof(string)) {
                 var stringBuffer = (ICanEnumerate<string>)buffer;
                 return shouldEncode
-                    ? (ICanWriteToBinaryWriter)new StringEncoder(stringBuffer)
+                    ? new StringEncoder(stringBuffer)
                     : new StringWriter(stringBuffer);
             }
 

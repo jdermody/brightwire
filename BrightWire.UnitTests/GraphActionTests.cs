@@ -1,6 +1,5 @@
 ﻿using BrightData;
 using BrightData.Helper;
-using BrightData.UnitTests;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.UnitTests.Helper;

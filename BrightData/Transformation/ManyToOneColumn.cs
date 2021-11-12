@@ -9,9 +9,9 @@ namespace BrightData.Transformation
     /// <summary>
     /// Parameters that define how to reinterpret the columns in a data table
     /// </summary>
-    internal class ReinterpretColumns : IReinterpretColumnsParam
+    internal class ManyToOneColumn : IReinterpretColumns
     {
-        public ReinterpretColumns(BrightDataType newType, string name, params uint[] columnIndices)
+        public ManyToOneColumn(BrightDataType newType, string name, params uint[] columnIndices)
         {
             NewType = newType;
             Name = name;

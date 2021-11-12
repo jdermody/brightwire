@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BrightData;
@@ -40,13 +39,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var err = item.EncoderState.PointwiseMultiply(parts.Right);
                     var errRows = err.RowSums();
                     errRows.Multiply(1f / err.ColumnCount);
-                    var softmaxDeriviative = errRows.SoftmaxDerivative();
-                    var feedForwardError = softmaxDeriviative;
+
+                    var feedForwardError = errRows.SoftmaxDerivative();
                     var collapsed = item.CombinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
                     collapsed.Multiply(1f / feedForwardError.ColumnCount);
                     var weightUpdate = collapsed.ReshapeAsColumnMatrix();
-                    
-                    learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
+
+                    // TODO: looks fishy, needs work...
+                    //learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
                     learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
                 }
 

@@ -791,6 +791,11 @@ namespace BrightData
             return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
         }
 
+        /// <summary>
+        /// Find the minimum value and index in a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns>Tuple containing the minimum value and its index</returns>
         public static (float Value, uint Index) Minimum(this float[] vector)
         {
             var ret = uint.MaxValue;
@@ -806,9 +811,26 @@ namespace BrightData
 
             return (lowestValue, ret);
         }
+
+        /// <summary>
+        /// Returns the index of the minimum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
         public static uint MinimumIndex(this float[] vector) => Minimum(vector).Index;
+
+        /// <summary>
+        /// Returns the minimum value
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
         public static float MinimumValue(this float[] vector) => Minimum(vector).Value;
 
+        /// <summary>
+        /// Returns the maximum value and index within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns>Tuple containing the maximum value and its index</returns>
         public static (float Value, uint Index) Maximum(this float[] vector)
         {
             var ret = uint.MaxValue;
@@ -824,9 +846,27 @@ namespace BrightData
 
             return (highestValue, ret);
         }
+
+        /// <summary>
+        /// Returns the maximum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
         public static uint MaximumIndex(this float[] vector) => Maximum(vector).Index;
+
+        /// <summary>
+        /// Returns the index of the maximum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
         public static float MaximumValue(this float[] vector) => Maximum(vector).Value;
 
+        /// <summary>
+        /// Calculates the softmax of a vector
+        /// https://en.wikipedia.org/wiki/Softmax_function
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
         public static float[] Softmax(this float[] vector)
         {
             var max = MaximumValue(vector);
@@ -836,6 +876,29 @@ namespace BrightData
             if (!sum.Equals(0))
                 softmax = softmax.Select(v => v / sum).ToArray();
             return softmax;
+        }
+
+        /// <summary>
+        /// Reduce dimensions of the matrix with a singular value decomposition
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="dimensions">Number of dimensions to reduce to</param>
+        /// <returns></returns>
+        public static IFloatMatrix ReduceDimensions(this IFloatMatrix matrix, uint dimensions)
+        {
+            using var matrixT = matrix.Transpose();
+            var (u, vector, vt) = matrixT.Svd();
+
+            try {
+                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.AsIndexable().Values.Take((int)dimensions).ToArray());
+                using var v2 = vt.GetNewMatrixFromRows(dimensions.AsRange());
+                return s.Multiply(v2);
+            }
+            finally {
+                u.Dispose();
+                vector.Dispose();
+                vt.Dispose();
+            }
         }
     }
 }

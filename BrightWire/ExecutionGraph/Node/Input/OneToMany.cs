@@ -1,7 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {

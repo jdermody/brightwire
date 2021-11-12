@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
@@ -17,7 +16,7 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.Boolean, "boolean");
-            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.SByte, "byte");
             builder.AddColumn(BrightDataType.Date, "date");
             builder.AddColumn(BrightDataType.Double, "double");
             builder.AddColumn(BrightDataType.Float, "float");
@@ -76,7 +75,7 @@ namespace BrightData.UnitTests
         {
             var builder = context.BuildTable();
             builder.AddColumn(BrightDataType.Boolean, "boolean");
-            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.SByte, "byte");
             builder.AddColumn(BrightDataType.Date, "date");
             builder.AddColumn(BrightDataType.Double, "double");
             builder.AddColumn(BrightDataType.Float, "float");
@@ -521,13 +520,13 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.String);
-            builder.AddColumn(BrightDataType.Byte);
+            builder.AddColumn(BrightDataType.SByte);
 
             for (int i = 0, len = sbyte.MaxValue - sbyte.MinValue; i < len; i++) {
                 var val = (sbyte) (sbyte.MinValue + i);
                 builder.AddRow(val.ToString(), val);
             }
-            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, BrightDataType.Byte);
+            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, BrightDataType.SByte);
         }
 
         [Fact]

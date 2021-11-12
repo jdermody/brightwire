@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightData;
 using BrightWire.Helper;
 using BrightWire.Linear;
@@ -13,17 +14,17 @@ namespace BrightWire.Models.Linear
         /// <summary>
         /// The list of logistic regression models
         /// </summary>
-        public LogisticRegression[] Model { get; set; } = new LogisticRegression[0];
+        public LogisticRegression[] Model { get; set; } = Array.Empty<LogisticRegression>();
 
         /// <summary>
         /// The associated classification labels
         /// </summary>
-        public string[] Classification { get; set; } = new string[0];
+        public string[] Classification { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// The columns used to build the dense input vectors
         /// </summary>
-        public uint[] FeatureColumn { get; set; } = new uint[0];
+        public uint[] FeatureColumn { get; set; } = Array.Empty<uint>();
 
         /// <summary>
         /// Creates a classifier from this model

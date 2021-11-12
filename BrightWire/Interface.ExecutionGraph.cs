@@ -6,7 +6,6 @@ using System.IO;
 using System.Threading;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire

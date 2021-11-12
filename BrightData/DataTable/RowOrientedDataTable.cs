@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BrightData.Buffer;
 using BrightData.DataTable.Builders;
 using BrightData.DataTable.Consumers;
 using BrightData.Helper;
@@ -49,7 +48,7 @@ namespace BrightData.DataTable
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
         readonly IColumnReader[] _columnReaders;
-        Stream _stream;
+        readonly Stream _stream;
 
         public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context)
         {
@@ -126,10 +125,8 @@ namespace BrightData.DataTable
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
-            var selectedColumnIndices = this.AllOrSelectedColumnIndices(columnIndices);
-
             // TODO: compress the columns based on frequency statistics
-            var columns = selectedColumnIndices.Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
+            var columns = this.AllOrSelectedColumnIndices(columnIndices).Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -255,7 +252,7 @@ namespace BrightData.DataTable
         {
             var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
-            return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
+            return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, Context.TempStreamProvider);
         }
 
         static string ReadString(BinaryReader reader) => reader.ReadString();
@@ -288,7 +285,7 @@ namespace BrightData.DataTable
                 BrightDataType.Boolean => new ColumnReader<bool>(ReadBoolean),
                 BrightDataType.Date => new ColumnReader<DateTime>(ReadDate),
                 BrightDataType.Long => new ColumnReader<long>(ReadInt64),
-                BrightDataType.Byte => new ColumnReader<sbyte>(ReadByte),
+                BrightDataType.SByte => new ColumnReader<sbyte>(ReadByte),
                 BrightDataType.IndexList => new ColumnReader<IndexList>(ReadIndexList),
                 BrightDataType.WeightedIndexList => new ColumnReader<WeightedIndexList>(ReadWeightedIndexList),
                 BrightDataType.Vector => new ColumnReader<Vector<float>>(ReadVector),
@@ -320,7 +317,7 @@ namespace BrightData.DataTable
             return Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others)
+        public IRowOrientedDataTable ConcatRows(string? filePath, params IRowOrientedDataTable[] others)
         {
             var rowCount = RowCount;
             foreach (var other in others) {

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
-
-namespace BrightWire
+﻿namespace BrightWire
 {
     // declarations in nested files...
 }

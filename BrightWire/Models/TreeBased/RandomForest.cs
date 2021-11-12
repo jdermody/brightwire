@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightData;
 using BrightWire.Helper;
 using BrightWire.TreeBased;
@@ -13,7 +14,7 @@ namespace BrightWire.Models.TreeBased
         /// <summary>
         /// The list of trees in the forest
         /// </summary>
-        public DecisionTree[] Forest { get; set; } = new DecisionTree[0];
+        public DecisionTree[] Forest { get; set; } = Array.Empty<DecisionTree>();
 
         /// <summary>
         /// Creates a classifier from the model

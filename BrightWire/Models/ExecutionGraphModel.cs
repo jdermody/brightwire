@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Channels;
 using System.Xml;
 using BrightData;
 using BrightWire.Helper;
@@ -140,12 +139,12 @@ namespace BrightWire.Models
         /// <summary>
         /// Other connected nodes
         /// </summary>
-        public Node[] OtherNodes { get; set; } = new Node[0];
+        public Node[] OtherNodes { get; set; } = Array.Empty<Node>();
 
         /// <summary>
         /// A list of the wires that connect the nodes in the graph
         /// </summary>
-        public Wire[] Wires { get; set; } = new Wire[0];
+        public Wire[] Wires { get; set; } = Array.Empty<Wire>();
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

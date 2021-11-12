@@ -41,7 +41,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="reader">Reader to initialize from</param>
-        protected TensorBase(IBrightDataContext context, BinaryReader reader) : base(new uint[0])
+        protected TensorBase(IBrightDataContext context, BinaryReader reader) : base(Array.Empty<uint>())
         {
             Initialize(context, reader);
         }

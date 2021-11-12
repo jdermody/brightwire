@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BrightData.DataTypeSpecification
+﻿namespace BrightData.DataTypeSpecification
 {
     class FieldSpecification<T> : DataTypeSpecificationBase<T> where T: notnull
     {

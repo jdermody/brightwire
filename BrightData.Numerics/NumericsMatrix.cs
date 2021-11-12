@@ -130,10 +130,7 @@ namespace BrightData.Numerics
             _matrix.MapInplace(v => v * scalar);
         }
 
-        public override string ToString()
-        {
-            return _matrix.ToMatrixString();
-        }
+        public override string ToString() => $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}): {_matrix.ToMatrixString()}";
 
         public void AddInPlace(IFloatMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {

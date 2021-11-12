@@ -64,12 +64,9 @@ namespace BrightData.Numerics
             // nop
         }
 
-	    public override string ToString()
-	    {
-		    return $"4D tensor, rows:{RowCount} columns:{ColumnCount} depth:{Depth} count:{Count}";
-	    }
+	    public override string ToString() => $" Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
 
-	    public I3DFloatTensor GetTensorAt(uint index) => _data.Column(index).ReshapeAs3DTensor(_rows, _columns, _depth);
+        public I3DFloatTensor GetTensorAt(uint index) => _data.Column(index).ReshapeAs3DTensor(_rows, _columns, _depth);
 	    public IIndexable3DFloatTensor[] Tensors => _data.Columns.Select(c => c.ReshapeAs3DTensor(_rows, _columns, _depth).AsIndexable()).ToArray();
 
         public IIndexable4DFloatTensor AsIndexable() => this;

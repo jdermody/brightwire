@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightData.Helper
 {
@@ -13,7 +10,7 @@ namespace BrightData.Helper
     public class ConsoleProgressNotification : INotifyUser
     {
         int _progress = 0;
-        Stopwatch _stopWatch = new();
+        readonly Stopwatch _stopWatch = new();
 
         /// <inheritdoc />
         public void OnStartOperation(string? msg)
@@ -37,6 +34,7 @@ namespace BrightData.Helper
             _stopWatch.Stop();
         }
 
+        /// <inheritdoc />
         public void OnMessage(string msg)
         {
             Console.WriteLine(msg);

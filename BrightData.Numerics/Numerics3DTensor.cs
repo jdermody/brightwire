@@ -57,12 +57,9 @@ namespace BrightData.Numerics
             // nop
         }
 
-		public override string ToString()
-		{
-			return $"3D tensor, rows:{_rows} columns:{_columns} depth:{_depth}";
-		}
+        public override string ToString() => $"Tensor3D (Depth: {_depth}, Rows: {_rows}, Columns: {_columns})";
 
-		public float this[uint row, uint column, uint depth]
+        public float this[uint row, uint column, uint depth]
         {
             get => _data[RowIndex(row, column), depth];
 	        set => _data[RowIndex(row, column), depth] = value;

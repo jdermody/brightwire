@@ -4,13 +4,10 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
 

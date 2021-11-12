@@ -14,7 +14,7 @@ namespace BrightData.Helper
             BrightDataType.Int,
             BrightDataType.Short,
             BrightDataType.Long,
-            BrightDataType.Byte
+            BrightDataType.SByte
         };
         static readonly HashSet<BrightDataType> ContinuousType = new(NumericType) {
             BrightDataType.Date

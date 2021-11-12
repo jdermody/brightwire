@@ -1,4 +1,6 @@
-﻿namespace BrightWire.Models
+﻿using System;
+
+namespace BrightWire.Models
 {
     /// <summary>
     /// An array of indexed strings
@@ -8,6 +10,6 @@
         /// <summary>
         /// The array of indexed strings
         /// </summary>
-        public string[] Data { get; set; } = new string[0];
+        public string[] Data { get; set; } = Array.Empty<string>();
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 
 namespace BrightData.Memory
@@ -47,7 +46,7 @@ namespace BrightData.Memory
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
-            if (ret == 0) {
+            if (ret <= 0) {
 #if DEBUG
                 Context.TensorPool.Unregister(this);
 #endif

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrightData.Helper
 {
@@ -9,21 +11,22 @@ namespace BrightData.Helper
     {
         readonly Dictionary<string, uint> _index = new();
 
-        StringIndexer()
+        /// <summary>
+        /// Creates a string indexer
+        /// </summary>
+        /// <param name="strings">Initial strings in table</param>
+        public StringIndexer(params string[] strings)
         {
+            foreach (var str in strings)
+                GetIndex(str);
         }
 
         /// <summary>
         /// Creates a string indexer
         /// </summary>
         /// <param name="strings">Initial strings in table</param>
-        public static StringIndexer Create(params string[] strings)
-        {
-            var ret = new StringIndexer();
-            foreach (var str in strings)
-                ret.GetIndex(str);
-            return ret;
-        }
+        [Obsolete("Please use standard constructor instead")]
+        public static StringIndexer Create(params string[] strings) => new(strings);
 
         /// <summary>
         /// Returns the index of a string (creates it if not already in table)
@@ -42,5 +45,10 @@ namespace BrightData.Helper
         /// Size of the string table
         /// </summary>
         public uint OutputSize => (uint) _index.Count;
+
+        /// <summary>
+        /// Returns all strings by indexed order
+        /// </summary>
+        public IEnumerable<string> OrderedStrings => _index.OrderBy(kv => kv.Value).Select(kv => kv.Key);
     }
 }

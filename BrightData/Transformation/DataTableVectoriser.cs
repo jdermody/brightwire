@@ -389,7 +389,7 @@ namespace BrightData.Transformation
 
             if ((columnClass & ColumnClass.Categorical) != 0) {
                 return oneHotEncodeToMultipleColumns
-                    ? (IColumnVectoriser) new OneHotEncodeVectorised(analysedMetaData.GetNumDistinct(), column)
+                    ? new OneHotEncodeVectorised(analysedMetaData.GetNumDistinct(), column)
                     : new OneHotEncode(column)
                 ;
             }

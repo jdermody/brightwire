@@ -53,8 +53,8 @@ namespace BrightData.Memory
         {
             _cache.AddOrUpdate(
                 GetKey<T>((uint)block.Length),
-                key => new ConcurrentBag<Array> { block },
-                (key, bag) => {
+                _ => new ConcurrentBag<Array> { block },
+                (_, bag) => {
                     bag.Add(block);
                     return bag;
                 }

@@ -80,24 +80,21 @@ namespace ExampleCode.DataSet
         /// </summary>
         public class Image
         {
-            readonly byte[] _data;
-            readonly int _label;
-
             internal Image(byte[] data, int label)
             {
-                _data = data;
-                _label = label;
+                Data = data;
+                Label = label;
             }
 
             /// <summary>
             /// The image data
             /// </summary>
-            public byte[] Data => _data;
+            public byte[] Data { get; }
 
             /// <summary>
             /// The image number (0-9)
             /// </summary>
-            public int Label => _label;
+            public int Label { get; }
 
             /// <summary>
             /// Converts the image to one hot encoded float arrays
@@ -105,10 +102,10 @@ namespace ExampleCode.DataSet
             public (Vector<float> Data, Vector<float> Label) AsFloatArray(IBrightDataContext context)
             {
                 var label = new float[10];
-                label[_label] = 1;
+                label[Label] = 1;
 
                 return (
-                    context.CreateVector(_data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
+                    context.CreateVector(Data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
                     context.CreateVector(label)
                 );
             }
@@ -119,9 +116,8 @@ namespace ExampleCode.DataSet
             public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor(IBrightDataContext context)
             {
                 const int SIZE = 28;
-                var data = AsFloatArray(context);
+                var (vector, label) = AsFloatArray(context);
                 var rows = new List<Vector<float>>();
-                var vector = data.Data;
 
                 for (var y = 0; y < SIZE; y++) {
                     var row = new float[SIZE];
@@ -131,7 +127,7 @@ namespace ExampleCode.DataSet
                 }
 
                 var tensor = context.CreateTensor3D(context.CreateMatrixFromRows(rows.ToArray()));
-                return (tensor, data.Label);
+                return (tensor, Label: label);
             }
         }
 

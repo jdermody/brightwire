@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace BrightData.DataTable.Builders
@@ -169,7 +168,7 @@ namespace BrightData.DataTable.Builders
                 writer.Write((long)val);
             else if (type == BrightDataType.String)
                 writer.Write((string)val);
-            else if (type == BrightDataType.Byte)
+            else if (type == BrightDataType.SByte)
                 writer.Write((sbyte)val);
             else if (val is ICanWriteToBinaryWriter canWrite)
                 canWrite.WriteTo(writer);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {

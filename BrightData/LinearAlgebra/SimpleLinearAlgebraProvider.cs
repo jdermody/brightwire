@@ -107,7 +107,7 @@ namespace BrightData.LinearAlgebra
             var rows = compareTo.Count;
             var columns = vectors.Length;
             Debug.Assert(vectors[0].Count == compareTo[0].Count);
-            var ret = Context.CreateMatrix<float>((uint)rows, (uint)columns, 0f);
+            var ret = Context.CreateMatrix((uint)rows, (uint)columns, 0f);
 
             Parallel.ForEach(vectors, (column1, _, i) => {
                 Parallel.ForEach(compareTo, (column2, __, j) => {

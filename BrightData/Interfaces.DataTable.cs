@@ -42,9 +42,9 @@ namespace BrightData
         Boolean,
 
         /// <summary>
-        /// Byte values (-128 to 128)
+        /// Signed byte values (-128 to 128)
         /// </summary>
-        Byte,
+        SByte,
 
         /// <summary>
         /// Short values
@@ -313,28 +313,12 @@ namespace BrightData
         IRowOrientedDataTable AsRowOriented(string? filePath = null);
 
         /// <summary>
-        /// Creates a new table with columns that have been converted
+        /// Transforms the table
         /// </summary>
-        /// <param name="filePath">File path to store new table on disk</param>
-        /// <param name="conversion">Column conversion parameters</param>
+        /// <param name="transformations"></param>
+        /// <param name="filePath"></param>
         /// <returns></returns>
-        IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversion);
-
-        /// <summary>
-        /// Normalizes the data in all columns of the table
-        /// </summary>
-        /// <param name="filePath">File path to store new table on disk (optional)</param>
-        /// <param name="conversion">Column normalization parameters</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] conversion);
-
-        /// <summary>
-        /// Normalizes the data in all columns of the table
-        /// </summary>
-        /// <param name="type">Normalization type</param>
-        /// <param name="filePath">File path to store new table on disk (optional)</param>
-        /// <returns></returns>
-        IColumnOrientedDataTable Normalize(NormalizationType type, string? filePath = null);
+        IColumnOrientedDataTable Transform(IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> transformations, string? filePath);
 
         /// <summary>
         /// Copies the selected columns to a new data table
@@ -366,7 +350,7 @@ namespace BrightData
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
-        IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumnsParam[] columns);
+        IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumns[] columns);
 
         /// <summary>
         /// Clones the current data table
@@ -425,7 +409,7 @@ namespace BrightData
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="others">Other row oriented data tables to concatenate</param>
         /// <returns></returns>
-        IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others);
+        IRowOrientedDataTable ConcatRows(string? filePath, params IRowOrientedDataTable[] others);
 
         /// <summary>
         /// Copy specified rows from this to a new data table
@@ -591,6 +575,7 @@ namespace BrightData
         /// </summary>
         /// <param name="input"></param>
         /// <param name="buffer"></param>
+        /// <param name="index">Index within the buffer</param>
         /// <returns></returns>
         bool Convert(TF input, IHybridBuffer<TT> buffer, uint index);
     }
@@ -603,9 +588,10 @@ namespace BrightData
         /// <summary>
         /// Performs the transformation
         /// </summary>
+        /// <param name="progressNotification">Progress notification callback</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        uint Transform(CancellationToken ct = default);
+        uint Transform(Action<float> progressNotification, CancellationToken ct = default);
 
         /// <summary>
         /// Buffer that is written to
@@ -804,7 +790,7 @@ namespace BrightData
     /// <summary>
     /// Reinterpret columns parameters
     /// </summary>
-    public interface IReinterpretColumnsParam
+    public interface IReinterpretColumns
     {
         /// <summary>
         /// Source column indices

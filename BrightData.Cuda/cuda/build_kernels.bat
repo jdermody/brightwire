@@ -10,5 +10,7 @@ nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_70 -o brightwire_70.ptx
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_72 -o brightwire_72.ptx
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_75 -o brightwire_75.ptx
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_80 -o brightwire_80.ptx
+nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_86 -o brightwire_86.ptx
+nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_87 -o brightwire_87.ptx
 
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_52 -o brightwire.ptx

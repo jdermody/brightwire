@@ -36,7 +36,7 @@ namespace BrightData.Transformation
 
             public void Finalise(IMetaData metaData)
             {
-                var columnType = To.GetColumnType();
+                var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
                     metaData.Set(Consts.IsNumeric, true);
                 _normalize.WriteTo(metaData);
@@ -71,7 +71,7 @@ namespace BrightData.Transformation
 
             public void Finalise(IMetaData metaData)
             {
-                var columnType = To.GetColumnType();
+                var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
                     metaData.Set(Consts.IsNumeric, true);
                 _normalize.WriteTo(metaData);

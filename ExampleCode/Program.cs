@@ -28,7 +28,7 @@ namespace ExampleCode
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
             //useCuda = true;
 
-            // set where to save training data files
+            // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
             Xor(context);
@@ -47,10 +47,10 @@ namespace ExampleCode
             PredictBicyclesWithNeuralNetwork(context);
             MultiLabelSingleClassifier(context);
             MultiLabelMultiClassifiers(context);
-            MnistFeedForward(context, useCuda);
+            MnistFeedForward(context);
             MnistConvolutional(context, useCuda);
             TrainIncomePrediction(context);
-            SentimentClassification(context);
+            SentimentClassification(context, useCuda);
         }
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
@@ -68,7 +68,7 @@ namespace ExampleCode
                 context.UseNumericsLinearAlgebra();
                 Console.WriteLine("* (Numerics)");
             }
-            Console.WriteLine($"*");
+            Console.WriteLine("*");
             Console.WriteLine("*********************************************");
         }
 
@@ -134,9 +134,9 @@ namespace ExampleCode
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MnistFeedForward(IBrightDataContext context, bool useCuda)
+        static void MnistFeedForward(IBrightDataContext context)
         {
-            Start(context, useCuda);
+            Start(context);
             context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
@@ -146,9 +146,9 @@ namespace ExampleCode
             context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(IBrightDataContext context)
+        static void SentimentClassification(IBrightDataContext context, bool useCuda)
         {
-            Start(context, true);
+            Start(context, useCuda);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier

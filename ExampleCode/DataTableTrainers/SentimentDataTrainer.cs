@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -49,7 +47,7 @@ namespace ExampleCode.DataTableTrainers
             var (training, test) = sentences.Shuffle(context.Random).ToArray().Split();
             _indexedSentencesTraining = BuildIndexedClassifications(context, training, _stringTable);
             _indexedSentencesTest = BuildIndexedClassifications(context, test, _stringTable);
-            _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
+            _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             _context = context;
         }
 
@@ -116,7 +114,7 @@ namespace ExampleCode.DataTableTrainers
             // create combined data tables with both index lists and encoded vectors
             var graph = engine.LearningContext.GraphFactory;
             var context = graph.Context;
-            var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
+            var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             var indexer = GetIndexer();
             var training = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
             var test = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
@@ -221,7 +219,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildRowOriented();
         }
 
-        static IIndexStrings GetIndexer() => StringIndexer.Create("negative", "positive");
+        static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
 
         public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
@@ -311,11 +309,11 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
 
             var empty = new float[102];
-            foreach (var row in data) {
-                var c1 = bernoulli.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
-                var c2 = multinomial.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
-                var input = row.Data.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, row.Classification == "positive"));
+            foreach (var (classification, indexList) in data) {
+                var c1 = bernoulli.Classify(indexList).First().Label == "positive" ? 1f : 0f;
+                var c2 = multinomial.Classify(indexList).First().Label == "positive" ? 1f : 0f;
+                var input = indexList.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, classification == "positive"));
                 
                 builder.AddRow(_context.CreateMatrixFromRows(input), output);
             }
@@ -323,7 +321,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildRowOriented();
         }
 
-        float[]? GetInputVector(float c1, float c2, string word)
+        static float[]? GetInputVector(float c1, float c2, string word)
         {
             var embedding = Data.Embeddings.Get(word);
             if(embedding == null && word.StartsWith("not_"))
@@ -339,7 +337,7 @@ namespace ExampleCode.DataTableTrainers
             return null;
         }
 
-        float GetOutputValue(uint columnIndex, bool isPositive) => columnIndex switch {
+        static float GetOutputValue(uint columnIndex, bool isPositive) => columnIndex switch {
             0 when isPositive => 1f,
             1 when !isPositive => 1f,
             _ => 0f

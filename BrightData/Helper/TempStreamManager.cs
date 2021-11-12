@@ -10,7 +10,7 @@ namespace BrightData.Helper
     public class TempStreamManager : IProvideTempStreams
     {
         readonly string _basePath;
-        readonly ConcurrentDictionary<string, FileStream> _streamTable = new();
+        readonly ConcurrentDictionary<string, Lazy<FileStream>> _streamTable = new();
         readonly ConcurrentBag<string> _tempPaths = new();
 
         /// <summary>
@@ -37,8 +37,8 @@ namespace BrightData.Helper
         public Stream Get(string uniqueId)
         {
             return _streamTable.GetOrAdd(uniqueId, id => 
-                new FileStream(Path.Combine(_basePath, id), FileMode.CreateNew, FileAccess.ReadWrite)
-            );
+                new Lazy<FileStream>(() => new FileStream(Path.Combine(_basePath, id), FileMode.CreateNew, FileAccess.ReadWrite))
+            ).Value;
         }
 
         /// <summary>
@@ -51,9 +51,12 @@ namespace BrightData.Helper
         void IDisposable.Dispose()
         {
             foreach (var (_, value) in _streamTable) {
-                value.Flush();
-                value.Dispose();
-                File.Delete(value.Name);
+                if (value.IsValueCreated) {
+                    var file = value.Value;
+                    file.Flush();
+                    file.Dispose();
+                    File.Delete(file.Name);
+                }
             }
             _streamTable.Clear();
 

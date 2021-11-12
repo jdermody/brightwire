@@ -83,6 +83,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Executes the graph
         /// </summary>
+        /// <param name="ct">Cancellation token</param>
         /// <param name="signal">Initial data</param>
         /// <param name="context">Context</param>
         /// <param name="channel"></param>

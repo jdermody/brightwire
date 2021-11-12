@@ -7,7 +7,7 @@
 //
 
 .version 7.5
-.target sm_52
+.target sm_86
 .address_size 64
 
 	// .globl	IsFinite

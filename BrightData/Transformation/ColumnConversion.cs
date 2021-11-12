@@ -33,7 +33,7 @@ namespace BrightData.Transformation
 
             public void Finalise(IMetaData metaData)
             {
-                var columnType = To.GetColumnType();
+                var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
                     metaData.Set(Consts.IsNumeric, true);
             }
@@ -126,6 +126,38 @@ namespace BrightData.Transformation
             }
         }
 
+        class StringTokeniser : ITransformColumn<string, IndexList>
+        {
+            readonly IBrightDataContext _context;
+            readonly Func<string, StringIndexer, IEnumerable<uint>> _tokeniser;
+            readonly StringIndexer _stringIndexer = new();
+
+            public StringTokeniser(IBrightDataContext context, Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
+            {
+                _context = context;
+                _tokeniser = tokeniser;
+            }
+
+            public bool Convert(string input, IHybridBuffer<IndexList> buffer, uint index)
+            {
+                var indexList = IndexList.Create(_context, _tokeniser(input, _stringIndexer));
+                buffer.Add(indexList, index);
+                return true;
+            }
+
+            public Type From { get; } = typeof(string);
+            public Type To { get; } = typeof(IndexList);
+            public void Finalise(IMetaData metaData)
+            {
+                metaData.SetType(BrightDataType.IndexList);
+                metaData.SetIsCategorical(true);
+
+                uint index = 0;
+                foreach (var str in _stringIndexer.OrderedStrings)
+                    metaData.Set($"{Consts.CategoryPrefix}{index++}", str);
+            }
+        }
+
         class StandardConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
         {
             readonly ICanConvert<TF, TT> _converter;
@@ -179,8 +211,8 @@ namespace BrightData.Transformation
         static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly ITransformColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
         static readonly ITransformColumn VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
-        static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense(null));
-        static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense(null));
+        static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense());
+        static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense());
         static readonly ITransformColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
         static readonly ITransformColumn VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 
@@ -263,7 +295,7 @@ namespace BrightData.Transformation
                     BrightDataType toType;
                     if (isInteger) {
                         if (min >= sbyte.MinValue && max <= sbyte.MaxValue)
-                            toType = BrightDataType.Byte;
+                            toType = BrightDataType.SByte;
                         else if (min >= short.MinValue && max <= short.MaxValue)
                             toType = BrightDataType.Short;
                         else if (min >= int.MinValue && max <= int.MaxValue)
@@ -283,7 +315,7 @@ namespace BrightData.Transformation
                 }
 
                 case ColumnConversionType.ToByte:
-                    return GetStandardConverter(fromType, BrightDataType.Byte);
+                    return GetStandardConverter(fromType, BrightDataType.SByte);
                 case ColumnConversionType.ToShort:
                     return GetStandardConverter(fromType, BrightDataType.Short);
                 case ColumnConversionType.ToInt:
@@ -301,6 +333,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToCategoricalIndex:
                     return GenericActivator.Create<ITransformColumn>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
 
+                // index list
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.IndexList:
                     return null;
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
@@ -308,6 +341,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
                     return VectorToIndexList;
 
+                // vector
                 case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
                     return null;
                 case ColumnConversionType.ToVector when fromType == BrightDataType.WeightedIndexList:
@@ -315,6 +349,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToVector when fromType == BrightDataType.IndexList:
                     return IndexListToVector;
 
+                // weighted index list
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:
                     return null;
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
@@ -347,7 +382,7 @@ namespace BrightData.Transformation
                 BrightDataType.Long => ConvertIntegers(numbers, Convert.ToInt64),
                 BrightDataType.Int => ConvertIntegers(numbers, Convert.ToInt32),
                 BrightDataType.Short => ConvertIntegers(numbers, Convert.ToInt16),
-                BrightDataType.Byte => ConvertIntegers(numbers, Convert.ToSByte),
+                BrightDataType.SByte => ConvertIntegers(numbers, Convert.ToSByte),
                 _ => throw new Exception("Invalid column type for numeric")
             };
         }

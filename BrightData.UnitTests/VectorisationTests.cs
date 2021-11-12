@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData.UnitTests.Helper;
@@ -15,7 +13,7 @@ namespace BrightData.UnitTests
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.Boolean, "bool");
-            builder.AddColumn(BrightDataType.Byte, "byte");
+            builder.AddColumn(BrightDataType.SByte, "byte");
             builder.AddColumn(BrightDataType.Decimal, "decimal");
             builder.AddColumn(BrightDataType.Double, "double");
             builder.AddColumn(BrightDataType.Float, "float");

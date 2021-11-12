@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.Helper;
@@ -14,17 +15,17 @@ namespace BrightWire.Models.InstanceBased
         /// <summary>
         /// The list of vectors to match against
         /// </summary>
-        public Vector<float>[] Instance { get; set; } = new Vector<float>[0];
+        public Vector<float>[] Instance { get; set; } = Array.Empty<Vector<float>>();
 
         /// <summary>
         /// The corresponding list of classifications
         /// </summary>
-        public string[] Classification { get; set; } = new string[0];
+        public string[] Classification { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// The vector indexes to use to encode a data table row as a vector
         /// </summary>
-        public uint[] DataColumns { get; set; } = new uint[0];
+        public uint[] DataColumns { get; set; } = Array.Empty<uint>();
 
         /// <summary>
         /// The vector indexes to use to encode the other column(s) as a classification target

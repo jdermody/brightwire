@@ -77,11 +77,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             var source = _forward.LastOrDefault()?.Source;
             var curr = _nodeExecution[source ?? throw new ArgumentException("No target node")];
             foreach (var item in curr.Backpropagate(this, delta, curr)) {
-                if (item?.HasValue == true) {
-                    #if DEBUG
+                if (item.HasValue) {
+#if DEBUG
                     if(ErrorSignal?.HasValue == true && ErrorSignal.GetMatrix() != item.GetMatrix())
                         throw new Exception("Unexpected");
-                    #endif
+#endif
                     ErrorSignal = item;
                 }
             }

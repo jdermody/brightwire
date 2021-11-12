@@ -52,7 +52,7 @@ namespace BrightWire.Bayesian
                 return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
             }
         }
-        readonly List<Tuple<string, double, List<IProbabilityProvider>>> _classProbability = new();
+        readonly List<(string, double, List<IProbabilityProvider>)> _classProbability = new();
 
         public NaiveBayesClassifier(NaiveBayes model)
         {
@@ -64,7 +64,7 @@ namespace BrightWire.Bayesian
                     else if (col.Type == NaiveBayes.ColumnType.ContinuousGaussian)
                         list.Add(new ContinuousColumn(col));
                 }
-                _classProbability.Add(Tuple.Create(cls.Label, cls.LogPrior, list));
+                _classProbability.Add((cls.Label, cls.LogPrior, list));
             }
         }
 
