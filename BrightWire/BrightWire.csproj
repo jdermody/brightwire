@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>Bright ML</Product>
@@ -15,7 +15,7 @@
     <PackageTags>machinelearning</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <PackageReleaseNotes>updated to .net 5, added user notification interface and cancellation token handling, added index to buffer add method and renamed ColumnType to BrightDataType</PackageReleaseNotes>
+    <PackageReleaseNotes>updated to .net 6</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
