@@ -42,13 +42,13 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public void AddToEachRow(IFloatVector vector)
         {
             var other = vector.Data;
-            Data.MapIndexedInPlace((j, k, v) => v + other[k]);
+            Data.MapIndexedInPlace((_, k, v) => v + other[k]);
         }
 
         public void AddToEachColumn(IFloatVector vector)
         {
             var other = vector.Data;
-            Data.MapIndexedInPlace((j, k, v) => v + other[j]);
+            Data.MapIndexedInPlace((j, _, v) => v + other[j]);
         }
 
         public Matrix<float> Data { get; set; }
@@ -107,13 +107,13 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public void PointwiseDivideRows(IFloatVector vector)
         {
             var v2 = vector.Data;
-            Data.MapIndexedInPlace((x, y, v) => v / v2[x]);
+            Data.MapIndexedInPlace((x, _, v) => v / v2[x]);
         }
 
         public void PointwiseDivideColumns(IFloatVector vector)
         {
             var v2 = vector.Data;
-            Data.MapIndexedInPlace((x, y, v) => v / v2[y]);
+            Data.MapIndexedInPlace((_, y, v) => v / v2[y]);
         }
 
         public void Constrain(float min, float max) => Data.ConstrainInPlace(min, max);
@@ -230,7 +230,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
                     var row = new StringBuilder();
                     for (var j = 0; j < ColumnCount; j++) {
                         if (j > 0)
-                            row.Append("|");
+                            row.Append('|');
                         row.Append(Data[i, j]);
                     }
                     writer.WriteValue(row.ToString());

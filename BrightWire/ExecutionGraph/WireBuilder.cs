@@ -466,11 +466,18 @@ namespace BrightWire.ExecutionGraph
 
         IHaveMemoryNode FindMemoryNode(string name)
         {
-            if (!(Find(name) is IHaveMemoryNode memoryNode))
+            if (Find(name) is not IHaveMemoryNode memoryNode)
                 throw new ArgumentException($"Node not found: {name}");
             return memoryNode;
         }
 
+        /// <summary>
+        /// Adds a self attention node
+        /// </summary>
+        /// <param name="encoderName">Name of encoder node (must be same size as decoder)</param>
+        /// <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
+        /// <param name="encoderDecoderSize">Node size</param>
+        /// <param name="name">Optional name to give the node</param>
         public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderDecoderSize, string? name = null)
         {
             var layer = _factory.CreateFeedForward(encoderDecoderSize * 2, 1, name != null ? null + "_attention" : null);

@@ -16,10 +16,6 @@ namespace BrightWire.ExecutionGraph.Helper
 
     class NullGraphData : IGraphData
     {
-        internal NullGraphData()
-        {
-        }
-
         public uint Rows { get; } = 0;
         public uint Columns { get; } = 0;
         public uint Depth { get; } = 0;
@@ -67,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Helper
             throw new System.NotImplementedException();
         }
 
-        public I4DFloatTensor? Get4DTensor()
+        public I4DFloatTensor Get4DTensor()
         {
             throw new System.NotImplementedException();
         }

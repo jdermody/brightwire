@@ -23,6 +23,7 @@ using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Output;
+using BrightWire.ExecutionGraph.WeightInitialiation;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -200,7 +201,7 @@ namespace BrightWire.ExecutionGraph
 			var targetColumn = dataTable.GetTargetColumnOrThrow();
             if (featureColumns.Length == 0) {
                 featureColumns = columns
-                    .Select((c, i) => (uint) i)
+                    .Select((_, i) => (uint) i)
                     .Where(d => d != targetColumn)
                     .ToArray();
             }

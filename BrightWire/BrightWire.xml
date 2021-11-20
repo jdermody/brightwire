@@ -1781,7 +1781,7 @@
         <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <inheritdoc />
         </member>
-        <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
+        <member name="T:BrightWire.ExecutionGraph.WeightInitialiation.Constant">
             <summary>
             Initalises all weights to a constant
             </summary>
@@ -2083,6 +2083,15 @@
             <param name="nodeName">The node name to read</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.String,System.String,System.UInt32,System.String)">
+            <summary>
+            Adds a self attention node
+            </summary>
+            <param name="encoderName">Name of encoder node (must be same size as decoder)</param>
+            <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
+            <param name="encoderDecoderSize">Node size</param>
+            <param name="name">Optional name to give the node</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.JoinInputWithMemory(System.String,System.UInt32,System.String)">
             <summary>
@@ -3193,6 +3202,11 @@
             <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
             <returns>True if the model performance has improved since the last test</returns>
         </member>
+        <member name="P:BrightWire.IGraphTrainingEngine.Context">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
         <member name="P:BrightWire.IGraphTrainingEngine.LearningContext">
             <summary>
             Graph learning context
@@ -3201,6 +3215,7 @@
         <member name="M:BrightWire.IGraphTrainingEngine.LoadParametersFrom(BrightWire.ExecutionGraph.GraphFactory,BrightWire.Models.ExecutionGraphModel)">
             <summary>
             Loads model parameters into the existing graph (based on matching ids or names)
+            IMPORTANT: if loading into a different graph the node ids will not be the same and so node names will need to be assigned for any nodes to be copied
             </summary>
             <param name="factory">Graph factory</param>
             <param name="graph">Model to load parameters from</param>

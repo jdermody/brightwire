@@ -57,7 +57,7 @@ namespace BrightWire.Bayesian
             return Classify(indexList.Indices)
                 .OrderByDescending(kv => kv.Score)
                 .Take(1)
-                .Select((d, i) => (d.Classification, 1f))
+                .Select((d, _) => (d.Classification, 1f))
                 .ToArray();
         }
     }

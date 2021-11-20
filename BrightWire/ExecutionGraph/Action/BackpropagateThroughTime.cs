@@ -7,10 +7,6 @@ namespace BrightWire.ExecutionGraph.Action
     /// </summary>
     internal class BackpropagateThroughTime : IAction
     {
-        public BackpropagateThroughTime()
-        {
-        }
-
         public void Initialise(string data)
         {
             //_errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));

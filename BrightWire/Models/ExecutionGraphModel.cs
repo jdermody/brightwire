@@ -197,7 +197,7 @@ namespace BrightWire.Models
                             w.WriteAttributeString("name", n.Name);
                         if(!String.IsNullOrWhiteSpace(n.Description))
                             w.WriteAttributeString("description", n.Description);
-                    }, (w, n) => w.WriteEndElement());
+                    }, (w, _) => w.WriteEndElement());
                     writer.WriteEndElement();
                 }
 

@@ -236,13 +236,13 @@ namespace BrightData.Numerics
         public void AddToEachRow(IFloatVector vector)
         {
             var other = (NumericsVector)vector;
-            _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)k]);
+            _matrix.MapIndexedInplace((_, k, v) => v + other[(uint)k]);
         }
 
         public void AddToEachColumn(IFloatVector vector)
         {
             var other = (NumericsVector)vector;
-            _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)j]);
+            _matrix.MapIndexedInplace((j, _, v) => v + other[(uint)j]);
         }
 
         public Matrix<float> Data
@@ -409,13 +409,13 @@ namespace BrightData.Numerics
         public void PointwiseDivideRows(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
-            _matrix.MapIndexedInplace((x, y, v) => v / v2[(uint) x]);
+            _matrix.MapIndexedInplace((x, _, v) => v / v2[(uint) x]);
         }
 
         public void PointwiseDivideColumns(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
-            _matrix.MapIndexedInplace((x, y, v) => v / v2[(uint)y]);
+            _matrix.MapIndexedInplace((_, y, v) => v / v2[(uint)y]);
         }
 
         public IFloatVector Diagonal()

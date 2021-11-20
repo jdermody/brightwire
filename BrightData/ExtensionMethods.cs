@@ -176,7 +176,7 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
         {
-            return seq.OrderBy(e => rnd.Next());
+            return seq.OrderBy(_ => rnd.Next());
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace BrightData
         public static T[] Bag<T>(this T[] list, uint count, Random rnd)
         {
             return count.AsRange()
-                .Select(i => list[rnd.Next(0, list.Length)])
+                .Select(_ => list[rnd.Next(0, list.Length)])
                 .ToArray()
             ;
         }
@@ -556,5 +556,26 @@ namespace BrightData
         /// <param name="sw">Stopwatch since start of operation</param>
         /// <returns>True if the progress has increased</returns>
         public static bool WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw) => ConsoleProgressNotification.WriteProgress(progress, ref previousPercentage, sw);
+
+        /// <summary>
+        /// Writes the enumerable to a comma separated string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items">Items to write</param>
+        public static string AsCommaSeparated<T>(this IEnumerable<T> items)
+        {
+            var sb = new StringBuilder();
+            sb.Append('[');
+            var isFirst = true;
+            foreach (var item in items) {
+                if (isFirst)
+                    isFirst = false;
+                else
+                    sb.Append(", ");
+                sb.Append(item);
+            }
+            sb.Append(']');
+            return sb.ToString();
+        }
     }
 }

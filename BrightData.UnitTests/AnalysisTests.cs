@@ -62,7 +62,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void StringAnalysis()
         {
-            var analysis = new[] {"a", "ab", "abc"}.Analyze<string>();
+            var analysis = new[] {"a", "ab", "abc"}.Analyze();
             analysis.MinLength.Should().Be(1);
             analysis.MaxLength.Should().Be(3);
             analysis.NumDistinct.Should().Be(3);
@@ -72,7 +72,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void StringAnalysis2()
         {
-            var analysis = new[] { "a", "ab", "ab", "abc" }.Analyze<string>();
+            var analysis = new[] { "a", "ab", "ab", "abc" }.Analyze();
             analysis.MinLength.Should().Be(1);
             analysis.MaxLength.Should().Be(3);
             analysis.NumDistinct.Should().Be(3);

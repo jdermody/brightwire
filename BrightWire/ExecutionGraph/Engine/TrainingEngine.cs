@@ -217,9 +217,9 @@ namespace BrightWire.ExecutionGraph.Engine
         public ILearningContext LearningContext { get; }
         public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
         {
-            LoadParamaters(factory, graph.InputNode);
+            LoadParameters(factory, graph.InputNode);
             foreach (var node in graph.OtherNodes)
-                LoadParamaters(factory, node);
+                LoadParameters(factory, node);
         }
 
         public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model)
@@ -233,7 +233,7 @@ namespace BrightWire.ExecutionGraph.Engine
             LearningContext.ResetEpoch();
         }
 
-        void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
+        void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
             if(node is null && !String.IsNullOrEmpty(nodeModel.Name))

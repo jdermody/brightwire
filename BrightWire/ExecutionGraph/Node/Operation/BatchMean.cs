@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             columnSums.Multiply(1f / input.RowCount);
             var mean = columnSums.AsIndexable();
 
-            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (i, j) => mean[j]);
+            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }

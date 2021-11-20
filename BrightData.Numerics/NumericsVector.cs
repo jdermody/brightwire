@@ -280,7 +280,7 @@ namespace BrightData.Numerics
         {
             var distanceFunc = GetDistanceFunc(distance);
             var ret = new float[data.Length];
-            Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
+            Parallel.ForEach(data, (vec, _, ind) => ret[ind] = distanceFunc(vec));
             return new NumericsVector(Context, DenseVector.Create(data.Length, i => ret[i]));
         }
 

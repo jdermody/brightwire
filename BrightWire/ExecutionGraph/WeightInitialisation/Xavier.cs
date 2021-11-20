@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
 
         public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns));
+            return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }
 
         public float GetWeight(uint inputSize, uint outputSize)

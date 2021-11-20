@@ -62,12 +62,12 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // write sample of results
-            foreach (var item in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(item.Input)} => {_sequenceGenerator.Decode(item.Output)}");
+            foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
+                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result)}");
             }
         }
 
-        uint[] GetStringIndices(float[] vector) => vector
+        static uint[] GetStringIndices(float[] vector) => vector
             .Select((v, i2) => (Value: v, Index: (uint) i2))
             .Where(d => d.Value >= 0.5)
             .Select(d => d.Index)
@@ -118,8 +118,8 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // write sample of results
-            foreach (var item in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(item.Input.OrderBy(d => d).ToArray())} => {_sequenceGenerator.Decode(item.Output)}");
+            foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
+                Console.WriteLine($"{_sequenceGenerator.Decode(input.OrderBy(d => d).ToArray())} => {_sequenceGenerator.Decode(result)}");
             }
         }
 
@@ -185,8 +185,8 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // write sample of results
-            foreach (var item in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(item.Input)} => {_sequenceGenerator.Decode(item.Output.Reverse())}");
+            foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
+                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result.Reverse())}");
             }
         }
     }

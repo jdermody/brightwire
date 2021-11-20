@@ -79,13 +79,13 @@ namespace BrightData.Cuda
 
 			public CUfunction LoadFunction(string name)
 			{
-				CUfunction ret = new CUfunction();
+				var ret = new CUfunction();
 				if (DriverAPINativeMethods.ModuleManagement.cuModuleGetFunction(ref ret, _module, name) != CUResult.Success)
 					throw new ArgumentException("Function not found", name);
 				return ret;
 			}
 
-			public KernelExecution CreateExecution(CUfunction function, dim3 block, dim3 thread)
+			public static KernelExecution CreateExecution(CUfunction function, dim3 block, dim3 thread)
 			{
 				return new(function, block, thread);
 			}
@@ -276,7 +276,7 @@ namespace BrightData.Cuda
 
 		public void Register(IDisposable disposable) => _cache.Add(disposable);
 
-		int GetBlockCount(int size, int blockSize)
+		static int GetBlockCount(int size, int blockSize)
 		{
 			return ((size / blockSize) + 1);
 		}
@@ -303,14 +303,14 @@ namespace BrightData.Cuda
 				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
 			}
 			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, (int)gridSize, data.BlockSize);
+			var execution = KernelModule.CreateExecution(function, (int)gridSize, data.BlockSize);
 			execution.Run(0, param);
 		}
 
 		void InvokeManual(CUfunction function, uint size, params object[] param)
 		{
 			var gridSize = GetBlockCount((int)size, BlockDim2);
-			var execution = _kernel.CreateExecution(function, gridSize, BlockDim2);
+			var execution = KernelModule.CreateExecution(function, gridSize, BlockDim2);
 			execution.Run(0, param);
 		}
 
@@ -330,7 +330,7 @@ namespace BrightData.Cuda
 			}
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
+			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
 			
 			execution.Run(0, param);
 		}
@@ -345,7 +345,7 @@ namespace BrightData.Cuda
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
+			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
 			execution.Run(0, param);
 		}
 
@@ -636,7 +636,7 @@ namespace BrightData.Cuda
 			return SumValues(ret, size);
 		}
 
-		float GetSingleValue(IDeviceMemoryPtr ptr)
+		static float GetSingleValue(IDeviceMemoryPtr ptr)
 		{
 			var buffer = new float[1];
 			ptr.CopyToHost(buffer);

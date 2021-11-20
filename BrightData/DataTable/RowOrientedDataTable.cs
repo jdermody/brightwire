@@ -175,12 +175,12 @@ namespace BrightData.DataTable
             using var builder = GetBuilderForSelf(RowCount, filePath);
 
             // ReSharper disable once AccessToDisposedClosure
-            ForEachRow((row, index) => builder.AddRow(row));
+            ForEachRow((row, _) => builder.AddRow(row));
 
             return builder.Build(Context);
         }
 
-        public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue) => ForEachRow((row, index) => callback(row), maxRows);
+        public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue) => ForEachRow((row, _) => callback(row), maxRows);
         protected override IDataTable Table => this;
 
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)

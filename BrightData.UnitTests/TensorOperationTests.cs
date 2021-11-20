@@ -2,7 +2,7 @@
 
 namespace BrightData.UnitTests
 {
-    public partial class TensorOperationTests : UnitTestBase
+    public class TensorOperationTests : UnitTestBase
     {
         public void TestAdd() 
         {

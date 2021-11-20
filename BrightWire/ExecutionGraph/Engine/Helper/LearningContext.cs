@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         void Update<T>(List<(NodeBase Node, T Error, Action<T> Updater)> updates) where T: class
         {
-            foreach(var (fromNode, error, updater) in updates)
+            foreach(var (_, error, updater) in updates)
                 updater(error);
             updates.Clear();
         }

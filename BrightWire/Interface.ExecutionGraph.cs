@@ -627,6 +627,9 @@ namespace BrightWire
             Action<float, bool, bool>? values = null
         );
 
+        /// <summary>
+        /// Bright data context
+        /// </summary>
         IBrightDataContext Context { get; }
 
         /// <summary>
@@ -636,6 +639,7 @@ namespace BrightWire
 
         /// <summary>
         /// Loads model parameters into the existing graph (based on matching ids or names)
+        /// IMPORTANT: if loading into a different graph the node ids will not be the same and so node names will need to be assigned for any nodes to be copied
         /// </summary>
         /// <param name="factory">Graph factory</param>
         /// <param name="graph">Model to load parameters from</param>

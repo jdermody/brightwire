@@ -27,8 +27,8 @@ namespace BrightData.Analysis
                 _distinct.Add(ticks);
         }
 
-        public DateTime? MinDate { get; private set; } = null;
-        public DateTime? MaxDate { get; private set; } = null;
+        public DateTime? MinDate { get; private set; }
+        public DateTime? MaxDate { get; private set; }
 
         public override void WriteTo(IMetaData metadata)
         {

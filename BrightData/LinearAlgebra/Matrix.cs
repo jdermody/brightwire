@@ -171,7 +171,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public Matrix<T> Map(Func<T, T> mutator)
         {
-            var ret = MapParallel((i, v) => mutator(v));
+            var ret = MapParallel((_, v) => mutator(v));
             return new Matrix<T>(ret, RowCount, ColumnCount);
         }
 
@@ -181,7 +181,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="mutator">Mapping function</param>
         public void MapInPlace(Func<T, T> mutator)
         {
-            using var ret = MapParallel((i, v) => mutator(v));
+            using var ret = MapParallel((_, v) => mutator(v));
             ret.CopyTo(_segment);
         }
 

@@ -313,7 +313,7 @@ namespace ExampleCode.DataTableTrainers
                 var c1 = bernoulli.Classify(indexList).First().Label == "positive" ? 1f : 0f;
                 var c2 = multinomial.Classify(indexList).First().Label == "positive" ? 1f : 0f;
                 var input = indexList.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, classification == "positive"));
+                var output = _context.CreateMatrix((uint)input.Length, 2, (_, j) => GetOutputValue(j, classification == "positive"));
                 
                 builder.AddRow(_context.CreateMatrixFromRows(input), output);
             }

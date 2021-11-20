@@ -110,7 +110,7 @@ namespace BrightData.LinearAlgebra
             var ret = Context.CreateMatrix((uint)rows, (uint)columns, 0f);
 
             Parallel.ForEach(vectors, (column1, _, i) => {
-                Parallel.ForEach(compareTo, (column2, __, j) => {
+                Parallel.ForEach(compareTo, (column2, _, j) => {
                     ret[(uint)j, (uint)i] = column1.FindDistance(column2, distanceMetric);
                 });
             });

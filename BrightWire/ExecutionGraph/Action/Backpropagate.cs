@@ -8,10 +8,6 @@ namespace BrightWire.ExecutionGraph.Action
     /// </summary>
     internal class Backpropagate : IAction
     {
-        public Backpropagate()
-        {
-        }
-
         public void Initialise(string data)
         {
             //_errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));

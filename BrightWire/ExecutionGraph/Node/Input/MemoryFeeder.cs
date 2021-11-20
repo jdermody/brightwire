@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         {
             IFloatMatrix memory;
             if (!LoadNextFromMemory && context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
+                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (_, y) => _data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
             }
             else {

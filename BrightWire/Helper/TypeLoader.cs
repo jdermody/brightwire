@@ -12,7 +12,7 @@ namespace BrightWire.Helper
 	    {
 		    var type = Type.GetType(typeName, false) ?? Type.GetType(
                 typeName, 
-                assemblyName => Assembly.GetExecutingAssembly(), 
+                _ => Assembly.GetExecutingAssembly(), 
                 (assembly, typeName2, caseInsensitive) => assembly?.GetType(typeName2, false, caseInsensitive),
                 true
             );

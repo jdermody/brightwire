@@ -232,7 +232,7 @@ namespace BrightData
         /// <param name="callback"></param>
         public static void ForEachRow(this IDataTable dataTable, Action<object[]> callback)
         {
-            dataTable.ForEachRow((row, index) => callback(row));
+            dataTable.ForEachRow((row, _) => callback(row));
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="callback"></param>
         /// <typeparam name="T0"></typeparam>
-        public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0]));
+        public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0]));
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -250,7 +250,7 @@ namespace BrightData
         /// <typeparam name="T1"></typeparam>
         /// <param name="dataTable"></param>
         /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1]));
+        public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1]));
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -260,7 +260,7 @@ namespace BrightData
         /// <typeparam name="T2"></typeparam>
         /// <param name="dataTable"></param>
         /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
+        public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -271,7 +271,7 @@ namespace BrightData
         /// <typeparam name="T3"></typeparam>
         /// <param name="dataTable"></param>
         /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
+        public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
 
         //public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
         //{
@@ -512,7 +512,7 @@ namespace BrightData
         public static List<object[]> Head(this IDataTable dataTable, uint size = 10)
         {
             var ret = new List<object[]>();
-            dataTable.ForEachRow((row, index) => ret.Add(row), size);
+            dataTable.ForEachRow((row, _) => ret.Add(row), size);
             return ret;
         }
 
@@ -1358,7 +1358,8 @@ namespace BrightData
             uint index = 0;
             foreach (var (segment, columnType) in dataTable.Columns().Zip(dataTable.ColumnTypes)) {
                 if (columnConversionTable.TryGetValue(index, out var conversion)) {
-                    var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index), dataTable.Context.TempStreamProvider);
+                    var index1 = index;
+                    var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), dataTable.Context.TempStreamProvider);
                     if (converter is not null)
                         yield return (index, converter);
                 }
@@ -1441,7 +1442,7 @@ namespace BrightData
                 sb.Append(type);
 
                 if (metaData.Has(Consts.XDimension)) {
-                    sb.Append("(");
+                    sb.Append('(');
                     if (metaData.Has(Consts.YDimension)) {
                         if (metaData.Has(Consts.ZDimension)) {
                             sb.Append(metaData.Get<uint>(Consts.ZDimension));

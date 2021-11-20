@@ -30,7 +30,7 @@ namespace BrightWire.UnitTests
             //var prediction = predictor.Predict(3f);
             //Assert.IsTrue(Math.Round(prediction) == 6f);
 
-            var theta = classifier.GradientDescent(20, 0.01f, 0.1f, cost => true);
+            var theta = classifier.GradientDescent(20, 0.01f, 0.1f, _ => true);
             var predictor = theta.CreatePredictor(_cpu);
             var prediction = predictor.Predict(3f);
             Math.Round(prediction).Should().Be(6f);
@@ -73,7 +73,7 @@ namespace BrightWire.UnitTests
             var index = dataTable.BuildRowOriented();
 
             var trainer = index.CreateLogisticRegressionTrainer();
-            var theta = trainer.GradientDescent(1000, 0.1f, 0.1f, cost => true);
+            var theta = trainer.GradientDescent(1000, 0.1f, 0.1f, _ => true);
             var predictor = theta.CreateClassifier(_cpu);
             var probability1 = predictor.Predict(_context.CreateMatrix(1, 1, 2f));
             probability1[0].Should().BeLessThan(0.5f);

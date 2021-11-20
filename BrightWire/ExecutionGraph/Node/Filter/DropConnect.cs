@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var lap = context.LinearAlgebraProvider;
                 var input = signal;
                 var inputMatrix = input.GetMatrix();
-                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (_, _) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var filteredWeights = Weight.PointwiseMultiply(filter);
                 var output = FeedForwardInternal(inputMatrix, filteredWeights);
                 return (this, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));

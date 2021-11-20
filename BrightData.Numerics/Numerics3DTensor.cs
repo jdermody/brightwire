@@ -267,7 +267,7 @@ namespace BrightData.Numerics
             uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-	        var output = outputDepth.AsRange().Select(i => DenseMatrix.Create((int)outputRows, (int)outputColumns, 0f)).ToList();
+	        var output = outputDepth.AsRange().Select(_ => DenseMatrix.Create((int)outputRows, (int)outputColumns, 0f)).ToList();
 
 			for (uint k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();

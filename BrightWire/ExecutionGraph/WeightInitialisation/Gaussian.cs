@@ -54,12 +54,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
 
         public IFloatVector CreateBias(uint size)
         {
-            return _lap.CreateVector(size, x => GetBias());
+            return _lap.CreateVector(size, _ => GetBias());
         }
 
         public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns));
+            return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }
     }
 }

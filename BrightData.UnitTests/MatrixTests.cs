@@ -58,8 +58,8 @@ namespace BrightData.UnitTests
         void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
         {
             var rand = new Random(1);
-            var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = _cpu.CreateMatrix(columnsArowsB, columnsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var b = _cpu.CreateMatrix(columnsArowsB, columnsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
             var cpuResults = a.Multiply(b);
 
             var gpuResults = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
@@ -958,10 +958,10 @@ namespace BrightData.UnitTests
             IIndexableFloatMatrix gpuU, gpuVt;
             IIndexableFloatVector gpuS;
             using (var gpuA = _cuda.CreateMatrix(a)) {
-                var gpuSvd = gpuA.Svd();
-                gpuU = gpuSvd.U.AsIndexable();
-                gpuVt = gpuSvd.VT.AsIndexable();
-                gpuS = gpuSvd.S.AsIndexable();
+                var (u2, s2, vt2) = gpuA.Svd();
+                gpuU = u2.AsIndexable();
+                gpuVt = vt2.AsIndexable();
+                gpuS = s2.AsIndexable();
             }
 
             FloatMath.AreApproximatelyEqual(cpuU, gpuU).Should().BeTrue();

@@ -253,7 +253,7 @@ namespace BrightData.Computation
                 throw new ArgumentException("Segments were different sizes");
 
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = func(v, other[i]); });
             return new TensorSegment<float>(_context, ret);
         }
 
@@ -285,7 +285,7 @@ namespace BrightData.Computation
         protected ITensorSegment<float> Transform(ITensorSegment<float> segment, Func<float, float> transfomer)
         {
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = transfomer(v); });
             return _context.CreateSegment(ret);
         }
 
@@ -309,7 +309,7 @@ namespace BrightData.Computation
         protected ITensorSegment<float> TransformIndexed(ITensorSegment<float> segment, Func<uint, float> transfomer)
         {
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer((uint)i); });
+            Parallel.ForEach(segment.Values, (_, _, i) => { ret[i] = transfomer((uint)i); });
             return _context.CreateSegment(ret);
         }
 
@@ -318,7 +318,7 @@ namespace BrightData.Computation
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            Parallel.ForEach(segment.Values, (v, s, i) => { segment[i] = func(v, other[(int)i]); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { segment[i] = func(v, other[(int)i]); });
         }
 
         protected static void MutateVectorised(ITensorSegment<float> segment, ITensorSegment<float> other, Func<System.Numerics.Vector<float>, System.Numerics.Vector<float>, System.Numerics.Vector<float>> func1, Func<float, float, float> func2)
@@ -345,7 +345,7 @@ namespace BrightData.Computation
 
         protected static void MutateInPlace(ITensorSegment<float> segment, Func<float, float> mutator)
         {
-            Parallel.ForEach(segment.Values, (v, s, i) => { segment[i] = mutator(v); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { segment[i] = mutator(v); });
         }
 
         protected static void MutateInPlaceVectorised(ITensorSegment<float> segment, Func<System.Numerics.Vector<float>, System.Numerics.Vector<float>> mutator1, Func<float, float> mutator2)
@@ -368,7 +368,7 @@ namespace BrightData.Computation
 
         protected static void Analyse(ITensorSegment<float> segment, Action<float, uint> analyser)
         {
-            Parallel.ForEach(segment.Values, (v, s, i) => { analyser(v, (uint)i); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
         }
 
         public float Get(uint val) => Convert.ToSingle(val);

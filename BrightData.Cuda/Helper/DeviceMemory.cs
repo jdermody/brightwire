@@ -174,7 +174,7 @@ namespace BrightData.Cuda.Helper
                 item.Destroy();
             else {
                 // add the new item
-                var temp = _cache.GetOrAdd(item.Size, kv => new ThreadSafeHashSet<Block>());
+                var temp = _cache.GetOrAdd(item.Size, _ => new ThreadSafeHashSet<Block>());
                 temp.Add(item);
 
                 // check if we need to delete old items

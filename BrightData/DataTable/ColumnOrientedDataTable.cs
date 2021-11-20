@@ -115,7 +115,7 @@ namespace BrightData.DataTable
         public BrightDataType[] ColumnTypes { get; }
         public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue)
         {
-            ForEachRow((row, index) => callback(row), maxRows);
+            ForEachRow((row, _) => callback(row), maxRows);
         }
 
         protected override IDataTable Table => this;
@@ -238,7 +238,7 @@ namespace BrightData.DataTable
                 builder.AddColumn(info.ColumnType, info.MetaData);
 
             // ReSharper disable once AccessToDisposedClosure
-            ForEachRow((row, index) => builder.AddRow(row));
+            ForEachRow((row, _) => builder.AddRow(row));
 
             return builder.Build(Context);
         }
@@ -267,7 +267,8 @@ namespace BrightData.DataTable
                     var wasConverted = false;
                     var column = _columns[i].Segment;
                     if (columnConversions.TryGetValue(column, out var converter)) {
-                        var convertedCount = converter.Transform(progress => Context.UserNotifications.NotifyProgress(i, ColumnCount, progress), Context.CancellationToken);
+                        var i1 = i;
+                        var convertedCount = converter.Transform(progress => Context.UserNotifications.NotifyProgress(i1, ColumnCount, progress), Context.CancellationToken);
                         if (convertedCount == RowCount) {
                             convertedColumns.Add((ISingleTypeTableSegment)converter.Buffer);
                             wasConverted = true;

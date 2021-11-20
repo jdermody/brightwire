@@ -354,7 +354,7 @@ namespace BrightData
         /// <returns></returns>
         public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, uint length, float value = 0f)
         {
-            return lap.CreateVector(length, i => value);
+            return lap.CreateVector(length, _ => value);
         }
 
 		/// <summary>
@@ -440,7 +440,7 @@ namespace BrightData
         /// <returns></returns>
         public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns, float value)
         {
-            return lap.CreateMatrix(rows, columns, (i, j) => value);
+            return lap.CreateMatrix(rows, columns, (_, _) => value);
         }
 
         /// <summary>
@@ -636,7 +636,7 @@ namespace BrightData
         public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
         {
             var computation = tensor.Computation;
-            tensor.Segment.Initialize(i => computation.NextRandom());
+            tensor.Segment.Initialize(_ => computation.NextRandom());
         }
 
         /// <summary>

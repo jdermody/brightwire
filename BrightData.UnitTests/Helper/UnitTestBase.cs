@@ -12,7 +12,7 @@ namespace BrightData.UnitTests.Helper
         public Vector<float> CreateRandomVector(uint size = 32)
         {
             var rand = new Random();
-            return _context.CreateVector(size, i => FloatMath.Next(rand));
+            return _context.CreateVector(size, _ => FloatMath.Next(rand));
         }
 
         public void CheckEquivalent<T>(ITensor<T> tensor1, ITensor<T> tensor2) where T: struct

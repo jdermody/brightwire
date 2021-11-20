@@ -69,7 +69,7 @@ namespace BrightWire.UnitTests
 		[Fact]
 		public void MatrixDataSource()
 		{
-			var matrices = Enumerable.Range(0, 10).Select(j => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
+			var matrices = Enumerable.Range(0, 10).Select(_ => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(matrices);
 			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
@@ -84,7 +84,7 @@ namespace BrightWire.UnitTests
 		[Fact]
 		public void TensorDataSource()
 		{
-			var tensors = Enumerable.Range(0, 10).Select(k => _context.CreateTensor3D(10.AsRange().Select(j => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
+			var tensors = Enumerable.Range(0, 10).Select(_ => _context.CreateTensor3D(10.AsRange().Select(_ => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(tensors);
 			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 

@@ -91,10 +91,10 @@ namespace BrightWire.UnitTests
 		public void TestDropoutEmpty()
 		{
 			var forwardInput = _cpu.CreateMatrix(Size, Size, DefaultInit).AsIndexable();
-			var expectedOutput = _cpu.CreateMatrix(Size, Size, (i, j) => 0f);
+			var expectedOutput = _cpu.CreateMatrix(Size, Size, (_, _) => 0f);
 
 			var backwardInput = _cpu.CreateMatrix(Size, Size, DefaultInit).AsIndexable();
-			var expectedBpOutput = _cpu.CreateMatrix(Size, Size, (i, j) => 0f);
+			var expectedBpOutput = _cpu.CreateMatrix(Size, Size, (_, _) => 0f);
 
 			TestNode(_factory.CreateDropOut(1f), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
@@ -115,10 +115,10 @@ namespace BrightWire.UnitTests
 		public void TestDropConnectEmpty()
 		{
 			var forwardInput = _cpu.CreateMatrix(Size, Size, DefaultInit).AsIndexable();
-			var expectedOutput = _cpu.CreateMatrix(Size, Size, (i, j) => 0f);
+			var expectedOutput = _cpu.CreateMatrix(Size, Size, (_, _) => 0f);
 
 			var backwardInput = _cpu.CreateMatrix(Size, Size, DefaultInit).AsIndexable();
-			var expectedBpOutput = _cpu.CreateMatrix(Size, Size, (i, j) => 0f);
+			var expectedBpOutput = _cpu.CreateMatrix(Size, Size, (_, _) => 0f);
 
 			TestNode(_factory.CreateDropConnect(1f, Size, Size), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}

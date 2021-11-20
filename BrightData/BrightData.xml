@@ -909,12 +909,11 @@
             <param name="items"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze``1(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             Analyzes a sequence of strings
             </summary>
             <param name="items"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AnalyzeFrequency``1(System.Collections.Generic.IEnumerable{``0})">
@@ -1325,6 +1324,13 @@
             <param name="previousPercentage">Current progress percentage (max 100)</param>
             <param name="sw">Stopwatch since start of operation</param>
             <returns>True if the progress has increased</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsCommaSeparated``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Writes the enumerable to a comma separated string
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items">Items to write</param>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
@@ -4034,6 +4040,75 @@
             Creates a new repeatable section reader
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.DataSpecificationType">
+            <summary>
+            Type of data specification
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.Field">
+            <summary>
+            Represents a field of data
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.Composite">
+            <summary>
+            Represents an item that holds a set of other items
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.FieldSet">
+            <summary>
+            Represents a field that takes a value from one of a set of possibilities
+            </summary>
+        </member>
+        <member name="T:BrightData.IDataTypeSpecification">
+            <summary>
+            Data type specifications can validate a data source
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.Name">
+            <summary>
+            Name of this item
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.Children">
+            <summary>
+            Children of this item (optional)
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.UnderlyingType">
+            <summary>
+            Underlying .net type for this item
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.SpecificationType">
+            <summary>
+            Item type
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.CanRepeat">
+            <summary>
+            True if the item can repeat
+            </summary>
+        </member>
+        <member name="T:BrightData.IDataTypeSpecification`1">
+            <summary>
+            Typed data specification
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IDataTypeSpecification`1.IsValid(`0)">
+            <summary>
+            Checks if the typed instance is valid against the specification
+            </summary>
+            <param name="instance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTypeSpecification`1.AddPredicate(System.Predicate{`0})">
+            <summary>
+            Adds an additional predicate that must match to be considered valid
+            </summary>
+            <param name="predicate"></param>
         </member>
         <member name="T:BrightData.INotifyUser">
             <summary>
@@ -7146,6 +7221,22 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.op_Equality(BrightData.WeightedIndexList.Item,BrightData.WeightedIndexList.Item)">
+            <summary>
+            
+            </summary>
+            <param name="left"></param>
+            <param name="right"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.op_Inequality(BrightData.WeightedIndexList.Item,BrightData.WeightedIndexList.Item)">
+            <summary>
+            
+            </summary>
+            <param name="left"></param>
+            <param name="right"></param>
+            <returns></returns>
         </member>
         <member name="P:BrightData.WeightedIndexList.Context">
             <inheritdoc />

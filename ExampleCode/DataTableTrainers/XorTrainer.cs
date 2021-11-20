@@ -15,6 +15,7 @@ namespace ExampleCode.DataTableTrainers
         public ExecutionGraphModel? TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var context = Table.Context;
+            var targetColumnIndex = Table.GetTargetColumnOrThrow();
 
             // train a model
             var graph = context.CreateGraphFactory();
@@ -35,7 +36,8 @@ namespace ExampleCode.DataTableTrainers
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
                             var row = Test.Row(index);
                             var result = item.Output[index];
-                            Console.WriteLine($"{row} = {result}");
+                            var input = row.ToArray().Select((v, i) => (Val: v, Ind: i)).Where(d => d.Ind != targetColumnIndex).Select(d => d.Val).AsCommaSeparated();
+                            Console.WriteLine($"{input} = {result.AsCommaSeparated()}");
                         }
                     }
                 }

@@ -273,33 +273,33 @@ namespace BrightData.Computation
                 throw new ArgumentException("Segments were different sizes");
 
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = func(v, other[i]); });
             return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<T> Transform(ITensorSegment<T> segment, Func<T, T> transfomer)
         {
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = transfomer(v); });
             return _context.CreateSegment(ret);
         }
 
-        protected void Mutate(ITensorSegment<T> segment, ITensorSegment<T> other, Func<T, T, T> func)
+        protected static void Mutate(ITensorSegment<T> segment, ITensorSegment<T> other, Func<T, T, T> func)
         {
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            Parallel.ForEach(segment.Values, (v, s, i) => { segment[i] = func(v, other[(int)i]); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { segment[i] = func(v, other[(int)i]); });
         }
 
-        protected void MutateInPlace(ITensorSegment<T> segment, Func<T, T> mutator)
+        protected static void MutateInPlace(ITensorSegment<T> segment, Func<T, T> mutator)
         {
-            Parallel.ForEach(segment.Values, (v, s, i) => { segment[i] = mutator(v); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { segment[i] = mutator(v); });
         }
 
-        protected void Analyse(ITensorSegment<T> segment, Action<T, uint> analyser)
+        protected static void Analyse(ITensorSegment<T> segment, Action<T, uint> analyser)
         {
-            Parallel.ForEach(segment.Values, (v, s, i) => { analyser(v, (uint)i); });
+            Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
         }
 
         public bool IsEntirelyFinite(ITensorSegment<T> segment)
@@ -311,7 +311,7 @@ namespace BrightData.Computation
         {
             var len = segment.Size;
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, s, i) => { ret[len - i] = v; });
+            Parallel.ForEach(segment.Values, (v, _, i) => { ret[len - i] = v; });
             return _context.CreateSegment(ret);
         }
 

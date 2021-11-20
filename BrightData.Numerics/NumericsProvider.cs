@@ -71,13 +71,13 @@ namespace BrightData.Numerics
         /// <inheritdoc />
 	    public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 	    {
-		    return new Numerics3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToArray());
+		    return new Numerics3DTensor(Context, depth.AsRange().Select(_ => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToArray());
 	    }
 
         /// <inheritdoc />
 	    public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 	    {
-		    return new Numerics4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToArray());
+		    return new Numerics4DTensor(Context, count.AsRange().Select(_ => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToArray());
 	    }
 
         /// <inheritdoc />
@@ -139,7 +139,7 @@ namespace BrightData.Numerics
 		    var ret = new float[rows * columns];
 
 			Parallel.ForEach(vectors, (column1, _, i) => {
-				Parallel.ForEach(compareTo, (column2, __, j) => {
+				Parallel.ForEach(compareTo, (column2, _, j) => {
 					ret[i * rows + j] = column1.FindDistance(column2, distanceMetric);
 				});
 			});

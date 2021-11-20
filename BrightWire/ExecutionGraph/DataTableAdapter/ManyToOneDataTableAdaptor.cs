@@ -21,7 +21,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential data sets not supported with more than one input data column");
-            var featureColumnIndex = _featureColumnIndices[0];
             _featureColumns = featureColumns;
 
             // find the number of sequences of each row

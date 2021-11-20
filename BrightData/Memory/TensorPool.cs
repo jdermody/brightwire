@@ -38,8 +38,8 @@ namespace BrightData.Memory
         public void Register(IReferenceCountedMemory block, uint size)
         {
             _registeredBlocks.AddOrUpdate(block.AllocationIndex, 
-                v => size, 
-                (v, b) => throw new Exception("Unexpected")
+                _ => size, 
+                (_, _) => throw new Exception("Unexpected")
             );
         }
 

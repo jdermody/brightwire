@@ -52,6 +52,28 @@ namespace BrightData
             public override bool Equals(object? obj) => obj is Item item && Equals(item);
             /// <inheritdoc />
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="left"></param>
+            /// <param name="right"></param>
+            /// <returns></returns>
+            public static bool operator ==(Item left, Item right)
+            {
+                return left.Equals(right);
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="left"></param>
+            /// <param name="right"></param>
+            /// <returns></returns>
+            public static bool operator !=(Item left, Item right)
+            {
+                return !(left == right);
+            }
         }
 
         internal WeightedIndexList(IBrightDataContext context, Item[] indices)
@@ -263,7 +285,7 @@ namespace BrightData
 
             if (indices.Any())
                 return Context.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
-            return Context.CreateVector(maxIndex ?? 0, i => 0f);
+            return Context.CreateVector(maxIndex ?? 0, _ => 0f);
         }
 
         /// <inheritdoc />

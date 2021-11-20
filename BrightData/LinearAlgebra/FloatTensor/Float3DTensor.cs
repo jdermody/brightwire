@@ -167,7 +167,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
         {
             var context = Data.Context;
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-            var output = outputDepth.AsRange().Select(i => context.CreateMatrix(outputRows, outputColumns, 0f)).ToArray();
+            var output = outputDepth.AsRange().Select(_ => context.CreateMatrix(outputRows, outputColumns, 0f)).ToArray();
 
             for (uint k = 0; k < Depth; k++) {
                 var slice = GetMatrixAt(k).AsIndexable();

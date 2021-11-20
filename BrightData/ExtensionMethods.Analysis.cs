@@ -218,9 +218,8 @@ namespace BrightData
         /// Analyzes a sequence of strings
         /// </summary>
         /// <param name="items"></param>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static StringAnalysis Analyze<T>(this IEnumerable<string> items)
+        public static StringAnalysis Analyze(this IEnumerable<string> items)
         {
             var analysis = new StringAnalyser();
             foreach (var item in items)
