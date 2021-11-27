@@ -924,5 +924,29 @@ namespace BrightData
             ret.Multiply(1f / count);
             return ret;
         }
+
+        /// <summary>
+        /// Calculates an average vector from a collection of vectors
+        /// </summary>
+        /// <param name="vectors">Vectors to average</param>
+        /// <param name="dispose">True to dispose each of the input vectors</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IFloatVector Average(this IEnumerable<IFloatVector> vectors, bool dispose)
+        {
+            if(vectors == null || !vectors.Any())
+                throw new ArgumentException(nameof(vectors));
+            var first = vectors.First();
+            var ret = CreateVector(first.LinearAlgebraProvider, first.Count);
+            var count = 0;
+            foreach(var item in vectors) {
+                ret.AddInPlace(item);
+                ++count;
+                if(dispose)
+                    item.Dispose();
+            }
+            ret.Multiply(1f / count);
+            return ret;
+        }
     }
 }

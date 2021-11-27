@@ -2697,6 +2697,24 @@
             <param name="dimensions">Number of dimensions to reduce to</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IFloatMatrix},System.Boolean)">
+            <summary>
+            Calculates an average matrix from a collection of matrices
+            </summary>
+            <param name="matrices">Matrices to average</param>
+            <param name="dispose">True to dispose each of the input matrices</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},System.Boolean)">
+            <summary>
+            Calculates an average vector from a collection of vectors
+            </summary>
+            <param name="vectors">Vectors to average</param>
+            <param name="dispose">True to dispose each of the input vectors</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
             <summary>
             Creates a data field specification for a data type

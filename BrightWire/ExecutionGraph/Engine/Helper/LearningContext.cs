@@ -57,10 +57,18 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        void Update<T>(List<(NodeBase Node, T Error, Action<T> Updater)> updates) where T: class
+        void Update<T>(List<(NodeBase Node, T Error, Action<T> Updater)> updates, Func<IEnumerable<T>, T> getAverage) where T: IDisposable
         {
-            foreach(var (_, error, updater) in updates)
-                updater(error);
+            // group on each node and updated combination and apply average error if multiple errors are defined
+            foreach(var group in updates.GroupBy(d => (d.Node, d.Updater))) {
+                if(group.Count() > 1) {
+                    using var averageError = getAverage(group.Select(d => d.Error));
+                    group.Key.Updater(averageError);
+                }else {
+                    using var error = group.Single().Error;
+                    group.Key.Updater(error);
+                }
+            }
             updates.Clear();
         }
 
@@ -68,8 +76,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             if(_deferredBackpropagation.Any())
                 BackpropagateThroughTime(null);
-            Update(_layerMatrixUpdate);
-            Update(_layerVectorUpdate);
+            Update(_layerMatrixUpdate, m => m.Average(true));
+            Update(_layerVectorUpdate, v => v.Average(true));
         }
 
         public void StartEpoch()
