@@ -42,7 +42,7 @@ namespace BrightWire.UnitTests
             dataSource.OutputVectoriser!.GetOutputLabel(expectedOutput.MaximumAbsoluteIndex()).Should().Be("b");
 		}
 
-		float[] GetArray(uint value, uint size)
+        static float[] GetArray(uint value, uint size)
 		{
 			var ret = new float[size];
 			for (var i = 0; i < size; i++)

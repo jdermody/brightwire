@@ -307,7 +307,7 @@ namespace BrightData.Cuda
 			execution.Run(0, param);
 		}
 
-		void InvokeManual(CUfunction function, uint size, params object[] param)
+        static void InvokeManual(CUfunction function, uint size, params object[] param)
 		{
 			var gridSize = GetBlockCount((int)size, BlockDim2);
 			var execution = KernelModule.CreateExecution(function, gridSize, BlockDim2);
@@ -490,7 +490,7 @@ namespace BrightData.Cuda
 		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
-			InvokeManual(_log, size, a.DevicePointer, ret.DevicePointer, size);
+            InvokeManual(_log, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
@@ -519,7 +519,7 @@ namespace BrightData.Cuda
 					var maxBlock = Allocate(bufferSize, true);
 
 					try {
-						InvokeManual(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
+                        InvokeManual(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
 						if (ptr != a)
 							ptr.Free();
 						size = bufferSize * 2;
@@ -555,7 +555,7 @@ namespace BrightData.Cuda
 			while (size > BlockDim2) {
 				var bufferSize = (size / BlockDim2) + 1;
 				var sumBlock = Allocate(bufferSize, true);
-				InvokeManual(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
+                InvokeManual(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Free();
 				size = bufferSize;
@@ -576,7 +576,7 @@ namespace BrightData.Cuda
 				while (size > BlockDim2) {
 					var bufferSize = (size / BlockDim2) + 1;
 					var sumBlock = Allocate(bufferSize, true);
-					InvokeManual(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
+                    InvokeManual(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
 						ptr.Free();
 					size = bufferSize;

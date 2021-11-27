@@ -37,7 +37,7 @@ namespace BrightData.DataTable
             ? RowCount.AsRange()
             : indices;
 
-        protected void ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
+        protected static void ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
         {
             var version = reader.ReadInt32();
             if (version > Consts.DataTableVersion)
@@ -99,7 +99,7 @@ namespace BrightData.DataTable
             throw new NotImplementedException();
         }
 
-        protected string GetGroupLabel(uint[] columnIndices, object[] row) => String.Join('|', 
+        protected static string GetGroupLabel(uint[] columnIndices, object[] row) => String.Join('|', 
             columnIndices.Select(ci => row[ci].ToString() ?? throw new Exception("Cannot group by string when value is null"))
         ) ?? throw new Exception("No column indices");
 

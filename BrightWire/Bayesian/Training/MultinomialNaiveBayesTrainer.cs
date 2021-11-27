@@ -32,10 +32,10 @@ namespace BrightWire.Bayesian.Training
                 var indexData = new List<MultinomialNaiveBayes.StringIndexProbability>();
                 var allClassToken = item.Value.SelectMany(d => d.Indices).ToList();
                 double denominator = allClassToken.Count + numWords;
-                foreach (var word in allClassToken.GroupBy(d => d).Select(d => (d.Key, d.Count()))) {
+                foreach (var (key, count) in allClassToken.GroupBy(d => d).Select(d => (d.Key, Count: d.Count()))) {
                     indexData.Add(new MultinomialNaiveBayes.StringIndexProbability {
-                        StringIndex = word.Item1,
-                        ConditionalProbability = Math.Log((word.Item2 + 1) / denominator)
+                        StringIndex = key,
+                        ConditionalProbability = Math.Log((count + 1) / denominator)
                     });
                 }
                 ret.Add(new MultinomialNaiveBayes.Class {

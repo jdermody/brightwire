@@ -332,7 +332,7 @@ namespace BrightData.Transformation
                 _input.Add(GetColumnVectoriser(dataTable, reader));
         }
 
-        IColumnVectoriser GetColumnVectoriser(IDataTable dataTable, BinaryReader reader)
+        static IColumnVectoriser GetColumnVectoriser(IDataTable dataTable, BinaryReader reader)
         {
             var type = (VectorisationType) reader.ReadByte();
             var column = dataTable.Column(reader.ReadUInt32());
@@ -377,7 +377,7 @@ namespace BrightData.Transformation
         {
             if(columnIndex >= _input.Count)
                 throw new ArgumentException($"Column index should be less than {_input.Count}");
-            if(!(_input[(int) columnIndex] is IHaveOutputLabel column))
+            if(_input[(int) columnIndex] is not IHaveOutputLabel column)
                 throw new ArgumentException($"Column {columnIndex} is not a one hot encoded column");
             return column.GetOutputLabel(vectorIndex);
         }

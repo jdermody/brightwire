@@ -64,13 +64,13 @@ namespace BrightWire.Unsupervised
 
             // weights gives cluster membership
             var documentClusters = weights.AsIndexable().Rows
-                .Select((c, i) => (i, c.MaximumAbsoluteIndex()))
+                .Select((c, i) => (Index: i, MaxIndex: c.MaximumAbsoluteIndex()))
                 .ToList();
             weights.Dispose();
             features.Dispose();
             return documentClusters
-                .GroupBy(d => d.Item2)
-                .Select(g => g.Select(d => dataArray[d.Item1]).ToArray())
+                .GroupBy(d => d.MaxIndex)
+                .Select(g => g.Select(d => dataArray[d.Index]).ToArray())
                 .ToArray();
         }
 

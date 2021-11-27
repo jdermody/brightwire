@@ -27,7 +27,7 @@ namespace BrightData.DataTable
             return string.Join(",", _data.Zip(Types, (d, t) => $"{Format(d, t)} [{t}]"));
         }
 
-        string Format(object obj, BrightDataType type)
+        static string Format(object obj, BrightDataType type)
         {
             if (type == BrightDataType.String)
                 return $"\"{obj}\"";

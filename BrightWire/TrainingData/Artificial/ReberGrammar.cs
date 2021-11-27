@@ -14,7 +14,7 @@ namespace BrightWire.TrainingData.Artificial
     public class ReberGrammar
     {
         static readonly char[] Chars = "BTSXPVE".ToCharArray();
-        static readonly Dictionary<char, int> Ch = Chars.Select((c, i) => (c, i)).ToDictionary(d => d.Item1, d => d.Item2);
+        static readonly Dictionary<char, int> Ch = Chars.Select((c, i) => (Char: c, Index: i)).ToDictionary(d => d.Char, d => d.Index);
 
         /// <summary>
         /// Gets the character at the specified index

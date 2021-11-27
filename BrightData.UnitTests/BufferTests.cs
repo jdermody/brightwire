@@ -40,7 +40,7 @@ namespace BrightData.UnitTests
         /// <summary>
         /// Buffer size configurations to test
         /// </summary>
-        public static (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] _configurations = new []
+        public static readonly (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] _configurations = new []
         {
             (32768, 1024, 256, 4),
             (32768, 32768, 1024, 1024),

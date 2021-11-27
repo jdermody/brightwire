@@ -89,6 +89,6 @@ namespace BrightData.Helper
 		/// Default convolutional direction
 		/// </summary>
         // ReSharper disable once InconsistentNaming
-        public static ConvolutionalDelegate Default = LeftToRight;
+        public static readonly ConvolutionalDelegate Default = LeftToRight;
 	}
 }

@@ -508,7 +508,7 @@ namespace BrightData.Numerics
                     var row = new StringBuilder();
                     for (var j = 0; j < ColumnCount; j++) {
                         if (j > 0)
-                            row.Append("|");
+                            row.Append('|');
                         row.Append(_matrix[i, j]);
                     }
                     writer.WriteValue(row.ToString());

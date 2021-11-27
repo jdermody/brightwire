@@ -19,8 +19,18 @@ namespace ExampleCode.DataTableTrainers
 
             // train a model
             var graph = context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.BinaryClassification, learningRate, batchSize,
-                hiddenLayerSize, numIterations, g => g.SigmoidActivation(), g => g.RmsProp, g => g.Gaussian);
+            var model = graph.TrainSimpleNeuralNetwork(
+                Training, 
+                Test, 
+                graph.ErrorMetric.BinaryClassification, 
+                learningRate, 
+                batchSize, 
+                hiddenLayerSize, 
+                numIterations, 
+                g => g.SigmoidActivation(), 
+                g => g.RmsProp, 
+                g => g.Gaussian
+            );
 
             if (model != null) {
                 // create a new network to execute the learned network
@@ -36,7 +46,12 @@ namespace ExampleCode.DataTableTrainers
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
                             var row = Test.Row(index);
                             var result = item.Output[index];
-                            var input = row.ToArray().Select((v, i) => (Val: v, Ind: i)).Where(d => d.Ind != targetColumnIndex).Select(d => d.Val).AsCommaSeparated();
+                            var input = row.ToArray()
+                                .Select((v, i) => (Val: v, Ind: i))
+                                .Where(d => d.Ind != targetColumnIndex)
+                                .Select(d => d.Val)
+                                .AsCommaSeparated()
+                            ;
                             Console.WriteLine($"{input} = {result.AsCommaSeparated()}");
                         }
                     }

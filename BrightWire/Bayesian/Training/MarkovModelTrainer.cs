@@ -48,13 +48,13 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _data) {
                 var transitions = item.Value
                     .GroupBy(v => v)
-                    .Select(g => (g.Key, g.Count()))
-                    .Where(d => d.Item2 >= _minObservations)
+                    .Select(g => (g.Key, Count: g.Count()))
+                    .Where(d => d.Count >= _minObservations)
                     .ToList()
                 ;
-                var total = (float)transitions.Sum(t => t.Item2);
+                var total = (float)transitions.Sum(t => t.Count);
                 if (total > 0) {
-                    ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T>(t.Item1, t.Item2 / total))));
+                    ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T>(t.Key, t.Count / total))));
                 }
             }
 
@@ -103,13 +103,13 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _data) {
                 var transitions = item.Value
                     .GroupBy(v => v)
-                    .Select(g => (g.Key, g.Count()))
-                    .Where(d => d.Item2 >= _minObservations)
+                    .Select(g => (g.Key, Count: g.Count()))
+                    .Where(d => d.Count >= _minObservations)
                     .ToList()
                 ;
-                var total = (float)transitions.Sum(t => t.Item2);
+                var total = (float)transitions.Sum(t => t.Count);
                 if (total > 0) {
-                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T>(t.Item1, t.Item2 / total))));
+                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T>(t.Key, t.Count / total))));
                 }
             }
 

@@ -148,7 +148,7 @@ namespace BrightData.DataTable.Builders
             return new RowOrientedDataTable(context, _stream, true);
         }
 
-        void WriteValueTo(BinaryWriter writer, BrightDataType type, object val)
+        static void WriteValueTo(BinaryWriter writer, BrightDataType type, object val)
         {
             if (type == BrightDataType.Date)
                 writer.Write(((DateTime)val).Ticks);

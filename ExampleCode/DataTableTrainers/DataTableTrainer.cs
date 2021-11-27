@@ -44,7 +44,7 @@ namespace ExampleCode.DataTableTrainers
         public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.HierarchicalCluster(k));
         public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
 
-        IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string? Label)[]> clusters) => clusters
+        static IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string? Label)[]> clusters) => clusters
             .Select(c => String.Join(';', c
                 .Select(r => r.Label)
                 .GroupBy(d => d)

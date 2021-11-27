@@ -58,7 +58,7 @@ namespace BrightData
             for (var i = 0; i < binaryHash.Length; i++) {
                 sb.Append($"{binaryHash[i]:X2}");
                 if (i % 4 == 3)
-                    sb.Append(" ");
+                    sb.Append(' ');
             }
 
             var hash = sb.ToString();

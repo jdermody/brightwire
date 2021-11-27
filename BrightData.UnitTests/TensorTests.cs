@@ -203,17 +203,17 @@ namespace BrightData.UnitTests
 			CheckTensorIm2Col(12, 8, 1, 4, 1, 1, 1, true);
 		}
 
-		//void _AssertAreSame(IReadOnlyList<(uint[] X, uint[] Y)> cpuIndex, IReadOnlyList<(uint[] X, uint[] Y)> gpuIndex)
-  //      {
-  //          cpuIndex.Count.Should().Be(gpuIndex.Count);
-  //          for (var i = 0; i < cpuIndex.Count; i++) {
-		//		var list1 = cpuIndex[i];
-		//		var list2 = gpuIndex[i];
-  //              list1.Should().BeEquivalentTo(list2);
-  //          }
-		//}
+        //void _AssertAreSame(IReadOnlyList<(uint[] X, uint[] Y)> cpuIndex, IReadOnlyList<(uint[] X, uint[] Y)> gpuIndex)
+        //      {
+        //          cpuIndex.Count.Should().Be(gpuIndex.Count);
+        //          for (var i = 0; i < cpuIndex.Count; i++) {
+        //		var list1 = cpuIndex[i];
+        //		var list2 = gpuIndex[i];
+        //              list1.Should().BeEquivalentTo(list2);
+        //          }
+        //}
 
-		void AssertValuesAreInSamePlace(IIndexable3DFloatTensor maxPool, IIndexable3DFloatTensor source)
+        static void AssertValuesAreInSamePlace(IIndexable3DFloatTensor maxPool, IIndexable3DFloatTensor source)
 		{
 			for (uint z = 0; z < maxPool.Depth; z++) {
 				var slice = maxPool.GetMatrixAt(z).AsIndexable();
@@ -310,7 +310,7 @@ namespace BrightData.UnitTests
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
 			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, ROWS, COLUMNS, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE).AsIndexable();
-			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
+            AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
@@ -337,7 +337,7 @@ namespace BrightData.UnitTests
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
 			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
-			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
+            AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);

@@ -153,7 +153,7 @@ namespace ExampleCode.DataTableTrainers
 
         string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
-        void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AaaiDocument> lookupTable)
+        static void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AaaiDocument> lookupTable)
         {
             new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);
