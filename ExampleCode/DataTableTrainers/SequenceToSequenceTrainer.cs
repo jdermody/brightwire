@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
@@ -52,7 +53,7 @@ namespace ExampleCode.DataTableTrainers
 
             var output = executionEngine.Execute(testData);
             var orderedOutput = output.OrderSequentialOutput();
-            
+
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
@@ -68,7 +69,7 @@ namespace ExampleCode.DataTableTrainers
         }
 
         static uint[] GetStringIndices(float[] vector) => vector
-            .Select((v, i2) => (Value: v, Index: (uint) i2))
+            .Select((v, i2) => (Value: v, Index: (uint)i2))
             .Where(d => d.Value >= 0.5)
             .Select(d => d.Index)
             .ToArray()
@@ -159,8 +160,8 @@ namespace ExampleCode.DataTableTrainers
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE/3);
-            engine.Train(15, testData, model => bestModel = model.Graph);
+            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+            engine.Train(20, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);
@@ -179,10 +180,27 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(), 
+                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
                     Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                 ))
             ;
+
+            // group by index and calculate error
+            var errorByIndex = new Dictionary<int, int>();
+            foreach (var (input, output) in inputOutput) {
+                var len = input.Length;
+                var outputReversed = output.Reverse().ToList();
+                for (var i = 0; i < len; i++) {
+                    if (input[i] != outputReversed[i]) {
+                        if (errorByIndex.TryGetValue(i, out var error))
+                            errorByIndex[i] = error + 1;
+                        else
+                            errorByIndex[i] = 1;
+                    }
+                }
+            }
+            foreach (var item in errorByIndex.OrderBy(d => d.Key))
+                Console.WriteLine($"Index {item.Key}: {item.Value:N0} errors");
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {

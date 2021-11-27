@@ -31,26 +31,30 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
-                var parts = errorSignal.GetMatrix().SplitAtColumn(_position);
+                var (left, right) = errorSignal.GetMatrix().SplitAtColumn(_position);
 
                 // train the attention layer
                 var learningContext = context.LearningContext!;
-                foreach (var item in _weights) {
-                    var err = item.EncoderState.PointwiseMultiply(parts.Right);
-                    var errRows = err.RowSums();
+                var biasUpdates = new List<IFloatMatrix>();
+                var weightUpdates = new List<IFloatMatrix>();
+                foreach (var (encoderState, combinedState) in _weights) {
+                    using var err = encoderState.PointwiseMultiply(right);
+                    using var errRows = err.RowSums();
                     errRows.Multiply(1f / err.ColumnCount);
 
                     var feedForwardError = errRows.SoftmaxDerivative();
-                    var collapsed = item.CombinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
+                    using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
                     collapsed.Multiply(1f / feedForwardError.ColumnCount);
                     var weightUpdate = collapsed.ReshapeAsColumnMatrix();
 
-                    // TODO: looks fishy, needs work...
-                    //learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
-                    learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
+                    biasUpdates.Add(feedForwardError);
+                    weightUpdates.Add(weightUpdate);
                 }
 
-                return parts.Left.AsGraphData();
+                learningContext.StoreUpdate(_source, biasUpdates.Average(true), e => _source._layer.UpdateBias(e, learningContext));
+                learningContext.StoreUpdate(_source, weightUpdates.Average(true), e => _source._layer.UpdateWeights(e, learningContext));
+
+                return left.AsGraphData();
             }
         }
 
@@ -108,14 +112,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var combinedAttention = context.LinearAlgebraProvider.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, true);
             var backward = new List<(IFloatMatrix EncoderState, IFloatMatrix CombinedState)>();
             var index = 0;
-            foreach (var item in softmax.ColumnVectors().Zip(encoderStates)) {
-                var multiplyWeight = item.First.Average();
+            foreach (var (first, second) in softmax.ColumnVectors().Zip(encoderStates)) {
+                var multiplyWeight = first.Average();
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
-                var saved = item.Second.Clone();
-                item.Second.Multiply(multiplyWeight);
-                combinedAttention.AddInPlace(item.Second);
+                var saved = second.Clone();
+                second.Multiply(multiplyWeight);
+                combinedAttention.AddInPlace(second);
                 backward.Add((saved, inputs[index++]));
             }
 
