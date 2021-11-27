@@ -113,8 +113,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 var saved = second.Clone();
                 var indexedFirst = first.AsIndexable();
-                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => indexedFirst[i]);
-                second.PointwiseMultiply(stretched);
+                //using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => indexedFirst[i]);
+                //second.PointwiseMultiply(stretched);
+                second.Multiply(multiplyWeight);
                 combinedAttention.AddInPlace(second);
                 backward.Add((saved, inputs[index++]));
             }
