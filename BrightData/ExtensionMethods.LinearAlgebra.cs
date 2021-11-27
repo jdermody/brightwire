@@ -900,5 +900,29 @@ namespace BrightData
                 vt.Dispose();
             }
         }
+
+        /// <summary>
+        /// Calculates an average matrix from a collection of matrices
+        /// </summary>
+        /// <param name="matrices">Matrices to average</param>
+        /// <param name="dispose">True to dispose each of the input matrices</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IFloatMatrix Average(this IEnumerable<IFloatMatrix> matrices, bool dispose)
+        {
+            if(matrices == null || !matrices.Any())
+                throw new ArgumentException(nameof(matrices));
+            var first = matrices.First();
+            var ret = CreateMatrix(first.LinearAlgebraProvider, first.RowCount, first.ColumnCount, 0);
+            var count = 0;
+            foreach(var item in matrices) {
+                ret.AddInPlace(item);
+                ++count;
+                if(dispose)
+                    item.Dispose();
+            }
+            ret.Multiply(1f / count);
+            return ret;
+        }
     }
 }
