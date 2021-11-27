@@ -35,8 +35,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // train the attention layer
                 var learningContext = context.LearningContext!;
-                var biasUpdates = new List<IFloatMatrix>();
-                var weightUpdates = new List<IFloatMatrix>();
                 foreach (var (encoderState, combinedState) in _weights) {
                     using var err = encoderState.PointwiseMultiply(right);
                     using var errRows = err.RowSums();
@@ -47,12 +45,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     collapsed.Multiply(1f / feedForwardError.ColumnCount);
                     var weightUpdate = collapsed.ReshapeAsColumnMatrix();
 
-                    biasUpdates.Add(feedForwardError);
-                    weightUpdates.Add(weightUpdate);
+                    learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
+                    learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
                 }
-
-                learningContext.StoreUpdate(_source, biasUpdates.Average(true), e => _source._layer.UpdateBias(e, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdates.Average(true), e => _source._layer.UpdateWeights(e, learningContext));
 
                 return left.AsGraphData();
             }
@@ -79,7 +74,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var previousContext = context.BatchSequence.MiniBatch.GetSequenceAtIndex(currentIndex - 1).GraphContext;
                 decoderHiddenState = previousContext?.GetData("hidden-forward").Single(d => d.Name == _decoderName).Data.GetMatrix();
             }
-
             if (decoderHiddenState == null)
                 throw new Exception("Not able to find the decoder hidden state");
 
@@ -118,7 +112,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
                 var saved = second.Clone();
-                second.Multiply(multiplyWeight);
+                var indexedFirst = first.AsIndexable();
+                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => indexedFirst[i]);
+                second.PointwiseMultiply(stretched);
                 combinedAttention.AddInPlace(second);
                 backward.Add((saved, inputs[index++]));
             }
