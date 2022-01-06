@@ -1781,7 +1781,7 @@
         <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <inheritdoc />
         </member>
-        <member name="T:BrightWire.ExecutionGraph.WeightInitialiation.Constant">
+        <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
             <summary>
             Initalises all weights to a constant
             </summary>
@@ -4994,6 +4994,13 @@
             Generator function to generate new sequences
             </summary>
             <returns>Infinite number of sequences</returns>
+        </member>
+        <member name="M:BrightWire.TrainingData.Artificial.SequenceGenerator.Decode(System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Converts character indices to a string
+            </summary>
+            <param name="characters">Character indices</param>
+            <returns></returns>
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.Xor">
             <summary>

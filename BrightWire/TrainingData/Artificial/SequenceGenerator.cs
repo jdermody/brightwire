@@ -139,6 +139,11 @@ namespace BrightWire.TrainingData.Artificial
             // ReSharper disable once IteratorNeverReturns
         }
 
+        /// <summary>
+        /// Converts character indices to a string
+        /// </summary>
+        /// <param name="characters">Character indices</param>
+        /// <returns></returns>
         public string Decode(IEnumerable<uint> characters) => new(characters.Select(i => Dictionary[i]).ToArray());
     }
 }

@@ -2191,6 +2191,17 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.ITensorSegment{``0})">
+            <summary>
+            Creates a matrix from a segment
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <param name="segment">Segment</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a matrix from a binary reader

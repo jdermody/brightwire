@@ -103,6 +103,17 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Creates a matrix from a segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="segment">Segment</param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, ITensorSegment<T> segment) where T : struct => new(segment, rows, columns);
+
+        /// <summary>
         /// Creates a matrix from a binary reader
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -910,17 +921,21 @@ namespace BrightData
         /// <exception cref="ArgumentException"></exception>
         public static IFloatMatrix Average(this IEnumerable<IFloatMatrix> matrices, bool dispose)
         {
-            if(matrices == null || !matrices.Any())
-                throw new ArgumentException(nameof(matrices));
-            var first = matrices.First();
-            var ret = CreateMatrix(first.LinearAlgebraProvider, first.RowCount, first.ColumnCount, 0);
+            if(matrices == null)
+                throw new ArgumentException("Null enumerable", nameof(matrices));
+            IFloatMatrix? ret = null;
             var count = 0;
             foreach(var item in matrices) {
-                ret.AddInPlace(item);
+                if(ret is null)
+                    ret = CreateMatrix(item.LinearAlgebraProvider, item.RowCount, item.ColumnCount, 0);
+                else
+                    ret.AddInPlace(item);
                 ++count;
                 if(dispose)
                     item.Dispose();
             }
+            if(ret is null)
+                throw new ArgumentException("Empty enumerable", nameof(matrices));
             ret.Multiply(1f / count);
             return ret;
         }
@@ -934,17 +949,21 @@ namespace BrightData
         /// <exception cref="ArgumentException"></exception>
         public static IFloatVector Average(this IEnumerable<IFloatVector> vectors, bool dispose)
         {
-            if(vectors == null || !vectors.Any())
-                throw new ArgumentException(nameof(vectors));
-            var first = vectors.First();
-            var ret = CreateVector(first.LinearAlgebraProvider, first.Count);
+            if(vectors == null)
+                throw new ArgumentException("Null enumerable", nameof(vectors));
+            IFloatVector? ret = null;
             var count = 0;
             foreach(var item in vectors) {
-                ret.AddInPlace(item);
+                if(ret is null)
+                    ret = CreateVector(item.LinearAlgebraProvider, item.Count);
+                else
+                    ret.AddInPlace(item);
                 ++count;
                 if(dispose)
                     item.Dispose();
             }
+            if(ret is null)
+                throw new ArgumentException("Empty enumerable", nameof(vectors));
             ret.Multiply(1f / count);
             return ret;
         }

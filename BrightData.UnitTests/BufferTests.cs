@@ -40,7 +40,7 @@ namespace BrightData.UnitTests
         /// <summary>
         /// Buffer size configurations to test
         /// </summary>
-        public static readonly (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] _configurations = new []
+        public static readonly (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] Configurations = new []
         {
             (32768, 1024, 256, 4),
             (32768, 32768, 1024, 1024),
@@ -79,20 +79,20 @@ namespace BrightData.UnitTests
         public void StringBuffer()
         {
             using var context = new BrightDataContext();
-            foreach(var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+            foreach(var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 StringBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
         }
 
         void ObjectTests<T>(IBrightDataContext context, Func<uint, T> indexTranslator) where T : ISerializable
         {
-            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 ObjectBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 
         void StructTests<T>(Func<uint, T> indexTranslator) where T: struct
         {
             using var context = new BrightDataContext();
-            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 StructBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 

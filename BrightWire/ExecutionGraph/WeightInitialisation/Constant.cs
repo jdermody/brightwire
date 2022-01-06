@@ -1,6 +1,6 @@
 ﻿using BrightData;
 
-namespace BrightWire.ExecutionGraph.WeightInitialiation
+namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
     /// <summary>
     /// Initalises all weights to a constant

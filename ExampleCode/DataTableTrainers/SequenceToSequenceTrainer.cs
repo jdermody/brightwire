@@ -183,6 +183,7 @@ namespace ExampleCode.DataTableTrainers
                     Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
                     Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                 ))
+                .ToList()
             ;
 
             // group by index and calculate error

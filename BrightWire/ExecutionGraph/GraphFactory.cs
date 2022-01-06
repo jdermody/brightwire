@@ -23,7 +23,6 @@ using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Output;
-using BrightWire.ExecutionGraph.WeightInitialiation;
 
 namespace BrightWire.ExecutionGraph
 {
