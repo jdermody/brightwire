@@ -13,7 +13,7 @@ namespace BrightWire.UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(_context, false)
+                .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
                 .ToDictionary(d => _cpu.CreateVector(d.Data), d => d.Classification)
             ;
@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(_context, false)
+                .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
                 .ToDictionary(d => _cpu.CreateVector(d.Data), d => d.Classification)
             ;

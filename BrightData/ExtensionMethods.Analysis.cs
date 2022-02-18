@@ -147,7 +147,7 @@ namespace BrightData
         public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the categories that was stored in meta data
+        /// Gets the categories that were stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>

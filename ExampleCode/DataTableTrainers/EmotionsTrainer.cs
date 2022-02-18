@@ -184,7 +184,7 @@ namespace ExampleCode.DataTableTrainers
                 var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 64);
 
                 // build the network
-                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
+                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 1000;
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.SigmoidActivation())

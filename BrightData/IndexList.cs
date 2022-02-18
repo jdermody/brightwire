@@ -109,8 +109,7 @@ namespace BrightData
         public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            Indices = new uint[len];
-            reader.BaseStream.Read(MemoryMarshal.Cast<uint, byte>(Indices));
+            Indices = reader.BaseStream.ReadArray<uint>(len);
             Context = context;
         }
 
@@ -162,7 +161,7 @@ namespace BrightData
         public Vector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
-            uint max = maxIndex ?? uint.MinValue;
+            var max = maxIndex ?? uint.MinValue;
 
             foreach (var item in Indices) {
                 if (!maxIndex.HasValue && item > max)

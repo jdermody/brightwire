@@ -127,6 +127,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 	    /// <inheritdoc />
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_data == null)
                 _data = new Dictionary<uint, IncomingChannel>();
             else

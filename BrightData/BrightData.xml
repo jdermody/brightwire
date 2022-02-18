@@ -868,7 +868,7 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.IMetaData)">
             <summary>
-            Gets the categories that was stored in meta data
+            Gets the categories that were stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
@@ -992,60 +992,6 @@
             </summary>
             <param name="code">Type code</param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.UInt32[])">
-            <summary>
-            Creates an index list from indices
-            </summary>
-            <param name="context"></param>
-            <param name="indices">Indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.UInt32})">
-            <summary>
-            Creates an index list from indices
-            </summary>
-            <param name="context"></param>
-            <param name="indices">Indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Creates an index list from a binary reader
-            </summary>
-            <param name="context"></param>
-            <param name="reader">The binary reader</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.ValueTuple{System.UInt32,System.Single}[])">
-            <summary>
-            Creates a weighted index list from weighted indices
-            </summary>
-            <param name="context"></param>
-            <param name="indexList">Weighted indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
-            <summary>
-            Creates a weighted index list from weighted indices
-            </summary>
-            <param name="context"></param>
-            <param name="indexList">Weighted indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
-            <summary>
-            Creates a weighted index list from weighted indices
-            </summary>
-            <param name="context"></param>
-            <param name="indexList">Weighted indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Creates a weighted index list from a binary reader
-            </summary>
-            <param name="context"></param>
-            <param name="reader">The binary reader</param>
         </member>
         <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.IMetaData,System.String,System.Nullable{``0})">
             <summary>
@@ -1228,47 +1174,6 @@
             <param name="metaData"></param>
             <returns>File path</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext,System.Boolean)">
-            <summary>
-            Converts the indexed classifications to weighted indexed classifications
-            </summary>
-            <param name="data"></param>
-            <param name="context"></param>
-            <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
-            <summary>
-            Finds the greatest weight within the weighted index classification list
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
-            <summary>
-            Find the greatest index within the weighted index classification list
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}})">
-            <summary>
-            Find the greatest index within the index classification list
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
-            <summary>
-            Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
-            https://en.wikipedia.org/wiki/Tf%E2%80%93idf
-            </summary>
-            <returns>A new weighted classification set</returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
-            <summary>
-            Normalizes the weighted index classification list to fit between 0 and 1
-            </summary>
-            <param name="data"></param>
-            <param name="context"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.GroupAndCount``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Groups items and counts each group
@@ -1331,6 +1236,26 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="items">Items to write</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReadArray``1(System.IO.Stream,System.UInt32)">
+            <summary>
+            Reads an array of T from the stream
+            </summary>
+            <param name="stream">Stream to read from</param>
+            <param name="size">Number of items to read</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReadArray``1(System.IO.Stream,System.Int32)">
+            <summary>
+            Reads an array of T from the stream
+            </summary>
+            <param name="stream">Stream to read from</param>
+            <param name="size">Number of items to read</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
@@ -2130,6 +2055,105 @@
             <param name="mean"></param>
             <param name="stdDev">Standard deviation</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.UInt32[])">
+            <summary>
+            Creates an index list from indices
+            </summary>
+            <param name="context"></param>
+            <param name="indices">Indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Creates an index list from indices
+            </summary>
+            <param name="context"></param>
+            <param name="indices">Indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates an index list from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader">The binary reader</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.ValueTuple{System.UInt32,System.Single}[])">
+            <summary>
+            Creates a weighted index list from weighted indices
+            </summary>
+            <param name="context"></param>
+            <param name="indexList">Weighted indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
+            <summary>
+            Creates a weighted index list from weighted indices
+            </summary>
+            <param name="context"></param>
+            <param name="indexList">Weighted indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
+            <summary>
+            Creates a weighted index list from weighted indices
+            </summary>
+            <param name="context"></param>
+            <param name="indexList">Weighted indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates a weighted index list from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader">The binary reader</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},System.Boolean)">
+            <summary>
+            Converts the indexed classifications to weighted indexed classifications
+            </summary>
+            <param name="data"></param>
+            <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+            <summary>
+            Finds the greatest weight within the weighted index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+            <summary>
+            Find the greatest index within the weighted index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}})">
+            <summary>
+            Find the greatest index within the index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Normalize(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+            <summary>
+            Normalizes the weighted index classification list to fit between 0 and 1
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}})">
+            <summary>
+            Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+            https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+            </summary>
+            <returns>A newly weighted classification set</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}},System.Single,System.Single,System.Single)">
+            <summary>
+            Okapi B525+ that modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+            </summary>
+            <returns>A newly weighted classification set</returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.UInt32,System.Func{System.UInt32,``0})">
             <summary>

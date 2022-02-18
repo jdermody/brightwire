@@ -23,7 +23,7 @@ namespace BrightWire.TreeBased
             var p = _tree.Root;
             while(p != null) {
                 if (p.ColumnIndex.HasValue) {
-                    string? findChild = null;
+                    string? findChild;
                     if(p.Split.HasValue) {
                         var val = row.GetTyped<double>(p.ColumnIndex.Value);
                         findChild = val < p.Split.Value ? "-" : "+";

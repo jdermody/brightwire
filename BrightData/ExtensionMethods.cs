@@ -45,73 +45,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates an index list from indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indices">Indices</param>
-        /// <returns></returns>
-        public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
-
-        /// <summary>
-        /// Creates an index list from indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indices">Indices</param>
-        /// <returns></returns>
-        public static IndexList CreateIndexList(this IBrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
-
-        /// <summary>
-        /// Creates an index list from a binary reader
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="reader">The binary reader</param>
-        public static IndexList CreateIndexList(this IBrightDataContext context, BinaryReader reader)
-        {
-            var ret = new IndexList(context, Array.Empty<uint>());
-            ret.Initialize(context, reader);
-            return ret;
-        }
-
-        /// <summary>
-        /// Creates a weighted index list from weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList">Weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
-
-        /// <summary>
-        /// Creates a weighted index list from weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList">Weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
-
-        /// <summary>
-        /// Creates a weighted index list from weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList">Weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(context, indexList);
-
-        /// <summary>
-        /// Creates a weighted index list from a binary reader
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="reader">The binary reader</param>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, BinaryReader reader)
-        {
-            var len = reader.ReadInt32();
-            var ret = new WeightedIndexList.Item[len];
-            var span = MemoryMarshal.Cast<WeightedIndexList.Item, byte>(ret);
-            reader.BaseStream.Read(span);
-
-            return WeightedIndexList.Create(context, ret);
-        }
-
-        /// <summary>
         /// Sets a value only if the value is not null
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -366,131 +299,6 @@ namespace BrightData
         public static string GetFilePath(this IMetaData metaData) => metaData.Get(Consts.FilePath, "");
 
         /// <summary>
-        /// Converts the indexed classifications to weighted indexed classifications
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="context"></param>
-        /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> ConvertToWeightedIndexList(
-            this IReadOnlyList<(string Label, IndexList Data)> data,
-            IBrightDataContext context,
-            bool groupByClassification
-        )
-        {
-            if (groupByClassification)
-            {
-                return data.GroupBy(c => c.Label)
-                    .Select(g => (g.Key, WeightedIndexList.Create(context, g.SelectMany(d => d.Data.Indices)
-                        .GroupBy(d => d)
-                        .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
-                        .ToArray()
-                    )))
-                    .ToArray()
-                ;
-            }
-            return data
-                .Select(d => (d.Label, WeightedIndexList.Create(context, d.Data.Indices
-                    .GroupBy(i => i)
-                    .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
-                    .ToArray()
-                )))
-                .ToArray()
-            ;
-        }
-
-        /// <summary>
-        /// Finds the greatest weight within the weighted index classification list
-        /// </summary>
-        /// <param name="data"></param>
-        public static float GetMaxWeight(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
-        {
-            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Weight);
-        }
-
-        /// <summary>
-        /// Find the greatest index within the weighted index classification list
-        /// </summary>
-        /// <param name="data"></param>
-        public static uint GetMaxIndex(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
-        {
-            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Index);
-        }
-
-        /// <summary>
-        /// Find the greatest index within the index classification list
-        /// </summary>
-        /// <param name="data"></param>
-        public static uint GetMaxIndex(this IReadOnlyList<(string Label, IndexList Data)> data)
-        {
-            return data.SelectMany(r => r.Data.Indices).Max();
-        }
-
-        /// <summary>
-        /// Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
-        /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
-        /// </summary>
-        /// <returns>A new weighted classification set</returns>
-        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, IBrightDataContext context) where T: notnull
-        {
-            var indexOccurence = new Dictionary<uint, uint>();
-            var classificationSum = new Dictionary<T, double>();
-
-            // find the overall count of each index
-            foreach (var classification in data.GroupBy(c => c.Label))
-            {
-                double sum = 0;
-                foreach (var (_, weightedIndexList) in classification)
-                {
-                    foreach (var index in weightedIndexList.Indices)
-                    {
-                        var key = index.Index;
-                        if (indexOccurence.TryGetValue(key, out uint temp))
-                            indexOccurence[key] = temp + 1;
-                        else
-                            indexOccurence.Add(key, 1);
-                        sum += index.Weight;
-                    }
-                }
-                classificationSum.Add(classification.Key, sum);
-            }
-
-            // calculate tf-idf for each document
-            var numDocs = (double)data.Count;
-            var ret = new List<(T Label, WeightedIndexList Data)>();
-            foreach (var (label, weightedIndexList) in data)
-            {
-                var totalWords = classificationSum[label];
-                var classificationIndex = new List<WeightedIndexList.Item>();
-                foreach (var item in weightedIndexList.Indices)
-                {
-                    var index = item.Index;
-                    var tf = item.Weight / totalWords;
-                    var docsWithTerm = (double)indexOccurence[index];
-                    var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
-                    var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndexList.Item(index, System.Convert.ToSingle(score)));
-                }
-                ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Normalizes the weighted index classification list to fit between 0 and 1
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalize(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
-        {
-            var maxWeight = data.GetMaxWeight();
-            return data.Select(r => (r.Label, WeightedIndexList.Create(
-                context, 
-                r.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
-            ))).ToList();
-        }
-
-        /// <summary>
         /// Groups items and counts each group
         /// </summary>
         /// <param name="items"></param>
@@ -576,6 +384,39 @@ namespace BrightData
             }
             sb.Append(']');
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Reads an array of T from the stream
+        /// </summary>
+        /// <param name="stream">Stream to read from</param>
+        /// <param name="size">Number of items to read</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static T[] ReadArray<T>(this Stream stream, uint size) where T: struct
+        {
+            var ret = new T[size];
+            var bytes = MemoryMarshal.Cast<T, byte>(ret);
+            var bytesRead = stream.Read(bytes);
+#if DEBUG
+            if (bytesRead != Unsafe.SizeOf<T>() * size)
+                throw new Exception("Unexpected end of file");
+#endif
+            return ret;
+        }
+
+        /// <summary>
+        /// Reads an array of T from the stream
+        /// </summary>
+        /// <param name="stream">Stream to read from</param>
+        /// <param name="size">Number of items to read</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static T[] ReadArray<T>(this Stream stream, int size) where T: struct
+        {
+            return ReadArray<T>(stream, (uint)size);
         }
     }
 }

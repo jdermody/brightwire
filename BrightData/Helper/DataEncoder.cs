@@ -345,10 +345,7 @@ namespace BrightData.Helper
         static TS[] ReadStructs<TS>(uint len, BinaryReader reader)
             where TS : struct
         {
-            var ret = new TS[len];
-            var span = MemoryMarshal.Cast<TS, byte>(ret);
-            reader.BaseStream.Read(span);
-            return ret;
+            return reader.BaseStream.ReadArray<TS>(len);
         }
     }
 }

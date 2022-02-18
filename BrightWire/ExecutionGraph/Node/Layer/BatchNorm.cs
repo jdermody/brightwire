@@ -108,7 +108,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 
 			// collect statistics
-			if (context.LearningContext != null && _statistics != null) {
+			if (context.LearningContext != null) {
 				foreach (var vector in samples) {
 					_statistics.Update(vector);
 					vector.Dispose();

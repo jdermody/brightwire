@@ -7,6 +7,29 @@
 	<value name="Average" value="1" summary="Averages values" />
 	<value name="Max" value="2" summary="Finds the maximum value" />
 </enum>
+<enum name="BrightData.BrightDataType">
+	<summary>
+		Data types enumeration
+	</summary>
+	<value name="Unknown" value="0" summary="Nothing" />
+	<value name="Boolean" value="1" summary="Boolean values" />
+	<value name="SByte" value="2" summary="Signed byte values (-128 to 128)" />
+	<value name="Short" value="3" summary="Short values" />
+	<value name="Int" value="4" summary="Integer values" />
+	<value name="Long" value="5" summary="Long values" />
+	<value name="Float" value="6" summary="Float values" />
+	<value name="Double" value="7" summary="Double values" />
+	<value name="Decimal" value="8" summary="Decimal values" />
+	<value name="String" value="9" summary="String values" />
+	<value name="Date" value="10" summary="Date values" />
+	<value name="IndexList" value="11" summary="List of indices" />
+	<value name="WeightedIndexList" value="12" summary="Weighted list of indices" />
+	<value name="Vector" value="13" summary="Vector of floats" />
+	<value name="Matrix" value="14" summary="Matrix of floats" />
+	<value name="Tensor3D" value="15" summary="3D tensor of floats" />
+	<value name="Tensor4D" value="16" summary="4D tensor of floats" />
+	<value name="BinaryData" value="17" summary="Binary data" />
+</enum>
 <enum name="BrightData.ColumnClass">
 	<summary>
 		Column classifications
@@ -34,29 +57,13 @@
 	<value name="ToWeightedIndexList" value="6" summary="Convert to weighted index list" />
 	<value name="ToVector" value="7" summary="Convert to vector" />
 	<value name="ToCategoricalIndex" value="8" summary="Convert each value to an index within a dictionary" />
-</enum>
-<enum name="BrightData.ColumnType">
-	<summary>
-		Segment table column type
-	</summary>
-	<value name="Unknown" value="0" summary="Nothing" />
-	<value name="Boolean" value="1" summary="Boolean values" />
-	<value name="Byte" value="2" summary="Byte values (-128 to 128)" />
-	<value name="Short" value="3" summary="Short values" />
-	<value name="Int" value="4" summary="Integer values" />
-	<value name="Long" value="5" summary="Long values" />
-	<value name="Float" value="6" summary="Float values" />
-	<value name="Double" value="7" summary="Double values" />
-	<value name="Decimal" value="8" summary="Decimal values" />
-	<value name="String" value="9" summary="String values" />
-	<value name="Date" value="10" summary="Date values" />
-	<value name="IndexList" value="11" summary="List of indices" />
-	<value name="WeightedIndexList" value="12" summary="Weighted list of indices" />
-	<value name="Vector" value="13" summary="Vector of floats" />
-	<value name="Matrix" value="14" summary="Matrix of floats" />
-	<value name="Tensor3D" value="15" summary="3D tensor of floats" />
-	<value name="Tensor4D" value="16" summary="4D tensor of floats" />
-	<value name="BinaryData" value="17" summary="Binary data" />
+	<value name="ToByte" value="9" summary="Convert to signed byte" />
+	<value name="ToShort" value="10" summary="Convert to short" />
+	<value name="ToInt" value="11" summary="Convert to int" />
+	<value name="ToLong" value="12" summary="Convert to long" />
+	<value name="ToFloat" value="13" summary="Convert to float" />
+	<value name="ToDouble" value="14" summary="Convert to double" />
+	<value name="ToDecimal" value="15" summary="Convert to decimal" />
 </enum>
 <enum name="BrightWire.Models.Bayesian.NaiveBayes.ColumnType">
 	<summary>
@@ -64,6 +71,14 @@
 	</summary>
 	<value name="ContinuousGaussian" value="0" summary="Continuous values" />
 	<value name="Categorical" value="1" summary="Categorical values" />
+</enum>
+<enum name="BrightData.DataSpecificationType">
+	<summary>
+		Type of data specification
+	</summary>
+	<value name="Field" value="0" summary="Represents a field of data" />
+	<value name="Composite" value="1" summary="Represents an item that holds a set of other items" />
+	<value name="FieldSet" value="2" summary="Represents a field that takes a value from one of a set of possibilities" />
 </enum>
 <enum name="BrightData.DataTableOrientation">
 	<summary>
@@ -294,9 +309,6 @@
 				<param type="System.UInt32" name="xStride" summary="Filter x stride" />
 				<param type="System.UInt32" name="yStride" summary="Filter y stride" />
 			</method>
-	<method type="BrightData.IFloatVector" name="ColumnSums">
-		<summary>Sums the columns of each sub-tensor's sub matrix</summary>
-			</method>
 	<method type="BrightData.IFloatVector" name="ReshapeAsVector">
 		<summary>Converts the tensor to a vector</summary>
 			</method>
@@ -344,6 +356,7 @@
 		<method type="System.Void" name="Add">
 		<summary>Adds a new item</summary>
 				<param type="T" name="value" summary="Item to add" />
+				<param type="System.UInt32" name="index" summary="Row index" />
 			</method>
 </interface>
 <interface name="BrightWire.IBackpropagate" base="System.IDisposable">
@@ -385,6 +398,11 @@
 				<param type="T" name="defaultValue" summary="Default value if not already set" />
 			</method>
 	<method type="T" name="Get">
+		<summary>Returns transient, context specific meta data</summary>
+				<param type="System.String" name="name" summary="Name of value" />
+				<param type="System.Func&lt;T&gt;" name="defaultValueCreator" summary="Returns a default value if not already set" />
+			</method>
+	<method type="T" name="Get">
 		<summary>Returns optional context specific meta data</summary>
 				<param type="System.String" name="name" summary="Name of value" />
 			</method>
@@ -405,6 +423,12 @@
 		<summary>Resets the random number generator</summary>
 				<param type="System.Nullable&lt;System.Int32&gt;" name="seed" summary="Random seed (or null to randomly initialize)" />
 			</method>
+	<property type="BrightData.INotifyUser" name="UserNotifications">
+		<summary>Progress notifications for long running operations</summary>
+	</property>
+	<property type="System.Threading.CancellationToken" name="CancellationToken">
+		<summary>Cancellation token for the current context</summary>
+	</property>
 </interface>
 <interface name="BrightData.ICanComplete" base="">
 	<summary>
@@ -495,20 +519,6 @@
 				<param type="System.IO.BinaryReader" name="reader" summary="Binary reader that holds the node's state" />
 			</method>
 </interface>
-<interface name="BrightWire.ICanSerialiseToStream" base="">
-	<summary>
-		Standard serialisation interface
-	</summary>
-		<method type="System.Void" name="SerialiseTo">
-		<summary>Writes the current object state to the stream</summary>
-				<param type="System.IO.Stream" name="stream" summary="Stream to write to" />
-			</method>
-	<method type="System.Void" name="DeserialiseFrom">
-		<summary>Reads the current object state from the stream</summary>
-				<param type="System.IO.Stream" name="stream" summary="Stream to read from" />
-				<param type="System.Boolean" name="clear" summary="True to clear the existing state" />
-			</method>
-</interface>
 <interface name="BrightData.ICanWriteToBinaryWriter" base="">
 	<summary>
 		Indicates that the type can serialize to a binary writer
@@ -533,7 +543,7 @@
 		<property type="System.UInt32" name="Index">
 		<summary>Column index</summary>
 	</property>
-	<property type="BrightData.ColumnType" name="ColumnType">
+	<property type="BrightData.BrightDataType" name="ColumnType">
 		<summary>Column type</summary>
 	</property>
 	<property type="BrightData.IHaveDictionary" name="Dictionary">
@@ -548,41 +558,15 @@
 		<summary>Converts to a row oriented data table</summary>
 				<param type="System.String" name="filePath" summary="" />
 			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="Convert">
-		<summary>Creates a new table with columns that have been converted</summary>
-				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column conversion parameters" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="Convert">
-		<summary>Creates a new table with columns that have been converted</summary>
-				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
-				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column conversion parameters" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="Normalize">
-		<summary>Normalizes the data in all columns of the table</summary>
-				<param type="BrightData.NormalizationType" name="type" summary="Normalization type" />
-				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="Normalize">
-		<summary>Normalizes the data in all columns of the table</summary>
-				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column normalization parameters" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="Normalize">
-		<summary>Normalizes the data in all columns of the table</summary>
-				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
-				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column normalization parameters" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="CopyColumns">
-		<summary>Copies the selected columns to a new data table</summary>
-				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to copy" />
+	<method type="BrightData.IColumnOrientedDataTable" name="Transform">
+		<summary>Transforms the table</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.ITransformColumn Transformer)&gt;" name="transformations" summary="" />
+				<param type="System.String" name="filePath" summary="" />
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="CopyColumns">
 		<summary>Copies the selected columns to a new data table</summary>
 				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
 				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to copy" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="ConcatColumns">
-		<summary>Creates a new data table with this concatenated with other column oriented data tables</summary>
-				<param type="BrightData.IColumnOrientedDataTable[]" name="others" summary="Other tables to concatenate" />
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="ConcatColumns">
 		<summary>Creates a new data table with this concatenated with other column oriented data tables</summary>
@@ -596,12 +580,8 @@
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="ReinterpretColumns">
 		<summary>Many to one or one to many style column transformations</summary>
-				<param type="BrightData.IReinterpretColumnsParam[]" name="columns" summary="Parameters to determine which columns are reinterpreted" />
-			</method>
-	<method type="BrightData.IColumnOrientedDataTable" name="ReinterpretColumns">
-		<summary>Many to one or one to many style column transformations</summary>
 				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
-				<param type="BrightData.IReinterpretColumnsParam[]" name="columns" summary="Parameters to determine which columns are reinterpreted" />
+				<param type="BrightData.IReinterpretColumns[]" name="columns" summary="Parameters to determine which columns are reinterpreted" />
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="Clone">
 		<summary>Clones the current data table</summary>
@@ -624,7 +604,7 @@
 	</property>
 	<method type="BrightData.ITransformColumn" name="GetTransformer">
 		<summary>Gets a column transformer</summary>
-				<param type="BrightData.ColumnType" name="fromType" summary="Convert from column type" />
+				<param type="BrightData.BrightDataType" name="fromType" summary="Convert from column type" />
 				<param type="BrightData.ISingleTypeTableSegment" name="column" summary="Column to convert" />
 				<param type="System.Func&lt;BrightData.IMetaData&gt;" name="analysedMetaData" summary="Function to produce analysed column meta data if needed" />
 				<param type="BrightData.IProvideTempStreams" name="tempStreams" summary="Temp stream provider" />
@@ -638,7 +618,7 @@
 		<property type="System.UInt32" name="ColumnIndex">
 		<summary>Column index that will be consumed</summary>
 	</property>
-	<property type="BrightData.ColumnType" name="ColumnType">
+	<property type="BrightData.BrightDataType" name="ColumnType">
 		<summary>Column type of incoming data</summary>
 	</property>
 </interface>
@@ -798,7 +778,7 @@
 	<property type="System.UInt32" name="ColumnCount">
 		<summary>Number of columns</summary>
 	</property>
-	<property type="BrightData.ColumnType[]" name="ColumnTypes">
+	<property type="BrightData.BrightDataType[]" name="ColumnTypes">
 		<summary>The type of each column</summary>
 	</property>
 	<property type="BrightData.DataTableOrientation" name="Orientation">
@@ -844,6 +824,15 @@
 		<summary>Writes the data table to disk</summary>
 				<param type="System.String" name="filePath" summary="File path" />
 			</method>
+	<method type="System.Void" name="ForEachRow">
+		<summary>Invokes the callback on each specified row of the table</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="rowIndices" summary="Row indices to select" />
+				<param type="System.Action&lt;System.Object[]&gt;" name="callback" summary="Callback to invoke on each selected row" />
+			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.String Label, BrightData.IHybridBuffer[] ColumnData)&gt;" name="GroupBy">
+		<summary>Groups columns into groups based on the specified column values</summary>
+				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to group on" />
+			</method>
 </interface>
 <interface name="BrightData.IDataTableSegment" base="">
 	<summary>
@@ -852,7 +841,7 @@
 		<property type="System.UInt32" name="Size">
 		<summary>Number of values (size of segment)</summary>
 	</property>
-	<property type="BrightData.ColumnType[]" name="Types">
+	<property type="BrightData.BrightDataType[]" name="Types">
 		<summary>The column type of each value</summary>
 	</property>
 	<property type="System.Object" name="this">
@@ -889,6 +878,39 @@
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.LinearAlgebra.Vector&lt;System.Single&gt;&gt;" name="Enumerate">
 		<summary>Returns a sequence of vectorised table rows</summary>
+			</method>
+</interface>
+<interface name="BrightData.IDataTypeSpecification" base="">
+	<summary>
+		Data type specifications can validate a data source
+	</summary>
+		<property type="System.String" name="Name">
+		<summary>Name of this item</summary>
+	</property>
+	<property type="BrightData.IDataTypeSpecification[]" name="Children">
+		<summary>Children of this item (optional)</summary>
+	</property>
+	<property type="System.Type" name="UnderlyingType">
+		<summary>Underlying .net type for this item</summary>
+	</property>
+	<property type="BrightData.DataSpecificationType" name="SpecificationType">
+		<summary>Item type</summary>
+	</property>
+	<property type="System.Boolean" name="CanRepeat">
+		<summary>True if the item can repeat</summary>
+	</property>
+</interface>
+<interface name="BrightData.IDataTypeSpecification&lt;T&gt;" base="BrightData.IDataTypeSpecification">
+	<summary>
+		Typed data specification
+	</summary>
+		<method type="System.Boolean" name="IsValid">
+		<summary>Checks if the typed instance is valid against the specification</summary>
+				<param type="T" name="instance" summary="" />
+			</method>
+	<method type="System.Void" name="AddPredicate">
+		<summary>Adds an additional predicate that must match to be considered valid</summary>
+				<param type="System.Predicate&lt;T&gt;" name="predicate" summary="" />
 			</method>
 </interface>
 <interface name="BrightData.IDiscreteDistribution" base="BrightData.IDistribution&lt;System.Int32&gt;">
@@ -930,6 +952,11 @@
 		<summary>Computes the error between the output vector and target vector</summary>
 				<param type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;" name="output" summary="The vector that was the output of the model" />
 				<param type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;" name="targetOutput" summary="The vector that the model was expected to output" />
+			</method>
+	<method type="System.Single" name="Compute">
+		<summary>Computes the error between the output vector and target vector</summary>
+				<param type="System.Single[]" name="output" summary="The vector that was the output of the model" />
+				<param type="System.Single[]" name="targetOutput" summary="The vector that the model was expected to output" />
 			</method>
 	<method type="BrightData.IFloatMatrix" name="CalculateGradient">
 		<summary>Calculates the gradient of the error function</summary>
@@ -1233,11 +1260,11 @@
 	<method type="System.Single" name="L2Norm">
 		<summary>Calculates the euclidean (L2) norm: https://en.wikipedia.org/wiki/Norm_(mathematics)</summary>
 			</method>
-	<method type="System.UInt32" name="MaximumIndex">
-		<summary>Returns the index of the vector with the greatest value</summary>
+	<method type="System.UInt32" name="MaximumAbsoluteIndex">
+		<summary>Returns the index of the vector with the greatest absolute value</summary>
 			</method>
-	<method type="System.UInt32" name="MinimumIndex">
-		<summary>Returns the index of the vector with the smallest value</summary>
+	<method type="System.UInt32" name="MinimumAbsoluteIndex">
+		<summary>Returns the index of the vector with the smallest absolute value</summary>
 			</method>
 	<method type="System.Void" name="Multiply">
 		<summary>Multiples (in place) by a scalar</summary>
@@ -1390,6 +1417,12 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="System.Boolean" name="IsEntirelyFinite">
 		<summary>Checks if every value in the vector is finite (not NaN or positive/negative infinity)</summary>
 			</method>
+	<method type="System.Void" name="RoundInPlace">
+		<summary>Rounds each value to either upper (if >= mid) or lower</summary>
+				<param type="System.Single" name="lower" summary="" />
+				<param type="System.Single" name="upper" summary="" />
+				<param type="System.Single" name="mid" summary="" />
+			</method>
 </interface>
 <interface name="BrightWire.IGradientDescentOptimisation" base="System.IDisposable">
 	<summary>
@@ -1428,6 +1461,9 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Replaces the data with the specified matrix (but preserves any tensor meta data)</summary>
 				<param type="BrightData.IFloatMatrix" name="matrix" summary="The matrix to use as a replacement" />
 			</method>
+	<property type="System.Single" name="this">
+		<summary>Returns the value at the specified index</summary>
+	</property>
 	<property type="System.Boolean" name="HasValue">
 		<summary>True if this graph data has been set (false for null)</summary>
 	</property>
@@ -1478,13 +1514,13 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="System.Void" name="RegisterContinuation">
 		<summary>Registers a continuation that will be executed after the current sequence has been processed in full</summary>
 				<param type="BrightWire.IMiniBatchSequence" name="sequence" summary="Sequence index" />
-				<param type="System.Action&lt;BrightWire.IGraphSequenceContext&gt;" name="callback" summary="Continuation" />
+				<param type="System.Action&lt;BrightWire.IGraphSequenceContext, System.Threading.CancellationToken&gt;" name="callback" summary="Continuation" />
 			</method>
 	<method type="System.Void" name="RegisterAdditionalMiniBatch">
 		<summary>Registers an additional mini batch to execute after the current mini batch has completed</summary>
 				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="Mini batch to execute" />
 				<param type="BrightWire.IGraphData" name="data" summary="Initial data" />
-				<param type="System.Action&lt;BrightWire.IGraphSequenceContext, BrightWire.IGraphData&gt;" name="startCallback" summary="Callback when starting the batch" />
+				<param type="System.Action&lt;BrightWire.IGraphSequenceContext, BrightWire.IGraphData, System.Threading.CancellationToken&gt;" name="startCallback" summary="Callback when starting the batch" />
 				<param type="System.Action&lt;BrightWire.IGraphSequenceContext[]&gt;" name="endCallback" summary="Callback when ending the batch" />
 			</method>
 	<property type="System.Boolean" name="HasContinuations">
@@ -1605,20 +1641,24 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<method type="System.Void" name="Train">
 		<summary>Executes a training epoch on the graph</summary>
 				<param type="BrightWire.IGraphExecutionContext" name="executionContext" summary="Graph execution context" />
-				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notifiied after each mini batch has completed" />
+				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 			</method>
 	<method type="System.Boolean" name="Test">
 		<summary>Executes test data on the current graph</summary>
 				<param type="BrightWire.IDataSource" name="testDataSource" summary="Segment source with test data" />
 				<param type="System.UInt32" name="batchSize" summary="Initial size of each mini batch" />
-				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notifiied after each mini batch has completed" />
+				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 				<param type="System.Action&lt;System.Single, System.Boolean, System.Boolean&gt;" name="values" summary="Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data" />
 			</method>
+	<property type="BrightData.IBrightDataContext" name="Context">
+		<summary>Bright data context</summary>
+	</property>
 	<property type="BrightWire.ILearningContext" name="LearningContext">
 		<summary>Graph learning context</summary>
 	</property>
 	<method type="System.Void" name="LoadParametersFrom">
-		<summary>Loads model parameters into the existing graph</summary>
+		<summary>Loads model parameters into the existing graph (based on matching ids or names)
+IMPORTANT: if loading into a different graph the node ids will not be the same and so node names will need to be assigned for any nodes to be copied</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="Graph factory" />
 				<param type="BrightWire.Models.ExecutionGraphModel" name="graph" summary="Model to load parameters from" />
 			</method>
@@ -1628,6 +1668,10 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Reset">
 		<summary>Resets the learning context epoch and the best test result</summary>
+			</method>
+	<method type="System.Void" name="SetStartNode">
+		<summary>Sets the engine's start node (can be used to load a previously saved graph)</summary>
+				<param type="BrightWire.ExecutionGraph.Node.NodeBase" name="startNode" summary="Node to use as the engine's start node" />
 			</method>
 </interface>
 <interface name="BrightWire.IHaveAction" base="">
@@ -1660,6 +1704,14 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</summary>
 		<property type="System.String[]" name="Dictionary">
 		<summary>Current dictionary (string table)</summary>
+	</property>
+</interface>
+<interface name="BrightWire.IHaveFeedForward" base="">
+	<summary>
+		Nodes that contain a feed forward layer
+	</summary>
+		<property type="BrightWire.IFeedForward" name="FeedForward">
+		<summary>Feed forward layer</summary>
 	</property>
 </interface>
 <interface name="BrightData.IHaveIndexer" base="">
@@ -1724,7 +1776,11 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="System.Void" name="Add">
 		<summary>Adds an object to the buffer</summary>
 				<param type="System.Object" name="obj" summary="Object to add" />
+				<param type="System.UInt32" name="index" summary="Index to set within the buffer" />
 			</method>
+	<property type="System.Type" name="DataType">
+		<summary>Buffer data type</summary>
+	</property>
 </interface>
 <interface name="BrightData.IHybridBuffer&lt;T&gt;" base="BrightData.IHybridBuffer">
 	<summary>
@@ -1744,9 +1800,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.String" name="AsXml">
 		<summary>Returns the matrix as xml</summary>
 	</property>
-	<method type="System.Single[]" name="GetInternalArray">
-		<summary>Returns the underlying array used as storage (changes to this array will affect the tensor as well)</summary>
-			</method>
 </interface>
 <interface name="BrightData.IIndexable4DFloatTensor" base="BrightData.I4DFloatTensor">
 	<summary>
@@ -1761,9 +1814,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.String" name="AsXml">
 		<summary>Returns the matrix as xml</summary>
 	</property>
-	<method type="System.Single[]" name="GetInternalArray">
-		<summary>Returns the underlying array used as storage (changes to this array will affect the tensor as well)</summary>
-			</method>
 </interface>
 <interface name="BrightData.IIndexableFloatMatrix" base="BrightData.IFloatMatrix">
 	<summary>
@@ -1792,9 +1842,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.String" name="AsXml">
 		<summary>Returns the matrix as xml</summary>
 	</property>
-	<method type="System.Single[]" name="GetInternalArray">
-		<summary>Returns the underlying array used as storage (changes to this array will affect the matrix as well)</summary>
-			</method>
 </interface>
 <interface name="BrightData.IIndexableFloatVector" base="BrightData.IFloatVector">
 	<summary>
@@ -1808,9 +1855,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</property>
 	<method type="System.Single[]" name="ToArray">
 		<summary>Converts the vector to an array</summary>
-			</method>
-	<method type="System.Single[]" name="GetInternalArray">
-		<summary>Returns the underlying array used as storage (changes to this array will affect the vector as well)</summary>
 			</method>
 	<method type="BrightData.IIndexableFloatVector" name="Append">
 		<summary>Creates a new vector (without in place modification) in which new values are appended onto the end of the current vector</summary>
@@ -1917,9 +1961,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="BrightWire.ExecutionGraph.Node.NodeBase" name="node" summary="The node to modify" />
 				<param type="System.Boolean" name="enableUpdates" summary="True if the node can make updates via backpropagation" />
 			</method>
-	<property type="System.Action&lt;System.String&gt;" name="MessageLog">
-		<summary>Sends the message to some output</summary>
-	</property>
 	<property type="BrightWire.IErrorMetric" name="ErrorMetric">
 		<summary>Error metric to use when evaluating training progress</summary>
 	</property>
@@ -2070,7 +2111,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="System.Single" name="lambda" summary="Regularisation lambda" />
 			</method>
 </interface>
-<interface name="BrightWire.IMarkovModelTrainer&lt;T&gt;" base="BrightWire.ICanSerialiseToStream">
+<interface name="BrightWire.IMarkovModelTrainer&lt;T&gt;" base="">
 	<summary>
 		Markov model trainer
 	</summary>
@@ -2162,6 +2203,12 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Removes a value</summary>
 				<param type="System.String" name="key" summary="Name of the value" />
 			</method>
+	<property type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="AllKeys">
+		<summary>Returns all keys that have been set</summary>
+	</property>
+	<method type="BrightData.IMetaData" name="Clone">
+		<summary>Creates a clone of the current metadata</summary>
+			</method>
 </interface>
 <interface name="BrightWire.IMiniBatch" base="">
 	<summary>
@@ -2246,6 +2293,26 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.Double" name="Subtract">
 		<summary>Value to subtract from each value</summary>
 	</property>
+</interface>
+<interface name="BrightData.INotifyUser" base="">
+	<summary>
+		Notifies the user of operations and messages
+	</summary>
+		<method type="System.Void" name="OnStartOperation">
+		<summary>Called at the start of an operation</summary>
+				<param type="System.String" name="msg" summary="Optional message associated with the operation" />
+			</method>
+	<method type="System.Void" name="OnOperationProgress">
+		<summary>Called when the operation has progressed</summary>
+				<param type="System.Single" name="progressPercent" summary="Progress percentage (between 0 and 1)" />
+			</method>
+	<method type="System.Void" name="OnCompleteOperation">
+		<summary>Called when the operation has completed</summary>
+			</method>
+	<method type="System.Void" name="OnMessage">
+		<summary>Called to notify the user</summary>
+				<param type="System.String" name="msg" summary="Message to user" />
+			</method>
 </interface>
 <interface name="BrightData.INumericComputation&lt;T&gt;" base="">
 	<summary>
@@ -2476,6 +2543,13 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="BrightData.ITensorSegment&lt;T&gt;" name="segment" summary="" />
 				<param type="T" name="power" summary="" />
 			</method>
+	<method type="System.Void" name="RoundInPlace">
+		<summary></summary>
+				<param type="BrightData.ITensorSegment&lt;T&gt;" name="segment" summary="" />
+				<param type="T" name="lower" summary="" />
+				<param type="T" name="upper" summary="" />
+				<param type="System.Nullable&lt;T&gt;" name="mid" summary="" />
+			</method>
 	<method type="T" name="Get">
 		<summary></summary>
 				<param type="System.UInt32" name="val" summary="" />
@@ -2492,6 +2566,12 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary></summary>
 				<param type="System.Decimal" name="val" summary="" />
 			</method>
+	<property type="T" name="Zero">
+		<summary></summary>
+	</property>
+	<property type="T" name="One">
+		<summary></summary>
+	</property>
 </interface>
 <interface name="BrightWire.IPropertySet" base="">
 	<summary>
@@ -2549,7 +2629,10 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		Temp stream provider
 	</summary>
-		<method type="System.IO.Stream" name="Get">
+		<method type="System.String" name="GetNewTempPath">
+		<summary>Returns the path to a new temp file</summary>
+			</method>
+	<method type="System.IO.Stream" name="Get">
 		<summary>Returns an existing or creates a new temporary stream</summary>
 				<param type="System.String" name="uniqueId" summary="Id that uniquely identifies the context" />
 			</method>
@@ -2597,7 +2680,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Checks if the block is valid</summary>
 	</property>
 </interface>
-<interface name="BrightData.IReinterpretColumnsParam" base="">
+<interface name="BrightData.IReinterpretColumns" base="">
 	<summary>
 		Reinterpret columns parameters
 	</summary>
@@ -2629,11 +2712,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Converts to a column oriented data table</summary>
 				<param type="System.String" name="filePath" summary="" />
 			</method>
-	<method type="System.Void" name="ForEachRow">
-		<summary>Invokes the callback on each specified row of the table</summary>
-				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="rowIndices" summary="Row indices to select" />
-				<param type="System.Action&lt;System.Object[]&gt;" name="callback" summary="Callback to invoke on each selected row" />
-			</method>
 	<method type="BrightData.IRowOrientedDataTable" name="Bag">
 		<summary>Samples (with replacement) from the data table</summary>
 				<param type="System.UInt32" name="sampleCount" summary="Number of rows to sample" />
@@ -2647,18 +2725,10 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Returns the rows at the specified indices</summary>
 				<param type="System.UInt32[]" name="rowIndices" summary="Row indices to retrieve" />
 			</method>
-	<method type="BrightData.IRowOrientedDataTable" name="Concat">
-		<summary>Creates a new table of this concatenated with other row oriented data tables</summary>
-				<param type="BrightData.IRowOrientedDataTable[]" name="others" summary="Other row oriented data tables to concatenate" />
-			</method>
-	<method type="BrightData.IRowOrientedDataTable" name="Concat">
+	<method type="BrightData.IRowOrientedDataTable" name="ConcatRows">
 		<summary>Creates a new table of this concatenated with other row oriented data tables</summary>
 				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
 				<param type="BrightData.IRowOrientedDataTable[]" name="others" summary="Other row oriented data tables to concatenate" />
-			</method>
-	<method type="BrightData.IRowOrientedDataTable" name="CopyRows">
-		<summary>Copy specified rows from this to a new data table</summary>
-				<param type="System.UInt32[]" name="rowIndices" summary="Row indices to copy" />
 			</method>
 	<method type="BrightData.IRowOrientedDataTable" name="CopyRows">
 		<summary>Copy specified rows from this to a new data table</summary>
@@ -2674,10 +2744,6 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index to sort" />
 				<param type="System.Boolean" name="ascending" summary="True to sort ascending" />
 				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
-			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(System.String Label, BrightData.IRowOrientedDataTable Table)&gt;" name="GroupBy">
-		<summary>Splits this table into many data tables based on the value from a column</summary>
-				<param type="System.UInt32" name="columnIndex" summary="Column index to group on" />
 			</method>
 	<property type="System.String" name="FirstRow">
 		<summary>Returns the first row as a string</summary>
@@ -2713,7 +2779,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		A segment (series of values) in a table of which each element has the same type
 	</summary>
-		<property type="BrightData.ColumnType" name="SingleType">
+		<property type="BrightData.BrightDataType" name="SingleType">
 		<summary>The single type of the segment</summary>
 	</property>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.Object&gt;" name="Enumerate">
@@ -2744,6 +2810,9 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</property>
 	<property type="System.UInt32" name="Rank">
 		<summary>Size of the Shape array</summary>
+	</property>
+	<property type="System.Boolean" name="IsValid">
+		<summary>True if the underlying memory has been properly scoped</summary>
 	</property>
 </interface>
 <interface name="BrightData.ITensor&lt;T&gt;" base="BrightData.ITensor">
@@ -2802,11 +2871,11 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Initialize the segment from a stream</summary>
 				<param type="System.IO.Stream" name="stream" summary="" />
 			</method>
-	<method type="System.Void" name="InitializeFrom">
+	<method type="System.Void" name="Initialize">
 		<summary>Initialize the segment from a callback</summary>
 				<param type="System.Func&lt;System.UInt32, T&gt;" name="initializer" summary="Functions that returns values for each indexed value" />
 			</method>
-	<method type="System.Void" name="InitializeTo">
+	<method type="System.Void" name="Initialize">
 		<summary>Initialize the segment to a single value</summary>
 				<param type="T" name="initialValue" summary="Initial value" />
 			</method>
@@ -2819,12 +2888,19 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="System.IO.Stream" name="writerBaseStream" summary="" />
 			</method>
 	<method type="System.Void" name="CopyTo">
-		<summary>Copies all values to an existing array</summary>
+		<summary>Copies values from this segment to an existing array</summary>
 				<param type="T[]" name="array" summary="" />
+				<param type="System.UInt32" name="sourceIndex" summary="Index to start copying from" />
+				<param type="System.UInt32" name="destinationIndex" summary="Index to start writing to" />
+				<param type="System.UInt32" name="count" summary="Number of values to copy" />
 			</method>
 	<method type="System.Void" name="CopyTo">
 		<summary>Copies all values to another segment</summary>
 				<param type="BrightData.ITensorSegment&lt;T&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Numerics.Vector&lt;T&gt;" name="AsNumericsVector">
+		<summary>Returns part of the segment as a numerics vector</summary>
+				<param type="System.Int32" name="start" summary="" />
 			</method>
 </interface>
 <interface name="BrightData.ITransformColumn" base="BrightData.ICanConvert">
@@ -2844,6 +2920,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Writes the converted input to the buffer</summary>
 				<param type="TF" name="input" summary="" />
 				<param type="BrightData.IHybridBuffer&lt;TT&gt;" name="buffer" summary="" />
+				<param type="System.UInt32" name="index" summary="Index within the buffer" />
 			</method>
 </interface>
 <interface name="BrightWire.IVolumeDataSource" base="">
@@ -3071,6 +3148,11 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="T" name="Get" is-static="false">
 		<summary></summary>
 				<param type="System.String" name="name" summary="" />
+				<param type="System.Func&lt;T&gt;" name="defaultValueCreator" summary="" />
+			</method>
+	<method type="T" name="Get" is-static="false">
+		<summary></summary>
+				<param type="System.String" name="name" summary="" />
 			</method>
 	<method type="T" name="Set" is-static="false">
 		<summary></summary>
@@ -3089,6 +3171,12 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary></summary>
 				<param type="System.Nullable&lt;System.Int32&gt;" name="seed" summary="" />
 			</method>
+	<property type="BrightData.INotifyUser" name="UserNotifications">
+		<summary></summary>
+	</property>
+	<property type="System.Threading.CancellationToken" name="CancellationToken">
+		<summary></summary>
+	</property>
 </class>
 <class name="BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -3229,27 +3317,27 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	</summary>
 	<method type="System.Boolean" name="IsDecimal" is-static="true">
 		<summary>Checks for a decimal type (floating point)</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column type to check" />
 			</method>
 	<method type="System.Boolean" name="IsNumeric" is-static="true">
 		<summary>Checks for a numeric type (floating point or integer)</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column type to check" />
 			</method>
 	<method type="System.Boolean" name="IsContinuous" is-static="true">
 		<summary>Checks for a continuous type (non categorical)</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column type to check" />
 			</method>
 	<method type="System.Boolean" name="IsCategorical" is-static="true">
 		<summary>Checks for a categorical type (non continuous)</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column type to check" />
 			</method>
 	<method type="System.Boolean" name="IsBlittable" is-static="true">
 		<summary>Checks if the type has an independent memory layout across managed and unmanaged code</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column type to check" />
 			</method>
 	<method type="BrightData.ColumnClass" name="GetClass" is-static="true">
 		<summary>Returns the set of possible column classifications</summary>
-				<param type="BrightData.ColumnType" name="type" summary="Column type to check" />
+				<param type="BrightData.BrightDataType" name="type" summary="Column type to check" />
 				<param type="BrightData.IMetaData" name="metaData" summary="Column metadata" />
 			</method>
 </class>
@@ -3290,6 +3378,38 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>Returns the count of the expected vs actual classifications</summary>
 				<param type="System.String" name="expected" summary="Expected classification label" />
 				<param type="System.String" name="actual" summary="Actual classification label" />
+			</method>
+</class>
+<class name="BrightData.Helper.ConsoleProgressNotification" base="" is-static="false" is-abstract="false">
+	<summary>
+		Writes progress notifications to the console
+	</summary>
+	<method type="System.Void" name="OnStartOperation" is-static="false">
+		<summary></summary>
+				<param type="System.String" name="msg" summary="" />
+			</method>
+	<method type="System.Void" name="OnOperationProgress" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="progressPercent" summary="" />
+			</method>
+	<method type="System.Void" name="OnCompleteOperation" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Void" name="OnMessage" is-static="false">
+		<summary></summary>
+				<param type="System.String" name="msg" summary="" />
+			</method>
+	<method type="System.Boolean" name="WriteProgress" is-static="true">
+		<summary>Writes a progress bar to the console</summary>
+				<param type="System.Int32" name="newProgress" summary="New progress" />
+				<param type="System.Int32" name="oldProgress" summary="Current progress" />
+				<param type="System.Int32" name="max" summary="Max progress amount (default 100)" />
+			</method>
+	<method type="System.Boolean" name="WriteProgress" is-static="true">
+		<summary>Writes a progress bar to the console</summary>
+				<param type="System.Single" name="progress" summary="New progress (between 0 and 1)" />
+				<param type="System.Int32" name="previousPercentage" summary="Current progress percentage (max 100)" />
+				<param type="System.Diagnostics.Stopwatch" name="sw" summary="Stopwatch since start of operation" />
 			</method>
 </class>
 <class name="BrightData.Consts" base="" is-static="false" is-abstract="false">
@@ -3333,6 +3453,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary></summary>
 				<param type="TF" name="input" summary="" />
 				<param type="BrightData.IHybridBuffer&lt;TT&gt;" name="buffer" summary="" />
+				<param type="System.UInt32" name="index" summary="" />
 			</method>
 	<property type="System.Type" name="From">
 		<summary></summary>
@@ -3582,6 +3703,11 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IHybridBuffer&lt;T&gt;" name="buffer" summary="Buffer to write" />
 				<param type="System.IO.Stream" name="stream" summary="Stream to write to" />
 			</method>
+	<method type="BrightData.ICanWriteToBinaryWriter" name="GetWriter" is-static="true">
+		<summary>Returns an writer that can write the buffer to a binary writer</summary>
+				<param type="BrightData.ICanEnumerate&lt;T&gt;" name="buffer" summary="Buffer to write" />
+				<param type="System.Boolean" name="shouldEncode" summary="If the values should be encoded" />
+			</method>
 </class>
 <class name="BrightWire.ExecutionGraph.GraphFactory.ErrorMetricProvider" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -3677,18 +3803,18 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="System.Void" name="ExecutionResult" is-static="false">
 		<summary>Constructor</summary>
 				<param type="BrightWire.IMiniBatchSequence" name="miniBatch" summary="The mini batch sequence" />
-				<param type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[]" name="output" summary="The mini batch output" />
+				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.LinearAlgebra.Vector&lt;System.Single&gt;&gt;" name="output" summary="The mini batch output" />
 			</method>
-	<property type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[]" name="Output">
+	<property type="System.Single[][]" name="Output">
 		<summary>The list of output rows</summary>
 	</property>
-	<property type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[]" name="Target">
+	<property type="System.Single[][]" name="Target">
 		<summary>The list of target rows</summary>
 	</property>
-	<property type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[]" name="Input">
+	<property type="System.Single[][]" name="Input">
 		<summary>The list of input rows</summary>
 	</property>
-	<property type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[]" name="Error">
+	<property type="System.Single[][]" name="Error">
 		<summary>Optional list of errors</summary>
 	</property>
 	<property type="BrightWire.IMiniBatchSequence" name="MiniBatchSequence">
@@ -3792,7 +3918,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.DictionaryValues" name="GetDictionaryValues" is-static="true">
-		<summary>Gets the categories that was stored in meta data</summary>
+		<summary>Gets the categories that were stored in meta data</summary>
 				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Transformation.NormalizeTransformation" name="GetNormalization" is-static="true">
@@ -3878,36 +4004,6 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Converts a type code to a type</summary>
 				<param type="System.TypeCode" name="code" summary="Type code" />
 			</method>
-	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
-		<summary>Creates an index list from indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.UInt32[]" name="indices" summary="Indices" />
-			</method>
-	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
-		<summary>Creates an index list from indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="indices" summary="Indices" />
-			</method>
-	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
-		<summary>Creates an index list from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
-			</method>
-	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
-		<summary>Creates a weighted index list from weighted indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="(System.UInt32 Index, System.Single Weight)[]" name="indexList" summary="Weighted indices" />
-			</method>
-	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
-		<summary>Creates a weighted index list from weighted indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, System.Single Weight)&gt;" name="indexList" summary="Weighted indices" />
-			</method>
-	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
-		<summary>Creates a weighted index list from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
-			</method>
 	<method type="System.Boolean" name="SetIfNotNull" is-static="true">
 		<summary>Sets a value only if the value is not null</summary>
 				<param type="BrightData.IMetaData" name="metadata" summary="" />
@@ -3973,10 +4069,6 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Lazy create a float converter per context</summary>
 				<param type="BrightData.IBrightDataContext" name="context" summary="" />
 			</method>
-	<method type="BrightData.ICanConvert" name="GetConverter" is-static="true">
-		<summary>Creates a type converter</summary>
-				<param type="System.Type" name="toType" summary="Type converter type" />
-			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="AsRange" is-static="true">
 		<summary>Generates a range of positive integers</summary>
 				<param type="System.UInt32" name="count" summary="Upper bound" />
@@ -4010,34 +4102,14 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IMetaData" name="metaData" summary="" />
 				<param type="System.Boolean" name="isCategorical" summary="" />
 			</method>
-	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="ConvertToWeightedIndexList" is-static="true">
-		<summary>Converts the indexed classifications to weighted indexed classifications</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.IndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-				<param type="System.Boolean" name="groupByClassification" summary="True to group by classification (i.e convert the bag to a set)" />
+	<method type="BrightData.IMetaData" name="SetName" is-static="true">
+		<summary>Sets the name</summary>
+				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="System.String" name="name" summary="Name" />
 			</method>
-	<method type="System.Single" name="GetMaxWeight" is-static="true">
-		<summary>Finds the greatest weight within the weighted index classification list</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-			</method>
-	<method type="System.UInt32" name="GetMaxIndex" is-static="true">
-		<summary>Find the greatest index within the weighted index classification list</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-			</method>
-	<method type="System.UInt32" name="GetMaxIndex" is-static="true">
-		<summary>Find the greatest index within the index classification list</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.IndexList Data)&gt;" name="data" summary="" />
-			</method>
-	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="Tfidf" is-static="true">
-		<summary>Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
-https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
-			</method>
-	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="Normalize" is-static="true">
-		<summary>Normalizes the weighted index classification list to fit between 0 and 1</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+	<method type="System.String" name="GetFilePath" is-static="true">
+		<summary>Returns the file path associated with the meta data (if any)</summary>
+				<param type="BrightData.IMetaData" name="metaData" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;(T Item, System.UInt32 Count)&gt;" name="GroupAndCount" is-static="true">
 		<summary>Groups items and counts each group</summary>
@@ -4061,6 +4133,33 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>Converts the object to a serialized buffer</summary>
 				<param type="BrightData.ICanWriteToBinaryWriter" name="writable" summary="" />
 			</method>
+	<method type="System.Void" name="NotifyProgress" is-static="true">
+		<summary>Notifies about the progress of a multi part operation</summary>
+				<param type="BrightData.INotifyUser" name="notify" summary="" />
+				<param type="System.UInt32" name="index" summary="Index of current part" />
+				<param type="System.UInt32" name="total" summary="Total number of parts" />
+				<param type="System.Single" name="progress" summary="Process within the part" />
+			</method>
+	<method type="System.Boolean" name="WriteProgressPercentage" is-static="true">
+		<summary>Writes a progress bar to the console</summary>
+				<param type="System.Single" name="progress" summary="New progress (between 0 and 1)" />
+				<param type="System.Int32" name="previousPercentage" summary="Current progress percentage (max 100)" />
+				<param type="System.Diagnostics.Stopwatch" name="sw" summary="Stopwatch since start of operation" />
+			</method>
+	<method type="System.String" name="AsCommaSeparated" is-static="true">
+		<summary>Writes the enumerable to a comma separated string</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;T&gt;" name="items" summary="Items to write" />
+			</method>
+	<method type="T[]" name="ReadArray" is-static="true">
+		<summary>Reads an array of T from the stream</summary>
+				<param type="System.IO.Stream" name="stream" summary="Stream to read from" />
+				<param type="System.UInt32" name="size" summary="Number of items to read" />
+			</method>
+	<method type="T[]" name="ReadArray" is-static="true">
+		<summary>Reads an array of T from the stream</summary>
+				<param type="System.IO.Stream" name="stream" summary="Stream to read from" />
+				<param type="System.Int32" name="size" summary="Number of items to read" />
+			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -4068,41 +4167,41 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	</summary>
 	<method type="System.Type" name="GetDataType" is-static="true">
 		<summary>Converts from a column type to a Type</summary>
-				<param type="BrightData.ColumnType" name="type" summary="Column type" />
+				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
 			</method>
-	<method type="BrightData.ColumnType" name="GetColumnType" is-static="true">
+	<method type="BrightData.BrightDataType" name="GetBrightDataType" is-static="true">
 		<summary>Converts from a Type to a ColumnType</summary>
 				<param type="System.Type" name="dataType" summary="" />
 			</method>
-	<method type="System.Boolean" name="IsStructable" is-static="true">
+	<method type="System.Boolean" name="IsBlittable" is-static="true">
 		<summary>Checks if the column type is blittable</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsNumeric" is-static="true">
 		<summary>Checks if the column type is numeric</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsDecimal" is-static="true">
 		<summary>Checks if the column type is decimal</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsContinuous" is-static="true">
 		<summary>Checks if the column type is continuous</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsInteger" is-static="true">
 		<summary>Checks if the column type is an integer</summary>
-				<param type="BrightData.ColumnType" name="type" summary="" />
+				<param type="BrightData.BrightDataType" name="type" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsIndexedList" is-static="true">
 		<summary>Checks if the column type is an indexed list (or weighted index list)</summary>
-				<param type="BrightData.ColumnType" name="type" summary="" />
+				<param type="BrightData.BrightDataType" name="type" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsTensor" is-static="true">
 		<summary>Checks if the column type is a tensor</summary>
-				<param type="BrightData.ColumnType" name="type" summary="" />
+				<param type="BrightData.BrightDataType" name="type" summary="" />
 			</method>
-	<method type="System.Type" name="DataType" is-static="true">
+	<method type="System.Type" name="GetDataType" is-static="true">
 		<summary>Returns the underlying Type for a data table segment</summary>
 				<param type="BrightData.IDataTableSegment" name="segment" summary="" />
 			</method>
@@ -4152,31 +4251,38 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to retrieve" />
 			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="AllOrSelectedColumnIndices" is-static="true">
+		<summary>Returns selected column indices or all if nothing selected</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to retrieve" />
+			</method>
 	<method type="BrightData.IDataAnalyser" name="GetColumnAnalyser" is-static="true">
 		<summary>Creates a column analyser</summary>
-				<param type="BrightData.ColumnType" name="type" summary="Column type" />
+				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
 				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum size of sequences to write in final meta data" />
 				<param type="System.UInt32" name="maxCount" summary="Maximum number of distinct items to track" />
 			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="ParseCsvIntoMemory" is-static="true">
+		<summary>Parse CSV in memory without writing to disk (for small data sets)</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.IO.StreamReader" name="reader" summary="Stream reader that contains CSV data" />
+				<param type="System.Boolean" name="hasHeader" summary="True if the data contains a header" />
+				<param type="System.Char" name="delimiter" summary="CSV delimiter character" />
+				<param type="System.Int32" name="maxRows" summary="Maximum number of rows to read" />
+				<param type="System.UInt16" name="maxDistinct" summary="Maximum number of distinct items to track" />
+			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="ParseCsv" is-static="true">
-		<summary>Parse CSV into a column oriented data table</summary>
+		<summary>Parse CSV into a column oriented data table using hybrid buffers</summary>
 				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
 				<param type="System.IO.StreamReader" name="reader" summary="CSV" />
 				<param type="System.Boolean" name="hasHeader" summary="True if the CSV has a text based header" />
 				<param type="System.Char" name="delimiter" summary="CSV delimiter" />
 				<param type="System.String" name="fileOutputPath" summary="Optional path to save final table" />
-				<param type="System.Boolean" name="writeProgress" summary="" />
 				<param type="System.Int32" name="maxRows" summary="Maximum number of rows of CSV to read" />
 				<param type="System.UInt32" name="inMemoryRowCount" summary="Number of rows to cache in memory" />
 				<param type="System.UInt16" name="maxDistinct" summary="Maximum number of distinct items to track" />
 				<param type="System.String" name="tempBasePath" summary="" />
-			</method>
-	<method type="System.Void" name="WriteProgress" is-static="true">
-		<summary>Writes a progress bar to the console</summary>
-				<param type="System.Int32" name="newProgress" summary="Current progress" />
-				<param type="System.Int32" name="oldProgress" summary="Previous progress" />
-				<param type="System.Int32" name="max" summary="Maximum progress" />
 			</method>
 	<method type="System.Collections.Generic.List&lt;System.Object[]&gt;" name="Head" is-static="true">
 		<summary>Returns the head (first few rows) of the data table</summary>
@@ -4198,6 +4304,11 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.ISingleTypeTableSegment" name="column" summary="Data table segment" />
 				<param type="BrightData.ITensorSegment&lt;System.Single&gt;" name="vector" summary="Tensor segment" />
 			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.LinearAlgebra.Vector&lt;System.Single&gt;&gt;" name="GetColumnsAsVectors" is-static="true">
+		<summary>Returns columns as vectors</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to return as vectors" />
+			</method>
 	<method type="System.Void" name="SetTargetColumn" is-static="true">
 		<summary>Sets the target column of the data table</summary>
 				<param type="BrightData.IDataTable" name="table" summary="" />
@@ -4218,12 +4329,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightData.IMetaData" name="SetType" is-static="true">
 		<summary>Sets the column type in a meta data store</summary>
 				<param type="BrightData.IMetaData" name="metaData" summary="" />
-				<param type="BrightData.ColumnType" name="type" summary="" />
+				<param type="BrightData.BrightDataType" name="type" summary="" />
 			</method>
 	<method type="BrightData.IHybridBuffer" name="GetGrowableSegment" is-static="true">
 		<summary>Creates an appendable buffer for a column type</summary>
 				<param type="BrightData.IMetaData" name="metaData" summary="" />
-				<param type="BrightData.ColumnType" name="type" summary="Column type" />
+				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
 				<param type="BrightData.IBrightDataContext" name="context" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
 				<param type="System.UInt32" name="bufferSize" summary="In memory cache size" />
@@ -4236,8 +4347,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.IBrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rowCount" summary="Number of rows" />
 				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
-				<param type="System.Action&lt;BrightData.ISingleTypeTableSegment&gt;" name="onBeforeWrite" summary="Callback before writing each column (optional)" />
-				<param type="System.Action&lt;System.Int64&gt;" name="onAfterWrite" summary="Callback after writing each column (optional)" />
 			</method>
 	<method type="BrightData.IRowOrientedDataTable" name="BuildRowOrientedTable" is-static="true">
 		<summary>Creates a row oriented data table from a list of segments</summary>
@@ -4250,7 +4359,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightData.IColumnInfo" name="ChangeColumnType" is-static="true">
 		<summary>Creates a column info with a new column type</summary>
 				<param type="BrightData.IColumnInfo" name="column" summary="Column info source" />
-				<param type="BrightData.ColumnType" name="newType" summary="New column type" />
+				<param type="BrightData.BrightDataType" name="newType" summary="New column type" />
 			</method>
 	<method type="BrightData.IConvertibleTable" name="AsConvertible" is-static="true">
 		<summary>Creates a convertible data table</summary>
@@ -4260,7 +4369,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 			</method>
-	<method type="BrightData.ColumnType" name="GetColumnType" is-static="true">
+	<method type="BrightData.BrightDataType" name="GetColumnType" is-static="true">
 		<summary>Gets the column type</summary>
 				<param type="BrightData.IMetaData" name="metadata" summary="" />
 			</method>
@@ -4284,11 +4393,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.IRowOrientedDataTable" name="table" summary="" />
 				<param type="System.Int32" name="k" summary="Number of buckets to create" />
 				<param type="System.Boolean" name="shuffle" summary="True to shuffle the table before folding" />
-			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.LinearAlgebra.Vector&lt;System.Single&gt;&gt;" name="GetColumnsAsVectors" is-static="true">
-		<summary>Returns columns as vectors</summary>
-				<param type="BrightData.IDataTable" name="dataTable" summary="" />
-				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to return as vectors" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.IMetaData MetaData)&gt;" name="ColumnAnalysis" is-static="true">
 		<summary>Returns analysed column meta data</summary>
@@ -4320,6 +4424,13 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>Creates a new data table that has two vector columns, one for the features and the other for the target</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.Boolean" name="oneHotEncodeToMultipleColumns" summary="" />
+				<param type="System.String" name="filePath" summary="Optional path to save data table to disk" />
+			</method>
+	<method type="BrightData.IRowOrientedDataTable" name="Vectorise" is-static="true">
+		<summary>Creates a new data table that has two vector columns, one for the features and the other for the target</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+				<param type="System.Boolean" name="oneHotEncodeToMultipleColumns" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="columnIndices" summary="Columns to use" />
 				<param type="System.String" name="filePath" summary="Optional path to save data table to disk" />
 			</method>
 	<method type="BrightData.IDataTableSegment&lt;T&gt;" name="Column" is-static="true">
@@ -4354,7 +4465,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="System.Object" name="GetDefaultValue" is-static="true">
 		<summary>Returns a default value for a column type</summary>
-				<param type="BrightData.ColumnType" name="columnType" summary="" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="" />
 			</method>
 	<method type="BrightData.IDataTableVectoriser" name="GetVectoriser" is-static="true">
 		<summary>Returns a vectoriser</summary>
@@ -4382,10 +4493,10 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.NormalizationType" name="type" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="" />
 			</method>
-	<method type="BrightData.IReinterpretColumnsParam" name="ReinterpretColumns" is-static="true">
+	<method type="BrightData.IReinterpretColumns" name="ReinterpretColumns" is-static="true">
 		<summary>Creates a reinterpret columns parameter</summary>
 				<param type="System.UInt32[]" name="sourceColumnIndices" summary="" />
-				<param type="BrightData.ColumnType" name="newColumnType" summary="" />
+				<param type="BrightData.BrightDataType" name="newColumnType" summary="" />
 				<param type="System.String" name="newColumnName" summary="" />
 			</method>
 	<method type="System.Object[]" name="ToArray" is-static="true">
@@ -4413,6 +4524,96 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index to convert" />
 				<param type="System.Func&lt;TF, TT&gt;" name="converter" summary="Column converter" />
 				<param type="System.Action&lt;BrightData.IMetaData&gt;" name="columnFinaliser" summary="Called after each row " />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Convert" is-static="true">
+		<summary>Creates a new table with columns that have been converted</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column conversion parameters" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Normalize" is-static="true">
+		<summary>Normalizes the data in all columns of the table</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IColumnTransformationParam[]" name="conversion" summary="Column normalization parameters" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="ConcatColumns" is-static="true">
+		<summary>Creates a new data table with this concatenated with other column oriented data tables</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IColumnOrientedDataTable[]" name="others" summary="Other tables to concatenate" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="CopyColumns" is-static="true">
+		<summary>Copies the selected columns to a new data table</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to copy" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="ReinterpretColumns" is-static="true">
+		<summary>Many to one or one to many style column transformations</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IReinterpretColumns[]" name="columns" summary="Parameters to determine which columns are reinterpreted" />
+			</method>
+	<method type="BrightData.IRowOrientedDataTable" name="Concat" is-static="true">
+		<summary>Creates a new table of this concatenated with other row oriented data tables</summary>
+				<param type="BrightData.IRowOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IRowOrientedDataTable[]" name="others" summary="Other row oriented data tables to concatenate" />
+			</method>
+	<method type="BrightData.IRowOrientedDataTable" name="CopyRows" is-static="true">
+		<summary>Copy specified rows from this to a new data table</summary>
+				<param type="BrightData.IRowOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.UInt32[]" name="rowIndices" summary="Row indices to copy" />
+			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.ITransformColumn Transformer)&gt;" name="GetColumnTransformers" is-static="true">
+		<summary>Gets column transformers</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.IColumnTransformationParam&gt;" name="input" summary="Column transformation parameter objects" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Normalize" is-static="true">
+		<summary>Normalizes the data in all columns of the table</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
+				<param type="BrightData.IColumnTransformationParam[]" name="conversionParams" summary="Column normalization parameters" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Convert" is-static="true">
+		<summary>Creates a new table with columns that have been converted</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
+				<param type="BrightData.IColumnTransformationParam[]" name="conversionParams" summary="Column conversion parameters" />
+			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, BrightData.BrightDataType Type, BrightData.IMetaData MetaData)&gt;" name="GetColumnInfo" is-static="true">
+		<summary>Returns column information</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Normalize" is-static="true">
+		<summary>Normalizes the data in all columns of the table</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="BrightData.NormalizationType" name="type" summary="Normalization type" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="Normalize" is-static="true">
+		<summary>Normalizes the data in all columns of the table</summary>
+				<param type="BrightData.IColumnOrientedDataTable" name="dataTable" summary="" />
+				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
+				<param type="BrightData.NormalizationType" name="type" summary="Normalization type" />
+			</method>
+	<method type="System.String" name="GetTableSignature" is-static="true">
+		<summary>Gets the table signature based on column types</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+			</method>
+	<method type="BrightData.IColumnOrientedDataTable" name="CreateWithNewColumnData" is-static="true">
+		<summary>Creates a new table using the same column information as this data table but with modified column data</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+				<param type="BrightData.IHybridBuffer[]" name="buffers" summary="New column buffers (correctly typed and one for each column)" />
+				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
+			</method>
+	<method type="BrightData.IColumnInfo" name="CreateColumnInfo" is-static="true">
+		<summary>Creates a column info</summary>
+				<param type="System.UInt32" name="columnIndex" summary="Column index" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column data type" />
+				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data (optional)" />
+			</method>
+	<method type="(BrightData.ISingleTypeTableSegment Segment, BrightData.IHybridBuffer Buffer)" name="GetSegmentWithHybridBuffer" is-static="true">
+		<summary>Creates a table segment with an associated hybrid buffer</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.UInt32" name="columnIndex" summary="Column index" />
+				<param type="BrightData.BrightDataType" name="columnType" summary="Column data type" />
+				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data (optional)" />
 			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
@@ -4468,6 +4669,79 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Single" name="stdDev" summary="Standard deviation" />
 			</method>
 </class>
+<class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
+	<summary>
+		
+	</summary>
+	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
+		<summary>Creates an index list from indices</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.UInt32[]" name="indices" summary="Indices" />
+			</method>
+	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
+		<summary>Creates an index list from indices</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="indices" summary="Indices" />
+			</method>
+	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
+		<summary>Creates an index list from a binary reader</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
+			</method>
+	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
+		<summary>Creates a weighted index list from weighted indices</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="(System.UInt32 Index, System.Single Weight)[]" name="indexList" summary="Weighted indices" />
+			</method>
+	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
+		<summary>Creates a weighted index list from weighted indices</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, System.Single Weight)&gt;" name="indexList" summary="Weighted indices" />
+			</method>
+	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
+		<summary>Creates a weighted index list from weighted indices</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.WeightedIndexList.Item&gt;" name="indexList" summary="Weighted indices" />
+			</method>
+	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
+		<summary>Creates a weighted index list from a binary reader</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="ConvertToWeightedIndexList" is-static="true">
+		<summary>Converts the indexed classifications to weighted indexed classifications</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.IndexList Data)&gt;" name="data" summary="" />
+				<param type="System.Boolean" name="groupByClassification" summary="True to group by classification (i.e convert the bag to a set)" />
+			</method>
+	<method type="System.Single" name="GetMaxWeight" is-static="true">
+		<summary>Finds the greatest weight within the weighted index classification list</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
+			</method>
+	<method type="System.UInt32" name="GetMaxIndex" is-static="true">
+		<summary>Find the greatest index within the weighted index classification list</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
+			</method>
+	<method type="System.UInt32" name="GetMaxIndex" is-static="true">
+		<summary>Find the greatest index within the index classification list</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.IndexList Data)&gt;" name="data" summary="" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="Normalize" is-static="true">
+		<summary>Normalizes the weighted index classification list to fit between 0 and 1</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;(T Label, BrightData.WeightedIndexList Data)&gt;" name="Tfidf" is-static="true">
+		<summary>Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(T Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;(T Label, BrightData.WeightedIndexList Data)&gt;" name="BM25Plus" is-static="true">
+		<summary>Okapi B525+ that modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;(T Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
+				<param type="System.Single" name="k" summary="" />
+				<param type="System.Single" name="b" summary="" />
+				<param type="System.Single" name="d" summary="" />
+			</method>
+</class>
 <class name="BrightData.ExtensionMethods" base="" is-static="true" is-abstract="false">
 	<summary>
 		
@@ -4507,6 +4781,13 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.UInt32" name="rows" summary="Number of rows" />
 				<param type="System.UInt32" name="columns" summary="Number of columns" />
 				<param type="T" name="initialValue" summary="Initial value of each element" />
+			</method>
+	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
+		<summary>Creates a matrix from a segment</summary>
+				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="System.UInt32" name="rows" summary="Number of rows" />
+				<param type="System.UInt32" name="columns" summary="Number of columns" />
+				<param type="BrightData.ITensorSegment&lt;T&gt;" name="segment" summary="Segment" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
 		<summary>Creates a matrix from a binary reader</summary>
@@ -4778,6 +5059,74 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightData.IBrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
+	<method type="BrightData.IFloatVector" name="ColumnSums" is-static="true">
+		<summary>Sums the columns of each sub-tensor's sub matrix</summary>
+				<param type="BrightData.I4DFloatTensor" name="tensor" summary="" />
+			</method>
+	<method type="(System.Single Value, System.UInt32 Index)" name="Minimum" is-static="true">
+		<summary>Find the minimum value and index in a vector</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="System.UInt32" name="MinimumIndex" is-static="true">
+		<summary>Returns the index of the minimum value within a vector</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="System.Single" name="MinimumValue" is-static="true">
+		<summary>Returns the minimum value</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="(System.Single Value, System.UInt32 Index)" name="Maximum" is-static="true">
+		<summary>Returns the maximum value and index within a vector</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="System.UInt32" name="MaximumIndex" is-static="true">
+		<summary>Returns the maximum value within a vector</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="System.Single" name="MaximumValue" is-static="true">
+		<summary>Returns the index of the maximum value within a vector</summary>
+				<param type="System.Single[]" name="vector" summary="Vector to analyse" />
+			</method>
+	<method type="System.Single[]" name="Softmax" is-static="true">
+		<summary>Calculates the softmax of a vector
+https://en.wikipedia.org/wiki/Softmax_function</summary>
+				<param type="System.Single[]" name="vector" summary="" />
+			</method>
+	<method type="BrightData.IFloatMatrix" name="ReduceDimensions" is-static="true">
+		<summary>Reduce dimensions of the matrix with a singular value decomposition</summary>
+				<param type="BrightData.IFloatMatrix" name="matrix" summary="" />
+				<param type="System.UInt32" name="dimensions" summary="Number of dimensions to reduce to" />
+			</method>
+	<method type="BrightData.IFloatMatrix" name="Average" is-static="true">
+		<summary>Calculates an average matrix from a collection of matrices</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.IFloatMatrix&gt;" name="matrices" summary="Matrices to average" />
+				<param type="System.Boolean" name="dispose" summary="True to dispose each of the input matrices" />
+			</method>
+	<method type="BrightData.IFloatVector" name="Average" is-static="true">
+		<summary>Calculates an average vector from a collection of vectors</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.IFloatVector&gt;" name="vectors" summary="Vectors to average" />
+				<param type="System.Boolean" name="dispose" summary="True to dispose each of the input vectors" />
+			</method>
+</class>
+<class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
+	<summary>
+		
+	</summary>
+	<method type="BrightData.IDataTypeSpecification" name="AsDataFieldSpecification" is-static="true">
+		<summary>Creates a data field specification for a data type</summary>
+				<param type="BrightData.BrightDataType" name="dataType" summary="" />
+				<param type="System.String" name="name" summary="" />
+				<param type="System.Boolean" name="canRepeat" summary="" />
+			</method>
+	<method type="BrightData.IDataTypeSpecification" name="GetTypeSpecification" is-static="true">
+		<summary>Creates a type specification for a data table</summary>
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+			</method>
+	<method type="System.Collections.Generic.HashSet&lt;System.UInt32&gt;" name="FindNonConformingRows" is-static="true">
+		<summary>Finds the row indices of any row that does not conform to the type specification</summary>
+				<param type="BrightData.IDataTypeSpecification" name="typeInfo" summary="" />
+				<param type="BrightData.IDataTable" name="dataTable" summary="" />
+			</method>
 </class>
 <class name="BrightWire.ExtensionMethods" base="" is-static="true" is-abstract="false">
 	<summary>
@@ -4895,7 +5244,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="" />
 				<param type="BrightWire.Models.ExecutionGraphModel" name="graph" summary="Serialised graph" />
 			</method>
-	<method type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;[][]" name="OrderSequentialOutput" is-static="true">
+	<method type="System.Single[][][]" name="OrderSequentialOutput" is-static="true">
 		<summary>Aligns the output of sequential graph execution into an ordered list of results</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="results" summary="Output from sequential graph execution" />
 			</method>
@@ -5408,7 +5757,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Connect" is-static="false">
 		<summary>Builds a new wire from the engine's input node</summary>
 				<param type="BrightWire.IGraphTrainingEngine" name="engine" summary="Graph engine to build with" />
-				<param type="System.UInt32" name="inputIndex" summary="Input index to connect to" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Connect" is-static="false">
 		<summary>Builds a new wire from the selected node</summary>
@@ -5712,7 +6060,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightData.IMetaData" name="AddColumn" is-static="false">
 		<summary>Adds a new column</summary>
-				<param type="BrightData.ColumnType" name="type" summary="Type of the column" />
+				<param type="BrightData.BrightDataType" name="type" summary="Type of the column" />
 				<param type="System.String" name="name" summary="Name of the column" />
 			</method>
 	<method type="BrightData.IMetaData" name="AddFixedSizeVectorColumn" is-static="false">
@@ -5974,6 +6322,22 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>Multiplies the matrix with a vector</summary>
 				<param type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="vector" summary="Vector to multiply" />
 			</method>
+	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="Map" is-static="false">
+		<summary>Applies a mapping function to each value within the matrix - creating a new matrix as a result</summary>
+				<param type="System.Func&lt;T, T&gt;" name="mutator" summary="Mapping function" />
+			</method>
+	<method type="System.Void" name="MapInPlace" is-static="false">
+		<summary>Applies a mapping function to each value within the matrix</summary>
+				<param type="System.Func&lt;T, T&gt;" name="mutator" summary="Mapping function" />
+			</method>
+	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="MapIndexed" is-static="false">
+		<summary>Applies an indexed mapping function to each value within the matrix - creating a new matrix as a result</summary>
+				<param type="System.Func&lt;System.UInt32, System.UInt32, T, T&gt;" name="mutator" summary="Mapping function" />
+			</method>
+	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
+		<summary>Applies an indexed mapping function to each value within the matrix</summary>
+				<param type="System.Func&lt;System.UInt32, System.UInt32, T, T&gt;" name="mutator" summary="Mapping function" />
+			</method>
 </class>
 <class name="BrightData.MetaData" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -6054,6 +6418,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="System.Void" name="Remove" is-static="false">
 		<summary></summary>
 				<param type="System.String" name="key" summary="" />
+			</method>
+	<property type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="AllKeys">
+		<summary></summary>
+	</property>
+	<method type="BrightData.IMetaData" name="Clone" is-static="false">
+		<summary></summary>
 			</method>
 </class>
 <class name="BrightWire.ExecutionGraph.Helper.MiniBatch" base="" is-static="false" is-abstract="false">
@@ -6291,6 +6661,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	</property>
 	<method type="System.Void" name="Forward" is-static="false">
 		<summary>Executes the graph</summary>
+				<param type="System.Threading.CancellationToken" name="ct" summary="Cancellation token" />
 				<param type="BrightWire.IGraphData" name="signal" summary="Initial data" />
 				<param type="BrightWire.IGraphSequenceContext" name="context" summary="Context" />
 				<param type="System.UInt32" name="channel" summary="" />
@@ -6573,6 +6944,10 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="GenerateSequences" is-static="false">
 		<summary>Generator function to generate new sequences</summary>
 			</method>
+	<method type="System.String" name="Decode" is-static="false">
+		<summary>Converts character indices to a string</summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="characters" summary="Character indices" />
+			</method>
 </class>
 <class name="BrightWire.TrainingData.Helper.SequenceWindowBuilder" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -6806,26 +7181,29 @@ Double not or punctuation stops the not mode</summary>
 	<summary>
 		Static methods to create converters
 	</summary>
-	<method type="BrightData.ICanConvert&lt;T, System.Decimal&gt;" name="ConvertToDecimal" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Decimal&gt;" name="GetConverterToDecimal" is-static="true">
 		<summary>Creates a converter to decimals</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Double&gt;" name="ConvertToDouble" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Double&gt;" name="GetConverterToDouble" is-static="true">
 		<summary>Creates a converter to doubles</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Single&gt;" name="ConvertToFloat" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Single&gt;" name="GetConverterToFloat" is-static="true">
 		<summary>Creates a converter to floats</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int32&gt;" name="ConvertToInt" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Int32&gt;" name="GetConverterToInt" is-static="true">
 		<summary>Creates a converter to ints</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int64&gt;" name="ConvertToLong" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Int64&gt;" name="GetConverterToLong" is-static="true">
 		<summary>Creates a converter to longs (Int64)</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int16&gt;" name="ConvertToShort" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.Int16&gt;" name="GetConverterToShort" is-static="true">
 		<summary>Creates a converter to shorts (Int16)</summary>
 			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.SByte&gt;" name="ConvertToSignedByte" is-static="true">
+	<method type="BrightData.ICanConvert&lt;T, System.SByte&gt;" name="GetConverterToSignedByte" is-static="true">
 		<summary>Creates a convert to signed bytes</summary>
+			</method>
+	<method type="BrightData.ICanConvert&lt;TF, TT&gt;" name="GetConverter" is-static="true">
+		<summary>Creates a converter from FT to TT</summary>
 			</method>
 </class>
 <class name="BrightData.Analysis.Readers.StringAnalysis" base="BrightData.Analysis.Readers.FrequencyAnalysis" is-static="false" is-abstract="false">
@@ -6867,6 +7245,10 @@ Double not or punctuation stops the not mode</summary>
 	<summary>
 		Builds a string table
 	</summary>
+	<method type="System.Void" name="StringIndexer" is-static="false">
+		<summary>Creates a string indexer</summary>
+				<param type="System.String[]" name="strings" summary="Initial strings in table" />
+			</method>
 	<method type="BrightData.Helper.StringIndexer" name="Create" is-static="true">
 		<summary>Creates a string indexer</summary>
 				<param type="System.String[]" name="strings" summary="Initial strings in table" />
@@ -6877,6 +7259,9 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<property type="System.UInt32" name="OutputSize">
 		<summary>Size of the string table</summary>
+	</property>
+	<property type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="OrderedStrings">
+		<summary>Returns all strings by indexed order</summary>
 	</property>
 </class>
 <class name="BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability" base="" is-static="false" is-abstract="false">
@@ -7039,6 +7424,9 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Constructor</summary>
 				<param type="System.String" name="basePath" summary="Location on disk to write new temp files" />
 			</method>
+	<method type="System.String" name="GetNewTempPath" is-static="false">
+		<summary></summary>
+			</method>
 	<method type="System.IO.Stream" name="Get" is-static="false">
 		<summary>Returns an existing (or creates a new) temp stream</summary>
 				<param type="System.String" name="uniqueId" summary="Unique identifier" />
@@ -7146,6 +7534,9 @@ Double not or punctuation stops the not mode</summary>
 		<summary></summary>
 			</method>
 	<property type="BrightData.IBrightDataContext" name="Context">
+		<summary></summary>
+	</property>
+	<property type="System.Boolean" name="IsValid">
 		<summary></summary>
 	</property>
 	<method type="T[]" name="ToArray" is-static="false">
@@ -7316,6 +7707,9 @@ Double not or punctuation stops the not mode</summary>
 	<method type="(T Min, T Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxValues" is-static="false">
 		<summary>Finds the min and max values and indices from this tensnor</summary>
 			</method>
+	<method type="(T Min, T Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxAbsoluteValues" is-static="false">
+		<summary>Finds the min and max absolute values and indices from this tensnor</summary>
+			</method>
 	<method type="System.Boolean" name="IsEntirelyFinite" is-static="false">
 		<summary>Checks if each element is entirely finite (not infinity, NaN etc)</summary>
 			</method>
@@ -7359,6 +7753,18 @@ Double not or punctuation stops the not mode</summary>
 	<method type="System.UInt32" name="MinimumIndex" is-static="false">
 		<summary>Returns the index with the lowest value</summary>
 			</method>
+	<method type="System.UInt32" name="MaximumAbsoluteIndex" is-static="false">
+		<summary>Returns the index with the highest absolute value</summary>
+			</method>
+	<method type="System.UInt32" name="MinimumAbsoluteIndex" is-static="false">
+		<summary>Returns the index with the lowest absolute value</summary>
+			</method>
+	<method type="System.Void" name="RoundInPlace" is-static="false">
+		<summary>Rounds each value to either upper (if >= mid) or lower</summary>
+				<param type="System.Nullable&lt;T&gt;" name="lower" summary="" />
+				<param type="System.Nullable&lt;T&gt;" name="upper" summary="" />
+				<param type="System.Nullable&lt;T&gt;" name="mid" summary="" />
+			</method>
 </class>
 <class name="BrightData.LinearAlgebra.Vector&lt;T&gt;" base="BrightData.LinearAlgebra.TensorBase&lt;T, BrightData.LinearAlgebra.Vector&lt;T&gt;&gt;" is-static="false" is-abstract="false">
 	<summary>
@@ -7383,40 +7789,21 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Copies from an array into this vector</summary>
 				<param type="T[]" name="array" summary="Array to copy from" />
 			</method>
-</class>
-<class name="BrightWire.Helper.VectorBasedStatistics" base="" is-static="false" is-abstract="false">
-	<summary>
-		Calculate vector based statistics
-	</summary>
-	<method type="System.Void" name="VectorBasedStatistics" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ILinearAlgebraProvider" name="lap" summary="" />
-				<param type="System.UInt32" name="size" summary="" />
-				<param type="System.Single[]" name="mean" summary="" />
-				<param type="System.Single[]" name="m2" summary="" />
-				<param type="System.UInt32" name="count" summary="" />
+	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="Map" is-static="false">
+		<summary>Applies a mapping function to each value within the vector - creating a new vector as a result</summary>
+				<param type="System.Func&lt;T, T&gt;" name="mutator" summary="Mapping function" />
 			</method>
-	<property type="System.UInt32" name="Size">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="Count">
-		<summary></summary>
-	</property>
-	<property type="BrightData.IFloatVector" name="Mean">
-		<summary></summary>
-	</property>
-	<property type="BrightData.IFloatVector" name="M2">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="Update" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IFloatVector" name="data" summary="" />
+	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="MapIndexed" is-static="false">
+		<summary>Applies an indexed mapping function to each value within the vector - creating a new vector as a result</summary>
+				<param type="System.Func&lt;System.UInt32, T, T&gt;" name="mutator" summary="Mapping function" />
 			</method>
-	<method type="BrightData.IFloatVector" name="GetVariance" is-static="false">
-		<summary></summary>
+	<method type="System.Void" name="MapInPlace" is-static="false">
+		<summary>Applies a mapping function to each value within the vector</summary>
+				<param type="System.Func&lt;T, T&gt;" name="mutator" summary="Mapping function" />
 			</method>
-	<method type="BrightData.IFloatVector" name="GetSampleVariance" is-static="false">
-		<summary></summary>
+	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
+		<summary>Applies an indexed mapping function to each value within the matrix</summary>
+				<param type="System.Func&lt;System.UInt32, T, T&gt;" name="mutator" summary="Mapping function" />
 			</method>
 </class>
 <class name="BrightWire.Helper.VectorDistanceHelper" base="" is-static="false" is-abstract="false">
@@ -7604,7 +7991,6 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Connects new nodes to the engine output node</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="Graph factory" />
 				<param type="BrightWire.IGraphTrainingEngine" name="engine" summary="Graph engine" />
-				<param type="System.UInt32" name="inputIndex" summary="Input index to connect" />
 			</method>
 	<property type="System.UInt32" name="CurrentSize">
 		<summary>The current wire size</summary>
@@ -7771,6 +8157,13 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Writes node memory to a named memory slot</summary>
 				<param type="System.String" name="slotName" summary="Memory slot name" />
 				<param type="System.String" name="nodeName" summary="The node name to read" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddSelfAttention" is-static="false">
+		<summary>Adds a self attention node</summary>
+				<param type="System.String" name="encoderName" summary="Name of encoder node (must be same size as decoder)" />
+				<param type="System.String" name="decoderName" summary="Name of decoder node (must be same size as encoder)" />
+				<param type="System.UInt32" name="encoderDecoderSize" summary="Node size" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="JoinInputWithMemory" is-static="false">

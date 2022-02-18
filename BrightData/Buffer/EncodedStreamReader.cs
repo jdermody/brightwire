@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -167,8 +166,7 @@ namespace BrightData.Buffer
             public StructDecoder(BinaryReader reader, Stream stream, uint inMemorySize)
             {
                 var len = reader.ReadUInt32();
-                _table = new T[len];
-                stream.Read(MemoryMarshal.Cast<T, byte>(_table));
+                _table = stream.ReadArray<T>(len);
                 _reader = GetReader<ushort>(reader.ReadUInt32(), inMemorySize, stream);
             }
 
@@ -249,8 +247,7 @@ namespace BrightData.Buffer
         {
             if (count < tempBufferSize) {
                 // simple case
-                var buffer = new T[count];
-                stream.Read(MemoryMarshal.Cast<T, byte>(buffer));
+                var buffer = stream.ReadArray<T>(count);
                 for(uint i = 0; i < count; i++)
                     yield return buffer[i];
             }
@@ -267,7 +264,7 @@ namespace BrightData.Buffer
                         : ((Span<T>) temp)[..(int) remaining];
                     var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(ptr)) / sizeofT;
                     for (var i = 0; i < readCount; i++)
-                            yield return temp[i];
+                        yield return temp[i];
                     totalRead += readCount;
                 }
             }

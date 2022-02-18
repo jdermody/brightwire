@@ -27,7 +27,7 @@ namespace BrightData.Computation
         public override uint Multiply(uint a, uint b) => a * b;
         public override uint Divide(uint a, uint b) => a / b;
         public override uint Sqrt(uint a) => (uint)Math.Sqrt(a);
-        public override uint Abs(uint a) => (uint)Math.Abs(a);
+        public override uint Abs(uint a) => a; // unsigned integers are always positive
         public override uint Log(uint a) => (uint)Math.Log(a);
         public override uint Exp(uint a) => (uint)Math.Exp(a);
         public override uint Pow(uint a, uint rank) => (uint) Math.Pow(a, rank);

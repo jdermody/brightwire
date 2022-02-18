@@ -142,6 +142,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            // ReSharper disable once ConstantNullCoalescingCondition
             _layer ??= GenericActivator.CreateUninitialized<FeedForward>();
             _layer.ReadFrom(factory, reader);
             _encoderName = reader.ReadString();

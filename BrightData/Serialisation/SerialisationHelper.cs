@@ -160,10 +160,7 @@ namespace BrightData.Serialisation
             where T : struct
         {
             var len = reader.ReadInt32();
-            var ret = new T[len];
-            var bytes = MemoryMarshal.Cast<T, byte>(ret);
-            reader.BaseStream.Read(bytes);
-            return ret;
+            return reader.BaseStream.ReadArray<T>(len);
         }
 
         /// <summary>

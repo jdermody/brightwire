@@ -113,7 +113,7 @@ namespace BrightData.Computation
                 fixed (float* pSource = segment.ToArray()) {
                     var vresult = Vector128<float>.Zero;
 
-                    int i = 0;
+                    var i = 0;
                     var lastBlockIndex = size - (size % 4);
                     while (i < lastBlockIndex) {
                         vresult = Sse.Add(vresult, Sse.LoadVector128(pSource + i));

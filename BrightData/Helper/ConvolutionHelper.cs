@@ -29,18 +29,16 @@ namespace BrightData.Helper
 			uint y = 0, x = 0;
 			ret = new List<(uint X, uint Y)>();
 
-			if (x <= width - filterWidth) {
-				while (y <= height - filterHeight) {
-					ret.Add((x, y));
+            while (y <= height - filterHeight) {
+                ret.Add((x, y));
 
-					// move the window
-					x += xStride;
-					if (x > width - filterWidth) {
-						x = 0;
-						y += yStride;
-					}
-				}
-			}
+                // move the window
+                x += xStride;
+                if (x > width - filterWidth) {
+                    x = 0;
+                    y += yStride;
+                }
+            }
 
             LeftToRightCache[key] = ret;
 			return ret;
@@ -65,18 +63,16 @@ namespace BrightData.Helper
 			uint y = 0, x = 0;
 			ret = new List<(uint X, uint Y)>();
 
-			if (y <= height - filterHeight) {
-				while (x <= width - filterWidth) {
-					ret.Add((x, y));
+            while (x <= width - filterWidth) {
+                ret.Add((x, y));
 
-					// move the window
-					y += xStride;
-					if (y > height - filterHeight) {
-						y = 0;
-						x += yStride;
-					}
-				}
-			}
+                // move the window
+                y += xStride;
+                if (y > height - filterHeight) {
+                    y = 0;
+                    x += yStride;
+                }
+            }
 
 			TopToBottomCache[key] = ret;
 			return ret;

@@ -122,9 +122,7 @@ namespace BrightData
         {
             Context = context;
             var len = reader.ReadInt32();
-            Indices = new Item[len];
-            var span = MemoryMarshal.Cast<Item, byte>(Indices);
-            reader.BaseStream.Read(span);
+            Indices = reader.BaseStream.ReadArray<Item>(len);
         }
 
         /// <summary>
