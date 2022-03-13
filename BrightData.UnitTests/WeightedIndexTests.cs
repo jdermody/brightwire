@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
@@ -125,6 +127,52 @@ namespace BrightData.UnitTests
             vector[0].Should().Be(1f);
             vector[1].Should().Be(2f);
             vector[2].Should().Be(3f);
+        }
+
+        static IEnumerable<uint> GetStringIndices(IEnumerable<string> words, Dictionary<string, uint> stringTable)
+        {
+            foreach (var word in words) {
+                if(!stringTable.TryGetValue(word, out var index))
+                    stringTable.Add(word, index = (uint)stringTable.Count);
+                yield return index;
+            }
+        }
+
+        WeightedIndexList GetWordCount(IEnumerable<string> words, Dictionary<string, uint> stringTable)
+        {
+            return _context.CreateWeightedIndexList(GetStringIndices(words, stringTable).GroupBy(w => w).Select(g => new WeightedIndexList.Item(g.Key, g.Count())));
+        }
+
+        IReadOnlyList<(string Label, WeightedIndexList Data)> GetSampleDocuments()
+        {
+            var stringTable = new Dictionary<string, uint>();
+            return new[] {
+                ("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
+                ("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
+                ("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
+            };
+        }
+
+        [Fact]
+        public void TfIdf()
+        {
+            var documents = GetSampleDocuments();
+            var tfidf = documents.Tfidf();
+            foreach (var (document, weightedTerms) in tfidf) {
+                // check that each index is positive
+                weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
+            }
+        }
+
+        [Fact]
+        public void Bm25Plus()
+        {
+            var documents = GetSampleDocuments();
+            var tfidf = documents.Bm25Plus();
+            foreach (var (document, weightedTerms) in tfidf) {
+                // check that each index is positive
+                weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
+            }
         }
     }
 }

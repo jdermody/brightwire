@@ -2151,9 +2151,10 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}},System.Single,System.Single,System.Single)">
             <summary>
-            Okapi B525+ that modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+            Okapi B525+ modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+            https://en.wikipedia.org/wiki/Okapi_BM25
             </summary>
-            <returns>A newly weighted classification set</returns>
+            <returns>Newly weighted classification set</returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.UInt32,System.Func{System.UInt32,``0})">
             <summary>

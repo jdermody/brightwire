@@ -200,12 +200,12 @@ namespace BrightData
                         var index = item.Index;
                         var tf = item.Weight / totalWords;
                         var docsWithTerm = (float)indexOccurrence[index];
-                        var idf = MathF.Log(numDocs / (1.0f + docsWithTerm));
+                        var idf = MathF.Log(numDocs / (docsWithTerm + 1f)) + 1f;
                         var score = tf * idf;
                         classificationIndex.Add(new WeightedIndexList.Item(index, score));
                     }
 
-                    ret.Add((label, WeightedIndexList.Create(context!, classificationIndex.ToArray())));
+                    ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
                 }
             }
 
@@ -213,9 +213,10 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Okapi B525+ that modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+        /// Okapi B525+ modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+        /// https://en.wikipedia.org/wiki/Okapi_BM25
         /// </summary>
-        /// <returns>A newly weighted classification set</returns>
+        /// <returns>Newly weighted classification set</returns>
         public static IReadOnlyList<(T Label, WeightedIndexList Data)> Bm25Plus<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
         {
             var context = GetContext(data);
@@ -223,7 +224,7 @@ namespace BrightData
 
             if (context != null) {
                 var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
-                var averageDocumentWeight = classificationSum.Average(d => d.Value);
+                var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
                 var numDocs = (float)data.Count;
                 
                 // calculate bm25f score for each document
@@ -239,7 +240,7 @@ namespace BrightData
                         classificationIndex.Add(new WeightedIndexList.Item(index, score));
                     }
 
-                    ret.Add((label, WeightedIndexList.Create(context!, classificationIndex.ToArray())));
+                    ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
                 }
             }
 
