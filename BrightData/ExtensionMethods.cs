@@ -247,7 +247,7 @@ namespace BrightData
         /// <param name="operation"></param>
         /// <param name="data">Data to aggregate</param>
         /// <returns></returns>
-        public static float Aggregate(this AggregationType operation, List<float> data)
+        public static float Aggregate(this AggregationType operation, IEnumerable<float> data)
         {
             return operation switch {
                 AggregationType.Sum => data.Sum(),

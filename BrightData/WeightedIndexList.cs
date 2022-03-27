@@ -249,11 +249,11 @@ namespace BrightData
             var set2 = other.Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
             float intersection = 0f, union = set1.Sum(kv => kv.Value);
 
-            foreach (var item in set2)
+            foreach (var (key, value) in set2)
             {
-                if (set1.TryGetValue(item.Key, out var weight))
-                    intersection += (weight + item.Value);
-                union += item.Value;
+                if (set1.TryGetValue(key, out var weight))
+                    intersection += (weight + value);
+                union += value;
             }
 
             if (FloatMath.IsNotZero(union))
@@ -297,5 +297,25 @@ namespace BrightData
                 return StructuralComparisons.StructuralEqualityComparer.Equals(Indices, other.Indices);
             return false;
         }
+
+        /// <summary>
+        /// Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type
+        /// </summary>
+        /// <returns>New weighted index list with unique indices</returns>
+        public WeightedIndexList Unique(AggregationType type = AggregationType.Sum)
+        {
+            return Context.CreateWeightedIndexList(Indices
+                .GroupBy(d => d.Index)
+                .Select(g => new Item(g.Key, g.Count() == 1 
+                    ? g.Single().Weight 
+                    : type.Aggregate(g.Select(d => d.Weight)))
+                )
+            );
+        }
+
+        /// <summary>
+        /// All weights
+        /// </summary>
+        public IEnumerable<float> Weights => Indices.Select(d => d.Weight);
     }
 }
