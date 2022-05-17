@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,25 +24,25 @@ namespace BrightData
         {
             return code switch
             {
-                TypeCode.Boolean => typeof(bool),
-                TypeCode.Byte => typeof(byte),
-                TypeCode.Char => typeof(char),
+                TypeCode.Boolean  => typeof(bool),
+                TypeCode.Byte     => typeof(byte),
+                TypeCode.Char     => typeof(char),
                 TypeCode.DateTime => typeof(DateTime),
-                TypeCode.DBNull => typeof(DBNull),
-                TypeCode.Decimal => typeof(decimal),
-                TypeCode.Double => typeof(double),
-                TypeCode.Empty => null,
-                TypeCode.Int16 => typeof(short),
-                TypeCode.Int32 => typeof(int),
-                TypeCode.Int64 => typeof(long),
-                TypeCode.Object => typeof(object),
-                TypeCode.SByte => typeof(sbyte),
-                TypeCode.Single => typeof(Single),
-                TypeCode.String => typeof(string),
-                TypeCode.UInt16 => typeof(UInt16),
-                TypeCode.UInt32 => typeof(UInt32),
-                TypeCode.UInt64 => typeof(UInt64),
-                _ => null,
+                TypeCode.DBNull   => typeof(DBNull),
+                TypeCode.Decimal  => typeof(decimal),
+                TypeCode.Double   => typeof(double),
+                TypeCode.Empty    => null,
+                TypeCode.Int16    => typeof(short),
+                TypeCode.Int32    => typeof(int),
+                TypeCode.Int64    => typeof(long),
+                TypeCode.Object   => typeof(object),
+                TypeCode.SByte    => typeof(sbyte),
+                TypeCode.Single   => typeof(float),
+                TypeCode.String   => typeof(string),
+                TypeCode.UInt16   => typeof(ushort),
+                TypeCode.UInt32   => typeof(uint),
+                TypeCode.UInt64   => typeof(ulong),
+                _                 => null,
             };
         }
 
@@ -397,8 +398,8 @@ namespace BrightData
         /// <exception cref="Exception"></exception>
         public static T[] ReadArray<T>(this Stream stream, uint size) where T: struct
         {
-            var ret = new T[size];
-            var bytes = MemoryMarshal.Cast<T, byte>(ret);
+            var ret       = new T[size];
+            var bytes     = MemoryMarshal.Cast<T, byte>(ret);
             var bytesRead = stream.Read(bytes);
 #if DEBUG
             if (bytesRead != Unsafe.SizeOf<T>() * size)
@@ -418,6 +419,28 @@ namespace BrightData
         public static T[] ReadArray<T>(this Stream stream, int size) where T: struct
         {
             return ReadArray<T>(stream, (uint)size);
+        }
+
+        /// <summary>
+        /// Finds all possible permutations of sub items from the array, including the array itself
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items">Array to permute</param>
+        public static IEnumerable<ImmutableList<T>> FindPermutations<T>(this T[] items)
+        {
+            if (items.Length == 1)
+                yield return ImmutableList<T>.Empty.Add(items[0]);
+            else {
+                for (var pos = 0; pos < items.Length - 1; pos++) {
+                    for (var size = 1; size < items.Length; size++) {
+                        var prefixIndices = size.AsRange(pos).Where(i => i < items.Length);
+                        var prefix = new Lazy<ImmutableList<T>>(() => ImmutableList<T>.Empty.AddRange(prefixIndices.Select(i => items[i])));
+                        for (var i = pos + size; i < items.Length; i++) {
+                            yield return prefix.Value.Add(items[i]);
+                        }
+                    }
+                }
+            }
         }
     }
 }

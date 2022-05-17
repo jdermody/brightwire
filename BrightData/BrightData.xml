@@ -1136,7 +1136,7 @@
             <param name="start"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Aggregate(BrightData.AggregationType,System.Collections.Generic.List{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Aggregate(BrightData.AggregationType,System.Collections.Generic.IEnumerable{System.Single})">
             <summary>
             Aggregates a list of floats
             </summary>
@@ -1256,6 +1256,13 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.FindPermutations``1(``0[])">
+            <summary>
+            Finds all possible permutations of sub items from the array, including the array itself
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items">Array to permute</param>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
@@ -7386,6 +7393,17 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Unique(BrightData.AggregationType)">
+            <summary>
+            Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type
+            </summary>
+            <returns>New weighted index list with unique indices</returns>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Weights">
+            <summary>
+            All weights
+            </summary>
         </member>
     </members>
 </doc>
