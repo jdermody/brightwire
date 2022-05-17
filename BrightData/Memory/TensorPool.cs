@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 
@@ -10,8 +12,8 @@ namespace BrightData.Memory
     /// </summary>
     internal class TensorPool : ITensorPool, IDisposable
     {
-        readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new();
-        readonly ConcurrentDictionary<string, long> _requestHistory = new();
+        readonly Dictionary<string, Stack<Array>> _cache = new();
+        readonly Dictionary<string, long> _requestHistory = new();
         long _requestIndex = 0;
         #if DEBUG
         readonly ConcurrentDictionary<long, uint> _registeredBlocks = new();
@@ -25,10 +27,11 @@ namespace BrightData.Memory
         public T[] Get<T>(uint size) where T: struct
         {
             var key = GetKey<T>(size);
-            _requestHistory[key] = Interlocked.Increment(ref _requestIndex);
-
-            if (_cache.TryGetValue(key, out var bag) && bag.TryTake(out var ptr))
-                return (T[])ptr;
+            lock (_cache) {
+                _requestHistory[key] = _requestIndex++;
+                if (_cache.TryGetValue(key, out var stack) && stack.TryPop(out var ptr))
+                    return (T[])ptr;
+            }
 
             var ret = new T[size];
             return ret;
@@ -51,32 +54,23 @@ namespace BrightData.Memory
 
         public void Reuse<T>(T[] block) where T: struct
         {
-            _cache.AddOrUpdate(
-                GetKey<T>((uint)block.Length),
-                _ => new ConcurrentBag<Array> { block },
-                (_, bag) => {
-                    bag.Add(block);
-                    return bag;
-                }
-            );
-            CacheSize += block.Length;
+            var key = GetKey<T>((uint)block.Length);
+            lock (_cache) {
+                if (!_cache.TryGetValue(key, out var ret))
+                    _cache.Add(key, ret = new Stack<Array>());
+                ret.Push(block);
+                CacheSize += block.Length;
 
-            // check if we should drop items from the cache
-            if (CacheSize > MaxCacheSize)
-            {
-                lock (_cache)
-                {
-                    while (CacheSize > MaxCacheSize)
-                    {
-                        var lru = _cache
-                            .OrderBy(d => _requestHistory[d.Key])
-                            .FirstOrDefault();
+                // check if we should drop items from the cache
+                while (CacheSize > MaxCacheSize) {
+                    var lru = _cache
+                        .OrderBy(d => _requestHistory[d.Key])
+                        .FirstOrDefault();
 
-                        if (lru.Value.TryTake(out var stale))
-                            CacheSize -= stale.Length;
-                        else
-                            break;
-                    }
+                    if (lru.Value.TryPop(out var stale))
+                        CacheSize -= stale.Length;
+                    else
+                        break;
                 }
             }
         }
