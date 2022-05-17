@@ -386,7 +386,6 @@ namespace BrightData
                 parser.OnProgress = p => userNotification.OnOperationProgress(p);
                 parser.OnComplete = () => {
                     userNotification.OnCompleteOperation();
-                    userNotification.OnMessage(" - Complete");
                 };
             }
 
@@ -464,7 +463,6 @@ namespace BrightData
                 parser.OnProgress = p => userNotification.OnOperationProgress(p);
                 parser.OnComplete = () => {
                     userNotification.OnCompleteOperation();
-                    userNotification.OnMessage(" - Complete");
                 };
             }
 
