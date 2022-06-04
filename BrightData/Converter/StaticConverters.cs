@@ -65,14 +65,14 @@ namespace BrightData.Converter
         public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF: notnull where TT : notnull
         {
             return Type.GetTypeCode(typeof(TT)) switch {
-                TypeCode.SByte => (ICanConvert<TF, TT>) GetConverterToSignedByte<TF>(),
-                TypeCode.Int16 => (ICanConvert<TF, TT>) GetConverterToShort<TF>(),
-                TypeCode.Int32 => (ICanConvert<TF, TT>) GetConverterToInt<TF>(),
-                TypeCode.Int64 => (ICanConvert<TF, TT>) GetConverterToLong<TF>(),
-                TypeCode.Single => (ICanConvert<TF, TT>) GetConverterToFloat<TF>(),
-                TypeCode.Double => (ICanConvert<TF, TT>) GetConverterToDouble<TF>(),
+                TypeCode.SByte   => (ICanConvert<TF, TT>) GetConverterToSignedByte<TF>(),
+                TypeCode.Int16   => (ICanConvert<TF, TT>) GetConverterToShort<TF>(),
+                TypeCode.Int32   => (ICanConvert<TF, TT>) GetConverterToInt<TF>(),
+                TypeCode.Int64   => (ICanConvert<TF, TT>) GetConverterToLong<TF>(),
+                TypeCode.Single  => (ICanConvert<TF, TT>) GetConverterToFloat<TF>(),
+                TypeCode.Double  => (ICanConvert<TF, TT>) GetConverterToDouble<TF>(),
                 TypeCode.Decimal => (ICanConvert<TF, TT>) GetConverterToDecimal<TF>(),
-                _ => throw new NotImplementedException()
+                _                => throw new NotImplementedException()
             };
         }
     }

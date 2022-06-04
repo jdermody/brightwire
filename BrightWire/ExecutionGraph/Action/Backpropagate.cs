@@ -10,12 +10,10 @@ namespace BrightWire.ExecutionGraph.Action
     {
         public void Initialise(string data)
         {
-            //_errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
         }
 
         public string Serialise()
         {
-            //return TypeLoader.GetTypeName(_errorMetric);
             return "";
         }
 

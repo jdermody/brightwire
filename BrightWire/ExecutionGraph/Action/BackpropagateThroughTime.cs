@@ -9,13 +9,11 @@ namespace BrightWire.ExecutionGraph.Action
     {
         public void Initialise(string data)
         {
-            //_errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
         }
 
         public string Serialise()
         {
             return "";
-            //return TypeLoader.GetTypeName(_errorMetric);
         }
 
         public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)

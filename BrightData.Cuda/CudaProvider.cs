@@ -135,9 +135,7 @@ namespace BrightData.Cuda
 			_abs,
 			_normalise,
 			_softmaxVector,
-			//_multiEuclidean,
-			//_multiManhattan,
-			_multiCosine,
+            _multiCosine,
 			_log,
 			_vectorAdd,
 			_vectorCopyRandom,
@@ -222,9 +220,7 @@ namespace BrightData.Cuda
 			_abs = _kernel.LoadFunction("Abs");
 			_normalise = _kernel.LoadFunction("Normalise");
 			_softmaxVector = _kernel.LoadFunction("SoftmaxVector");
-			//_multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
-			//_multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
-			_multiCosine = _kernel.LoadFunction("MultiCosineDistance");
+            _multiCosine = _kernel.LoadFunction("MultiCosineDistance");
 			_log = _kernel.LoadFunction("Log");
 			_vectorAdd = _kernel.LoadFunction("VectorAdd");
 			_vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
@@ -250,9 +246,7 @@ namespace BrightData.Cuda
 				_blas.Dispose();
 				_cuda.Dispose();
 				_cache.Dispose();
-				//if(_solver.IsValueCreated)
-				//    _solver.Value.Dispose();
-				_numerics.Dispose();
+                _numerics.Dispose();
 				_disposed = true;
 			}
 		}
@@ -314,14 +308,7 @@ namespace BrightData.Cuda
 			execution.Run(0, param);
 		}
 
-		//void InvokeWithSharedMemory(CUfunction function, uint size, uint sharedMemorySize, params object[] param)
-		//{
-		//	var gridSize = GetBlockCount((int)size, BlockDim2);
-		//	var execution = _kernel.CreateExecution(function, gridSize, BlockDim2);
-		//	execution.Run(sharedMemorySize, param);
-		//}
-
-		void InvokeMatrix(CUfunction function, uint rows, uint columns, params object[] param)
+        void InvokeMatrix(CUfunction function, uint rows, uint columns, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
@@ -711,52 +698,7 @@ namespace BrightData.Cuda
 			InvokeMatrix(_concatColumns, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, topRowCount, bottomRowCount);
 		}
 
-		//internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
-		//{
-		//	IDeviceMemoryPtr ret;
-		//	var buffer = Allocate(compareTo.Length);
-		//	try {
-		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
-		//		ret = Allocate(size * compareTo.Length);
-		//		InvokeMatrix(_multiEuclidean, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
-		//	}
-		//	finally {
-		//		buffer.Free();
-		//	}
-		//	return ret;
-		//}
-
-		//internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
-		//{
-		//	IDeviceMemoryPtr ret;
-		//	var buffer = Allocate(compareTo.Length);
-		//	try {
-		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
-		//		ret = Allocate(size * compareTo.Length);
-		//		InvokeMatrix(_multiManhattan, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
-		//	}
-		//	finally {
-		//		buffer.Free();
-		//	}
-		//	return ret;
-		//}
-
-		//internal IDeviceMemoryPtr MultiCosineDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
-		//{
-		//	IDeviceMemoryPtr ret;
-		//	var buffer = Allocate(compareTo.Length);
-		//	try {
-		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
-		//		ret = Allocate(size * compareTo.Length);
-		//		InvokeMatrix(_multiCosine, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
-		//	}
-		//	finally {
-		//		buffer.Free();
-		//	}
-		//	return ret;
-		//}
-
-		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorAddPadding(
+        internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorAddPadding(
 			IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 

@@ -28,7 +28,7 @@ namespace BrightData.Converter
             };
         }
 
-        long FromString(T str) => long.Parse(__refvalue(__makeref(str), string));
+        static long FromString(T str) => long.Parse(__refvalue(__makeref(str), string));
         long FromSingle(T data) => System.Convert.ToInt64(GetSingle(data));
         long FromDouble(T data) => System.Convert.ToInt64(GetDouble(data));
         long FromDecimal(T data) => System.Convert.ToInt64(GetDecimal(data));

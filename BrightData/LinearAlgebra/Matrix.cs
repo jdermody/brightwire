@@ -26,7 +26,6 @@ namespace BrightData.LinearAlgebra
         /// Number of columns
         /// </summary>
         public uint ColumnCount => Shape[1];
-        //public new uint Size => RowCount * ColumnCount;
 
         /// <summary>
         /// Returns a row as a vector

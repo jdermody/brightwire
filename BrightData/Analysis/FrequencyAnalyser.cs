@@ -27,7 +27,7 @@ namespace BrightData.Analysis
         protected void AddString(string? str)
         {
             if (str != null && _valueCount.Count < _maxCount) {
-                if (_valueCount.TryGetValue(str, out ulong count))
+                if (_valueCount.TryGetValue(str, out var count))
                     _valueCount[str] = count + 1;
                 else
                     _valueCount.Add(str, 1);

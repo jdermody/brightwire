@@ -28,25 +28,25 @@ namespace BrightData
         {
             return type switch
             {
-                BrightDataType.Boolean => typeof(bool),
-                BrightDataType.SByte => typeof(sbyte),
-                BrightDataType.Date => typeof(DateTime),
-                BrightDataType.Double => typeof(double),
-                BrightDataType.Decimal => typeof(decimal),
-                BrightDataType.Float => typeof(float),
-                BrightDataType.Short => typeof(short),
-                BrightDataType.Int => typeof(int),
-                BrightDataType.Long => typeof(long),
-                BrightDataType.Unknown => null,
-                BrightDataType.String => typeof(string),
-                BrightDataType.IndexList => typeof(IndexList),
+                BrightDataType.Boolean           => typeof(bool),
+                BrightDataType.SByte             => typeof(sbyte),
+                BrightDataType.Date              => typeof(DateTime),
+                BrightDataType.Double            => typeof(double),
+                BrightDataType.Decimal           => typeof(decimal),
+                BrightDataType.Float             => typeof(float),
+                BrightDataType.Short             => typeof(short),
+                BrightDataType.Int               => typeof(int),
+                BrightDataType.Long              => typeof(long),
+                BrightDataType.Unknown           => null,
+                BrightDataType.String            => typeof(string),
+                BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.Vector => typeof(Vector<float>),
-                BrightDataType.Matrix => typeof(Matrix<float>),
-                BrightDataType.Tensor3D => typeof(Tensor3D<float>),
-                BrightDataType.Tensor4D => typeof(Tensor4D<float>),
-                BrightDataType.BinaryData => typeof(BinaryData),
-                _ => throw new NotImplementedException()
+                BrightDataType.Vector            => typeof(Vector<float>),
+                BrightDataType.Matrix            => typeof(Matrix<float>),
+                BrightDataType.Tensor3D          => typeof(Tensor3D<float>),
+                BrightDataType.Tensor4D          => typeof(Tensor4D<float>),
+                BrightDataType.BinaryData        => typeof(BinaryData),
+                _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
         }
 
@@ -149,9 +149,9 @@ namespace BrightData
         {
             BrightDataType.SByte => true,
             BrightDataType.Short => true,
-            BrightDataType.Int => true,
-            BrightDataType.Long => true,
-            _ => false
+            BrightDataType.Int   => true,
+            BrightDataType.Long  => true,
+            _                    => false
         };
 
         /// <summary>
@@ -161,9 +161,9 @@ namespace BrightData
         /// <returns></returns>
         public static bool IsIndexedList(this BrightDataType type) => type switch
         {
-            BrightDataType.IndexList => true,
+            BrightDataType.IndexList         => true,
             BrightDataType.WeightedIndexList => true,
-            _ => false
+            _                                => false
         };
 
         /// <summary>
@@ -173,11 +173,11 @@ namespace BrightData
         /// <returns></returns>
         public static bool IsTensor(this BrightDataType type) => type switch
         {
-            BrightDataType.Vector => true,
-            BrightDataType.Matrix => true,
+            BrightDataType.Vector   => true,
+            BrightDataType.Matrix   => true,
             BrightDataType.Tensor3D => true,
             BrightDataType.Tensor4D => true,
-            _ => false
+            _                       => false
         };
 
         /// <summary>
@@ -336,16 +336,16 @@ namespace BrightData
 
             return type switch
             {
-                BrightDataType.Double => StaticAnalysers.CreateNumericAnalyser(maxCount, writeCount),
-                BrightDataType.Float => StaticAnalysers.CreateNumericAnalyser<float>(maxCount, writeCount),
-                BrightDataType.Decimal => StaticAnalysers.CreateNumericAnalyser<decimal>(maxCount, writeCount),
-                BrightDataType.SByte => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxCount, writeCount),
-                BrightDataType.Int => StaticAnalysers.CreateNumericAnalyser<int>(maxCount, writeCount),
-                BrightDataType.Long => StaticAnalysers.CreateNumericAnalyser<long>(maxCount, writeCount),
-                BrightDataType.Short => StaticAnalysers.CreateNumericAnalyser<short>(maxCount, writeCount),
-                BrightDataType.Date => StaticAnalysers.CreateDateAnalyser(),
+                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxCount, writeCount),
+                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxCount, writeCount),
+                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxCount, writeCount),
+                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxCount, writeCount),
+                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxCount, writeCount),
+                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxCount, writeCount),
+                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxCount, writeCount),
+                BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
                 BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxCount, writeCount),
-                _ => throw new NotImplementedException()
+                _                         => throw new NotImplementedException()
             };
         }
 

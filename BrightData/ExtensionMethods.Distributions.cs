@@ -6,7 +6,7 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Returns a randomly initialized float
+        /// Returns a randomly initialized float greater than or equal to 0f, and less than 1f
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>

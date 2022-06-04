@@ -203,10 +203,10 @@ namespace BrightData
         {
             var typeCode = value.GetTypeCode();
             return typeCode switch {
-                TypeCode.Double => ((double) value).ToString("G17"),
-                TypeCode.Single => ((float) value).ToString("G9"),
+                TypeCode.Double   => ((double) value).ToString("G17"),
+                TypeCode.Single   => ((float) value).ToString("G9"),
                 TypeCode.DateTime => ((DateTime) value).ToString("o"),
-                _ => value.ToString(CultureInfo.InvariantCulture)
+                _                 => value.ToString(CultureInfo.InvariantCulture)
             };
         }
 

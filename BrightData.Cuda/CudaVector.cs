@@ -277,11 +277,7 @@ namespace BrightData.Cuda
 			Debug.Assert(other.Count == Count);
 
 			return _cuda.CosineDistance(_data, other._data, Count);
-			//var ab = DotProduct(other);
-			//var a2 = DotProduct(this);
-			//var b2 = other.DotProduct(other);
-			//return (float)(1d - (ab / (Math.Sqrt(a2 * b2))));
-		}
+        }
 
 		public float ManhattanDistance(IFloatVector vector)
 		{

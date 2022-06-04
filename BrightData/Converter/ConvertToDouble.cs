@@ -28,7 +28,7 @@ namespace BrightData.Converter
             };
         }
 
-        double FromString(T str) => double.Parse(__refvalue(__makeref(str), string));
+        static double FromString(T str) => double.Parse(__refvalue(__makeref(str), string));
         double FromSingle(T data) => System.Convert.ToDouble(GetSingle(data));
         double FromDecimal(T data) => System.Convert.ToDouble(GetDecimal(data));
         double FromSByte(T data) => GetSByte(data);

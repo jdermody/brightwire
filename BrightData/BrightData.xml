@@ -1990,7 +1990,7 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
             <summary>
-            Returns a randomly initialized float
+            Returns a randomly initialized float greater than or equal to 0f, and less than 1f
             </summary>
             <param name="context"></param>
             <returns></returns>

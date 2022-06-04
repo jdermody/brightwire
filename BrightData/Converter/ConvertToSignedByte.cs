@@ -28,7 +28,7 @@ namespace BrightData.Converter
             };
         }
 
-        sbyte FromString(T str) => sbyte.Parse(__refvalue(__makeref(str), string));
+        static sbyte FromString(T str) => sbyte.Parse(__refvalue(__makeref(str), string));
         sbyte FromSingle(T data) => System.Convert.ToSByte(GetSingle(data));
         sbyte FromDouble(T data) => System.Convert.ToSByte(GetDouble(data));
         sbyte FromDecimal(T data) => System.Convert.ToSByte(GetDecimal(data));

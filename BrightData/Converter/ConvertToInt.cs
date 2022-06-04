@@ -27,7 +27,7 @@ namespace BrightData.Converter
             };
         }
 
-        int FromString(T str) => int.Parse(__refvalue(__makeref(str), string));
+        static int FromString(T str) => int.Parse(__refvalue(__makeref(str), string));
         int FromSingle(T data) => System.Convert.ToInt32(GetSingle(data));
         int FromDouble(T data) => System.Convert.ToInt32(GetDouble(data));
         int FromDecimal(T data) => System.Convert.ToInt32(GetDecimal(data));

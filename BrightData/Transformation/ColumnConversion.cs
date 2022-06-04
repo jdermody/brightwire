@@ -376,14 +376,14 @@ namespace BrightData.Transformation
             }
 
             return toType switch {
-                BrightDataType.Double => numbers,
-                BrightDataType.Float => numbers.Select(Convert.ToSingle),
+                BrightDataType.Double  => numbers,
+                BrightDataType.Float   => numbers.Select(Convert.ToSingle),
                 BrightDataType.Decimal => ConvertIntegers(numbers, Convert.ToDecimal),
-                BrightDataType.Long => ConvertIntegers(numbers, Convert.ToInt64),
-                BrightDataType.Int => ConvertIntegers(numbers, Convert.ToInt32),
-                BrightDataType.Short => ConvertIntegers(numbers, Convert.ToInt16),
-                BrightDataType.SByte => ConvertIntegers(numbers, Convert.ToSByte),
-                _ => throw new Exception("Invalid column type for numeric")
+                BrightDataType.Long    => ConvertIntegers(numbers, Convert.ToInt64),
+                BrightDataType.Int     => ConvertIntegers(numbers, Convert.ToInt32),
+                BrightDataType.Short   => ConvertIntegers(numbers, Convert.ToInt16),
+                BrightDataType.SByte   => ConvertIntegers(numbers, Convert.ToSByte),
+                _                      => throw new Exception("Invalid column type for numeric")
             };
         }
 

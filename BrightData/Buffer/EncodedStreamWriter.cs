@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using BrightData.Helper;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer
 {
@@ -230,10 +231,11 @@ namespace BrightData.Buffer
             }
         }
 
-        static void WriteBuffered<T>(IEnumerable<T> reader, uint count, Stream stream, uint tempBufferSize = 8192)
+        static void WriteBuffered<T>(IEnumerable<T> reader, uint count, Stream stream, int tempBufferSize = 8192)
             where T : struct
         {
-            var temp = new T[tempBufferSize];
+            using var tempBuffer = MemoryOwner<T>.Allocate(tempBufferSize);
+            var temp = tempBuffer.Span;
             var index = 0;
 
             using var enumerator = reader.GetEnumerator();
@@ -251,7 +253,7 @@ namespace BrightData.Buffer
             Debug.Assert(i == count);
 #endif
             if (index > 0)
-                stream.Write(MemoryMarshal.Cast<T, byte>(((ReadOnlySpan<T>)temp)[..index]));
+                stream.Write(MemoryMarshal.Cast<T, byte>(temp[..index]));
         }
     }
 }

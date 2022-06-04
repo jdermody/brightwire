@@ -28,7 +28,7 @@ namespace BrightWire.Bayesian
 
 	        public double GetScore(HashSet<uint> documentSet)
             {
-                double ret = _class.Prior;
+                var ret = _class.Prior;
 
                 foreach (var item in _class.Index) {
                     if (documentSet.Contains(item.StringIndex))

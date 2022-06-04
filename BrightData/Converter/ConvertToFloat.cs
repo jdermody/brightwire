@@ -28,7 +28,7 @@ namespace BrightData.Converter
             };
         }
 
-        float FromString(T str) => float.Parse(__refvalue(__makeref(str), string));
+        static float FromString(T str) => float.Parse(__refvalue(__makeref(str), string));
         float FromDouble(T data) => System.Convert.ToSingle(GetDouble(data));
         float FromDecimal(T data) => System.Convert.ToSingle(GetDecimal(data));
         float FromSByte(T data) => GetSByte(data);
