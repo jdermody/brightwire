@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29424.173
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Information", "Project Information", "{4256D967-B914-4578-92E6-ABD0F0453B72}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,6 +24,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire.UnitTests", "BrightWire.UnitTests\BrightWire.UnitTests.csproj", "{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{3B5B39E1-FD3C-4FC5-B536-1210BEFAD934}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightAPI", "BrightAPI\BrightAPI.csproj", "{A8180BB3-BEB2-4224-8CDC-B2E16D29459F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{3B5B39E1-FD3C-4FC5-B536-1210BEFAD934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B5B39E1-FD3C-4FC5-B536-1210BEFAD934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B5B39E1-FD3C-4FC5-B536-1210BEFAD934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8180BB3-BEB2-4224-8CDC-B2E16D29459F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8180BB3-BEB2-4224-8CDC-B2E16D29459F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8180BB3-BEB2-4224-8CDC-B2E16D29459F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8180BB3-BEB2-4224-8CDC-B2E16D29459F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

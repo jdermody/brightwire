@@ -48,3 +48,8 @@
 /UnitTests/obj
 /Data/bin
 /Data/obj
+/BrightAPI/obj
+/BrightAPI/bin
+/BrightAPI/UI/.parcel-cache
+/BrightAPI/UI/dist
+/BrightAPI/UI/node_modules
