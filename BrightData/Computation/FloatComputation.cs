@@ -110,7 +110,7 @@ namespace BrightData.Computation
                 float result;
                 var size = segment.Size;
 
-                fixed (float* pSource = segment.ToArray()) {
+                fixed (float* pSource = segment.GetArrayForLocalUseOnly()) {
                     var vresult = Vector128<float>.Zero;
 
                     var i = 0;
@@ -253,7 +253,8 @@ namespace BrightData.Computation
                 throw new ArgumentException("Segments were different sizes");
 
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = func(v, other[i]); });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = func(v, other[i]); });
             return new TensorSegment<float>(_context, ret);
         }
 
@@ -268,48 +269,52 @@ namespace BrightData.Computation
                 throw new ArgumentException("Segments were different sizes");
 
             var ret = _context.TensorPool.Get<float>(size);
+            var ptr = ret.Span;
             var vectorSize = System.Numerics.Vector<float>.Count;
             var i = 0;
             if (size >= vectorSize) {
                 for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     var s2 = other.AsNumericsVector(i);
-                    func1(s1, s2).CopyTo(ret, i);
+                    func1(s1, s2).CopyTo(ptr.Slice(i));
                 }
             }
             for (; i < size; i++)
-                ret[i] = func2(segment[i], other[i]);
+                ptr[i] = func2(segment[i], other[i]);
             return new TensorSegment<float>(_context, ret);
         }
 
         protected ITensorSegment<float> Transform(ITensorSegment<float> segment, Func<float, float> transfomer)
         {
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = transfomer(v); });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = transfomer(v); });
             return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<float> TransformVectorised(ITensorSegment<float> segment, Func<System.Numerics.Vector<float>, System.Numerics.Vector<float>> transfomer1, Func<float, float> transfomer2)
         {
             var ret = _context.TensorPool.Get<float>(segment.Size);
+            var ptr = ret.Span;
             var vectorSize = System.Numerics.Vector<float>.Count;
             var size = segment.Size;
             var i = 0;
             if (size >= vectorSize) {
                 for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
-                    transfomer1(s1).CopyTo(ret, i);
+                    transfomer1(s1).CopyTo(ptr.Slice(i));
                 }
             }
             for (; i < size; i++)
-                ret[i] = transfomer2(segment[i]);
+                ptr[i] = transfomer2(segment[i]);
             return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<float> TransformIndexed(ITensorSegment<float> segment, Func<uint, float> transfomer)
         {
             var ret = _context.TensorPool.Get<float>(segment.Size);
-            Parallel.ForEach(segment.Values, (_, _, i) => { ret[i] = transfomer((uint)i); });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (_, _, i) => { array[(int)i] = transfomer((uint)i); });
             return _context.CreateSegment(ret);
         }
 

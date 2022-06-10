@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using BrightData.Helper;
 
@@ -104,7 +105,7 @@ namespace BrightData.LinearAlgebra
         /// Converts the data to an array
         /// </summary>
         /// <returns></returns>
-        public T[] ToArray() => _segment.ToArray();
+        public T[] ToArray() => _segment.Values.ToArray();
 
         /// <summary>
         /// Adds this to another tensor (new tensor returned - this tensor is not changed)
@@ -430,7 +431,7 @@ namespace BrightData.LinearAlgebra
         /// Clones this tensor
         /// </summary>
         /// <returns></returns>
-        public DT Clone() => Create(Context.CreateSegment(_segment.ToArray()));
+        public DT Clone() => Create(Context.CreateSegment(_segment.Clone()));
 
         /// <summary>
         /// Reshapes to a vector
@@ -514,7 +515,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         protected ITensorSegment<T> MapParallel(Func<uint, T, T> mapper)
         {
-            using var ret = Context.CreateSegment<T>(Size);
+            var ret = Context.CreateSegment<T>(Size);
             // ReSharper disable once AccessToDisposedClosure
             Parallel.For(0, (int) Size, i => ret[i] = mapper((uint) i, _segment[i]));
             return ret;

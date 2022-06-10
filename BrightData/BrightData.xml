@@ -334,12 +334,11 @@
             Bright data context
             </summary>
         </member>
-        <member name="M:BrightData.BrightDataContext.#ctor(System.Nullable{System.Int32},System.Int64)">
+        <member name="M:BrightData.BrightDataContext.#ctor(System.Nullable{System.Int32})">
             <summary>
             Constructor
             </summary>
             <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
-            <param name="maxCacheSize">Max size of cache to store in memory</param>
         </member>
         <member name="M:BrightData.BrightDataContext.Dispose">
             <inheritdoc />
@@ -532,11 +531,6 @@
         <member name="F:BrightData.Consts.MaxWriteCount">
             <summary>
             Default max write count
-            </summary>
-        </member>
-        <member name="F:BrightData.Consts.DefaultMemoryCacheSize">
-            <summary>
-            Default memory cache size
             </summary>
         </member>
         <member name="F:BrightData.Consts.RowProcessingNotificationCadence">
@@ -2572,7 +2566,7 @@
             <param name="getValue"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.IBrightDataContext,``0[])">
+        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.IBrightDataContext,Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{``0})">
             <summary>
             Creates a tensor segment from an existing array
             </summary>
@@ -3471,23 +3465,6 @@
             <param name="size">Size of the tensor to allocate</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensorPool.Reuse``1(``0[])">
-            <summary>
-            Indicates that this array can be reused
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="block"></param>
-        </member>
-        <member name="P:BrightData.ITensorPool.MaxCacheSize">
-            <summary>
-            Maximum size to cache for reusable arrays
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensorPool.CacheSize">
-            <summary>
-            Current size of cached arrays
-            </summary>
-        </member>
         <member name="T:BrightData.IDisposableLayers">
             <summary>
             Collects a list of disposable objects that can all be disposed when the layer is disposed
@@ -3667,9 +3644,9 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.ToArray">
+        <member name="M:BrightData.ITensorSegment`1.Clone">
             <summary>
-            Converts the segment to an array
+            Clones the data into a new managed block
             </summary>
             <returns></returns>
         </member>
@@ -3702,13 +3679,19 @@
             </summary>
             <param name="initialData"></param>
         </member>
+        <member name="M:BrightData.ITensorSegment`1.Initialize(Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{`0})">
+            <summary>
+            Initialize from an existing block
+            </summary>
+            <param name="data"></param>
+        </member>
         <member name="M:BrightData.ITensorSegment`1.WriteTo(System.IO.Stream)">
             <summary>
             Writes to a stream
             </summary>
             <param name="writerBaseStream"></param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(`0[],System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ITensorSegment`1.CopyTo(Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{`0},System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Copies values from this segment to an existing array
             </summary>
@@ -3723,10 +3706,22 @@
             </summary>
             <param name="segment"></param>
         </member>
+        <member name="M:BrightData.ITensorSegment`1.CopyTo(System.ArraySegment{`0},System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Copies all values into the existing array
+            </summary>
+            <param name="array"></param>
+        </member>
         <member name="M:BrightData.ITensorSegment`1.AsNumericsVector(System.Int32)">
             <summary>
             Returns part of the segment as a numerics vector
             </summary>
+        </member>
+        <member name="M:BrightData.ITensorSegment`1.GetArrayForLocalUseOnly">
+            <summary>
+            Returns an array that is only valid in local scope
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.INumericComputation`1">
             <summary>

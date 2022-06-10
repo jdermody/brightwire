@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Memory
 {
@@ -16,10 +17,10 @@ namespace BrightData.Memory
         public static int _badAlloc = -1;
 #endif
 
-        protected readonly T[] _data;
+        protected readonly MemoryOwner<T> _data;
         int _refCount = 0;
 
-        protected ReferenceCountedBlock(IBrightDataContext context, T[] data)
+        protected ReferenceCountedBlock(IBrightDataContext context, MemoryOwner<T> data)
         {
             _data = data;
             Size = (uint) _data.Length;
@@ -50,7 +51,7 @@ namespace BrightData.Memory
 #if DEBUG
                 Context.TensorPool.Unregister(this);
 #endif
-                Context.TensorPool.Reuse(_data);
+                _data.Dispose();
                 IsValid = false;
             }
 

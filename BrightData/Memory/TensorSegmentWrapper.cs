@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Memory
 {
@@ -45,7 +46,16 @@ namespace BrightData.Memory
         public int Release() => _segment.Release();
         public long AllocationIndex => _segment.AllocationIndex;
         public bool IsValid => !_wasDisposed && _segment.IsValid;
-        public T[] ToArray() => Values.ToArray();
+
+        public MemoryOwner<T> Clone()
+        {
+            var ret = MemoryOwner<T>.Allocate((int)Size);
+            var ptr = ret.Span;
+            uint index = 0;
+            foreach (ref var item in ptr)
+                item = this[index++];
+            return ret;
+        }
         public IBrightDataContext Context => _segment.Context;
 
         public IEnumerable<T> Values
@@ -91,6 +101,12 @@ namespace BrightData.Memory
         }
 
         public void Initialize(T[] initialData) => Initialize(i => initialData[i]);
+        public void Initialize(MemoryOwner<T> initialData)
+        {
+            var ptr = initialData.Span;
+            for (var i = 0; i < Size; i++)
+                this[i] = ptr[i];
+        }
 
         public unsafe void WriteTo(Stream stream)
         {
@@ -106,11 +122,16 @@ namespace BrightData.Memory
             stream.Write(buffer);
         }
 
-        public void CopyTo(T[] array, uint sourceIndex, uint destinationIndex, uint count)
+        public void CopyTo(MemoryOwner<T> memoryOwner, uint sourceIndex, uint destinationIndex, uint count)
+        {
+            CopyTo(memoryOwner.DangerousGetArray());
+        }
+
+        public void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = UInt32.MaxValue)
         {
             var size = Math.Min(Size, count);
             for (uint i = sourceIndex; i < size; i++)
-                array[destinationIndex + i] = this[i];
+                array[(int)(destinationIndex + i)] = this[i];
         }
 
         public void CopyTo(ITensorSegment<T> segment)
@@ -119,6 +140,7 @@ namespace BrightData.Memory
         }
 
         public System.Numerics.Vector<T> AsNumericsVector(int start) => new(Values.Skip(start).Take(System.Numerics.Vector<T>.Count).ToArray());
+        public T[] GetArrayForLocalUseOnly() => Values.ToArray();
 
         public override string ToString()
         {

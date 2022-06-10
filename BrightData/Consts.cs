@@ -23,7 +23,7 @@
         /// <summary>
         /// Default memory cache size
         /// </summary>
-        public const uint DefaultMemoryCacheSize = 1024 * 1048576;
+        //public const uint DefaultMemoryCacheSize = 1024 * 1048576;
 
         /// <summary>
         /// Number of rows to process before notifying about progress

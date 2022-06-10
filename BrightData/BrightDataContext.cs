@@ -27,14 +27,11 @@ namespace BrightData
         /// Constructor
         /// </summary>
         /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
-        /// <param name="maxCacheSize">Max size of cache to store in memory</param>
-        public BrightDataContext(
-            int? randomSeed = null,
-            long maxCacheSize = Consts.DefaultMemoryCacheSize)
+        public BrightDataContext(int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
             Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            _tensorPool = new TensorPool(maxCacheSize);
+            _tensorPool = new TensorPool();
             _dataReader = new DataEncoder(this);
 
             _floatComputation = new FloatComputation(this);

@@ -5,6 +5,7 @@ using System.Linq;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.Memory;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
@@ -628,7 +629,7 @@ namespace BrightData
         /// <param name="block">Array to copy values from</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
+        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, MemoryOwner<T> block) where T : struct => new TensorSegment<T>(context, block);
 
         /// <summary>
         /// Creates a tensor segment

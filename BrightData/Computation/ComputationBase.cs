@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra;
 using BrightData.Memory;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Computation
 {
@@ -273,14 +274,16 @@ namespace BrightData.Computation
                 throw new ArgumentException("Segments were different sizes");
 
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = func(v, other[i]); });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = func(v, other[i]); });
             return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<T> Transform(ITensorSegment<T> segment, Func<T, T> transfomer)
         {
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, _, i) => { ret[i] = transfomer(v); });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = transfomer(v); });
             return _context.CreateSegment(ret);
         }
 
@@ -311,7 +314,8 @@ namespace BrightData.Computation
         {
             var len = segment.Size;
             var ret = _context.TensorPool.Get<T>(segment.Size);
-            Parallel.ForEach(segment.Values, (v, _, i) => { ret[len - i] = v; });
+            var array = ret.DangerousGetArray();
+            Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)(len - i)] = v; });
             return _context.CreateSegment(ret);
         }
 

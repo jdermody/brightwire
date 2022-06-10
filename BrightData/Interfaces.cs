@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData.LinearAlgebra;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
@@ -284,24 +286,24 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="size">Size of the tensor to allocate</param>
         /// <returns></returns>
-        T[] Get<T>(uint size) where T : struct;
+        MemoryOwner<T> Get<T>(uint size) where T : struct;
 
         /// <summary>
         /// Indicates that this array can be reused
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="block"></param>
-        void Reuse<T>(T[] block) where T : struct;
+        //void Reuse<T>(T[] block) where T : struct;
 
         /// <summary>
         /// Maximum size to cache for reusable arrays
         /// </summary>
-        long MaxCacheSize { get; }
+        //long MaxCacheSize { get; }
 
         /// <summary>
         /// Current size of cached arrays
         /// </summary>
-        long CacheSize { get; }
+        //long CacheSize { get; }
 
 #if DEBUG
         /// <summary>
@@ -505,10 +507,10 @@ namespace BrightData
         T this[long index] { get; set; }
 
         /// <summary>
-        /// Converts the segment to an array
+        /// Clones the data into a new managed block
         /// </summary>
         /// <returns></returns>
-        T[] ToArray();
+        MemoryOwner<T> Clone();
 
         /// <summary>
         /// All values
@@ -540,6 +542,12 @@ namespace BrightData
         void Initialize(T[] initialData);
 
         /// <summary>
+        /// Initialize from an existing block
+        /// </summary>
+        /// <param name="data"></param>
+        void Initialize(MemoryOwner<T> data);
+
+        /// <summary>
         /// Writes to a stream
         /// </summary>
         /// <param name="writerBaseStream"></param>
@@ -552,7 +560,7 @@ namespace BrightData
         /// <param name="sourceIndex">Index to start copying from</param>
         /// <param name="destinationIndex">Index to start writing to</param>
         /// <param name="count">Number of values to copy</param>
-        void CopyTo(T[] array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
+        void CopyTo(MemoryOwner<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
 
         /// <summary>
         /// Copies all values to another segment
@@ -561,9 +569,21 @@ namespace BrightData
         void CopyTo(ITensorSegment<T> segment);
 
         /// <summary>
+        /// Copies all values into the existing array
+        /// </summary>
+        /// <param name="array"></param>
+        void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
+
+        /// <summary>
         /// Returns part of the segment as a numerics vector
         /// </summary>
         System.Numerics.Vector<T> AsNumericsVector(int start);
+
+        /// <summary>
+        /// Returns an array that is only valid in local scope
+        /// </summary>
+        /// <returns></returns>
+        T[] GetArrayForLocalUseOnly();
     }
 
     /// <summary>

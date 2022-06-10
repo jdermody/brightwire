@@ -95,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                Create(factory, isElman, inputSize, memory.Segment.ToArray(), activation, activation2, memoryId);
+                Create(factory, isElman, inputSize, memory.ToArray(), activation, activation2, memoryId);
             else
                 _memory.Data = memory;
 
