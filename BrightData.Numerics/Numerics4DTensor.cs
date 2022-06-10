@@ -138,26 +138,26 @@ namespace BrightData.Numerics
 			return _data;
 		}
 
-	    public Tensor3D<float>[] Data {
-		    get => Tensors.Select(t => t.Data).ToArray();
-		    set {
-			    var count = value.Length;
-			    for (var z = 0; z < count && z < _count; z++) {
-				    var tensor = value[z];
-				    if (tensor != null) {
-					    var matrixList = tensor.Matrices.ToArray();
-					    var matrixCount = matrixList.Length;
-					    for (uint k = 0; k < matrixCount && k < _depth; k++) {
-						    var matrix = matrixList[k];
-                            for (uint i = 0, len = matrix.RowCount; i < len; i++) {
-                                var row = matrix.Row(i);
-                                for (uint j = 0, len2 = row.Size; j < len2; j++)
-                                    this[i, j, k, (uint)z] = row.Segment[j];
-                            }
-                        }
-				    }
-			    }
-		    }
+	    public Tensor4D<float> Data {
+		    get => Context.CreateTensor4D(Tensors.Select(t => t.Data).ToArray());
+		    //set {
+			   // var count = value.Length;
+			   // for (var z = 0; z < count && z < _count; z++) {
+				  //  var tensor = value[z];
+				  //  if (tensor != null) {
+					 //   var matrixList = tensor.Matrices.ToArray();
+					 //   var matrixCount = matrixList.Length;
+					 //   for (uint k = 0; k < matrixCount && k < _depth; k++) {
+						//    var matrix = matrixList[k];
+      //                      for (uint i = 0, len = matrix.RowCount; i < len; i++) {
+      //                          var row = matrix.Row(i);
+      //                          for (uint j = 0, len2 = row.Size; j < len2; j++)
+      //                              this[i, j, k, (uint)z] = row.Segment[j];
+      //                      }
+      //                  }
+				  //  }
+			   // }
+		    //}
 	    }
 
 	    public IFloatVector ReshapeAsVector()

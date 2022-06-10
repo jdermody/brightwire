@@ -151,10 +151,10 @@ namespace BrightData.LinearAlgebra.FloatTensor
             if (count > 1) {
                 var slice = Split(count);
                 var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).Data).ToArray();
-                return new Float4DTensor(tensorList);
+                return new Float4DTensor(Data.Context.CreateTensor4D(tensorList));
             }
             var tensor = ReshapeAs3DTensor(rows, columns, depth).Data;
-            return new Float4DTensor(new[] { tensor });
+            return new Float4DTensor(Data.Context.CreateTensor4D(tensor));
         }
 
         public IFloatVector[] Split(uint blockCount) => Data

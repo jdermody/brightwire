@@ -86,7 +86,7 @@ namespace BrightData.LinearAlgebra
         /// <summary>
         /// All 3D tensors
         /// </summary>
-        public IEnumerable<Tensor3D<T>> Tensors => Depth.AsRange().Select(Tensor);
+        public IEnumerable<Tensor3D<T>> Tensors => Count.AsRange().Select(Tensor);
 
         /// <inheritdoc />
         public override string ToString() => $" Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";

@@ -263,6 +263,37 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Creates a 4D tensor from 3D tensors
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tensors">3D tensors that form the 4D tensor</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, params Tensor3D<T>[] tensors) where T : struct
+        {
+            var first = tensors.First();
+            var count = (uint)tensors.Length;
+            var rows = first.RowCount;
+            var columns = first.ColumnCount;
+            var depth = first.Depth;
+
+            var data = context.CreateSegment<T>(depth * rows * columns * count);
+            var ret = new Tensor4D<T>(data, count, depth, rows, columns);
+            var allSame = ret.Tensors.Zip(tensors, (t, s) => {
+                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount && s.Depth == t.Depth)
+                {
+                    s.Segment.CopyTo(t.Segment);
+                    return true;
+                }
+                return false;
+            }).All(v => v);
+            if (!allSame)
+                throw new ArgumentException("Input tensors had different sizes");
+            return ret;
+        }
+
+        /// <summary>
         /// Returns the number of columns in this tensor
         /// </summary>
         /// <typeparam name="T"></typeparam>

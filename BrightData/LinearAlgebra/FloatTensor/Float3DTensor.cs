@@ -92,7 +92,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
                 var slice = GetMatrixAt(i);
                 tensorList[i] = slice.ReshapeAs3DTensor(rows, columns).Data;
             }
-            return new Float4DTensor(tensorList);
+            return new Float4DTensor(Data.Context.CreateTensor4D(tensorList));
         }
 
         public (I3DFloatTensor Result, I3DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)

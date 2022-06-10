@@ -1190,7 +1190,7 @@ namespace BrightData
         /// <summary>
         /// Converts the current tensor
         /// </summary>
-        Tensor3D<float>[] Data { get; }
+        Tensor4D<float> Data { get; }
     }
 
     /// <summary>

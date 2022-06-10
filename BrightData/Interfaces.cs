@@ -317,7 +317,7 @@ namespace BrightData
         /// Unregister the reference counted memory block for debug and tracing
         /// </summary>
         /// <param name="block"></param>
-        void Unregister(IReferenceCountedMemory block);
+        void UnRegister(IReferenceCountedMemory block);
 #endif
     }
 
@@ -572,6 +572,9 @@ namespace BrightData
         /// Copies all values into the existing array
         /// </summary>
         /// <param name="array"></param>
+        /// <param name="sourceIndex">Index to start copying from</param>
+        /// <param name="destinationIndex">Index to start writing to</param>
+        /// <param name="count">Number of values to copy</param>
         void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
 
         /// <summary>

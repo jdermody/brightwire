@@ -192,7 +192,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
             var list = new Tensor3D<float>[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
                 list[i] = context.CreateTensor3D(Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).Data).ToArray());
-            return new Float4DTensor(list);
+            return new Float4DTensor(Data.Context.CreateTensor4D(list));
         }
 
         public float GetAt(uint row, uint column) => this[row, column];

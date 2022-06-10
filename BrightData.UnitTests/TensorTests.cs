@@ -27,7 +27,7 @@ namespace BrightData.UnitTests
 
         static IIndexable4DFloatTensor Apply(ILinearAlgebraProvider lap, I4DFloatTensor a, Func<I4DFloatTensor, I4DFloatTensor> func)
         {
-            using var otherTensor = lap.Create4DTensor(a.Data);
+            using var otherTensor = lap.Create4DTensor(a.Data.Tensors.ToArray());
             using var ret = func(otherTensor);
             return ret.AsIndexable();
         }
@@ -707,7 +707,7 @@ namespace BrightData.UnitTests
 			var cpuTensor2 = cpuMatrix.ReshapeAs4DTensor(3, 4, 2);
 			FloatMath.AreApproximatelyEqual(cpuTensor.AsIndexable(), cpuTensor2.AsIndexable());
 
-            using var gpuTensor = _cuda.Create4DTensor(cpuTensor.Data);
+            using var gpuTensor = _cuda.Create4DTensor(cpuTensor.Data.Tensors.ToArray());
             using var gpuMatrix = gpuTensor.ReshapeAsMatrix();
             using var gpuTensor2 = gpuMatrix.ReshapeAs4DTensor(3, 4, 2);
             FloatMath.AreApproximatelyEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
@@ -868,6 +868,40 @@ namespace BrightData.UnitTests
             using var simpleReverseIm2Col = simpleTensor.ReverseIm2Col(simpleFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
             var simpleResult = simpleReverseIm2Col.AsIndexable();
             FloatMath.AreApproximatelyEqual(cpuResult, simpleResult);
+        }
+
+        [Fact]
+        public void Tensor4DReshapeAsVector()
+        {
+            var data = Enumerable.Range(0, 5)
+                .Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
+            var cpuTensor = _cpu.Create4DTensor(data);
+            var cpuResult = cpuTensor.ReshapeAsVector();
+
+            using var gpuTensor = _cuda.Create4DTensor(data);
+            using var gpuResult = gpuTensor.ReshapeAsVector();
+            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), gpuResult.AsIndexable());
+
+            using var simpleTensor = _simple.Create4DTensor(data);
+            using var simpleResult = simpleTensor.ReshapeAsVector();
+            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleResult.AsIndexable());
+        }
+
+        [Fact]
+        public void Tensor4DReshapeAsMatrix()
+        {
+            var data = Enumerable.Range(0, 5)
+                .Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
+            var cpuTensor = _cpu.Create4DTensor(data);
+            var cpuResult = cpuTensor.ReshapeAsMatrix();
+
+            using var gpuTensor = _cuda.Create4DTensor(data);
+            using var gpuResult = gpuTensor.ReshapeAsMatrix();
+            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), gpuResult.AsIndexable());
+
+            using var simpleTensor = _simple.Create4DTensor(data);
+            using var simpleResult = simpleTensor.ReshapeAsMatrix();
+            FloatMath.AreApproximatelyEqual(cpuResult.AsIndexable(), simpleResult.AsIndexable());
         }
 	}
 }

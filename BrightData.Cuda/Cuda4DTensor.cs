@@ -83,21 +83,21 @@ namespace BrightData.Cuda
         public ILinearAlgebraProvider LinearAlgebraProvider => _cuda.DataContext.LinearAlgebraProvider;
         public IDeviceMemoryPtr Memory => _data;
         public IFloatMatrix ReshapeAsMatrix() => new CudaMatrix(_cuda, _blockSize, _count, _data, false);
-	    public Tensor3D<float>[] Data {
+	    public Tensor4D<float> Data {
 		    get
 		    {
 			    Debug.Assert(IsValid);
-			    return Tensors.Select(m => m.Data).ToArray();
+			    return _cuda.DataContext.CreateTensor4D(Tensors.Select(m => m.Data).ToArray());
 		    }
-		    set {
-			    Debug.Assert(IsValid);
-			    var count = value.Length;
-			    for (uint i = 0; i < count && i < _depth; i++) {
-				    var tensor = value[(int)i];
-				    if (tensor != null)
-					    GetTensorAt(i).Data = tensor;
-			    }
-		    }
+		    //set {
+			   // Debug.Assert(IsValid);
+			   // var count = value.Length;
+			   // for (uint i = 0; i < count && i < _depth; i++) {
+				  //  var tensor = value[(int)i];
+				  //  if (tensor != null)
+					 //   GetTensorAt(i).Data = tensor;
+			   // }
+		    //}
 	    }
 	    public IFloatVector ReshapeAsVector() => new CudaVector(_cuda, _data, false);
 

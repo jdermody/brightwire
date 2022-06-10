@@ -75,17 +75,17 @@ namespace BrightData.LinearAlgebra
             var tensor = Context.CreateTensor4D<float>(count, depth, rows, columns);
             if(setToZero)
                 tensor.Initialize(0f);
-            return new Float4DTensor(tensor.Tensors.ToArray());
+            return new Float4DTensor(Context.CreateTensor4D(tensor.Tensors.ToArray()));
         }
 
         public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
         {
-            return new Float4DTensor(tensors.Select(t => t.Data).ToArray());
+            return new Float4DTensor(Context.CreateTensor4D(tensors.Select(t => t.Data).ToArray()));
         }
 
         public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
         {
-            return new Float4DTensor(tensors);
+            return new Float4DTensor(Context.CreateTensor4D(tensors));
         }
 
         public void PushLayer()
