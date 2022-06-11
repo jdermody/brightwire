@@ -15,11 +15,11 @@ namespace BrightData.Memory
         where T: struct
     {
         bool _wasDisposed = false;
-        readonly ArraySegment<T> _array;
+        readonly T[] _array;
 
         public TensorSegment(IBrightDataContext context, MemoryOwner<T> data) : base(context, data)
         {
-            _array = data.DangerousGetArray();
+            _array = data.DangerousGetArray().Array!;
         }
 
         public void Dispose()
@@ -94,12 +94,12 @@ namespace BrightData.Memory
         {
             var size = Math.Min(Size, count);
 
-            for (uint i = sourceIndex; i < size; i++)
+            for (var i = sourceIndex; i < size; i++)
                 array[(int)(destinationIndex + i)] = this[i];
         }
 
         public System.Numerics.Vector<T> AsNumericsVector(int start) => new(_data.Span.Slice(start));
-        public T[] GetArrayForLocalUseOnly() => _array.Array!;
+        public T[] GetArrayForLocalUseOnly() => _array;
 
         public override string ToString()
         {
