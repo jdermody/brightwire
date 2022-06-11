@@ -16,7 +16,6 @@ namespace BrightData.Cuda.Helper
     {
         class Block : IDeviceMemoryPtr
         {
-            readonly int _index;
             readonly DeviceMemory _cache;
             readonly CudaDeviceVariable<float> _data;
             bool _disposed = false;
@@ -33,7 +32,7 @@ namespace BrightData.Cuda.Helper
             public Block(DeviceMemory cache, int index, uint size) 
             {
                 _cache = cache;
-                _index = index;
+                Index = index;
 
 	            var sizeInBytes = size * CudaProvider.FloatSize;
 	            var ptr = new CUdeviceptr();
@@ -42,7 +41,7 @@ namespace BrightData.Cuda.Helper
                 _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
 
 #if DEBUG
-                if (_index == _badAlloc)
+                if (Index == _badAlloc)
                     Debugger.Break();
 #endif
             }
@@ -50,20 +49,21 @@ namespace BrightData.Cuda.Helper
             ~Block()
             {
                 if (!_disposed)
-                    Debug.WriteLine($"\tMemory Block {_index} was not disposed - {_data.SizeInBytes} bytes leaked in the GPU !!");
+                    Debug.WriteLine($"\tMemory Block {Index} was not disposed - {_data.SizeInBytes} bytes leaked in the GPU !!");
             }
 #endif
             public override string ToString()
             {
                 var valid = IsValid ? "" : " (invalid)";
-                return $"{_index}, {_data.SizeInBytes} bytes {valid}";
+                return $"{Index}, {_data.SizeInBytes} bytes {valid}";
             }
 
-            public int Index => _index;
+            public int Index { get; }
+
             public void Destroy()
             {
 #if DEBUG
-                if (_index == _badDispose)
+                if (Index == _badDispose)
                     Debugger.Break();
 #endif
                 if (!_disposed) {

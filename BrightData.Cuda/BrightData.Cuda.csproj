@@ -137,6 +137,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="CudaBlas.netCore">
       <HintPath>managed-cuda\CudaBlas.netCore.dll</HintPath>
     </Reference>

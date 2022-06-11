@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
@@ -90,14 +91,15 @@ namespace BrightData.Cuda
 			set
 			{
 				Debug.Assert(IsValid);
-				var data = new float[Count];
-				_data.CopyToHost(data);
+				var data = SpanOwner<float>.Allocate((int)Count);
+                var dataArray = data.DangerousGetArray().Array!;
+				_data.CopyToHost(dataArray);
 
                 var data2 = value.Segment;
                 for (uint i = 0, len = (uint)data.Length; i < len; i++)
-                    data[i] = data2[i];
+                    dataArray[i] = data2[i];
 
-				_data.CopyToDevice(data);
+				_data.CopyToDevice(dataArray);
 			}
 		}
 

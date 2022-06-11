@@ -7,6 +7,7 @@ using BrightData.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
@@ -575,8 +576,9 @@ namespace BrightData.Cuda
 	        set
             {
                 Debug.Assert(IsValid);
-                var buffer = new float[_rows * _columns];
-                _data.CopyToHost(buffer);
+                using var buffer = SpanOwner<float>.Allocate((int)(_rows * _columns));
+                var bufferArray = buffer.DangerousGetArray().Array!;
+                _data.CopyToHost(bufferArray);
 
                 var rowCount = value.RowCount;
                 for (uint i = 0; i < rowCount && i < _rows; i++) {
@@ -584,11 +586,11 @@ namespace BrightData.Cuda
                     var data2 = row.Segment;
                     var columnCount = data2.Size;
                     for (uint j = 0; j < columnCount && j < _columns; j++) {
-                        buffer[j * _rows + i] = data2[j];
+                        bufferArray[j * _rows + i] = data2[j];
                     }
                 }
 
-                _data.CopyToDevice(buffer);
+                _data.CopyToDevice(bufferArray);
             }
         }
 

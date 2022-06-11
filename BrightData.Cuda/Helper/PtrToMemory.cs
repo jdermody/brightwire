@@ -9,10 +9,10 @@ namespace BrightData.Cuda.Helper
     /// </summary>
     internal class PtrToMemory : IDeviceMemoryPtr
     {
-	    readonly IDeviceMemoryPtr _rootBlock;
+	    readonly IDeviceMemoryPtr          _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;
-        readonly CudaContext _context;
-	    int _refCount = 1;
+        readonly CudaContext               _context;
+	    int                                _refCount = 1;
 
         public PtrToMemory(CudaContext context, IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
         {

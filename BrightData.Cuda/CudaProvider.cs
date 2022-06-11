@@ -13,6 +13,7 @@ using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
 using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
@@ -183,61 +184,61 @@ namespace BrightData.Cuda
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
 
-			_pointwiseMultiply = _kernel.LoadFunction("PointwiseMultiply");
-			_addInPlace = _kernel.LoadFunction("AddInPlace");
-			_subtractInPlace = _kernel.LoadFunction("SubtractInPlace");
-			_addToEachRow = _kernel.LoadFunction("AddToEachRow");
-			_addToEachColumn = _kernel.LoadFunction("AddToEachColumn");
-			_tanh = _kernel.LoadFunction("TanH");
-			_tanhDerivative = _kernel.LoadFunction("TanHDerivative");
-			_sigmoid = _kernel.LoadFunction("Sigmoid");
-			_sigmoidDerivative = _kernel.LoadFunction("SigmoidDerivative");
-			_sumRows = _kernel.LoadFunction("SumRows");
-			_relu = _kernel.LoadFunction("RELU");
-			_reluDerivative = _kernel.LoadFunction("RELUDerivative");
-			_memClear = _kernel.LoadFunction("MemClear");
-			_sumColumns = _kernel.LoadFunction("SumColumns");
-			_pointwiseDivide = _kernel.LoadFunction("PointwiseDivide");
-			_sqrt = _kernel.LoadFunction("Sqrt");
-			_findMinAndMax = _kernel.LoadFunction("FindMinAndMax");
-			_findSum = _kernel.LoadFunction("FindSum");
-			_findStdDev = _kernel.LoadFunction("FindStdDev");
-			_constrain = _kernel.LoadFunction("Constrain");
-			_pow = _kernel.LoadFunction("Pow");
-			_diagonal = _kernel.LoadFunction("Diagonal");
-			_l1Regularisation = _kernel.LoadFunction("L1Regularisation");
-			_leakyRelu = _kernel.LoadFunction("LeakyRELU");
-			_leakyReluDerivative = _kernel.LoadFunction("LeakyRELUDerivative");
-			_pointwiseDivideRows = _kernel.LoadFunction("PointwiseDivideRows");
+			_pointwiseMultiply      = _kernel.LoadFunction("PointwiseMultiply");
+			_addInPlace             = _kernel.LoadFunction("AddInPlace");
+			_subtractInPlace        = _kernel.LoadFunction("SubtractInPlace");
+			_addToEachRow           = _kernel.LoadFunction("AddToEachRow");
+			_addToEachColumn        = _kernel.LoadFunction("AddToEachColumn");
+			_tanh                   = _kernel.LoadFunction("TanH");
+			_tanhDerivative         = _kernel.LoadFunction("TanHDerivative");
+			_sigmoid                = _kernel.LoadFunction("Sigmoid");
+			_sigmoidDerivative      = _kernel.LoadFunction("SigmoidDerivative");
+			_sumRows                = _kernel.LoadFunction("SumRows");
+			_relu                   = _kernel.LoadFunction("RELU");
+			_reluDerivative         = _kernel.LoadFunction("RELUDerivative");
+			_memClear               = _kernel.LoadFunction("MemClear");
+			_sumColumns             = _kernel.LoadFunction("SumColumns");
+			_pointwiseDivide        = _kernel.LoadFunction("PointwiseDivide");
+			_sqrt                   = _kernel.LoadFunction("Sqrt");
+			_findMinAndMax          = _kernel.LoadFunction("FindMinAndMax");
+			_findSum                = _kernel.LoadFunction("FindSum");
+			_findStdDev             = _kernel.LoadFunction("FindStdDev");
+			_constrain              = _kernel.LoadFunction("Constrain");
+			_pow                    = _kernel.LoadFunction("Pow");
+			_diagonal               = _kernel.LoadFunction("Diagonal");
+			_l1Regularisation       = _kernel.LoadFunction("L1Regularisation");
+			_leakyRelu              = _kernel.LoadFunction("LeakyRELU");
+			_leakyReluDerivative    = _kernel.LoadFunction("LeakyRELUDerivative");
+			_pointwiseDivideRows    = _kernel.LoadFunction("PointwiseDivideRows");
 			_pointwiseDivideColumns = _kernel.LoadFunction("PointwiseDivideColumns");
-			_splitRows = _kernel.LoadFunction("SplitRows");
-			_splitColumns = _kernel.LoadFunction("SplitColumns");
-			_concatRows = _kernel.LoadFunction("ConcatRows");
-			_concatColumns = _kernel.LoadFunction("ConcatColumns");
-			_euclideanDistance = _kernel.LoadFunction("EuclideanDistance");
-			_manhattanDistance = _kernel.LoadFunction("ManhattanDistance");
-			_cosineDistance = _kernel.LoadFunction("CosineDistance");
-			_abs = _kernel.LoadFunction("Abs");
-			_normalise = _kernel.LoadFunction("Normalise");
-			_softmaxVector = _kernel.LoadFunction("SoftmaxVector");
-            _multiCosine = _kernel.LoadFunction("MultiCosineDistance");
-			_log = _kernel.LoadFunction("Log");
-			_vectorAdd = _kernel.LoadFunction("VectorAdd");
-			_vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
-			_copyToMatrixColumns = _kernel.LoadFunction("CopyToMatrixColumns");
-			_copyToMatrixRows = _kernel.LoadFunction("CopyToMatrixRows");
-			_tensorAddPadding = _kernel.LoadFunction("TensorAddPadding");
-			_tensorRemovePadding = _kernel.LoadFunction("TensorRemovePadding");
-			_tensorIm2Col = _kernel.LoadFunction("TensorIm2Col");
-			_softmaxDerivative = _kernel.LoadFunction("SoftmaxDerivative");
-			_reverse = _kernel.LoadFunction("Reverse");
-			_rotateInPlace = _kernel.LoadFunction("RotateInPlace");
-			_tensorMaxPool = _kernel.LoadFunction("TensorMaxPool");
-			_tensorReverseMaxPool = _kernel.LoadFunction("TensorReverseMaxPool");
-			_tensorReverseIm2Col = _kernel.LoadFunction("TensorReverseIm2Col");
-			_isFinite = _kernel.LoadFunction("IsFinite");
-			_calculateDistance = _kernel.LoadFunction("CalculateDistances");
-            _roundInPlace = _kernel.LoadFunction("RoundInPlace");
+			_splitRows              = _kernel.LoadFunction("SplitRows");
+			_splitColumns           = _kernel.LoadFunction("SplitColumns");
+			_concatRows             = _kernel.LoadFunction("ConcatRows");
+			_concatColumns          = _kernel.LoadFunction("ConcatColumns");
+			_euclideanDistance      = _kernel.LoadFunction("EuclideanDistance");
+			_manhattanDistance      = _kernel.LoadFunction("ManhattanDistance");
+			_cosineDistance         = _kernel.LoadFunction("CosineDistance");
+			_abs                    = _kernel.LoadFunction("Abs");
+			_normalise              = _kernel.LoadFunction("Normalise");
+			_softmaxVector          = _kernel.LoadFunction("SoftmaxVector");
+            _multiCosine            = _kernel.LoadFunction("MultiCosineDistance");
+			_log                    = _kernel.LoadFunction("Log");
+			_vectorAdd              = _kernel.LoadFunction("VectorAdd");
+			_vectorCopyRandom       = _kernel.LoadFunction("VectorCopyRandom");
+			_copyToMatrixColumns    = _kernel.LoadFunction("CopyToMatrixColumns");
+			_copyToMatrixRows       = _kernel.LoadFunction("CopyToMatrixRows");
+			_tensorAddPadding       = _kernel.LoadFunction("TensorAddPadding");
+			_tensorRemovePadding    = _kernel.LoadFunction("TensorRemovePadding");
+			_tensorIm2Col           = _kernel.LoadFunction("TensorIm2Col");
+			_softmaxDerivative      = _kernel.LoadFunction("SoftmaxDerivative");
+			_reverse                = _kernel.LoadFunction("Reverse");
+			_rotateInPlace          = _kernel.LoadFunction("RotateInPlace");
+			_tensorMaxPool          = _kernel.LoadFunction("TensorMaxPool");
+			_tensorReverseMaxPool   = _kernel.LoadFunction("TensorReverseMaxPool");
+			_tensorReverseIm2Col    = _kernel.LoadFunction("TensorReverseIm2Col");
+			_isFinite               = _kernel.LoadFunction("IsFinite");
+			_calculateDistance      = _kernel.LoadFunction("CalculateDistances");
+            _roundInPlace           = _kernel.LoadFunction("RoundInPlace");
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -994,11 +995,12 @@ namespace BrightData.Cuda
 
 		public IFloatVector CreateVector(uint length, Func<uint, float> init)
 		{
-			var data = new float[length];
+			using var data = MemoryOwner<float>.Allocate((int)length);
+            var dataArray = data.DangerousGetArray().Array!;
 			for (uint i = 0; i < length; i++)
-				data[i] = init(i);
+                dataArray[i] = init(i);
 			var ptr = Allocate(length);
-			ptr.CopyToDevice(data);
+			ptr.CopyToDevice(dataArray);
 
 			return new CudaVector(this, ptr, true);
 		}
@@ -1038,14 +1040,15 @@ namespace BrightData.Cuda
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
 			var size = rows * columns;
-			var data = new float[size];
+			using var data = SpanOwner<float>.Allocate((int)size);
+            var dataArray = data.DangerousGetArray().Array!;
 			for (uint j = 0; j < columns; j++) {
 				for (uint i = 0; i < rows; i++) {
-					data[j * rows + i] = init(i, j);
+                    dataArray[j * rows + i] = init(i, j);
 				}
 			}
 			var ptr = Allocate(size);
-			ptr.CopyToDevice(data);
+			ptr.CopyToDevice(dataArray);
 			return new CudaMatrix(this, rows, columns, ptr, true);
 		}
 
