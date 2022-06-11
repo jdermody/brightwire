@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
         public (I4DFloatTensor Result, I4DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
-            Tensor3D<float>[]? indexList = saveIndices 
+            var indexList = saveIndices 
                 ? new Tensor3D<float>[Count]
                 : null;
             var ret = new Tensor3D<float>[Count];

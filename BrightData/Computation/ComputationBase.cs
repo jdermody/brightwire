@@ -47,6 +47,7 @@ namespace BrightData.Computation
         public abstract T One { get; }
         public abstract T Two { get; }
         public abstract T ZeroZeroOne { get; }
+        public abstract T LengthOf(ITensorSegment<T> tensor);
 
         public ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
@@ -231,6 +232,20 @@ namespace BrightData.Computation
             using var distance = Subtract(tensor, other);
             using var squared = Abs(distance);
             return Sum(squared);
+        }
+
+        public T MeanSquaredDistance(ITensorSegment<T> tensor, ITensorSegment<T> other)
+        {
+            using var distance = Subtract(tensor, other);
+            var num = L2Norm(distance);
+            return Divide(Multiply(num, num), LengthOf(distance));
+        }
+
+        public T SquaredEuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other)
+        {
+            using var distance = Subtract(tensor, other);
+            var num = L2Norm(distance);
+            return Multiply(num, num);
         }
 
         public ITensorSegment<T> Pow(ITensorSegment<T> segment, T power) => Transform(segment, v => Pow(v, power));

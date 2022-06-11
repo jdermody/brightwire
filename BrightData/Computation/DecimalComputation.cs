@@ -52,7 +52,7 @@ namespace BrightData.Computation
         public override decimal One { get; } = 1m;
         public override decimal Two { get; } = 2m;
         public override decimal ZeroZeroOne { get; } = 0.01m;
-
+        public override decimal LengthOf(ITensorSegment<decimal> tensor) => tensor.Size;
         public override decimal Get(uint val) => Convert.ToDecimal(val);
         public override decimal Get(float val) => Convert.ToDecimal(val);
         public override decimal Get(double val) => Convert.ToDecimal(val);

@@ -119,12 +119,10 @@ namespace BrightData.LinearAlgebra
         {
             var ret = new Matrix<T>(Context.CreateSegment<T>(RowCount * other.ColumnCount), RowCount, other.ColumnCount);
             Parallel.For(0, ret.Size, ind => {
-            //for (uint ind = 0; ind < ret.Size; ind++) {
                 var i = (uint) (ind % RowCount);
                 var j = (uint) (ind / RowCount);
                 var val = Row(i).DotProduct(other.Column(j));
                 ret[i, j] = val;
-            //}
             });
             return ret;
         }
@@ -211,6 +209,24 @@ namespace BrightData.LinearAlgebra
                 return mutator(i, j, val);
             });
             ret.CopyTo(_segment);
+        }
+
+        /// <summary>
+        /// Adds a vector to each row of the current matrix (in place)
+        /// </summary>
+        /// <param name="other"></param>
+        public void AddToEachRow(Vector<T> other)
+        {
+            MapIndexedInPlace((_, k, v) => Computation.Add(v, other[k]));
+        }
+
+        /// <summary>
+        /// Adds a vector to each column of the current matrix (in place)
+        /// </summary>
+        /// <param name="other"></param>
+        public void AddToEachColumn(Vector<T> other)
+        {
+            MapIndexedInPlace((j, _, v) => Computation.Add(v, other[j]));
         }
     }
 }

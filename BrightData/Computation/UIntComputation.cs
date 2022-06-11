@@ -55,7 +55,7 @@ namespace BrightData.Computation
         public override uint One { get; } = 1;
         public override uint Two { get; } = 2;
         public override uint ZeroZeroOne => throw new NotSupportedException();
-
+        public override uint LengthOf(ITensorSegment<uint> tensor) => tensor.Size;
         public override uint Get(uint val) => Convert.ToUInt32(val);
         public override uint Get(float val) => Convert.ToUInt32(val);
         public override uint Get(double val) => Convert.ToUInt32(val);

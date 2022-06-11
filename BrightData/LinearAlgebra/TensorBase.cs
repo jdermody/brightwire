@@ -12,7 +12,7 @@ namespace BrightData.LinearAlgebra
     /// </summary>
     /// <typeparam name="T">Data type within the tensor</typeparam>
     /// <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
-    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>, IHaveDataContext
+    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>
         where DT : ITensor<T>
         where T : struct
     {
@@ -101,10 +101,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public bool IsValid => _segment.IsValid;
 
-        /// <summary>
-        /// Converts the data to an array
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public T[] ToArray() => _segment.Values.ToArray();
 
         /// <summary>
@@ -317,6 +314,20 @@ namespace BrightData.LinearAlgebra
         public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_segment, tensor.Segment);
 
         /// <summary>
+        /// Computes the mean squared distance between this and another tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public T MeanSquaredDistance(DT tensor) => Computation.MeanSquaredDistance(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Computes the squared euclidean distance between this and another tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public T SquaredEuclideanDistance(DT tensor) => Computation.SquaredEuclideanDistance(_segment, tensor.Segment);
+
+        /// <summary>
         /// Computes the average of the elements in this tensor
         /// </summary>
         /// <returns></returns>
@@ -520,5 +531,10 @@ namespace BrightData.LinearAlgebra
             Parallel.For(0, (int) Size, i => ret[i] = mapper((uint) i, _segment[i]));
             return ret;
         }
+
+        /// <summary>
+        /// Sets each element to zero
+        /// </summary>
+        public void Clear() => Segment.Initialize(Computation.Zero);
     }
 }

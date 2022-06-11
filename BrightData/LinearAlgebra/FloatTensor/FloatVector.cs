@@ -25,18 +25,8 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public Vector<float> Data { get; set; }
         public IFloatVector Add(IFloatVector vector) => new FloatVector(Data.Add(vector.Data));
         public IFloatVector Subtract(IFloatVector vector) => new FloatVector(Data.Subtract(vector.Data));
-        public float L1Norm()
-        {
-            using var abs = Data.Abs();
-            return abs.Sum();
-        }
-
-        public float L2Norm()
-        {
-            using var squared = Data.PointwiseMultiply(Data);
-            return MathF.Sqrt(squared.Sum());
-        }
-
+        public float L1Norm() => Data.L1Norm();
+        public float L2Norm() => Data.L2Norm();
         public uint MaximumAbsoluteIndex() => Data.MaximumAbsoluteIndex();
         public uint MinimumAbsoluteIndex() => Data.MinimumAbsoluteIndex();
         public void Multiply(float scalar) => Data.MultiplyInPlace(scalar);
@@ -54,19 +44,8 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public float EuclideanDistance(IFloatVector vector) => Data.EuclideanDistance(vector.Data);
         public float CosineDistance(IFloatVector vector) => Data.CosineDistance(vector.Data);
         public float ManhattanDistance(IFloatVector vector) => Data.ManhattanDistance(vector.Data);
-        public float MeanSquaredDistance(IFloatVector vector)
-        {
-            using var diff = Data.Subtract(vector.Data);
-            var num = diff.L2Norm();
-            return num * num / Count;
-        }
-
-        public float SquaredEuclidean(IFloatVector vector)
-        {
-            using var diff = Data.Subtract(vector.Data);
-            var num = diff.L2Norm();
-            return num * num;
-        }
+        public float MeanSquaredDistance(IFloatVector vector) => Data.MeanSquaredDistance(vector.Data);
+        public float SquaredEuclidean(IFloatVector vector) => Data.SquaredEuclideanDistance(vector.Data);
 
         public (float Min, float Max) GetMinMax()
         {

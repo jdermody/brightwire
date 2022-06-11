@@ -206,7 +206,7 @@ namespace BrightData
     /// <summary>
     /// Tensor base interface
     /// </summary>
-    public interface ITensor : IDisposable, ISerializable
+    public interface ITensor : IDisposable, ISerializable, IHaveDataContext
     {
         /// <summary>
         /// The shape of the tensor (array of each dimension)
@@ -251,6 +251,14 @@ namespace BrightData
         /// Typed computation interface
         /// </summary>
         INumericComputation<T> Computation { get; }
+
+        /// <summary>
+        /// Convert to an array
+        /// </summary>
+        /// <returns></returns>
+        T[] ToArray();
+
+
     }
 
     /// <summary>
@@ -610,6 +618,8 @@ namespace BrightData
         T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
         T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other);
         T EuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        T MeanSquaredDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        T SquaredEuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
         ITensorSegment<T> Exp(ITensorSegment<T> tensor);
         T L1Norm(ITensorSegment<T> segment);
         T L2Norm(ITensorSegment<T> segment);
@@ -631,7 +641,7 @@ namespace BrightData
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2);
         T Sum(ITensorSegment<T> tensor);
-
+        T LengthOf(ITensorSegment<T> tensor);
         (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment);
         bool IsEntirelyFinite(ITensorSegment<T> segment);
         ITensorSegment<T> Reverse(ITensorSegment<T> segment);
@@ -653,6 +663,15 @@ namespace BrightData
         T Get(float val);
         T Get(double val);
         T Get(decimal val);
+        T Add(T a, T b);
+        T Subtract(T a, T b);
+        T Multiply(T a, T b);
+        T Divide(T a, T b);
+        T Sqrt(T a);
+        T Abs(T a);
+        T Log(T a);
+        T Exp(T a);
+        T Pow(T a, T rank);
 
         public T Zero { get; }
         public T One { get; }

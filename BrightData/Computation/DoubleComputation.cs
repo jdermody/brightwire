@@ -58,7 +58,7 @@ namespace BrightData.Computation
         public override double One { get; } = 1;
         public override double Two { get; } = 2;
         public override double ZeroZeroOne { get; } = 0.01;
-
+        public override double LengthOf(ITensorSegment<double> tensor) => tensor.Size;
         public override double Get(uint val) => Convert.ToDouble(val);
         public override double Get(float val) => Convert.ToDouble(val);
         public override double Get(double val) => Convert.ToDouble(val);

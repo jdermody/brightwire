@@ -42,13 +42,13 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public void AddToEachRow(IFloatVector vector)
         {
             var other = vector.Data;
-            Data.MapIndexedInPlace((_, k, v) => v + other[k]);
+            Data.AddToEachRow(other);
         }
 
         public void AddToEachColumn(IFloatVector vector)
         {
             var other = vector.Data;
-            Data.MapIndexedInPlace((j, _, v) => v + other[j]);
+            Data.AddToEachColumn(other);
         }
 
         public Matrix<float> Data { get; set; }
@@ -83,7 +83,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
         public IFloatMatrix LeakyReluActivation() => new FloatMatrix(Data.LeakyRelu());
         public IFloatMatrix LeakyReluDerivative() => new FloatMatrix(Data.LeakyReluDerivative());
         public IFloatMatrix Clone() => new FloatMatrix(Data.Clone());
-        public void Clear() => Data.Segment.Initialize(0f);
+        public void Clear() => Data.Clear();
 
         public IFloatMatrix Sqrt() => new FloatMatrix(Data.Map(x => FloatMath.Sqrt(x)));
         public IFloatMatrix Pow(float power) => new FloatMatrix(Data.Pow(power));

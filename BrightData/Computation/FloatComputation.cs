@@ -136,9 +136,10 @@ namespace BrightData.Computation
             return segment.Values.AsParallel().Sum();
         }
 
+        public float LengthOf(ITensorSegment<float> tensor) => tensor.Size;
+
         public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<float> segment)
         {
-            // parallel code would need locks...
             return ComputationBase<float>.GetMinAndMaxValues(segment, float.MaxValue, float.MinValue);
         }
 
@@ -165,6 +166,20 @@ namespace BrightData.Computation
             using var distance = Subtract(tensor, other);
             using var squared = Squared(distance);
             return MathF.Sqrt(Sum(squared));
+        }
+
+        public float MeanSquaredDistance(ITensorSegment<float> tensor, ITensorSegment<float> other)
+        {
+            using var diff = Subtract(tensor, other);
+            var num = L2Norm(diff);
+            return num * num / diff.Size;
+        }
+
+        public float SquaredEuclideanDistance(ITensorSegment<float> tensor, ITensorSegment<float> other)
+        {
+            using var diff = Subtract(tensor, other);
+            var num = L2Norm(diff);
+            return num * num;
         }
 
         public float ManhattanDistance(ITensorSegment<float> tensor, ITensorSegment<float> other)
@@ -375,11 +390,20 @@ namespace BrightData.Computation
         {
             Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
         }
-
         public float Get(uint val) => Convert.ToSingle(val);
         public float Get(float val) => Convert.ToSingle(val);
         public float Get(double val) => Convert.ToSingle(val);
         public float Get(decimal val) => Convert.ToSingle(val);
+        public float Add(float a, float b) => a + b;
+        public float Subtract(float a, float b) => a - b;
+        public float Multiply(float a, float b) => a * b;
+        public float Divide(float a, float b) => a / b;
+        public float Sqrt(float a) => MathF.Sqrt(a);
+        public float Abs(float a) => MathF.Abs(a);
+        public float Log(float a) => MathF.Log(a);
+        public float Exp(float a) => MathF.Exp(a);
+        public float Pow(float a, float rank) => MathF.Pow(a, rank);
+
         public float Zero { get; } = 0f;
         public float One { get; } = 1f;
     }
