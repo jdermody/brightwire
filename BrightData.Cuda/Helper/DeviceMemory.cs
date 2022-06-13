@@ -37,7 +37,7 @@ namespace BrightData.Cuda.Helper
 	            var sizeInBytes = size * CudaProvider.FloatSize;
 	            var ptr = new CUdeviceptr();
 	            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
-	            CudaProvider.CheckForError(result);
+                CudaProvider.CheckForError(result);
                 _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
 
 #if DEBUG

@@ -29,7 +29,7 @@ namespace BrightData2
         }
 
         public abstract T Create(ITensorSegment2 segment);
-        public abstract uint TotalSize { get; }
+        public abstract uint Size { get; }
 
         public ITensorSegment2 Segment { get; }
         public BrightDataContext2 Context => _computationUnit.Context;
@@ -37,7 +37,7 @@ namespace BrightData2
         public IVector Reshape() => _computationUnit.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
         {
-            var shape = ResolveShape(TotalSize, rows, columns);
+            var shape = ResolveShape(Size, rows, columns);
             return _computationUnit.CreateMatrix(Segment, shape[0], shape[1]);
         }
 

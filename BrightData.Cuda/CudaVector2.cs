@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightData2;
 
-namespace BrightData.Cuda2
+namespace BrightData.Cuda
 {
     internal class CudaVector2 : Vector2<CudaComputationUnit>
     {

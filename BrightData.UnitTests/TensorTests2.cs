@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Cuda;
-using BrightData.Cuda2;
 using BrightData.MKL;
 using BrightData2;
 using Xunit;

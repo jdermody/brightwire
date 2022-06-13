@@ -86,6 +86,10 @@ namespace BrightData2
         public virtual float L1Norm(ITensorSegment2 segment) => segment.L1Norm();
         public virtual float L2Norm(ITensorSegment2 segment) => segment.L2Norm();
         public virtual (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment2 segment) => segment.GetMinAndMaxValues();
+        public virtual uint GetMinIndex(ITensorSegment2 segment) => GetMinAndMaxValues(segment).MinIndex;
+        public virtual uint GetMaxIndex(ITensorSegment2 segment) => GetMinAndMaxValues(segment).MaxIndex;
+        public virtual float GetMin(ITensorSegment2 segment) => GetMinAndMaxValues(segment).Min;
+        public virtual float GetMax(ITensorSegment2 segment) => GetMinAndMaxValues(segment).Max;
         public virtual bool IsEntirelyFinite(ITensorSegment2 segment) => segment.IsEntirelyFinite();
         public virtual ITensorSegment2 Reverse(ITensorSegment2 segment) => segment.Reverse();
         public virtual IEnumerable<ITensorSegment2> Split(ITensorSegment2 segment, uint blockCount) => segment.Split(blockCount);
@@ -111,5 +115,72 @@ namespace BrightData2
         public virtual IMatrix SoftmaxDerivative(ITensorSegment2 tensor) => tensor.SoftmaxDerivative(this);
         public virtual ITensorSegment2 Pow(ITensorSegment2 tensor, float power) => tensor.Pow(power);
         public virtual void RoundInPlace(ITensorSegment2 tensor, float lower, float upper, float? mid) => tensor.RoundInPlace(lower, upper, mid);
+
+        public virtual IMatrix Transpose(IMatrix matrix)
+        {
+            var columnCount = matrix.ColumnCount;
+            var ret = CreateMatrix(columnCount, matrix.RowCount);
+            Parallel.For(0, matrix.Segment.Size, ind => {
+                var j = (uint)(ind / columnCount);
+                var i = (uint)(ind % columnCount);
+                ret[i, j] = matrix[j, i];
+            });
+            return ret;
+        }
+
+        public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
+        {
+            var rowCount = matrix.RowCount;
+            var ret = CreateMatrix(rowCount, other.ColumnCount);
+            var columns = other.Columns();
+            var rows = matrix.Rows();
+            Parallel.For(0, matrix.RowCount * other.ColumnCount, ind => {
+                var i = (uint) (ind % rowCount);
+                var j = (uint) (ind / rowCount);
+                var column = columns[j];
+                var row = rows[i];
+                var val = row.DotProduct(column);
+                ret[i, j] = val;
+            });
+
+            // don't need to dispose the wrappers
+            return ret;
+        }
+
+        public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
+        {
+            using var transpose = Transpose(other);
+            return Multiply(matrix, transpose);
+        }
+
+        public virtual IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
+        {
+            using var transpose = Transpose(matrix);
+            return Multiply(transpose, other);
+        }
+
+        public virtual IVector GetDiagonal(IMatrix matrix)
+        {
+            if(matrix.RowCount != matrix.ColumnCount)
+                throw new Exception("Diagonal can only be found from square matrices");
+            return CreateVector(matrix.RowCount, i => matrix[i, i]);
+        }
+
+        public virtual IVector RowSums(IMatrix matrix)
+        {
+            var rows = matrix.Rows();
+            return CreateVector(matrix.RowCount, i => rows[i].Sum());
+        }
+
+        public virtual IVector ColumnSums(IMatrix matrix)
+        {
+            var columns = matrix.Columns();
+            return CreateVector(matrix.ColumnCount, i => columns[i].Sum());
+        }
+
+        public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

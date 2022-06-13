@@ -14,8 +14,7 @@ namespace BrightData2
         {
         }
 
-        public uint Size => Segment.Size;
-        public override uint TotalSize => Segment.Size;
+        public override uint Size => Segment.Size;
 
         public float this[int index]
         {

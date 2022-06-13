@@ -7,9 +7,10 @@ using BrightData;
 
 namespace BrightData2
 {
-    public class Matrix2 : TensorBase2<IMatrix, ComputationUnit>, IMatrix
+    public class Matrix2<CU> : TensorBase2<IMatrix, CU>, IMatrix
+        where CU: ComputationUnit
     {
-        public Matrix2(ITensorSegment2 data, uint rows, uint columns, ComputationUnit computationUnit) : base(data, computationUnit)
+        public Matrix2(ITensorSegment2 data, uint rows, uint columns, CU computationUnit) : base(data, computationUnit)
         {
             RowCount = rows;
             ColumnCount = columns;
@@ -17,7 +18,7 @@ namespace BrightData2
 
         public uint RowCount { get; }
         public uint ColumnCount { get; }
-        public override uint TotalSize => RowCount * ColumnCount;
+        public override uint Size => RowCount * ColumnCount;
 
         public float this[int rowY, int columnX]
         {
@@ -40,7 +41,7 @@ namespace BrightData2
             set => Segment[rowY * ColumnCount + columnX] = value;
         }
 
-        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2(segment, RowCount, ColumnCount, _computationUnit);
+        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<CU>(segment, RowCount, ColumnCount, _computationUnit);
 
         public IDisposableTensorSegmentWrapper Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
         public IDisposableTensorSegmentWrapper Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
@@ -62,7 +63,7 @@ namespace BrightData2
 
         public float[] ToNewColumnMajorArray()
         {
-            var ret = new float[TotalSize];
+            var ret = new float[Size];
             Parallel.For(0, ColumnCount, ind => {
                 var i = (uint) ind;
                 var column = Column(i);
@@ -73,53 +74,11 @@ namespace BrightData2
             return ret;
         }
 
-        public virtual IMatrix Transpose()
-        {
-            var ret = _computationUnit.CreateMatrix(ColumnCount, RowCount);
-            Parallel.For(0, TotalSize, ind => {
-                var j = (uint)(ind / ColumnCount);
-                var i = (uint)(ind % ColumnCount);
-                ret[i, j] = this[j, i];
-            });
-            return ret;
-        }
-
-        public virtual IMatrix Multiply(IMatrix other)
-        {
-            var ret = _computationUnit.CreateMatrix(RowCount, other.ColumnCount);
-            var columns = other.Columns();
-            var rows = Rows();
-            Parallel.For(0, TotalSize, ind => {
-                var i = (uint) (ind % RowCount);
-                var j = (uint) (ind / RowCount);
-                var column = columns[j];
-                var row = rows[i];
-                var val = row.DotProduct(column);
-                ret[i, j] = val;
-            });
-
-            // don't need to dispose the wrappers
-            return ret;
-        }
-
-        public IVector GetDiagonal()
-        {
-            if(RowCount != ColumnCount)
-                throw new Exception("Diagonal can only be found from square matrices");
-            return _computationUnit.CreateVector(RowCount, i => this[i, i]);
-        }
-
-        public IVector RowSums()
-        {
-            var rows = Rows();
-            return _computationUnit.CreateVector(RowCount, i => rows[i].Sum());
-        }
-
-        public IVector ColumnSums()
-        {
-            var columns = Columns();
-            return _computationUnit.CreateVector(ColumnCount, i => columns[i].Sum());
-        }
+        public IMatrix Transpose() => _computationUnit.Transpose(this);
+        public IMatrix Multiply(IMatrix other) => _computationUnit.Multiply(this, other);
+        public IVector GetDiagonal() => _computationUnit.GetDiagonal(this);
+        public IVector RowSums() => _computationUnit.RowSums(this);
+        public IVector ColumnSums() => _computationUnit.ColumnSums(this);
         public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
 
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
@@ -148,5 +107,12 @@ namespace BrightData2
         }
 
         public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");
+    }
+
+    public class Matrix2 : Matrix2<ComputationUnit>
+    {
+        public Matrix2(ITensorSegment2 data, uint rows, uint columns, ComputationUnit computationUnit) : base(data, rows, columns, computationUnit)
+        {
+        }
     }
 }
