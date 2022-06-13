@@ -99,22 +99,22 @@ namespace BrightData
         /// <summary>
         /// Vector of floats
         /// </summary>
-        Vector,
+        FloatVector,
 
         /// <summary>
         /// Matrix of floats
         /// </summary>
-        Matrix,
+        FloatMatrix,
 
         /// <summary>
         /// 3D tensor of floats
         /// </summary>
-        Tensor3D,
+        FloatTensor3D,
 
         /// <summary>
         /// 4D tensor of floats
         /// </summary>
-        Tensor4D,
+        FloatTensor4D,
 
         /// <summary>
         /// Binary data

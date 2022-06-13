@@ -71,7 +71,7 @@ namespace BrightData.DataTable.Builders
 
         public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
         {
-            var metaData = Add(BrightDataType.Vector, name);
+            var metaData = Add(BrightDataType.FloatVector, name);
             metaData.Set(Consts.XDimension, size);
             return metaData;
         }

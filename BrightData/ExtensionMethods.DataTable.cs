@@ -41,10 +41,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.Vector            => typeof(Vector<float>),
-                BrightDataType.Matrix            => typeof(Matrix<float>),
-                BrightDataType.Tensor3D          => typeof(Tensor3D<float>),
-                BrightDataType.Tensor4D          => typeof(Tensor4D<float>),
+                BrightDataType.FloatVector       => typeof(Vector<float>),
+                BrightDataType.FloatMatrix       => typeof(Matrix<float>),
+                BrightDataType.FloatTensor3D     => typeof(Tensor3D<float>),
+                BrightDataType.FloatTensor4D     => typeof(Tensor4D<float>),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -95,16 +95,16 @@ namespace BrightData
                 return BrightDataType.WeightedIndexList;
 
             if (dataType == typeof(Vector<float>))
-                return BrightDataType.Vector;
+                return BrightDataType.FloatVector;
 
             if (dataType == typeof(Matrix<float>))
-                return BrightDataType.Matrix;
+                return BrightDataType.FloatMatrix;
 
             if (dataType == typeof(Tensor3D<float>))
-                return BrightDataType.Tensor3D;
+                return BrightDataType.FloatTensor3D;
 
             if (dataType == typeof(Tensor4D<float>))
-                return BrightDataType.Tensor4D;
+                return BrightDataType.FloatTensor4D;
 
             if (dataType == typeof(BinaryData))
                 return BrightDataType.BinaryData;
@@ -173,10 +173,10 @@ namespace BrightData
         /// <returns></returns>
         public static bool IsTensor(this BrightDataType type) => type switch
         {
-            BrightDataType.Vector   => true,
-            BrightDataType.Matrix   => true,
-            BrightDataType.Tensor3D => true,
-            BrightDataType.Tensor4D => true,
+            BrightDataType.FloatVector   => true,
+            BrightDataType.FloatMatrix   => true,
+            BrightDataType.FloatTensor3D => true,
+            BrightDataType.FloatTensor4D => true,
             _                       => false
         };
 
@@ -951,7 +951,7 @@ namespace BrightData
             // consider the simple case
             if (columnIndices.Length == 1) {
                 var columnType = dataTable.ColumnTypes[columnIndices[0]];
-                if (columnType == BrightDataType.Vector) {
+                if (columnType == BrightDataType.FloatVector) {
                     var index = 0;
                     var rows = new Vector<float>[dataTable.RowCount];
                     var vectorSegment = (IDataTableSegment<Vector<float>>)dataTable.Column(columnIndices[0]);

@@ -288,10 +288,10 @@ namespace BrightData.DataTable
                 BrightDataType.SByte => new ColumnReader<sbyte>(ReadByte),
                 BrightDataType.IndexList => new ColumnReader<IndexList>(ReadIndexList),
                 BrightDataType.WeightedIndexList => new ColumnReader<WeightedIndexList>(ReadWeightedIndexList),
-                BrightDataType.Vector => new ColumnReader<Vector<float>>(ReadVector),
-                BrightDataType.Matrix => new ColumnReader<Matrix<float>>(ReadMatrix),
-                BrightDataType.Tensor3D => new ColumnReader<Tensor3D<float>>(ReadTensor3D),
-                BrightDataType.Tensor4D => new ColumnReader<Tensor4D<float>>(ReadTensor4D),
+                BrightDataType.FloatVector => new ColumnReader<Vector<float>>(ReadVector),
+                BrightDataType.FloatMatrix => new ColumnReader<Matrix<float>>(ReadMatrix),
+                BrightDataType.FloatTensor3D => new ColumnReader<Tensor3D<float>>(ReadTensor3D),
+                BrightDataType.FloatTensor4D => new ColumnReader<Tensor4D<float>>(ReadTensor4D),
                 BrightDataType.BinaryData => new ColumnReader<BinaryData>(ReadBinaryData),
                 _ => throw new ArgumentException($"Invalid column type: {type}")
             };

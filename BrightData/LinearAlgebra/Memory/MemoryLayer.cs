@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.Memory
+namespace BrightData.LinearAlgebra.Memory
 {
     /// <summary>
     /// A section of memory blocks that will be released when the layer is disposed

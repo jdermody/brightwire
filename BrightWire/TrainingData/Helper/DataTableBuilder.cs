@@ -64,21 +64,21 @@ namespace BrightWire.TrainingData.Helper
         {
             if (size != null)
                 return builder.AddFixedSizeVectorColumn(size.Value, name);
-            return builder.AddColumn(BrightDataType.Vector, name);
+            return builder.AddColumn(BrightDataType.FloatVector, name);
         }
 
         static IMetaData AddMatrix(InMemoryTableBuilder builder, uint? rows, uint? columns, string name)
         {
             if (rows != null && columns != null)
                 return builder.AddFixedSizeMatrixColumn(rows.Value, columns.Value, name);
-            return builder.AddColumn(BrightDataType.Matrix, name);
+            return builder.AddColumn(BrightDataType.FloatMatrix, name);
         }
 
         static IMetaData Add3DTensor(InMemoryTableBuilder builder, uint? depth, uint? rows, uint? columns, string name)
         {
             if (depth != null && rows != null && columns != null)
                 return builder.AddFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name);
-            return builder.AddColumn(BrightDataType.Tensor3D, name);
+            return builder.AddColumn(BrightDataType.FloatTensor3D, name);
         }
     }
 }

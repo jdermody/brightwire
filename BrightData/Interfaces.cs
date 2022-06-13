@@ -547,13 +547,7 @@ namespace BrightData
         /// Initialize from an array
         /// </summary>
         /// <param name="initialData"></param>
-        void Initialize(T[] initialData);
-
-        /// <summary>
-        /// Initialize from an existing block
-        /// </summary>
-        /// <param name="data"></param>
-        void Initialize(MemoryOwner<T> data);
+        void Initialize(Span<T> initialData);
 
         /// <summary>
         /// Writes to a stream
@@ -566,24 +560,14 @@ namespace BrightData
         /// </summary>
         /// <param name="array"></param>
         /// <param name="sourceIndex">Index to start copying from</param>
-        /// <param name="destinationIndex">Index to start writing to</param>
         /// <param name="count">Number of values to copy</param>
-        void CopyTo(MemoryOwner<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
+        void CopyTo(Span<T> array, uint sourceIndex = 0, uint count = uint.MaxValue);
 
         /// <summary>
         /// Copies all values to another segment
         /// </summary>
         /// <param name="segment"></param>
         void CopyTo(ITensorSegment<T> segment);
-
-        /// <summary>
-        /// Copies all values into the existing array
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="sourceIndex">Index to start copying from</param>
-        /// <param name="destinationIndex">Index to start writing to</param>
-        /// <param name="count">Number of values to copy</param>
-        void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = uint.MaxValue);
 
         /// <summary>
         /// Returns part of the segment as a numerics vector

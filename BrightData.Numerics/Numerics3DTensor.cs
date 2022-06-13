@@ -45,7 +45,7 @@ namespace BrightData.Numerics
                 if(matrix is NumericsMatrix numerics)
 		            Array.Copy(numerics.GetInternalArray(), 0, data, offset, rowSize);
                 else
-                    matrix.Data.Segment.CopyTo(data, 0, offset, rowSize);
+                    matrix.Data.Segment.CopyTo(data.AsSpan((int)offset), 0, rowSize);
                 offset += rowSize;
 	        }
 

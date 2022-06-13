@@ -2,7 +2,7 @@
 using System.Threading;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.Memory
+namespace BrightData.LinearAlgebra.Memory
 {
     /// <summary>
     /// Reference counted memory block

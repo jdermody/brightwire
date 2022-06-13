@@ -4,7 +4,7 @@ using System.Threading;
 using BrightData.Computation;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
+using BrightData.LinearAlgebra.Memory;
 
 namespace BrightData
 {

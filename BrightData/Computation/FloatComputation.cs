@@ -6,7 +6,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
+using BrightData.LinearAlgebra.Memory;
 
 namespace BrightData.Computation
 {

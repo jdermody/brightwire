@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
+using BrightData.LinearAlgebra.Memory;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData

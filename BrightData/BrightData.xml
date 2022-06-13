@@ -2323,6 +2323,16 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Tensor3D{``0}[])">
+            <summary>
+            Creates a 4D tensor from 3D tensors
+            </summary>
+            <param name="context"></param>
+            <param name="tensors">3D tensors that form the 4D tensor</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnCount``1(BrightData.ITensor{``0})">
             <summary>
             Returns the number of columns in this tensor
@@ -3431,6 +3441,12 @@
             Typed computation interface
             </summary>
         </member>
+        <member name="M:BrightData.ITensor`1.ToArray">
+            <summary>
+            Convert to an array
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IDataReader">
             <summary>
             Typed data reader
@@ -3673,17 +3689,11 @@
             </summary>
             <param name="initialValue">Initial value</param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.Initialize(`0[])">
+        <member name="M:BrightData.ITensorSegment`1.Initialize(System.Span{`0})">
             <summary>
             Initialize from an array
             </summary>
             <param name="initialData"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.Initialize(Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{`0})">
-            <summary>
-            Initialize from an existing block
-            </summary>
-            <param name="data"></param>
         </member>
         <member name="M:BrightData.ITensorSegment`1.WriteTo(System.IO.Stream)">
             <summary>
@@ -3691,13 +3701,12 @@
             </summary>
             <param name="writerBaseStream"></param>
         </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{`0},System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ITensorSegment`1.CopyTo(System.Span{`0},System.UInt32,System.UInt32)">
             <summary>
             Copies values from this segment to an existing array
             </summary>
             <param name="array"></param>
             <param name="sourceIndex">Index to start copying from</param>
-            <param name="destinationIndex">Index to start writing to</param>
             <param name="count">Number of values to copy</param>
         </member>
         <member name="M:BrightData.ITensorSegment`1.CopyTo(BrightData.ITensorSegment{`0})">
@@ -3705,12 +3714,6 @@
             Copies all values to another segment
             </summary>
             <param name="segment"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(System.ArraySegment{`0},System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Copies all values into the existing array
-            </summary>
-            <param name="array"></param>
         </member>
         <member name="M:BrightData.ITensorSegment`1.AsNumericsVector(System.Int32)">
             <summary>
@@ -4284,22 +4287,22 @@
             Weighted list of indices
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.Vector">
+        <member name="F:BrightData.BrightDataType.FloatVector">
             <summary>
             Vector of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.Matrix">
+        <member name="F:BrightData.BrightDataType.FloatMatrix">
             <summary>
             Matrix of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.Tensor3D">
+        <member name="F:BrightData.BrightDataType.FloatTensor3D">
             <summary>
             3D tensor of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.Tensor4D">
+        <member name="F:BrightData.BrightDataType.FloatTensor4D">
             <summary>
             4D tensor of floats
             </summary>
@@ -6294,6 +6297,51 @@
             </summary>
             <param name="mutator">Mapping function</param>
         </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.AddToEachRow(BrightData.LinearAlgebra.Vector{`0})">
+            <summary>
+            Adds a vector to each row of the current matrix (in place)
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.AddToEachColumn(BrightData.LinearAlgebra.Vector{`0})">
+            <summary>
+            Adds a vector to each column of the current matrix (in place)
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.DisposableLayers">
+            <summary>
+            Collects allocations within a "layer" that can all be released at once
+            </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.MemoryLayer">
+            <summary>
+            A section of memory blocks that will be released when the layer is disposed
+            </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.ReferenceCountedBlock`1">
+            <summary>
+            Reference counted memory block
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.TensorPool">
+            <summary>
+            Wraps memory owner array pool
+            </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.TensorSegment`1">
+            <summary>
+            "Pointer" to a tensor block that manages reference counting
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Memory.TensorSegmentWrapper`1">
+            <summary>
+            Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightData.LinearAlgebra.Tensor3D`1">
             <summary>
             3D tensor type
@@ -6488,10 +6536,7 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.ToArray">
-            <summary>
-            Converts the data to an array
-            </summary>
-            <returns></returns>
+            <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.Add(`1)">
             <summary>
@@ -6702,6 +6747,20 @@
             <param name="tensor">Other tensor</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MeanSquaredDistance(`1)">
+            <summary>
+            Computes the mean squared distance between this and another tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.SquaredEuclideanDistance(`1)">
+            <summary>
+            Computes the squared euclidean distance between this and another tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.Mean">
             <summary>
             Computes the average of the elements in this tensor
@@ -6885,6 +6944,11 @@
             <param name="mapper">Mapping function to apply</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Clear">
+            <summary>
+            Sets each element to zero
+            </summary>
+        </member>
         <member name="T:BrightData.LinearAlgebra.Vector`1">
             <summary>
             Generic vector
@@ -6954,39 +7018,6 @@
             Applies an indexed mapping function to each value within the matrix
             </summary>
             <param name="mutator">Mapping function</param>
-        </member>
-        <member name="T:BrightData.Memory.DisposableLayers">
-            <summary>
-            Collects allocations within a "layer" that can all be released at once
-            </summary>
-        </member>
-        <member name="T:BrightData.Memory.MemoryLayer">
-            <summary>
-            A section of memory blocks that will be released when the layer is disposed
-            </summary>
-        </member>
-        <member name="T:BrightData.Memory.ReferenceCountedBlock`1">
-            <summary>
-            Reference counted memory block
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Memory.TensorPool">
-            <summary>
-            Tensor memory pool
-            </summary>
-        </member>
-        <member name="T:BrightData.Memory.TensorSegment`1">
-            <summary>
-            "Pointer" to a tensor block that manages reference counting
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Memory.TensorSegmentWrapper`1">
-            <summary>
-            Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
-            </summary>
-            <typeparam name="T"></typeparam>
         </member>
         <member name="T:BrightData.MetaData">
             <inheritdoc />

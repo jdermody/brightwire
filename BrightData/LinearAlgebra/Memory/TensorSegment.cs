@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.Memory
+namespace BrightData.LinearAlgebra.Memory
 {
     /// <summary>
     /// "Pointer" to a tensor block that manages reference counting
@@ -34,7 +34,7 @@ namespace BrightData.Memory
             }
         }
 
-        public bool IsContiguous { get; } = true;
+        public bool IsContiguous => true;
 
         public T this[uint index] {
             get => _array[(int)index];
@@ -74,28 +74,19 @@ namespace BrightData.Memory
                 _array[i] = initializer;
         }
 
-        public void Initialize(T[] initialData)
+        public void Initialize(Span<T> initialData)
         {
-            for (var i = 0; i < initialData.Length; i++)
-                _array[i] = initialData[i];
-        }
-        public void Initialize(MemoryOwner<T> initialData)
-        {
-            initialData.Span.CopyTo(_data.Span);
+            initialData.CopyTo(_data.Span);
         }
         public void WriteTo(Stream stream) => stream.Write(MemoryMarshal.Cast<T, byte>(_data.Span));
 
-        public void CopyTo(MemoryOwner<T> memoryOwner, uint sourceIndex, uint destinationIndex, uint count)
+        public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(_data.Span);
+        public void CopyTo(Span<T> span, uint sourceIndex = 0U, uint count = 4294967295U)
         {
-            CopyTo(memoryOwner.DangerousGetArray(), sourceIndex, destinationIndex, count);
-        }
-        public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(_data);
-        public void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = UInt32.MaxValue)
-        {
+            var index = 0;
             var size = Math.Min(Size, count);
-
             for (var i = sourceIndex; i < size; i++)
-                array[(int)(destinationIndex + i)] = this[i];
+                span[index++] = _array[i];
         }
 
         public System.Numerics.Vector<T> AsNumericsVector(int start) => new(_data.Span.Slice(start));

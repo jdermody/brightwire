@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace BrightData.Memory
+namespace BrightData.LinearAlgebra.Memory
 {
     /// <summary>
     /// Collects allocations within a "layer" that can all be released at once

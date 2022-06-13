@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.Memory
+namespace BrightData.LinearAlgebra.Memory
 {
     /// <summary>
     /// Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
@@ -101,11 +101,10 @@ namespace BrightData.Memory
         }
 
         public void Initialize(T[] initialData) => Initialize(i => initialData[i]);
-        public void Initialize(MemoryOwner<T> initialData)
+        public void Initialize(Span<T> initialData)
         {
-            var ptr = initialData.Span;
             for (var i = 0; i < Size; i++)
-                this[i] = ptr[i];
+                this[i] = initialData[i];
         }
 
         public unsafe void WriteTo(Stream stream)
@@ -122,16 +121,12 @@ namespace BrightData.Memory
             stream.Write(buffer);
         }
 
-        public void CopyTo(MemoryOwner<T> memoryOwner, uint sourceIndex, uint destinationIndex, uint count)
+        public void CopyTo(Span<T> span, uint sourceIndex, uint count)
         {
-            CopyTo(memoryOwner.DangerousGetArray());
-        }
-
-        public void CopyTo(ArraySegment<T> array, uint sourceIndex = 0, uint destinationIndex = 0, uint count = UInt32.MaxValue)
-        {
+            var index = 0;
             var size = Math.Min(Size, count);
-            for (uint i = sourceIndex; i < size; i++)
-                array[(int)(destinationIndex + i)] = this[i];
+            for (var i = sourceIndex; i < size; i++)
+                span[index++] = this[i];
         }
 
         public void CopyTo(ITensorSegment<T> segment)

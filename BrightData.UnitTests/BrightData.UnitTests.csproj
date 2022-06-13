@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="MKL.NET.win-x64" Version="2022.0.0.115" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <PrivateAssets>all</PrivateAssets>
@@ -24,6 +25,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData.Cuda\BrightData.Cuda.csproj" />
+    <ProjectReference Include="..\BrightData.MKL\BrightData.MKL.csproj" />
+    <ProjectReference Include="..\BrightData2\BrightData2.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
   </ItemGroup>

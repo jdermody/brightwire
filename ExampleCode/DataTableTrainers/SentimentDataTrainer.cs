@@ -305,8 +305,8 @@ namespace ExampleCode.DataTableTrainers
         IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.BuildTable();
-            builder.AddColumn(BrightDataType.Matrix);
-            builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
+            builder.AddColumn(BrightDataType.FloatMatrix);
+            builder.AddColumn(BrightDataType.FloatMatrix).SetTarget(true);
 
             var empty = new float[102];
             foreach (var (classification, indexList) in data) {

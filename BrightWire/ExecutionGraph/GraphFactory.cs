@@ -211,23 +211,23 @@ namespace BrightWire.ExecutionGraph
 
 			if (featureColumnType != BrightDataType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
-				if (featureColumnType == BrightDataType.Matrix && targetColumnType == BrightDataType.Matrix)
+				if (featureColumnType == BrightDataType.FloatMatrix && targetColumnType == BrightDataType.FloatMatrix)
 					return new SequentialDataTableAdapter(dataTable, featureColumns);
 
 				// one to one
-				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Vector)
+				if (featureColumnType == BrightDataType.FloatVector && targetColumnType == BrightDataType.FloatVector)
 					return new VectorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// one to many
-				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Matrix)
+				if (featureColumnType == BrightDataType.FloatVector && targetColumnType == BrightDataType.FloatMatrix)
 					return new OneToManyDataTableAdapter(dataTable, featureColumns);
 
 				// many to one
-				if (featureColumnType == BrightDataType.Matrix && targetColumnType == BrightDataType.Vector)
+				if (featureColumnType == BrightDataType.FloatMatrix && targetColumnType == BrightDataType.FloatVector)
 					return new ManyToOneDataTableAdapter(dataTable, featureColumns);
 
 				// volume classification
-				if (featureColumnType == BrightDataType.Tensor3D && targetColumnType == BrightDataType.Vector)
+				if (featureColumnType == BrightDataType.FloatTensor3D && targetColumnType == BrightDataType.FloatVector)
 					return new TensorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// index list

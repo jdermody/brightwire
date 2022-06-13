@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
+using BrightData.LinearAlgebra.Memory;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Computation
