@@ -43,12 +43,6 @@ namespace BrightData.LinearAlegbra2
             set => Segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
 
-        public IMatrix Matrix(uint index)
-        {
-            var segment = new TensorSegmentWrapper2(Segment, index * MatrixSize, 1, MatrixSize);
-            return _computationUnit.CreateMatrix(segment, RowCount, ColumnCount);
-        }
-
         /// <summary>
         /// Converts the segment to a column major vector (default is row major)
         /// </summary>
@@ -79,6 +73,7 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
+        public IMatrix Matrix(uint index) => _computationUnit.GetMatrix(this, index);
         public ITensor3D AddPadding(uint padding) => _computationUnit.AddPadding(this, padding);
         public ITensor3D RemovePadding(uint padding) => _computationUnit.RemovePadding(this, padding);
         public IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _computationUnit.Im2Col(this, filterWidth, filterHeight, xStride, yStride);

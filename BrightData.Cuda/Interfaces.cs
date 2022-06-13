@@ -38,6 +38,7 @@ namespace BrightData.Cuda
         void CopyToDevice(float[] source);
         void CopyToDevice(IDeviceMemoryPtr source);
         void CopyToHost(float[] target);
+        void CopyToHost(ArraySegment<float> target);
         void Clear();
     }
 

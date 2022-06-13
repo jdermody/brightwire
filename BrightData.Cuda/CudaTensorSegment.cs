@@ -13,6 +13,7 @@ namespace BrightData.Cuda
     internal class CudaTensorSegment : IDisposableTensorSegment
     {
         int _refCount = 0;
+        static readonly string CudaSegmentType = "cuda";
 
         public CudaTensorSegment(IDeviceMemoryPtr data)
         {
@@ -40,7 +41,7 @@ namespace BrightData.Cuda
         public IDeviceMemoryPtr DeviceMemory { get; }
         public bool IsValid { get; private set; }
         public uint Size => DeviceMemory.Size;
-        public string SegmentType => "cuda";
+        public string SegmentType => CudaSegmentType;
 
         public float this[int index]
         {
@@ -69,6 +70,13 @@ namespace BrightData.Cuda
         public IEnumerable<float> Values => ToNewArray();
         public float[]? GetArrayForLocalUseOnly() => null;
 
+        public MemoryOwner<float> ToNewMemoryOwner()
+        {
+            var ret = MemoryOwner<float>.Allocate((int)Size);
+            DeviceMemory.CopyToHost(ret.DangerousGetArray());
+            return ret;
+        }
+
         public float[] ToNewArray()
         {
             var ret = new float[Size];
@@ -79,6 +87,17 @@ namespace BrightData.Cuda
         public void CopyFrom(Span<float> span)
         {
             DeviceMemory.CopyToDevice(span);
+        }
+
+        public void CopyTo(ITensorSegment2 segment)
+        {
+            if (segment.SegmentType == CudaSegmentType) {
+
+            }
+            else {
+                using var buffer = ToNewMemoryOwner();
+                segment.CopyFrom(buffer.Span);
+            }
         }
 
         public void Clear()

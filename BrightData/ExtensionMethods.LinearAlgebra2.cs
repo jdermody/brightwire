@@ -15,7 +15,26 @@ namespace BrightData
     {
         public static float[] GetLocalOrNewArray(this ITensorSegment2 segment) => segment.GetArrayForLocalUseOnly() ?? segment.ToNewArray();
 
-        public static Span<float> GetSpan(this ITensorSegment2 segment, uint startPosition = 0, uint endPosition = uint.MaxValue)
+        public static Span<float> GetSpan(this ITensorSegment2 segment)
+        {
+            var localArray = segment.GetArrayForLocalUseOnly();
+            return localArray != null 
+                ? new Span<float>(localArray, 0, (int)segment.Size) 
+                : new Span<float>(segment.ToNewArray());
+        }
+
+        public static Span<float> GetSpan(this ITensorSegment2 segment, uint startPosition)
+        {
+            var start = (int)startPosition;
+            var end = (int)(segment.Size - startPosition);
+            var localArray = segment.GetArrayForLocalUseOnly();
+            
+            return localArray != null 
+                ? new Span<float>(localArray, start, end) 
+                : new Span<float>(segment.ToNewArray(), start, end);
+        }
+
+        public static Span<float> GetSpan(this ITensorSegment2 segment, uint startPosition, uint endPosition)
         {
             var end = Math.Min(segment.Size, endPosition);
             var size = (int)(end - startPosition);
@@ -68,7 +87,7 @@ namespace BrightData
                 for (; i <= size - vectorSize; i += vectorSize) {
                     var s1 = segment.AsNumericsVector(i);
                     var s2 = other.AsNumericsVector(i);
-                    func1(s1, s2).CopyTo(ptr.Slice(i));
+                    func1(s1, s2).CopyTo(ptr[i..]);
                 }
             }
             for (; i < size; i++)

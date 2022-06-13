@@ -1359,6 +1359,7 @@ namespace BrightData
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
         void CopyFrom(Span<float> span);
+        void CopyTo(ITensorSegment2 segment);
         void Clear();
     }
 

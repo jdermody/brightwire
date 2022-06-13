@@ -70,6 +70,12 @@ namespace BrightData.LinearAlegbra2
                 this[index++] = val;
         }
 
+        public void CopyTo(ITensorSegment2 segment)
+        {
+            for(uint i = 0; i < Size; i++)
+                segment[i] = this[i];
+        }
+
         public void Clear()
         {
             for (uint i = 0; i < Size; i++)

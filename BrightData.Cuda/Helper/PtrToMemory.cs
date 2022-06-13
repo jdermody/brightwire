@@ -27,6 +27,8 @@ namespace BrightData.Cuda.Helper
         public CUdeviceptr DevicePointer => _ptr.DevicePointer;
         public uint Size => _ptr.Size;
 
+        public void CopyToHost(ArraySegment<float> target) => _ptr.CopyToHost(target.Array, 0, target.Offset, target.Count * sizeof(float));
+
         public void Clear()
         {
             _context.ClearMemory(_ptr.DevicePointer, 0, _ptr.SizeInBytes);

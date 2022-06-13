@@ -106,6 +106,10 @@ namespace BrightData.Cuda.Helper
             {
                 _data.CopyToHost(target);
             }
+            public void CopyToHost(ArraySegment<float> target)
+            {
+                _data.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
+            }
             public void Clear()
             {
                 _data.Memset(0);

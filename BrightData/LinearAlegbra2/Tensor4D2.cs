@@ -45,12 +45,7 @@
             set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
 
-        public ITensor3D Tensor(uint index)
-        {
-            var segment = new TensorSegmentWrapper2(Segment, index * TensorSize, 1, TensorSize);
-            return _computationUnit.CreateTensor3D(segment, Depth, RowCount, ColumnCount);
-        }
-
+        public ITensor3D Tensor(uint index) => _computationUnit.GetTensor(this, index);
         public ITensor4D AddPadding(uint padding) => _computationUnit.AddPadding(this, padding);
         public ITensor4D RemovePadding(uint padding) => _computationUnit.RemovePadding(this, padding);
         public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _computationUnit.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);

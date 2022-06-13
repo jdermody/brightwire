@@ -100,7 +100,7 @@ namespace BrightData.LinearAlegbra2
                 return mutator(i, j, val);
             });
             try {
-                Segment.CopyFrom(ret.GetSpan());
+                ret.CopyTo(Segment);
             }
             finally {
                 ret.Release();

@@ -49,7 +49,7 @@ namespace BrightData.LinearAlegbra2
         {
             var ret = _computationUnit.MapParallel(Segment, mutator);
             try {
-                Segment.CopyFrom(ret.GetSpan());
+                ret.CopyTo(Segment);
             }
             finally {
                 ret.Release();

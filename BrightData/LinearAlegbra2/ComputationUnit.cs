@@ -34,7 +34,7 @@ namespace BrightData.LinearAlegbra2
         public virtual IDisposableTensorSegment Clone(ITensorSegment2 tensor)
         {
             var ret = CreateSegment(tensor.Size);
-            ret.CopyFrom(tensor.GetSpan());
+            tensor.CopyTo(ret);
             return ret;
         }
 
@@ -91,7 +91,7 @@ namespace BrightData.LinearAlegbra2
                 using var t = ret.Matrix(i);
                 var s = matrices[(int)i];
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
-                    t.Segment.CopyFrom(s.Segment.GetSpan());
+                    s.Segment.CopyTo(t.Segment);
                 else {
                     allSame = false;
                     break;
@@ -123,7 +123,7 @@ namespace BrightData.LinearAlegbra2
                 using var t = ret.Tensor(i);
                 var s = tensors[(int)i];
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount && s.Depth == t.Depth)
-                    t.Segment.CopyFrom(s.Segment.GetSpan());
+                    s.Segment.CopyTo(t.Segment);
                 else {
                     allSame = false;
                     break;
@@ -277,7 +277,7 @@ namespace BrightData.LinearAlegbra2
             try {
                 // ReSharper disable once AccessToDisposedClosure
                 Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
-                segment.CopyFrom(ret.GetSpan());
+                ret.CopyTo(segment);
             }
             finally {
                 ret.Release();
@@ -298,7 +298,7 @@ namespace BrightData.LinearAlegbra2
             try {
                 // ReSharper disable once AccessToDisposedClosure
                 Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
-                segment.CopyFrom(ret.GetSpan());
+                ret.CopyTo(segment);
             }
             finally {
                 ret.Release();
@@ -738,6 +738,18 @@ namespace BrightData.LinearAlegbra2
                 foreach(var item in ptr)
                     item?.Dispose();
             }
+        }
+
+        public virtual IMatrix GetMatrix(ITensor3D tensor, uint index)
+        {
+            var segment = new TensorSegmentWrapper2(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
+            return CreateMatrix(segment, tensor.RowCount, tensor.ColumnCount);
+        }
+
+        public virtual ITensor3D GetTensor(ITensor4D tensor, uint index)
+        {
+            var segment = new TensorSegmentWrapper2(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
+            return CreateTensor3D(segment, tensor.Depth, tensor.RowCount, tensor.ColumnCount);
         }
     }
 }
