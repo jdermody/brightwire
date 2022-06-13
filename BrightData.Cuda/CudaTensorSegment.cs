@@ -80,5 +80,10 @@ namespace BrightData.Cuda
         {
             DeviceMemory.CopyToDevice(span);
         }
+
+        public void Clear()
+        {
+            DeviceMemory.Clear();
+        }
     }
 }

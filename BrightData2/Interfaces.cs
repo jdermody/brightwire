@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData2
 {
@@ -12,6 +13,7 @@ namespace BrightData2
         ITensorSegment2 Segment { get; }
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);
+        void Clear();
     }
 
     public interface ITensor2<out T> : ITensor2 
@@ -94,9 +96,11 @@ namespace BrightData2
         IDisposableTensorSegmentWrapper Column(uint index);
         IDisposableTensorSegmentWrapper[] Rows();
         IDisposableTensorSegmentWrapper[] Columns();
-        float[] ToNewColumnMajorArray();
+        MemoryOwner<float> ToNewColumnMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
+        IMatrix TransposeAndMultiply(IMatrix other);
+        IMatrix TransposeThisAndMultiply(IMatrix other);
         IVector GetDiagonal();
         IVector RowSums();
         IVector ColumnSums();
@@ -107,6 +111,51 @@ namespace BrightData2
         IMatrix ConcatRows(IMatrix right);
         IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
         void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
+    }
+
+    public interface ITensor3D : ITensor2<ITensor3D>
+    {
+        uint Depth { get; }
+        uint RowCount { get; }
+        uint ColumnCount { get; }
+        uint MatrixSize { get; }
+        float this[int depth, int rowY, int columnX] { get; set; }
+        float this[uint depth, uint rowY, uint columnX] { get; set; }
+        float this[long depth, long rowY, long columnX] { get; set; }
+        float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
+        IMatrix Matrix(uint index);
+        MemoryOwner<float> ToNewColumnMajor();
+        ITensor3D AddPadding(uint padding);
+        ITensor3D RemovePadding(uint padding);
+        IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        IMatrix CombineDepthSlices();
+        ITensor3D Multiply(IMatrix matrix);
+        void AddToEachRow(IVector vector);
+        ITensor3D TransposeThisAndMultiply(ITensor4D other);
+    }
+
+    public interface ITensor4D : ITensor2<ITensor4D>
+    {
+        uint Count { get; }
+        uint Depth { get; }
+        uint RowCount { get; }
+        uint ColumnCount { get; }
+        uint MatrixSize { get; }
+        uint TensorSize { get; }
+        float this[int count, int depth, int rowY, int columnX] { get; set; }
+        float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
+        float this[long count, long depth, long rowY, long columnX] { get; set; }
+        float this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
+        ITensor3D Tensor(uint index);
+        ITensor4D AddPadding(uint padding);
+        ITensor4D RemovePadding(uint padding);
+        (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
     }
 
     public interface ICountReferences
@@ -128,6 +177,7 @@ namespace BrightData2
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
         void CopyFrom(Span<float> span);
+        void Clear();
     }
 
     public interface IDisposableTensorSegment : ITensorSegment2, IDisposable

@@ -68,5 +68,6 @@ namespace BrightData2
         public float[] GetArrayForLocalUseOnly() => _array;
         public float[] ToNewArray() => (float[])_array.Clone();
         public void CopyFrom(Span<float> span) => span.CopyTo(_data.Span);
+        public void Clear() => _data.Span.Clear();
     }
 }

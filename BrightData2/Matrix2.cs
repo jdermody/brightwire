@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData2
 {
@@ -14,11 +15,12 @@ namespace BrightData2
         {
             RowCount = rows;
             ColumnCount = columns;
+            Size = rows * columns;
         }
 
         public uint RowCount { get; }
         public uint ColumnCount { get; }
-        public override uint Size => RowCount * ColumnCount;
+        public override uint Size { get; }
 
         public float this[int rowY, int columnX]
         {
@@ -61,15 +63,16 @@ namespace BrightData2
             return ret;
         }
 
-        public float[] ToNewColumnMajorArray()
+        public MemoryOwner<float> ToNewColumnMajor()
         {
-            var ret = new float[Size];
+            var ret = MemoryOwner<float>.Allocate((int)Size);
+            var array = ret.DangerousGetArray();
             Parallel.For(0, ColumnCount, ind => {
                 var i = (uint) ind;
                 var column = Column(i);
                 var offset = i * RowCount;
                 for (uint j = 0; j < RowCount; j++)
-                    ret[offset + j] = column[j];
+                    array[(int)(offset + j)] = column[j];
             });
             return ret;
         }
@@ -80,6 +83,8 @@ namespace BrightData2
         public IVector RowSums() => _computationUnit.RowSums(this);
         public IVector ColumnSums() => _computationUnit.ColumnSums(this);
         public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
+        public IMatrix TransposeAndMultiply(IMatrix other) => _computationUnit.TransposeSecondAndMultiply(this, other);
+        public IMatrix TransposeThisAndMultiply(IMatrix other) => _computationUnit.TransposeFirstAndMultiply(this, other);
 
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {

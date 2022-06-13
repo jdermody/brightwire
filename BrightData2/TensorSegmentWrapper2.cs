@@ -71,5 +71,11 @@ namespace BrightData2
             foreach (var val in span)
                 this[index++] = val;
         }
+
+        public void Clear()
+        {
+            for (uint i = 0; i < Size; i++)
+                this[i] = 0f;
+        }
     }
 }

@@ -79,6 +79,7 @@ namespace BrightData2
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
 
+        public void Clear() => Segment.Clear();
         public T Add(ITensor2 tensor)                                                        => Create(_computationUnit.Add(Segment, tensor.Segment));
         public T Add(ITensor2 tensor, float coefficient1, float coefficient2)                => Create(_computationUnit.Add(Segment, tensor.Segment, coefficient1, coefficient2));
         public T Add(float scalar)                                                           => Create(_computationUnit.Add(Segment, scalar));
