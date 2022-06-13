@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+using System.Text;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlegbra2
+namespace BrightData
 {
-    public static class ExtensionMethods
+    public static partial class ExtensionMethods
     {
         public static float[] GetLocalOrNewArray(this ITensorSegment2 segment) => segment.GetArrayForLocalUseOnly() ?? segment.ToNewArray();
 
