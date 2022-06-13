@@ -29,11 +29,62 @@ namespace BrightData2
         }
 
         public abstract T Create(ITensorSegment2 segment);
+        public abstract uint TotalSize { get; }
 
         public ITensorSegment2 Segment { get; }
         public BrightDataContext2 Context => _computationUnit.Context;
 
-        public IVector AsVector() => _computationUnit.CreateVector(Segment);
+        public IVector Reshape() => _computationUnit.CreateVector(Segment);
+        public IMatrix Reshape(uint? rows, uint? columns)
+        {
+            var shape = ResolveShape(TotalSize, rows, columns);
+            return _computationUnit.CreateMatrix(Segment, shape[0], shape[1]);
+        }
+
+        protected ITensorSegment2 MapParallel(Func<uint, float, float> mapper)
+        {
+            var ret = _computationUnit.CreateSegment(Segment.Size);
+            // ReSharper disable once AccessToDisposedClosure
+            Parallel.For(0, (int)Segment.Size, i => ret[i] = mapper((uint) i, Segment[i]));
+            return ret;
+        }
+
+        public T Map(Func<float, float> mutator)
+        {
+            var ret = MapParallel((_, v) => mutator(v));
+            return Create(ret);
+        }
+
+        public void MapInPlace(Func<float, float> mutator)
+        {
+            var ret = MapParallel((_, v) => mutator(v));
+            try {
+                Segment.CopyFrom(ret.GetSpan());
+            }
+            finally {
+                ret.Release();
+            }
+        }
+
+        static uint[] ResolveShape(uint total, params uint?[] shape)
+        {
+            uint nonNullTotal = 0;
+            var hasFoundNull = false;
+            foreach (var item in shape)
+            {
+                if (item.HasValue)
+                    nonNullTotal += item.Value;
+                else if (!hasFoundNull)
+                    hasFoundNull = true;
+                else
+                    throw new ArgumentException("Only one parameter can be null");
+            }
+
+            if (hasFoundNull && nonNullTotal == 0)
+                throw new ArgumentException("Cannot resolve null parameter");
+
+            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
+        }
 
         public T Add(ITensor2 tensor)                                                        => Create(_computationUnit.Add(Segment, tensor.Segment));
         public T Add(ITensor2 tensor, float coefficient1, float coefficient2)                => Create(_computationUnit.Add(Segment, tensor.Segment, coefficient1, coefficient2));

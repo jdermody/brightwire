@@ -12,7 +12,7 @@ namespace BrightData.Cuda.Helper
 	/// <summary>
 	/// Maintains a cache of available device memory
 	/// </summary>
-    internal class DeviceMemory : IDisposable
+    public class DeviceMemory : IDisposable
     {
         class Block : IDeviceMemoryPtr
         {
@@ -79,10 +79,15 @@ namespace BrightData.Cuda.Helper
 	        {
 		        return Interlocked.Increment(ref _refCount);
 	        }
-            public void Free()
+            public int Release()
             {
-                if(Interlocked.Decrement(ref _refCount) <= 0 && !_disposed)
+                var ret = Interlocked.Decrement(ref _refCount);
+                if (ret <= 0 && !_disposed) {
                     _cache.OnFree(this);
+                    _disposed = true;
+                }
+
+                return ret;
             }
 
             public CudaDeviceVariable<float> DeviceVariable => _data;
@@ -118,7 +123,7 @@ namespace BrightData.Cuda.Helper
                 foreach (var item in _disposable)
                     item.Dispose();
                 foreach (var item in _ptr)
-                    item.Free();
+                    item.Release();
             }
         }
         readonly int _maxSize;

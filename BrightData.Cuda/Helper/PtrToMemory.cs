@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
@@ -51,11 +52,13 @@ namespace BrightData.Cuda.Helper
 		    return Interlocked.Increment(ref _refCount) + _rootBlock.AddRef();
 	    }
 
-	    public void Free()
+	    public int Release()
         {
-	        _rootBlock.Free();
-			if(Interlocked.Decrement(ref _refCount) <= 0)
+	        _rootBlock.Release();
+            var ret = Interlocked.Decrement(ref _refCount);
+			if(ret <= 0)
 				_ptr.Dispose();
+            return ret;
         }
     }
 }

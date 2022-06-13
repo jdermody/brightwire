@@ -28,7 +28,7 @@ namespace BrightData2
 
         internal bool AddToScope(IDisposable obj) => _disposable.Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _disposable.Remove(obj);
-        public IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size));
+        public virtual IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size));
 
         // vector creation
         public virtual IVector CreateVector(ITensorSegment2 data) => new Vector2(data, this);

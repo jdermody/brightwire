@@ -17,7 +17,7 @@ namespace BrightData2
 
         public uint RowCount { get; }
         public uint ColumnCount { get; }
-        public uint Size => RowCount * ColumnCount;
+        public override uint TotalSize => RowCount * ColumnCount;
 
         public float this[int rowY, int columnX]
         {
@@ -62,7 +62,7 @@ namespace BrightData2
 
         public float[] ToNewColumnMajorArray()
         {
-            var ret = new float[Size];
+            var ret = new float[TotalSize];
             Parallel.For(0, ColumnCount, ind => {
                 var i = (uint) ind;
                 var column = Column(i);
@@ -76,7 +76,7 @@ namespace BrightData2
         public virtual IMatrix Transpose()
         {
             var ret = _computationUnit.CreateMatrix(ColumnCount, RowCount);
-            Parallel.For(0, ret.Size, ind => {
+            Parallel.For(0, TotalSize, ind => {
                 var j = (uint)(ind / ColumnCount);
                 var i = (uint)(ind % ColumnCount);
                 ret[i, j] = this[j, i];
@@ -89,7 +89,7 @@ namespace BrightData2
             var ret = _computationUnit.CreateMatrix(RowCount, other.ColumnCount);
             var columns = other.Columns();
             var rows = Rows();
-            Parallel.For(0, ret.Size, ind => {
+            Parallel.For(0, TotalSize, ind => {
                 var i = (uint) (ind % RowCount);
                 var j = (uint) (ind / RowCount);
                 var column = columns[j];
@@ -100,6 +100,51 @@ namespace BrightData2
 
             // don't need to dispose the wrappers
             return ret;
+        }
+
+        public IVector GetDiagonal()
+        {
+            if(RowCount != ColumnCount)
+                throw new Exception("Diagonal can only be found from square matrices");
+            return _computationUnit.CreateVector(RowCount, i => this[i, i]);
+        }
+
+        public IVector RowSums()
+        {
+            var rows = Rows();
+            return _computationUnit.CreateVector(RowCount, i => rows[i].Sum());
+        }
+
+        public IVector ColumnSums()
+        {
+            var columns = Columns();
+            return _computationUnit.CreateVector(ColumnCount, i => columns[i].Sum());
+        }
+        public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
+
+        public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
+        {
+            var ret = MapParallel((ind, val) => {
+                var i = ind / ColumnCount;
+                var j = ind % ColumnCount;
+                return mutator(i, j, val);
+            });
+            return _computationUnit.CreateMatrix(ret, RowCount, ColumnCount);
+        }
+
+        public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
+        {
+            var ret = MapParallel((ind, val) => {
+                var i = ind / ColumnCount;
+                var j = ind % ColumnCount;
+                return mutator(i, j, val);
+            });
+            try {
+                Segment.CopyFrom(ret.GetSpan());
+            }
+            finally {
+                ret.Release();
+            }
         }
 
         public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");

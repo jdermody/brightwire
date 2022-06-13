@@ -10,7 +10,8 @@ namespace BrightData2
     {
         BrightDataContext2 Context { get; }
         ITensorSegment2 Segment { get; }
-        IVector AsVector();
+        IVector Reshape();
+        IMatrix Reshape(uint? rows, uint? columns);
     }
 
     public interface ITensor2<out T> : ITensor2 
@@ -80,7 +81,6 @@ namespace BrightData2
     {
         uint RowCount { get; }
         uint ColumnCount { get; }
-        uint Size { get; }
         float this[int rowY, int columnX] { get; set; }
         float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }

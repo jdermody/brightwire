@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
@@ -35,6 +36,16 @@ namespace BrightData.Cuda
             var ret = new CudaProvider(context, cudaKernelPath, cudaDirectory, memoryCacheSize);
             ((ISetLinearAlgebraProvider)context).LinearAlgebraProvider = ret;
             return ret;
+        }
+
+        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, Span<float> span)
+        {
+            using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
+            span.CopyTo(buffer.Span);
+            fixed (float* p = buffer.DangerousGetArray().Array!)
+            {
+                ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
+            }
         }
     }
 }

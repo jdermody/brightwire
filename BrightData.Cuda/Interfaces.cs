@@ -1,4 +1,5 @@
-﻿using ManagedCuda;
+﻿using System;
+using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda
@@ -27,10 +28,10 @@ namespace BrightData.Cuda
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    internal interface IDeviceMemoryPtr
+    public interface IDeviceMemoryPtr
     {
         int AddRef();
-        void Free();
+        int Release();
         CudaDeviceVariable<float> DeviceVariable { get; }
         CUdeviceptr DevicePointer { get; }
         uint Size { get; }

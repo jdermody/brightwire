@@ -79,7 +79,7 @@ namespace BrightData.Helper
         protected static uint[] ResolveShape(uint total, uint?[] shape)
         {
             uint nonNullTotal = 0;
-            bool hasFoundNull = false;
+            var hasFoundNull = false;
             foreach (var item in shape)
             {
                 if (item.HasValue)

@@ -20,7 +20,7 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
 	/// </summary>
-    internal class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
+    public class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
 	{
         readonly IBrightDataContext _context;
         const int BlockDim = 16;
@@ -97,8 +97,8 @@ namespace BrightData.Cuda
 		readonly Lazy<CudaSolveDense> _solver = new();
 		readonly KernelModule _kernel;
 		readonly ILinearAlgebraProvider _numerics;
-		readonly DeviceMemory _cache;
-		readonly CUfunction
+
+        readonly CUfunction
 			_pointwiseMultiply,
 			_addInPlace,
 			_subtractInPlace,
@@ -179,7 +179,7 @@ namespace BrightData.Cuda
                     throw new Exception($"No default kernel was found in {cudaDirectory}");
             }
 
-            _cache = new DeviceMemory((int)memoryCacheSize);
+            Memory = new DeviceMemory((int)memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
@@ -246,7 +246,7 @@ namespace BrightData.Cuda
 			if (disposing && !_disposed) {
 				_blas.Dispose();
 				_cuda.Dispose();
-				_cache.Dispose();
+				Memory.Dispose();
                 _numerics.Dispose();
 				_disposed = true;
 			}
@@ -264,12 +264,13 @@ namespace BrightData.Cuda
         public IBrightDataContext DataContext => _context;
         public bool IsGpu => true;
 		internal CudaContext Context => _cuda;
-		internal CudaBlas Blas => _blas;
+		public CudaBlas Blas => _blas;
 		public CudaSolveDense Solver => _solver.Value;
 		public long TotalMemory => _cuda.GetTotalDeviceMemorySize();
 		public long FreeMemory => _cuda.GetFreeDeviceMemorySize();
+        public DeviceMemory Memory { get; }
 
-		public void Register(IDisposable disposable) => _cache.Add(disposable);
+        public void Register(IDisposable disposable) => Memory.Add(disposable);
 
 		static int GetBlockCount(int size, int blockSize)
 		{
@@ -346,7 +347,7 @@ namespace BrightData.Cuda
 				return FloatMath.IsZero(sum);
 			}
 			finally {
-				ret.Free();
+				ret.Release();
 			}
 		}
 
@@ -509,21 +510,21 @@ namespace BrightData.Cuda
 					try {
                         InvokeManual(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
 						if (ptr != a)
-							ptr.Free();
+							ptr.Release();
 						size = bufferSize * 2;
 						ptr = Allocate(size);
 						ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * FloatSize);
 						ptr.DeviceVariable.CopyToDevice(maxBlock.DeviceVariable, 0, bufferSize * FloatSize, bufferSize * FloatSize);
 					}
 					finally {
-						minBlock.Free();
-						maxBlock.Free();
+						minBlock.Release();
+						maxBlock.Release();
 					}
 				}
 				var data = new float[size];
 				ptr.CopyToHost(data);
 				if (ptr != a)
-					ptr.Free();
+					ptr.Release();
 				float min = float.MaxValue, max = float.MinValue;
 				for (var i = 0; i < size; i++) {
 					var val = data[i];
@@ -545,14 +546,14 @@ namespace BrightData.Cuda
 				var sumBlock = Allocate(bufferSize, true);
                 InvokeManual(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
-					ptr.Free();
+					ptr.Release();
 				size = bufferSize;
 				ptr = sumBlock;
 			}
 			var total = new float[size];
 			ptr.CopyToHost(total);
 			if (ptr != a)
-				ptr.Free();
+				ptr.Release();
 			return total.Sum();
 		}
 
@@ -566,14 +567,14 @@ namespace BrightData.Cuda
 					var sumBlock = Allocate(bufferSize, true);
                     InvokeManual(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
-						ptr.Free();
+						ptr.Release();
 					size = bufferSize;
 					ptr = sumBlock;
 				}
 				var total = new float[size];
 				ptr.CopyToHost(total);
 				if (ptr != a)
-					ptr.Free();
+					ptr.Release();
 
 				return Convert.ToSingle(System.Math.Sqrt(total.Sum() / inputSize));
 			}
@@ -651,9 +652,9 @@ namespace BrightData.Cuda
 					return 1f - (ab / (float)System.Math.Sqrt(aa) / (float)System.Math.Sqrt(bb));
 			}
 			finally {
-				aaDevice.Free();
-				abDevice.Free();
-				bbDevice.Free();
+				aaDevice.Release();
+				abDevice.Release();
+				bbDevice.Release();
 			}
 		}
 
@@ -1112,19 +1113,19 @@ namespace BrightData.Cuda
 
 		public void PushLayer()
 		{
-			_cache.PushLayer();
+			Memory.PushLayer();
             DataContext.MemoryLayer.Push();
 		}
 
 		public void PopLayer()
 		{
-			_cache.PopLayer();
+			Memory.PopLayer();
             DataContext.MemoryLayer.Pop();
 		}
 
 		internal IDeviceMemoryPtr Allocate(uint size, bool setToZero = false)
 		{
-			var ret = _cache.GetMemory(size);
+			var ret = Memory.GetMemory(size);
 			if (setToZero)
 				ret.Clear();
 			return ret;

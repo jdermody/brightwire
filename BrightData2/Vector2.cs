@@ -15,6 +15,7 @@ namespace BrightData2
         }
 
         public uint Size => Segment.Size;
+        public override uint TotalSize => Segment.Size;
 
         public float this[int index]
         {
@@ -46,6 +47,23 @@ namespace BrightData2
         }
 
         public override IVector Create(ITensorSegment2 segment) => new Vector2<CU>(segment, _computationUnit);
+
+        public IVector MapIndexed(Func<uint, float, float> mutator)
+        {
+            var ret = MapParallel(mutator);
+            return Create(ret);
+        }
+
+        public void MapIndexedInPlace(Func<uint, float, float> mutator)
+        {
+            var ret = MapParallel(mutator);
+            try {
+                Segment.CopyFrom(ret.GetSpan());
+            }
+            finally {
+                ret.Release();
+            }
+        }
     }
 
     public class Vector2 : Vector2<ComputationUnit>

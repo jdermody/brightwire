@@ -32,8 +32,8 @@ namespace BrightData.Cuda.Helper
 
 		public void Dispose()
 	    {
-		    X.Free();
-		    Y.Free();
+		    X.Release();
+		    Y.Release();
 	    }
     }
 }

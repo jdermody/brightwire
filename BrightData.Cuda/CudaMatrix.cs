@@ -61,7 +61,7 @@ namespace BrightData.Cuda
                 Debugger.Break();
 #endif
             if (disposing && !_disposed) {
-				_data.Free();
+				_data.Release();
                 _disposed = true;
             }
         }
@@ -630,14 +630,14 @@ namespace BrightData.Cuda
                         new CudaMatrix(_cuda, _columns, _columns, vt, true)
                     );
                 }finally {
-                    buffer.Free();
-                    rwork.Free();
-                    a.Free();
+                    buffer.Release();
+                    rwork.Release();
+                    a.Release();
                 }
             }catch {
-                s.Free();
-                u.Free();
-                vt.Free();
+                s.Release();
+                u.Release();
+                vt.Release();
                 throw;
             }
         }

@@ -63,7 +63,7 @@ namespace BrightData.Cuda
 #endif
 			if (!_disposed) {
 				_disposed = true;
-				_data.Free();
+				_data.Release();
 			}
 		}
 

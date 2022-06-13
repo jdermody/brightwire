@@ -55,7 +55,7 @@ namespace BrightData.Cuda
 				Debugger.Break();
 #endif
 			if (disposing && !_disposed) {
-				_data.Free();
+				_data.Release();
 				_disposed = true;
 			}
 		}

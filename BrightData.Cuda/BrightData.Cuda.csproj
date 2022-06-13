@@ -15,6 +15,7 @@
     <PackageIcon>bw_favicon.png</PackageIcon>
     <PackageReleaseNotes>updated to .net 6 and cuda 11.5</PackageReleaseNotes>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
