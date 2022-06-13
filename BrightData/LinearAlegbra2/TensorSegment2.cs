@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     internal class TensorSegment2 : IDisposableTensorSegment
     {

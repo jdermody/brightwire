@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+﻿using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public class Tensor3D2<CU> : TensorBase2<ITensor3D, CU>, ITensor3D
         where CU: ComputationUnit

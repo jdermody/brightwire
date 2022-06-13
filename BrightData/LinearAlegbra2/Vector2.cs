@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public class Vector2<CU> : TensorBase2<IVector, CU>, IVector
         where CU: ComputationUnit

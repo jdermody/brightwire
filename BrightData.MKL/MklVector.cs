@@ -1,5 +1,5 @@
-﻿using BrightData.LinearAlgebra;
-using BrightData2;
+﻿using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using MKLNET;
 
 namespace BrightData.MKL

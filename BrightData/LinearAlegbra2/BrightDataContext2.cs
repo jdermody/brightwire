@@ -1,8 +1,8 @@
-﻿using System.Collections.Concurrent;
-using BrightData;
+﻿using System;
+using System.Threading;
 using BrightData.Helper;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public class BrightDataContext2
     {

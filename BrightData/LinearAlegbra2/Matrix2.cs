@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using BrightData;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public class Matrix2<CU> : TensorBase2<IMatrix, CU>, IMatrix
         where CU: ComputationUnit

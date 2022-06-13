@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Cuda;
-using BrightData2;
+using BrightData.LinearAlegbra2;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda

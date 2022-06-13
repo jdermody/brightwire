@@ -131,7 +131,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
-    <ProjectReference Include="..\BrightData2\BrightData2.csproj" />
   </ItemGroup>
 
   <ItemGroup>

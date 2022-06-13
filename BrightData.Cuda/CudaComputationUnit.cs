@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
-using BrightData2;
+using BrightData.LinearAlegbra2;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;

@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Cuda;
+using BrightData.LinearAlegbra2;
 using BrightData.MKL;
-using BrightData2;
 using Xunit;
 
 namespace BrightData.UnitTests

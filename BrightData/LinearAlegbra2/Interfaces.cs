@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public interface ITensor2 : IDisposable
     {

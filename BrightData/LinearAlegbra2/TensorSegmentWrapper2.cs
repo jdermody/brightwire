@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BrightData2
+namespace BrightData.LinearAlegbra2
 {
     public class TensorSegmentWrapper2 : IDisposableTensorSegmentWrapper
     {

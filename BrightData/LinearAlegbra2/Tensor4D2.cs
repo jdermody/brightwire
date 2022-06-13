@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightData2
+﻿namespace BrightData.LinearAlegbra2
 {
     public class Tensor4D2<CU> : TensorBase2<ITensor4D, CU>, ITensor4D
         where CU: ComputationUnit
