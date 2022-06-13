@@ -49,13 +49,13 @@ namespace BrightData2
 
         public IVector MapIndexed(Func<uint, float, float> mutator)
         {
-            var ret = MapParallel(mutator);
+            var ret = _computationUnit.MapParallel(Segment, mutator);
             return Create(ret);
         }
 
         public void MapIndexedInPlace(Func<uint, float, float> mutator)
         {
-            var ret = MapParallel(mutator);
+            var ret = _computationUnit.MapParallel(Segment, mutator);
             try {
                 Segment.CopyFrom(ret.GetSpan());
             }

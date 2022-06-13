@@ -327,7 +327,7 @@ namespace BrightData.Cuda
 			Debug.Assert(IsValid);
 			if (type == NormalizationType.FeatureScale) {
 				var (min, max) = GetMinMax();
-				float range = max - min;
+				var range = max - min;
 				if (range > 0)
 					_cuda.Normalise(_data, Count, min, range);
 			} else if (type == NormalizationType.Standard) {

@@ -449,6 +449,15 @@ namespace BrightData2
         public static ITensorSegment2 LeakyRelu(this ITensorSegment2 segment) => TransformParallel(segment, LeakyRelu);
         public static ITensorSegment2 LeakyReluDerivative(this ITensorSegment2 segment) => TransformParallel(segment, LeakyReluDerivative);
 
+        public static ITensorSegment2 CherryPickIndices(this ITensorSegment2 segment, uint[] arrayIndices)
+        {
+            var ret = MemoryOwner<float>.Allocate(arrayIndices.Length);
+            var ptr = ret.Span;
+            for (int i = 0, len = arrayIndices.Length; i < len; i++)
+                ptr[i] = segment[arrayIndices[i]];
+            return new TensorSegment2(ret);
+        }
+
         public static ITensorSegment2 Softmax(this ITensorSegment2 segment)
         {
             var (_, max, _, _) = GetMinAndMaxValues(segment);
@@ -482,6 +491,12 @@ namespace BrightData2
         static void Analyse(ITensorSegment2 segment, Action<float, uint> analyser)
         {
             Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
+        }
+
+        static void FeatureScaleNormalization(this ITensorSegment2 segment)
+        {
+            var (min, max, _, _) = GetMinAndMaxValues(segment);
+            var range = max - min;
         }
     }
 }

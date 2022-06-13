@@ -83,7 +83,7 @@ namespace BrightData2
 
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
-            var ret = MapParallel((ind, val) => {
+            var ret = _computationUnit.MapParallel(Segment, (ind, val) => {
                 var i = ind / ColumnCount;
                 var j = ind % ColumnCount;
                 return mutator(i, j, val);
@@ -93,7 +93,7 @@ namespace BrightData2
 
         public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
         {
-            var ret = MapParallel((ind, val) => {
+            var ret = _computationUnit.MapParallel(Segment, (ind, val) => {
                 var i = ind / ColumnCount;
                 var j = ind % ColumnCount;
                 return mutator(i, j, val);
@@ -105,6 +105,11 @@ namespace BrightData2
                 ret.Release();
             }
         }
+
+        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex) => _computationUnit.SplitAtColumn(this, columnIndex);
+        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _computationUnit.SplitAtRow(this, rowIndex);
+        public IMatrix ConcatColumns(IMatrix bottom) => _computationUnit.ConcatColumns(this, bottom);
+        public IMatrix ConcatRows(IMatrix right) => _computationUnit.ConcatRows(this, right);
 
         public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");
     }

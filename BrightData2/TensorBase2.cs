@@ -34,6 +34,7 @@ namespace BrightData2
         public ITensorSegment2 Segment { get; }
         public BrightDataContext2 Context => _computationUnit.Context;
 
+        public T Clone() => Create(_computationUnit.Clone(Segment));
         public IVector Reshape() => _computationUnit.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
         {
@@ -41,23 +42,15 @@ namespace BrightData2
             return _computationUnit.CreateMatrix(Segment, shape[0], shape[1]);
         }
 
-        protected ITensorSegment2 MapParallel(Func<uint, float, float> mapper)
-        {
-            var ret = _computationUnit.CreateSegment(Segment.Size);
-            // ReSharper disable once AccessToDisposedClosure
-            Parallel.For(0, (int)Segment.Size, i => ret[i] = mapper((uint) i, Segment[i]));
-            return ret;
-        }
-
         public T Map(Func<float, float> mutator)
         {
-            var ret = MapParallel((_, v) => mutator(v));
+            var ret = _computationUnit.MapParallel(Segment, mutator);
             return Create(ret);
         }
 
         public void MapInPlace(Func<float, float> mutator)
         {
-            var ret = MapParallel((_, v) => mutator(v));
+            var ret = _computationUnit.MapParallel(Segment, mutator);
             try {
                 Segment.CopyFrom(ret.GetSpan());
             }
@@ -135,5 +128,6 @@ namespace BrightData2
         public IMatrix SoftmaxDerivative()                                                   => _computationUnit.SoftmaxDerivative(Segment);
         public T Pow(float power)                                                            => Create(_computationUnit.Pow(Segment, power));
         public void RoundInPlace(float lower, float upper, float? mid)                       => _computationUnit.RoundInPlace(Segment, lower, upper, mid);
+        public T CherryPick(uint[] indices)                                                  => Create(_computationUnit.CherryPickIndices(Segment, indices));
     }
 }

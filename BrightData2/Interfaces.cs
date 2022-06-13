@@ -66,6 +66,9 @@ namespace BrightData2
         IMatrix SoftmaxDerivative();
         T Pow(float power);
         void RoundInPlace(float lower, float upper, float? mid);
+        T CherryPick(uint[] indices);
+        T Map(Func<float, float> mutator);
+        void MapInPlace(Func<float, float> mutator);
     }
 
     public interface IVector : ITensor2<IVector>
@@ -75,6 +78,8 @@ namespace BrightData2
         float this[uint index] { get; set; }
         float this[long index] { get; set; }
         float this[ulong index] { get; set; }
+        IVector MapIndexed(Func<uint, float, float> mutator);
+        void MapIndexedInPlace(Func<uint, float, float> mutator);
     }
 
     public interface IMatrix : ITensor2<IMatrix>
@@ -89,6 +94,19 @@ namespace BrightData2
         IDisposableTensorSegmentWrapper Column(uint index);
         IDisposableTensorSegmentWrapper[] Rows();
         IDisposableTensorSegmentWrapper[] Columns();
+        float[] ToNewColumnMajorArray();
+        IMatrix Transpose();
+        IMatrix Multiply(IMatrix other);
+        IVector GetDiagonal();
+        IVector RowSums();
+        IVector ColumnSums();
+        IMatrix Multiply(IVector vector);
+        (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
+        (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
+        IMatrix ConcatColumns(IMatrix bottom);
+        IMatrix ConcatRows(IMatrix right);
+        IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
+        void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
     }
 
     public interface ICountReferences

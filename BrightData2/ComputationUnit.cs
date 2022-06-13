@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData2
@@ -30,10 +32,17 @@ namespace BrightData2
         internal bool RemoveFromScope(IDisposable obj) => _disposable.Remove(obj);
         public virtual IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size));
 
+        public virtual IDisposableTensorSegment Clone(ITensorSegment2 tensor)
+        {
+            var ret = CreateSegment(tensor.Size);
+            ret.CopyFrom(tensor.GetSpan());
+            return ret;
+        }
+
         // vector creation
         public virtual IVector CreateVector(ITensorSegment2 data) => new Vector2(data, this);
         public IVector CreateVector(uint size) => CreateVector(CreateSegment(size));
-        public IVector CreateVector(uint size, Func<uint, float> initializer)
+        public virtual IVector CreateVector(uint size, Func<uint, float> initializer)
         {
             var segment = CreateSegment(size);
             var array = segment.GetArrayForLocalUseOnly()!;
@@ -46,7 +55,7 @@ namespace BrightData2
         // matrix creation
         public virtual IMatrix CreateMatrix(ITensorSegment2 data, uint rowCount, uint columnCount) => new Matrix2(data, rowCount, columnCount, this);
         public IMatrix CreateMatrix(uint rowCount, uint columnCount) => CreateMatrix(CreateSegment(rowCount * columnCount), rowCount, columnCount);
-        public IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
+        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var segment = CreateSegment(rowCount * columnCount);
             var array = segment.GetArrayForLocalUseOnly()!;
@@ -115,6 +124,7 @@ namespace BrightData2
         public virtual IMatrix SoftmaxDerivative(ITensorSegment2 tensor) => tensor.SoftmaxDerivative(this);
         public virtual ITensorSegment2 Pow(ITensorSegment2 tensor, float power) => tensor.Pow(power);
         public virtual void RoundInPlace(ITensorSegment2 tensor, float lower, float upper, float? mid) => tensor.RoundInPlace(lower, upper, mid);
+        public virtual ITensorSegment2 CherryPickIndices(ITensorSegment2 tensor, uint[] indices) => tensor.CherryPickIndices(indices);
 
         public virtual IMatrix Transpose(IMatrix matrix)
         {
@@ -181,6 +191,117 @@ namespace BrightData2
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
         {
             throw new NotImplementedException();
+        }
+
+        public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<float, float> mapper)
+        {
+            var ret = CreateSegment(segment.Size);
+            // ReSharper disable once AccessToDisposedClosure
+            Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
+            return ret;
+        }
+
+        public void MapParallelInPlace(ITensorSegment2 segment, Func<float, float> mapper)
+        {
+            var ret = CreateSegment(segment.Size);
+            try {
+                // ReSharper disable once AccessToDisposedClosure
+                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
+                segment.CopyFrom(ret.GetSpan());
+            }
+            finally {
+                ret.Release();
+            }
+        }
+
+        public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<uint, float, float> mapper)
+        {
+            var ret = CreateSegment(segment.Size);
+            // ReSharper disable once AccessToDisposedClosure
+            Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
+            return ret;
+        }
+
+        public void MapParallelInPlace(ITensorSegment2 segment, Func<uint, float, float> mapper)
+        {
+            var ret = CreateSegment(segment.Size);
+            try {
+                // ReSharper disable once AccessToDisposedClosure
+                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
+                segment.CopyFrom(ret.GetSpan());
+            }
+            finally {
+                ret.Release();
+            }
+        }
+
+        public virtual void FeatureScaleNormalization(ITensorSegment2 segment)
+        {
+            var (min, max, _, _) = GetMinAndMaxValues(segment);
+            var range = max - min;
+            if (FloatMath.IsNotZero(range))
+                MapParallelInPlace(segment, v => (v - min) / range);
+        }
+
+        public virtual void StandardNormalization(ITensorSegment2 segment)
+        {
+            var mean = Average(segment);
+            var stdDev = StdDev(segment, mean);
+            if (FloatMath.IsNotZero(stdDev))
+                MapParallelInPlace(segment, v => (v - mean) / stdDev);
+        }
+
+        public virtual void EuclideanNormalization(ITensorSegment2 segment)
+        {
+            var norm = L2Norm(segment);
+            if (FloatMath.IsNotZero(norm))
+                MapParallelInPlace(segment, v => v / norm);
+        }
+
+        public virtual void ManhattanNormalization(ITensorSegment2 segment)
+        {
+            var norm = L1Norm(segment);
+            if (FloatMath.IsNotZero(norm))
+                MapParallelInPlace(segment, v => v / norm);
+        }
+
+        public ITensorSegment2 Batch(ITensorSegment2 segment, ITensorSegment2[] others, Func<ITensorSegment2, ITensorSegment2, float> getValue)
+        {
+            var ret = CreateSegment((uint)others.Length);
+            Parallel.ForEach(others, (vec, _, ind) => ret[ind] = getValue(segment, vec));
+            return ret;
+        }
+
+        public virtual (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
+        {
+            var ret1 = CreateMatrix(matrix.RowCount, columnIndex, (x, y) => matrix[x, y]);
+            var ret2 = CreateMatrix(matrix.RowCount, matrix.ColumnCount - columnIndex, (x, y) => matrix[x, columnIndex + y]);
+            return (ret1, ret2);
+        }
+
+        public virtual (IMatrix Top, IMatrix Bottom) SplitAtRow(IMatrix matrix, uint rowIndex)
+        {
+            var ret1 = CreateMatrix(rowIndex, matrix.ColumnCount, (x, y) => matrix[x, y]);
+            var ret2 = CreateMatrix(matrix.RowCount - rowIndex, matrix.ColumnCount, (x, y) => matrix[rowIndex + x, y]);
+            return (ret1, ret2);
+        }
+
+        public virtual IMatrix ConcatColumns(IMatrix top, IMatrix bottom)
+        {
+            Debug.Assert(top.ColumnCount == bottom.ColumnCount);
+            return CreateMatrix(top.RowCount + bottom.RowCount, top.ColumnCount, (x, y) => {
+                var m = x >= top.RowCount ? bottom : top;
+                return m[x >= top.RowCount ? x - top.RowCount : x, y];
+            });
+        }
+
+        public virtual IMatrix ConcatRows(IMatrix left, IMatrix right)
+        {
+            Debug.Assert(left.RowCount == right.RowCount);
+            return CreateMatrix(left.RowCount, left.ColumnCount + right.ColumnCount, (x, y) => {
+                var m = y >= left.ColumnCount ? right : left;
+                return m[x, y >= left.ColumnCount ? y - left.ColumnCount : y];
+            });
         }
     }
 }
