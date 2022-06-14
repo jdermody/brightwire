@@ -12,7 +12,7 @@ namespace BrightData.MKL
 {
     public class MklComputationUnit : ComputationUnit
     {
-        public MklComputationUnit(BrightDataContext2 context) : base(context)
+        public MklComputationUnit(BrightDataContext context) : base(context)
         {
         }
 

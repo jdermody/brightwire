@@ -705,39 +705,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Calculates the cosine distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float CosineDistance(this float[] vector, float[] other)
-        {
-            return Distance.CosineDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
-        /// Calculates euclidean distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float EuclideanDistance(this float[] vector, float[] other)
-        {
-            return Distance.EuclideanDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
-        /// Calculates manhattan distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float ManhattanDistance(this float[] vector, float[] other)
-        {
-            return Distance.ManhattanDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
         /// Mutates a vector via a callback
         /// </summary>
         /// <param name="vector">Vector to mutate</param>

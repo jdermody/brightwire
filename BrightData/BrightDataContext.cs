@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using BrightData.Computation;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Memory;
 
@@ -30,7 +31,10 @@ namespace BrightData
         public BrightDataContext(int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
-            Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            Random = randomSeed.HasValue 
+                ? new Random(randomSeed.Value) 
+                : new Random()
+            ;
             _tensorPool = new TensorPool();
             _dataReader = new DataEncoder(this);
 
@@ -41,6 +45,7 @@ namespace BrightData
 
             _memoryLayers.Push();
             _lap = new SimpleLinearAlgebraProvider(this, true);
+            NewComputationUnit = () => new ComputationUnit(this);
         }
 
         /// <inheritdoc />
@@ -51,6 +56,8 @@ namespace BrightData
             TempStreamProvider.Dispose();
             LinearAlgebraProvider.Dispose();
         }
+
+        public Func<ComputationUnit> NewComputationUnit { get; set; }
 
         /// <inheritdoc />
         public Random Random { get; private set; }

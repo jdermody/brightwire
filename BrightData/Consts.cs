@@ -72,6 +72,7 @@
         public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
         public const string Source                        = "Source";
         public const string FilePath                      = "FilePath";
+        public const string BaseTempPath                  = "BaseTempPath";
 #pragma warning restore 1591
 
         /// <summary>

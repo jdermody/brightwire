@@ -16,7 +16,7 @@ namespace BrightData.Cuda
     {
         readonly CudaProvider _cuda;
 
-        public CudaComputationUnit(BrightDataContext2 context, CudaProvider cuda) : base(context)
+        public CudaComputationUnit(BrightDataContext context, CudaProvider cuda) : base(context)
         {
             _cuda = cuda;
         }

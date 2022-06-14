@@ -18,8 +18,7 @@ namespace BrightData.UnitTests
 {
     public class TensorTests2 : IDisposable
     {
-        readonly BrightDataContext _baseContext = new(0);
-        readonly BrightDataContext2 _context = new(0);
+        readonly BrightDataContext _context = new(0);
         readonly ComputationUnit _computationUnit;
         readonly MklComputationUnit _mklComputationUnit;
         readonly ILinearAlgebraProvider _cuda;
@@ -36,7 +35,7 @@ namespace BrightData.UnitTests
             _computationUnit = _context.NewComputationUnit();
             _mklComputationUnit = new MklComputationUnit(_context);
 
-            _cuda = _baseContext.UseCudaLinearAlgebra(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
+            _cuda = _context.UseCudaLinearAlgebra(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
             _cudaComputationUnit = new CudaComputationUnit(_context, (CudaProvider)_cuda);
         }
 

@@ -30,7 +30,7 @@ namespace BrightData.LinearAlegbra2
         public abstract uint Size { get; }
         ITensor2 ITensor2.Clone() => Clone();
         public ITensorSegment2 Segment { get; }
-        public BrightDataContext2 Context => _computationUnit.Context;
+        public BrightDataContext Context => _computationUnit.Context;
 
         public IVector Reshape() => _computationUnit.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)

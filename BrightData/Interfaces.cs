@@ -1191,7 +1191,7 @@ namespace BrightData
 
     public interface ITensor2 : IDisposable
     {
-        BrightDataContext2 Context { get; }
+        BrightDataContext Context { get; }
         ITensorSegment2 Segment { get; }
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);

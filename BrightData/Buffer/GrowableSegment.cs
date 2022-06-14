@@ -8,7 +8,8 @@ namespace BrightData.Buffer
     /// A single type data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class GrowableSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T> where T: notnull
+    internal class GrowableSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T> 
+        where T: notnull
     {
         readonly IHybridBuffer<T> _buffer;
 

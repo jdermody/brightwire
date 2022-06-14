@@ -13,14 +13,14 @@ namespace BrightData.LinearAlegbra2
         readonly List<HashSet<IDisposable>> _scope = new();
 
         public ComputationUnit(
-            BrightDataContext2 context
+            BrightDataContext context
         )
         {
             Context = context;
             PushScope();
         }
 
-        public BrightDataContext2 Context { get; }
+        public BrightDataContext Context { get; }
 
         public void Dispose()
         {

@@ -2617,30 +2617,6 @@
             <param name="tensor"></param>
             <param name="initializer">Callback for each element</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CosineDistance(System.Single[],System.Single[])">
-            <summary>
-            Calculates the cosine distance between two vectors
-            </summary>
-            <param name="vector"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.EuclideanDistance(System.Single[],System.Single[])">
-            <summary>
-            Calculates euclidean distance between two vectors
-            </summary>
-            <param name="vector"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ManhattanDistance(System.Single[],System.Single[])">
-            <summary>
-            Calculates manhattan distance between two vectors
-            </summary>
-            <param name="vector"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.Mutate(BrightData.LinearAlgebra.Vector{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             Mutates a vector via a callback
