@@ -6164,6 +6164,14 @@
             Returns the matrix as xml
             </summary>
         </member>
+        <member name="M:BrightData.LinearAlegbra2.Matrix2`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlegbra2.Tensor3D2`1.ToNewColumnMajor">
+            <summary>
+            Converts the segment to a column major vector (default is row major)
+            </summary>
+        </member>
         <member name="T:BrightData.LinearAlgebra.Matrix`1">
             <summary>
             Matrix type

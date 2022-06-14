@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.LinearAlegbra2
 {
@@ -37,24 +38,16 @@ namespace BrightData.LinearAlegbra2
             var shape = ResolveShape(Size, rows, columns);
             return _computationUnit.CreateMatrix(Segment, shape[0], shape[1]);
         }
-
-        public T Map(Func<float, float> mutator)
+        public ITensor3D Reshape(uint? depth, uint? rows, uint? columns)
         {
-            var ret = _computationUnit.MapParallel(Segment, mutator);
-            return Create(ret);
+            var shape = ResolveShape(Size, depth, rows, columns);
+            return _computationUnit.CreateTensor3D(Segment, shape[0], shape[1], shape[2]);
         }
-
-        public void MapInPlace(Func<float, float> mutator)
+        public ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
-            var ret = _computationUnit.MapParallel(Segment, mutator);
-            try {
-                ret.CopyTo(Segment);
-            }
-            finally {
-                ret.Release();
-            }
+            var shape = ResolveShape(Size, count, depth, rows, columns);
+            return _computationUnit.CreateTensor4D(Segment, shape[0], shape[1], shape[2], shape[3]);
         }
-
         static uint[] ResolveShape(uint total, params uint?[] shape)
         {
             uint nonNullTotal = 0;
@@ -73,6 +66,23 @@ namespace BrightData.LinearAlegbra2
                 throw new ArgumentException("Cannot resolve null parameter");
 
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
+        }
+
+        public T Map(Func<float, float> mutator)
+        {
+            var ret = _computationUnit.MapParallel(Segment, mutator);
+            return Create(ret);
+        }
+
+        public void MapInPlace(Func<float, float> mutator)
+        {
+            var ret = _computationUnit.MapParallel(Segment, mutator);
+            try {
+                ret.CopyTo(Segment);
+            }
+            finally {
+                ret.Release();
+            }
         }
 
         public T Clone()                                                                     => Create(_computationUnit.Clone(Segment));

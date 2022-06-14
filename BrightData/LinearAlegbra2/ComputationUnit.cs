@@ -10,25 +10,40 @@ namespace BrightData.LinearAlegbra2
 {
     public class ComputationUnit : IDisposable
     {
-        readonly HashSet<IDisposable> _disposable = new();
+        readonly List<HashSet<IDisposable>> _scope = new();
 
         public ComputationUnit(
             BrightDataContext2 context
         )
         {
             Context = context;
+            PushScope();
         }
 
         public BrightDataContext2 Context { get; }
 
         public void Dispose()
         {
-            foreach(var item in _disposable)
-                item.Dispose();
+            foreach (var set in _scope) {
+                foreach(var item in set)
+                    item.Dispose();
+            }
         }
 
-        internal bool AddToScope(IDisposable obj) => _disposable.Add(obj);
-        internal bool RemoveFromScope(IDisposable obj) => _disposable.Remove(obj);
+        public void PushScope()
+        {
+            _scope.Add(new());
+        }
+
+        public void PopScope()
+        {
+            var popped = _scope.Last();
+            _scope.RemoveAt(_scope.Count-1);
+            foreach(var item in popped)
+                item.Dispose();
+        }
+        internal bool AddToScope(IDisposable obj) => _scope.Last().Add(obj);
+        internal bool RemoveFromScope(IDisposable obj) => _scope.Last().Remove(obj);
         public virtual IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
 
         public virtual IDisposableTensorSegment Clone(ITensorSegment2 tensor)

@@ -194,5 +194,15 @@ namespace BrightData.MKL
                 CreateMatrix(vt, (uint)cols, (uint)cols)
             );
         }
+
+        public override float L2Norm(ITensorSegment2 segment) => Blas.nrm2(segment.GetLocalOrNewArray());
+        public override ITensorSegment2 Exp(ITensorSegment2 tensor) => Apply(tensor, Vml.Exp);
+        public override ITensorSegment2 Tanh(ITensorSegment2 tensor) => Apply(tensor, Vml.Tanh);
+        //public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Mul);
+        //public override ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Div);
+        public override ITensorSegment2 Sqrt(ITensorSegment2 tensor) => Apply(tensor, Vml.Sqrt);
+        public override ITensorSegment2 Log(ITensorSegment2 tensor) => Apply(tensor, Vml.Ln);
+        public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Sub);
+        public override ITensorSegment2 Squared(ITensorSegment2 tensor) => Apply(tensor, Vml.Sqr);
     }
 }

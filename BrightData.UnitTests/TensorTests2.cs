@@ -26,6 +26,10 @@ namespace BrightData.UnitTests
         readonly CudaComputationUnit _cudaComputationUnit;
         readonly ITestOutputHelper _output;
 
+        static readonly uint VectorSize = 1000;
+        static readonly uint RowCount = 200;
+        static readonly uint ColumnCount = 200;
+
         public TensorTests2(ITestOutputHelper output)
         {
             _output = output;
@@ -47,16 +51,14 @@ namespace BrightData.UnitTests
             try {
                 simple.Segment.CopyTo(mkl.Segment);
                 simple.Segment.CopyTo(cuda.Segment);
+                using var simple2 = (TT)simple.Clone();
+                using var mkl2 = (TT)mkl.Clone();
                 using var cuda2 = (TT)cuda.Clone();
 
                 var ret = new (R Result, string Type, TimeSpan Time)[3];
-                var sw = Stopwatch.StartNew();
-                var r1 = test(simple, mkl);
-                sw.Stop();
-                ret[0] = (r1, "default", sw.Elapsed);
 
-                sw.Restart();
-                var r2 = test(mkl, simple);
+                var sw = Stopwatch.StartNew();
+                var r2 = test(mkl, mkl2);
                 sw.Stop();
                 ret[1] = (r2, "mkl", sw.Elapsed);
 
@@ -64,6 +66,11 @@ namespace BrightData.UnitTests
                 var r3 = test(cuda, cuda2);
                 sw.Stop();
                 ret[2] = (r3, "cuda", sw.Elapsed);
+                
+                sw.Restart();
+                var r1 = test(simple, simple2);
+                sw.Stop();
+                ret[0] = (r1, "default", sw.Elapsed);
 
                 // make sure that all pairs of results validate
                 var firstResult = ret[0].Result;
@@ -85,14 +92,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void DotProduct()
         {
-            const int SIZE = 100000;
-            using var vector = _computationUnit.CreateVector(SIZE);
+            using var vector = _computationUnit.CreateVector(VectorSize);
             vector.MapIndexedInPlace((i, v) => i);
 
             Test(
                 vector, 
-                _mklComputationUnit.CreateVector(SIZE), 
-                _cudaComputationUnit.CreateVector(SIZE), 
+                _mklComputationUnit.CreateVector(VectorSize), 
+                _cudaComputationUnit.CreateVector(VectorSize), 
                 (v1, v2) => v1.DotProduct(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -101,7 +107,6 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixMultiply()
         {
-            const int RowCount = 200, ColumnCount = 200;
             using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
@@ -133,7 +138,6 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTransposeThisAndMultiply()
         {
-            const int RowCount = 200, ColumnCount = 200;
             using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
@@ -149,7 +153,6 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTransposeAndMultiply()
         {
-            const int RowCount = 200, ColumnCount = 200;
             using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
@@ -174,6 +177,51 @@ namespace BrightData.UnitTests
 
             var mklMatrix = _mklComputationUnit.CreateMatrix(matrix.Segment, RowCount, ColumnCount);
             var (u2, s2, vt2) = mklMatrix.Svd();
+        }
+
+        [Fact]
+        public void L2Norm()
+        {
+            using var vector = _computationUnit.CreateVector(VectorSize);
+            vector.MapIndexedInPlace((i, v) => i);
+
+            Test(
+                vector, 
+                _mklComputationUnit.CreateVector(VectorSize), 
+                _cudaComputationUnit.CreateVector(VectorSize), 
+                (v1, v2) => v1.L2Norm(),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void PointwiseMultiply()
+        {
+            using var vector = _computationUnit.CreateVector(VectorSize);
+            vector.MapIndexedInPlace((i, v) => i);
+
+            Test(
+                vector, 
+                _mklComputationUnit.CreateVector(VectorSize), 
+                _cudaComputationUnit.CreateVector(VectorSize), 
+                (v1, v2) => v1.PointwiseMultiply(v2),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void PointwiseDivide()
+        {
+            using var vector = _computationUnit.CreateVector(VectorSize);
+            vector.MapIndexedInPlace((i, v) => i+1);
+
+            Test(
+                vector, 
+                _mklComputationUnit.CreateVector(VectorSize), 
+                _cudaComputationUnit.CreateVector(VectorSize), 
+                (v1, v2) => v1.PointwiseDivide(v2),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
         }
     }
 }
