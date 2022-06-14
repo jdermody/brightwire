@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -111,8 +112,14 @@ namespace BrightData.LinearAlegbra2
         public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _computationUnit.SplitAtRow(this, rowIndex);
         public IMatrix ConcatColumns(IMatrix bottom) => _computationUnit.ConcatColumns(this, bottom);
         public IMatrix ConcatRows(IMatrix right) => _computationUnit.ConcatRows(this, right);
+        public (IMatrix U, IVector S, IMatrix VT) Svd() => _computationUnit.Svd(this);
 
-        public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var preview = Size <= 8 ? string.Join('|', Segment.Values) : "";
+            return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
     }
 
     public class Matrix2 : Matrix2<ComputationUnit>

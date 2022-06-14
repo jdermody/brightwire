@@ -1294,6 +1294,7 @@ namespace BrightData
         IMatrix ConcatRows(IMatrix right);
         IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
         void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
+        (IMatrix U, IVector S, IMatrix VT) Svd();
     }
 
     public interface ITensor3D : ITensor2<ITensor3D>

@@ -41,7 +41,7 @@ namespace BrightData.UnitTests
             _computationUnit.Dispose();
         }
 
-        (R Result, string Type, TimeSpan Time)[] Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)
+        void Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)
             where TT: ITensor2
         {
             try {
@@ -75,8 +75,6 @@ namespace BrightData.UnitTests
                 // log the results
                 foreach(var item in ret.OrderBy(d => d.Time))
                     _output.WriteLine($"{item.Time} - {item.Type}");
-
-                return ret;
             }
             finally {
                 mkl.Dispose();
@@ -85,7 +83,7 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void TestDotProduct()
+        public void DotProduct()
         {
             const int SIZE = 100000;
             using var vector = _computationUnit.CreateVector(SIZE);
@@ -107,13 +105,75 @@ namespace BrightData.UnitTests
             using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
-            var results = Test(
+            Test(
                 matrix, 
                 _mklComputationUnit.CreateMatrix(RowCount, ColumnCount), 
                 _cudaComputationUnit.CreateMatrix(RowCount, ColumnCount), 
                 (v1, v2) => v1.Multiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
+        }
+
+        [Fact]
+        public void MatrixTranspose()
+        {
+            const int RowCount = 2, ColumnCount = 3;
+            using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
+            matrix.MapIndexedInPlace((i, j, v) => i + j + 1);
+
+            Test(
+                matrix, 
+                _mklComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                _cudaComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                (v1, v2) => v1.Transpose(),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void MatrixTransposeThisAndMultiply()
+        {
+            const int RowCount = 200, ColumnCount = 200;
+            using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
+            matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
+
+            Test(
+                matrix, 
+                _mklComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                _cudaComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                (v1, v2) => v1.TransposeThisAndMultiply(v2),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void MatrixTransposeAndMultiply()
+        {
+            const int RowCount = 200, ColumnCount = 200;
+            using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
+            matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
+
+            Test(
+                matrix, 
+                _mklComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                _cudaComputationUnit.CreateMatrix(RowCount, ColumnCount), 
+                (v1, v2) => v1.TransposeAndMultiply(v2),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void SVD()
+        {
+            const int RowCount = 2, ColumnCount = 2;
+            using var matrix = _computationUnit.CreateMatrix(RowCount, ColumnCount);
+            matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
+
+            var cudaMatrix = _cudaComputationUnit.CreateMatrix(matrix.Segment, RowCount, ColumnCount);
+            var (u, s, vt) = cudaMatrix.Svd();
+
+            var mklMatrix = _mklComputationUnit.CreateMatrix(matrix.Segment, RowCount, ColumnCount);
+            var (u2, s2, vt2) = mklMatrix.Svd();
         }
     }
 }

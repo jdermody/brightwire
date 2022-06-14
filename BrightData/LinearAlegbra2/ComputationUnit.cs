@@ -199,11 +199,16 @@ namespace BrightData.LinearAlegbra2
         public virtual IMatrix Transpose(IMatrix matrix)
         {
             var columnCount = matrix.ColumnCount;
-            var ret = CreateMatrix(columnCount, matrix.RowCount);
+            var rowCount = matrix.RowCount;
+            var ret = CreateMatrix(columnCount, rowCount);
+            //for (var i = 0; i < rowCount; i++) {
+            //    for(var j = 0; j < columnCount; j++)
+            //        ret[j, i] = matrix[i, j];
+            //}
             Parallel.For(0, matrix.Segment.Size, ind => {
-                var j = (uint)(ind / columnCount);
-                var i = (uint)(ind % columnCount);
-                ret[i, j] = matrix[j, i];
+                var i = (uint)(ind / columnCount);
+                var j = (uint)(ind % columnCount);
+                ret[j, i] = matrix[i, j];
             });
             return ret;
         }

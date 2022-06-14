@@ -409,16 +409,16 @@ namespace BrightData.Cuda
             CudaBlasNativeMethods.cublasSgeam(_cuda.Blas.CublasHandle,
                 Operation.Transpose,
                 Operation.NonTranspose,
-                (int)matrix.ColumnCount,
                 (int)matrix.RowCount,
+                (int)matrix.ColumnCount,
                 ref alpha,
                 GetDeviceMemoryPtr(matrix.Segment).DevicePointer,
-                (int)matrix.RowCount,
+                (int)matrix.ColumnCount,
                 ref beta,
                 new CUdeviceptr(0),
                 (int)matrix.ColumnCount,
                 ret.DevicePointer,
-                (int)matrix.ColumnCount
+                (int)matrix.RowCount
             );
             return CreateMatrix(new CudaTensorSegment(ret), matrix.ColumnCount, matrix.RowCount);
         }
@@ -494,7 +494,23 @@ namespace BrightData.Cuda
                 try {
                     using var devInfo = new CudaDeviceVariable<int>(1);
                     a.CopyToDevice(GetDeviceMemoryPtr(matrix.Segment));
-                    solver.Gesvd('A', 'A', (int)rows, (int)columns, a.DeviceVariable, (int)rows, s.DeviceVariable, u.DeviceVariable, (int)rows, vt.DeviceVariable, (int)columns, buffer.DeviceVariable, bufferSize, rwork.DeviceVariable, devInfo);
+                    solver.Gesvd(
+                        'A', 
+                        'A', 
+                        (int)rows, 
+                        (int)columns, 
+                        a.DeviceVariable, 
+                        (int)rows, 
+                        s.DeviceVariable, 
+                        u.DeviceVariable, 
+                        (int)rows, 
+                        vt.DeviceVariable, 
+                        (int)columns, 
+                        buffer.DeviceVariable, 
+                        bufferSize, 
+                        rwork.DeviceVariable, 
+                        devInfo
+                    );
                     return (
                         CreateMatrix(new CudaTensorSegment(u), rows, rows),
                         CreateVector(new CudaTensorSegment(s)),

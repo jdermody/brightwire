@@ -90,5 +90,109 @@ namespace BrightData.MKL
             });
             return CreateMatrix(ret, matrix.RowCount, other.ColumnCount);
         }
+
+        public override IMatrix Transpose(IMatrix matrix)
+        {
+            var rows = (int)matrix.RowCount;
+            var cols = (int)matrix.ColumnCount;
+
+            var ret = Apply(matrix.Segment, (size, a, r) => {
+                Array.Copy(a, r, a.Length);
+                Blas.imatcopy(
+                    LayoutChar.ColMajor, 
+                    TransChar.Yes,
+                    rows,
+                    cols,
+                    1f, 
+                    r,
+                    cols,
+                    rows
+                );
+            });
+            return CreateMatrix(ret, matrix.ColumnCount, matrix.RowCount);
+        }
+
+        public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
+        {
+            int rowsA = (int)matrix.RowCount, columnsA = (int)matrix.ColumnCount, columnsB = (int)other.ColumnCount, rowsB = (int)other.RowCount;
+            var ret = Apply(matrix.Segment, matrix.Segment, (size, a, b, r) => {
+                Blas.gemm(
+                    Layout.ColMajor,
+                    Trans.Yes,
+                    Trans.No,
+                    columnsA,
+                    columnsB,
+                    rowsB,
+                    1f,
+                    a,
+                    rowsA,
+                    b,
+                    rowsB,
+                    0f,
+                    r,
+                    columnsA
+                );
+            });
+            return CreateMatrix(ret, matrix.ColumnCount, other.ColumnCount);
+        }
+
+        public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
+        {
+            int rowsA = (int)matrix.RowCount, columnsArowsB = (int)matrix.ColumnCount, rowsB = (int)other.RowCount;
+            var ret = Apply(matrix.Segment, matrix.Segment, (size, a, b, r) => {
+                Blas.gemm(
+                    Layout.ColMajor,
+                    Trans.No,
+                    Trans.Yes,
+                    rowsA,
+                    rowsB,
+                    columnsArowsB,
+                    1f,
+                    a,
+                    rowsA,
+                    b,
+                    rowsB,
+                    0f,
+                    r,
+                    rowsA
+                );
+            });
+            return CreateMatrix(ret, matrix.RowCount, other.RowCount);
+        }
+
+        public override (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
+        {
+            var rows = (int)matrix.RowCount;
+            var cols = (int)matrix.ColumnCount;
+            var mn = Math.Min(rows, cols);
+            var size = rows * cols;
+            var buffer = matrix.Segment.GetLocalOrNewArray();
+
+            var s = CreateSegment((uint)mn);
+            var u = CreateSegment((uint)(rows * rows));
+            var vt = CreateSegment((uint)(cols * cols));
+            using var rWork = CreateSegment((uint)mn);
+
+            var ret = Lapack.gesvd(
+                Layout.ColMajor,
+                'A',
+                'A',
+                rows,
+                cols,
+                buffer,
+                rows,
+                s.GetArrayForLocalUseOnly()!,
+                u.GetArrayForLocalUseOnly()!,
+                rows,
+                vt.GetArrayForLocalUseOnly()!,
+                cols,
+                rWork.GetArrayForLocalUseOnly()!
+            );
+            return (
+                CreateMatrix(u, (uint)rows, (uint)rows),
+                CreateVector(s),
+                CreateMatrix(vt, (uint)cols, (uint)cols)
+            );
+        }
     }
 }
