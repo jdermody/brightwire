@@ -4288,6 +4288,16 @@
             Binary data
             </summary>
         </member>
+        <member name="F:BrightData.BrightDataType.TimeOnly">
+            <summary>
+            Time only
+            </summary>
+        </member>
+        <member name="F:BrightData.BrightDataType.DateOnly">
+            <summary>
+            Date only
+            </summary>
+        </member>
         <member name="T:BrightData.ColumnClass">
             <summary>
             Column classifications

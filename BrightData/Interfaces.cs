@@ -919,7 +919,7 @@ namespace BrightData
     /// Append only buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IAppendableBuffer<in T> where T : notnull
+    public interface IAppendableBuffer<T> where T : notnull
     {
         /// <summary>
         /// Adds a new item
@@ -927,6 +927,8 @@ namespace BrightData
         /// <param name="value">Item to add</param>
         /// <param name="index">Row index</param>
         void Add(T value, uint index);
+
+        void Append(Span<T> data);
     }
 
     /// <summary>
@@ -936,7 +938,7 @@ namespace BrightData
     public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>, IAppendableBuffer<T>
         where T : notnull
     {
-
+        Dictionary<T, uint>? DistinctItems { get; }
     }
 
     /// <summary>
@@ -1371,5 +1373,11 @@ namespace BrightData
 
     public interface IDisposableTensorSegmentWrapper : IDisposableTensorSegment
     {
+    }
+
+    public interface IReadColumnTypes<CT>
+        where CT: struct
+    {
+        void OnItem(ref CT item, uint index);
     }
 }

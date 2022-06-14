@@ -1,4 +1,6 @@
-﻿namespace BrightData.DataTable.Consumers
+﻿using System;
+
+namespace BrightData.DataTable.Consumers
 {
     internal class ColumnAnalyser<T> : IConsumeColumnData<T>, ICanComplete 
         where T: notnull
@@ -20,6 +22,12 @@
         public void Add(T value, uint index)
         {
             _analyser.Add(value);
+        }
+
+        public void Append(Span<T> data)
+        {
+            foreach(var item in data)
+                _analyser.Add(item);
         }
 
         public void Complete()

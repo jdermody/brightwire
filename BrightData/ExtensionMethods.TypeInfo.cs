@@ -65,6 +65,11 @@ namespace BrightData
                 if(!_filter.IsValid(value))
                     _nonConformingRowIndices.Add(index);
             }
+
+            public void Append(Span<T> data)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         static IConsumeColumnData GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)

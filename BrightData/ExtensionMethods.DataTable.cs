@@ -886,6 +886,12 @@ namespace BrightData
                 _data.Add(_converter.Convert(value));
             }
 
+            public void Append(Span<T> data)
+            {
+                foreach (var item in data)
+                    Add(item, (uint)_data.Count);
+            }
+
             public float[] Data => _data.ToArray();
         }
 

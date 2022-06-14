@@ -119,7 +119,17 @@ namespace BrightData
         /// <summary>
         /// Binary data
         /// </summary>
-        BinaryData
+        BinaryData,
+
+        /// <summary>
+        /// Time only
+        /// </summary>
+        TimeOnly,
+
+        /// <summary>
+        /// Date only
+        /// </summary>
+        DateOnly
     }
 
     /// <summary>
@@ -743,7 +753,7 @@ namespace BrightData
     /// Typed column consumer that writes to a buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IConsumeColumnData<in T> : IConsumeColumnData, IAppendableBuffer<T>
+    public interface IConsumeColumnData<T> : IConsumeColumnData, IAppendableBuffer<T>
         where T : notnull
     {
     }

@@ -17,7 +17,6 @@ namespace BrightData.Buffer
         protected readonly T[] _tempBuffer;
         readonly ushort _maxDistinct = 0;
 
-        HashSet<T>? _distinctSet = null;
         int _index = 0;
 
         protected HybridBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
@@ -28,7 +27,7 @@ namespace BrightData.Buffer
             _tempBuffer = new T[maxCount];
 
             if (maxDistinct > 0) {
-                _distinctSet = new HashSet<T>();
+                DistinctItems = new Dictionary<T, uint>();
                 _maxDistinct = maxDistinct.Value;
             }
         }
@@ -45,8 +44,14 @@ namespace BrightData.Buffer
             _tempBuffer[_index++] = item;
             ++Size;
 
-            if (_distinctSet?.Add(item) == true && _distinctSet.Count > _maxDistinct)
-                _distinctSet = null;
+            if (DistinctItems?.TryAdd(item, index) == true && DistinctItems.Count > _maxDistinct)
+                DistinctItems = null;
+        }
+
+        public void Append(Span<T> data)
+        {
+            foreach(var item in data)
+                Add(item, Size);
         }
 
         protected Span<T> GetTempBuffer() => ((Span<T>) _tempBuffer)[.._index];
@@ -74,10 +79,11 @@ namespace BrightData.Buffer
 
         public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;
-        public uint? NumDistinct => (uint?) _distinctSet?.Count;
+        public uint? NumDistinct => (uint?) DistinctItems?.Count;
         public void Add(object obj, uint index) => Add((T)obj, index);
         public Type DataType { get; } = typeof(T);
         protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
         protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);
+        public Dictionary<T, uint>? DistinctItems { get; private set; } = null;
     }
 }

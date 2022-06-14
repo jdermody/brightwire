@@ -45,6 +45,8 @@ namespace BrightData.Buffer
         public void Add(object? obj, uint index) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"), index);
         public Type DataType { get; } = typeof(T);
         public void Add(T obj, uint index) => _buffer.Add(obj, index);
+        public void Append(Span<T> data) => _buffer.Append(data);
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
+        public Dictionary<T, uint>? DistinctItems => _buffer.DistinctItems;
     }
 }
