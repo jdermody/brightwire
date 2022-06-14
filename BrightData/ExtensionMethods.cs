@@ -442,5 +442,18 @@ namespace BrightData
                 }
             }
         }
+
+        public static IEnumerable<(T First, T Second)> FindAllPairs<T>(this T[] items)
+        {
+            var len = items.Length;
+            var state = new HashSet<(int, int)>();
+
+            for (var i = 0; i < len; i++) {
+                for (var j = 0; j < len; j++) {
+                    if (i != j && state.Add((i, j)) && state.Add((j, i)))
+                        yield return (items[i], items[j]);
+                }
+            }
+        }
     }
 }

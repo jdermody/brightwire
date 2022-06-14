@@ -27,11 +27,10 @@ namespace BrightData.LinearAlegbra2
 
         public abstract T Create(ITensorSegment2 segment);
         public abstract uint Size { get; }
-
+        ITensor2 ITensor2.Clone() => Clone();
         public ITensorSegment2 Segment { get; }
         public BrightDataContext2 Context => _computationUnit.Context;
 
-        public T Clone() => Create(_computationUnit.Clone(Segment));
         public IVector Reshape() => _computationUnit.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
         {
@@ -76,7 +75,8 @@ namespace BrightData.LinearAlegbra2
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
 
-        public void Clear() => Segment.Clear();
+        public T Clone()                                                                     => Create(_computationUnit.Clone(Segment));
+        public void Clear()                                                                  => Segment.Clear();
         public T Add(ITensor2 tensor)                                                        => Create(_computationUnit.Add(Segment, tensor.Segment));
         public T Add(ITensor2 tensor, float coefficient1, float coefficient2)                => Create(_computationUnit.Add(Segment, tensor.Segment, coefficient1, coefficient2));
         public T Add(float scalar)                                                           => Create(_computationUnit.Add(Segment, scalar));

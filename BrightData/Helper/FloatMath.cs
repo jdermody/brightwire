@@ -174,6 +174,23 @@ namespace BrightData.Helper
             return true;
         }
 
+        public static bool AreApproximatelyEqual(ITensor2 t1, ITensor2 t2, int maxDifference = 6)
+        {
+            var len = t1.Segment.Size;
+            if (len != t2.Segment.Size)
+                return false;
+
+            var p1 = t1.Segment.GetSpan();
+            var p2 = t2.Segment.GetSpan();
+
+            for (int i = 0; i < len; i++) {
+                if(!AreApproximatelyEqual(p1[i], p2[i], maxDifference))
+                    return false;
+            }
+
+            return true;
+        }
+
         public static bool AreApproximatelyEqual(Vector<float> v1, Vector<float> v2, int maxDifference = 6)
         {
             if (v1.Size != v2.Size)

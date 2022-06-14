@@ -157,7 +157,7 @@ namespace BrightData
             for (; i < size; i++)
                 ptr[i] = func2(segment[i], other[i]);
 
-            segment.CopyFrom(ptr);
+            segment.CopyFrom(ptr, ret.DangerousGetArray().Array);
         }
 
         public static void MutateInPlace(this ITensorSegment2 segment, Func<float, float> mutator)
@@ -181,7 +181,7 @@ namespace BrightData
             for (; i < size; i++)
                 ptr[i] = mutator2(segment[i]);
 
-            segment.CopyFrom(ptr);
+            segment.CopyFrom(ptr, ret.DangerousGetArray().Array);
         }
 
         public static unsafe float Sum(this ITensorSegment2 segment)

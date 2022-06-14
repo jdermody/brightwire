@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -62,13 +63,19 @@ namespace BrightData.LinearAlegbra2
             set => _array[index] = value;
         }
 
-        public IEnumerable<float> Values => _array;
+        public IEnumerable<float> Values => _array.Take((int)Size);
         public float[] GetArrayForLocalUseOnly() => _array;
-        public float[] ToNewArray() => (float[])_array.Clone();
-        public void CopyFrom(Span<float> span) => span.CopyTo(_data.Span);
+        public float[] ToNewArray() => _data.Span.ToArray();
+        public void CopyFrom(Span<float> span, float[]? sourceArray) => span.CopyTo(_data.Span);
         public void CopyTo(ITensorSegment2 segment)
         {
-            segment.GetSpan().CopyTo(_data.Span);
+            var span = _array.AsSpan(0, (int)Size);
+
+            var destination = segment.GetArrayForLocalUseOnly();
+            if(destination is not null)
+                span.CopyTo(destination);
+            else
+                segment.CopyFrom(span, _array);
         }
 
         public void Clear() => _data.Span.Clear();

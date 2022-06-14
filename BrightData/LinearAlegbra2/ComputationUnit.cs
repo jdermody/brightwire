@@ -29,7 +29,7 @@ namespace BrightData.LinearAlegbra2
 
         internal bool AddToScope(IDisposable obj) => _disposable.Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _disposable.Remove(obj);
-        public virtual IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size));
+        public virtual IDisposableTensorSegment CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
 
         public virtual IDisposableTensorSegment Clone(ITensorSegment2 tensor)
         {

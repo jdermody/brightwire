@@ -1196,6 +1196,7 @@ namespace BrightData
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);
         void Clear();
+        ITensor2 Clone();
     }
 
     public interface ITensor2<out T> : ITensor2 
@@ -1358,7 +1359,7 @@ namespace BrightData
         IEnumerable<float> Values { get; }
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
-        void CopyFrom(Span<float> span);
+        void CopyFrom(Span<float> span, float[]? sourceArray);
         void CopyTo(ITensorSegment2 segment);
         void Clear();
     }

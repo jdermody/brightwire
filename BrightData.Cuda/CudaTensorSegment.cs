@@ -84,19 +84,20 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public void CopyFrom(Span<float> span)
+        public void CopyFrom(Span<float> span, float[]? sourceArray)
         {
-            DeviceMemory.CopyToDevice(span);
+            DeviceMemory.CopyToDevice(span, sourceArray);
         }
 
         public void CopyTo(ITensorSegment2 segment)
         {
             if (segment.SegmentType == CudaSegmentType) {
-
+                var other = (CudaTensorSegment)segment;
+                other.DeviceMemory.CopyToDevice(DeviceMemory);
             }
             else {
                 using var buffer = ToNewMemoryOwner();
-                segment.CopyFrom(buffer.Span);
+                segment.CopyFrom(buffer.Span, buffer.DangerousGetArray().Array);
             }
         }
 

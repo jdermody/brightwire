@@ -38,13 +38,21 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, Span<float> span)
+        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, Span<float> span, float[]? sourceArray)
         {
-            using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
-            span.CopyTo(buffer.Span);
-            fixed (float* p = buffer.DangerousGetArray().Array!)
-            {
-                ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
+            if (sourceArray is null) {
+                using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
+                span.CopyTo(buffer.Span);
+                fixed (float* p = buffer.DangerousGetArray().Array!)
+                {
+                    ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
+                }
+            }
+            else {
+                fixed (float* p = sourceArray)
+                {
+                    ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
+                }
             }
         }
     }
