@@ -8,7 +8,7 @@ namespace BrightData
     /// <summary>
     /// Determines if the data table is oriented as either rows or columns
     /// </summary>
-    public enum DataTableOrientation
+    public enum DataTableOrientation : byte
     {
         /// <summary>
         /// Pathological case
@@ -753,7 +753,7 @@ namespace BrightData
     /// Typed column consumer that writes to a buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IConsumeColumnData<T> : IConsumeColumnData, IAppendableBuffer<T>
+    public interface IConsumeColumnData<in T> : IConsumeColumnData, IAcceptSequentialTypedData<T>
         where T : notnull
     {
     }

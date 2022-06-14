@@ -32,7 +32,7 @@ namespace BrightData.Buffer
             }
         }
 
-        public void Add(T item, uint index)
+        public void Add(T item)
         {
             if (_index == _maxCount) {
                 var stream = _tempStream.Get(_id);
@@ -42,16 +42,9 @@ namespace BrightData.Buffer
             }
 
             _tempBuffer[_index++] = item;
-            ++Size;
-
-            if (DistinctItems?.TryAdd(item, index) == true && DistinctItems.Count > _maxDistinct)
+            if (DistinctItems?.TryAdd(item, Size) == true && DistinctItems.Count > _maxDistinct)
                 DistinctItems = null;
-        }
-
-        public void Append(Span<T> data)
-        {
-            foreach(var item in data)
-                Add(item, Size);
+            ++Size;
         }
 
         protected Span<T> GetTempBuffer() => ((Span<T>) _tempBuffer)[.._index];
@@ -80,7 +73,7 @@ namespace BrightData.Buffer
         public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?) DistinctItems?.Count;
-        public void Add(object obj, uint index) => Add((T)obj, index);
+        public void AddObject(object obj) => Add((T)obj);
         public Type DataType { get; } = typeof(T);
         protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
         protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);

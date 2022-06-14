@@ -211,7 +211,7 @@ namespace BrightData.DataTable.Builders
                         : _columns[i].Type.GetDefaultValue();
                     if (val == null)
                         throw new Exception("Values cannot be null");
-                    columns[i].Add(val, index);
+                    columns[i].AddObject(val);
                 }
 
                 ++index;

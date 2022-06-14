@@ -42,7 +42,7 @@ namespace BrightData.DataTable
                 _consumer = consumer;
             }
 
-            public void Read(BinaryReader reader, uint index) => _consumer.Add(_reader.ReadTyped(reader), index);
+            public void Read(BinaryReader reader, uint index) => _consumer.Add(_reader.ReadTyped(reader));
         }
 
         readonly ColumnInfo[] _columns;
@@ -364,12 +364,12 @@ namespace BrightData.DataTable
         public IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices)
         {
             var groupedData = new Dictionary<string, IHybridBuffer[]>();
-            ForEachRow((row, rowIndex) => {
+            ForEachRow(row => {
                 var label = GetGroupLabel(columnIndices, row);
                 if (!groupedData.TryGetValue(label, out var data))
                     groupedData.Add(label, data = _columns.Select(c => c.MetaData.GetGrowableSegment(c.ColumnType, Context, Context.TempStreamProvider)).ToArray());
                 foreach(var (obj, buffer) in row.Zip(data))
-                    buffer.Add(obj, rowIndex);
+                    buffer.AddObject(obj);
             });
 
             return groupedData.OrderBy(g => g.Key).Select(kv => (kv.Key, kv.Value));

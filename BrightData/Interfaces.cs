@@ -703,16 +703,24 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Typed data analyser
+    /// Typed data can be sequentially added
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<in T> : IDataAnalyser where T : notnull
+    public interface IAcceptSequentialTypedData<in T> where T : notnull
     {
         /// <summary>
-        /// Adds a typed object to analyze
+        /// Adds a typed object
         /// </summary>
         /// <param name="obj"></param>
         void Add(T obj);
+    }
+
+    /// <summary>
+    /// Typed data analyser
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IDataAnalyser<in T> : IAcceptSequentialTypedData<T>, IDataAnalyser where T : notnull
+    {
     }
 
     /// <summary>
@@ -745,11 +753,6 @@ namespace BrightData
         /// </summary>
         FeatureScale
     }
-
-    //public interface IHaveEncodedData
-    //{
-    //    bool IsEncoded { get; }
-    //}
 
     /// <summary>
     /// Indicates that the type can convert different types
@@ -906,8 +909,7 @@ namespace BrightData
         /// Adds an object to the buffer
         /// </summary>
         /// <param name="obj">Object to add</param>
-        /// <param name="index">Index to set within the buffer</param>
-        void Add(object obj, uint index);
+        void AddObject(object obj);
 
         /// <summary>
         /// Buffer data type
@@ -915,27 +917,12 @@ namespace BrightData
         Type DataType { get; }
     }
 
-    /// <summary>
-    /// Append only buffer
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IAppendableBuffer<T> where T : notnull
-    {
-        /// <summary>
-        /// Adds a new item
-        /// </summary>
-        /// <param name="value">Item to add</param>
-        /// <param name="index">Row index</param>
-        void Add(T value, uint index);
-
-        void Append(Span<T> data);
-    }
 
     /// <summary>
     /// Typed hybrid buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>, IAppendableBuffer<T>
+    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>, IAcceptSequentialTypedData<T>
         where T : notnull
     {
         Dictionary<T, uint>? DistinctItems { get; }

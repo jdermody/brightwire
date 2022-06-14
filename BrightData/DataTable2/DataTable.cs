@@ -12,10 +12,11 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2
 {
-    internal class ColumnOrientedDataTable2 : IDisposable
+    internal class DataTable : IDisposable
     {
         internal struct Header
         {
+            public DataTableOrientation Orientation;
             public uint ColumnCount;
             public uint RowCount;
 
@@ -55,7 +56,7 @@ namespace BrightData.DataTable2
         readonly uint                           _rowSize;
         readonly long                           _dataOffset;
 
-        public ColumnOrientedDataTable2(Stream stream)
+        public DataTable(Stream stream)
         {
             _stream = stream;
             using var reader = new BinaryReader(stream, Encoding.UTF8);

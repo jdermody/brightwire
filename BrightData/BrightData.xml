@@ -3730,17 +3730,23 @@
             </summary>
             <param name="obj"></param>
         </member>
+        <member name="T:BrightData.IAcceptSequentialTypedData`1">
+            <summary>
+            Typed data can be sequentially added
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IAcceptSequentialTypedData`1.Add(`0)">
+            <summary>
+            Adds a typed object
+            </summary>
+            <param name="obj"></param>
+        </member>
         <member name="T:BrightData.IDataAnalyser`1">
             <summary>
             Typed data analyser
             </summary>
             <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IDataAnalyser`1.Add(`0)">
-            <summary>
-            Adds a typed object to analyze
-            </summary>
-            <param name="obj"></param>
         </member>
         <member name="T:BrightData.NormalizationType">
             <summary>
@@ -3908,30 +3914,16 @@
             Number of distinct items in the buffer (or null if not known)
             </summary>
         </member>
-        <member name="M:BrightData.IHybridBuffer.Add(System.Object,System.UInt32)">
+        <member name="M:BrightData.IHybridBuffer.AddObject(System.Object)">
             <summary>
             Adds an object to the buffer
             </summary>
             <param name="obj">Object to add</param>
-            <param name="index">Index to set within the buffer</param>
         </member>
         <member name="P:BrightData.IHybridBuffer.DataType">
             <summary>
             Buffer data type
             </summary>
-        </member>
-        <member name="T:BrightData.IAppendableBuffer`1">
-            <summary>
-            Append only buffer
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IAppendableBuffer`1.Add(`0,System.UInt32)">
-            <summary>
-            Adds a new item
-            </summary>
-            <param name="value">Item to add</param>
-            <param name="index">Row index</param>
         </member>
         <member name="T:BrightData.IHybridBuffer`1">
             <summary>

@@ -30,7 +30,7 @@ namespace BrightData.Transformation
                 var normalized = _normalize.Normalize(asDouble);
                 var val = _convertToFloat.Convert(normalized);
 
-                buffer.Add(val, index);
+                buffer.Add(val);
                 return true;
             }
 
@@ -65,7 +65,7 @@ namespace BrightData.Transformation
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
 
-                buffer.Add(normalized, index);
+                buffer.Add(normalized);
                 return true;
             }
 

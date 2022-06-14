@@ -94,5 +94,12 @@ namespace BrightData
 
             throw new NotImplementedException();
         }
+
+        public static void Add<T>(this IHybridBuffer<T> buffer, Span<T> span)
+            where T: notnull
+        {
+            foreach(var item in span)
+                buffer.Add(item);
+        }
     }
 }

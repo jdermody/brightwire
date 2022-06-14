@@ -46,9 +46,9 @@ namespace BrightData.Buffer
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
         public IBrightDataContext Context { get; }
 
-        public void Add(T obj, uint index)
+        public void Add(T obj)
         {
-            _buffer.Add(obj, index);
+            _buffer.Add(obj);
             if (_isDistinct && _unique.Add(obj) && _unique.Count > _maxDistinct)
                 _isDistinct = false;
         }

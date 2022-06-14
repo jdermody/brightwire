@@ -109,7 +109,7 @@ namespace BrightData
             if (dataType == typeof(BinaryData))
                 return BrightDataType.BinaryData;
 
-            return BrightDataType.Unknown;
+            throw new ArgumentException($"{dataType} has no corresponding bright data type");
         }
 
         /// <summary>
@@ -466,7 +466,6 @@ namespace BrightData
                 };
             }
 
-            uint index = 0;
             var ct = context.CancellationToken;
             foreach (var row in parser.Parse().Take(maxRows)) {
                 if (ct.IsCancellationRequested)
@@ -484,14 +483,13 @@ namespace BrightData
                     if (isFirst)
                         column.MetaData.Set(Consts.Name, text);
                     else
-                        column.Add(text, index);
+                        column.Add(text);
                 }
 
                 if (isFirst)
                     isFirst = false;
                 else
                     ++rowCount;
-                ++index;
             }
 
             var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
@@ -881,15 +879,9 @@ namespace BrightData
 
             public uint ColumnIndex { get; }
             public BrightDataType ColumnType { get; }
-            public void Add(T value, uint index)
+            public void Add(T value)
             {
                 _data.Add(_converter.Convert(value));
-            }
-
-            public void Append(Span<T> data)
-            {
-                foreach (var item in data)
-                    Add(item, (uint)_data.Count);
             }
 
             public float[] Data => _data.ToArray();

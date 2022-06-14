@@ -34,8 +34,10 @@ namespace BrightData.DataTable
             {
                 uint index = 0;
                 using var enumerator = _segment.EnumerateTyped().GetEnumerator();
-                while (index < maxRows && enumerator.MoveNext() && !ct.IsCancellationRequested)
-                    _consumer.Add(enumerator.Current, index++);
+                while (index < maxRows && enumerator.MoveNext() && !ct.IsCancellationRequested) {
+                    _consumer.Add(enumerator.Current);
+                    index++;
+                }
             }
         }
         interface IAnalyserBinding
@@ -155,12 +157,12 @@ namespace BrightData.DataTable
         public IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices)
         {
             var groups = new Dictionary<string, IHybridBuffer[]>();
-            ForEachRow((row, rowIndex) => {
+            ForEachRow(row => {
                 var label = GetGroupLabel(columnIndices, row);
                 if (!groups.TryGetValue(label, out var data))
                     groups.Add(label, data = _columns.Select(c => c.Info.MetaData.GetGrowableSegment(c.Info.ColumnType, Context, Context.TempStreamProvider)).ToArray());
                 foreach(var (obj, buffer) in row.Zip(data))
-                    buffer.Add(obj, rowIndex);
+                    buffer.AddObject(obj);
             });
 
             return groups.OrderBy(g => g.Key).Select(kv => (kv.Key, kv.Value));
@@ -319,7 +321,7 @@ namespace BrightData.DataTable
                 if (predicate(row)) {
                     ++rowCount;
                     for (int i = 0; i < ColumnCount; i++)
-                        buffers[i].Add(row[i], index);
+                        buffers[i].AddObject(row[i]);
                 }
             });
 

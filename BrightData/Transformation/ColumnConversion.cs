@@ -27,7 +27,7 @@ namespace BrightData.Transformation
             public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
                 var converted = _converter(input);
-                buffer.Add(converted, index);
+                buffer.Add(converted);
                 return true;
             }
 
@@ -48,7 +48,7 @@ namespace BrightData.Transformation
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")), index);
+                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")));
                 return true;
             }
 
@@ -64,7 +64,7 @@ namespace BrightData.Transformation
         {
             public bool Convert(T input, IHybridBuffer<string> buffer, uint index)
             {
-                buffer.Add(input.ToString() ?? throw new Exception("String was null"), index);
+                buffer.Add(input.ToString() ?? throw new Exception("String was null"));
                 return true;
             }
 
@@ -90,7 +90,7 @@ namespace BrightData.Transformation
             public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
                 if (_list.MoveNext()) {
-                    buffer.Add(_list.Current, index);
+                    buffer.Add(_list.Current);
                     return true;
                 }
 
@@ -141,7 +141,7 @@ namespace BrightData.Transformation
             public bool Convert(string input, IHybridBuffer<IndexList> buffer, uint index)
             {
                 var indexList = IndexList.Create(_context, _tokeniser(input, _stringIndexer));
-                buffer.Add(indexList, index);
+                buffer.Add(indexList);
                 return true;
             }
 
@@ -169,7 +169,7 @@ namespace BrightData.Transformation
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter.Convert(input), index);
+                buffer.Add(_converter.Convert(input));
                 return true;
             }
 
@@ -194,7 +194,7 @@ namespace BrightData.Transformation
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter(input), index);
+                buffer.Add(_converter(input));
                 return true;
             }
 
@@ -286,9 +286,9 @@ namespace BrightData.Transformation
                                 max = num;
                             if (isInteger && Math.Abs(num % 1) > FloatMath.AlmostZero)
                                 isInteger = false;
-                            buffer.Add(num, index);
+                            buffer.Add(num);
                         } else
-                            buffer.Add(double.NaN, index);
+                            buffer.Add(double.NaN);
 
                         ++index;
                     }

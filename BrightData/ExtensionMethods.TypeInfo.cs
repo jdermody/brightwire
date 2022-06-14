@@ -49,6 +49,7 @@ namespace BrightData
         {
             readonly IDataTypeSpecification<T> _filter;
             readonly HashSet<uint> _nonConformingRowIndices;
+            uint _index = 0;
 
             public ColumnFilter(uint columnIndex, BrightDataType columnType, IDataTypeSpecification<T> filter, HashSet<uint> nonConformingRowIndices)
             {
@@ -60,15 +61,11 @@ namespace BrightData
 
             public uint ColumnIndex { get; }
             public BrightDataType ColumnType { get; }
-            public void Add(T value, uint index)
+            public void Add(T value)
             {
                 if(!_filter.IsValid(value))
-                    _nonConformingRowIndices.Add(index);
-            }
-
-            public void Append(Span<T> data)
-            {
-                throw new NotImplementedException();
+                    _nonConformingRowIndices.Add(_index);
+                ++_index;
             }
         }
 

@@ -19,12 +19,12 @@ namespace BrightData.DataTable.Consumers
             ColumnType = type;
         }
 
-        public void Add(T value, uint index)
+        public void Add(T value)
         {
             _analyser.Add(value);
         }
 
-        public void Append(Span<T> data)
+        public void Add(Span<T> data)
         {
             foreach(var item in data)
                 _analyser.Add(item);
