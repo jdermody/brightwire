@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -452,6 +454,48 @@ namespace BrightData
                 for (var j = 0; j < len; j++) {
                     if (i != j && state.Add((i, j)) && state.Add((j, i)))
                         yield return (items[i], items[j]);
+                }
+            }
+        }
+
+        public static Dictionary<string, MethodInfo> GetGenericMethods(
+            this Type type, 
+            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
+        ) {
+            return type.GetMethods(bindingFlags)
+                .Where(m => m.IsGenericMethod)
+                .ToDictionary(m => m.Name)
+            ;
+        }
+
+        public static IEnumerable<T> EnumerateTyped<T>(this Stream stream, uint count, int tempBufferSize = 8192)
+            where T : struct
+        {
+            if (count < tempBufferSize) {
+                // simple case
+                var buffer = stream.ReadArray<T>(count);
+                for(uint i = 0; i < count; i++)
+                    yield return buffer[i];
+            }
+            else {
+                // buffered read
+                var sizeofT = Unsafe.SizeOf<T>();
+                var temp = ArrayPool<T>.Shared.Rent(tempBufferSize);
+                try {
+                    var totalRead = 0;
+                    while (totalRead < count) {
+                        var remaining = count - totalRead;
+                        var ptr = remaining >= tempBufferSize
+                            ? temp
+                            : ((Span<T>)temp)[..(int)remaining];
+                        var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(ptr)) / sizeofT;
+                        for (var i = 0; i < readCount; i++)
+                            yield return temp[i];
+                        totalRead += readCount;
+                    }
+                }
+                finally {
+                    ArrayPool<T>.Shared.Return(temp);
                 }
             }
         }

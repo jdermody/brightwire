@@ -11,7 +11,7 @@ namespace BrightData.DataTable
         where T: notnull
     {
         readonly MetaData _metadata;
-        readonly ICanEnumerate<T> _reader;
+        readonly ICanEnumerateWithSize<T> _reader;
         readonly ICanReadSection _stream;
 
         public Column(uint index, BrightDataType columnType, MetaData metaData, IBrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)

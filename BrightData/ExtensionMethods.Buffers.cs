@@ -72,25 +72,25 @@ namespace BrightData
         /// <param name="reader">Binary reader</param>
         /// <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
         /// <returns></returns>
-        public static ICanEnumerate<T> GetBufferReader<T>(this IBrightDataContext context, BinaryReader reader, uint inMemorySize) where T : notnull
+        public static ICanEnumerateWithSize<T> GetBufferReader<T>(this IBrightDataContext context, BinaryReader reader, uint inMemorySize) where T : notnull
         {
             var stream = reader.BaseStream;
             var type = (HybridBufferType)reader.ReadByte();
 
             if (type == HybridBufferType.EncodedString)
-                return (ICanEnumerate<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize);
+                return (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize);
 
             if (type == HybridBufferType.EncodedStruct)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
+                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
 
             if (type == HybridBufferType.Object)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
+                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
 
             if (type == HybridBufferType.String)
-                return (ICanEnumerate<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize);
+                return (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize);
 
             if (type == HybridBufferType.Struct)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
+                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
 
             throw new NotImplementedException();
         }

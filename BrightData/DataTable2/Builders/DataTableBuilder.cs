@@ -30,8 +30,8 @@ namespace BrightData.DataTable2.Builders
             _maxUniqueItemCount = maxUniqueItemCount;
             _tempStreams = new TempStreamManager(context.Get<string>(Consts.BaseTempPath));
 
-            var methods = GetType().GetMethods(BindingFlags.Instance);
-            _writeStructs = methods.Single(m => m.Name == nameof(WriteColumnOrientedStructs) && m.IsGenericMethod);
+            var methods = GetType().GetGenericMethods();
+            _writeStructs = methods[nameof(WriteColumnOrientedStructs)];
         }
 
         public MetaData TableMetaData { get; } = new();
@@ -84,8 +84,8 @@ namespace BrightData.DataTable2.Builders
             var weightedIndexWriter = new Lazy<IHybridBuffer<WeightedIndexList.Item>>(() => _context.CreateHybridStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
 
             // write the header
-            var headers = new DataTable.Header[1];
-            stream.Write(MemoryMarshal.AsBytes<DataTable.Header>(headers));
+            var headers = new BrightDataTable.Header[1];
+            stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
             header.Orientation = orientation;
             header.ColumnCount = (uint)_columns.Count;
@@ -96,7 +96,7 @@ namespace BrightData.DataTable2.Builders
             TableMetaData.WriteTo(writer);
 
             // prepare the columns and continue writing meta data
-            var columns = new DataTable.Column[_columns.Count];
+            var columns = new BrightDataTable.Column[_columns.Count];
             var index = 0;
             foreach (var column in _columns) {
                 ref var c = ref columns[index++];
@@ -108,7 +108,7 @@ namespace BrightData.DataTable2.Builders
 
             // write the headers
             writer.Flush();
-            stream.Write(MemoryMarshal.AsBytes<DataTable.Column>(columns));
+            stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Column>(columns));
             header.DataOffset = (uint)stream.Position;
 
             // write the data
@@ -140,7 +140,7 @@ namespace BrightData.DataTable2.Builders
             if (stringTableWriter.IsValueCreated) {
                 var data = stringTableWriter.Value;
                 header.StringOffset = (uint)stream.Position;
-                header.StringCount = data.Size;
+                //header.StringCount = data.Size;
                 data.CopyTo(stream);
             }
 
@@ -148,7 +148,7 @@ namespace BrightData.DataTable2.Builders
             if (tensorWriter.IsValueCreated) {
                 var data = tensorWriter.Value;
                 header.TensorOffset = (uint)stream.Position;
-                header.TensorCount = data.Size;
+                //header.TensorCount = data.Size;
                 data.CopyTo(stream);
             }
 
@@ -156,7 +156,7 @@ namespace BrightData.DataTable2.Builders
             if (byteWriter.IsValueCreated) {
                 var data = byteWriter.Value;
                 header.BinaryDataOffset = (uint)stream.Position;
-                header.BinaryDataCount = data.Size;
+                //header.BinaryDataCount = data.Size;
                 data.CopyTo(stream);
             }
 
@@ -164,7 +164,7 @@ namespace BrightData.DataTable2.Builders
             if (indexWriter.IsValueCreated) {
                 var data = indexWriter.Value;
                 header.IndexOffset = (uint)stream.Position;
-                header.IndexCount = data.Size;
+                //header.IndexCount = data.Size;
                 data.CopyTo(stream);
             }
 
@@ -172,13 +172,13 @@ namespace BrightData.DataTable2.Builders
             if (weightedIndexWriter.IsValueCreated) {
                 var data = weightedIndexWriter.Value;
                 header.WeightedIndexOffset = (uint)stream.Position;
-                header.WeightedIndexCount = data.Size;
+                //header.WeightedIndexCount = data.Size;
                 data.CopyTo(stream);
             }
 
             // update the header
             stream.Seek(0, SeekOrigin.Begin);
-            stream.Write(MemoryMarshal.AsBytes<DataTable.Header>(headers));
+            stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             stream.Seek(0, SeekOrigin.End);
         }
 

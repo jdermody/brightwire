@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrightData.Buffer
 {
-    class InMemoryBuffer<T> : ICanEnumerate<T>, IAcceptSequentialTypedData<T> where T : notnull
+    class InMemoryBuffer<T> : ICanEnumerateWithSize<T>, IAcceptSequentialTypedData<T> where T : notnull
     {
         readonly List<T> _data = new();
 

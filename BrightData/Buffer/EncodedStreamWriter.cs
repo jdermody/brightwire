@@ -36,12 +36,12 @@ namespace BrightData.Buffer
         /// <param name="shouldEncode">If the values should be encoded</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static ICanWriteToBinaryWriter GetWriter<T>(ICanEnumerate<T> buffer, bool shouldEncode) where T : notnull
+        public static ICanWriteToBinaryWriter GetWriter<T>(ICanEnumerateWithSize<T> buffer, bool shouldEncode) where T : notnull
         {
             var typeOfT = typeof(T);
 
             if (typeOfT == typeof(string)) {
-                var stringBuffer = (ICanEnumerate<string>)buffer;
+                var stringBuffer = (ICanEnumerateWithSize<string>)buffer;
                 return shouldEncode
                     ? new StringEncoder(stringBuffer)
                     : new StringWriter(stringBuffer);
@@ -58,9 +58,9 @@ namespace BrightData.Buffer
         internal class StringEncoder : ICanWriteToBinaryWriter
         {
             readonly Dictionary<string, ushort> _table = new();
-            readonly ICanEnumerate<string> _buffer;
+            readonly ICanEnumerateWithSize<string> _buffer;
 
-            public StringEncoder(ICanEnumerate<string> buffer)
+            public StringEncoder(ICanEnumerateWithSize<string> buffer)
             {
                 _buffer = buffer;
 
@@ -104,9 +104,9 @@ namespace BrightData.Buffer
         internal class StructEncoder<T> : ICanWriteToBinaryWriter where T : struct
         {
             readonly Dictionary<T, ushort> _table = new();
-            readonly ICanEnumerate<T> _buffer;
+            readonly ICanEnumerateWithSize<T> _buffer;
 
-            public StructEncoder(ICanEnumerate<T> buffer)
+            public StructEncoder(ICanEnumerateWithSize<T> buffer)
             {
                 _buffer = buffer;
 
@@ -150,9 +150,9 @@ namespace BrightData.Buffer
         internal class ObjectWriter<T> : ICanWriteToBinaryWriter
             where T : ICanWriteToBinaryWriter
         {
-            readonly ICanEnumerate<T> _buffer;
+            readonly ICanEnumerateWithSize<T> _buffer;
 
-            public ObjectWriter(ICanEnumerate<T> buffer)
+            public ObjectWriter(ICanEnumerateWithSize<T> buffer)
             {
                 _buffer = buffer;
             }
@@ -178,9 +178,9 @@ namespace BrightData.Buffer
 
         internal class StringWriter : ICanWriteToBinaryWriter
         {
-            readonly ICanEnumerate<string> _buffer;
+            readonly ICanEnumerateWithSize<string> _buffer;
 
-            public StringWriter(ICanEnumerate<string> buffer)
+            public StringWriter(ICanEnumerateWithSize<string> buffer)
             {
                 _buffer = buffer;
             }
@@ -207,9 +207,9 @@ namespace BrightData.Buffer
         internal class StructWriter<T> : ICanWriteToBinaryWriter
             where T : struct
         {
-            readonly ICanEnumerate<T> _buffer;
+            readonly ICanEnumerateWithSize<T> _buffer;
 
-            public StructWriter(ICanEnumerate<T> buffer)
+            public StructWriter(ICanEnumerateWithSize<T> buffer)
             {
                 _buffer = buffer;
             }

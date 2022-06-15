@@ -54,7 +54,7 @@ namespace BrightData.DataTable2
             BrightDataType.Float                                  => GetTypeAndSize<float>(),
             BrightDataType.Double                                 => GetTypeAndSize<double>(),
             BrightDataType.Decimal                                => GetTypeAndSize<decimal>(),
-            BrightDataType.String                                 => GetTypeAndSize<DataRangeColumnType>(),
+            BrightDataType.String                                 => GetTypeAndSize<uint>(),
             BrightDataType.Date                                   => GetTypeAndSize<DateTime>(),
             BrightDataType.IndexList                              => GetTypeAndSize<DataRangeColumnType>(),
             BrightDataType.WeightedIndexList                      => GetTypeAndSize<DataRangeColumnType>(),

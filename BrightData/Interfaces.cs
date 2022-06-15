@@ -892,7 +892,7 @@ namespace BrightData
     /// <summary>
     /// Hybrid buffers write first to memory but then to disk once it's cache is exhausted
     /// </summary>
-    public interface IHybridBuffer : ICanEnumerate
+    public interface IHybridBuffer : ICanEnumerate, IHaveSize
     {
         /// <summary>
         /// Copies the buffer to a stream
@@ -922,7 +922,7 @@ namespace BrightData
     /// Typed hybrid buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>, IAcceptSequentialTypedData<T>
+    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerateWithSize<T>, IAcceptSequentialTypedData<T>
         where T : notnull
     {
         Dictionary<T, uint>? DistinctItems { get; }
@@ -978,7 +978,7 @@ namespace BrightData
     /// <summary>
     /// Indicates that the type can enumerate items
     /// </summary>
-    public interface ICanEnumerate : IHaveSize
+    public interface ICanEnumerate
     {
         /// <summary>
         /// Enumerates all items
@@ -991,7 +991,7 @@ namespace BrightData
     /// Indicates that the type can enumerate items of this type
     /// </summary>
     /// <typeparam name="T">Type to enumerate</typeparam>
-    public interface ICanEnumerate<out T> : IHaveSize
+    public interface ICanEnumerate<out T>
         where T : notnull
     {
         /// <summary>
@@ -999,6 +999,16 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         IEnumerable<T> EnumerateTyped();
+    }
+
+    public interface ICanEnumerateDisposable<out T> : ICanEnumerate<T>, IDisposable
+    {
+
+    }
+
+    public interface ICanEnumerateWithSize<out T> : ICanEnumerate<T>, IHaveSize where T : notnull
+    {
+
     }
 
     /// <summary>
@@ -1052,6 +1062,14 @@ namespace BrightData
         string[] Dictionary { get; }
     }
 
+    public interface IStructEnumerator<T> : IDisposable where T : struct
+    {
+        IStructEnumerator<T> GetEnumerator() => this;
+        bool MoveNext();
+        void Reset();
+        ref T Current { get; }
+    }
+
     /// <summary>
     /// Implemented by types that can repeatedly read the same section of a stream
     /// </summary>
@@ -1062,6 +1080,9 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         BinaryReader GetReader();
+
+        IStructEnumerator<T> GetReader<T>(uint sizeInBytes) where T : struct;
+        IEnumerable<T> Enumerate<T>(uint count) where T : struct;
     }
 
     /// <summary>
@@ -1073,7 +1094,7 @@ namespace BrightData
         /// Creates a new repeatable section reader
         /// </summary>
         /// <returns></returns>
-        ICanReadSection Clone();
+        ICanReadSection Clone(long? position = null);
     }
 
     /// <summary>
@@ -1360,11 +1381,5 @@ namespace BrightData
 
     public interface IDisposableTensorSegmentWrapper : IDisposableTensorSegment
     {
-    }
-
-    public interface IReadColumnTypes<CT>
-        where CT: struct
-    {
-        void OnItem(ref CT item, uint index);
     }
 }

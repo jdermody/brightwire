@@ -38,7 +38,7 @@ namespace BrightData.Buffer
             }
         }
 
-        class ReadFromRepeatableStream<T> : ICanEnumerate<T>
+        class ReadFromRepeatableStream<T> : ICanEnumerateWithSize<T>
             where T: struct
         {
             readonly RepeatableStreamReader _stream;
@@ -49,11 +49,11 @@ namespace BrightData.Buffer
                 _stream = new RepeatableStreamReader(stream);
             }
 
-            public IEnumerable<T> EnumerateTyped() => BufferedRead<T>(_stream.GetStream(), Size);
+            public IEnumerable<T> EnumerateTyped() => _stream.GetStream().EnumerateTyped<T>(Size);
             public uint Size { get; }
         }
 
-        class ConvertFromStream<T> : ICanEnumerate<T> where T : notnull
+        class ConvertFromStream<T> : ICanEnumerateWithSize<T> where T : notnull
         {
             readonly Func<BinaryReader, T> _converter;
             readonly RepeatableStreamReader _stream;
@@ -75,14 +75,14 @@ namespace BrightData.Buffer
             public uint Size { get; }
         }
 
-        class ReadFromMemory<T> : ICanEnumerate<T>
+        class ReadFromMemory<T> : ICanEnumerateWithSize<T>
             where T: struct
         {
             readonly T[] _data;
 
             public ReadFromMemory(uint length, Stream stream)
             {
-                _data = BufferedRead<T>(stream, length).ToArray();
+                _data = stream.EnumerateTyped<T>(length).ToArray();
 #if DEBUG
                 Debug.Assert(_data.Length == length);
 #endif
@@ -92,7 +92,7 @@ namespace BrightData.Buffer
             public uint Size => (uint)_data.Length;
         }
 
-        class LoadIntoMemory<T> : ICanEnumerate<T> where T : notnull
+        class LoadIntoMemory<T> : ICanEnumerateWithSize<T> where T : notnull
         {
             readonly T[] _data;
 
@@ -107,7 +107,7 @@ namespace BrightData.Buffer
             public uint Size => (uint)_data.Length;
         }
 
-        static ICanEnumerate<T> GetReader<T>(uint length, uint inMemorySize, Stream stream)
+        static ICanEnumerateWithSize<T> GetReader<T>(uint length, uint inMemorySize, Stream stream)
             where T: struct
         {
             if(length <= inMemorySize)
@@ -115,16 +115,16 @@ namespace BrightData.Buffer
             return new ReadFromRepeatableStream<T>(length, stream);
         }
 
-        static ICanEnumerate<T> GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder) where T: notnull
+        static ICanEnumerateWithSize<T> GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder) where T: notnull
         {
             if (length <= inMemorySize)
                 return new LoadIntoMemory<T>(length, reader, objectBuilder);
             return new ConvertFromStream<T>(length, stream, objectBuilder);
         }
 
-        public class StringDecoder : ICanEnumerate<string>, ICanWriteToBinaryWriter, IHaveDictionary
+        public class StringDecoder : ICanEnumerateWithSize<string>, ICanWriteToBinaryWriter, IHaveDictionary
         {
-            readonly ICanEnumerate<ushort> _reader;
+            readonly ICanEnumerateWithSize<ushort> _reader;
             readonly string[] _stringTable;
 
             public StringDecoder(BinaryReader reader, Stream stream, uint inMemorySize)
@@ -158,10 +158,10 @@ namespace BrightData.Buffer
             public string[] Dictionary => _stringTable;
         }
 
-        public class StructDecoder<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter, IHaveDictionary
+        public class StructDecoder<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter, IHaveDictionary
             where T : struct
         {
-            readonly ICanEnumerate<ushort> _reader;
+            readonly ICanEnumerateWithSize<ushort> _reader;
             readonly T[] _table;
 
             public StructDecoder(BinaryReader reader, Stream stream, uint inMemorySize)
@@ -181,11 +181,11 @@ namespace BrightData.Buffer
             public string[] Dictionary => _table.Select(d => d.ToString()!).ToArray();
         }
 
-        public class ObjectReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
+        public class ObjectReader<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter
             where T : ICanInitializeFromBinaryReader, ICanWriteToBinaryWriter
         {
             readonly BrightDataContext _context;
-            readonly ICanEnumerate<T> _reader;
+            readonly ICanEnumerateWithSize<T> _reader;
 
             public ObjectReader(BrightDataContext context, BinaryReader reader, Stream stream, uint inMemorySize)
             {
@@ -208,10 +208,10 @@ namespace BrightData.Buffer
             }
         }
 
-        public class StructReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
+        public class StructReader<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter
             where T : struct
         {
-            readonly ICanEnumerate<T> _reader;
+            readonly ICanEnumerateWithSize<T> _reader;
 
             public StructReader(BinaryReader reader, Stream stream, uint inMemorySize)
             {
@@ -226,9 +226,9 @@ namespace BrightData.Buffer
             }
         }
 
-        public class StringReader : ICanEnumerate<string>, ICanWriteToBinaryWriter
+        public class StringReader : ICanEnumerateWithSize<string>, ICanWriteToBinaryWriter
         {
-            readonly ICanEnumerate<string> _reader;
+            readonly ICanEnumerateWithSize<string> _reader;
 
             public StringReader(BinaryReader reader, Stream stream, uint inMemorySize)
             {
@@ -240,34 +240,6 @@ namespace BrightData.Buffer
             public void WriteTo(BinaryWriter writer)
             {
                 EncodedStreamWriter.StringWriter.WriteTo(_reader.Size, _reader.EnumerateTyped(), writer);
-            }
-        }
-
-        static IEnumerable<T> BufferedRead<T>(Stream stream, uint count, uint tempBufferSize = 8192)
-            where T : struct
-        {
-            if (count < tempBufferSize) {
-                // simple case
-                var buffer = stream.ReadArray<T>(count);
-                for(uint i = 0; i < count; i++)
-                    yield return buffer[i];
-            }
-            else {
-                // buffered read
-                var temp = new T[tempBufferSize];
-                var sizeofT = MemoryMarshal.Cast<T, byte>(temp).Length / (int) tempBufferSize;
-                var totalRead = 0;
-
-                while (totalRead < count) {
-                    var remaining = count - totalRead;
-                    var ptr = remaining >= tempBufferSize
-                        ? temp
-                        : ((Span<T>) temp)[..(int) remaining];
-                    var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(ptr)) / sizeofT;
-                    for (var i = 0; i < readCount; i++)
-                        yield return temp[i];
-                    totalRead += readCount;
-                }
             }
         }
     }
