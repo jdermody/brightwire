@@ -35,15 +35,15 @@ namespace BrightData.Helper
                 _stream.Dispose();
             }
 
-            public IStructEnumerator<T> GetReader<T>(uint sizeInBytes) where T : struct
+            public IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return new StructFromStreamReader<T>(_stream, _position + sizeInBytes * Unsafe.SizeOf<T>());
+                return new StructFromStreamReader<T>(_stream, count);
             }
             public IEnumerable<T> Enumerate<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return _stream.EnumerateTyped<T>(count);
+                return _stream.Enumerate<T>(count);
             }
         }
 
@@ -72,12 +72,12 @@ namespace BrightData.Helper
             public IEnumerable<T> Enumerate<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return _stream.EnumerateTyped<T>(count);
+                return _stream.Enumerate<T>(count);
             }
-            public IStructEnumerator<T> GetReader<T>(uint sizeInBytes) where T : struct
+            public IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return new StructFromStreamReader<T>(_stream, sizeInBytes);
+                return new StructFromStreamReader<T>(_stream, count);
             }
         }
 

@@ -49,7 +49,7 @@ namespace BrightData.Buffer
                 _stream = new RepeatableStreamReader(stream);
             }
 
-            public IEnumerable<T> EnumerateTyped() => _stream.GetStream().EnumerateTyped<T>(Size);
+            public IEnumerable<T> EnumerateTyped() => _stream.GetStream().Enumerate<T>(Size);
             public uint Size { get; }
         }
 
@@ -82,7 +82,7 @@ namespace BrightData.Buffer
 
             public ReadFromMemory(uint length, Stream stream)
             {
-                _data = stream.EnumerateTyped<T>(length).ToArray();
+                _data = stream.Enumerate<T>(length).ToArray();
 #if DEBUG
                 Debug.Assert(_data.Length == length);
 #endif

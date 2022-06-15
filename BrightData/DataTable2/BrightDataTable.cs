@@ -123,7 +123,7 @@ namespace BrightData.DataTable2
             where T: notnull
             where CT: struct
         {
-            var enumerator = stream.GetReader<CT>(columnDataTypeSize * _header.RowCount);
+            var enumerator = stream.GetStructByReferenceEnumerator<CT>(_header.RowCount);
             var converter = GetConverter<CT, T>();
             return new ColumnReaderBinding<CT, T>(enumerator, converter);
         }

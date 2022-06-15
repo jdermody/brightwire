@@ -11,22 +11,22 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
-    class StructFromStreamReader<T> : IDisposable, IStructEnumerator<T>
+    class StructFromStreamReader<T> : IStructByReferenceEnumerator<T>
         where T : struct
     {
         readonly MemoryOwner<T> _buffer;
         readonly Stream         _stream;
-        readonly long           _iterableSizeInBytes, _initialStreamPosition;
+        readonly long           _iterableCount, _initialStreamPosition;
         readonly int            _sizeOfT;
         int                     _index = -1, _bufferIndex = -1, _bufferSize;
 
-        public StructFromStreamReader(Stream stream, long iterableSizeInBytes, int bufferSize = 1024)
+        public StructFromStreamReader(Stream stream, long iterableCount, int bufferSize = 1024)
         {
             _stream = stream;
             _initialStreamPosition = stream.Position;
-            _iterableSizeInBytes = iterableSizeInBytes;
+            _iterableCount = iterableCount;
             _sizeOfT = Unsafe.SizeOf<T>();
-            _buffer = MemoryOwner<T>.Allocate((int)Math.Min(iterableSizeInBytes / _sizeOfT, bufferSize));
+            _buffer = MemoryOwner<T>.Allocate((int)Math.Min(_iterableCount, bufferSize));
             ReadIntoBuffer();
         }
 
@@ -45,7 +45,7 @@ namespace BrightData.Helper
 
         public bool MoveNext()
         {
-            if ((++_index * _sizeOfT) < _iterableSizeInBytes) {
+            if (++_index < _iterableCount) {
                 if (++_bufferIndex == _bufferSize) {
                     ReadIntoBuffer();
                     _bufferIndex = 0;

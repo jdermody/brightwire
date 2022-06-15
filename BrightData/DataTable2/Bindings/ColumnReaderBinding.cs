@@ -17,10 +17,10 @@ namespace BrightData.DataTable2.Bindings
     {
         class Enumerator : IEnumerator<T>
         {
-            readonly IStructEnumerator<CT> _structEnumerator;
+            readonly IStructByReferenceEnumerator<CT> _structEnumerator;
             readonly IConvertStructsToObjects<CT, T> _converter;
 
-            public Enumerator(IStructEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
+            public Enumerator(IStructByReferenceEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
             {
                 _structEnumerator = structEnumerator;
                 _structEnumerator.Reset();
@@ -40,9 +40,9 @@ namespace BrightData.DataTable2.Bindings
 
         readonly BrightDataTable _dataTable;
         readonly IConvertStructsToObjects<CT, T> _converter;
-        readonly IStructEnumerator<CT> _enumerator;
+        readonly IStructByReferenceEnumerator<CT> _enumerator;
 
-        public ColumnReaderBinding(IStructEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter)
+        public ColumnReaderBinding(IStructByReferenceEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter)
         {
             _converter = converter;
             _enumerator = enumerator;

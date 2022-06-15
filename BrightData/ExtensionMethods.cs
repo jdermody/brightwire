@@ -468,7 +468,15 @@ namespace BrightData
             ;
         }
 
-        public static IEnumerable<T> EnumerateTyped<T>(this Stream stream, uint count, int tempBufferSize = 8192)
+        /// <summary>
+        /// Enumerates a stream as a series of structs. This is best for small structs such as int32, long etc as the values are not passed by reference.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="count">Total count to return</param>
+        /// <param name="tempBufferSize">Size of temp buffer to use</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Enumerate<T>(this Stream stream, uint count, int tempBufferSize = 8192)
             where T : struct
         {
             if (count < tempBufferSize) {

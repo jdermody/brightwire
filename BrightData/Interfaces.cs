@@ -1062,9 +1062,9 @@ namespace BrightData
         string[] Dictionary { get; }
     }
 
-    public interface IStructEnumerator<T> : IDisposable where T : struct
+    public interface IStructByReferenceEnumerator<T> : IDisposable where T : struct
     {
-        IStructEnumerator<T> GetEnumerator() => this;
+        IStructByReferenceEnumerator<T> GetEnumerator() => this;
         bool MoveNext();
         void Reset();
         ref T Current { get; }
@@ -1080,8 +1080,7 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         BinaryReader GetReader();
-
-        IStructEnumerator<T> GetReader<T>(uint sizeInBytes) where T : struct;
+        IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct;
         IEnumerable<T> Enumerate<T>(uint count) where T : struct;
     }
 
