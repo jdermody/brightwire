@@ -18,7 +18,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryColumnOriented()
         {
-            using var builder = new DataTableBuilder(_context);
+            using var builder = new BrightDataTableBuilder(_context);
             var stringColumnBuilder = builder.AddColumn<string>("string column");
             stringColumnBuilder.Add("a row");
             stringColumnBuilder.Add("another row");
@@ -40,6 +40,14 @@ namespace BrightData.UnitTests
             using var intReader = dataTable.ReadColumn<int>(1);
             intReader.EnumerateTyped().Count().Should().Be(2);
             intReader.EnumerateTyped().Count().Should().Be(2);
+
+            var str = dataTable.Get<string>(0, 0);
+            var str2 = dataTable.Get<string>(1, 0);
+            var val1 = dataTable.Get<int>(0, 1);
+            var val2 = dataTable.Get<int>(1, 1);
+
+            var row1 = dataTable.GetRow(0);
+            var row2 = dataTable.GetRow(1);
         }
     }
 }

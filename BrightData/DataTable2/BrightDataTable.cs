@@ -14,11 +14,10 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2
 {
-    public class BrightDataTable : IDisposable
+    public partial class BrightDataTable : IDisposable
     {
         internal struct Header
         {
-            public DataTableOrientation Orientation;
             public uint ColumnCount;
             public uint RowCount;
             public uint DataOffset;
@@ -48,7 +47,8 @@ namespace BrightData.DataTable2
         readonly Lazy<WeightedIndexList.Item[]> _weightedIndices;
         readonly uint                           _rowSize;
         readonly long                           _dataOffset;
-        readonly MethodInfo _getReader;
+        readonly MethodInfo                     _getReader;
+        readonly uint[]                         _columnOffset;
 
         public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = 32768)
         {
@@ -60,6 +60,7 @@ namespace BrightData.DataTable2
             // read the header
             _header = MemoryMarshal.Cast<byte, Header>(reader.ReadBytes(Unsafe.SizeOf<Header>()))[0];
             var numColumns = (int)_header.ColumnCount;
+            var numRows = _header.RowCount;
 
             // read the meta data
             _metaData = new MetaData[numColumns + 1];
@@ -90,8 +91,17 @@ namespace BrightData.DataTable2
             _indices         = new(() => ReadArray<uint>(_header.IndexOffset));
             _weightedIndices = new(() => ReadArray<WeightedIndexList.Item>(_header.WeightedIndexOffset));
 
+            // resolve generic methods
             var genericMethods = GetType().GetGenericMethods();
             _getReader = genericMethods[nameof(GetReader)];
+
+            // determine column offsets
+            _columnOffset = new uint[numColumns];
+            _columnOffset[0] = _header.DataOffset;
+            for (uint i = 1; i < _columns.Length; i++) {
+                ref readonly var previousColumn = ref _columns[i-1];
+                _columnOffset[i] = _columnOffset[i-1] + previousColumn.DataTypeSize * numRows;
+            }
         }
         
 
@@ -100,136 +110,51 @@ namespace BrightData.DataTable2
             _stream.Dispose();
         }
 
-        public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex)
-            where T: notnull
+        public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex);
+
+        public T Get<T>(uint rowIndex, uint columnIndex)
         {
-            ref var column = ref _columns[columnIndex];
+            using var reader = GetColumnReader<T>(columnIndex, size => size * rowIndex);
+            return reader.EnumerateTyped().First();
+        }
+
+        public object[] GetRow(uint rowIndex)
+        {
+            var readers = new ICanEnumerateDisposable[_header.ColumnCount];
+            try {
+                for (uint i = 0; i < _header.ColumnCount; i++)
+                    readers[i] = GetColumnReader(i, size => size * rowIndex);
+                return readers.Select(r => r.Enumerate().First()).ToArray();
+            }
+            finally {
+                foreach(var item in readers)
+                    item.Dispose();
+            }
+        }
+
+        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, Func<uint, uint>? offsetAdjuster = null)
+        {
+            ref readonly var column = ref _columns[columnIndex];
             if (column.DataType.GetDataType() != typeof(T))
                 throw new ArgumentException($"Data types do not align - expected {column.DataType.GetDataType()} but received {typeof(T)}", nameof(T));
-
-            // find the offset to the column
-            var columnDataOffset = _header.BinaryDataOffset;
-            for (uint i = 0; i < columnIndex; i++) {
-                ref var previousColumn = ref _columns[i];
-                columnDataOffset += previousColumn.DataTypeSize * _header.RowCount;
-            }
-
+            
+            var offset = _columnOffset[columnIndex];
+            if(offsetAdjuster is not null)
+                offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
-            var stream = _stream.Clone(_header.DataOffset + columnDataOffset);
-            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { stream, column.DataTypeSize })!;
+            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { _stream.Clone(offset) })!;
         }
 
-        ICanEnumerate<T> GetReader<CT, T>(ICanReadSection stream, uint columnDataTypeSize)
-            where T: notnull
-            where CT: struct
+        ICanEnumerateDisposable GetColumnReader(uint columnIndex, Func<uint, uint>? offsetAdjuster = null)
         {
-            var enumerator = stream.GetStructByReferenceEnumerator<CT>(_header.RowCount);
-            var converter = GetConverter<CT, T>();
-            return new ColumnReaderBinding<CT, T>(enumerator, converter);
+            ref readonly var column = ref _columns[columnIndex];
+
+            var offset = _columnOffset[columnIndex];
+            if(offsetAdjuster is not null)
+                offset += offsetAdjuster(column.DataTypeSize);
+            var (columnDataType, _) = column.DataType.GetColumnType();
+            var dataType = column.DataType.GetDataType();
+            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { _stream.Clone(offset) })!;
         }
-
-        IConvertStructsToObjects<CT, T> GetConverter<CT, T>()
-            where CT : struct
-            where T: notnull
-        {
-            var dataType = typeof(T);
-            //var converterType = typeof(CT);
-            if (dataType == typeof(string)) {
-                var ret = new StringColumnConverter(_stringTable.Value);
-                return (IConvertStructsToObjects<CT, T>)ret;
-            }
-            return new NopColumnConverter<CT, T>();
-        }
-
-        class NopColumnConverter<CT, T> : IConvertStructsToObjects<CT, T>
-            where CT : struct
-            where T: notnull
-        {
-            public T Convert(ref CT item)
-            {
-                return __refvalue(__makeref(item), T);
-            }
-        }
-
-        class StringColumnConverter : IConvertStructsToObjects<uint, string>
-        {
-            readonly string[] _stringTable;
-
-            public StringColumnConverter(string[] stringTable)
-            {
-                _stringTable = stringTable;
-            }
-
-            public string Convert(ref uint item) => _stringTable[item];
-        }
-
-        //static void ReadColumn<CT, T>(
-        //    Stream stream, 
-        //    uint offset,
-        //    uint sizeBytes,
-        //    ColumnReaderBinding<CT, T> binding, 
-        //    CancellationToken cancellationToken, 
-        //    int bufferSize = 4096
-        //)
-        //    where CT : struct
-        //    where T: notnull
-        //{
-        //    var dataSize = Unsafe.SizeOf<CT>();
-        //    var count = sizeBytes / dataSize;
-
-        //    lock (stream) {
-        //        stream.Seek(offset, SeekOrigin.Begin);
-        //        using var buffer = SpanOwner<CT>.Allocate(Math.Min(bufferSize, (int)count));
-        //        var ptr = MemoryMarshal.AsBytes(buffer.Span);
-        //        uint index = 0;
-
-        //        do {
-        //            var readBytes = stream.Read(ptr);
-        //            if (readBytes == 0)
-        //                break;
-
-        //            foreach (ref var item in buffer.Span[..(readBytes / dataSize)]) {
-        //                binding.OnItem(ref item, index++);
-        //                if (cancellationToken.IsCancellationRequested)
-        //                    break;
-        //            }
-        //        } while (index < count && !cancellationToken.IsCancellationRequested);
-        //    }
-        //}
-
-        //static string[] ReadStringTable(Stream stream, uint offset, uint sizeBytes)
-        //{
-        //    using var reader = new BinaryReader(stream, Encoding.UTF8);
-        //    _context.GetBufferReader<string>(reader, bufferSize);
-        //    lock (stream) {
-        //        stream.Seek(offset, SeekOrigin.Begin);
-        //        var ret = new string[count];
-        //        for (uint i = 0; i < count; i++)
-        //            ret[i] = reader.ReadString();
-        //        return ret;
-        //    }
-        //}
-
-        //static byte[] ReadBinaryData(Stream stream, uint offset, uint sizeBytes, uint bufferSize)
-        //{
-        //    using var reader = new BinaryReader(stream, Encoding.UTF8);
-        //    lock (stream) {
-        //        stream.Seek(offset, SeekOrigin.Begin);
-        //        var ret = new byte[count];
-        //        var bytesRead = stream.Read(ret.AsSpan());
-        //        return ret;
-        //    }
-        //}
-
-        //static T[] ReadStruct<T>(Stream stream, uint offset, uint sizeBytes, uint bufferSize)
-        //    where T : struct
-        //{
-        //    lock (stream) {
-        //        stream.Seek(offset, SeekOrigin.Begin);
-        //        var ret = new T[count];
-        //        var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
-        //        return ret;
-        //    }
-        //}
     }
 }

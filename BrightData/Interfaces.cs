@@ -1006,6 +1006,11 @@ namespace BrightData
 
     }
 
+    public interface ICanEnumerateDisposable : ICanEnumerate, IDisposable
+    {
+
+    }
+
     public interface ICanEnumerateWithSize<out T> : ICanEnumerate<T>, IHaveSize where T : notnull
     {
 

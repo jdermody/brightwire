@@ -41,7 +41,6 @@ namespace BrightData.Buffer
         public IEnumerable<object> Enumerate() => _buffer.Enumerate();
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Size;
-        public bool IsEncoded { get; } = true;
         public void AddObject(object? obj) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
         public Type DataType { get; } = typeof(T);
         public void Add(T obj) => _buffer.Add(obj);

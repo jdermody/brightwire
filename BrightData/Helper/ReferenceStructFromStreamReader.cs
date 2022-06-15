@@ -11,7 +11,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
-    class StructFromStreamReader<T> : IStructByReferenceEnumerator<T>
+    class ReferenceStructFromStreamReader<T> : IStructByReferenceEnumerator<T>
         where T : struct
     {
         readonly MemoryOwner<T> _buffer;
@@ -20,7 +20,7 @@ namespace BrightData.Helper
         readonly int            _sizeOfT;
         int                     _index = -1, _bufferIndex = -1, _bufferSize;
 
-        public StructFromStreamReader(Stream stream, long iterableCount, int bufferSize = 1024)
+        public ReferenceStructFromStreamReader(Stream stream, long iterableCount, int bufferSize = 1024)
         {
             _stream = stream;
             _initialStreamPosition = stream.Position;
@@ -41,7 +41,7 @@ namespace BrightData.Helper
             _bufferSize = readBytes / _sizeOfT;
         }
 
-        public StructFromStreamReader<T> GetEnumerator() => this;
+        public ReferenceStructFromStreamReader<T> GetEnumerator() => this;
 
         public bool MoveNext()
         {

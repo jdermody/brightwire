@@ -14,7 +14,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2.Builders
 {
-    public class DataTableBuilder : IDisposable
+    public partial class BrightDataTableBuilder : IDisposable
     {
         readonly BrightDataContext   _context;
         readonly uint                _inMemoryBufferSize;
@@ -23,7 +23,7 @@ namespace BrightData.DataTable2.Builders
         readonly List<IHybridBuffer> _columns = new();
         readonly MethodInfo          _writeStructs;
 
-        public DataTableBuilder(BrightDataContext context, uint inMemoryBufferSize = 32768 * 1024, ushort maxUniqueItemCount = 32768)
+        public BrightDataTableBuilder(BrightDataContext context, uint inMemoryBufferSize = 32768 * 1024, ushort maxUniqueItemCount = 32768)
         {
             _context = context;
             _inMemoryBufferSize = inMemoryBufferSize;
@@ -68,7 +68,7 @@ namespace BrightData.DataTable2.Builders
                 buffer.AddObject(value);
         }
 
-        public void WriteTo(Stream stream, DataTableOrientation orientation = DataTableOrientation.ColumnOriented)
+        public void WriteTo(Stream stream)
         {
             // check that all columns have the same number of rows
             var firstColumn = _columns.First();
@@ -87,7 +87,6 @@ namespace BrightData.DataTable2.Builders
             var headers = new BrightDataTable.Header[1];
             stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
-            header.Orientation = orientation;
             header.ColumnCount = (uint)_columns.Count;
             header.RowCount = firstColumn.Size;
 
@@ -111,27 +110,22 @@ namespace BrightData.DataTable2.Builders
             stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Column>(columns));
             header.DataOffset = (uint)stream.Position;
 
-            // write the data
-            if (orientation == DataTableOrientation.ColumnOriented) {
-                foreach (var column in _columns) {
-                    var tableSegment = (ISingleTypeTableSegment)column;
-                    var dataType = tableSegment.SingleType;
-                    var (columnType, _) = dataType.GetColumnType();
+            // write the data (column oriented)
+            foreach (var column in _columns) {
+                var tableSegment = (ISingleTypeTableSegment)column;
+                var dataType = tableSegment.SingleType;
+                var (columnType, _) = dataType.GetColumnType();
 
-                    if (dataType == BrightDataType.IndexList)
-                        WriteColumnOrientedIndexLists((IHybridBuffer<IndexList>)column, stream, indexWriter.Value);
-                    else if (dataType == BrightDataType.WeightedIndexList)
-                        WriteColumnOrientedWeightedIndexLists((IHybridBuffer<WeightedIndexList>)column, stream, weightedIndexWriter.Value);
-                    else if (dataType == BrightDataType.BinaryData)
-                        WriteColumnOrientedBinaryData((IHybridBuffer<BinaryData>)column, stream, byteWriter.Value);
-                    else if (dataType == BrightDataType.String)
-                        WriteColumnOrientedStringData((IHybridBuffer<string>)column, stream, stringTableWriter.Value);
-                    else
-                        _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { column, stream });
-                }
-            }
-            else {
-                // TODO:
+                if (dataType == BrightDataType.IndexList)
+                    WriteColumnOrientedIndexLists((IHybridBuffer<IndexList>)column, stream, indexWriter.Value);
+                else if (dataType == BrightDataType.WeightedIndexList)
+                    WriteColumnOrientedWeightedIndexLists((IHybridBuffer<WeightedIndexList>)column, stream, weightedIndexWriter.Value);
+                else if (dataType == BrightDataType.BinaryData)
+                    WriteColumnOrientedBinaryData((IHybridBuffer<BinaryData>)column, stream, byteWriter.Value);
+                else if (dataType == BrightDataType.String)
+                    WriteColumnOrientedStringData((IHybridBuffer<string>)column, stream, stringTableWriter.Value);
+                else
+                    _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { column, stream });
             }
 
             header.DataSizeBytes = (uint)(stream.Position - header.DataOffset);
@@ -203,7 +197,7 @@ namespace BrightData.DataTable2.Builders
         void WriteColumnOrientedStructs<T>(IHybridBuffer<T> buffer, Stream stream) where T: struct => 
             WriteColumnOriented<T, T>(buffer, stream, (item, ptr, index) => ptr[index] = item);
 
-        delegate Span<IT> GetSpans<T, IT>(T item) where IT: struct;
+        delegate Span<IT> GetSpans<in T, IT>(T item) where IT: struct;
         void WriteColumnOrientedDataRange<T, IT>(IHybridBuffer<T> buffer, Stream stream, IHybridBuffer<IT> indices, GetSpans<T, IT> getSpan)
             where T : notnull
             where IT : struct

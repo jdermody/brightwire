@@ -38,7 +38,7 @@ namespace BrightData.Helper
             public IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return new StructFromStreamReader<T>(_stream, count);
+                return new ReferenceStructFromStreamReader<T>(_stream, count);
             }
             public IEnumerable<T> Enumerate<T>(uint count) where T : struct
             {
@@ -74,10 +74,11 @@ namespace BrightData.Helper
                 _stream.Seek(_position, SeekOrigin.Begin);
                 return _stream.Enumerate<T>(count);
             }
+
             public IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct
             {
                 _stream.Seek(_position, SeekOrigin.Begin);
-                return new StructFromStreamReader<T>(_stream, count);
+                return new ReferenceStructFromStreamReader<T>(_stream, count);
             }
         }
 
