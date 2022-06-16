@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using BrightData.Buffer2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -1385,5 +1386,25 @@ namespace BrightData
 
     public interface IDisposableTensorSegmentWrapper : IDisposableTensorSegment
     {
+    }
+
+    public interface ICanIterateData<T> : IDisposable where T: unmanaged
+    {
+        IEnumerable<T> Enumerate();
+        IReadOnlyEnumerator<T> GetEnumerator();
+    }
+
+    public interface ICanRandomlyAccessData<T> : IDisposable where T: unmanaged
+    {
+        T this[int index] { get; }
+        T this[uint index] { get; }
+        ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
+    }
+
+    public interface IReadOnlyEnumerator<T> where T : unmanaged
+    {
+        bool MoveNext();
+        void Reset();
+        ref readonly T Current { get; }
     }
 }
