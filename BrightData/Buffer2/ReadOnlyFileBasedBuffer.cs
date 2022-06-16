@@ -11,7 +11,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer2
 {
-    public class ReadOnlyFileBasedBuffer : IDisposable
+    public class ReadOnlyFileBasedBuffer : IReadOnlyBuffer
     {
         class ReferenceStructFromStreamReader<T> : IReadOnlyEnumerator<T> 
             where T: unmanaged
@@ -63,7 +63,7 @@ namespace BrightData.Buffer2
                 _bufferIndex = -1;
                 _stream.Seek(_initialStreamPosition, SeekOrigin.Begin);
             }
-            public ref readonly T Current => ref _buffer.Span[_bufferIndex];
+            public ref T Current => ref _buffer.Span[_bufferIndex];
         }
         class IterableBlock<T> : ICanIterateData<T> where T: unmanaged
         {

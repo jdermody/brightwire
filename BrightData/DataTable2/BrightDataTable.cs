@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Buffer2;
 using BrightData.DataTable2.Bindings;
 using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -18,15 +19,26 @@ namespace BrightData.DataTable2
     {
         internal struct Header
         {
+            public byte Version;
             public uint ColumnCount;
             public uint RowCount;
             public uint DataOffset;
             public uint DataSizeBytes;
+
             public uint StringOffset;
+            public uint StringCount;
+
             public uint TensorOffset;
+            public uint TensorCount;
+
             public uint BinaryDataOffset;
+            public uint BinaryDataCount;
+
             public uint IndexOffset;
+            public uint IndexCount;
+
             public uint WeightedIndexOffset;
+            public uint WeightedIndexCount;
         }
         internal struct Column
         {
@@ -34,28 +46,34 @@ namespace BrightData.DataTable2
             public uint DataTypeSize;
         }
 
-        readonly BrightDataContext              _context;
-        readonly StreamCloner                   _stream;
-        readonly uint                           _bufferSize;
-        readonly Header                         _header;
-        readonly Column[]                       _columns;
-        readonly MetaData[]                     _metaData;
-        readonly Lazy<string[]>                 _stringTable;
-        readonly Lazy<float[]>                  _tensors;
-        readonly Lazy<byte[]>                   _binaryData;
-        readonly Lazy<uint[]>                   _indices;
-        readonly Lazy<WeightedIndexList.Item[]> _weightedIndices;
-        readonly uint                           _rowSize;
-        readonly long                           _dataOffset;
-        readonly MethodInfo                     _getReader;
-        readonly uint[]                         _columnOffset;
+        readonly BrightDataContext                                    _context;
+        readonly IReadOnlyBuffer                                      _buffer;
+        readonly uint                                                 _bufferSize;
+        readonly Header                                               _header;
+        readonly Column[]                                             _columns;
+        readonly MetaData[]                                           _metaData;
+        readonly Lazy<string[]>                                       _stringTable;
+        readonly Lazy<ICanRandomlyAccessData<float>>                  _tensors;
+        readonly Lazy<ICanRandomlyAccessData<byte>>                   _binaryData;
+        readonly Lazy<ICanRandomlyAccessData<uint>>                   _indices;
+        readonly Lazy<ICanRandomlyAccessData<WeightedIndexList.Item>> _weightedIndices;
+        readonly uint                                                 _rowSize;
+        readonly long                                                 _dataOffset;
+        readonly MethodInfo                                           _getReader;
+        readonly uint[]                                               _columnOffset;
 
         public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = 32768)
         {
+            if (stream is FileStream fileStream)
+                _buffer = new ReadOnlyFileBasedBuffer(fileStream);
+            else if (stream is MemoryStream memoryStream)
+                _buffer = new ReadOnlyMemoryBasedBuffer(new ReadOnlyMemory<byte>(memoryStream.GetBuffer()));
+            else
+                throw new ArgumentException("Expected file or memory stream", nameof(stream));
+
             _context = context;
-            _stream = new StreamCloner(stream);
             _bufferSize = bufferSize;
-            using var reader = new BinaryReader(stream, Encoding.UTF8);
+            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
             // read the header
             _header = MemoryMarshal.Cast<byte, Header>(reader.ReadBytes(Unsafe.SizeOf<Header>()))[0];
@@ -75,21 +93,26 @@ namespace BrightData.DataTable2
             ;
             _rowSize = (uint)_columns.Sum(c => c.DataTypeSize);
 
-            // setup the lazy readers
-            T[] ReadArray<T>(uint offset) where T: notnull
+            // setup the ancillary data
+            string[] ReadStringArray(uint offset, uint count)
             {
                 if(offset == 0)
-                    return Array.Empty<T>();
+                    return Array.Empty<string>();
 
-                using var stream = _stream.Clone(offset);
-                using var reader = stream.GetReader();
-                return _context.GetBufferReader<T>(reader, _bufferSize).EnumerateTyped().ToArray();
+                // TODO: think about on demand loading
+                stream.Seek(_header.StringOffset, SeekOrigin.Begin);
+                using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+                var ret = _context.GetBufferReader<string>(reader, _bufferSize).EnumerateTyped().ToArray();
+                return ret;
             }
-            _stringTable     = new(() => ReadArray<string>(_header.StringOffset));
-            _binaryData      = new(() => ReadArray<byte>(_header.BinaryDataOffset));
-            _tensors         = new(() => ReadArray<float>(_header.TensorOffset));
-            _indices         = new(() => ReadArray<uint>(_header.IndexOffset));
-            _weightedIndices = new(() => ReadArray<WeightedIndexList.Item>(_header.WeightedIndexOffset));
+            unsafe ICanRandomlyAccessData<T> GetBlockAccessor<T>(uint offset, uint count) where T: unmanaged => offset == 0 
+                ? new EmptyBlock<T>() 
+                : _buffer.GetBlock<T>(offset, count * sizeof(T));
+            _stringTable     = new(() => ReadStringArray(_header.StringOffset, _header.StringCount));
+            _binaryData      = new(() => GetBlockAccessor<byte>(_header.BinaryDataOffset, _header.BinaryDataCount));
+            _tensors         = new(() => GetBlockAccessor<float>(_header.TensorOffset, _header.TensorCount));
+            _indices         = new(() => GetBlockAccessor<uint>(_header.IndexOffset, _header.IndexCount));
+            _weightedIndices = new(() => GetBlockAccessor<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexCount));
 
             // resolve generic methods
             var genericMethods = GetType().GetGenericMethods();
@@ -104,17 +127,16 @@ namespace BrightData.DataTable2
             }
         }
         
-
         public void Dispose()
         {
-            _stream.Dispose();
+            _buffer.Dispose();
         }
 
-        public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex);
+        public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
 
         public T Get<T>(uint rowIndex, uint columnIndex)
         {
-            using var reader = GetColumnReader<T>(columnIndex, size => size * rowIndex);
+            using var reader = GetColumnReader<T>(columnIndex, 1, size => size * rowIndex);
             return reader.EnumerateTyped().First();
         }
 
@@ -123,7 +145,7 @@ namespace BrightData.DataTable2
             var readers = new ICanEnumerateDisposable[_header.ColumnCount];
             try {
                 for (uint i = 0; i < _header.ColumnCount; i++)
-                    readers[i] = GetColumnReader(i, size => size * rowIndex);
+                    readers[i] = GetColumnReader(i, 1, size => size * rowIndex);
                 return readers.Select(r => r.Enumerate().First()).ToArray();
             }
             finally {
@@ -132,7 +154,7 @@ namespace BrightData.DataTable2
             }
         }
 
-        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, Func<uint, uint>? offsetAdjuster = null)
+        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
         {
             ref readonly var column = ref _columns[columnIndex];
             if (column.DataType.GetDataType() != typeof(T))
@@ -142,10 +164,11 @@ namespace BrightData.DataTable2
             if(offsetAdjuster is not null)
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
-            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { _stream.Clone(offset) })!;
+            var sizeInBytes = countToRead * column.DataTypeSize;
+            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
 
-        ICanEnumerateDisposable GetColumnReader(uint columnIndex, Func<uint, uint>? offsetAdjuster = null)
+        ICanEnumerateDisposable GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
         {
             ref readonly var column = ref _columns[columnIndex];
 
@@ -154,7 +177,8 @@ namespace BrightData.DataTable2
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
             var dataType = column.DataType.GetDataType();
-            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { _stream.Clone(offset) })!;
+            var sizeInBytes = countToRead * column.DataTypeSize;
+            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
     }
 }

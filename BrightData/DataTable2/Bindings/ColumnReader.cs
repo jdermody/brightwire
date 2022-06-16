@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2.Bindings
 {
-    public interface IConvertStructsToObjects<CT, out T> where CT: struct where T: notnull
+    public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
     {
         T Convert(ref CT item);
     }
     public class ColumnReader<CT, T> : ICanEnumerateDisposable<T>, ICanEnumerateDisposable, IEnumerable<T>
-        where CT : struct
+        where CT : unmanaged
         where T : notnull
     {
         class Enumerator : IEnumerator<T>
         {
-            readonly IStructByReferenceEnumerator<CT> _structEnumerator;
+            readonly IReadOnlyEnumerator<CT> _structEnumerator;
             readonly IConvertStructsToObjects<CT, T> _converter;
 
-            public Enumerator(IStructByReferenceEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
+            public Enumerator(IReadOnlyEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
             {
                 _structEnumerator = structEnumerator;
                 _structEnumerator.Reset();
@@ -41,9 +41,9 @@ namespace BrightData.DataTable2.Bindings
         readonly BrightDataTable _dataTable;
         readonly IConvertStructsToObjects<CT, T> _converter;
         readonly IDisposable _stream;
-        readonly IStructByReferenceEnumerator<CT> _enumerator;
+        readonly IReadOnlyEnumerator<CT> _enumerator;
 
-        public ColumnReader(IStructByReferenceEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter, IDisposable stream)
+        public ColumnReader(IReadOnlyEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter, IDisposable stream)
         {
             _converter = converter;
             _stream = stream;
@@ -62,7 +62,7 @@ namespace BrightData.DataTable2.Bindings
 
         public void Dispose()
         {
-            _enumerator.Dispose();
+            //_enumerator.Dispose();
             _stream.Dispose();
         }
 

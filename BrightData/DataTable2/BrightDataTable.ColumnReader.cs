@@ -9,17 +9,17 @@ namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
-        ICanEnumerate<T> GetReader<CT, T>(ICanReadSection stream)
+        ICanEnumerate<T> GetReader<CT, T>(uint offset, uint sizeInBytes)
             where T: notnull
-            where CT: struct
+            where CT: unmanaged
         {
-            var enumerator = stream.GetStructByReferenceEnumerator<CT>(_header.RowCount);
+            var block = _buffer.GetIterator<CT>(offset, sizeInBytes);
             var converter = GetConverter<CT, T>();
-            return new ColumnReader<CT, T>(enumerator, converter, stream);
+            return new ColumnReader<CT, T>(block.GetEnumerator(), converter, block);
         }
 
         IConvertStructsToObjects<CT, T> GetConverter<CT, T>()
-            where CT : struct
+            where CT : unmanaged
             where T: notnull
         {
             var dataType = typeof(T);
@@ -31,7 +31,7 @@ namespace BrightData.DataTable2
         }
 
         class NopColumnConverter<CT, T> : IConvertStructsToObjects<CT, T>
-            where CT : struct
+            where CT : unmanaged
             where T: notnull
         {
             public T Convert(ref CT item)

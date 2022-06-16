@@ -13,7 +13,7 @@ using Microsoft.Toolkit.HighPerformance;
 
 namespace BrightData.Buffer2
 {
-    public unsafe class ReadOnlyMemoryBasedBuffer : IDisposable
+    public unsafe class ReadOnlyMemoryBasedBuffer : IReadOnlyBuffer
     {
         class Enumerator<T> : IEnumerator<T>, IEnumerable where T : unmanaged
         {
@@ -53,7 +53,7 @@ namespace BrightData.Buffer2
 
             public bool MoveNext() => ++_index < _length;
             public void Reset() => _index = -1;
-            public ref readonly T Current => ref *(_ptr + _index);
+            public ref T Current => ref *(_ptr + _index);
         }
         class EnumerableBlock<T> : IEnumerable<T> where T : unmanaged
         {

@@ -87,6 +87,7 @@ namespace BrightData.DataTable2.Builders
             var headers = new BrightDataTable.Header[1];
             stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
+            header.Version = 1;
             header.ColumnCount = (uint)_columns.Count;
             header.RowCount = firstColumn.Size;
 
@@ -134,7 +135,7 @@ namespace BrightData.DataTable2.Builders
             if (stringTableWriter.IsValueCreated) {
                 var data = stringTableWriter.Value;
                 header.StringOffset = (uint)stream.Position;
-                //header.StringCount = data.Size;
+                header.StringCount = data.Size;
                 data.CopyTo(stream);
             }
 
@@ -142,32 +143,32 @@ namespace BrightData.DataTable2.Builders
             if (tensorWriter.IsValueCreated) {
                 var data = tensorWriter.Value;
                 header.TensorOffset = (uint)stream.Position;
-                //header.TensorCount = data.Size;
-                data.CopyTo(stream);
+                header.TensorCount = data.Size;
+                data.EnumerateTyped().WriteTo(stream);
             }
 
             // write the binary data
             if (byteWriter.IsValueCreated) {
                 var data = byteWriter.Value;
                 header.BinaryDataOffset = (uint)stream.Position;
-                //header.BinaryDataCount = data.Size;
-                data.CopyTo(stream);
+                header.BinaryDataCount = data.Size;
+                data.EnumerateTyped().WriteTo(stream);
             }
 
             // write the index data
             if (indexWriter.IsValueCreated) {
                 var data = indexWriter.Value;
                 header.IndexOffset = (uint)stream.Position;
-                //header.IndexCount = data.Size;
-                data.CopyTo(stream);
+                header.IndexCount = data.Size;
+                data.EnumerateTyped().WriteTo(stream);
             }
 
             // write the weighted index data
             if (weightedIndexWriter.IsValueCreated) {
                 var data = weightedIndexWriter.Value;
                 header.WeightedIndexOffset = (uint)stream.Position;
-                //header.WeightedIndexCount = data.Size;
-                data.CopyTo(stream);
+                header.WeightedIndexCount = data.Size;
+                data.EnumerateTyped().WriteTo(stream);
             }
 
             // update the header

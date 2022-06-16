@@ -1405,6 +1405,12 @@ namespace BrightData
     {
         bool MoveNext();
         void Reset();
-        ref readonly T Current { get; }
+        ref T Current { get; }
+    }
+
+    public interface IReadOnlyBuffer : IDisposable
+    {
+        ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged;
+        ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged;
     }
 }

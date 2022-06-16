@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using BrightData.Converter;
 using BrightData.Helper;
+using Microsoft.Toolkit.HighPerformance;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
@@ -469,7 +471,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Enumerates a stream as a series of structs. This is best for small structs such as int32, long etc as the values are not passed by reference.
+        /// Enumerates a stream as a series of structs. This is best for small structs such as int32 etc as the values are not passed by reference.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
@@ -506,6 +508,23 @@ namespace BrightData
                     ArrayPool<T>.Shared.Return(temp);
                 }
             }
+        }
+
+        public static void WriteTo<T>(this IEnumerable<T> items, Stream stream, int tempBufferSize = 8192) where T: unmanaged
+        {
+            using var buffer = SpanOwner<T>.Allocate(tempBufferSize);
+            var span = buffer.Span;
+            var index = 0;
+
+            foreach (var item in items) {
+                span[index++] = item;
+                if (index == buffer.Length) {
+                    stream.Write(span.AsBytes());
+                    index = 0;
+                }
+            }
+            if(index > 0)
+                stream.Write(span[..index].AsBytes());
         }
     }
 }
