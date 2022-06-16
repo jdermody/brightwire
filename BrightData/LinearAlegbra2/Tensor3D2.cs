@@ -16,11 +16,23 @@ namespace BrightData.LinearAlegbra2
 
         public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D2<CU>(segment, Depth, RowCount, ColumnCount, _computationUnit);
 
-        public uint Depth { get; }
-        public uint RowCount { get; }
-        public uint ColumnCount { get; }
-        public uint MatrixSize { get; }
-        public override uint Size { get; }
+        public uint Depth { get; private set; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
+        public uint MatrixSize { get; private set; }
+        public override uint Size { get; protected set; }
+        public override uint[] Shape
+        {
+            get => new[] { Depth, RowCount, ColumnCount };
+            protected set
+            {
+                ColumnCount = value[0];
+                RowCount = value[1];
+                Depth = value[2];
+                MatrixSize = RowCount * ColumnCount;
+                Size = MatrixSize * Depth;
+            }
+        }
 
         public float this[int depth, int rowY, int columnX]
         {

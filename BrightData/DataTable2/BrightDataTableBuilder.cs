@@ -12,16 +12,16 @@ using BrightData.DataTable;
 using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.DataTable2.Builders
+namespace BrightData.DataTable2
 {
-    public partial class BrightDataTableBuilder : IDisposable
+    public class BrightDataTableBuilder : IDisposable
     {
-        readonly BrightDataContext   _context;
-        readonly uint                _inMemoryBufferSize;
-        readonly ushort              _maxUniqueItemCount;
+        readonly BrightDataContext _context;
+        readonly uint _inMemoryBufferSize;
+        readonly ushort _maxUniqueItemCount;
         readonly IProvideTempStreams _tempStreams;
         readonly List<IHybridBuffer> _columns = new();
-        readonly MethodInfo          _writeStructs;
+        readonly MethodInfo _writeStructs;
 
         public BrightDataTableBuilder(BrightDataContext context, uint inMemoryBufferSize = 32768 * 1024, ushort maxUniqueItemCount = 32768)
         {
@@ -31,7 +31,7 @@ namespace BrightData.DataTable2.Builders
             _tempStreams = new TempStreamManager(context.Get<string>(Consts.BaseTempPath));
 
             var methods = GetType().GetGenericMethods();
-            _writeStructs = methods[nameof(WriteColumnOrientedStructs)];
+            _writeStructs = methods[nameof(WriteStructs)];
         }
 
         public MetaData TableMetaData { get; } = new();
@@ -47,7 +47,7 @@ namespace BrightData.DataTable2.Builders
             columnMetaData.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
             columnMetaData.Set(Consts.Type, type);
             columnMetaData.Set(Consts.Index, (uint)_columns.Count);
-            if(type.IsNumeric())
+            if (type.IsNumeric())
                 columnMetaData.Set(Consts.IsNumeric, true);
 
             var buffer = columnMetaData.GetGrowableSegment(type, _context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
@@ -56,7 +56,7 @@ namespace BrightData.DataTable2.Builders
         }
 
         public IHybridBuffer<T> AddColumn<T>(string? name = null)
-            where T: notnull
+            where T : notnull
         {
             var type = typeof(T).GetBrightDataType();
             return (IHybridBuffer<T>)AddColumn(type, name);
@@ -77,10 +77,10 @@ namespace BrightData.DataTable2.Builders
                     throw new Exception("Columns have different sizes");
             }
 
-            var stringTableWriter   = new Lazy<IHybridBuffer<string>>(()                 => _context.CreateHybridStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
-            var tensorWriter        = new Lazy<IHybridBuffer<float>>(()                  => _context.CreateHybridStructBuffer<float>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
-            var byteWriter          = new Lazy<IHybridBuffer<byte>>(()                   => _context.CreateHybridStructBuffer<byte>(_tempStreams, _inMemoryBufferSize));
-            var indexWriter         = new Lazy<IHybridBuffer<uint>>(()                   => _context.CreateHybridStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var stringTableWriter = new Lazy<IHybridBuffer<string>>(() => _context.CreateHybridStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var tensorWriter = new Lazy<IHybridBuffer<float>>(() => _context.CreateHybridStructBuffer<float>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var byteWriter = new Lazy<IHybridBuffer<byte>>(() => _context.CreateHybridStructBuffer<byte>(_tempStreams, _inMemoryBufferSize));
+            var indexWriter = new Lazy<IHybridBuffer<uint>>(() => _context.CreateHybridStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
             var weightedIndexWriter = new Lazy<IHybridBuffer<WeightedIndexList.Item>>(() => _context.CreateHybridStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
 
             // write the header
@@ -118,13 +118,21 @@ namespace BrightData.DataTable2.Builders
                 var (columnType, _) = dataType.GetColumnType();
 
                 if (dataType == BrightDataType.IndexList)
-                    WriteColumnOrientedIndexLists((IHybridBuffer<IndexList>)column, stream, indexWriter.Value);
+                    WriteIndexLists((IHybridBuffer<IndexList>)column, stream, indexWriter.Value);
                 else if (dataType == BrightDataType.WeightedIndexList)
-                    WriteColumnOrientedWeightedIndexLists((IHybridBuffer<WeightedIndexList>)column, stream, weightedIndexWriter.Value);
+                    WriteWeightedIndexLists((IHybridBuffer<WeightedIndexList>)column, stream, weightedIndexWriter.Value);
                 else if (dataType == BrightDataType.BinaryData)
-                    WriteColumnOrientedBinaryData((IHybridBuffer<BinaryData>)column, stream, byteWriter.Value);
+                    WriteBinaryData((IHybridBuffer<BinaryData>)column, stream, byteWriter.Value);
                 else if (dataType == BrightDataType.String)
-                    WriteColumnOrientedStringData((IHybridBuffer<string>)column, stream, stringTableWriter.Value);
+                    WriteStringData((IHybridBuffer<string>)column, stream, stringTableWriter.Value);
+                else if (dataType == BrightDataType.FloatVector)
+                    WriteVectors((IHybridBuffer<IVector>)column, stream, tensorWriter.Value);
+                else if (dataType == BrightDataType.FloatMatrix)
+                    WriteMatrices((IHybridBuffer<IMatrix>)column, stream, tensorWriter.Value);
+                else if (dataType == BrightDataType.FloatTensor3D)
+                    WriteTensors((IHybridBuffer<ITensor3D>)column, stream, tensorWriter.Value);
+                else if (dataType == BrightDataType.FloatTensor4D)
+                    WriteTensors((IHybridBuffer<ITensor4D>)column, stream, tensorWriter.Value);
                 else
                     _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { column, stream });
             }
@@ -178,8 +186,8 @@ namespace BrightData.DataTable2.Builders
         }
 
         delegate void FillDelegate<CT, in T>(T item, Span<CT> ptr, int index) where T : notnull where CT : struct;
-        void WriteColumnOriented<T, CT>(IHybridBuffer<T> buffer, Stream stream, FillDelegate<CT, T> filler)
-            where T: notnull
+        void Write<T, CT>(IHybridBuffer<T> buffer, Stream stream, FillDelegate<CT, T> filler)
+            where T : notnull
             where CT : struct
         {
             using var temp = SpanOwner<CT>.Allocate((int)Math.Min(buffer.Size, _inMemoryBufferSize));
@@ -192,18 +200,18 @@ namespace BrightData.DataTable2.Builders
                     index = 0;
                 }
             }
-            if(index > 0)
+            if (index > 0)
                 stream.Write(MemoryMarshal.AsBytes(ptr[..index]));
         }
-        void WriteColumnOrientedStructs<T>(IHybridBuffer<T> buffer, Stream stream) where T: struct => 
-            WriteColumnOriented<T, T>(buffer, stream, (item, ptr, index) => ptr[index] = item);
+        void WriteStructs<T>(IHybridBuffer<T> buffer, Stream stream) where T : struct =>
+            Write<T, T>(buffer, stream, (item, ptr, index) => ptr[index] = item);
 
-        delegate Span<IT> GetSpans<in T, IT>(T item) where IT: struct;
-        void WriteColumnOrientedDataRange<T, IT>(IHybridBuffer<T> buffer, Stream stream, IHybridBuffer<IT> indices, GetSpans<T, IT> getSpan)
+        delegate Span<IT> GetSpans<in T, IT>(T item) where IT : struct;
+        void WriteDataRange<T, IT>(IHybridBuffer<T> buffer, Stream stream, IHybridBuffer<IT> indices, GetSpans<T, IT> getSpan)
             where T : notnull
             where IT : struct
         {
-            WriteColumnOriented<T, DataRangeColumnType>(buffer, stream, (item, ptr, index) => {
+            Write<T, DataRangeColumnType>(buffer, stream, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 var span = getSpan(item);
                 data.StartIndex = indices.Size;
@@ -211,14 +219,14 @@ namespace BrightData.DataTable2.Builders
                 indices.Add(span);
             });
         }
-        void WriteColumnOrientedIndexLists(IHybridBuffer<IndexList> buffer, Stream stream, IHybridBuffer<uint> indices) => 
-            WriteColumnOrientedDataRange(buffer, stream, indices, indexList => indexList.Indices);
-        void WriteColumnOrientedWeightedIndexLists(IHybridBuffer<WeightedIndexList> buffer, Stream stream, IHybridBuffer<WeightedIndexList.Item> indices) => 
-            WriteColumnOrientedDataRange(buffer, stream, indices, indexList => indexList.Indices);
-        void WriteColumnOrientedBinaryData(IHybridBuffer<BinaryData> buffer, Stream stream, IHybridBuffer<byte> indices) => 
-            WriteColumnOrientedDataRange(buffer, stream, indices, indexList => indexList.Data);
+        void WriteIndexLists(IHybridBuffer<IndexList> buffer, Stream stream, IHybridBuffer<uint> indices) =>
+            WriteDataRange(buffer, stream, indices, indexList => indexList.Indices);
+        void WriteWeightedIndexLists(IHybridBuffer<WeightedIndexList> buffer, Stream stream, IHybridBuffer<WeightedIndexList.Item> indices) =>
+            WriteDataRange(buffer, stream, indices, indexList => indexList.Indices);
+        void WriteBinaryData(IHybridBuffer<BinaryData> buffer, Stream stream, IHybridBuffer<byte> indices) =>
+            WriteDataRange(buffer, stream, indices, indexList => indexList.Data);
 
-        void WriteColumnOrientedStringData(IHybridBuffer<string> buffer, Stream stream, IHybridBuffer<string> indices)
+        void WriteStringData(IHybridBuffer<string> buffer, Stream stream, IHybridBuffer<string> indices)
         {
             if (buffer.DistinctItems != null) {
                 var existing = indices.DistinctItems;
@@ -228,13 +236,59 @@ namespace BrightData.DataTable2.Builders
                 }
             }
 
-            WriteColumnOriented<string, uint>(buffer, stream, (item, ptr, index) => {
+            Write<string, uint>(buffer, stream, (item, ptr, index) => {
                 if (indices.DistinctItems is not null)
                     ptr[index] = indices.DistinctItems[item];
                 else {
                     ptr[index] = indices.Size;
                     indices.Add(item);
                 }
+            });
+        }
+
+        void WriteVectors(IHybridBuffer<IVector> buffer, Stream stream, IHybridBuffer<float> floats)
+        {
+            Write<IVector, DataRangeColumnType>(buffer, stream, (item, ptr, index) => {
+                ref var data = ref ptr[index];
+                data.StartIndex = floats.Size;
+                data.Count = item.Size;
+                floats.Add(item.Segment.GetSpan());
+            });
+        }
+
+        void WriteMatrices(IHybridBuffer<IMatrix> buffer, Stream stream, IHybridBuffer<float> floats)
+        {
+            Write<IMatrix, MatrixColumnType>(buffer, stream, (item, ptr, index) => {
+                ref var data = ref ptr[index];
+                data.StartIndex = floats.Size;
+                data.RowCount = item.RowCount;
+                data.ColumnCount = item.ColumnCount;
+                floats.Add(item.Segment.GetSpan());
+            });
+        }
+
+        void WriteTensors(IHybridBuffer<ITensor3D> buffer, Stream stream, IHybridBuffer<float> floats)
+        {
+            Write<ITensor3D, Tensor3DColumnType>(buffer, stream, (item, ptr, index) => {
+                ref var data = ref ptr[index];
+                data.StartIndex = floats.Size;
+                data.Depth = item.Depth;
+                data.RowCount = item.RowCount;
+                data.ColumnCount = item.ColumnCount;
+                floats.Add(item.Segment.GetSpan());
+            });
+        }
+
+        void WriteTensors(IHybridBuffer<ITensor4D> buffer, Stream stream, IHybridBuffer<float> floats)
+        {
+            Write<ITensor4D, Tensor4DColumnType>(buffer, stream, (item, ptr, index) => {
+                ref var data = ref ptr[index];
+                data.StartIndex = floats.Size;
+                data.Count = item.Count;
+                data.Depth = item.Depth;
+                data.RowCount = item.RowCount;
+                data.ColumnCount = item.ColumnCount;
+                floats.Add(item.Segment.GetSpan());
             });
         }
     }

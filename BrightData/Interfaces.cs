@@ -413,6 +413,8 @@ namespace BrightData
         /// </summary>
         IProvideTempStreams TempStreamProvider { get; }
 
+        ComputationUnit CurrentComputationUnit { get; }
+
         /// <summary>
         /// Returns transient, context specific meta data
         /// </summary>
@@ -1204,7 +1206,7 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
-    public interface ITensor2 : IDisposable
+    public interface ITensor2 : IDisposable, ISerializable
     {
         BrightDataContext Context { get; }
         ITensorSegment2 Segment { get; }
@@ -1375,7 +1377,7 @@ namespace BrightData
         IEnumerable<float> Values { get; }
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
-        void CopyFrom(Span<float> span, float[]? sourceArray);
+        void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray);
         void CopyTo(ITensorSegment2 segment);
         void Clear();
     }

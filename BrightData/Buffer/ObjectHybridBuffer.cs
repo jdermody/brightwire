@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using BrightData.Helper;
+using BrightData.Serialisation;
 
 namespace BrightData.Buffer
 {
@@ -27,8 +28,7 @@ namespace BrightData.Buffer
             var reader = new BinaryReader(stream, Encoding.UTF8);
             uint ret = 0;
             for (; ret < count && stream.Position < stream.Length; ret++) {
-                var obj = GenericActivator.CreateUninitialized<T>();
-                obj.Initialize(_context, reader);
+                var obj = _context.Create<T>(reader);
                 buffer[ret] = obj;
             }
 

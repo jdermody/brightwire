@@ -8,7 +8,7 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) 2016-2021 Jack Dermody - Open Source MIT License
+Copyright (c) 2016-2022 Jack Dermody - Open Source MIT License
 
 
 Sample code for using Bright Wire to train different machine learning algorithms.

@@ -128,7 +128,17 @@ namespace BrightData.Serialisation
         public static T Create<T>(this IBrightDataContext context, BinaryReader reader)
             where T : ICanInitializeFromBinaryReader
         {
-            var ret = GenericActivator.CreateUninitialized<T>();
+            T ret;
+            if(typeof(T) == typeof(IVector))
+                ret = GenericActivator.CreateUninitialized<T>(context.CurrentComputationUnit.VectorType);
+            else if(typeof(T) == typeof(IMatrix))
+                ret = GenericActivator.CreateUninitialized<T>(context.CurrentComputationUnit.MatrixType);
+            else if(typeof(T) == typeof(ITensor3D))
+                ret = GenericActivator.CreateUninitialized<T>(context.CurrentComputationUnit.Tensor3DType);
+            else if(typeof(T) == typeof(ITensor4D))
+                ret = GenericActivator.CreateUninitialized<T>(context.CurrentComputationUnit.Tensor4DType);
+            else
+                ret = GenericActivator.CreateUninitialized<T>();
             ret.Initialize(context, reader);
             return ret;
         }

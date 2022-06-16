@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
@@ -38,12 +40,12 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, Span<float> span, float[]? sourceArray)
+        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, ReadOnlySpan<float> span, float[]? sourceArray)
         {
             if (sourceArray is null) {
-                using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
-                span.CopyTo(buffer.Span);
-                fixed (float* p = buffer.DangerousGetArray().Array!)
+                //using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
+                //span.CopyTo(buffer.Span);
+                fixed (float* p = &MemoryMarshal.GetReference(span))
                 {
                     ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
                 }

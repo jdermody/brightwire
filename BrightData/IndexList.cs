@@ -30,6 +30,7 @@ namespace BrightData
         public uint[] Indices { get; private set; }
 
         internal static IndexList Create(IBrightDataContext context, params uint[] indices) => new(context, indices);
+        internal static IndexList Create(IBrightDataContext context, ReadOnlySpan<uint> indices) => new(context, indices.ToArray());
         internal static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new(context, indices.ToArray());
 
         /// <summary>

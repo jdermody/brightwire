@@ -12,6 +12,7 @@ using BrightData.DataTable.Builders;
 using BrightData.DataTable.Consumers;
 using BrightData.Helper;
 using BrightData.Input;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightData.Transformation;
 
@@ -41,10 +42,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.FloatVector       => typeof(Vector<float>),
-                BrightDataType.FloatMatrix       => typeof(Matrix<float>),
-                BrightDataType.FloatTensor3D     => typeof(Tensor3D<float>),
-                BrightDataType.FloatTensor4D     => typeof(Tensor4D<float>),
+                BrightDataType.FloatVector       => typeof(IVector),
+                BrightDataType.FloatMatrix       => typeof(IMatrix),
+                BrightDataType.FloatTensor3D     => typeof(ITensor3D),
+                BrightDataType.FloatTensor4D     => typeof(ITensor4D),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -94,16 +95,16 @@ namespace BrightData
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(Vector<float>))
+            if (dataType == typeof(IVector) || dataType.IsAssignableTo(typeof(IVector)))
                 return BrightDataType.FloatVector;
 
-            if (dataType == typeof(Matrix<float>))
+            if (dataType == typeof(IMatrix) || dataType.IsAssignableTo(typeof(IMatrix)))
                 return BrightDataType.FloatMatrix;
 
-            if (dataType == typeof(Tensor3D<float>))
+            if (dataType == typeof(ITensor3D) || dataType.IsAssignableTo(typeof(ITensor3D)))
                 return BrightDataType.FloatTensor3D;
 
-            if (dataType == typeof(Tensor4D<float>))
+            if (dataType == typeof(ITensor4D) || dataType.IsAssignableTo(typeof(ITensor4D)))
                 return BrightDataType.FloatTensor4D;
 
             if (dataType == typeof(BinaryData))

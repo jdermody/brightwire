@@ -66,7 +66,7 @@ namespace BrightData.LinearAlegbra2
         public IEnumerable<float> Values => _array.Take((int)Size);
         public float[] GetArrayForLocalUseOnly() => _array;
         public float[] ToNewArray() => _data.Span.ToArray();
-        public void CopyFrom(Span<float> span, float[]? sourceArray) => span.CopyTo(_data.Span);
+        public void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray) => span.CopyTo(_data.Span);
         public void CopyTo(ITensorSegment2 segment)
         {
             var span = _array.AsSpan(0, (int)Size);

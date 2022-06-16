@@ -11,6 +11,8 @@ namespace BrightData.DataTable2.Bindings
     {
         T Convert(ref CT item);
     }
+
+    public delegate Type ConvertStructsToObjectsDelegate<CT, out T>(ref CT item) where CT : unmanaged where T : notnull;
     public class ColumnReader<CT, T> : ICanEnumerateDisposable<T>, ICanEnumerateDisposable, IEnumerable<T>
         where CT : unmanaged
         where T : notnull
@@ -38,7 +40,6 @@ namespace BrightData.DataTable2.Bindings
             }
         }
 
-        readonly BrightDataTable _dataTable;
         readonly IConvertStructsToObjects<CT, T> _converter;
         readonly IDisposable _stream;
         readonly IReadOnlyEnumerator<CT> _enumerator;

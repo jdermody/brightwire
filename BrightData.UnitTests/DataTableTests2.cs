@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.DataTable2;
-using BrightData.DataTable2.Builders;
+using BrightData.LinearAlegbra2;
 using FluentAssertions;
 using Xunit;
 
@@ -48,6 +48,128 @@ namespace BrightData.UnitTests
 
             var row1 = dataTable.GetRow(0);
             var row2 = dataTable.GetRow(1);
+        }
+
+        [Fact]
+        public void InMemoryIndexList()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var indexListBuilder = builder.AddColumn<IndexList>("index list");
+            var sampleIndexList = _context.CreateIndexList(1, 2, 3, 4, 5);
+            indexListBuilder.Add(sampleIndexList);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            var fromTable = dataTable.Get<IndexList>(0, 0);
+            fromTable.Should().BeEquivalentTo(sampleIndexList);
+        }
+
+        [Fact]
+        public void InMemoryWeightedIndexList()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var indexListBuilder = builder.AddColumn<WeightedIndexList>("weighted index list");
+            var sampleIndexList = _context.CreateWeightedIndexList((1, 1f), (2, 0.1f), (3, 0.75f), (4, 0.25f), (5, 0.77f));
+            indexListBuilder.Add(sampleIndexList);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            var fromTable = dataTable.Get<WeightedIndexList>(0, 0);
+            fromTable.Should().BeEquivalentTo(sampleIndexList);
+        }
+
+        [Fact]
+        public void InMemoryVector()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var vectorBuilder = builder.AddColumn<IVector>("vector");
+            var computation = _context.NewComputationUnit();
+            using var firstVector = computation.CreateVector(5, i => i + 1);
+            vectorBuilder.Add(firstVector);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            using var fromTable = dataTable.Get<IVector>(0, 0);
+            fromTable.Should().BeEquivalentTo(firstVector);
+            fromTable.Segment.Should().BeEquivalentTo(firstVector.Segment);
+        }
+
+        [Fact]
+        public void InMemoryMatrix()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var matrixBuilder = builder.AddColumn<IMatrix>("matrix");
+            var computation = _context.NewComputationUnit();
+            using var firstMatrix = computation.CreateMatrix(5, 5, (i, j) => i + j);
+            matrixBuilder.Add(firstMatrix);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            using var fromTable = dataTable.Get<IMatrix>(0, 0);
+            fromTable.Should().BeEquivalentTo(firstMatrix);
+            fromTable.Segment.Should().BeEquivalentTo(firstMatrix.Segment);
+        }
+
+        [Fact]
+        public void InMemoryTensor3D()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var tensorBuilder = builder.AddColumn<ITensor3D>("tensor");
+            var computation = _context.NewComputationUnit();
+            using var firstTensor = computation.CreateTensor3D(
+                computation.CreateMatrix(5, 5, (i, j) => i + j),
+                computation.CreateMatrix(5, 5, (i, j) => i + j)
+            );
+            tensorBuilder.Add(firstTensor);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            using var fromTable = dataTable.Get<ITensor3D>(0, 0);
+            fromTable.Should().BeEquivalentTo(firstTensor);
+            fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
+        }
+
+        [Fact]
+        public void InMemoryTensor4D()
+        {
+            using var builder = new BrightDataTableBuilder(_context);
+            var tensorBuilder = builder.AddColumn<ITensor4D>("tensor");
+            var computation = _context.NewComputationUnit();
+            using var firstTensor = computation.CreateTensor4D(
+                computation.CreateTensor3D(
+                    computation.CreateMatrix(5, 5, (i, j) => i + j),
+                    computation.CreateMatrix(5, 5, (i, j) => i + j)
+                ),
+                computation.CreateTensor3D(
+                    computation.CreateMatrix(5, 5, (i, j) => i + j),
+                    computation.CreateMatrix(5, 5, (i, j) => i + j)
+                )
+            );
+            tensorBuilder.Add(firstTensor);
+
+            using var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var dataTable = new BrightDataTable(_context, stream);
+
+            using var fromTable = dataTable.Get<ITensor4D>(0, 0);
+            fromTable.Should().BeEquivalentTo(firstTensor);
+            fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
         }
     }
 }

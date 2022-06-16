@@ -53,6 +53,11 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
+        public virtual Type VectorType { get; } = typeof(Vector2);
+        public virtual Type MatrixType { get; } = typeof(Matrix2);
+        public virtual Type Tensor3DType { get; } = typeof(Tensor3D2);
+        public virtual Type Tensor4DType { get; } = typeof(Tensor4D2);
+
         // vector creation
         public virtual IVector CreateVector(ITensorSegment2 data) => new Vector2(data, this);
         public IVector CreateVector(uint size) => CreateVector(CreateSegment(size));

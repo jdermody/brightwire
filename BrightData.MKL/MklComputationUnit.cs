@@ -16,6 +16,11 @@ namespace BrightData.MKL
         {
         }
 
+        public override Type VectorType { get; } = typeof(MklVector);
+        public override Type MatrixType { get; } = typeof(MklMatrix);
+        //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
+        //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
+
         public override IVector CreateVector(ITensorSegment2 data) => new MklVector(data, this);
 
         public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2)

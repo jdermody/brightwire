@@ -10,6 +10,7 @@ using BrightData.Cuda;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
 using BrightData.MKL;
+using BrightData.Serialisation;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -42,6 +43,31 @@ namespace BrightData.UnitTests
         public void Dispose()
         {
             _computationUnit.Dispose();
+        }
+
+        [Fact]
+        public void TestCudaDirectInitialization()
+        {
+            var span = new ReadOnlySpan<float>(new float[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 2, 2);
+            var segment = _cudaComputationUnit.CreateSegment((uint)span.Length);
+            segment.CopyFrom(span, null);
+
+            var test = segment.ToNewArray();
+        }
+
+        [Fact]
+        public void Serialisation()
+        {
+            using var vector = _computationUnit.CreateVector(10, i => i + 1);
+            using var buffer = new MemoryStream();
+            using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
+            vector.WriteTo(writer);
+
+            buffer.Seek(0, SeekOrigin.Begin);
+            using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
+            using var vector2 = _context.Create<IVector>(reader);
+            vector2.Should().BeEquivalentTo(vector);
+            vector2.Segment.Should().BeEquivalentTo(vector.Segment);
         }
 
         void Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)

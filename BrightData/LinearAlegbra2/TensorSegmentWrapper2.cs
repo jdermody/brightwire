@@ -64,7 +64,7 @@ namespace BrightData.LinearAlegbra2
         }
         public float[]? GetArrayForLocalUseOnly() => null;
         public float[] ToNewArray() => Values.ToArray();
-        public void CopyFrom(Span<float> span, float[]? sourceArray)
+        public void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray)
         {
             uint index = 0;
             foreach (var val in span)

@@ -16,13 +16,27 @@
 
         public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D2<CU>(segment, Count, Depth, RowCount, ColumnCount, _computationUnit);
 
-        public uint Count { get; }
-        public uint Depth { get; }
-        public uint RowCount { get; }
-        public uint ColumnCount { get; }
-        public uint MatrixSize { get; }
-        public uint TensorSize { get; }
-        public override uint Size { get; }
+        public uint Count { get; private set; }
+        public uint Depth { get; private set; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
+        public uint MatrixSize { get; private set; }
+        public uint TensorSize { get; private set; }
+        public override uint Size { get; protected set; }
+        public override uint[] Shape
+        {
+            get => new[] { Count, Depth, RowCount, ColumnCount };
+            protected set
+            {
+                ColumnCount = value[0];
+                RowCount = value[1];
+                Depth = value[2];
+                Count = value[3];
+                MatrixSize = RowCount * ColumnCount;
+                TensorSize = MatrixSize * Depth;
+                Size = TensorSize * Count;
+            }
+        }
 
         public float this[int count, int depth, int rowY, int columnX]
         {

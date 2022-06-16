@@ -15,9 +15,19 @@ namespace BrightData.LinearAlegbra2
             Size = rows * columns;
         }
 
-        public uint RowCount { get; }
-        public uint ColumnCount { get; }
-        public override uint Size { get; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
+        public override uint Size { get; protected set; }
+        public override uint[] Shape
+        {
+            get => new[] { RowCount, ColumnCount };
+            protected set
+            {
+                ColumnCount = value[0];
+                RowCount = value[1];
+                Size = RowCount * ColumnCount;
+            }
+        }
 
         public float this[int rowY, int columnX]
         {

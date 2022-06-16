@@ -91,6 +91,7 @@ namespace BrightData
         public Item[] Indices { get; private set; }
 
         internal static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new(context, indexList);
+        internal static WeightedIndexList Create(IBrightDataContext context, ReadOnlySpan<Item> indexList) => new(context, indexList.ToArray());
         internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new(context, indexList.ToArray());
 
         internal static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) =>

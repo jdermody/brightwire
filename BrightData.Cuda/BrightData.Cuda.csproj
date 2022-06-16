@@ -2,18 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.0.3</Version>
+    <Version>4.0.0</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product />
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
-    <Description>Cuda provider for Bright Data - allows GPU computation</Description>
-    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <Description>Cuda provider for Bright Data - allows GPU computation on NVIDIA GPUs</Description>
+    <Copyright>Copyright © Jack Dermody 2016-2022</Copyright>
     <PackageTags>cuda gpu</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>updated to .net 6 and cuda 11.5</PackageReleaseNotes>
+    <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using BrightData.Helper;
+using BrightData.Serialisation;
 
 namespace BrightData.Buffer
 {
@@ -193,12 +194,7 @@ namespace BrightData.Buffer
                 _reader = GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, Create);
             }
 
-            T Create(BinaryReader reader)
-            {
-                var ret = GenericActivator.CreateUninitialized<T>();
-                ret.Initialize(_context, reader);
-                return ret;
-            }
+            T Create(BinaryReader reader) => _context.Create<T>(reader);
 
             public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
             public uint Size => _reader.Size;

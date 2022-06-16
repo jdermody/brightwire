@@ -23,6 +23,7 @@ namespace BrightData
         readonly DecimalComputation                   _decimalComputation;
         readonly UIntComputation                      _uintComputation;
         readonly DataEncoder                          _dataReader;
+        ComputationUnit?                              _currentComputationUnit;
 
         /// <summary>
         /// Constructor
@@ -96,6 +97,8 @@ namespace BrightData
                 _lap = value;
             }
         }
+
+        public ComputationUnit CurrentComputationUnit => _currentComputationUnit ??= NewComputationUnit();
 
         /// <inheritdoc />
         public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();

@@ -84,7 +84,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public void CopyFrom(Span<float> span, float[]? sourceArray)
+        public void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray)
         {
             DeviceMemory.CopyToDevice(span, sourceArray);
         }

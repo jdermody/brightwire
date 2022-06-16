@@ -21,6 +21,11 @@ namespace BrightData.Cuda
             _cuda = cuda;
         }
 
+        public override Type VectorType { get; } = typeof(CudaVector2);
+        public override Type MatrixType { get; } = typeof(CudaMatrix2);
+        //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
+        //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
+
         public override IDisposableTensorSegment CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size));
         public override IVector CreateVector(ITensorSegment2 data) => new CudaVector2(OptionallyCopyToDevice(data), this);
         public override IMatrix CreateMatrix(ITensorSegment2 data, uint rowCount, uint columnCount) => new CudaMatrix2(OptionallyCopyToDevice(data), rowCount, columnCount, this);

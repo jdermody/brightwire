@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
+using BrightData.Serialisation;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace BrightData.LinearAlegbra2
 {
-    public abstract class TensorBase2<T, CU> : ITensor2<T>, IDisposable
+    public abstract class TensorBase2<T, CU> : ITensor2<T>
         where T: ITensor2
         where CU: ComputationUnit
     {
-        protected readonly CU _computationUnit;
+        protected CU _computationUnit;
 
         internal TensorBase2(ITensorSegment2 data, CU computationUnit)
         {
@@ -26,10 +30,32 @@ namespace BrightData.LinearAlegbra2
                 Segment.Release();
         }
 
+        public void WriteTo(BinaryWriter writer)
+        {
+            Shape.WriteTo(writer);
+            writer.Write(Segment.GetSpan().AsBytes());
+        }
+
+        public virtual void Initialize(IBrightDataContext context, BinaryReader reader)
+        {
+            var shape = reader.ReadStructArray<uint>();
+            Shape = shape;
+            var size = shape.Aggregate(1, (p, c) => p * (int)c);
+            var data = reader.ReadBytes(size * sizeof(float));
+
+            _computationUnit = (CU)context.CurrentComputationUnit;
+            _computationUnit.AddToScope(this);
+
+            Segment = _computationUnit.CreateSegment((uint)size);
+            Segment.CopyFrom(MemoryMarshal.Cast<byte, float>(data), null);
+            Segment.AddRef();
+        }
+
         public abstract T Create(ITensorSegment2 segment);
-        public abstract uint Size { get; }
+        public abstract uint Size { get; protected set; }
+        public abstract uint[] Shape { get; protected set; }
         ITensor2 ITensor2.Clone() => Clone();
-        public ITensorSegment2 Segment { get; }
+        public ITensorSegment2 Segment { get; private set; }
         public BrightDataContext Context => _computationUnit.Context;
 
         public IVector Reshape() => _computationUnit.CreateVector(Segment);
