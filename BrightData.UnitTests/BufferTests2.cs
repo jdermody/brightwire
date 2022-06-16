@@ -12,28 +12,11 @@ using Xunit;
 
 namespace BrightData.UnitTests
 {
-    public class BufferTests2 : IDisposable
+    public class BufferTests2
     {
         const int SIZE = 1024;
         const int UINT_BUFFER_SIZE = SIZE * sizeof(uint);
         static readonly uint[] TestData = SIZE.AsRange().Select(i => i).ToArray();
-        readonly IntPtr _memoryBlock;
-
-        public unsafe BufferTests2()
-        {
-            _memoryBlock = Marshal.AllocCoTaskMem(UINT_BUFFER_SIZE);
-            var dest = (uint*)_memoryBlock;
-            fixed (uint* ptr = TestData) {
-                var ptr2 = ptr;
-                for (var i = 0; i < SIZE; i++)
-                    *dest++ = *ptr2++;
-            }
-        }
-
-        public void Dispose()
-        {
-            Marshal.FreeCoTaskMem(_memoryBlock);
-        }
 
         static ReadOnlyFileBasedBuffer GetIntegersFileBuffer()
         {
@@ -70,7 +53,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MemoryBasedIterableBuffer()
         {
-            var buffer = new ReadOnlyMemoryBasedBuffer(_memoryBlock);
+            using var buffer = new ReadOnlyMemoryBasedBuffer(new ReadOnlyMemory<uint>(TestData).Cast<uint, byte>());
             using var iterator = buffer.GetIterator<uint>(0, UINT_BUFFER_SIZE);
             var fromBuffer = iterator.Enumerate().ToArray();
             fromBuffer.Should().BeEquivalentTo(TestData);
@@ -79,7 +62,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MemoryBasedIterableReferencesBuffer()
         {
-            var buffer = new ReadOnlyMemoryBasedBuffer(_memoryBlock);
+            using var buffer = new ReadOnlyMemoryBasedBuffer(new ReadOnlyMemory<uint>(TestData).Cast<uint, byte>());
             using var iterator = buffer.GetIterator<uint>(0, UINT_BUFFER_SIZE);
             var fromBuffer = new uint[SIZE];
             uint index = 0;
@@ -114,7 +97,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MemoryBasedRandomAccess()
         {
-            var buffer = new ReadOnlyMemoryBasedBuffer(_memoryBlock);
+            using var buffer = new ReadOnlyMemoryBasedBuffer(new ReadOnlyMemory<uint>(TestData).Cast<uint, byte>());
             using var block = buffer.GetBlock<uint>(0, UINT_BUFFER_SIZE);
 
             for (var i = 0; i < SIZE; i++) {
@@ -126,7 +109,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MemoryBaseRandomAccessRange()
         {
-            var buffer = new ReadOnlyMemoryBasedBuffer(_memoryBlock);
+            using var buffer = new ReadOnlyMemoryBasedBuffer(new ReadOnlyMemory<uint>(TestData).Cast<uint, byte>());
             using var block = buffer.GetBlock<uint>(0, UINT_BUFFER_SIZE);
 
             var fromBuffer = block.GetSpan(0, SIZE).ToArray();

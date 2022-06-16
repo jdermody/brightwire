@@ -13,7 +13,7 @@ using Microsoft.Toolkit.HighPerformance;
 
 namespace BrightData.Buffer2
 {
-    public unsafe class ReadOnlyMemoryBasedBuffer
+    public unsafe class ReadOnlyMemoryBasedBuffer : IDisposable
     {
         class Enumerator<T> : IEnumerator<T>, IEnumerable where T : unmanaged
         {
@@ -108,21 +108,29 @@ namespace BrightData.Buffer2
             public T this[uint index] => *(_memory + index);
             public ReadOnlySpan<T> GetSpan(uint startIndex, uint count) => new(_memory + startIndex, (int)count);
         }
-        readonly IntPtr _memory;
+        readonly MemoryHandle _memory;
 
-        public ReadOnlyMemoryBasedBuffer(IntPtr memory)
+        public ReadOnlyMemoryBasedBuffer(ReadOnlyMemory<byte> memory)
         {
-            _memory = memory;
+            memory.Pin();
+            _memory = memory.Pin();
+        }
+
+        public void Dispose()
+        {
+            _memory.Dispose();
         }
 
         public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T: unmanaged
         {
-            return new IterableBlock<T>((T*)IntPtr.Add(_memory, (int)offset), (int)(sizeInBytes / Unsafe.SizeOf<T>()));
+            var ptr = (byte*)_memory.Pointer;
+            return new IterableBlock<T>((T*)(ptr + offset), (int)(sizeInBytes / Unsafe.SizeOf<T>()));
         }
 
         public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T: unmanaged
         {
-            return new RandomAccessBlock<T>((T*)IntPtr.Add(_memory, (int)offset));
+            var ptr = (byte*)_memory.Pointer;
+            return new RandomAccessBlock<T>((T*)(ptr + offset));
         }
     }
 }
