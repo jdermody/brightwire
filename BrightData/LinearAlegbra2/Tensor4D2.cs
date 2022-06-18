@@ -1,7 +1,7 @@
 ﻿namespace BrightData.LinearAlegbra2
 {
     public class Tensor4D2<CU> : TensorBase2<ITensor4D, CU>, ITensor4D
-        where CU: ComputationUnit
+        where CU: LinearAlgebraProvider
     {
         public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, CU computationUnit) : base(data, computationUnit)
         {
@@ -14,7 +14,7 @@
             Size = TensorSize * Count;
         }
 
-        public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D2<CU>(segment, Count, Depth, RowCount, ColumnCount, _computationUnit);
+        public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D2<CU>(segment, Count, Depth, RowCount, ColumnCount, _lap);
 
         public uint Count { get; private set; }
         public uint Depth { get; private set; }
@@ -59,20 +59,20 @@
             set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
 
-        public ITensor3D Tensor(uint index) => _computationUnit.GetTensor(this, index);
-        public ITensor4D AddPadding(uint padding) => _computationUnit.AddPadding(this, padding);
-        public ITensor4D RemovePadding(uint padding) => _computationUnit.RemovePadding(this, padding);
-        public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _computationUnit.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
-        public ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _computationUnit.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
-        public ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _computationUnit.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
-        public ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _computationUnit.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+        public ITensor3D Tensor(uint index) => _lap.GetTensor(this, index);
+        public ITensor4D AddPadding(uint padding) => _lap.AddPadding(this, padding);
+        public ITensor4D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);
+        public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
+        public ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+        public ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
+        public ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
 
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }
 
-    public class Tensor4D2 : Tensor4D2<ComputationUnit>
+    public class Tensor4D2 : Tensor4D2<LinearAlgebraProvider>
     {
-        public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, ComputationUnit computationUnit) : base(data, count, depth, rows, columns, computationUnit)
+        public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
         {
         }
     }

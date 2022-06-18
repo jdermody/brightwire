@@ -4,7 +4,7 @@ using System.Linq;
 namespace BrightData.LinearAlegbra2
 {
     public class Vector2<CU> : TensorBase2<IVector, CU>, IVector
-        where CU: ComputationUnit
+        where CU: LinearAlgebraProvider
     {
         public Vector2(ITensorSegment2 data, CU computationUnit) : base(data, computationUnit)
         {
@@ -51,17 +51,17 @@ namespace BrightData.LinearAlegbra2
             return $"Vector ({Size}): {preview}";
         }
 
-        public override IVector Create(ITensorSegment2 segment) => new Vector2<CU>(segment, _computationUnit);
+        public override IVector Create(ITensorSegment2 segment) => new Vector2<CU>(segment, _lap);
 
         public IVector MapIndexed(Func<uint, float, float> mutator)
         {
-            var ret = _computationUnit.MapParallel(Segment, mutator);
+            var ret = _lap.MapParallel(Segment, mutator);
             return Create(ret);
         }
 
         public void MapIndexedInPlace(Func<uint, float, float> mutator)
         {
-            var ret = _computationUnit.MapParallel(Segment, mutator);
+            var ret = _lap.MapParallel(Segment, mutator);
             try {
                 ret.CopyTo(Segment);
             }
@@ -71,9 +71,9 @@ namespace BrightData.LinearAlegbra2
         }
     }
 
-    public class Vector2 : Vector2<ComputationUnit>
+    public class Vector2 : Vector2<LinearAlgebraProvider>
     {
-        public Vector2(ITensorSegment2 data, ComputationUnit computationUnit) : base(data, computationUnit)
+        public Vector2(ITensorSegment2 data, LinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
     }

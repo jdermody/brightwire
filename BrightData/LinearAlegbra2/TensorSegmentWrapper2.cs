@@ -64,7 +64,7 @@ namespace BrightData.LinearAlegbra2
         }
         public float[]? GetArrayForLocalUseOnly() => null;
         public float[] ToNewArray() => Values.ToArray();
-        public void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray)
+        public void CopyFrom(ReadOnlySpan<float> span)
         {
             uint index = 0;
             foreach (var val in span)
@@ -77,7 +77,7 @@ namespace BrightData.LinearAlegbra2
             var span = tempBuffer.Span;
             for(var i = 0; i < Size; i++)
                 span[i] = this[i];
-            segment.CopyFrom(span, tempBuffer.DangerousGetArray().Array);
+            segment.CopyFrom(span);
         }
 
         public void Clear()

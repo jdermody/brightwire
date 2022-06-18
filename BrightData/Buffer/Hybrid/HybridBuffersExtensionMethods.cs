@@ -1,12 +1,12 @@
 ﻿using System;
 using BrightData.Helper;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     /// <summary>
     /// Static methods to create hybrid buffers
     /// </summary>
-    public static class StaticBuffers
+    public static class HybridBuffersExtensionMethods
     {
         /// <summary>
         /// Creates a buffer to store structs
@@ -17,7 +17,7 @@ namespace BrightData.Buffer
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
         public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-            where T: struct
+            where T : struct
         {
             return GenericActivator.Create<IHybridBuffer<T>>(typeof(StructHybridBuffer<>).MakeGenericType(typeof(T)),
                 tempStream,

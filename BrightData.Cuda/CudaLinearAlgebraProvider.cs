@@ -12,11 +12,11 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    public class CudaComputationUnit : ComputationUnit
+    public class CudaLinearAlgebraProvider : LinearAlgebraProvider
     {
         readonly CudaProvider _cuda;
 
-        public CudaComputationUnit(BrightDataContext context, CudaProvider cuda) : base(context)
+        public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider cuda) : base(context)
         {
             _cuda = cuda;
         }
@@ -37,7 +37,7 @@ namespace BrightData.Cuda
             for (uint i = 0; i < size; i++)
                 ptr[(int)i] = initializer(i);
             var deviceMemory = _cuda.Memory.GetMemory(size);
-            deviceMemory.CopyToDevice(ptr, buffer.DangerousGetArray().Array);
+            deviceMemory.CopyToDevice(ptr);
             return CreateVector(new CudaTensorSegment(deviceMemory));
         }
 
@@ -51,7 +51,7 @@ namespace BrightData.Cuda
                     ptr[(int)(j * columnCount + i)] = initializer(j, i);
             }
             var deviceMemory = _cuda.Memory.GetMemory(size);
-            deviceMemory.CopyToDevice(ptr, buffer.DangerousGetArray().Array);
+            deviceMemory.CopyToDevice(ptr);
             return CreateMatrix(new CudaTensorSegment(deviceMemory), rowCount, columnCount);
         }
 
@@ -68,7 +68,7 @@ namespace BrightData.Cuda
                 return segment;
 
             var deviceMemory = _cuda.Memory.GetMemory(segment.Size);
-            deviceMemory.CopyToDevice(segment.GetSpan(), segment.GetArrayForLocalUseOnly());
+            deviceMemory.CopyToDevice(segment.GetSpan());
             return new CudaTensorSegment(deviceMemory);
         }
 
@@ -88,7 +88,7 @@ namespace BrightData.Cuda
             using var buffer = SpanOwner<float>.Allocate((int)tensor.Size);
             Array.Fill(buffer.DangerousGetArray().Array!, scalar);
             var ret = (CudaTensorSegment)CreateSegment(tensor.Size);
-            ret.CopyFrom(buffer.Span, buffer.DangerousGetArray().Array);
+            ret.CopyFrom(buffer.Span);
 
             _cuda.AddInPlace(ret.DeviceMemory, GetDeviceMemoryPtr(tensor), tensor.Size, 1f, 1f);
             return ret;
@@ -130,7 +130,7 @@ namespace BrightData.Cuda
             using var buffer = SpanOwner<float>.Allocate((int)target.Size);
             Array.Fill(buffer.DangerousGetArray().Array!, scalar);
             var ret = (CudaTensorSegment)CreateSegment(target.Size);
-            ret.CopyFrom(buffer.Span, buffer.DangerousGetArray().Array);
+            ret.CopyFrom(buffer.Span);
 
             _cuda.AddInPlace(GetDeviceMemoryPtr(target), ret.DeviceMemory, target.Size, 1f, 1f);
         }

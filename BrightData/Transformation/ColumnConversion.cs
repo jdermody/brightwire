@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using BrightData.Buffer;
+using BrightData.Buffer.Hybrid;
 using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -338,11 +338,11 @@ namespace BrightData.Transformation
                     return null;
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
-                case ColumnConversionType.ToIndexList when fromType == BrightDataType.FloatVector:
+                case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
                     return VectorToIndexList;
 
                 // vector
-                case ColumnConversionType.ToVector when fromType == BrightDataType.FloatVector:
+                case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
                     return null;
                 case ColumnConversionType.ToVector when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToVector;
@@ -354,7 +354,7 @@ namespace BrightData.Transformation
                     return null;
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
                     return IndexListToWeightedIndexList;
-                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.FloatVector:
+                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.Vector:
                     return VectorToWeightedIndexList;
 
                 default:

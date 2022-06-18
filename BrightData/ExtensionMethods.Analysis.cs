@@ -49,7 +49,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <returns></returns>
-        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
+        public static IDataAnalyser<ITensor2> GetDimensionAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDimensionAnalyser(maxCount);
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensors"></param>
         /// <returns></returns>
-        public static DimensionAnalysis Analyze(this IEnumerable<ITensor<float>> tensors)
+        public static DimensionAnalysis Analyze(this IEnumerable<ITensor2> tensors)
         {
             var analysis = new DimensionAnalyser();
             foreach (var item in tensors)

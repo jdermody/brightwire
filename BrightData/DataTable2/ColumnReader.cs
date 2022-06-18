@@ -5,33 +5,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightData.DataTable2.Bindings
+namespace BrightData.DataTable2
 {
-    public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
-    {
-        T Convert(ref CT item);
-    }
-
-    public delegate Type ConvertStructsToObjectsDelegate<CT, out T>(ref CT item) where CT : unmanaged where T : notnull;
     public class ColumnReader<CT, T> : ICanEnumerateDisposable<T>, ICanEnumerateDisposable, IEnumerable<T>
         where CT : unmanaged
         where T : notnull
     {
         class Enumerator : IEnumerator<T>
         {
-            readonly IReadOnlyEnumerator<CT> _structEnumerator;
+            readonly IReadOnlyEnumerator<CT>         _structEnumerator;
+            readonly IHaveMutableReference<CT>       _mutableReference;
             readonly IConvertStructsToObjects<CT, T> _converter;
 
             public Enumerator(IReadOnlyEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
             {
                 _structEnumerator = structEnumerator;
+                _mutableReference = (IHaveMutableReference<CT>)_structEnumerator;
                 _structEnumerator.Reset();
                 _converter = converter;
             }
 
             public bool MoveNext() => _structEnumerator.MoveNext();
             public void Reset() => _structEnumerator.Reset();
-            public T Current => _converter.Convert(ref _structEnumerator.Current);
+            public T Current => _converter.Convert(ref _mutableReference.Current);
             object IEnumerator.Current => Current;
 
             public void Dispose()
@@ -41,8 +37,8 @@ namespace BrightData.DataTable2.Bindings
         }
 
         readonly IConvertStructsToObjects<CT, T> _converter;
-        readonly IDisposable _stream;
-        readonly IReadOnlyEnumerator<CT> _enumerator;
+        readonly IDisposable                     _stream;
+        readonly IReadOnlyEnumerator<CT>         _enumerator;
 
         public ColumnReader(IReadOnlyEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter, IDisposable stream)
         {

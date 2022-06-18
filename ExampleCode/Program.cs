@@ -19,7 +19,7 @@ namespace ExampleCode
 
         static void Main()
         {
-            using var context = new BrightDataContext(RandomSeed);
+            using var context = new BrightDataContext(null, RandomSeed);
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
@@ -53,7 +53,7 @@ namespace ExampleCode
             SentimentClassification(context, useCuda);
         }
 
-        static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
+        static void Start(BrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
         {
             context.ResetRandom(RandomSeed);
 
@@ -77,13 +77,13 @@ namespace ExampleCode
             Console.WriteLine("---------------------------------------------");
         }
 
-        static void Xor(IBrightDataContext context)
+        static void Xor(BrightDataContext context)
         {
             Start(context);
             context.Xor().TrainSigmoidNeuralNetwork(4, 100, 0.5f, 4);
         }
 
-        static void IrisClassification(IBrightDataContext context)
+        static void IrisClassification(BrightDataContext context)
         {
             Start(context);
             var iris = context.Iris();
@@ -95,7 +95,7 @@ namespace ExampleCode
             iris.TrainSigmoidNeuralNetwork(8, 200, 0.1f, 16);
         }
 
-        static void IrisClustering(IBrightDataContext context)
+        static void IrisClustering(BrightDataContext context)
         {
             Start(context);
             var iris = context.Iris();
@@ -128,25 +128,25 @@ namespace ExampleCode
             WriteSeparator();
         }
 
-        static void MarkovChains(IBrightDataContext context)
+        static void MarkovChains(BrightDataContext context)
         {
             Start(context);
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MnistFeedForward(IBrightDataContext context)
+        static void MnistFeedForward(BrightDataContext context)
         {
             Start(context);
             context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
-        static void MnistConvolutional(IBrightDataContext context, bool useCuda)
+        static void MnistConvolutional(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(IBrightDataContext context, bool useCuda)
+        static void SentimentClassification(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sentiment = context.SentimentData();
@@ -162,7 +162,7 @@ namespace ExampleCode
             sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
-        static void TextClustering(IBrightDataContext context)
+        static void TextClustering(BrightDataContext context)
         {
             Start(context);
             var textClustering = context.TextClustering();
@@ -172,13 +172,13 @@ namespace ExampleCode
             textClustering.LatentSemanticAnalysis();
         }
 
-        static void IntegerAddition(IBrightDataContext context)
+        static void IntegerAddition(BrightDataContext context)
         {
             Start(context);
             context.IntegerAddition().TrainRecurrentNeuralNetwork();
         }
 
-        static void ReberPrediction(IBrightDataContext context)
+        static void ReberPrediction(BrightDataContext context)
         {
             Start(context);
             var reber = context.ReberSequencePrediction();
@@ -186,65 +186,65 @@ namespace ExampleCode
             reber.GenerateSequences(engine);
         }
 
-        static void OneToMany(IBrightDataContext context, bool useCuda)
+        static void OneToMany(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sequences = context.OneToMany();
             sequences.TrainOneToMany();
         }
 
-        static void ManyToOne(IBrightDataContext context, bool useCuda)
+        static void ManyToOne(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sequences = context.ManyToOne();
             sequences.TrainManyToOne();
         }
 
-        static void SequenceToSequence(IBrightDataContext context, bool useCuda)
+        static void SequenceToSequence(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }
 
-        static void SimpleLinearTest(IBrightDataContext context)
+        static void SimpleLinearTest(BrightDataContext context)
         {
             Start(context);
             context.SimpleLinear().TrainLinearRegression();
         }
 
-        static void PredictBicyclesWithLinearModel(IBrightDataContext context)
+        static void PredictBicyclesWithLinearModel(BrightDataContext context)
         {
             Start(context);
             context.Bicycles().TrainLinearModel();
         }
 
-        static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
+        static void PredictBicyclesWithNeuralNetwork(BrightDataContext context)
         {
             Start(context);
             context.Bicycles().TrainNeuralNetwork();
         }
 
-        static void MultiLabelSingleClassifier(IBrightDataContext context)
+        static void MultiLabelSingleClassifier(BrightDataContext context)
         {
             Start(context);
             context.Emotions().TrainNeuralNetwork();
         }
 
-        static void MultiLabelMultiClassifiers(IBrightDataContext context)
+        static void MultiLabelMultiClassifiers(BrightDataContext context)
         {
             Start(context);
             context.Emotions().TrainMultiClassifiers();
         }
 
-        static void StockData(IBrightDataContext context, bool useCuda)
+        static void StockData(BrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var stockData = context.StockData().GetSequentialWindow();
             stockData.TrainLstm(256);
         }
 
-        static void TrainIncomePrediction(IBrightDataContext context)
+        static void TrainIncomePrediction(BrightDataContext context)
         {
             Start(context);
             var adult = context.Adult();

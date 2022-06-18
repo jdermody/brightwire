@@ -5,7 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using BrightData.Analysis;
-using BrightData.Buffer;
+using BrightData.Buffer.Hybrid;
+using BrightData.Buffer.InMemory;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Builders;
@@ -42,10 +43,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.FloatVector       => typeof(IVector),
-                BrightDataType.FloatMatrix       => typeof(IMatrix),
-                BrightDataType.FloatTensor3D     => typeof(ITensor3D),
-                BrightDataType.FloatTensor4D     => typeof(ITensor4D),
+                BrightDataType.Vector            => typeof(IVector),
+                BrightDataType.Matrix            => typeof(IMatrix),
+                BrightDataType.Tensor3D          => typeof(ITensor3D),
+                BrightDataType.Tensor4D          => typeof(ITensor4D),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -96,16 +97,16 @@ namespace BrightData
                 return BrightDataType.WeightedIndexList;
 
             if (dataType == typeof(IVector) || dataType.IsAssignableTo(typeof(IVector)))
-                return BrightDataType.FloatVector;
+                return BrightDataType.Vector;
 
             if (dataType == typeof(IMatrix) || dataType.IsAssignableTo(typeof(IMatrix)))
-                return BrightDataType.FloatMatrix;
+                return BrightDataType.Matrix;
 
             if (dataType == typeof(ITensor3D) || dataType.IsAssignableTo(typeof(ITensor3D)))
-                return BrightDataType.FloatTensor3D;
+                return BrightDataType.Tensor3D;
 
             if (dataType == typeof(ITensor4D) || dataType.IsAssignableTo(typeof(ITensor4D)))
-                return BrightDataType.FloatTensor4D;
+                return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))
                 return BrightDataType.BinaryData;
@@ -174,10 +175,10 @@ namespace BrightData
         /// <returns></returns>
         public static bool IsTensor(this BrightDataType type) => type switch
         {
-            BrightDataType.FloatVector   => true,
-            BrightDataType.FloatMatrix   => true,
-            BrightDataType.FloatTensor3D => true,
-            BrightDataType.FloatTensor4D => true,
+            BrightDataType.Vector   => true,
+            BrightDataType.Matrix   => true,
+            BrightDataType.Tensor3D => true,
+            BrightDataType.Tensor4D => true,
             _                       => false
         };
 
@@ -322,30 +323,30 @@ namespace BrightData
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
         /// <param name="maxCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
+        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
-            if ((dataType & ColumnClass.Categorical) != 0) {
+            if (dataType.HasFlag(ColumnClass.Categorical)) {
                 if (type == BrightDataType.String)
-                    return StaticAnalysers.CreateStringAnalyser(maxCount, writeCount);
-                return StaticAnalysers.CreateFrequencyAnalyser(type.GetDataType(), maxCount, writeCount);
+                    return StaticAnalysers.CreateStringAnalyser(maxDistinctCount, writeCount);
+                return StaticAnalysers.CreateFrequencyAnalyser(type.GetDataType(), maxDistinctCount, writeCount);
             }
-            if ((dataType & ColumnClass.IndexBased) != 0)
-                return StaticAnalysers.CreateIndexAnalyser(maxCount, writeCount);
-            if ((dataType & ColumnClass.Tensor) != 0)
-                return StaticAnalysers.CreateDimensionAnalyser(maxCount);
+            if (dataType.HasFlag(ColumnClass.IndexBased))
+                return StaticAnalysers.CreateIndexAnalyser(maxDistinctCount, writeCount);
+            if (dataType.HasFlag(ColumnClass.Tensor))
+                return StaticAnalysers.CreateDimensionAnalyser(maxDistinctCount);
 
             return type switch
             {
-                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxCount, writeCount),
-                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxCount, writeCount),
-                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxCount, writeCount),
-                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxCount, writeCount),
-                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxCount, writeCount),
-                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxCount, writeCount),
-                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxCount, writeCount),
+                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxDistinctCount, writeCount),
+                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxDistinctCount, writeCount),
+                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxDistinctCount, writeCount),
+                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxDistinctCount, writeCount),
+                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxDistinctCount, writeCount),
+                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxDistinctCount, writeCount),
+                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxDistinctCount, writeCount),
                 BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
-                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxCount, writeCount),
+                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxDistinctCount, writeCount),
                 _                         => throw new NotImplementedException()
             };
         }
@@ -383,10 +384,11 @@ namespace BrightData
             }
 
             if (userNotification is not null) {
-                userNotification.OnStartOperation("Parsing CSV into memory...");
-                parser.OnProgress = p => userNotification.OnOperationProgress(p);
+                var operationId = Guid.NewGuid().ToString("n");
+                userNotification.OnStartOperation(operationId, "Parsing CSV into memory...");
+                parser.OnProgress = p => userNotification.OnOperationProgress(operationId, p);
                 parser.OnComplete = () => {
-                    userNotification.OnCompleteOperation();
+                    userNotification.OnCompleteOperation(operationId, false);
                 };
             }
 
@@ -405,7 +407,7 @@ namespace BrightData
                     if (isFirst)
                         column.MetaData.Set(Consts.Name, text);
                     else
-                        column.Add(text, rowCount);
+                        column.Add(text);
                 }
 
                 if (isFirst)
@@ -447,7 +449,7 @@ namespace BrightData
             var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
             using var tempStreams = new TempStreamManager(tempBasePath);
-            var columns = new List<GrowableSegment<string>>();
+            var columns = new List<HybridBufferSegment<string>>();
             var isFirst = hasHeader;
             uint rowCount = 0;
 
@@ -460,10 +462,11 @@ namespace BrightData
 
             // set up notifications
             if (userNotification is not null) {
-                userNotification.OnStartOperation("Parsing CSV...");
-                parser.OnProgress = p => userNotification.OnOperationProgress(p);
+                var operationId = Guid.NewGuid().ToString("n");
+                userNotification.OnStartOperation(operationId, "Parsing CSV...");
+                parser.OnProgress = p => userNotification.OnOperationProgress(operationId, p);
                 parser.OnComplete = () => {
-                    userNotification.OnCompleteOperation();
+                    userNotification.OnCompleteOperation(operationId, false);
                 };
             }
 
@@ -475,7 +478,7 @@ namespace BrightData
                 var cols = row.Count;
                 for (var i = columns.Count; i < cols; i++) {
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
-                    columns.Add(new GrowableSegment<string>(BrightDataType.String, new MetaData(), buffer));
+                    columns.Add(new HybridBufferSegment<string>(BrightDataType.String, new MetaData(), buffer));
                 }
 
                 for (var i = 0; i < cols; i++) {
@@ -691,7 +694,7 @@ namespace BrightData
             else
                 buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize);
 
-            var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
+            var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(columnType);
             return GenericActivator.Create<IHybridBuffer>(segmentType,
                 type,
                 new MetaData(metaData, Consts.StandardMetaData),
@@ -950,7 +953,7 @@ namespace BrightData
             // consider the simple case
             if (columnIndices.Length == 1) {
                 var columnType = dataTable.ColumnTypes[columnIndices[0]];
-                if (columnType == BrightDataType.FloatVector) {
+                if (columnType == BrightDataType.Vector) {
                     var index = 0;
                     var rows = new Vector<float>[dataTable.RowCount];
                     var vectorSegment = (IDataTableSegment<Vector<float>>)dataTable.Column(columnIndices[0]);
@@ -1476,7 +1479,7 @@ namespace BrightData
                 var columnMetaData = new MetaData(metaData, Consts.StandardMetaData);
                 columnMetaData.SetType(brightDataType);
 
-                var segmentType = typeof(GrowableSegment<>).MakeGenericType(dataType);
+                var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(dataType);
                 segments.Add(GenericActivator.Create<ISingleTypeTableSegment>(segmentType,
                     brightDataType,
                     columnMetaData,

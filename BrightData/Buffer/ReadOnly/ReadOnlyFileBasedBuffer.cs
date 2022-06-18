@@ -9,18 +9,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.Buffer2
+namespace BrightData.Buffer.ReadOnly
 {
     public class ReadOnlyFileBasedBuffer : IReadOnlyBuffer
     {
-        class ReferenceStructFromStreamReader<T> : IReadOnlyEnumerator<T> 
-            where T: unmanaged
+        class ReferenceStructFromStreamReader<T> : IReadOnlyEnumerator<T>, IHaveMutableReference<T>
+            where T : unmanaged
         {
-            readonly MemoryOwner<T>         _buffer;
+            readonly MemoryOwner<T> _buffer;
             readonly MemoryMappedViewStream _stream;
-            readonly long                   _iterableCount, _initialStreamPosition;
-            readonly int                    _sizeOfT;
-            int                             _index = -1, _bufferIndex = -1, _bufferSize;
+            readonly long _iterableCount, _initialStreamPosition;
+            readonly int _sizeOfT;
+            int _index = -1, _bufferIndex = -1, _bufferSize;
 
             public ReferenceStructFromStreamReader(MemoryMappedViewStream stream, long iterableCount, int bufferSize = 1024)
             {
@@ -63,9 +63,10 @@ namespace BrightData.Buffer2
                 _bufferIndex = -1;
                 _stream.Seek(_initialStreamPosition, SeekOrigin.Begin);
             }
-            public ref T Current => ref _buffer.Span[_bufferIndex];
+            public ref readonly T Current => ref _buffer.Span[_bufferIndex];
+            ref T IHaveMutableReference<T>.Current => ref _buffer.Span[_bufferIndex];
         }
-        class IterableBlock<T> : ICanIterateData<T> where T: unmanaged
+        class IterableBlock<T> : ICanIterateData<T> where T : unmanaged
         {
             readonly MemoryMappedViewStream _stream;
             readonly int _sizeOfT;
@@ -84,7 +85,7 @@ namespace BrightData.Buffer2
             public IEnumerable<T> Enumerate() => _stream.Enumerate<T>((uint)(_stream.Length / _sizeOfT));
             public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceStructFromStreamReader<T>(_stream, _stream.Length / _sizeOfT);
         }
-        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T: unmanaged
+        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T : unmanaged
         {
             readonly MemoryMappedViewAccessor _accessor;
             readonly int _sizeOfT;
@@ -132,13 +133,13 @@ namespace BrightData.Buffer2
             _file.Dispose();
         }
 
-        public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T: unmanaged
+        public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewStream = _file.CreateViewStream(offset, sizeInBytes, MemoryMappedFileAccess.Read);
             return new IterableBlock<T>(viewStream);
         }
 
-        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T: unmanaged
+        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewAccessor = _file.CreateViewAccessor(offset, sizeInBytes, MemoryMappedFileAccess.Read);
             return new RandomAccessBlock<T>(viewAccessor);

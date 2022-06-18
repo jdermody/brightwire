@@ -77,10 +77,10 @@ namespace BrightData.DataTable2
                     throw new Exception("Columns have different sizes");
             }
 
-            var stringTableWriter = new Lazy<IHybridBuffer<string>>(() => _context.CreateHybridStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
-            var tensorWriter = new Lazy<IHybridBuffer<float>>(() => _context.CreateHybridStructBuffer<float>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
-            var byteWriter = new Lazy<IHybridBuffer<byte>>(() => _context.CreateHybridStructBuffer<byte>(_tempStreams, _inMemoryBufferSize));
-            var indexWriter = new Lazy<IHybridBuffer<uint>>(() => _context.CreateHybridStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var stringTableWriter   = new Lazy<IHybridBuffer<string>>(()                 => _context.CreateHybridStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var tensorWriter        = new Lazy<IHybridBuffer<float>>(()                  => _context.CreateHybridStructBuffer<float>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var byteWriter          = new Lazy<IHybridBuffer<byte>>(()                   => _context.CreateHybridStructBuffer<byte>(_tempStreams, _inMemoryBufferSize));
+            var indexWriter         = new Lazy<IHybridBuffer<uint>>(()                   => _context.CreateHybridStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
             var weightedIndexWriter = new Lazy<IHybridBuffer<WeightedIndexList.Item>>(() => _context.CreateHybridStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
 
             // write the header
@@ -91,9 +91,10 @@ namespace BrightData.DataTable2
             header.ColumnCount = (uint)_columns.Count;
             header.RowCount = firstColumn.Size;
 
-            // write the meta data
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            TableMetaData.WriteTo(writer);
+            // write the meta data to a temp stream
+            using var tempBuffer = new MemoryStream();
+            using var metaDataWriter = new BinaryWriter(tempBuffer, Encoding.UTF8, true);
+            TableMetaData.WriteTo(metaDataWriter);
 
             // prepare the columns and continue writing meta data
             var columns = new BrightDataTable.Column[_columns.Count];
@@ -103,11 +104,10 @@ namespace BrightData.DataTable2
                 var tableSegment = (ISingleTypeTableSegment)column;
                 c.DataType = tableSegment.SingleType;
                 (_, c.DataTypeSize) = c.DataType.GetColumnType();
-                tableSegment.MetaData.WriteTo(writer);
+                tableSegment.MetaData.WriteTo(metaDataWriter);
             }
 
             // write the headers
-            writer.Flush();
             stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Column>(columns));
             header.DataOffset = (uint)stream.Position;
 
@@ -125,18 +125,17 @@ namespace BrightData.DataTable2
                     WriteBinaryData((IHybridBuffer<BinaryData>)column, stream, byteWriter.Value);
                 else if (dataType == BrightDataType.String)
                     WriteStringData((IHybridBuffer<string>)column, stream, stringTableWriter.Value);
-                else if (dataType == BrightDataType.FloatVector)
+                else if (dataType == BrightDataType.Vector)
                     WriteVectors((IHybridBuffer<IVector>)column, stream, tensorWriter.Value);
-                else if (dataType == BrightDataType.FloatMatrix)
+                else if (dataType == BrightDataType.Matrix)
                     WriteMatrices((IHybridBuffer<IMatrix>)column, stream, tensorWriter.Value);
-                else if (dataType == BrightDataType.FloatTensor3D)
+                else if (dataType == BrightDataType.Tensor3D)
                     WriteTensors((IHybridBuffer<ITensor3D>)column, stream, tensorWriter.Value);
-                else if (dataType == BrightDataType.FloatTensor4D)
+                else if (dataType == BrightDataType.Tensor4D)
                     WriteTensors((IHybridBuffer<ITensor4D>)column, stream, tensorWriter.Value);
                 else
                     _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { column, stream });
             }
-
             header.DataSizeBytes = (uint)(stream.Position - header.DataOffset);
 
             // write the strings
@@ -178,6 +177,11 @@ namespace BrightData.DataTable2
                 header.WeightedIndexCount = data.Size;
                 data.EnumerateTyped().WriteTo(stream);
             }
+
+            // write the meta data
+            header.MetaDataOffset = (uint)stream.Position;
+            metaDataWriter.Flush();
+            tempBuffer.WriteTo(stream);
 
             // update the header
             stream.Seek(0, SeekOrigin.Begin);

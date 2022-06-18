@@ -5,10 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using BrightData;
 using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.EncodedStream
 {
     /// <summary>
     /// Writes hybrid buffers to binary writers, potentially encoding along the way
@@ -74,7 +75,7 @@ namespace BrightData.Buffer
             public void WriteTo(BinaryWriter writer)
             {
                 WriteTo(
-                    (uint) _table.Count,
+                    (uint)_table.Count,
                     _table.OrderBy(kv => kv.Value).Select(kv => kv.Key),
                     _buffer.Size,
                     _buffer.EnumerateTyped().Select(v => _table[v]),
@@ -121,8 +122,8 @@ namespace BrightData.Buffer
             {
                 var data = _table.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray();
                 WriteTo(
-                    data, 
-                    _buffer.Size, 
+                    data,
+                    _buffer.Size,
                     _buffer.EnumerateTyped().Select(v => _table[v]),
                     writer
                 );

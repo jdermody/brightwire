@@ -84,9 +84,9 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray)
+        public void CopyFrom(ReadOnlySpan<float> span)
         {
-            DeviceMemory.CopyToDevice(span, sourceArray);
+            DeviceMemory.CopyToDevice(span);
         }
 
         public void CopyTo(ITensorSegment2 segment)
@@ -97,7 +97,7 @@ namespace BrightData.Cuda
             }
             else {
                 using var buffer = ToNewMemoryOwner();
-                segment.CopyFrom(buffer.Span, buffer.DangerousGetArray().Array);
+                segment.CopyFrom(buffer.Span);
             }
         }
 

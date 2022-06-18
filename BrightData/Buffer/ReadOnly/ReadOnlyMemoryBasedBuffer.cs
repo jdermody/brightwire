@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance;
 
-namespace BrightData.Buffer2
+namespace BrightData.Buffer.ReadOnly
 {
     public unsafe class ReadOnlyMemoryBasedBuffer : IReadOnlyBuffer
     {
@@ -39,7 +39,7 @@ namespace BrightData.Buffer2
 
             public IEnumerator GetEnumerator() => this;
         }
-        class ReferenceEnumerator<T> : IReadOnlyEnumerator<T> where T : unmanaged
+        class ReferenceEnumerator<T> : IReadOnlyEnumerator<T>, IHaveMutableReference<T> where T : unmanaged
         {
             int _index = -1;
             readonly T* _ptr;
@@ -53,7 +53,8 @@ namespace BrightData.Buffer2
 
             public bool MoveNext() => ++_index < _length;
             public void Reset() => _index = -1;
-            public ref T Current => ref *(_ptr + _index);
+            public ref readonly T Current => ref *(_ptr + _index);
+            ref T IHaveMutableReference<T>.Current => ref *(_ptr + _index);
         }
         class EnumerableBlock<T> : IEnumerable<T> where T : unmanaged
         {
@@ -70,7 +71,7 @@ namespace BrightData.Buffer2
                 return GetEnumerator();
             }
         }
-        class IterableBlock<T> : ICanIterateData<T> where T: unmanaged
+        class IterableBlock<T> : ICanIterateData<T> where T : unmanaged
         {
             public IterableBlock(T* ptr, int length)
             {
@@ -90,7 +91,7 @@ namespace BrightData.Buffer2
             public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceEnumerator<T>(Pointer, Length);
         }
 
-        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T: unmanaged
+        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T : unmanaged
         {
             readonly T* _memory;
 
@@ -121,13 +122,13 @@ namespace BrightData.Buffer2
             _memory.Dispose();
         }
 
-        public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T: unmanaged
+        public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;
             return new IterableBlock<T>((T*)(ptr + offset), (int)(sizeInBytes / Unsafe.SizeOf<T>()));
         }
 
-        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T: unmanaged
+        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;
             return new RandomAccessBlock<T>((T*)(ptr + offset));

@@ -7,9 +7,9 @@ using BrightData.LinearAlegbra2;
 
 namespace BrightData.Cuda
 {
-    internal class CudaVector2 : Vector2<CudaComputationUnit>
+    internal class CudaVector2 : Vector2<CudaLinearAlgebraProvider>
     {
-        public CudaVector2(ITensorSegment2 data, CudaComputationUnit computationUnit) : base(data, computationUnit)
+        public CudaVector2(ITensorSegment2 data, CudaLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
     }

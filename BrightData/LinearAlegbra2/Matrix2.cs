@@ -6,7 +6,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 namespace BrightData.LinearAlegbra2
 {
     public class Matrix2<CU> : TensorBase2<IMatrix, CU>, IMatrix
-        where CU: ComputationUnit
+        where CU: LinearAlgebraProvider
     {
         public Matrix2(ITensorSegment2 data, uint rows, uint columns, CU computationUnit) : base(data, computationUnit)
         {
@@ -50,7 +50,7 @@ namespace BrightData.LinearAlegbra2
             set => Segment[rowY * ColumnCount + columnX] = value;
         }
 
-        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<CU>(segment, RowCount, ColumnCount, _computationUnit);
+        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<CU>(segment, RowCount, ColumnCount, _lap);
 
         public IDisposableTensorSegmentWrapper Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
         public IDisposableTensorSegmentWrapper Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
@@ -84,28 +84,28 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
-        public IMatrix Transpose() => _computationUnit.Transpose(this);
-        public IMatrix Multiply(IMatrix other) => _computationUnit.Multiply(this, other);
-        public IVector GetDiagonal() => _computationUnit.GetDiagonal(this);
-        public IVector RowSums() => _computationUnit.RowSums(this);
-        public IVector ColumnSums() => _computationUnit.ColumnSums(this);
+        public IMatrix Transpose() => _lap.Transpose(this);
+        public IMatrix Multiply(IMatrix other) => _lap.Multiply(this, other);
+        public IVector GetDiagonal() => _lap.GetDiagonal(this);
+        public IVector RowSums() => _lap.RowSums(this);
+        public IVector ColumnSums() => _lap.ColumnSums(this);
         public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
-        public IMatrix TransposeAndMultiply(IMatrix other) => _computationUnit.TransposeSecondAndMultiply(this, other);
-        public IMatrix TransposeThisAndMultiply(IMatrix other) => _computationUnit.TransposeFirstAndMultiply(this, other);
+        public IMatrix TransposeAndMultiply(IMatrix other) => _lap.TransposeSecondAndMultiply(this, other);
+        public IMatrix TransposeThisAndMultiply(IMatrix other) => _lap.TransposeFirstAndMultiply(this, other);
 
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
-            var ret = _computationUnit.MapParallel(Segment, (ind, val) => {
+            var ret = _lap.MapParallel(Segment, (ind, val) => {
                 var i = ind / ColumnCount;
                 var j = ind % ColumnCount;
                 return mutator(i, j, val);
             });
-            return _computationUnit.CreateMatrix(ret, RowCount, ColumnCount);
+            return _lap.CreateMatrix(ret, RowCount, ColumnCount);
         }
 
         public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
         {
-            var ret = _computationUnit.MapParallel(Segment, (ind, val) => {
+            var ret = _lap.MapParallel(Segment, (ind, val) => {
                 var i = ind / ColumnCount;
                 var j = ind % ColumnCount;
                 return mutator(i, j, val);
@@ -118,11 +118,11 @@ namespace BrightData.LinearAlegbra2
             }
         }
 
-        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex) => _computationUnit.SplitAtColumn(this, columnIndex);
-        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _computationUnit.SplitAtRow(this, rowIndex);
-        public IMatrix ConcatColumns(IMatrix bottom) => _computationUnit.ConcatColumns(this, bottom);
-        public IMatrix ConcatRows(IMatrix right) => _computationUnit.ConcatRows(this, right);
-        public (IMatrix U, IVector S, IMatrix VT) Svd() => _computationUnit.Svd(this);
+        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex) => _lap.SplitAtColumn(this, columnIndex);
+        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _lap.SplitAtRow(this, rowIndex);
+        public IMatrix ConcatColumns(IMatrix bottom) => _lap.ConcatColumns(this, bottom);
+        public IMatrix ConcatRows(IMatrix right) => _lap.ConcatRows(this, right);
+        public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
 
         /// <inheritdoc />
         public override string ToString()
@@ -132,9 +132,9 @@ namespace BrightData.LinearAlegbra2
         }
     }
 
-    public class Matrix2 : Matrix2<ComputationUnit>
+    public class Matrix2 : Matrix2<LinearAlgebraProvider>
     {
-        public Matrix2(ITensorSegment2 data, uint rows, uint columns, ComputationUnit computationUnit) : base(data, rows, columns, computationUnit)
+        public Matrix2(ITensorSegment2 data, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
         }
     }

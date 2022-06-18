@@ -10,9 +10,9 @@ using MKLNET;
 
 namespace BrightData.MKL
 {
-    public class MklComputationUnit : ComputationUnit
+    public class MklLinearAlgebraProvider : LinearAlgebraProvider
     {
-        public MklComputationUnit(BrightDataContext context) : base(context)
+        public MklLinearAlgebraProvider(BrightDataContext context) : base(context)
         {
         }
 

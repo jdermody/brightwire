@@ -76,23 +76,27 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(val), T);
             }
 
-            if (typeOfT == typeof(Vector<float>)) {
-                var val = new Vector<float>(_context, reader);
+            if (typeOfT == typeof(IVector)) {
+                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.VectorType);
+                val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
 
             if (typeOfT == typeof(Matrix<float>)) {
-                var val = new Matrix<float>(_context, reader);
+                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.MatrixType);
+                val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
 
             if (typeOfT == typeof(Tensor3D<float>)) {
-                var val = new Tensor3D<float>(_context, reader);
+                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
+                val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
 
             if (typeOfT == typeof(Tensor4D<float>)) {
-                var val = new Tensor4D<float>(_context, reader);
+                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor4DType);
+                val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
 

@@ -157,7 +157,7 @@ namespace BrightData
             for (; i < size; i++)
                 ptr[i] = func2(segment[i], other[i]);
 
-            segment.CopyFrom(ptr, ret.DangerousGetArray().Array);
+            segment.CopyFrom(ptr);
         }
 
         public static void MutateInPlace(this ITensorSegment2 segment, Func<float, float> mutator)
@@ -181,7 +181,7 @@ namespace BrightData
             for (; i < size; i++)
                 ptr[i] = mutator2(segment[i]);
 
-            segment.CopyFrom(ptr, ret.DangerousGetArray().Array);
+            segment.CopyFrom(ptr);
         }
 
         public static unsafe float Sum(this ITensorSegment2 segment)
@@ -491,7 +491,7 @@ namespace BrightData
             return softmax;
         }
 
-        public static IMatrix SoftmaxDerivative(this ITensorSegment2 segment, ComputationUnit computationUnit)
+        public static IMatrix SoftmaxDerivative(this ITensorSegment2 segment, LinearAlgebraProvider computationUnit)
         {
             return computationUnit.CreateMatrix(segment.Size, segment.Size, (x, y) => x == y
                 ? segment[x] * (1 - segment[x])

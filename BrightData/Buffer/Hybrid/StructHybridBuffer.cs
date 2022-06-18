@@ -2,10 +2,10 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     internal class StructHybridBuffer<T> : HybridBufferBase<T>
-        where T: struct
+        where T : struct
     {
         public StructHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using BrightData.Buffer;
+using BrightData.Buffer.EncodedStream;
+using BrightData.Buffer.Hybrid;
 using BrightData.Helper;
 
 namespace BrightData

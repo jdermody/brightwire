@@ -8,11 +8,11 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public class ComputationUnit : IDisposable
+    public class LinearAlgebraProvider : IDisposable
     {
-        readonly List<HashSet<IDisposable>> _scope = new();
+        readonly Stack<HashSet<IDisposable>> _scope = new();
 
-        public ComputationUnit(
+        public LinearAlgebraProvider(
             BrightDataContext context
         )
         {
@@ -32,13 +32,12 @@ namespace BrightData.LinearAlegbra2
 
         public void PushScope()
         {
-            _scope.Add(new());
+            _scope.Push(new());
         }
 
         public void PopScope()
         {
-            var popped = _scope.Last();
-            _scope.RemoveAt(_scope.Count-1);
+            var popped = _scope.Pop();
             foreach(var item in popped)
                 item.Dispose();
         }
@@ -96,62 +95,80 @@ namespace BrightData.LinearAlegbra2
         // 3D tensor creation
         public virtual ITensor3D CreateTensor3D(ITensorSegment2 data, uint depth, uint rowCount, uint columnCount) => new Tensor3D2(data, depth, rowCount, columnCount, this);
         public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount) => CreateTensor3D(CreateSegment(depth * rowCount * columnCount), depth, rowCount, columnCount);
-        public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
-        public virtual ITensor3D CreateTensor3D(Span<IMatrix> matrices)
+        public ITensor3D CreateTensor3D(bool disposeInput, params IMatrix[] matrices) => CreateTensor3D(disposeInput, matrices.AsSpan());
+        public virtual ITensor3D CreateTensor3D(bool disposeInput, Span<IMatrix> matrices)
         {
-            var first = matrices[0];
-            var depth = (uint)matrices.Length;
-            var rows = first.RowCount;
-            var columns = first.ColumnCount;
+            try {
+                var first = matrices[0];
+                var depth = (uint)matrices.Length;
+                var rows = first.RowCount;
+                var columns = first.ColumnCount;
 
-            var data = CreateSegment(depth * rows * columns);
-            var ret = CreateTensor3D(data, depth, rows, columns);
-            var allSame = true;
-            for (uint i = 0; i < ret.Depth; i++) {
-                using var t = ret.Matrix(i);
-                var s = matrices[(int)i];
-                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
-                    s.Segment.CopyTo(t.Segment);
-                else {
-                    allSame = false;
-                    break;
+                var data = CreateSegment(depth * rows * columns);
+                var ret = CreateTensor3D(data, depth, rows, columns);
+                var allSame = true;
+                for (uint i = 0; i < ret.Depth; i++) {
+                    using var t = ret.Matrix(i);
+                    var s = matrices[(int)i];
+                    if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
+                        s.Segment.CopyTo(t.Segment);
+                    else {
+                        allSame = false;
+                        break;
+                    }
+                }
+
+                if (!allSame) {
+                    throw new ArgumentException("Input matrices had different sizes");
+                }
+
+                return ret;
+            }
+            finally {
+                if (disposeInput) {
+                    foreach(var item in matrices)
+                        item.Dispose();
                 }
             }
-            if (!allSame) {
-                throw new ArgumentException("Input matrices had different sizes");
-            }
-
-            return ret;
         }
 
         // 4D tensor creation
         public virtual ITensor4D CreateTensor4D(ITensorSegment2 data, uint count, uint depth, uint rowCount, uint columnCount) => new Tensor4D2(data, count, depth, rowCount, columnCount, this);
         public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount) => CreateTensor4D(CreateSegment(count * depth * rowCount * columnCount), count, depth, rowCount, columnCount);
-        public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
-        public virtual ITensor4D CreateTensor4D(Span<ITensor3D> tensors)
+        public ITensor4D CreateTensor4D(bool disposeInput, params ITensor3D[] tensors) => CreateTensor4D(disposeInput, tensors.AsSpan());
+        public virtual ITensor4D CreateTensor4D(bool disposeInput, Span<ITensor3D> tensors)
         {
-            var first = tensors[0];
-            var count = (uint)tensors.Length;
-            var rows = first.RowCount;
-            var columns = first.ColumnCount;
-            var depth = first.Depth;
+            try {
+                var first = tensors[0];
+                var count = (uint)tensors.Length;
+                var rows = first.RowCount;
+                var columns = first.ColumnCount;
+                var depth = first.Depth;
 
-            var data = CreateSegment(depth * rows * columns * count);
-            var ret = CreateTensor4D(data, count, depth, rows, columns);
-            var allSame = true;
-            for (uint i = 0; i < ret.Depth; i++) {
-                using var t = ret.Tensor(i);
-                var s = tensors[(int)i];
-                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount && s.Depth == t.Depth)
-                    s.Segment.CopyTo(t.Segment);
-                else {
-                    allSame = false;
-                    break;
+                var data = CreateSegment(depth * rows * columns * count);
+                var ret = CreateTensor4D(data, count, depth, rows, columns);
+                var allSame = true;
+                for (uint i = 0; i < ret.Depth; i++) {
+                    using var t = ret.Tensor(i);
+                    var s = tensors[(int)i];
+                    if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount && s.Depth == t.Depth)
+                        s.Segment.CopyTo(t.Segment);
+                    else {
+                        allSame = false;
+                        break;
+                    }
+                }
+
+                if (!allSame)
+                    throw new ArgumentException("Input tensors had different sizes");
+                return ret;
+            }
+            finally {
+                if (disposeInput) {
+                    foreach(var item in tensors)
+                        item.Dispose();
                 }
             }
-            if (!allSame)
-                throw new ArgumentException("Input tensors had different sizes");
-            return ret;
         }
 
         protected static uint GetSize(ITensorSegment2 tensor, ITensorSegment2 tensor2)
@@ -465,86 +482,71 @@ namespace BrightData.LinearAlegbra2
             using var matrixList = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
             var ptr = matrixList.Span;
             var indexList = saveIndices ? new IMatrix[tensor.Depth] : null;
-            try {
-                var convolutions = ConvolutionHelper.Default(tensor.ColumnCount, tensor.RowCount, filterWidth, filterHeight, xStride, yStride);
+            var convolutions = ConvolutionHelper.Default(tensor.ColumnCount, tensor.RowCount, filterWidth, filterHeight, xStride, yStride);
 
-                for (uint k = 0; k < tensor.Depth; k++) {
-                    var indices = saveIndices ? CreateMatrix(newRows, newColumns) : null;
-                    var layer = CreateMatrix(newRows, newColumns);
+            for (uint k = 0; k < tensor.Depth; k++) {
+                var indices = saveIndices ? CreateMatrix(newRows, newColumns) : null;
+                var layer = CreateMatrix(newRows, newColumns);
 
-                    foreach (var (cx, cy) in convolutions) {
-                        var targetX = cx / xStride;
-                        var targetY = cy / yStride;
-                        var maxVal = float.MinValue;
-                        var bestOffset = -1;
-                        var offset = 0;
+                foreach (var (cx, cy) in convolutions) {
+                    var targetX = cx / xStride;
+                    var targetY = cy / yStride;
+                    var maxVal = float.MinValue;
+                    var bestOffset = -1;
+                    var offset = 0;
 
-                        for (uint x = 0; x < filterWidth; x++) {
-                            for (uint y = 0; y < filterHeight; y++) {
-                                var val = tensor[cy + y, cx + x, k];
-                                if (val > maxVal || bestOffset == -1) {
-                                    bestOffset = offset;
-                                    maxVal = val;
-                                }
-
-                                ++offset;
+                    for (uint x = 0; x < filterWidth; x++) {
+                        for (uint y = 0; y < filterHeight; y++) {
+                            var val = tensor[cy + y, cx + x, k];
+                            if (val > maxVal || bestOffset == -1) {
+                                bestOffset = offset;
+                                maxVal = val;
                             }
-                        }
 
-                        if (indices != null)
-                            indices[targetY, targetX] = bestOffset;
-                        layer[targetY, targetX] = maxVal;
+                            ++offset;
+                        }
                     }
 
-                    ptr[(int)k] = layer;
-                    if (indexList != null && indices != null)
-                        indexList[k] = indices;
+                    if (indices != null)
+                        indices[targetY, targetX] = bestOffset;
+                    layer[targetY, targetX] = maxVal;
                 }
 
-                return (
-                    CreateTensor3D(ptr),
-                    indexList != null ? CreateTensor3D(indexList) : null
-                );
+                ptr[(int)k] = layer;
+                if (indexList != null && indices != null)
+                    indexList[k] = indices;
             }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-                if (indexList is not null) {
-                    foreach(var item in indexList)
-                        item?.Dispose();
-                }
-            }
+
+            return (
+                CreateTensor3D(true, ptr),
+                indexList != null ? CreateTensor3D(true, indexList) : null
+            );
         }
 
         public virtual ITensor3D ReverseMaxPool(ITensor3D tensor, ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var matrixList = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
             var ptr = matrixList.Span;
-            try {
-                for (uint k = 0; k < tensor.Depth; k++) {
-                    using var source = tensor.Matrix(k);
-                    var sourceRows = source.RowCount;
-                    var sourceColumns = source.ColumnCount;
-                    using var index = indices.Matrix(k);
-                    var target = ptr[(int)k] = CreateMatrix(outputRows, outputColumns);
 
-                    for (uint j = 0; j < sourceColumns; j++) {
-                        for (uint i = 0; i < sourceRows; i++) {
-                            var value = source[i, j];
-                            var offset = index[i, j];
-                            var offsetRow = (uint)offset % filterHeight;
-                            var offsetColumn = (uint)offset / filterHeight;
-                            target[(int)(i * yStride + offsetRow), (int)(j * xStride + offsetColumn)] = value;
-                        }
+            for (uint k = 0; k < tensor.Depth; k++) {
+                using var source = tensor.Matrix(k);
+                var sourceRows = source.RowCount;
+                var sourceColumns = source.ColumnCount;
+                using var index = indices.Matrix(k);
+                var target = ptr[(int)k] = CreateMatrix(outputRows, outputColumns);
+
+                for (uint j = 0; j < sourceColumns; j++) {
+                    for (uint i = 0; i < sourceRows; i++) {
+                        var value = source[i, j];
+                        var offset = index[i, j];
+                        var offsetRow = (uint)offset % filterHeight;
+                        var offsetColumn = (uint)offset / filterHeight;
+                        target[(int)(i * yStride + offsetRow), (int)(j * xStride + offsetColumn)] = value;
                     }
                 }
+            }
 
-                return CreateTensor3D(ptr);
-            }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+            return CreateTensor3D(true, ptr);
         }
 
         public virtual ITensor3D ReverseIm2Col(ITensor3D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -552,42 +554,35 @@ namespace BrightData.LinearAlegbra2
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
             using var output = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Clear);
             var ptr = output.Span;
+
             for (var i = 0; i < outputDepth; i++)
                 ptr[i] = CreateMatrix(outputRows, outputColumns);
+            for (uint k = 0; k < tensor.Depth; k++) {
+                using var slice = tensor.Matrix(k);
+                var filters = filter.Column(k).Split(outputDepth).ToArray();
 
-            try {
-                for (uint k = 0; k < tensor.Depth; k++) {
-                    using var slice = tensor.Matrix(k);
-                    var filters = filter.Column(k).Split(outputDepth).ToArray();
-
-                    foreach (var (cx, cy) in convolutions) {
-                        var errorY = cy / xStride;
-                        var errorX = cx / yStride;
-                        if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
-                            var error = slice[errorY, errorX];
-                            for (uint y = 0; y < filterHeight; y++) {
-                                for (uint x = 0; x < filterWidth; x++) {
-                                    var filterIndex = (filterWidth - x - 1) * filterHeight + (filterHeight - y - 1);
-                                    for (uint z = 0; z < outputDepth; z++)
-                                        ptr[(int)z][cy + y, cx + x] += filters[z][filterIndex] * error;
-                                }
+                foreach (var (cx, cy) in convolutions) {
+                    var errorY = cy / xStride;
+                    var errorX = cx / yStride;
+                    if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
+                        var error = slice[errorY, errorX];
+                        for (uint y = 0; y < filterHeight; y++) {
+                            for (uint x = 0; x < filterWidth; x++) {
+                                var filterIndex = (filterWidth - x - 1) * filterHeight + (filterHeight - y - 1);
+                                for (uint z = 0; z < outputDepth; z++)
+                                    ptr[(int)z][cy + y, cx + x] += filters[z][filterIndex] * error;
                             }
                         }
                     }
                 }
+            }
 
-                return CreateTensor3D(ptr);
-            }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+            return CreateTensor3D(true, ptr);
         }
 
         public virtual IMatrix CombineDepthSlices(ITensor3D tensor)
         {
             var ret = CreateMatrix(tensor.RowCount, tensor.ColumnCount);
-            ret.Clear();
 
             for (uint i = 0; i < tensor.Depth; i++) {
                 using var matrix = tensor.Matrix(i);
@@ -601,17 +596,12 @@ namespace BrightData.LinearAlegbra2
         {
             using var ret = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Depth; i++) {
-                    using var matrix = tensor.Matrix(i);
-                    ptr[(int)i] = matrix.Multiply(other);
-                }
-                return CreateTensor3D(ptr);
+
+            for (uint i = 0; i < tensor.Depth; i++) {
+                using var matrix = tensor.Matrix(i);
+                ptr[(int)i] = matrix.Multiply(other);
             }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+            return CreateTensor3D(true, ptr);
         }
 
         public virtual void AddToEachRow(ITensor3D tensor, IVector vector)
@@ -629,56 +619,41 @@ namespace BrightData.LinearAlegbra2
             Debug.Assert(other.Count == tensor.Depth);
             using var ret = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < other.Count; i++) {
-                    using var item = other.Tensor(i);
-                    using var multiplyWith = item.Reshape(other.MatrixSize, other.Count);
-                    using var slice = tensor.Matrix(i);
-                    ptr[(int)i] = slice.TransposeThisAndMultiply(multiplyWith);
-                }
 
-                return CreateTensor3D(ptr);
+            for (uint i = 0; i < other.Count; i++) {
+                using var item = other.Tensor(i);
+                using var multiplyWith = item.Reshape(other.MatrixSize, other.Count);
+                using var slice = tensor.Matrix(i);
+                ptr[(int)i] = slice.TransposeThisAndMultiply(multiplyWith);
             }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+
+            return CreateTensor3D(true, ptr);
         }
 
         public virtual ITensor4D AddPadding(ITensor4D tensor, uint padding)
         {
             using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    ptr[(int)i] = subTensor.AddPadding(padding);
-                }
 
-                return CreateTensor4D(ptr);
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                ptr[(int)i] = subTensor.AddPadding(padding);
             }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+
+            return CreateTensor4D(true, ptr);
         }
 
         public virtual ITensor4D RemovePadding(ITensor4D tensor, uint padding)
         {
             using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    ptr[(int)i] = subTensor.RemovePadding(padding);
-                }
 
-                return CreateTensor4D(ptr);
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                ptr[(int)i] = subTensor.RemovePadding(padding);
             }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+
+            return CreateTensor4D(true, ptr);
         }
 
         public virtual (ITensor4D Result, ITensor4D? Indices) MaxPool(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
@@ -688,81 +663,57 @@ namespace BrightData.LinearAlegbra2
                 : null;
             using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    var (result, indices) = subTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
-                    ptr[(int)i] = result;
-                    if (indexList != null && indices != null)
-                        indexList[i] = indices;
-                }
+            
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                var (result, indices) = subTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
+                ptr[(int)i] = result;
+                if (indexList != null && indices != null)
+                    indexList[i] = indices;
+            }
 
-                return (CreateTensor4D(ptr), indexList != null ? CreateTensor4D(indexList) : null);
-            }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-                if (indexList is not null) {
-                    foreach(var item in indexList)
-                        item?.Dispose();
-                }
-            }
+            return (CreateTensor4D(true, ptr), indexList != null ? CreateTensor4D(true, indexList) : null);
         }
 
         public virtual ITensor4D ReverseMaxPool(ITensor4D tensor, ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    using var indexTensor = indices.Tensor(i);
-                    var result = subTensor.ReverseMaxPool(indexTensor, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
-                    ptr[(int)i] = result;
-                }
 
-                return CreateTensor4D(ptr);
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                using var indexTensor = indices.Tensor(i);
+                var result = subTensor.ReverseMaxPool(indexTensor, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+                ptr[(int)i] = result;
             }
-            finally {
-                foreach (var item in ptr)
-                    item?.Dispose();
-            }
+
+            return CreateTensor4D(true, ptr);
         }
 
         public virtual ITensor3D Im2Col(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = SpanOwner<IMatrix>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    ptr[(int)i] = subTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
-                }
+            
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                ptr[(int)i] = subTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
+            }
 
-                return CreateTensor3D(ptr);
-            }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+            return CreateTensor3D(true, ptr);
         }
 
         public virtual ITensor4D ReverseIm2Col(ITensor4D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
             var ptr = ret.Span;
-            try {
-                for (uint i = 0; i < tensor.Count; i++) {
-                    using var subTensor = tensor.Tensor(i);
-                    ptr[(int)i] = subTensor.ReverseIm2Col(filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
-                }
+            
+            for (uint i = 0; i < tensor.Count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                ptr[(int)i] = subTensor.ReverseIm2Col(filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+            }
 
-                return CreateTensor4D(ptr);
-            }
-            finally {
-                foreach(var item in ptr)
-                    item?.Dispose();
-            }
+            return CreateTensor4D(true, ptr);
         }
 
         public virtual IMatrix GetMatrix(ITensor3D tensor, uint index)

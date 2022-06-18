@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     /// <summary>
     /// A single type data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class GrowableSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T> 
-        where T: notnull
+    internal class HybridBufferSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T>
+        where T : notnull
     {
         readonly IHybridBuffer<T> _buffer;
 
-        public GrowableSegment(BrightDataType type, IMetaData metaData, IHybridBuffer<T> buffer)
+        public HybridBufferSegment(BrightDataType type, IMetaData metaData, IHybridBuffer<T> buffer)
         {
             _buffer = buffer;
             MetaData = metaData;

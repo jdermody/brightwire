@@ -15,6 +15,7 @@ namespace BrightData
     public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
         ILinearAlgebraProvider                        _lap;
+        LinearAlgebraProvider                         _lap2;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
         readonly TensorPool                           _tensorPool;
         readonly DisposableLayers                     _memoryLayers = new();
@@ -23,13 +24,12 @@ namespace BrightData
         readonly DecimalComputation                   _decimalComputation;
         readonly UIntComputation                      _uintComputation;
         readonly DataEncoder                          _dataReader;
-        ComputationUnit?                              _currentComputationUnit;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
-        public BrightDataContext(int? randomSeed = null)
+        public BrightDataContext(LinearAlgebraProvider? lap = null, int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
             Random = randomSeed.HasValue 
@@ -46,7 +46,7 @@ namespace BrightData
 
             _memoryLayers.Push();
             _lap = new SimpleLinearAlgebraProvider(this, true);
-            NewComputationUnit = () => new ComputationUnit(this);
+            _lap2 = lap ?? new LinearAlgebraProvider(this);
         }
 
         /// <inheritdoc />
@@ -57,8 +57,6 @@ namespace BrightData
             TempStreamProvider.Dispose();
             LinearAlgebraProvider.Dispose();
         }
-
-        public Func<ComputationUnit> NewComputationUnit { get; set; }
 
         /// <inheritdoc />
         public Random Random { get; private set; }
@@ -98,7 +96,18 @@ namespace BrightData
             }
         }
 
-        public ComputationUnit CurrentComputationUnit => _currentComputationUnit ??= NewComputationUnit();
+        /// <summary>
+        /// Linear algebra provider
+        /// </summary>
+        public LinearAlgebraProvider LinearAlgebraProvider2
+        {
+            get => _lap2;
+            set
+            {
+                _lap2.Dispose();
+                _lap2 = value;
+            }
+        }
 
         /// <inheritdoc />
         public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();

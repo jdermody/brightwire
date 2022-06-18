@@ -4,12 +4,12 @@ using MKLNET;
 
 namespace BrightData.MKL
 {
-    public class MklVector : Vector2<MklComputationUnit>
+    public class MklVector : Vector2<MklLinearAlgebraProvider>
     {
-        public MklVector(ITensorSegment2 data, MklComputationUnit computationUnit) : base(data, computationUnit)
+        public MklVector(ITensorSegment2 data, MklLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
 
-        public override IVector Create(ITensorSegment2 segment) => new MklVector(segment, _computationUnit);
+        public override IVector Create(ITensorSegment2 segment) => new MklVector(segment, _lap);
     }
 }

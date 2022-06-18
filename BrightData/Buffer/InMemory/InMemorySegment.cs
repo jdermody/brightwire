@@ -1,9 +1,10 @@
-﻿using System;
+﻿using BrightData.Buffer.EncodedStream;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.InMemory
 {
     class InMemorySegment<T> : IDataTableSegment<T> where T : notnull
     {
@@ -42,7 +43,7 @@ namespace BrightData.Buffer
 
         public IEnumerable<object> Enumerate() => _buffer.EnumerateTyped().Cast<object>();
         public uint Size => _buffer.Size;
-        public void Add(object? obj, uint index) => Add((obj != null ? (T) obj : default) ?? throw new ArgumentException("Value cannot be null"), index);
+        public void Add(object? obj) => Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
         public IBrightDataContext Context { get; }
 

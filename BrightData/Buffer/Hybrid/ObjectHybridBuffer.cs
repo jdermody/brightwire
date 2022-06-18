@@ -4,7 +4,7 @@ using System.Text;
 using BrightData.Helper;
 using BrightData.Serialisation;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     internal class ObjectHybridBuffer<T> : HybridBufferBase<T>
         where T : ISerializable
@@ -19,7 +19,7 @@ namespace BrightData.Buffer
         protected override void WriteTo(ReadOnlySpan<T> ptr, Stream stream)
         {
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            foreach(var item in ptr)
+            foreach (var item in ptr)
                 item.WriteTo(writer);
         }
 

@@ -31,7 +31,7 @@ namespace BrightData.Transformation
                     yield return new ManyToOne<IndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToIndexList);
                 else if(NewType == BrightDataType.WeightedIndexList)
                     yield return new ManyToOne<WeightedIndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToWeightedIndexList);
-                else if (NewType == BrightDataType.FloatVector)
+                else if (NewType == BrightDataType.Vector)
                     yield return new ManyToOne<Vector<float>>(context, tempStreams, Name, initialColumnIndex, columns, ToVector);
                 else if (NewType == BrightDataType.String)
                     yield return new ManyToOne<string>(context, tempStreams, Name, initialColumnIndex, columns, ToString);

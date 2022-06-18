@@ -1,9 +1,10 @@
-﻿using System;
+﻿using BrightData.Buffer.EncodedStream;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     /// <summary>
     /// Hybrid buffers write to disk after their in memory cache is exhausted
@@ -47,7 +48,7 @@ namespace BrightData.Buffer
             ++Size;
         }
 
-        protected Span<T> GetTempBuffer() => ((Span<T>) _tempBuffer)[.._index];
+        protected Span<T> GetTempBuffer() => ((Span<T>)_tempBuffer)[.._index];
 
         public IEnumerable<T> EnumerateTyped()
         {
@@ -58,13 +59,13 @@ namespace BrightData.Buffer
                 var buffer = new T[_maxCount];
                 while (stream.Position < stream.Length) {
                     var count = ReadTo(stream, _maxCount, buffer);
-                    for(uint i = 0; i < count; i++)
+                    for (uint i = 0; i < count; i++)
                         yield return buffer[i];
                 }
             }
 
             // then from the buffer
-            for(uint i = 0; i < _index; i++)
+            for (uint i = 0; i < _index; i++)
                 yield return _tempBuffer[i];
         }
 
@@ -72,7 +73,7 @@ namespace BrightData.Buffer
 
         public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;
-        public uint? NumDistinct => (uint?) DistinctItems?.Count;
+        public uint? NumDistinct => (uint?)DistinctItems?.Count;
         public void AddObject(object obj) => Add((T)obj);
         public Type DataType { get; } = typeof(T);
         protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);

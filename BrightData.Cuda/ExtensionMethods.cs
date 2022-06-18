@@ -19,7 +19,7 @@ namespace BrightData.Cuda
         /// <param name="context"></param>
         /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, string? cudaKernelPath = null, uint memoryCacheSize = 512 * 1048576)
+        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this BrightDataContext context, string? cudaKernelPath = null, uint memoryCacheSize = 512 * 1048576)
         {
             if (cudaKernelPath != null && !File.Exists(cudaKernelPath))
                 throw new FileNotFoundException($"Could not find cuda kernel at: {cudaKernelPath}");
@@ -37,24 +37,15 @@ namespace BrightData.Cuda
 
             var ret = new CudaProvider(context, cudaKernelPath, cudaDirectory, memoryCacheSize);
             ((ISetLinearAlgebraProvider)context).LinearAlgebraProvider = ret;
+            //((ISetLinearAlgebraProvider)context).LinearAlgebraProvider2 = new CudaLinearAlgebraProvider(context, ret);
             return ret;
         }
 
-        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, ReadOnlySpan<float> span, float[]? sourceArray)
+        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, ReadOnlySpan<float> span)
         {
-            if (sourceArray is null) {
-                //using var buffer = SpanOwner<float>.Allocate((int)ptr.Size);
-                //span.CopyTo(buffer.Span);
-                fixed (float* p = &MemoryMarshal.GetReference(span))
-                {
-                    ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
-                }
-            }
-            else {
-                fixed (float* p = sourceArray)
-                {
-                    ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
-                }
+            fixed (float* p = &MemoryMarshal.GetReference(span))
+            {
+                ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
             }
         }
     }

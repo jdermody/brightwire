@@ -28,16 +28,19 @@ namespace BrightWire
             var executionContext = new ExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
             var userNotifications = engine.LinearAlgebraProvider.Context.UserNotifications;
             // ReSharper disable once AccessToModifiedClosure
-            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage));
+
+            var testId = Guid.NewGuid().ToString("n");
+            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
 
             var count = 0;
             GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
-                userNotifications?.OnStartOperation();
-                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(percentage));
+                var id = Guid.NewGuid().ToString("n");
+                userNotifications?.OnStartOperation(id);
+                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
                 if (++count == testCadence) {
-                    userNotifications?.OnStartOperation();
-                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage)) && onImprovement != null) {
+                    userNotifications?.OnStartOperation(id);
+                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -45,7 +48,7 @@ namespace BrightWire
                     }
                     count = 0;
                 }
-                userNotifications?.OnCompleteOperation();
+                userNotifications?.OnCompleteOperation(id, false);
             }
 
             return ret;

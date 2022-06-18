@@ -2,11 +2,11 @@
 using System.IO;
 using System.Text;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.Hybrid
 {
     internal class StringHybridBuffer : HybridBufferBase<string>
     {
-        public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) 
+        public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct)
             : base(tempStream, maxCount, maxDistinct)
         {
         }
@@ -14,7 +14,7 @@ namespace BrightData.Buffer
         protected override void WriteTo(ReadOnlySpan<string> ptr, Stream stream)
         {
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            foreach(var item in ptr)
+            foreach (var item in ptr)
                 writer.Write(item);
         }
 

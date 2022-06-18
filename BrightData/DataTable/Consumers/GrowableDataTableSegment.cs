@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BrightData.Buffer;
+using BrightData.Buffer.Hybrid;
 
 namespace BrightData.DataTable.Consumers
 {
@@ -7,7 +7,7 @@ namespace BrightData.DataTable.Consumers
     /// A typed data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class GrowableDataTableSegment<T> : GrowableSegment<T>, IConsumeColumnData<T>, IDataTableSegment<T>
+    internal class GrowableDataTableSegment<T> : HybridBufferSegment<T>, IConsumeColumnData<T>, IDataTableSegment<T>
         where T: notnull
     {
         public GrowableDataTableSegment(

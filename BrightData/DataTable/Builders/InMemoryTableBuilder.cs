@@ -68,7 +68,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
         {
-            var metaData = AddColumn(BrightDataType.FloatVector, name);
+            var metaData = AddColumn(BrightDataType.Vector, name);
             metaData.Set(Consts.XDimension, size);
             return metaData;
         }
@@ -82,7 +82,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSizeMatrixColumn(uint rows, uint columns, string? name = null)
         {
-            var metaData = AddColumn(BrightDataType.FloatMatrix, name);
+            var metaData = AddColumn(BrightDataType.Matrix, name);
             metaData.Set(Consts.XDimension, columns);
             metaData.Set(Consts.YDimension, rows);
             return metaData;
@@ -98,7 +98,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IMetaData AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name = null)
         {
-            var metaData = AddColumn(BrightDataType.FloatTensor3D, name);
+            var metaData = AddColumn(BrightDataType.Tensor3D, name);
             metaData.Set(Consts.XDimension, columns);
             metaData.Set(Consts.YDimension, rows);
             metaData.Set(Consts.ZDimension, depth);
@@ -121,7 +121,7 @@ namespace BrightData.DataTable.Builders
         object EnsureType(int columnIndex, object val, BrightDataType type)
         {
             return type switch {
-                BrightDataType.FloatMatrix => EnsureMatrix(columnIndex, (Matrix<float>) val),
+                BrightDataType.Matrix => EnsureMatrix(columnIndex, (IMatrix) val),
                 BrightDataType.BinaryData => (BinaryData) val,
                 BrightDataType.Boolean => Convert.ToBoolean(val),
                 BrightDataType.SByte => Convert.ToSByte(val),
@@ -135,14 +135,14 @@ namespace BrightData.DataTable.Builders
                 BrightDataType.String => val.ToString(),
                 BrightDataType.IndexList => (IndexList) val,
                 BrightDataType.WeightedIndexList => (WeightedIndexList) val,
-                BrightDataType.FloatVector => EnsureVector(columnIndex, (Vector<float>)val),
-                BrightDataType.FloatTensor3D => EnsureTensor(columnIndex, (Tensor3D<float>) val),
-                BrightDataType.FloatTensor4D => (Tensor4D<float>) val,
+                BrightDataType.Vector => EnsureVector(columnIndex, (IVector)val),
+                BrightDataType.Tensor3D => EnsureTensor(columnIndex, (ITensor3D) val),
+                BrightDataType.Tensor4D => (Tensor4D<float>) val,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw new ArgumentException("Value cannot be null");
         }
 
-        object EnsureVector(int columnIndex, Vector<float> vector)
+        object EnsureVector(int columnIndex, IVector vector)
         {
             var metaData = _columns[columnIndex].MetaData;
             if (metaData.Has(Consts.XDimension)) {
@@ -153,7 +153,7 @@ namespace BrightData.DataTable.Builders
             return vector;
         }
 
-        object EnsureMatrix(int columnIndex, Matrix<float> matrix)
+        object EnsureMatrix(int columnIndex, IMatrix matrix)
         {
             var metaData = _columns[columnIndex].MetaData;
             if (metaData.Has(Consts.XDimension) && metaData.Has(Consts.YDimension)) {
@@ -165,7 +165,7 @@ namespace BrightData.DataTable.Builders
             return matrix;
         }
 
-        object EnsureTensor(int columnIndex, Tensor3D<float> tensor)
+        object EnsureTensor(int columnIndex, ITensor3D tensor)
         {
             var metaData = _columns[columnIndex].MetaData;
             if (metaData.Has(Consts.XDimension) && metaData.Has(Consts.YDimension) && metaData.Has(Consts.ZDimension)) {

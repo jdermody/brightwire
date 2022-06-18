@@ -89,8 +89,7 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var vectorBuilder = builder.AddColumn<IVector>("vector");
-            var computation = _context.NewComputationUnit();
-            using var firstVector = computation.CreateVector(5, i => i + 1);
+            using var firstVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
 
             using var stream = new MemoryStream();
@@ -108,8 +107,7 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var matrixBuilder = builder.AddColumn<IMatrix>("matrix");
-            var computation = _context.NewComputationUnit();
-            using var firstMatrix = computation.CreateMatrix(5, 5, (i, j) => i + j);
+            using var firstMatrix = _context.LinearAlgebraProvider2.CreateMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
 
             using var stream = new MemoryStream();
@@ -127,10 +125,10 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor3D>("tensor");
-            var computation = _context.NewComputationUnit();
-            using var firstTensor = computation.CreateTensor3D(
-                computation.CreateMatrix(5, 5, (i, j) => i + j),
-                computation.CreateMatrix(5, 5, (i, j) => i + j)
+            var lap = _context.LinearAlgebraProvider2;
+            using var firstTensor = lap.CreateTensor3D(true,
+                lap.CreateMatrix(5, 5, (i, j) => i + j),
+                lap.CreateMatrix(5, 5, (i, j) => i + j)
             );
             tensorBuilder.Add(firstTensor);
 
@@ -149,15 +147,15 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor4D>("tensor");
-            var computation = _context.NewComputationUnit();
-            using var firstTensor = computation.CreateTensor4D(
-                computation.CreateTensor3D(
-                    computation.CreateMatrix(5, 5, (i, j) => i + j),
-                    computation.CreateMatrix(5, 5, (i, j) => i + j)
+            var lap = _context.LinearAlgebraProvider2;
+            using var firstTensor = lap.CreateTensor4D(true,
+                lap.CreateTensor3D(true,
+                    lap.CreateMatrix(5, 5, (i, j) => i + j),
+                    lap.CreateMatrix(5, 5, (i, j) => i + j)
                 ),
-                computation.CreateTensor3D(
-                    computation.CreateMatrix(5, 5, (i, j) => i + j),
-                    computation.CreateMatrix(5, 5, (i, j) => i + j)
+                lap.CreateTensor3D(true,
+                    lap.CreateMatrix(5, 5, (i, j) => i + j),
+                    lap.CreateMatrix(5, 5, (i, j) => i + j)
                 )
             );
             tensorBuilder.Add(firstTensor);

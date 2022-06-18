@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Xunit;
-using BrightData.Buffer;
 using FluentAssertions;
+using BrightData.Buffer.Hybrid;
 
 namespace BrightData.UnitTests
 {

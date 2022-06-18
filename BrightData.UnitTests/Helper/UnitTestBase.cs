@@ -7,7 +7,7 @@ namespace BrightData.UnitTests.Helper
 {
     public class UnitTestBase : IDisposable
     {
-        protected readonly BrightDataContext _context = new(0);
+        protected readonly BrightDataContext _context = new(null, 0);
 
         public Vector<float> CreateRandomVector(uint size = 32)
         {

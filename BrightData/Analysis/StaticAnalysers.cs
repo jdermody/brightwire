@@ -38,7 +38,7 @@ namespace BrightData.Analysis
         /// </summary>
         /// <param name="maxCount"></param>
         /// <returns></returns>
-        public static IDataAnalyser<ITensor<float>> CreateDimensionAnalyser(uint maxCount = Consts.MaxDistinct) => new DimensionAnalyser(maxCount);
+        public static IDataAnalyser<ITensor2> CreateDimensionAnalyser(uint maxCount = Consts.MaxDistinct) => new DimensionAnalyser(maxCount);
 
         /// <summary>
         /// Creates an analyzer that tracks observed frequency of items

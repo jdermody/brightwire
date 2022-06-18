@@ -5,10 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using BrightData;
 using BrightData.Helper;
 using BrightData.Serialisation;
 
-namespace BrightData.Buffer
+namespace BrightData.Buffer.EncodedStream
 {
     /// <summary>
     /// Reads from potentially encoded storage
@@ -40,7 +41,7 @@ namespace BrightData.Buffer
         }
 
         class ReadFromRepeatableStream<T> : ICanEnumerateWithSize<T>
-            where T: struct
+            where T : struct
         {
             readonly RepeatableStreamReader _stream;
 
@@ -77,7 +78,7 @@ namespace BrightData.Buffer
         }
 
         class ReadFromMemory<T> : ICanEnumerateWithSize<T>
-            where T: struct
+            where T : struct
         {
             readonly T[] _data;
 
@@ -109,14 +110,14 @@ namespace BrightData.Buffer
         }
 
         static ICanEnumerateWithSize<T> GetReader<T>(uint length, uint inMemorySize, Stream stream)
-            where T: struct
+            where T : struct
         {
-            if(length <= inMemorySize)
+            if (length <= inMemorySize)
                 return new ReadFromMemory<T>(length, stream);
             return new ReadFromRepeatableStream<T>(length, stream);
         }
 
-        static ICanEnumerateWithSize<T> GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder) where T: notnull
+        static ICanEnumerateWithSize<T> GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder) where T : notnull
         {
             if (length <= inMemorySize)
                 return new LoadIntoMemory<T>(length, reader, objectBuilder);
@@ -148,9 +149,9 @@ namespace BrightData.Buffer
             public void WriteTo(BinaryWriter writer)
             {
                 EncodedStreamWriter.StringEncoder.WriteTo(
-                    (uint)_stringTable.Length, 
-                    _stringTable, 
-                    _reader.Size, 
+                    (uint)_stringTable.Length,
+                    _stringTable,
+                    _reader.Size,
                     _reader.EnumerateTyped(),
                     writer
                 );

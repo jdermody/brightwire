@@ -262,7 +262,8 @@ namespace BrightData.DataTable
                 }
             }
 
-            Context.UserNotifications?.OnStartOperation();
+            var operationId = Guid.NewGuid().ToString("n");
+            Context.UserNotifications?.OnStartOperation(operationId);
             var convertedColumns = new List<ISingleTypeTableSegment>();
             lock (_columns) {
                 for (uint i = 0; i < ColumnCount; i++) {
@@ -270,7 +271,7 @@ namespace BrightData.DataTable
                     var column = _columns[i].Segment;
                     if (columnConversions.TryGetValue(column, out var converter)) {
                         var i1 = i;
-                        var convertedCount = converter.Transform(progress => Context.UserNotifications.NotifyProgress(i1, ColumnCount, progress), Context.CancellationToken);
+                        var convertedCount = converter.Transform(progress => Context.UserNotifications.NotifyProgress(operationId, i1, ColumnCount, progress), Context.CancellationToken);
                         if (convertedCount == RowCount) {
                             convertedColumns.Add((ISingleTypeTableSegment)converter.Buffer);
                             wasConverted = true;
@@ -280,7 +281,7 @@ namespace BrightData.DataTable
                         convertedColumns.Add(column);
                 }
             }
-            Context.UserNotifications?.OnCompleteOperation();
+            Context.UserNotifications?.OnCompleteOperation(operationId, Context.CancellationToken.IsCancellationRequested);
 
             return convertedColumns.BuildColumnOrientedTable(MetaData, Context, RowCount, filePath);
         }

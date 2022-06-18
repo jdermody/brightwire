@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using BrightData.Buffer2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -259,8 +258,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         T[] ToArray();
-
-
     }
 
     /// <summary>
@@ -363,6 +360,7 @@ namespace BrightData
         /// Linear algebra provider
         /// </summary>
         ILinearAlgebraProvider LinearAlgebraProvider { set; }
+        LinearAlgebraProvider LinearAlgebraProvider2 { set; }
     }
 
     /// <summary>
@@ -413,7 +411,7 @@ namespace BrightData
         /// </summary>
         IProvideTempStreams TempStreamProvider { get; }
 
-        ComputationUnit CurrentComputationUnit { get; }
+        LinearAlgebraProvider LinearAlgebraProvider2 { get; }
 
         /// <summary>
         /// Returns transient, context specific meta data
@@ -1004,19 +1002,16 @@ namespace BrightData
         IEnumerable<T> EnumerateTyped();
     }
 
-    public interface ICanEnumerateDisposable<out T> : ICanEnumerate<T>, IDisposable
+    public interface ICanEnumerateDisposable<out T> : ICanEnumerate<T>, IDisposable where T : notnull
     {
-
     }
 
     public interface ICanEnumerateDisposable : ICanEnumerate, IDisposable
     {
-
     }
 
     public interface ICanEnumerateWithSize<out T> : ICanEnumerate<T>, IHaveSize where T : notnull
     {
-
     }
 
     /// <summary>
@@ -1185,19 +1180,23 @@ namespace BrightData
         /// <summary>
         /// Called at the start of an operation
         /// </summary>
+        /// <param name="operationId">Unique id for this operation</param>
         /// <param name="msg">Optional message associated with the operation</param>
-        void OnStartOperation(string? msg = null);
+        void OnStartOperation(string operationId, string? msg = null);
 
         /// <summary>
         /// Called when the operation has progressed
         /// </summary>
+        /// <param name="operationId">Unique id for this operation</param>
         /// <param name="progressPercent">Progress percentage (between 0 and 1)</param>
-        void OnOperationProgress(float progressPercent);
+        void OnOperationProgress(string operationId, float progressPercent);
 
         /// <summary>
         /// Called when the operation has completed
         /// </summary>
-        void OnCompleteOperation();
+        /// <param name="operationId">Unique id for this operation</param>
+        /// <param name="wasCancelled">True if the operation was cancelled</param>
+        void OnCompleteOperation(string operationId, bool wasCancelled);
 
         /// <summary>
         /// Called to notify the user
@@ -1377,7 +1376,7 @@ namespace BrightData
         IEnumerable<float> Values { get; }
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
-        void CopyFrom(ReadOnlySpan<float> span, float[]? sourceArray);
+        void CopyFrom(ReadOnlySpan<float> span);
         void CopyTo(ITensorSegment2 segment);
         void Clear();
     }
@@ -1403,16 +1402,31 @@ namespace BrightData
         ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
     }
 
+    public interface IHaveMutableReference<T> where T : unmanaged
+    {
+        ref T Current { get; }
+    }
+
     public interface IReadOnlyEnumerator<T> where T : unmanaged
     {
         bool MoveNext();
         void Reset();
-        ref T Current { get; }
+        ref readonly T Current { get; }
     }
 
     public interface IReadOnlyBuffer : IDisposable
     {
         ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged;
         ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged;
+    }
+
+    public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
+    {
+        T Convert(ref CT item);
+    }
+
+    public interface IOperation<out T> : IDisposable
+    {
+        T Complete(INotifyUser? notifyUser, CancellationToken cancellationToken);
     }
 }
