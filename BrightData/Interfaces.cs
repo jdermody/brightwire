@@ -407,9 +407,9 @@ namespace BrightData
         INumericComputation<T> GetComputation<T>() where T : struct;
 
         /// <summary>
-        /// Temp Stream Provider
+        /// Creates a new temp stream provider
         /// </summary>
-        IProvideTempStreams TempStreamProvider { get; }
+        IProvideTempStreams CreateTempStreamProvider();
 
         LinearAlgebraProvider LinearAlgebraProvider2 { get; }
 

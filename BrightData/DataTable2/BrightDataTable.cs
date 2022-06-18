@@ -64,6 +64,7 @@ namespace BrightData.DataTable2
         readonly long                                                 _dataOffset;
         readonly MethodInfo                                           _getReader;
         readonly uint[]                                               _columnOffset;
+        readonly BrightDataType[]                                     _columnTypes;
         readonly Stream                                               _stream;
 
         public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = 32768)
@@ -139,6 +140,8 @@ namespace BrightData.DataTable2
                 ref readonly var previousColumn = ref _columns[i-1];
                 _columnOffset[i] = _columnOffset[i-1] + previousColumn.DataTypeSize * numRows;
             }
+
+            ColumnTypes = _columns.Select(c => c.DataType).ToArray();
         }
 
         /// <inheritdoc />
@@ -149,59 +152,18 @@ namespace BrightData.DataTable2
         }
 
         public MetaData TableMetaData => _metaData.Value[0];
+        public BrightDataType[] ColumnTypes { get; }
         public MetaData GetColumnMetaData(uint columnIndex) => _metaData.Value[columnIndex+1];
         public IEnumerable<MetaData> ColumnMetaData => _header.ColumnCount.AsRange().Select(GetColumnMetaData);
         public IEnumerable<uint> ColumnIndices => _header.ColumnCount.AsRange();
         public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
+        public uint ColumnCount => _header.ColumnCount;
+        public uint RowCount => _header.RowCount;
 
         public T Get<T>(uint rowIndex, uint columnIndex)
         {
             using var reader = GetColumnReader<T>(columnIndex, 1, size => size * rowIndex);
             return reader.EnumerateTyped().First();
-        }
-
-        public object[] GetRow(uint rowIndex)
-        {
-            var readers = new ICanEnumerateDisposable[_header.ColumnCount];
-            try {
-                for (uint i = 0; i < _header.ColumnCount; i++)
-                    readers[i] = GetColumnReader(i, 1, size => size * rowIndex);
-                return readers.Select(r => r.Enumerate().First()).ToArray();
-            }
-            finally {
-                foreach(var item in readers)
-                    item.Dispose();
-            }
-        }
-
-        public IEnumerable<object[]> GetRows(bool reuseArrayForEachIteration = true)
-        {
-            var rowCount = _header.RowCount;
-            var columnCount = _header.ColumnCount;
-            var readers = GetColumnReaders(ColumnIndices);
-            var enumerators = readers.Select(r => r.Enumerate().GetEnumerator()).ToArray();
-            
-            try {
-                var ret = new object[columnCount];
-                for (uint j = 0; j < rowCount; j++) {
-                    if(!reuseArrayForEachIteration && j > 0)
-                        ret = new object[columnCount];
-
-                    for (uint i = 0; i < columnCount; i++) {
-                        var enumerator = enumerators[i];
-                        enumerator.MoveNext();
-                        ret[i] = enumerator.Current;
-                    }
-
-                    yield return ret;
-                }
-            }
-            finally {
-                foreach(var item in enumerators)
-                    item.Dispose();
-                foreach(var item in readers)
-                    item.Dispose();
-            }
         }
 
         public IMetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
@@ -231,7 +193,7 @@ namespace BrightData.DataTable2
             }
         }
 
-        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
+        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
         {
             ref readonly var column = ref _columns[columnIndex];
             if (column.DataType.GetDataType() != typeof(T))
@@ -266,5 +228,8 @@ namespace BrightData.DataTable2
                 ret[i] = GetColumnReader(i, _header.RowCount);
             return ret;
         }
+
+        /// <inheritdoc />
+        public override string ToString() => string.Join(", ", _columns.Select((c, i) => $"[{ColumnTypes[i]}]: {GetColumnMetaData((uint)i)}"));
     }
 }

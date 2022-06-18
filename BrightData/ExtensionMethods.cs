@@ -527,5 +527,30 @@ namespace BrightData
             if(index > 0)
                 stream.Write(span[..index].AsBytes());
         }
+
+        public static IEnumerable<(uint First, uint Last)> FindDistinctContiguousRanges(this IEnumerable<uint> indices)
+        {
+            uint? prev = null, startRange = null, nextInRange = null;
+
+            foreach (var item in indices.OrderBy(d => d)) {
+                if(prev == item)
+                    continue;
+
+                if (item == nextInRange) {
+                    prev = item;
+                    nextInRange = item + 1;
+                    continue;
+                }
+
+                if (startRange.HasValue)
+                    yield return (startRange.Value, prev!.Value);
+
+                startRange = item;
+                nextInRange = item + 1;
+                prev = item;
+            }
+            if (startRange.HasValue)
+                yield return (startRange.Value, prev!.Value);
+        }
     }
 }

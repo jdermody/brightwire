@@ -195,6 +195,10 @@ namespace BrightData
         object this[uint index] { get; }
     }
 
+    public interface IDisposableDataTableSegment : IDataTableSegment, IDisposable
+    {
+    }
+
     /// <summary>
     /// Typed data table segment (all of the same type)
     /// </summary>

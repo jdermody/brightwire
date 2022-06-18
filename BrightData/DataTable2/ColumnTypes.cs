@@ -44,27 +44,27 @@ namespace BrightData.DataTable2
     {
         static (Type, uint) GetTypeAndSize<T>() => (typeof(T), (uint)Unsafe.SizeOf<T>());
 
-        public static (Type, uint) GetColumnType(this BrightDataType dataType) => dataType switch {
-            BrightDataType.BinaryData                                          => GetTypeAndSize<DataRangeColumnType>(),
-            BrightDataType.Boolean                                             => GetTypeAndSize<bool>(),
-            BrightDataType.SByte                                               => GetTypeAndSize<sbyte>(),
-            BrightDataType.Short                                               => GetTypeAndSize<short>(),
-            BrightDataType.Int                                                 => GetTypeAndSize<int>(),
-            BrightDataType.Long                                                => GetTypeAndSize<long>(),
-            BrightDataType.Float                                               => GetTypeAndSize<float>(),
-            BrightDataType.Double                                              => GetTypeAndSize<double>(),
-            BrightDataType.Decimal                                             => GetTypeAndSize<decimal>(),
-            BrightDataType.String                                              => GetTypeAndSize<uint>(),
-            BrightDataType.Date                                                => GetTypeAndSize<DateTime>(),
-            BrightDataType.IndexList                                           => GetTypeAndSize<DataRangeColumnType>(),
-            BrightDataType.WeightedIndexList                                   => GetTypeAndSize<DataRangeColumnType>(),
-            BrightDataType.Vector                                              => GetTypeAndSize<DataRangeColumnType>(),
-            BrightDataType.Matrix                                              => GetTypeAndSize<MatrixColumnType>(),
-            BrightDataType.Tensor3D                                            => GetTypeAndSize<Tensor3DColumnType>(),
-            BrightDataType.Tensor4D                                            => GetTypeAndSize<Tensor4DColumnType>(),
-            BrightDataType.TimeOnly                                            => GetTypeAndSize<TimeOnly>(),
-            BrightDataType.DateOnly                                            => GetTypeAndSize<DateOnly>(),
-            _                                                                  => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
+        public static (Type Type, uint Size) GetColumnType(this BrightDataType dataType) => dataType switch {
+            BrightDataType.BinaryData                                                    => GetTypeAndSize<DataRangeColumnType>(),
+            BrightDataType.Boolean                                                       => GetTypeAndSize<bool>(),
+            BrightDataType.SByte                                                         => GetTypeAndSize<sbyte>(),
+            BrightDataType.Short                                                         => GetTypeAndSize<short>(),
+            BrightDataType.Int                                                           => GetTypeAndSize<int>(),
+            BrightDataType.Long                                                          => GetTypeAndSize<long>(),
+            BrightDataType.Float                                                         => GetTypeAndSize<float>(),
+            BrightDataType.Double                                                        => GetTypeAndSize<double>(),
+            BrightDataType.Decimal                                                       => GetTypeAndSize<decimal>(),
+            BrightDataType.String                                                        => GetTypeAndSize<uint>(),
+            BrightDataType.Date                                                          => GetTypeAndSize<DateTime>(),
+            BrightDataType.IndexList                                                     => GetTypeAndSize<DataRangeColumnType>(),
+            BrightDataType.WeightedIndexList                                             => GetTypeAndSize<DataRangeColumnType>(),
+            BrightDataType.Vector                                                        => GetTypeAndSize<DataRangeColumnType>(),
+            BrightDataType.Matrix                                                        => GetTypeAndSize<MatrixColumnType>(),
+            BrightDataType.Tensor3D                                                      => GetTypeAndSize<Tensor3DColumnType>(),
+            BrightDataType.Tensor4D                                                      => GetTypeAndSize<Tensor4DColumnType>(),
+            BrightDataType.TimeOnly                                                      => GetTypeAndSize<TimeOnly>(),
+            BrightDataType.DateOnly                                                      => GetTypeAndSize<DateOnly>(),
+            _                                                                            => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
     }
 }

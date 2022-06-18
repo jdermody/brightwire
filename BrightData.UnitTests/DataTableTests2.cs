@@ -46,8 +46,8 @@ namespace BrightData.UnitTests
             var val1 = dataTable.Get<int>(0, 1);
             var val2 = dataTable.Get<int>(1, 1);
 
-            var row1 = dataTable.GetRow(0);
-            var row2 = dataTable.GetRow(1);
+            using var row1 = dataTable.GetRow(0);
+            using var row2 = dataTable.GetRow(1);
         }
 
         [Fact]

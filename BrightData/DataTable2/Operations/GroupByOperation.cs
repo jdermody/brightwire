@@ -9,6 +9,7 @@ namespace BrightData.DataTable2.Operations
     internal class GroupByOperation : OperationBase<(string Label, IHybridBuffer[] ColumnData)[]>
     {
         readonly IBrightDataContext                  _context;
+        readonly IProvideTempStreams                 _tempStreams;
         readonly uint[]                              _groupByColumnIndices;
         readonly MetaData[]                          _columnMetaData;
         readonly ICanEnumerateDisposable[]           _columns;
@@ -24,6 +25,7 @@ namespace BrightData.DataTable2.Operations
             ICanEnumerateDisposable[] columns) : base(rowCount, null)
         {
             _context              = context;
+            _tempStreams          = context.CreateTempStreamProvider();
             _groupByColumnIndices = groupByColumnIndices;
             _columnMetaData       = columnMetaData;
             _columns              = columns;
@@ -37,6 +39,7 @@ namespace BrightData.DataTable2.Operations
                 item.Dispose();
             foreach(var item in _columns)
                 item.Dispose();
+            _tempStreams.Dispose();
         }
 
         protected override void NextStep(uint index)
@@ -51,7 +54,7 @@ namespace BrightData.DataTable2.Operations
             // find the group by row
             var label = GetGroupLabel(_groupByColumnIndices, _row);
             if (!_groups.TryGetValue(label, out var groupBuffers))
-                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetGrowableSegment(x.GetColumnType(), _context, _context.TempStreamProvider)).ToArray());
+                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetGrowableSegment(x.GetColumnType(), _context, _tempStreams)).ToArray());
 
             // write the row into the group
             foreach(var (obj, buffer) in _row.Zip(groupBuffers))

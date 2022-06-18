@@ -250,9 +250,10 @@ namespace BrightData.DataTable
 
         (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) GetColumn(BrightDataType columnType, uint index, IMetaData metaData)
         {
-            var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
-            var columnInfo = new ColumnInfo(index, columnType, metaData);
-            return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, Context.TempStreamProvider);
+            //var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
+            //var columnInfo = new ColumnInfo(index, columnType, metaData);
+            //return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, Context.TempStreamProvider);
+            throw new NotImplementedException();
         }
 
         static string ReadString(BinaryReader reader) => reader.ReadString();
@@ -364,10 +365,11 @@ namespace BrightData.DataTable
         public IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices)
         {
             var groupedData = new Dictionary<string, IHybridBuffer[]>();
+            using var tempStreams = Context.CreateTempStreamProvider();
             ForEachRow(row => {
                 var label = GetGroupLabel(columnIndices, row);
                 if (!groupedData.TryGetValue(label, out var data))
-                    groupedData.Add(label, data = _columns.Select(c => c.MetaData.GetGrowableSegment(c.ColumnType, Context, Context.TempStreamProvider)).ToArray());
+                    groupedData.Add(label, data = _columns.Select(c => c.MetaData.GetGrowableSegment(c.ColumnType, Context, tempStreams)).ToArray());
                 foreach(var (obj, buffer) in row.Zip(data))
                     buffer.AddObject(obj);
             });

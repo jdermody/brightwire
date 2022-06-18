@@ -157,10 +157,11 @@ namespace BrightData.DataTable
         public IEnumerable<(string Label, IHybridBuffer[] ColumnData)> GroupBy(params uint[] columnIndices)
         {
             var groups = new Dictionary<string, IHybridBuffer[]>();
+            using var tempStreams = Context.CreateTempStreamProvider();
             ForEachRow(row => {
                 var label = GetGroupLabel(columnIndices, row);
                 if (!groups.TryGetValue(label, out var data))
-                    groups.Add(label, data = _columns.Select(c => c.Info.MetaData.GetGrowableSegment(c.Info.ColumnType, Context, Context.TempStreamProvider)).ToArray());
+                    groups.Add(label, data = _columns.Select(c => c.Info.MetaData.GetGrowableSegment(c.Info.ColumnType, Context, tempStreams)).ToArray());
                 foreach(var (obj, buffer) in row.Zip(data))
                     buffer.AddObject(obj);
             });
@@ -247,6 +248,7 @@ namespace BrightData.DataTable
 
         public IColumnOrientedDataTable Transform(IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> transformations, string? filePath)
         {
+            using var tempStreams = Context.CreateTempStreamProvider();
             var transformationTable = transformations.ToDictionary(d => d.ColumnIndex, d => d.Transformer);
 
             // create contexts for each column transformation
@@ -254,7 +256,7 @@ namespace BrightData.DataTable
             foreach (var (info, segment) in _columns) {
                 if (transformationTable.TryGetValue(info.Index, out var transformer)) {
                     var newColumnInfo = info.ChangeColumnType(transformer.To.GetBrightDataType());
-                    var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, Context.TempStreamProvider);
+                    var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStreams);
                     var contextType = typeof(TransformationContext<,>).MakeGenericType(transformer.From, transformer.To);
                     var param = new object[] { segment, transformer, buffer };
                     var conversionContext = GenericActivator.Create<ITransformationContext>(contextType, param);

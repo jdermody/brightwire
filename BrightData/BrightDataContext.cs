@@ -54,7 +54,7 @@ namespace BrightData
         {
             _memoryLayers.Pop();
             _tensorPool.Dispose();
-            TempStreamProvider.Dispose();
+            //TempStreamProvider.Dispose();
             LinearAlgebraProvider.Dispose();
         }
 
@@ -109,8 +109,10 @@ namespace BrightData
             }
         }
 
+        public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
+
         /// <inheritdoc />
-        public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
+        //public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
 
         /// <inheritdoc />
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;

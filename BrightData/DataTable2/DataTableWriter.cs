@@ -23,9 +23,9 @@ namespace BrightData.DataTable2
             BrightDataContext context,
             IProvideTempStreams tempStreams,
             Stream stream, 
-            uint inMemoryBufferSize, 
-            ushort maxUniqueItemCount)
-        {
+            uint inMemoryBufferSize = 32768 * 1024, 
+            ushort maxUniqueItemCount = 32768
+        ) {
             _context            = context;
             _tempStreams        = tempStreams;
             _stream             = stream;

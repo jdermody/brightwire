@@ -1342,6 +1342,7 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> GetColumnTransformers(this IColumnOrientedDataTable dataTable, IEnumerable<IColumnTransformationParam> input)
         {
+            throw new NotImplementedException();
             var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
 
             // build the map of columns to transform
@@ -1359,9 +1360,9 @@ namespace BrightData
             foreach (var (segment, columnType) in dataTable.Columns().Zip(dataTable.ColumnTypes)) {
                 if (columnConversionTable.TryGetValue(index, out var conversion)) {
                     var index1 = index;
-                    var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), dataTable.Context.TempStreamProvider);
-                    if (converter is not null)
-                        yield return (index, converter);
+                    //var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), dataTable.Context.TempStreamProvider);
+                    //if (converter is not null)
+                    //    yield return (index, converter);
                 }
                 ++index;
             }
@@ -1516,16 +1517,16 @@ namespace BrightData
         /// <param name="columnType">Column data type</param>
         /// <param name="metaData">Column meta data (optional)</param>
         /// <returns></returns>
-        public static (ISingleTypeTableSegment Segment, IHybridBuffer Buffer) GetSegmentWithHybridBuffer(
-            this IBrightDataContext context, 
-            uint columnIndex, 
-            BrightDataType columnType, 
-            IMetaData? metaData = null
-        )
-        {
-            var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
-            var columnInfo = CreateColumnInfo(columnIndex, columnType, metaData);
-            return GenericActivator.Create<ISingleTypeTableSegment, IHybridBuffer>(type, context, columnInfo, context.TempStreamProvider);
-        }
+        //public static (ISingleTypeTableSegment Segment, IHybridBuffer Buffer) GetSegmentWithHybridBuffer(
+        //    this IBrightDataContext context, 
+        //    uint columnIndex, 
+        //    BrightDataType columnType, 
+        //    IMetaData? metaData = null
+        //)
+        //{
+        //    var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
+        //    var columnInfo = CreateColumnInfo(columnIndex, columnType, metaData);
+        //    return GenericActivator.Create<ISingleTypeTableSegment, IHybridBuffer>(type, context, columnInfo, context.TempStreamProvider);
+        //}
     }
 }
