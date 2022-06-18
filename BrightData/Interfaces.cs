@@ -1429,4 +1429,9 @@ namespace BrightData
     {
         T Complete(INotifyUser? notifyUser, CancellationToken cancellationToken);
     }
+
+    delegate void FillDelegate<CT, in T>(T item, Span<CT> ptr, int index) 
+        where T : notnull 
+        where CT : struct
+    ;
 }
