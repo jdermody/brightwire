@@ -195,8 +195,10 @@ namespace BrightData
         object this[uint index] { get; }
     }
 
-    public interface IDisposableDataTableSegment : IDataTableSegment, IDisposable
+    public interface IDataTableRow : IDataTableSegment, IDisposable
     {
+        T Get<T>(uint index) where T : notnull;
+        uint RowIndex { get; }
     }
 
     /// <summary>
@@ -798,7 +800,7 @@ namespace BrightData
         /// Returns a sequence of vectorised table rows
         /// </summary>
         /// <returns></returns>
-        IEnumerable<Vector<float>> Enumerate();
+        IEnumerable<IVector> Enumerate();
     }
 
     /// <summary>

@@ -11,11 +11,12 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestKMeans()
         {
+            var lap = _context.LinearAlgebraProvider2;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
-                .ToDictionary(d => _cpu.CreateVector(d.Data), d => d.Classification)
+                .ToDictionary(d => lap.CreateVector(d.Data), d => d.Classification)
             ;
             var clusters = data
                 .Select(d => d.Key)
@@ -31,16 +32,17 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestNnmf()
         {
+            var lap = _context.LinearAlgebraProvider2;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
-                .ToDictionary(d => _cpu.CreateVector(d.Data), d => d.Classification)
+                .ToDictionary(d => lap.CreateVector(d.Data), d => d.Classification)
             ;
             var clusters = data
                 .Select(d => d.Key)
                 .ToList()
-                .Nnmf(_cpu, 2)
+                .Nnmf(lap, 2)
             ;
             var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
         }

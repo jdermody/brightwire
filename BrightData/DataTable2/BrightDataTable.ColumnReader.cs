@@ -156,7 +156,7 @@ namespace BrightData.DataTable2
                 var span = _data.GetSpan(item.StartIndex, size);
                 var segment = cu.CreateSegment(size);
                 segment.CopyFrom(span);
-                return cu.CreateMatrix(segment, item.RowCount, item.ColumnCount);
+                return cu.CreateMatrix(item.RowCount, item.ColumnCount, segment);
             }
         }
 
@@ -178,7 +178,7 @@ namespace BrightData.DataTable2
                 var span = _data.GetSpan(item.StartIndex, size);
                 var segment = cu.CreateSegment(size);
                 segment.CopyFrom(span);
-                return cu.CreateTensor3D(segment, item.Depth, item.RowCount, item.ColumnCount);
+                return cu.CreateTensor3D(item.Depth, item.RowCount, item.ColumnCount, segment);
             }
         }
 
@@ -200,7 +200,7 @@ namespace BrightData.DataTable2
                 var span = _data.GetSpan(item.StartIndex, size);
                 var segment = cu.CreateSegment(size);
                 segment.CopyFrom(span);
-                return cu.CreateTensor4D(segment, item.Count, item.Depth, item.RowCount, item.ColumnCount);
+                return cu.CreateTensor4D(item.Count, item.Depth, item.RowCount, item.ColumnCount, segment);
             }
         }
     }

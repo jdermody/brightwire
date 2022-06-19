@@ -58,21 +58,21 @@ namespace BrightWire
 		/// <summary>
 		/// The transformation matrix
 		/// </summary>
-		IFloatMatrix Matrix { get; }
+		IMatrix Matrix { get; }
 
 		/// <summary>
 		/// Reduces a vector
 		/// </summary>
 		/// <param name="vector"></param>
 		/// <returns></returns>
-		IFloatVector Compute(IFloatVector vector);
+		IVector Compute(IVector vector);
 
 		/// <summary>
 		/// Reduces a matrix
 		/// </summary>
 		/// <param name="matrix"></param>
 		/// <returns></returns>
-		IFloatMatrix Compute(IFloatMatrix matrix);
+		IMatrix Compute(IMatrix matrix);
 	}
 
 	/// <summary>
@@ -442,7 +442,7 @@ namespace BrightWire
 		/// Outputs a list of values from 0 to 1 for each input data
 		/// </summary>
 		/// <param name="input">Input data</param>
-		Vector<float> Predict(Matrix<float> input);
+		IVector Predict(IMatrix input);
 	}
 
 	/// <summary>
@@ -485,7 +485,7 @@ namespace BrightWire
 		/// <param name="theta">The model parameters</param>
 		/// <param name="lambda">Regularisation lambda</param>
 		/// <returns></returns>
-		float ComputeCost(IFloatVector theta, float lambda);
+		float ComputeCost(IVector theta, float lambda);
 	}
 
 	/// <summary>
@@ -514,7 +514,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="theta">The model parameters</param>
 		/// <param name="lambda">Regularisation lambda</param>
-		float ComputeCost(IFloatVector theta, float lambda);
+		float ComputeCost(IVector theta, float lambda);
 	}
 
 	/// <summary>

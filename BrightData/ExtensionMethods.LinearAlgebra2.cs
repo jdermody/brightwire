@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -7,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.FloatTensor;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -515,6 +518,45 @@ namespace BrightData
         {
             var (min, max, _, _) = GetMinAndMaxValues(segment);
             var range = max - min;
+        }
+
+        public static Vector<float> AsFloatVector(this IVector vector)
+        {
+            var ret = vector.Context.CreateVector<float>(vector.Size);
+            // TODO: copy to ret
+            return ret;
+        }
+
+        public static float FindDistance(this IVector vector, IVector other, DistanceMetric distance) => distance switch {
+            DistanceMetric.Cosine => vector.CosineDistance(other),
+            DistanceMetric.Euclidean => vector.EuclideanDistance(other),
+            DistanceMetric.Manhattan => vector.ManhattanDistance(other),
+            DistanceMetric.MeanSquared => vector.MeanSquaredDistance(other),
+            DistanceMetric.SquaredEuclidean => vector.SquaredEuclideanDistance(other),
+            _ => throw new NotImplementedException(distance.ToString())
+        };
+
+        public static IVector FindDistance(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        {
+            var size = (uint)vectors.Count;
+            var ret = compareTo.Context.LinearAlgebraProvider2.CreateVector(size);
+            Parallel.For(0, size, ind => ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric));
+            return ret;
+        }
+
+        public static IMatrix FindDistance(this IVector[] compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        {
+            var rows = (uint)compareTo.Length;
+            var columns = (uint)vectors.Count;
+            var ret = compareTo[0].Context.LinearAlgebraProvider2.CreateMatrix(rows, columns);
+
+            Parallel.For(0, rows * columns, ind => {
+                var i = (uint) (ind % columns);
+                var j = (uint) (ind / columns);
+                ret[i, j] = FindDistance(compareTo[i], vectors[(int)j], distanceMetric);
+            });
+
+            return ret;
         }
     }
 }

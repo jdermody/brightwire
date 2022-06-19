@@ -43,7 +43,7 @@ namespace BrightData.MKL
             return result;
         }
 
-        IDisposableTensorSegment Clone(ITensorSegment2 tensor, float coefficient)
+        ITensorSegment2 Clone(ITensorSegment2 tensor, float coefficient)
         {
             var result = CreateSegment(tensor.Size);
             tensor.CopyTo(result);
@@ -93,7 +93,7 @@ namespace BrightData.MKL
                     rowsA
                 );
             });
-            return CreateMatrix(ret, matrix.RowCount, other.ColumnCount);
+            return CreateMatrix(matrix.RowCount, other.ColumnCount, ret);
         }
 
         public override IMatrix Transpose(IMatrix matrix)
@@ -114,7 +114,7 @@ namespace BrightData.MKL
                     rows
                 );
             });
-            return CreateMatrix(ret, matrix.ColumnCount, matrix.RowCount);
+            return CreateMatrix(matrix.ColumnCount, matrix.RowCount, ret);
         }
 
         public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
@@ -138,7 +138,7 @@ namespace BrightData.MKL
                     columnsA
                 );
             });
-            return CreateMatrix(ret, matrix.ColumnCount, other.ColumnCount);
+            return CreateMatrix(matrix.ColumnCount, other.ColumnCount, ret);
         }
 
         public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
@@ -162,7 +162,7 @@ namespace BrightData.MKL
                     rowsA
                 );
             });
-            return CreateMatrix(ret, matrix.RowCount, other.RowCount);
+            return CreateMatrix(matrix.RowCount, other.RowCount, ret);
         }
 
         public override (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
@@ -194,9 +194,9 @@ namespace BrightData.MKL
                 rWork.GetArrayForLocalUseOnly()!
             );
             return (
-                CreateMatrix(u, (uint)rows, (uint)rows),
+                CreateMatrix((uint)rows, (uint)rows, u),
                 CreateVector(s),
-                CreateMatrix(vt, (uint)cols, (uint)cols)
+                CreateMatrix((uint)cols, (uint)cols, vt)
             );
         }
 

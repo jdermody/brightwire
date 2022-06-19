@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2
 {
-    internal class Row2 : IDisposableDataTableSegment
+    internal class Row2 : IDataTableRow
     {
         readonly object[] _data;
 
-        public Row2(BrightDataType[] types, object[] data, uint size)
+        public Row2(BrightDataType[] types, object[] data, uint index)
         {
             Types = types;
             _data = data;
-            Size = size;
+            RowIndex = index;
         }
 
         public void Dispose()
@@ -26,7 +26,7 @@ namespace BrightData.DataTable2
         public object this[uint index] => _data[index];
 
         public BrightDataType[] Types { get; }
-        public uint Size { get; }
+        public uint Size => (uint)_data.Length;
         public IEnumerable<object> Data => _data;
 
         public override string ToString()
@@ -40,5 +40,21 @@ namespace BrightData.DataTable2
                 return $"\"{obj}\"";
             return obj.ToString() ?? "???";
         }
+
+        /// <summary>
+        /// Returns a value (dynamic conversion to type T)
+        /// </summary>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <param name="index">Column index</param>
+        /// <returns></returns>
+        public T Get<T>(uint index) where T : notnull
+        {
+            return (T)_data[index];
+        }
+
+        /// <summary>
+        /// Row index
+        /// </summary>
+        public uint RowIndex { get; }
     }
 }

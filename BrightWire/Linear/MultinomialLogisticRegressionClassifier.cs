@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear
@@ -13,7 +14,7 @@ namespace BrightWire.Linear
         readonly MultinomialLogisticRegression _model;
         readonly List<ILogisticRegressionClassifier> _classifier;
 
-        public MultinomialLogisticRegressionClassifier(ILinearAlgebraProvider lap, MultinomialLogisticRegression model)
+        public MultinomialLogisticRegressionClassifier(LinearAlgebraProvider lap, MultinomialLogisticRegression model)
         {
             _model = model;
             _classifier = _model.Model.Select(c => c.CreateClassifier(lap)).ToList();

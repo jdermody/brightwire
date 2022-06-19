@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.Helper;
 using BrightWire.Linear;
 
@@ -31,7 +32,7 @@ namespace BrightWire.Models.Linear
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        public ITableClassifier CreateClassifier(ILinearAlgebraProvider lap)
+        public ITableClassifier CreateClassifier(LinearAlgebraProvider lap)
         {
             return new MultinomialLogisticRegressionClassifier(lap, this);
         }

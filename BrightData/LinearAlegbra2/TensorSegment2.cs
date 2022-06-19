@@ -6,7 +6,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    internal class TensorSegment2 : IDisposableTensorSegment
+    internal class TensorSegment2 : ITensorSegment2
     {
         readonly MemoryOwner<float> _data;
         readonly float[] _array;
@@ -77,7 +77,7 @@ namespace BrightData.LinearAlegbra2
             else
                 segment.CopyFrom(span);
         }
-
+        public void CopyTo(Span<float> destination) => _array.AsSpan(0, (int)Size).CopyTo(destination);
         public void Clear() => _data.Span.Clear();
     }
 }

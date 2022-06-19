@@ -1020,10 +1020,15 @@ namespace BrightData.Cuda
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
 				devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-				InvokeMatrix(_copyToMatrixRows, rows, columns, devicePtr.DevicePointer, ret.DevicePointer, rows, columns);
-			}
+                CopyToMatrixRows(rows, columns, devicePtr, ret);
+            }
 			return new CudaMatrix(this, rows, columns, ret, true);
 		}
+
+        public void CopyToMatrixRows(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to)
+        {
+            InvokeMatrix(_copyToMatrixRows, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
+        }
 
 		public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
 		{
@@ -1033,10 +1038,15 @@ namespace BrightData.Cuda
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
 				devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-				InvokeMatrix(_copyToMatrixColumns, rows, columns, devicePtr.DevicePointer, ret.DevicePointer, rows, columns);
-			}
+                CopyToMatrixColumns(rows, columns, devicePtr, ret);
+            }
 			return new CudaMatrix(this, rows, columns, ret, true);
 		}
+
+        public void CopyToMatrixColumns(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to)
+        {
+            InvokeMatrix(_copyToMatrixColumns, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
+        }
 
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{

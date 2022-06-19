@@ -90,7 +90,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
             if (writeResults)
-                WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
+                WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
         }
 
         void WriteResults(string type, IRowClassifier classifier)

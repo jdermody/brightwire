@@ -9,6 +9,7 @@ using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
@@ -27,7 +28,7 @@ namespace BrightWire
         /// <param name="fixedSize">The vector size to reduce from</param>
         /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
@@ -98,7 +99,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] Nnmf(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static IVector[][] Nnmf(this IEnumerable<IVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -110,7 +111,7 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, uint k)
+        public static IVector[][] HierachicalCluster(this IEnumerable<IVector> data, uint k)
         {
             using var clusterer = new Hierachical(k, data);
             clusterer.Cluster();
@@ -126,7 +127,7 @@ namespace BrightWire
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, IBrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IVector[][] KMeans(this IEnumerable<IVector> data, IBrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
@@ -258,7 +259,7 @@ namespace BrightWire
         /// <param name="table">The training data table</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns>A trainer that can be used to build a linear regression model</returns>
-        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
+        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, LinearAlgebraProvider lap)
         {
             return new RegressionTrainer(lap, table);
         }

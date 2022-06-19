@@ -162,7 +162,7 @@ namespace ExampleCode.DataTableTrainers
                 // train a logistic regression classifier
                 var logisticRegression = item.Training.Table
                     .TrainMultinomialLogisticRegression(2500, 0.25f, 0.01f)
-                    .CreateClassifier(_context.LinearAlgebraProvider)
+                    .CreateClassifier(_context.LinearAlgebraProvider2)
                 ;
 
                 var convertible = item.Test.Table.AsConvertible();

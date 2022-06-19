@@ -10,7 +10,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment : IDisposableTensorSegment
+    internal class CudaTensorSegment : ITensorSegment2
     {
         int _refCount = 0;
         static readonly string CudaSegmentType = "cuda";
@@ -99,6 +99,12 @@ namespace BrightData.Cuda
                 using var buffer = ToNewMemoryOwner();
                 segment.CopyFrom(buffer.Span);
             }
+        }
+
+        public void CopyTo(Span<float> destination)
+        {
+            using var buffer = ToNewMemoryOwner();
+            buffer.Span.CopyTo(destination);
         }
 
         public void Clear()

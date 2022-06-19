@@ -1,4 +1,5 @@
 ﻿using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.Linear
@@ -8,10 +9,10 @@ namespace BrightWire.Linear
     /// </summary>
     internal class LogisticRegressionPredictor : ILogisticRegressionClassifier
     {
-        readonly IFloatVector _theta;
-        readonly ILinearAlgebraProvider _lap;
+        readonly IVector _theta;
+        readonly LinearAlgebraProvider _lap;
 
-        public LogisticRegressionPredictor(ILinearAlgebraProvider lap, IFloatVector theta)
+        public LogisticRegressionPredictor(LinearAlgebraProvider lap, IVector theta)
         {
             _lap = lap;
             _theta = theta;
@@ -22,13 +23,13 @@ namespace BrightWire.Linear
             _theta.Dispose();
         }
 
-        public Vector<float> Predict(Matrix<float> input)
+        public IVector Predict(IMatrix input)
         {
             using var feature = _lap.CreateMatrix(input.RowCount, input.ColumnCount+1, (i, j) => j == 0 ? 1 : input[i, j - 1]);
             using var h0 = feature.Multiply(_theta);
             using var h1 = h0.Column(0);
             using var h = h1.Sigmoid();
-            return h.Data;
+            return _lap.CreateVector(h);
         }
     }
 }

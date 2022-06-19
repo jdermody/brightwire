@@ -10,7 +10,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2
 {
-    internal class DataTableWriter
+    internal class BrightDataTableWriter
     {
         readonly BrightDataContext   _context;
         readonly IProvideTempStreams _tempStreams;
@@ -19,7 +19,7 @@ namespace BrightData.DataTable2
         readonly ushort              _maxUniqueItemCount;
         readonly MethodInfo          _writeStructs;
 
-        public DataTableWriter(
+        public BrightDataTableWriter(
             BrightDataContext context,
             IProvideTempStreams tempStreams,
             Stream stream, 

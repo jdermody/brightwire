@@ -5,7 +5,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public class TensorSegmentWrapper2 : IDisposableTensorSegmentWrapper
+    public class TensorSegmentWrapper2 : ITensorSegment2
     {
         readonly ITensorSegment2 _segment;
         readonly uint _offset, _stride;
@@ -78,6 +78,12 @@ namespace BrightData.LinearAlegbra2
             for(var i = 0; i < Size; i++)
                 span[i] = this[i];
             segment.CopyFrom(span);
+        }
+
+        public void CopyTo(Span<float> destination)
+        {
+            for(var i = 0; i < Size; i++)
+                destination[i] = this[i];
         }
 
         public void Clear()

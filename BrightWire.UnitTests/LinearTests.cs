@@ -23,15 +23,10 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(8f, 16f);
             var index = dataTable.BuildRowOriented();
 
-            var classifier = index.CreateLinearRegressionTrainer(_cpu);
-            //var theta = classifier.Solve();
-            //var predictor = theta.CreatePredictor(_lap);
-
-            //var prediction = predictor.Predict(3f);
-            //Assert.IsTrue(Math.Round(prediction) == 6f);
+            var classifier = index.CreateLinearRegressionTrainer(_context.LinearAlgebraProvider2);
 
             var theta = classifier.GradientDescent(20, 0.01f, 0.1f, _ => true);
-            var predictor = theta.CreatePredictor(_cpu);
+            var predictor = theta.CreatePredictor(_context.LinearAlgebraProvider2);
             var prediction = predictor.Predict(3f);
             Math.Round(prediction).Should().Be(6f);
 
@@ -72,16 +67,17 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, true);
             var index = dataTable.BuildRowOriented();
 
+            var lap = _context.LinearAlgebraProvider2;
             var trainer = index.CreateLogisticRegressionTrainer();
             var theta = trainer.GradientDescent(1000, 0.1f, 0.1f, _ => true);
-            var predictor = theta.CreateClassifier(_cpu);
-            var probability1 = predictor.Predict(_context.CreateMatrix(1, 1, 2f));
+            var predictor = theta.CreateClassifier(lap);
+            var probability1 = predictor.Predict(lap.CreateMatrix(1, 1, (i, j) => 2f));
             probability1[0].Should().BeLessThan(0.5f);
 
-            var probability2 = predictor.Predict(_context.CreateMatrix(1, 1, 4f));
+            var probability2 = predictor.Predict(lap.CreateMatrix(1, 1, (i, j) => 4f));
             probability2[0].Should().BeGreaterOrEqualTo(0.5f);
 
-            var probability3 = predictor.Predict(_context.CreateMatrixFromRows(_context.CreateVector(1f), _context.CreateVector(2f), _context.CreateVector(3f), _context.CreateVector(4f), _context.CreateVector(5f)));
+            var probability3 = predictor.Predict(lap.CreateMatrixFromRows(lap.CreateVector(1, 1f), lap.CreateVector(1, 2f), lap.CreateVector(1, 3f), lap.CreateVector(1, 4f), lap.CreateVector(1, 5f)));
             probability3[0].Should().BeLessOrEqualTo(0.5f);
             probability3[1].Should().BeLessOrEqualTo(0.5f);
             probability3[2].Should().BeGreaterOrEqualTo(0.5f);
@@ -115,7 +111,7 @@ namespace BrightWire.UnitTests
             var testDataTable = testData.BuildRowOriented();
 
             var model = index.TrainMultinomialLogisticRegression(100, 0.1f);
-            var classifier = model.CreateClassifier(_context.LinearAlgebraProvider);
+            var classifier = model.CreateClassifier(_context.LinearAlgebraProvider2);
             var (_, predictions) = classifier.Classify(testDataTable).Single();
             predictions.GetBestClassification().Should().Be("female");
         }

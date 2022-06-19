@@ -358,7 +358,7 @@ namespace BrightData.Transformation
                 item.WriteTo(writer);
         }
 
-        public IEnumerable<Vector<float>> Enumerate()
+        public IEnumerable<IVector> Enumerate()
         {
             var ret = new float[OutputSize];
 
@@ -368,7 +368,7 @@ namespace BrightData.Transformation
                     foreach (var value in column.GetNext())
                         ret[index++] = value;
                 }
-                var input = Context.CreateVector(ret);
+                var input = Context.LinearAlgebraProvider2.CreateVector(ret);
                 yield return input;
             }
         }

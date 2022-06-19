@@ -77,11 +77,11 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(IFloatVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
+        public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider;
+            var lap = dataTable.Context.LinearAlgebraProvider2;
             return dataTable.GetVectorisedFeatures()
-                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint) i, r.Label));
+                .Select((r, i) => (Vector: r.Numeric, RowIndex: (uint) i, r.Label));
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider;
+            var lap = dataTable.Context.LinearAlgebraProvider2;
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
             return data.Keys.Nnmf(lap, k, maxIterations)

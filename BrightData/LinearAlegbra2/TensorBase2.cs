@@ -54,25 +54,25 @@ namespace BrightData.LinearAlegbra2
         public abstract T Create(ITensorSegment2 segment);
         public abstract uint Size { get; protected set; }
         public abstract uint[] Shape { get; protected set; }
-        ITensor2 ITensor2.Clone() => Clone();
         public ITensorSegment2 Segment { get; private set; }
         public BrightDataContext Context => _lap.Context;
+        public LinearAlgebraProvider LinearAlgebraProvider => _lap;
 
         public IVector Reshape() => _lap.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
         {
             var shape = ResolveShape(Size, rows, columns);
-            return _lap.CreateMatrix(Segment, shape[0], shape[1]);
+            return _lap.CreateMatrix(shape[0], shape[1], Segment);
         }
         public ITensor3D Reshape(uint? depth, uint? rows, uint? columns)
         {
             var shape = ResolveShape(Size, depth, rows, columns);
-            return _lap.CreateTensor3D(Segment, shape[0], shape[1], shape[2]);
+            return _lap.CreateTensor3D(shape[0], shape[1], shape[2], Segment);
         }
         public ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = ResolveShape(Size, count, depth, rows, columns);
-            return _lap.CreateTensor4D(Segment, shape[0], shape[1], shape[2], shape[3]);
+            return _lap.CreateTensor4D(shape[0], shape[1], shape[2], shape[3], Segment);
         }
         static uint[] ResolveShape(uint total, params uint?[] shape)
         {
@@ -111,6 +111,7 @@ namespace BrightData.LinearAlegbra2
             }
         }
 
+        ITensor2 ITensor2.Clone()                                                            => Create(_lap.Clone(Segment));
         public T Clone()                                                                     => Create(_lap.Clone(Segment));
         public void Clear()                                                                  => Segment.Clear();
         public T Add(ITensor2 tensor)                                                        => Create(_lap.Add(Segment, tensor.Segment));
@@ -137,6 +138,10 @@ namespace BrightData.LinearAlegbra2
         public float L1Norm()                                                                => _lap.L1Norm(Segment);
         public float L2Norm()                                                                => _lap.L2Norm(Segment);
         public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues()     => _lap.GetMinAndMaxValues(Segment);
+        public uint GetMinIndex()                                                            => _lap.GetMinIndex(Segment);
+        public uint GetMaxIndex()                                                            => _lap.GetMaxIndex(Segment);
+        public float GetMin()                                                                => _lap.GetMin(Segment);
+        public float GetMax()                                                                => _lap.GetMax(Segment);
         public bool IsEntirelyFinite()                                                       => _lap.IsEntirelyFinite(Segment);
         public T Reverse()                                                                   => Create(_lap.Reverse(Segment));
         public IEnumerable<T> Split(uint blockCount)                                         => _lap.Split(Segment, blockCount).Select(Create);

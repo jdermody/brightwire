@@ -13,23 +13,33 @@ namespace BrightData.DataTable2
     {
         public void WriteColumnsTo(Stream stream, params uint[] columnIndices)
         {
-            var columns = AllOrSpecifiedColumnIndices(columnIndices).Select(ci => {
+            var columns = GetColumns(AllOrSpecifiedColumnIndices(columnIndices)).ToArray();
+            WriteTo(columns, stream);
+        }
+
+        IEnumerable<ISingleTypeTableSegment> GetAllColumns() => GetColumns(ColumnIndices);
+        IEnumerable<ISingleTypeTableSegment> GetColumns(IEnumerable<uint> columnIndices)
+        {
+            foreach (var ci in columnIndices) {
                 var brightDataType = ColumnTypes[ci];
                 var columnDataType = brightDataType.GetColumnType().Type;
                 var dataType = brightDataType.GetDataType();
-                return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
+                yield return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
                     _context,
                     dataType,
                     _header.RowCount,
                     GetColumnReader(ci, _header.RowCount),
                     GetColumnMetaData(ci)
                 );
-            }).ToArray();
+            }
+        }
 
+        void WriteTo(ISingleTypeTableSegment[] columns, Stream stream)
+        {
             if (columns.Any()) {
                 try {
                     using var tempStream = _context.CreateTempStreamProvider();
-                    var writer = new DataTableWriter(_context, tempStream, stream);
+                    var writer = new BrightDataTableWriter(_context, tempStream, stream);
                     writer.Write(TableMetaData, columns);
                 }
                 finally {
@@ -37,6 +47,45 @@ namespace BrightData.DataTable2
                         item.Dispose();
                 }
             }
+        }
+
+        public void ConcatColumns(BrightDataTable[] tables, Stream stream)
+        {
+            if (tables.Any(t => t.RowCount != RowCount))
+                throw new ArgumentException("Row count across tables must agree");
+
+            var columns = GetAllColumns().Concat(tables.SelectMany(t => t.GetAllColumns())).ToArray();
+            WriteTo(columns, stream);
+        }
+
+        public IOperation<bool> ConcatRows(BrightDataTable[] tables, Stream stream)
+        {
+            var rowCount = RowCount;
+            var data = GetAllRowData(true);
+            foreach (var other in tables) {
+                if (other.ColumnCount != ColumnCount)
+                    throw new ArgumentException("Columns must agree - column count was different");
+                if (ColumnTypes.Zip(other.ColumnTypes, (t1, t2) => t1 == t2).Any(v => v == false))
+                    throw new ArgumentException("Columns must agree - types were different");
+
+                rowCount += other.RowCount;
+                data = data.Concat(other.GetAllRowData(true));
+            }
+
+            var tempStream = _context.CreateTempStreamProvider();
+            var buffers = ColumnMetaData.Select((m, ci) => m.GetGrowableSegment(ColumnTypes[ci], _context, tempStream)).ToArray();
+
+            return new WriteRowsOperation(
+                _context,
+                data.GetEnumerator(),
+                null,
+                null,
+                buffers,
+                RowCount,
+                tempStream,
+                stream,
+                TableMetaData
+            );
         }
 
         public IOperation<bool> WriteRowsTo(Stream stream, params uint[] rowIndices)

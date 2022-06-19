@@ -201,7 +201,7 @@ namespace BrightData.DataTable.Builders
             using var builder = new ColumnOrientedTableBuilder();
             builder.WriteHeader((uint)_columns.Count, (uint)_rows.Count, MetaData);
 
-            var tempStream = new TempStreamManager();
+            using var tempStream = Context.CreateTempStreamProvider();
             var columns = _columns.Select(c => c.MetaData.GetGrowableSegment(c.Type, Context, tempStream)).ToList();
             uint index = 0;
             foreach (var row in _rows) {

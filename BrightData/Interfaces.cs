@@ -1208,6 +1208,7 @@ namespace BrightData
     public interface ITensor2 : IDisposable, ISerializable
     {
         BrightDataContext Context { get; }
+        LinearAlgebraProvider LinearAlgebraProvider { get; }
         ITensorSegment2 Segment { get; }
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);
@@ -1218,6 +1219,7 @@ namespace BrightData
     public interface ITensor2<out T> : ITensor2 
         where T: ITensor2
     {
+        new T Clone();
         T Add(ITensor2 tensor);
         T Add(ITensor2 tensor, float coefficient1, float coefficient2);
         T Add(float scalar);
@@ -1242,6 +1244,10 @@ namespace BrightData
         float L1Norm();
         float L2Norm();
         (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues();
+        uint GetMinIndex();
+        uint GetMaxIndex();
+        float GetMin();
+        float GetMax();
         bool IsEntirelyFinite();
         T Reverse();
         IEnumerable<T> Split(uint blockCount);
@@ -1291,10 +1297,10 @@ namespace BrightData
         float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }
         float this[ulong rowY, ulong columnX] { get; set; }
-        IDisposableTensorSegmentWrapper Row(uint index);
-        IDisposableTensorSegmentWrapper Column(uint index);
-        IDisposableTensorSegmentWrapper[] Rows();
-        IDisposableTensorSegmentWrapper[] Columns();
+        ITensorSegment2 Row(uint index);
+        ITensorSegment2 Column(uint index);
+        ITensorSegment2[] Rows();
+        ITensorSegment2[] Columns();
         MemoryOwner<float> ToNewColumnMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
@@ -1311,6 +1317,8 @@ namespace BrightData
         IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
         void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
         (IMatrix U, IVector S, IMatrix VT) Svd();
+        IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
+        IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
     }
 
     public interface ITensor3D : ITensor2<ITensor3D>
@@ -1365,7 +1373,7 @@ namespace BrightData
         bool IsValid { get; }
     }
 
-    public interface ITensorSegment2 : ICountReferences
+    public interface ITensorSegment2 : ICountReferences, IDisposable
     {
         uint Size { get; }
         string SegmentType { get; }
@@ -1378,15 +1386,8 @@ namespace BrightData
         float[] ToNewArray();
         void CopyFrom(ReadOnlySpan<float> span);
         void CopyTo(ITensorSegment2 segment);
+        void CopyTo(Span<float> destination);
         void Clear();
-    }
-
-    public interface IDisposableTensorSegment : ITensorSegment2, IDisposable
-    {
-    }
-
-    public interface IDisposableTensorSegmentWrapper : IDisposableTensorSegment
-    {
     }
 
     public interface ICanIterateData<T> : IDisposable where T: unmanaged

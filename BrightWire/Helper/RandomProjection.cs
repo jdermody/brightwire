@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.Helper
 {
@@ -8,7 +9,7 @@ namespace BrightWire.Helper
     /// </summary>
     internal class RandomProjection : IRandomProjection
     {
-        public RandomProjection(ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public RandomProjection(LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             LinearAlgebraProvider = lap;
             Size = reducedSize;
@@ -30,18 +31,18 @@ namespace BrightWire.Helper
             GC.SuppressFinalize(this);
         }
 
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
 	    public uint Size { get; }
-		public IFloatMatrix Matrix { get; }
+		public IMatrix Matrix { get; }
 
-	    public IFloatVector Compute(IFloatVector vector)
+	    public IVector Compute(IVector vector)
         {
-            using var m = vector.ReshapeAsRowMatrix();
+            using var m = vector.Reshape(1, null);
             using var m2 = m.Multiply(Matrix);
-            return m2.Row(0);
+            return LinearAlgebraProvider.CreateVector(m2.Row(0));
         }
 
-        public IFloatMatrix Compute(IFloatMatrix matrix)
+        public IMatrix Compute(IMatrix matrix)
         {
             return matrix.Multiply(Matrix);
         }

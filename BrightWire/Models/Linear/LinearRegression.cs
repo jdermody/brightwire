@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.Linear;
 
@@ -19,9 +20,9 @@ namespace BrightWire.Models.Linear
         /// Creates a predictor from this model
         /// </summary>
         /// <param name="lap">The linear algebra provider</param>
-        public ILinearRegressionPredictor CreatePredictor(ILinearAlgebraProvider lap)
+        public ILinearRegressionPredictor CreatePredictor(LinearAlgebraProvider lap)
         {
-            return new RegressionPredictor(lap, lap.CreateVector(Theta!.Segment));
+            return new RegressionPredictor(lap, lap.CreateVector(Theta!));
         }
 
         /// <inheritdoc />

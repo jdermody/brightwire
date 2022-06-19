@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -52,19 +53,19 @@ namespace BrightData.LinearAlegbra2
 
         public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<CU>(segment, RowCount, ColumnCount, _lap);
 
-        public IDisposableTensorSegmentWrapper Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
-        public IDisposableTensorSegmentWrapper Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
+        public ITensorSegment2 Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
+        public ITensorSegment2 Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
 
-        public IDisposableTensorSegmentWrapper[] Rows()
+        public ITensorSegment2[] Rows()
         {
-            var ret = new IDisposableTensorSegmentWrapper[RowCount];
+            var ret = new ITensorSegment2[RowCount];
             for (uint i = 0; i < RowCount; i++)
                 ret[i] = Row(i);
             return ret;
         }
-        public IDisposableTensorSegmentWrapper[] Columns()
+        public ITensorSegment2[] Columns()
         {
-            var ret = new IDisposableTensorSegmentWrapper[ColumnCount];
+            var ret = new ITensorSegment2[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
                 ret[i] = Column(i);
             return ret;
@@ -100,7 +101,7 @@ namespace BrightData.LinearAlegbra2
                 var j = ind % ColumnCount;
                 return mutator(i, j, val);
             });
-            return _lap.CreateMatrix(ret, RowCount, ColumnCount);
+            return _lap.CreateMatrix(RowCount, ColumnCount, ret);
         }
 
         public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
@@ -123,6 +124,8 @@ namespace BrightData.LinearAlegbra2
         public IMatrix ConcatColumns(IMatrix bottom) => _lap.ConcatColumns(this, bottom);
         public IMatrix ConcatRows(IMatrix right) => _lap.ConcatRows(this, right);
         public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
+        public IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => _lap.GetNewMatrixFromRows(this, rowIndices);
+        public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
 
         /// <inheritdoc />
         public override string ToString()

@@ -47,9 +47,9 @@ namespace BrightData.DataTable2
             }
         }
 
-        public IDisposableDataTableSegment GetRow(uint rowIndex) => GetRows(rowIndex).Single();
+        public IDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
 
-        public IEnumerable<IDisposableDataTableSegment> GetRows(params uint[] rowIndices)
+        public IEnumerable<IDataTableRow> GetRows(params uint[] rowIndices)
         {
             var columnCount = _header.ColumnCount;
             var readers = new ICanEnumerateDisposable[columnCount];
@@ -65,12 +65,15 @@ namespace BrightData.DataTable2
                     }
 
                     var ret = ArrayPool<object>.Shared.Rent((int)columnCount);
-                    for (uint i = 0; i < columnCount; i++) {
-                        var enumerator = enumerators[i];
-                        enumerator.MoveNext();
-                        ret[i] = enumerator.Current;
+                    for (var j = firstRowIndex; j < rowIndexCount; j++) {
+                        for (uint i = 0; i < columnCount; i++) {
+                            var enumerator = enumerators[i];
+                            enumerator.MoveNext();
+                            ret[i] = enumerator.Current;
+                        }
+
+                        yield return new Row2(ColumnTypes, ret, j);
                     }
-                    yield return new Row2(ColumnTypes, ret, columnCount);
                 }
                 finally {
                     foreach(var item in enumerators)

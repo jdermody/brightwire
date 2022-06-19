@@ -443,12 +443,11 @@ namespace BrightData
             string? fileOutputPath = null,
             int maxRows = int.MaxValue,
             uint inMemoryRowCount = 32768,
-            ushort maxDistinct = 1024,
-            string? tempBasePath = null)
+            ushort maxDistinct = 1024)
         {
             var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
-            using var tempStreams = new TempStreamManager(tempBasePath);
+            using var tempStreams = context.CreateTempStreamProvider();
             var columns = new List<HybridBufferSegment<string>>();
             var isFirst = hasHeader;
             uint rowCount = 0;
@@ -550,7 +549,7 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment<float> vector)
+        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment2 vector)
             where T : struct
         {
             uint index = 0;
@@ -567,10 +566,10 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment<float> vector)
+        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment2 vector)
         {
             var type = GetDataType(column.SingleType);
-            var copySegment = typeof(ExtensionMethods).GetMethod("CopyToFloatSegment")!.MakeGenericMethod(type);
+            var copySegment = typeof(ExtensionMethods).GetMethod(nameof(CopyToFloatSegment))!.MakeGenericMethod(type);
             return (uint)copySegment.Invoke(null, new object[] { column, vector })!;
         }
 
@@ -580,12 +579,12 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices to return as vectors</param>
         /// <returns></returns>
-        public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
+        public static IEnumerable<IVector> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
         {
             var readers = dataTable.AllOrSelectedColumnIndices(columnIndices).Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
             dataTable.ReadTyped(readers.Select(r => r.Consumer));
             var context = dataTable.Context;
-            return readers.Select(r => context.CreateVector(r.Array.Data));
+            return readers.Select(r => context.LinearAlgebraProvider2.CreateVector(r.Array.Data));
         }
 
         /// <summary>
@@ -782,7 +781,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(Vector<float> Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
+        public static IEnumerable<(IVector Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
         {
             var target = dataTable.GetTargetColumn();
             var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
@@ -935,7 +934,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static (Matrix<float> Features, Matrix<float> Target) AsMatrices(this IDataTable dataTable)
+        public static (IMatrix Features, IMatrix Target) AsMatrices(this IDataTable dataTable)
         {
             var targetColumn = dataTable.GetTargetColumnOrThrow();
             var featureColumns = dataTable.ColumnIndices().Where(i => i != targetColumn).ToArray();
@@ -948,29 +947,29 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices to include in the matrix</param>
         /// <returns></returns>
-        public static Matrix<float> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
+        public static IMatrix AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
         {
             // consider the simple case
             if (columnIndices.Length == 1) {
                 var columnType = dataTable.ColumnTypes[columnIndices[0]];
                 if (columnType == BrightDataType.Vector) {
                     var index = 0;
-                    var rows = new Vector<float>[dataTable.RowCount];
-                    var vectorSegment = (IDataTableSegment<Vector<float>>)dataTable.Column(columnIndices[0]);
+                    var rows = new IVector[dataTable.RowCount];
+                    var vectorSegment = (IDataTableSegment<IVector>)dataTable.Column(columnIndices[0]);
                     foreach (var row in vectorSegment.EnumerateTyped())
                         rows[index++] = row;
-                    return dataTable.Context.CreateMatrixFromRows(rows);
+                    return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRows(rows);
                 }
 
                 if (columnType.IsNumeric()) {
-                    var ret = dataTable.Context.CreateMatrix<float>(dataTable.RowCount, 1);
+                    var ret = dataTable.Context.LinearAlgebraProvider2.CreateMatrix(dataTable.RowCount, 1);
                     dataTable.Column(columnIndices[0]).CopyTo(ret.Segment);
                     return ret;
                 }
             }
 
             var vectoriser = new DataTableVectoriser(dataTable, false, columnIndices);
-            return dataTable.Context.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
+            return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
         }
 
         /// <summary>

@@ -15,11 +15,6 @@ namespace BrightData.UnitTests.Helper
             return _context.CreateVector(size, _ => FloatMath.Next(rand));
         }
 
-        public static void CheckEquivalent<T>(ITensor<T> tensor1, ITensor<T> tensor2) where T: struct
-        {
-            tensor1.Should().BeEquivalentTo(tensor2, options => options.Excluding(t => t.Segment.AllocationIndex));
-        }
-
         public virtual void Dispose()
         {
             _context.Dispose();

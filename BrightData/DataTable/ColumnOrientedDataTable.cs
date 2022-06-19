@@ -314,7 +314,7 @@ namespace BrightData.DataTable
 
         public IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string? filePath = null)
         {
-            using var tempStream = new TempStreamManager();
+            using var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnCount.AsRange()
                 .Select(i => _columns[i].Info.MetaData.GetGrowableSegment(_columns[i].Info.ColumnType, Context, tempStream))
                 .ToList();
@@ -333,7 +333,7 @@ namespace BrightData.DataTable
 
         public IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumns[] columns)
         {
-            using var tempStream = new TempStreamManager();
+            using var tempStream = Context.CreateTempStreamProvider();
             var newColumns = new List<ISingleTypeTableSegment>();
             var reinterpreted = columns.SelectMany(c => c.ColumnIndices.Select(i => (Column: c, Index: i)))
                 .ToDictionary(d => d.Index, d => d.Column);

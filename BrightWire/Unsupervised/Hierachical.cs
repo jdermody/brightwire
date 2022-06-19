@@ -15,10 +15,10 @@ namespace BrightWire.Unsupervised
         {
             readonly Centroid? _left = null, _right = null;
 
-            public IFloatVector Center { get; }
-            public IFloatVector[] Data { get; }
+            public IVector Center { get; }
+            public IVector[] Data { get; }
 
-            public Centroid(IFloatVector data)
+            public Centroid(IVector data)
             {
                 Data = new[] { data };
                 Center = data.Clone();
@@ -79,7 +79,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new();
         readonly List<Centroid> _centroid;
 
-        public Hierachical(uint k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierachical(uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;
@@ -126,7 +126,7 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        public IFloatVector[][] Clusters
+        public IVector[][] Clusters
         {
             get {
                 return _centroid.Select(c => c.Data).ToArray();

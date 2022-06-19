@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.Linear;
 
@@ -19,9 +20,9 @@ namespace BrightWire.Models.Linear
         /// Creates a classifier from this model
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
-        public ILogisticRegressionClassifier CreateClassifier(ILinearAlgebraProvider lap)
+        public ILogisticRegressionClassifier CreateClassifier(LinearAlgebraProvider lap)
         {
-            return new LogisticRegressionPredictor(lap, lap.CreateVector(Theta!.Segment));
+            return new LogisticRegressionPredictor(lap, lap.CreateVector(Theta!));
         }
 
         /// <inheritdoc />

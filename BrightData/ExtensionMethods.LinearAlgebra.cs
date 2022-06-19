@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Memory;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -107,7 +108,6 @@ namespace BrightData
         /// Creates a matrix from a segment
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="segment">Segment</param>
@@ -514,7 +514,7 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="values">Diagonal values</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, params float[] values)
+        public static IMatrix CreateDiagonalMatrix(this LinearAlgebraProvider lap, params float[] values)
         {
             return lap.CreateMatrix((uint)values.Length, (uint)values.Length, (x, y) => x == y ? values[x] : 0f);
         }
@@ -894,13 +894,13 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="dimensions">Number of dimensions to reduce to</param>
         /// <returns></returns>
-        public static IFloatMatrix ReduceDimensions(this IFloatMatrix matrix, uint dimensions)
+        public static IMatrix ReduceDimensions(this IMatrix matrix, uint dimensions)
         {
             using var matrixT = matrix.Transpose();
             var (u, vector, vt) = matrixT.Svd();
 
             try {
-                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.AsIndexable().Values.Take((int)dimensions).ToArray());
+                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.Segment.Values.Take((int)dimensions).ToArray());
                 using var v2 = vt.GetNewMatrixFromRows(dimensions.AsRange());
                 return s.Multiply(v2);
             }

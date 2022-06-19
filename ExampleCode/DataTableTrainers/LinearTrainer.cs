@@ -12,7 +12,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void TrainLinearRegression()
         {
-            var lap = Table.Context.LinearAlgebraProvider;
+            var lap = Table.Context.LinearAlgebraProvider2;
             {
                 var trainer = Table.CreateLinearRegressionTrainer(lap);
                 var theta = trainer.GradientDescent(20, 0.03f, 0.1f, cost =>

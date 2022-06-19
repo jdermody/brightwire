@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.Linear
 {
@@ -8,10 +9,10 @@ namespace BrightWire.Linear
     /// </summary>
     internal class RegressionPredictor : ILinearRegressionPredictor
     {
-        readonly IFloatVector _theta;
-        readonly ILinearAlgebraProvider _lap;
+        readonly IVector _theta;
+        readonly LinearAlgebraProvider _lap;
 
-        public RegressionPredictor(ILinearAlgebraProvider lap, IFloatVector theta)
+        public RegressionPredictor(LinearAlgebraProvider lap, IVector theta)
         {
             _lap = lap;
             _theta = theta;
@@ -33,7 +34,7 @@ namespace BrightWire.Linear
             using var v = _lap.CreateMatrix((uint)input.Length, (uint)(input[0].Length + 1), (i, j) => j == 0 ? 1 : input[(int)i][(int)(j - 1)]);
             using var r = v.Multiply(_theta);
             using var r2 = r.Row(0);
-            return r.AsIndexable().Values.ToArray();
+            return r.Segment.Values.ToArray();
         }
     }
 }

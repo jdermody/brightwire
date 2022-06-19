@@ -194,10 +194,10 @@ namespace BrightData.UnitTests
             using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
-            var cudaMatrix = _cudaLinearAlgebraProvider.CreateMatrix(matrix.Segment, RowCount, ColumnCount);
+            var cudaMatrix = _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, matrix.Segment);
             var (u, s, vt) = cudaMatrix.Svd();
 
-            var mklMatrix = _mklLinearAlgebraProvider.CreateMatrix(matrix.Segment, RowCount, ColumnCount);
+            var mklMatrix = _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, matrix.Segment);
             var (u2, s2, vt2) = mklMatrix.Svd();
         }
 

@@ -23,7 +23,7 @@ namespace BrightData.DataTable2
             _context            = context;
             _inMemoryBufferSize = inMemoryBufferSize;
             _maxUniqueItemCount = maxUniqueItemCount;
-            _tempStreams        = new TempStreamManager(context.Get<string>(Consts.BaseTempPath));
+            _tempStreams        = context.CreateTempStreamProvider();
         }
 
         public MetaData TableMetaData { get; } = new();
@@ -62,7 +62,7 @@ namespace BrightData.DataTable2
 
         public void WriteTo(Stream stream)
         {
-            var writer = new DataTableWriter(_context, _tempStreams, stream, _inMemoryBufferSize, _maxUniqueItemCount);
+            var writer = new BrightDataTableWriter(_context, _tempStreams, stream, _inMemoryBufferSize, _maxUniqueItemCount);
             writer.Write(
                 TableMetaData,
                 _columns.Cast<ISingleTypeTableSegment>().ToArray()

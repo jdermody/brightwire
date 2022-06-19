@@ -64,7 +64,7 @@ namespace BrightData.UnitTests
             var vectoriser2 = table.LoadVectoriser(reader);
             var vector2 = vectoriser2.Enumerate().Single();
 
-            CheckEquivalent(vector1, vector2);
+            vector1.Should().BeEquivalentTo(vector2);
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace BrightData.UnitTests
             var row = table.AsRowOriented().Row(0);
             var rowValues = row.ToArray();
             var vectoriser = table.GetVectoriser(false);
-            var vector1 = vectoriser.Enumerate().Single().ToArray();
+            var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();
             var vector2 = vectoriser.Vectorise(row);
             var vector3 = vectoriser.Vectorise(rowValues);
 

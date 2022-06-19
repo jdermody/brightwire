@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
@@ -12,13 +13,13 @@ namespace BrightWire.Linear.Training
     /// </summary>
     internal class LogisticRegressionTrainer : ILogisticRegressionTrainer
     {
-        readonly ILinearAlgebraProvider _lap;
-        readonly IFloatMatrix _feature;
-        readonly IFloatVector _target;
+        readonly LinearAlgebraProvider _lap;
+        readonly IMatrix _feature;
+        readonly IVector _target;
 
         public LogisticRegressionTrainer(IRowOrientedDataTable table)
         {
-            _lap = table.Context.LinearAlgebraProvider;
+            _lap = table.Context.LinearAlgebraProvider2;
 
             // TODO: support target matrix instead of vector
             var (features, target) = table.AsMatrices();
@@ -50,28 +51,26 @@ namespace BrightWire.Linear.Training
                 theta = theta2;
             }
             var ret = new LogisticRegression {
-                Theta = theta.Data
+                Theta = theta.AsFloatVector()
             };
             theta.Dispose();
             return ret;
         }
 
-        IFloatVector Derivative(IFloatVector th, float lambda)
+        IVector Derivative(IVector th, float lambda)
         {
             using var p0 = _feature.Multiply(th);
             using var p1 = p0.Column(0);
             using var p = p1.Sigmoid();
-            using var e0 = p.Subtract(_target);
-            using var e = e0.ReshapeAsRowMatrix();
+            using var e = _lap.CreateMatrix(1, p.Size, p.Subtract(_target.Segment));
             using var e2 = e.Multiply(_feature);
             e2.Multiply(1f / _feature.RowCount);
-            var ret = e2.Row(0);
+            var ret = _lap.CreateVector(e2.Row(0));
             if (FloatMath.IsNotZero(lambda)) {
-                var reg = new float[th.Count];
-                using var thi = th.AsIndexable();
+                var reg = new float[th.Size];
                 var term = lambda / _feature.RowCount;
-                for (uint i = 1; i < th.Count; i++) {
-                    reg[i] = thi[i] * term;
+                for (uint i = 1; i < th.Size; i++) {
+                    reg[i] = th[i] * term;
                 }
 
                 using var regVector = _lap.CreateVector(reg);
@@ -80,12 +79,12 @@ namespace BrightWire.Linear.Training
             return ret;
         }
 
-        public float ComputeCost(IFloatVector th, float lambda)
+        public float ComputeCost(IVector th, float lambda)
         {
             using var h0 = _feature.Multiply(th);
             using var h1 = h0.Column(0);
             using var h = h1.Sigmoid();
-            using var hLog = h.Log();
+            using var hLog = _lap.CreateVector(h.Log());
             using var t = _target.Clone();
             var a = _target.DotProduct(hLog);
             t.Multiply(-1f);
@@ -95,7 +94,7 @@ namespace BrightWire.Linear.Training
             var b = t.DotProduct(hLog);
             var ret = -(a + b) / _feature.RowCount;
             if (FloatMath.IsNotZero(lambda))
-                ret += th.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
+                ret += th.Segment.Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
             return ret;
         }
     }

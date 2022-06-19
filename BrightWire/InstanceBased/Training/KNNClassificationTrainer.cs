@@ -18,7 +18,7 @@ namespace BrightWire.InstanceBased.Training
             var data = vectoriser.Enumerate().ToArray();
 
             return new KNearestNeighbours {
-                Instance = data,
+                Instance = data.Select(d => d.AsFloatVector()).ToArray(),
                 Classification = table.Column(targetColumnIndex).Enumerate().Select(v => v.ToString() ?? throw new Exception("Cannot convert to string")).ToArray(),
                 DataColumns = featureColumns,
                 TargetColumn = targetColumnIndex
