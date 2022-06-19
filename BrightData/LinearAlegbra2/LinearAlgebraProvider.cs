@@ -44,7 +44,7 @@ namespace BrightData.LinearAlegbra2
         }
         internal bool AddToScope(IDisposable obj) => _scope.Last().Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _scope.Last().Remove(obj);
-        public virtual ITensorSegment2 CreateSegment(uint size) => new TensorSegment2(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
+        public virtual ITensorSegment2 CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
 
         public virtual ITensorSegment2 Clone(ITensorSegment2 tensor)
         {
@@ -307,6 +307,23 @@ namespace BrightData.LinearAlegbra2
         {
             var columns = matrix.Columns();
             return CreateVector(matrix.ColumnCount, i => columns[i].Sum());
+        }
+
+        public virtual IVector ColumnSums(ITensor4D tensor)
+        {
+            IVector? ret = null;
+            for (uint i = 0, count = tensor.Count; i < count; i++) {
+                using var subTensor = tensor.Tensor(i);
+                using var tensorAsMatrix = subTensor.Reshape(subTensor.RowCount * subTensor.ColumnCount, subTensor.Depth);
+                var columnSums = tensorAsMatrix.ColumnSums();
+                if (ret == null)
+                    ret = columnSums;
+                else {
+                    ret.AddInPlace(columnSums);
+                    columnSums.Dispose();
+                }
+            }
+            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
         }
 
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)

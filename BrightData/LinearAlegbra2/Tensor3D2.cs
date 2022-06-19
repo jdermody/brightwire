@@ -105,4 +105,11 @@ namespace BrightData.LinearAlegbra2
         {
         }
     }
+
+    public class ArrayBasedTensor3D : Tensor3D2<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedTensor3D(ITensorSegment2 data, uint depth, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, depth, rows, columns, computationUnit)
+        {
+        }
+    }
 }

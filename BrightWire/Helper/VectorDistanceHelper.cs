@@ -82,7 +82,7 @@ namespace BrightWire.Helper
 		/// </summary>
 		public uint[] GetClosest()
         {
-            using var distance = _data.FindDistance(_comparison, Metric);
+            using var distance = _data.FindDistances(_comparison, Metric);
             return _data.Length.AsRange()
                 .Select(i => GetMinimum(distance, i).Index)
                 .ToArray();

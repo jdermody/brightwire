@@ -72,7 +72,7 @@ namespace BrightData.DataTable2
                             ret[i] = enumerator.Current;
                         }
 
-                        yield return new Row2(ColumnTypes, ret, j);
+                        yield return new Row2(this, ret, j);
                     }
                 }
                 finally {

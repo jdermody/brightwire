@@ -69,7 +69,7 @@ namespace BrightData
             var ret = Allocate(segment.Size);
             var array = ret.DangerousGetArray();
             Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = func(v, other[i]); });
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static ITensorSegment2 ZipVectorised(
@@ -95,7 +95,7 @@ namespace BrightData
             }
             for (; i < size; i++)
                 ptr[i] = func2(segment[i], other[i]);
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static ITensorSegment2 TransformParallel(this ITensorSegment2 segment, Func<float, float> transfomer)
@@ -103,7 +103,7 @@ namespace BrightData
             var ret = Allocate(segment.Size);
             var array = ret.DangerousGetArray();
             Parallel.ForEach(segment.Values, (v, _, i) => { array[(int)i] = transfomer(v); });
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static ITensorSegment2 TransformVectorised(this ITensorSegment2 segment, Func<System.Numerics.Vector<float>, System.Numerics.Vector<float>> transfomer1, Func<float, float> transfomer2)
@@ -121,7 +121,7 @@ namespace BrightData
             }
             for (; i < size; i++)
                 ptr[i] = transfomer2(segment[i]);
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static ITensorSegment2 TransformParallelIndexed(this ITensorSegment2 segment, Func<uint, float> transfomer)
@@ -129,7 +129,7 @@ namespace BrightData
             var ret = Allocate(segment.Size);
             var array = ret.DangerousGetArray();
             Parallel.ForEach(segment.Values, (_, _, i) => { array[(int)i] = transfomer((uint)i); });
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static void Mutate(this ITensorSegment2 segment, ITensorSegment2 other, Func<float, float, float> func)
@@ -476,7 +476,7 @@ namespace BrightData
             var ptr = ret.Span;
             for (int i = 0, len = arrayIndices.Length; i < len; i++)
                 ptr[i] = segment[arrayIndices[i]];
-            return new TensorSegment2(ret);
+            return new ArrayPoolTensorSegment(ret);
         }
 
         public static ITensorSegment2 Softmax(this ITensorSegment2 segment)
@@ -527,6 +527,50 @@ namespace BrightData
             return ret;
         }
 
+        public static IVector ToArrayBased(this IVector vector)
+        {
+            if (vector.Segment.SegmentType == Consts.ArrayBased)
+                return vector;
+
+            var lap = vector.Context.ArrayBasedLinearAlgebraProvider;
+            var segment = lap.CreateSegment(vector.Size);
+            segment.CopyFrom(vector.Segment.GetSpan());
+            return new ArrayBasedVector(segment, lap);
+        }
+
+        public static IMatrix ToArrayBased(this IMatrix matrix)
+        {
+            if (matrix.Segment.SegmentType == Consts.ArrayBased)
+                return matrix;
+
+            var lap = matrix.Context.ArrayBasedLinearAlgebraProvider;
+            var segment = lap.CreateSegment(matrix.Segment.Size);
+            segment.CopyFrom(matrix.Segment.GetSpan());
+            return new ArrayBasedMatrix(segment, matrix.RowCount, matrix.ColumnCount, lap);
+        }
+
+        public static ITensor3D ToArrayBased(this ITensor3D tensor)
+        {
+            if (tensor.Segment.SegmentType == Consts.ArrayBased)
+                return tensor;
+
+            var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
+            var segment = lap.CreateSegment(tensor.Segment.Size);
+            segment.CopyFrom(tensor.Segment.GetSpan());
+            return new ArrayBasedTensor3D(segment, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
+        }
+
+        public static ITensor4D ToArrayBased(this ITensor4D tensor)
+        {
+            if (tensor.Segment.SegmentType == Consts.ArrayBased)
+                return tensor;
+
+            var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
+            var segment = lap.CreateSegment(tensor.Segment.Size);
+            segment.CopyFrom(tensor.Segment.GetSpan());
+            return new ArrayBasedTensor4D(segment, tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
+        }
+
         public static float FindDistance(this IVector vector, IVector other, DistanceMetric distance) => distance switch {
             DistanceMetric.Cosine => vector.CosineDistance(other),
             DistanceMetric.Euclidean => vector.EuclideanDistance(other),
@@ -536,7 +580,7 @@ namespace BrightData
             _ => throw new NotImplementedException(distance.ToString())
         };
 
-        public static IVector FindDistance(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        public static IVector FindDistances(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
         {
             var size = (uint)vectors.Count;
             var ret = compareTo.Context.LinearAlgebraProvider2.CreateVector(size);
@@ -544,7 +588,7 @@ namespace BrightData
             return ret;
         }
 
-        public static IMatrix FindDistance(this IVector[] compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        public static IMatrix FindDistances(this IVector[] compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
         {
             var rows = (uint)compareTo.Length;
             var columns = (uint)vectors.Count;
@@ -557,6 +601,32 @@ namespace BrightData
             });
 
             return ret;
+        }
+
+        public static void Set(this ITensorSegment2 segment, Func<uint, float> getValue)
+        {
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = getValue(i);
+        }
+
+        public static void Set(this ITensorSegment2 segment, float value)
+        {
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = value;
+        }
+
+        public static void SetToRandom(this ITensorSegment2 segment, Random random)
+        {
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = System.Convert.ToSingle(random.NextDouble());
+        }
+
+        public static WeightedIndexList ToSparse(this IVector vector)
+        {
+            return WeightedIndexList.Create(vector.Context, vector.Segment.Values
+                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
+                .Where(d => FloatMath.IsNotZero(d.Weight))
+            );
         }
     }
 }

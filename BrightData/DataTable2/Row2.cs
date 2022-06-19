@@ -4,18 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Helper;
 
 namespace BrightData.DataTable2
 {
     internal class Row2 : IDataTableRow
     {
+        readonly BrightDataTable _dataTable;
         readonly object[] _data;
 
-        public Row2(BrightDataType[] types, object[] data, uint index)
+        public Row2(BrightDataTable dataTable, object[] data, uint index)
         {
-            Types = types;
             _data = data;
             RowIndex = index;
+            _dataTable = dataTable;
         }
 
         public void Dispose()
@@ -24,8 +26,7 @@ namespace BrightData.DataTable2
         }
 
         public object this[uint index] => _data[index];
-
-        public BrightDataType[] Types { get; }
+        public BrightDataType[] Types => _dataTable.ColumnTypes;
         public uint Size => (uint)_data.Length;
         public IEnumerable<object> Data => _data;
 
@@ -49,7 +50,7 @@ namespace BrightData.DataTable2
         /// <returns></returns>
         public T Get<T>(uint index) where T : notnull
         {
-            return (T)_data[index];
+            return _dataTable.ConvertObjectTo<T>(index, _data[index]);
         }
 
         /// <summary>

@@ -141,4 +141,11 @@ namespace BrightData.LinearAlegbra2
         {
         }
     }
+
+    public class ArrayBasedMatrix : Matrix2<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedMatrix(ITensorSegment2 data, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
+        {
+        }
+    }
 }

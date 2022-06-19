@@ -15,7 +15,8 @@ namespace BrightData
     public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
         ILinearAlgebraProvider                        _lap;
-        LinearAlgebraProvider                         _lap2;
+        Lazy<LinearAlgebraProvider>                   _lap2;
+        Lazy<ArrayBasedLinearAlgebraProvider>         _arrayBasedLap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
         readonly TensorPool                           _tensorPool;
         readonly DisposableLayers                     _memoryLayers = new();
@@ -46,7 +47,10 @@ namespace BrightData
 
             _memoryLayers.Push();
             _lap = new SimpleLinearAlgebraProvider(this, true);
-            _lap2 = lap ?? new LinearAlgebraProvider(this);
+            if (lap is not null)
+                _lap2 = new(lap);
+            else
+                _lap2 = new(() => new LinearAlgebraProvider(this));
         }
 
         /// <inheritdoc />
@@ -55,7 +59,10 @@ namespace BrightData
             _memoryLayers.Pop();
             _tensorPool.Dispose();
             //TempStreamProvider.Dispose();
-            LinearAlgebraProvider.Dispose();
+            if(_arrayBasedLap.IsValueCreated)
+                _arrayBasedLap.Value.Dispose();
+            if(_lap2.IsValueCreated)
+                _lap2.Value.Dispose();
         }
 
         /// <inheritdoc />
@@ -83,6 +90,8 @@ namespace BrightData
             };
         }
 
+        public ArrayBasedLinearAlgebraProvider ArrayBasedLinearAlgebraProvider => _arrayBasedLap.Value;
+
         /// <summary>
         /// Linear algebra provider
         /// </summary>
@@ -101,18 +110,16 @@ namespace BrightData
         /// </summary>
         public LinearAlgebraProvider LinearAlgebraProvider2
         {
-            get => _lap2;
+            get => _lap2.Value;
             set
             {
-                _lap2.Dispose();
-                _lap2 = value;
+                if(_lap2.IsValueCreated)
+                    _lap2.Value.Dispose();
+                _lap2 = new(value);
             }
         }
 
         public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
-
-        /// <inheritdoc />
-        //public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
 
         /// <inheritdoc />
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;

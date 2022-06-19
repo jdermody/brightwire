@@ -159,7 +159,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public Vector<float> AsDense(uint? maxIndex = null)
+        public IVector AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
@@ -171,8 +171,8 @@ namespace BrightData
             }
 
             if(indices.Any())
-                return Context.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return Context.CreateVector(maxIndex ?? 0, 0f);
+                return Context.LinearAlgebraProvider2.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
+            return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? 0, 0f);
         }
 
         /// <summary>

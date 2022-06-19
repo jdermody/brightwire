@@ -51,6 +51,7 @@ namespace BrightData.UnitTests
             var segment = _cudaLinearAlgebraProvider.CreateSegment((uint)span.Length);
             segment.CopyFrom(span);
             var test = segment.ToNewArray();
+            test.Should().BeEquivalentTo(span.ToArray());
         }
 
         [Fact]

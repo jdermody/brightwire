@@ -966,5 +966,61 @@ namespace BrightData
             ret.Multiply(1f / count);
             return ret;
         }
+
+        /// <summary>
+        /// Calculates an average matrix from a collection of matrices
+        /// </summary>
+        /// <param name="matrices">Matrices to average</param>
+        /// <param name="dispose">True to dispose each of the input matrices</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IMatrix Average(this IEnumerable<IMatrix> matrices, bool dispose)
+        {
+            if(matrices == null)
+                throw new ArgumentException("Null enumerable", nameof(matrices));
+            IMatrix? ret = null;
+            var count = 0;
+            foreach(var item in matrices) {
+                if(ret is null)
+                    ret = item.LinearAlgebraProvider.CreateMatrix(item.RowCount, item.ColumnCount);
+                else
+                    ret.AddInPlace(item);
+                ++count;
+                if(dispose)
+                    item.Dispose();
+            }
+            if(ret is null)
+                throw new ArgumentException("Empty enumerable", nameof(matrices));
+            ret.Multiply(1f / count);
+            return ret;
+        }
+
+        /// <summary>
+        /// Calculates an average vector from a collection of vectors
+        /// </summary>
+        /// <param name="vectors">Vectors to average</param>
+        /// <param name="dispose">True to dispose each of the input vectors</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IVector Average(this IEnumerable<IVector> vectors, bool dispose)
+        {
+            if(vectors == null)
+                throw new ArgumentException("Null enumerable", nameof(vectors));
+            IVector? ret = null;
+            var count = 0;
+            foreach(var item in vectors) {
+                if(ret is null)
+                    ret = item.LinearAlgebraProvider.CreateVector(item.Size);
+                else
+                    ret.AddInPlace(item);
+                ++count;
+                if(dispose)
+                    item.Dispose();
+            }
+            if(ret is null)
+                throw new ArgumentException("Empty enumerable", nameof(vectors));
+            ret.Multiply(1f / count);
+            return ret;
+        }
     }
 }

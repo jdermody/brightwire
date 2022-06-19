@@ -77,4 +77,11 @@ namespace BrightData.LinearAlegbra2
         {
         }
     }
+
+    public class ArrayBasedVector : Vector2<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedVector(ITensorSegment2 data, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, computationUnit)
+        {
+        }
+    }
 }

@@ -6,13 +6,13 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    internal class TensorSegment2 : ITensorSegment2
+    internal class ArrayPoolTensorSegment : ITensorSegment2
     {
         readonly MemoryOwner<float> _data;
         readonly float[] _array;
         int _refCount = 0;
 
-        public TensorSegment2(MemoryOwner<float> data)
+        public ArrayPoolTensorSegment(MemoryOwner<float> data)
         {
             _data = data;
             _array = data.DangerousGetArray().Array!;

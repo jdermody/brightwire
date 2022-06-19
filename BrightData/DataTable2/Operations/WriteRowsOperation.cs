@@ -65,7 +65,6 @@ namespace BrightData.DataTable2.Operations
 
         protected override bool GetResult(bool wasCancelled)
         {
-            var position = _stream.Position;
             var writer = new BrightDataTableWriter(_context, _tempStreams, _stream);
             writer.Write(_tableMetaData, _buffers.Cast<ISingleTypeTableSegment>().ToArray());
             return !wasCancelled;

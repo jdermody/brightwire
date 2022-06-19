@@ -16,7 +16,7 @@ namespace BrightWire.UnitTests
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
-                .ToDictionary(d => lap.CreateVector(d.Data), d => d.Classification)
+                .ToDictionary(d => d.Data, d => d.Classification)
             ;
             var clusters = data
                 .Select(d => d.Key)
@@ -37,7 +37,7 @@ namespace BrightWire.UnitTests
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
                 .Vectorise(_context)
-                .ToDictionary(d => lap.CreateVector(d.Data), d => d.Classification)
+                .ToDictionary(d => d.Data, d => d.Classification)
             ;
             var clusters = data
                 .Select(d => d.Key)

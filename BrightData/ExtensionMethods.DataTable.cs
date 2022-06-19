@@ -1084,7 +1084,7 @@ namespace BrightData
         /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, Vector<float> Data)> data, bool preserveVectors, IBrightDataContext context)
+        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, IVector Data)> data, bool preserveVectors, IBrightDataContext context)
         {
             var builder = context.BuildTable();
             if (preserveVectors) {
@@ -1119,15 +1119,15 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static IReadOnlyList<(string Classification, Vector<float> Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(string Classification, IVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            Vector<float> Create(WeightedIndexList weightedIndexList)
+            IVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
                 foreach (var item in weightedIndexList.Indices)
                     ret[item.Index] = item.Weight;
-                return context.CreateVector(ret);
+                return context.LinearAlgebraProvider2.CreateVector(ret);
             }
             return data.Select(r => (r.Label, Create(r.Data))).ToList();
         }

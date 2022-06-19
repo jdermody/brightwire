@@ -75,7 +75,7 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
             var lap = context.LinearAlgebraProvider2;
             (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
-            _vectors = data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size + 1))).ToArray();
+            _vectors = data.Select(d => d.Data.AsDense(_stringTable.Size + 1)).ToArray();
             foreach(var (first, second) in _vectors.Zip(documents))
                 _documentTable.Add(first, second);
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
@@ -109,7 +109,7 @@ namespace ExampleCode.DataTableTrainers
             using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
             var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => lap.CreateVector(projectedMatrix.Row(i))).ToList();
-            var lookupTable2 = vectorList2.Select((v, i) => (v, _vectors[i])).ToDictionary(d => d.Item1, d => _documentTable[d.Item2]);
+            var lookupTable2 = vectorList2.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
             Console.Write("done...");
 
             Console.Write("Kmeans clustering of random projection...");
@@ -140,7 +140,7 @@ namespace ExampleCode.DataTableTrainers
                 s.Dispose();
 
                 var vectorList3 = sv2.Columns().Select(c => lap.CreateVector(c)).ToList();
-                var lookupTable3 = vectorList3.Select((v, i) => (v, _vectors[i])).ToDictionary(d => d.Item1, d => _documentTable[d.Item2]);
+                var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");
                 WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);

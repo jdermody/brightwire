@@ -107,10 +107,10 @@ namespace ExampleCode.DataTableTrainers
                 foreach (var (vector, target) in item.Output.Zip(item.Target!, (o, t) => (Output: o, Target: t))) {
                     var columnIndex = 0;
                     sb.AppendLine($"{rowIndex++}) ");
-                    foreach (var column in vector.Zip(target,
+                    foreach (var (v, t) in vector.Zip(target,
                         (o, t) => (Output: o, Target: t))) {
-                        var prediction = column.Output >= 0.5f ? "true" : "false";
-                        var actual = column.Target >= 0.5f ? "true" : "false";
+                        var prediction = v >= 0.5f ? "true" : "false";
+                        var actual = t >= 0.5f ? "true" : "false";
                         sb.AppendLine($"\t{columnIndex++}) predicted {prediction} (expected {actual})");
                     }
                 }

@@ -268,7 +268,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
-        public Vector<float> AsDense(uint? maxIndex = null)
+        public IVector AsDense(uint? maxIndex = null)
         {
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
@@ -283,8 +283,8 @@ namespace BrightData
             }
 
             if (indices.Any())
-                return Context.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
-            return Context.CreateVector(maxIndex ?? 0, _ => 0f);
+                return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
+            return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? 0, _ => 0f);
         }
 
         /// <inheritdoc />

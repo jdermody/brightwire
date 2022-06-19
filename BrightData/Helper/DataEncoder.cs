@@ -81,24 +81,22 @@ namespace BrightData.Helper
                 val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Matrix<float>)) {
+            if (typeOfT == typeof(IMatrix)) {
                 var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.MatrixType);
                 val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Tensor3D<float>)) {
+            if (typeOfT == typeof(ITensor3D)) {
                 var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
                 val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Tensor4D<float>)) {
+            if (typeOfT == typeof(ITensor4D)) {
                 var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor4DType);
                 val.Initialize(_context, reader);
                 return __refvalue(__makeref(val), T);
             }
+
 
             if (typeOfT == typeof(BinaryData)) {
                 var val = new BinaryData(reader);
@@ -177,28 +175,40 @@ namespace BrightData.Helper
                     ret[i] = _context.CreateWeightedIndexList(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Vector<float>)) {
-                var ret = new Vector<float>[len];
-                for (uint i = 0; i < len; i++)
-                    ret[i] = new Vector<float>(_context, reader);
+            if (typeOfT == typeof(IVector)) {
+                var ret = new IVector[len];
+                for (uint i = 0; i < len; i++) {
+                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.VectorType);
+                    val.Initialize(_context, reader);
+                    ret[i] = (IVector)val;
+                }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Matrix<float>)) {
-                var ret = new Matrix<float>[len];
-                for (uint i = 0; i < len; i++)
-                    ret[i] = new Matrix<float>(_context, reader);
+            if (typeOfT == typeof(IMatrix)) {
+                var ret = new IMatrix[len];
+                for (uint i = 0; i < len; i++) {
+                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.MatrixType);
+                    val.Initialize(_context, reader);
+                    ret[i] = (IMatrix)val;
+                }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Tensor3D<float>)) {
-                var ret = new Tensor3D<float>[len];
-                for (uint i = 0; i < len; i++)
-                    ret[i] = new Tensor3D<float>(_context, reader);
+            if (typeOfT == typeof(ITensor3D)) {
+                var ret = new ITensor3D[len];
+                for (uint i = 0; i < len; i++) {
+                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
+                    val.Initialize(_context, reader);
+                    ret[i] = (ITensor3D)val;
+                }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Tensor4D<float>)) {
-                var ret = new Tensor4D<float>[len];
-                for (uint i = 0; i < len; i++)
-                    ret[i] = new Tensor4D<float>(_context, reader);
+            if (typeOfT == typeof(ITensor4D)) {
+                var ret = new ITensor4D[len];
+                for (uint i = 0; i < len; i++) {
+                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
+                    val.Initialize(_context, reader);
+                    ret[i] = (ITensor4D)val;
+                }
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(BinaryData)) {
@@ -245,14 +255,14 @@ namespace BrightData.Helper
                 __refvalue(valRef, IndexList).WriteTo(writer);
             else if (typeOfT == typeof(WeightedIndexList))
                 __refvalue(valRef, WeightedIndexList).WriteTo(writer);
-            else if (typeOfT == typeof(Vector<float>))
-                __refvalue(valRef, Vector<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Matrix<float>))
-                __refvalue(valRef, Matrix<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Tensor3D<float>))
-                __refvalue(valRef, Tensor3D<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Tensor4D<float>))
-                __refvalue(valRef, Tensor4D<float>).WriteTo(writer);
+            else if (typeOfT == typeof(IVector))
+                __refvalue(valRef, IVector).WriteTo(writer);
+            else if (typeOfT == typeof(IMatrix))
+                __refvalue(valRef, IMatrix).WriteTo(writer);
+            else if (typeOfT == typeof(ITensor3D))
+                __refvalue(valRef, ITensor3D).WriteTo(writer);
+            else if (typeOfT == typeof(ITensor4D))
+                __refvalue(valRef, ITensor4D).WriteTo(writer);
             else if (typeOfT == typeof(BinaryData))
                 __refvalue(valRef, BinaryData).WriteTo(writer);
             else
@@ -322,20 +332,20 @@ namespace BrightData.Helper
                 var data = __refvalue(__makeref(values), WeightedIndexList[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Vector<float>)) {
-                var data = __refvalue(__makeref(values), Vector<float>[]);
+            } else if (typeOfT == typeof(IVector)) {
+                var data = __refvalue(__makeref(values), IVector[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Matrix<float>)) {
-                var data = __refvalue(__makeref(values), Matrix<float>[]);
+            } else if (typeOfT == typeof(IMatrix)) {
+                var data = __refvalue(__makeref(values), IMatrix[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Tensor3D<float>)) {
-                var data = __refvalue(__makeref(values), Tensor3D<float>[]);
+            } else if (typeOfT == typeof(ITensor3D)) {
+                var data = __refvalue(__makeref(values), ITensor3D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Tensor4D<float>)) {
-                var data = __refvalue(__makeref(values), Tensor4D<float>[]);
+            } else if (typeOfT == typeof(ITensor4D)) {
+                var data = __refvalue(__makeref(values), ITensor4D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
             } else if (typeOfT == typeof(BinaryData)) {

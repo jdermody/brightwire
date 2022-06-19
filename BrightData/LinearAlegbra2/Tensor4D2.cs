@@ -66,6 +66,7 @@
         public ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
         public ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
         public ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+        public IVector ColumnSums() => _lap.ColumnSums(this);
 
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }
@@ -73,6 +74,13 @@
     public class Tensor4D2 : Tensor4D2<LinearAlgebraProvider>
     {
         public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
+        {
+        }
+    }
+
+    public class ArrayBasedTensor4D : Tensor4D2<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedTensor4D(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
         {
         }
     }
