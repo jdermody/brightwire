@@ -9,7 +9,7 @@
             Extension methods
             </summary>
         </member>
-        <member name="M:BrightData.Numerics.ExtensionMethods.UseNumericsLinearAlgebra(BrightData.IBrightDataContext)">
+        <member name="M:BrightData.Numerics.ExtensionMethods.UseNumericsLinearAlgebra(BrightData.BrightDataContext)">
             <summary>
             Creates a linear algebra provider that runs on the CPU
             </summary>

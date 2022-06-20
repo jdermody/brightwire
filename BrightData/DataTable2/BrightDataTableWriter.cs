@@ -176,17 +176,18 @@ namespace BrightData.DataTable2
         }
         void WriteStructs<T>(ICanEnumerateWithSize<T> buffer) where T : struct =>
             Write<T, T>(buffer, (item, ptr, index) => ptr[index] = item);
-        delegate Span<IT> GetSpans<in T, IT>(T item) where IT : struct;
-        void WriteDataRange<T, IT>(ICanEnumerateWithSize<T> buffer, IHybridBuffer<IT> indices, GetSpans<T, IT> getSpan)
+        delegate IT[] GetArray<in T, out IT>(T item) where IT : struct;
+        void WriteDataRange<T, IT>(ICanEnumerateWithSize<T> buffer, IHybridBuffer<IT> indices, GetArray<T, IT> getArray)
             where T : notnull
             where IT : struct
         {
             Write<T, DataRangeColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
-                var span = getSpan(item);
+                var array = getArray(item);
                 data.StartIndex = indices.Size;
-                data.Count = (uint)span.Length;
-                indices.Add(span);
+                data.Count = (uint)array.Length;
+                foreach(var val in array)
+                    indices.Add(val);
             });
         }
 
@@ -217,7 +218,7 @@ namespace BrightData.DataTable2
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Size;
-                floats.Add(item.Segment.GetSpan());
+                floats.CopyFrom(item.Segment);
             });
         }
 
@@ -228,7 +229,7 @@ namespace BrightData.DataTable2
                 data.StartIndex = floats.Size;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.Add(item.Segment.GetSpan());
+                floats.CopyFrom(item.Segment);
             });
         }
 
@@ -240,7 +241,7 @@ namespace BrightData.DataTable2
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.Add(item.Segment.GetSpan());
+                floats.CopyFrom(item.Segment);
             });
         }
 
@@ -253,7 +254,7 @@ namespace BrightData.DataTable2
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.Add(item.Segment.GetSpan());
+                floats.CopyFrom(item.Segment);
             });
         }
     }

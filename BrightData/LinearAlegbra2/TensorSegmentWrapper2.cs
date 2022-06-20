@@ -91,5 +91,13 @@ namespace BrightData.LinearAlegbra2
             for (uint i = 0; i < Size; i++)
                 this[i] = 0f;
         }
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Values.Take(8));
+            if (Size > 8)
+                preview += "|...";
+            return $"{SegmentType} [{_offset}, {_stride}] ({Size}): {preview}";
+        }
     }
 }

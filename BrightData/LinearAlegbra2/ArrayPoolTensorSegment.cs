@@ -79,5 +79,13 @@ namespace BrightData.LinearAlegbra2
         }
         public void CopyTo(Span<float> destination) => _array.AsSpan(0, (int)Size).CopyTo(destination);
         public void Clear() => _data.Span.Clear();
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Values.Take(8));
+            if (Size > 8)
+                preview += "|...";
+            return $"{SegmentType} ({Size}): {preview}";
+        }
     }
 }

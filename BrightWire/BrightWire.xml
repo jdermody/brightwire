@@ -2315,7 +2315,7 @@
             <param name="miniBatch"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.ILinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
             <summary>
             Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
             </summary>
@@ -2363,7 +2363,7 @@
             <param name="item3">The third observation</param>
             <returns>The list of state transitions or null if nothing was found</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},BrightData.ILinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
             Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
@@ -2373,7 +2373,7 @@
             <param name="maxIterations">The maximum number of iterations</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.HierachicalCluster(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.HierachicalCluster(System.Collections.Generic.IEnumerable{BrightData.IVector},System.UInt32)">
             <summary>
             Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
             </summary>
@@ -2381,7 +2381,7 @@
             <param name="k">The number of clusters to find</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
             </summary>
@@ -2462,7 +2462,7 @@
             <param name="table">The training data provider</param>
             <returns>A naive bayes model</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateLinearRegressionTrainer(BrightData.IDataTable,BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateLinearRegressionTrainer(BrightData.IDataTable,BrightData.LinearAlegbra2.LinearAlgebraProvider)">
             <summary>
             Linear regression fits a line to a set of data that allows you predict future values
             </summary>
@@ -2548,7 +2548,7 @@
             Calculates the distance between a list of vectors and a list of vectors to compare against
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IFloatVector[],BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IVector[],BrightData.DistanceMetric)">
             <summary>
             Constructor
             </summary>
@@ -2565,21 +2565,21 @@
             Distance metric
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IFloatVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IVector)">
             <summary>
             Adds a comparison vector (will be owned and disposed by the helper class)
             </summary>
             <param name="comparison">Vector to compare against</param>
             <returns>Index of the comparison vector</returns>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IFloatVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IVector)">
             <summary>
             Updates the comparison vector at this index (disposes the old vector)
             </summary>
             <param name="index">Index to update</param>
             <param name="newVector">Vector to replace with</param>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IFloatVector})">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IVector})">
             <summary>
             Updates the entire list of comparison vectors
             </summary>
@@ -2628,7 +2628,7 @@
         </member>
         <member name="P:BrightWire.IGraphData.Count">
             <summary>
-            Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
+            Count of 3D tensors (1 if the signal is a matrix or 3D tensor)
             </summary>
         </member>
         <member name="M:BrightWire.IGraphData.GetMatrix">
@@ -3385,14 +3385,14 @@
             The transformation matrix
             </summary>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IFloatVector)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IVector)">
             <summary>
             Reduces a vector
             </summary>
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IMatrix)">
             <summary>
             Reduces a matrix
             </summary>
@@ -3751,7 +3751,7 @@
             Logistic regression classifier
             </summary>
         </member>
-        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.LinearAlgebra.Matrix{System.Single})">
+        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.IMatrix)">
             <summary>
             Outputs a list of values from 0 to 1 for each input data
             </summary>
@@ -3790,7 +3790,7 @@
             <param name="costCallback">Callback with current cost - False to stop training</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ILogisticRegressionTrainer.ComputeCost(BrightData.IFloatVector,System.Single)">
+        <member name="M:BrightWire.ILogisticRegressionTrainer.ComputeCost(BrightData.IVector,System.Single)">
             <summary>
             Computes the cost of the specified parameters
             </summary>
@@ -3813,7 +3813,7 @@
             <param name="costCallback">Callback with current cost - False to stop training</param>
             <returns>A trained model</returns>
         </member>
-        <member name="M:BrightWire.ILinearRegressionTrainer.ComputeCost(BrightData.IFloatVector,System.Single)">
+        <member name="M:BrightWire.ILinearRegressionTrainer.ComputeCost(BrightData.IVector,System.Single)">
             <summary>
             Computes the cost of the specified parameters
             </summary>
@@ -4667,7 +4667,7 @@
             The model parameters
             </summary>
         </member>
-        <member name="M:BrightWire.Models.Linear.LinearRegression.CreatePredictor(BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.Models.Linear.LinearRegression.CreatePredictor(BrightData.LinearAlegbra2.LinearAlgebraProvider)">
             <summary>
             Creates a predictor from this model
             </summary>
@@ -4689,7 +4689,7 @@
             The model parameters
             </summary>
         </member>
-        <member name="M:BrightWire.Models.Linear.LogisticRegression.CreateClassifier(BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.Models.Linear.LogisticRegression.CreateClassifier(BrightData.LinearAlegbra2.LinearAlgebraProvider)">
             <summary>
             Creates a classifier from this model
             </summary>
@@ -4721,7 +4721,7 @@
             The columns used to build the dense input vectors
             </summary>
         </member>
-        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.CreateClassifier(BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.CreateClassifier(BrightData.LinearAlegbra2.LinearAlgebraProvider)">
             <summary>
             Creates a classifier from this model
             </summary>

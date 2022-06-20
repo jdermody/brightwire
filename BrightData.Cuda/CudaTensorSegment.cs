@@ -111,5 +111,10 @@ namespace BrightData.Cuda
         {
             DeviceMemory.Clear();
         }
+
+        public override string ToString()
+        {
+            return $"{SegmentType} ({Size})";
+        }
     }
 }

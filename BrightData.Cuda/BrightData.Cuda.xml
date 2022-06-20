@@ -34,7 +34,7 @@
             Provides a GPU based linear algebra provider
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.ExtensionMethods.UseCudaLinearAlgebra(BrightData.IBrightDataContext,System.String,System.UInt32)">
+        <member name="M:BrightData.Cuda.ExtensionMethods.UseCudaLinearAlgebra(BrightData.BrightDataContext,System.String,System.UInt32)">
             <summary>
             Creates a linear alebra provider that runs on the GPU
             </summary>

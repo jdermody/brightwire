@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
 using BrightData.Serialisation;
 using Microsoft.Toolkit.HighPerformance;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
@@ -33,7 +34,15 @@ namespace BrightData.LinearAlegbra2
         public void WriteTo(BinaryWriter writer)
         {
             Shape.WriteTo(writer);
-            writer.Write(Segment.GetSpan().AsBytes());
+            var temp = SpanOwner<float>.Empty;
+            var span = Segment.GetSpan(ref temp, out var wasTempUsed);
+            try {
+                writer.Write(span.AsBytes());
+            }
+            finally {
+                if(wasTempUsed)
+                    temp.Dispose();;
+            }
         }
 
         public virtual void Initialize(IBrightDataContext context, BinaryReader reader)

@@ -265,14 +265,16 @@ namespace BrightData.LinearAlegbra2
             var ret = CreateMatrix(rowCount, other.ColumnCount);
             var columns = other.Columns();
             var rows = matrix.Rows();
+            //for (uint ind = 0; ind < matrix.RowCount * other.ColumnCount; ind++) {
             Parallel.For(0, matrix.RowCount * other.ColumnCount, ind => {
-                var i = (uint) (ind % rowCount);
-                var j = (uint) (ind / rowCount);
+                var i = (uint)(ind % rowCount);
+                var j = (uint)(ind / rowCount);
                 var column = columns[j];
                 var row = rows[i];
                 var val = row.DotProduct(column);
                 ret[i, j] = val;
             });
+            //}
 
             // don't need to dispose the wrappers
             return ret;

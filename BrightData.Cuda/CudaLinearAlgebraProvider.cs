@@ -68,8 +68,16 @@ namespace BrightData.Cuda
                 return segment;
 
             var deviceMemory = _cuda.Memory.GetMemory(segment.Size);
-            deviceMemory.CopyToDevice(segment.GetSpan());
-            return new CudaTensorSegment(deviceMemory);
+            var temp = SpanOwner<float>.Empty;
+            var span = segment.GetSpan(ref temp, out var wasTempUsed);
+            try {
+                deviceMemory.CopyToDevice(span);
+                return new CudaTensorSegment(deviceMemory);
+            }
+            finally {
+                if(wasTempUsed)
+                    temp.Dispose();
+            }
         }
 
         public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2)

@@ -334,7 +334,7 @@
             Bright data context
             </summary>
         </member>
-        <member name="M:BrightData.BrightDataContext.#ctor(System.Nullable{System.Int32})">
+        <member name="M:BrightData.BrightDataContext.#ctor(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.Int32})">
             <summary>
             Constructor
             </summary>
@@ -363,8 +363,10 @@
             Linear algebra provider
             </summary>
         </member>
-        <member name="P:BrightData.BrightDataContext.TempStreamProvider">
-            <inheritdoc />
+        <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider2">
+            <summary>
+            Linear algebra provider
+            </summary>
         </member>
         <member name="M:BrightData.BrightDataContext.Get``1(System.String,``0)">
             <inheritdoc />
@@ -393,17 +395,17 @@
         <member name="P:BrightData.BrightDataContext.CancellationToken">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Buffer.EncodedStreamReader">
+        <member name="T:BrightData.Buffer.EncodedStream.EncodedStreamReader">
             <summary>
             Reads from potentially encoded storage
             </summary>
         </member>
-        <member name="T:BrightData.Buffer.EncodedStreamWriter">
+        <member name="T:BrightData.Buffer.EncodedStream.EncodedStreamWriter">
             <summary>
             Writes hybrid buffers to binary writers, potentially encoding along the way
             </summary>
         </member>
-        <member name="M:BrightData.Buffer.EncodedStreamWriter.CopyTo``1(BrightData.IHybridBuffer{``0},System.IO.Stream)">
+        <member name="M:BrightData.Buffer.EncodedStream.EncodedStreamWriter.CopyTo``1(BrightData.IHybridBuffer{``0},System.IO.Stream)">
             <summary>
             Writes the hybrid buffer to a stream
             </summary>
@@ -411,7 +413,7 @@
             <param name="buffer">Buffer to write</param>
             <param name="stream">Stream to write to</param>
         </member>
-        <member name="M:BrightData.Buffer.EncodedStreamWriter.GetWriter``1(BrightData.ICanEnumerate{``0},System.Boolean)">
+        <member name="M:BrightData.Buffer.EncodedStream.EncodedStreamWriter.GetWriter``1(BrightData.ICanEnumerateWithSize{``0},System.Boolean)">
             <summary>
             Returns an writer that can write the buffer to a binary writer
             </summary>
@@ -420,51 +422,39 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="T:BrightData.Buffer.GrowableSegment`1">
-            <summary>
-            A single type data table segment that can grow in size
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Buffer.GrowableSegment`1.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Buffer.GrowableSegment`1.MetaData">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Buffer.GrowableSegment`1.SingleType">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Buffer.GrowableSegment`1.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Buffer.GrowableSegment`1.CopyTo(System.IO.Stream)">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightData.Buffer.HybridBufferBase`1">
+        <member name="T:BrightData.Buffer.Hybrid.HybridBufferBase`1">
             <summary>
             Hybrid buffers write to disk after their in memory cache is exhausted
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Buffer.InMemorySegment`1.Dispose">
+        <member name="T:BrightData.Buffer.Hybrid.HybridBufferSegment`1">
+            <summary>
+            A single type data table segment that can grow in size
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Buffer.Hybrid.HybridBufferSegment`1.Dispose">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Buffer.InMemorySegment`1.MetaData">
+        <member name="P:BrightData.Buffer.Hybrid.HybridBufferSegment`1.MetaData">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Buffer.InMemorySegment`1.SingleType">
+        <member name="P:BrightData.Buffer.Hybrid.HybridBufferSegment`1.SingleType">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Buffer.InMemorySegment`1.WriteTo(System.IO.BinaryWriter)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBufferSegment`1.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Buffer.StaticBuffers">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBufferSegment`1.CopyTo(System.IO.Stream)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods">
             <summary>
             Static methods to create hybrid buffers
             </summary>
         </member>
-        <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store structs
             </summary>
@@ -474,7 +464,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store structs
             </summary>
@@ -484,7 +474,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store strings
             </summary>
@@ -493,7 +483,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -503,7 +493,7 @@
             <param name="bufferSize"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -512,6 +502,18 @@
             <param name="type"></param>
             <param name="bufferSize"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.InMemory.InMemorySegment`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.InMemory.InMemorySegment`1.MetaData">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.InMemory.InMemorySegment`1.SingleType">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.InMemory.InMemorySegment`1.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Consts">
             <summary>
@@ -609,6 +611,28 @@
             <typeparam name="TF">Type to convert from</typeparam>
             <typeparam name="TT">Type to convert to</typeparam>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable2.BrightDataTable.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.DataTable2.BrightDataTable.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.DataTable2.ColumnReader`2.EnumerateTyped">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.DataTable2.Row2.Get``1(System.UInt32)">
+            <summary>
+            Returns a value (dynamic conversion to type T)
+            </summary>
+            <typeparam name="T">Type to convert to</typeparam>
+            <param name="index">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.DataTable2.Row2.RowIndex">
+            <summary>
+            Row index
+            </summary>
         </member>
         <member name="T:BrightData.DataTable.Builders.ColumnOrientedTableBuilder">
             <summary>
@@ -889,7 +913,7 @@
             <param name="dates"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{BrightData.ITensor{System.Single}})">
+        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{BrightData.ITensor2})">
             <summary>
             Analyzes tensors in a sequence
             </summary>
@@ -1206,11 +1230,12 @@
             <param name="writable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyUser,System.UInt32,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyUser,System.String,System.UInt32,System.UInt32,System.Single)">
             <summary>
             Notifies about the progress of a multi part operation
             </summary>
             <param name="notify"></param>
+            <param name="operationId">Unique operation id</param>
             <param name="index">Index of current part</param>
             <param name="total">Total number of parts</param>
             <param name="progress">Process within the part</param>
@@ -1257,6 +1282,16 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="items">Array to permute</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``1(System.IO.Stream,System.UInt32,System.Int32)">
+            <summary>
+            Enumerates a stream as a series of structs. This is best for small structs such as int32 etc as the values are not passed by reference.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="stream"></param>
+            <param name="count">Total count to return</param>
+            <param name="tempBufferSize">Size of temp buffer to use</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
@@ -1439,7 +1474,7 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16,System.String)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16)">
             <summary>
             Parse CSV into a column oriented data table using hybrid buffers
             </summary>
@@ -1470,7 +1505,7 @@
             <param name="filePath">File path on disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment2)">
             <summary>
             Copies a data table segment to a tensor segment
             </summary>
@@ -1479,7 +1514,7 @@
             <param name="vector">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment2)">
             <summary>
             Copies a data table segment to tensor segment
             </summary>
@@ -1723,7 +1758,7 @@
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.LinearAlgebra.Vector{System.Single}}},System.Boolean,BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IVector}},System.Boolean,BrightData.IBrightDataContext)">
             <summary>
             Converts the vector classifications into a data table
             </summary>
@@ -1972,16 +2007,6 @@
             <param name="metaData">Column meta data (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetSegmentWithHybridBuffer(BrightData.IBrightDataContext,System.UInt32,BrightData.BrightDataType,BrightData.IMetaData)">
-            <summary>
-            Creates a table segment with an associated hybrid buffer
-            </summary>
-            <param name="context"></param>
-            <param name="columnIndex">Column index</param>
-            <param name="columnType">Column data type</param>
-            <param name="metaData">Column meta data (optional)</param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
             <summary>
             Returns a randomly initialized float greater than or equal to 0f, and less than 1f
@@ -2222,7 +2247,6 @@
             Creates a matrix from a segment
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
             <param name="rows">Number of rows</param>
             <param name="columns">Number of columns</param>
             <param name="segment">Segment</param>
@@ -2488,7 +2512,7 @@
             <param name="size">Width and height of the new matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateDiagonalMatrix(BrightData.ILinearAlgebraProvider,System.Single[])">
+        <member name="M:BrightData.ExtensionMethods.CreateDiagonalMatrix(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Single[])">
             <summary>
             Creates a diagonal matrix
             </summary>
@@ -2712,7 +2736,7 @@
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReduceDimensions(BrightData.IFloatMatrix,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ReduceDimensions(BrightData.IMatrix,System.UInt32)">
             <summary>
             Reduce dimensions of the matrix with a singular value decomposition
             </summary>
@@ -2730,6 +2754,24 @@
             <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},System.Boolean)">
+            <summary>
+            Calculates an average vector from a collection of vectors
+            </summary>
+            <param name="vectors">Vectors to average</param>
+            <param name="dispose">True to dispose each of the input vectors</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IMatrix},System.Boolean)">
+            <summary>
+            Calculates an average matrix from a collection of matrices
+            </summary>
+            <param name="matrices">Matrices to average</param>
+            <param name="dispose">True to dispose each of the input matrices</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IVector},System.Boolean)">
             <summary>
             Calculates an average vector from a collection of vectors
             </summary>
@@ -2817,13 +2859,13 @@
             Writes progress notifications to the console
             </summary>
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnStartOperation(System.String)">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnStartOperation(System.String,System.String)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnOperationProgress(System.Single)">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnOperationProgress(System.String,System.Single)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnCompleteOperation">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnCompleteOperation(System.String,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.ConsoleProgressNotification.OnMessage(System.String)">
@@ -3531,9 +3573,9 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IBrightDataContext.TempStreamProvider">
+        <member name="M:BrightData.IBrightDataContext.CreateTempStreamProvider">
             <summary>
-            Temp Stream Provider
+            Creates a new temp stream provider
             </summary>
         </member>
         <member name="M:BrightData.IBrightDataContext.Get``1(System.String,``0)">
@@ -4062,7 +4104,7 @@
             Clones streams
             </summary>
         </member>
-        <member name="M:BrightData.ICloneStreams.Clone">
+        <member name="M:BrightData.ICloneStreams.Clone(System.Nullable{System.Int64})">
             <summary>
             Creates a new repeatable section reader
             </summary>
@@ -4142,22 +4184,26 @@
             Notifies the user of operations and messages
             </summary>
         </member>
-        <member name="M:BrightData.INotifyUser.OnStartOperation(System.String)">
+        <member name="M:BrightData.INotifyUser.OnStartOperation(System.String,System.String)">
             <summary>
             Called at the start of an operation
             </summary>
+            <param name="operationId">Unique id for this operation</param>
             <param name="msg">Optional message associated with the operation</param>
         </member>
-        <member name="M:BrightData.INotifyUser.OnOperationProgress(System.Single)">
+        <member name="M:BrightData.INotifyUser.OnOperationProgress(System.String,System.Single)">
             <summary>
             Called when the operation has progressed
             </summary>
+            <param name="operationId">Unique id for this operation</param>
             <param name="progressPercent">Progress percentage (between 0 and 1)</param>
         </member>
-        <member name="M:BrightData.INotifyUser.OnCompleteOperation">
+        <member name="M:BrightData.INotifyUser.OnCompleteOperation(System.String,System.Boolean)">
             <summary>
             Called when the operation has completed
             </summary>
+            <param name="operationId">Unique id for this operation</param>
+            <param name="wasCancelled">True if the operation was cancelled</param>
         </member>
         <member name="M:BrightData.INotifyUser.OnMessage(System.String)">
             <summary>
@@ -4255,22 +4301,22 @@
             Weighted list of indices
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.FloatVector">
+        <member name="F:BrightData.BrightDataType.Vector">
             <summary>
             Vector of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.FloatMatrix">
+        <member name="F:BrightData.BrightDataType.Matrix">
             <summary>
             Matrix of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.FloatTensor3D">
+        <member name="F:BrightData.BrightDataType.Tensor3D">
             <summary>
             3D tensor of floats
             </summary>
         </member>
-        <member name="F:BrightData.BrightDataType.FloatTensor4D">
+        <member name="F:BrightData.BrightDataType.Tensor4D">
             <summary>
             4D tensor of floats
             </summary>
@@ -6141,6 +6187,9 @@
             <summary>
             Returns the matrix as xml
             </summary>
+        </member>
+        <member name="M:BrightData.LinearAlegbra2.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32)">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlegbra2.Matrix2`1.ToString">
             <inheritdoc />

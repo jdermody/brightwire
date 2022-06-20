@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData.LinearAlgebra;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
@@ -180,15 +181,24 @@ namespace BrightData.Helper
             if (len != t2.Segment.Size)
                 return false;
 
-            var p1 = t1.Segment.GetSpan();
-            var p2 = t2.Segment.GetSpan();
+            SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
+            var p1 = t1.Segment.GetSpan(ref temp1, out var wasTemp1Used);
+            var p2 = t2.Segment.GetSpan(ref temp2, out var wasTemp2Used);
 
-            for (int i = 0; i < len; i++) {
-                if(!AreApproximatelyEqual(p1[i], p2[i], maxDifference))
-                    return false;
+            try {
+                for (var i = 0; i < len; i++) {
+                    if (!AreApproximatelyEqual(p1[i], p2[i], maxDifference))
+                        return false;
+                }
+
+                return true;
             }
-
-            return true;
+            finally {
+                if(wasTemp1Used)
+                    temp1.Dispose();
+                if(wasTemp2Used)
+                    temp2.Dispose();
+            }
         }
 
         public static bool AreApproximatelyEqual(Vector<float> v1, Vector<float> v2, int maxDifference = 6)

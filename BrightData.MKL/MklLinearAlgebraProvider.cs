@@ -47,7 +47,10 @@ namespace BrightData.MKL
         {
             var result = CreateSegment(tensor.Size);
             tensor.CopyTo(result);
-            result.MutateInPlaceVectorised(v => v * coefficient, v => v * coefficient);
+            result.MutateInPlaceVectorised(
+                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a * coefficient, 
+                a => a * coefficient
+            );
             return result;
         }
 

@@ -96,11 +96,10 @@ namespace BrightData
             throw new NotImplementedException();
         }
 
-        public static void Add<T>(this IHybridBuffer<T> buffer, Span<T> span)
-            where T: notnull
+        public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment2 segment)
         {
-            foreach(var item in span)
-                buffer.Add(item);
+            for(uint i = 0, len = segment.Size; i < len; i++)
+                buffer.Add(segment[i]);
         }
     }
 }

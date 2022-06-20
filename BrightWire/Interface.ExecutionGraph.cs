@@ -31,7 +31,7 @@ namespace BrightWire
         uint Depth { get; }
 
         /// <summary>
-        /// Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
+        /// Count of 3D tensors (1 if the signal is a matrix or 3D tensor)
         /// </summary>
         uint Count { get; }
 
