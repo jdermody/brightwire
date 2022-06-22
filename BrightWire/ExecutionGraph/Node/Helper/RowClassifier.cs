@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -42,11 +43,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         }
 
         readonly IConvertibleTable _dataTable;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly IRowClassifier _classifier;
         readonly IIndexStrings _indexer;
 
-        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
+        public RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
             : base(name)
         {
             _lap = lap;

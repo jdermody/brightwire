@@ -16,8 +16,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.Row(0);
-            var input = (Vector<float>)firstRow[_featureColumnIndices.First()];
-            var output = (Vector<float>)firstRow[_targetColumnIndex];
+            var input = (IVector)firstRow[_featureColumnIndices.First()];
+            var output = (IVector)firstRow[_targetColumnIndex];
 
             InputSize = input.Size;
             OutputSize = output.Size;
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((Vector<float>)r[i]).ToArray()).ToArray(), ((Vector<float>)r[_targetColumnIndex]).ToArray()))
+                .Select(r => (_featureColumnIndices.Select(i => ((IVector)r[i]).Segment.ToNewArray()).ToArray(), ((IVector)r[_targetColumnIndex]).Segment.ToNewArray()))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);

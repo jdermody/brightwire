@@ -1,4 +1,5 @@
 ﻿using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -7,21 +8,21 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// </summary>
     internal class Identity : IWeightInitialisation
     {
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly float _value;
 
-        public Identity(ILinearAlgebraProvider lap, float value)
+        public Identity(LinearAlgebraProvider lap, float value)
         {
             _lap = lap;
             _value = value;
         }
 
-        public IFloatVector CreateBias(uint size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size);
         }
 
-        public IFloatMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (x, y) => x == y ? _value : 0f);
         }

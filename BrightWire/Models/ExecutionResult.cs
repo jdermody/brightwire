@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.Models
@@ -16,12 +17,12 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<Vector<float>> output)
+        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<ITensorSegment2> output)
         {
             _miniBatch = miniBatch;
-            Output = output.Select(d => d.ToArray()).ToArray();
-            Target = _miniBatch.Target?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
-            Input = _miniBatch.Input?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
+            Output = output.Select(d => d.ToNewArray()).ToArray();
+            Target = _miniBatch.Target?.GetMatrix().Rows().Select(d => d.ToNewArray()).ToArray();
+            Input = _miniBatch.Input?.GetMatrix().Rows().Select(d => d.ToNewArray()).ToArray();
         }
 
         /// <summary>

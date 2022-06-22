@@ -466,6 +466,7 @@ namespace BrightData
                 parser.OnProgress = p => userNotification.OnOperationProgress(operationId, p);
                 parser.OnComplete = () => {
                     userNotification.OnCompleteOperation(operationId, false);
+                    Console.WriteLine();
                 };
             }
 
@@ -958,7 +959,7 @@ namespace BrightData
                     var vectorSegment = (IDataTableSegment<IVector>)dataTable.Column(columnIndices[0]);
                     foreach (var row in vectorSegment.EnumerateTyped())
                         rows[index++] = row;
-                    return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRows(rows);
+                    return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(rows);
                 }
 
                 if (columnType.IsNumeric()) {
@@ -969,7 +970,7 @@ namespace BrightData
             }
 
             var vectoriser = new DataTableVectoriser(dataTable, false, columnIndices);
-            return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
+            return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(vectoriser.Enumerate().ToArray());
         }
 
         /// <summary>
@@ -1341,8 +1342,8 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> GetColumnTransformers(this IColumnOrientedDataTable dataTable, IEnumerable<IColumnTransformationParam> input)
         {
-            throw new NotImplementedException();
             var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
+            using var tempStreamProvider = dataTable.Context.CreateTempStreamProvider();
 
             // build the map of columns to transform
             uint nextIndex = 0;
@@ -1359,9 +1360,9 @@ namespace BrightData
             foreach (var (segment, columnType) in dataTable.Columns().Zip(dataTable.ColumnTypes)) {
                 if (columnConversionTable.TryGetValue(index, out var conversion)) {
                     var index1 = index;
-                    //var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), dataTable.Context.TempStreamProvider);
-                    //if (converter is not null)
-                    //    yield return (index, converter);
+                    var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), tempStreamProvider);
+                    if (converter is not null)
+                        yield return (index, converter);
                 }
                 ++index;
             }

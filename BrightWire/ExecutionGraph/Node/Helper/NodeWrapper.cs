@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
@@ -26,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
             public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
             public ILearningContext? LearningContext => _context.LearningContext;
-            public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
+            public LinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
             public IGraphData? ErrorSignal => _context.ErrorSignal;
 

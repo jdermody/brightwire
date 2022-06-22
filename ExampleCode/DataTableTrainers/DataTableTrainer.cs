@@ -82,16 +82,16 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(Table.Context.LinearAlgebraProvider, k));
+                WriteResults("K nearest neighbours", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2, k));
             return ret;
         }
 
-        public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
-        {
-            var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
-            if (writeResults)
-                WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
-        }
+        //public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
+        //{
+        //    var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
+        //    if (writeResults)
+        //        WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
+        //}
 
         void WriteResults(string type, IRowClassifier classifier)
         {

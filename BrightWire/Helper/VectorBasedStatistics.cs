@@ -1,4 +1,5 @@
 ﻿using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.Helper
 {
@@ -7,7 +8,7 @@ namespace BrightWire.Helper
 	/// </summary>
 	internal class VectorBasedStatistics
 	{
-        public VectorBasedStatistics(ILinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
+        public VectorBasedStatistics(LinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
 		{
 			Size = size;
 			Count = count;
@@ -17,10 +18,10 @@ namespace BrightWire.Helper
 
 		public uint Size { get; }
         public uint Count { get; private set; }
-        public IFloatVector Mean { get; }
-        public IFloatVector M2 { get; }
+        public IVector Mean { get; }
+        public IVector M2 { get; }
 
-		public void Update(IFloatVector data)
+		public void Update(IVector data)
 		{
 			++Count;
             using var delta = data.Subtract(Mean);
@@ -33,14 +34,14 @@ namespace BrightWire.Helper
             M2.AddInPlace(diff2);
         }
 
-        public IFloatVector GetVariance()
+        public IVector GetVariance()
 		{
 			var ret = M2.Clone();
 			ret.Multiply(1f / Count);
 			return ret;
 		}
 
-		public IFloatVector GetSampleVariance()
+		public IVector GetSampleVariance()
 		{
 			var ret = M2.Clone();
 			ret.Multiply(1f / (Count-1));

@@ -246,5 +246,33 @@ namespace BrightData.UnitTests
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
         }
+
+        [Fact]
+        public void TestEuclideanDistance()
+        {
+            using var vector1 = _linearAlgebraProvider.CreateVector(4, 1f);
+            using var vector2 = _linearAlgebraProvider.CreateVector(4, 2f);
+            using var vector3 = _linearAlgebraProvider.CreateVector(4, 3f);
+            using var vector4 = _linearAlgebraProvider.CreateVector(4, 4f);
+
+            var distance1 = vector1.EuclideanDistance(vector3);
+            var distance2 = vector1.EuclideanDistance(vector4);
+            var distance3 = vector2.EuclideanDistance(vector3);
+            var distance4 = vector2.EuclideanDistance(vector4);
+
+            var vectorGroup1 = new[] { vector1, vector2 };
+            var vectorGroup2 = new[] { vector3, vector4 };
+
+            using var vector = vector1.FindDistances(vectorGroup2, DistanceMetric.Euclidean);
+            vector[0].Should().Be(distance1);
+            vector[1].Should().Be(distance2);
+
+            using var matrix = vectorGroup1.FindDistances(vectorGroup2, DistanceMetric.Euclidean);
+
+            matrix[0, 0].Should().Be(distance1);
+            matrix[0, 1].Should().Be(distance2);
+            matrix[1, 0].Should().Be(distance3);
+            matrix[1, 1].Should().Be(distance4);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
@@ -10,7 +11,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify each step of a sequence
     /// </summary>
-    internal class SequentialDataTableAdapter : DataTableAdapterBase<(Matrix<float> Input, Matrix<float>? Output)>
+    internal class SequentialDataTableAdapter : DataTableAdapterBase<(IMatrix Input, IMatrix? Output)>
     {
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
@@ -28,10 +29,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _rowDepth = new uint[dataTable.RowCount];
 
             // find the number of sequences of each row
-            Matrix<float>? inputMatrix = null, outputMatrix = null;
+            IMatrix? inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (Matrix<float>) row[_featureColumnIndices[0]];
-                outputMatrix = (Matrix<float>) row[_targetColumnIndex];
+                inputMatrix = (IMatrix) row[_featureColumnIndices[0]];
+                outputMatrix = (IMatrix) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
@@ -44,9 +45,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputSize = outputMatrix.ColumnCount;
         }
 
-        protected override IEnumerable<(Matrix<float> Input, Matrix<float>? Output)> GetRows(uint[] rows)
+        protected override IEnumerable<(IMatrix Input, IMatrix? Output)> GetRows(uint[] rows)
         {
-            return _dataTable.Rows(rows).Select(row => ((Matrix<float>) row[_featureColumnIndices[0]], (Matrix<float>?) row[_targetColumnIndex]));
+            return _dataTable.Rows(rows).Select(row => ((IMatrix) row[_featureColumnIndices[0]], (IMatrix?) row[_targetColumnIndex]));
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
@@ -60,22 +61,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider;
+            var lap = _dataTable.Context.LinearAlgebraProvider2;
             if (_sequenceLengthsAreVaried) {
-                var inputData = new Dictionary<uint, List<Vector<float>>>();
-                var outputData = new Dictionary<uint, List<Vector<float>>>();
+                var inputData = new Dictionary<uint, List<ITensorSegment2>>();
+                var outputData = new Dictionary<uint, List<ITensorSegment2>>();
 
                 foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {
                         if (!inputData.TryGetValue(i, out var temp))
-                            inputData.Add(i, temp = new List<Vector<float>>());
+                            inputData.Add(i, temp = new());
                         temp.Add(input.Row(i));
                     }
 
                     if (output != null) {
                         for (uint i = 0, len = output.RowCount; i < len; i++) {
                             if (!outputData.TryGetValue(i, out var temp))
-                                outputData.Add(i, temp = new List<Vector<float>>());
+                                outputData.Add(i, temp = new());
                             temp.Add(output.Row(i));
                         }
                     }
@@ -83,7 +84,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
                 var encoderMiniBatch = new MiniBatch(rows, this);
                 foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                    var input = lap.CreateMatrixFromRows(item.Value);
+                    var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                     var type = item.Key == 0
                         ? MiniBatchSequenceType.SequenceStart
                         : item.Key == (inputData.Count - 1)
@@ -95,7 +96,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
                 var decoderMiniBatch = new MiniBatch(rows, this);
                 foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                    var output = lap.CreateMatrixFromRows(item.Value);
+                    var output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                     var type = item.Key == 0
                         ? MiniBatchSequenceType.SequenceStart
                         : item.Key == (outputData.Count - 1)

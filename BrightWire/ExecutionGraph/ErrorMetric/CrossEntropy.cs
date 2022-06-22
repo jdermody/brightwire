@@ -10,17 +10,17 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class CrossEntropy : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
         {
             var lap = context.LinearAlgebraProvider;
-            using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, 1f);
+            using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, (i, j) => 1f);
             using var oneMinusOutput = ones.Subtract(output);
             using var oneMinusOutputTimesOutput = oneMinusOutput.PointwiseMultiply(output);
             using var delta = targetOutput.Subtract(output);
             return delta.PointwiseDivide(oneMinusOutputTimesOutput);
         }
 
-        public float Compute(Vector<float> output, Vector<float> targetOutput)
+        public float Compute(IVector output, IVector targetOutput)
         {
             float ret = 0;
             var len = output.Size;

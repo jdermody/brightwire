@@ -26,7 +26,7 @@ namespace BrightData.Cuda
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
-        public override ITensorSegment2 CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size));
+        public override ITensorSegment2 CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size, true));
         public override IVector CreateVector(ITensorSegment2 data) => new CudaVector2(OptionallyCopyToDevice(data), this);
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix2(OptionallyCopyToDevice(data), rowCount, columnCount, this);
 
@@ -643,30 +643,57 @@ namespace BrightData.Cuda
             return CreateMatrix((uint)indices.Count, matrix.ColumnCount, new CudaTensorSegment(ret));
         }
 
-        public override IMatrix CreateMatrixFromColumns(params ITensorSegment2[] vectorColumns)
+        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment2> vectorColumns)
         {
             var columns = (uint)vectorColumns.Length;
             var rows = vectorColumns[0].Size;
 
+            var devicePointers = new CUdeviceptr[vectorColumns.Length];
+            for(var i = 0; i < vectorColumns.Length; i++) {
+                var deviceMemory = GetDeviceMemoryPtr(vectorColumns[i]);
+                devicePointers[i] = deviceMemory.DevicePointer;
+            }
+
             var ret = (CudaTensorSegment)CreateSegment(rows * columns);
             using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
-                devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+                devicePtr.CopyToDevice(devicePointers);
                 _cuda.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
             }
             return CreateMatrix(rows, columns, ret);
         }
 
-        public override IMatrix CreateMatrixFromRows(params ITensorSegment2[] vectorRows)
+        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment2> vectorRows)
         {
             var rows = (uint)vectorRows.Length;
             var columns = vectorRows[0].Size;
 
+            var devicePointers = new CUdeviceptr[vectorRows.Length];
+            for(var i = 0; i < vectorRows.Length; i++) {
+                var deviceMemory = GetDeviceMemoryPtr(vectorRows[i]);
+                devicePointers[i] = deviceMemory.DevicePointer;
+            }
+
             var ret = (CudaTensorSegment)CreateSegment(rows * columns);
             using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
-                devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+                devicePtr.CopyToDevice(devicePointers);
                 _cuda.CopyToMatrixRows(rows, columns, devicePtr, ret.DeviceMemory);
             }
             return CreateMatrix(rows, columns, ret);
+        }
+
+        public override void L1Regularisation(ITensorSegment2 segment, float coefficient)
+        {
+            _cuda.L1Regularisation(GetDeviceMemoryPtr(segment), segment.Size, coefficient);
+        }
+
+        public override void AddToEachColumn(IMatrix matrix, ITensorSegment2 segment)
+        {
+            _cuda.AddToEachColumn(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
+        }
+
+        public override void AddToEachRow(IMatrix matrix, ITensorSegment2 segment)
+        {
+            _cuda.AddToEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
         static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment2 segment) => GetDeviceMemoryPtr(segment).DeviceVariable;

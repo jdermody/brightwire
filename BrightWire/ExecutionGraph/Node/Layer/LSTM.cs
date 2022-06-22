@@ -78,7 +78,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
-            _memory.Data.WriteTo(writer);
+            _memory.WriteTo(writer);
 
             foreach(var item in SerializedNodes)
                 WriteSubNode(item, writer);
@@ -90,13 +90,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = factory.Context.ReadVectorFrom(reader);
+            var memoryData = factory.Context.ReadVectorAndThenGetArrayFrom(reader);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                Create(factory, inputSize, memory.ToArray(), memoryId);
+                Create(factory, inputSize, memoryData, memoryId);
             else
-                _memory.Data = memory;
+                _memory.Data = memoryData;
 
             foreach(var item in SerializedNodes)
                 ReadSubNode(item, factory, reader);

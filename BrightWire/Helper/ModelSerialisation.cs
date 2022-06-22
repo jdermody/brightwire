@@ -4,7 +4,6 @@ using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
-using BrightWire.Models.Linear;
 using BrightWire.Models.TreeBased;
 using BrightData.Serialisation;
 
@@ -251,25 +250,25 @@ namespace BrightWire.Helper
 
         public static void ReadFrom(IBrightDataContext context, BinaryReader reader, KNearestNeighbours model)
         {
-            model.Instance = reader.ReadArray<Vector<float>>(context);
+            model.Instance = reader.ReadArrayOfArrays<float>();
             model.Classification = reader.ReadStringArray();
             model.DataColumns = reader.ReadStructArray<uint>();
             model.TargetColumn = reader.ReadUInt32();
         }
 
-        public static void WriteTo(MultinomialLogisticRegression model, BinaryWriter writer)
-        {
-            model.Model.WriteTo(writer);
-            model.Classification.WriteTo(writer);
-            model.FeatureColumn.WriteTo(writer);
-        }
+        //public static void WriteTo(MultinomialLogisticRegression model, BinaryWriter writer)
+        //{
+        //    model.Model.WriteTo(writer);
+        //    model.Classification.WriteTo(writer);
+        //    model.FeatureColumn.WriteTo(writer);
+        //}
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, MultinomialLogisticRegression model)
-        {
-            model.Model = reader.ReadArray<LogisticRegression>(context);
-            model.Classification = reader.ReadStringArray();
-            model.FeatureColumn = reader.ReadStructArray<uint>();
-        }
+        //public static void ReadFrom(IBrightDataContext context, BinaryReader reader, MultinomialLogisticRegression model)
+        //{
+        //    model.Model = reader.ReadArray<LogisticRegression>(context);
+        //    model.Classification = reader.ReadStringArray();
+        //    model.FeatureColumn = reader.ReadStructArray<uint>();
+        //}
 
         public static void WriteTo(DecisionTree model, BinaryWriter writer)
         {

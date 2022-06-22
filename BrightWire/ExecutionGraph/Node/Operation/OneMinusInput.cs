@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
+                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => -1f);
                 return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
             }
         }
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
+            using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, _) => 1f);
             var output = ones.Subtract(input);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this));
         }

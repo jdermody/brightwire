@@ -51,7 +51,7 @@ namespace BrightWire.Linear.Training
                 theta = theta2;
             }
             var ret = new LogisticRegression {
-                Theta = theta.AsFloatVector()
+                Theta = theta.Segment.ToNewArray()
             };
             theta.Dispose();
             return ret;

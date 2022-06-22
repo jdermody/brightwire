@@ -11,11 +11,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<MultiplyGate>
         {
-            readonly IFloatMatrix _primary, _secondary;
+            readonly IMatrix _primary, _secondary;
             readonly NodeBase _primarySource;
             readonly NodeBase _secondarySource;
 
-            public Backpropagation(MultiplyGate source, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource) : base(source)
+            public Backpropagation(MultiplyGate source, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource) : base(source)
             {
                 _primary = primary;
                 _secondary = secondary;
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public MultiplyGate(string? name = null) : base(name) { }
 
-        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
         {
             var output = primary.PointwiseMultiply(secondary);
 

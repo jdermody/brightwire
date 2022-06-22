@@ -250,10 +250,9 @@ namespace BrightData.DataTable
 
         (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) GetColumn(BrightDataType columnType, uint index, IMetaData metaData)
         {
-            //var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
-            //var columnInfo = new ColumnInfo(index, columnType, metaData);
-            //return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, Context.TempStreamProvider);
-            throw new NotImplementedException();
+            var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
+            var columnInfo = new ColumnInfo(index, columnType, metaData);
+            return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, Context.CreateTempStreamProvider());
         }
 
         static string ReadString(BinaryReader reader) => reader.ReadString();

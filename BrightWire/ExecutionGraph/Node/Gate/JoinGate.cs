@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
-                IFloatMatrix split, residual = errorSignal.GetMatrix();
+                IMatrix split, residual = errorSignal.GetMatrix();
                 var index = parents.Length-1;
                 foreach(var item in _channels) {
                     (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             data.Reverse();
             var curr = data.First().Data;

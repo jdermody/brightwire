@@ -6,6 +6,7 @@ using BrightData.Helper;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Memory;
+using BrightData.Serialisation;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -752,17 +753,34 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Vector<float> ReadVectorFrom(this IBrightDataContext context, BinaryReader reader)
+        public static IVector ReadVectorFrom(this IBrightDataContext context, BinaryReader reader)
         {
+            var lap = context.LinearAlgebraProvider2;
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();
                 var ret = new float[len];
                 for (var i = 0; i < len; i++)
                     ret[i] = reader.ReadSingle();
-                return context.CreateVector(ret);
+                return lap.CreateVector(ret);
             }
-            return new Vector<float>(context, reader);
+            return context.Create<IVector>(reader);
+        }
+
+        public static float[] ReadVectorAndThenGetArrayFrom(this IBrightDataContext context, BinaryReader reader)
+        {
+            var lap = context.LinearAlgebraProvider2;
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false))
+            {
+                var len = reader.ReadInt32();
+                var ret = new float[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = reader.ReadSingle();
+                return ret;
+            }
+            // TODO: refactor this to avoid creating the vector
+            using var temp = context.Create<IVector>(reader);
+            return temp.Segment.ToNewArray();
         }
 
         /// <summary>
@@ -771,17 +789,18 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Matrix<float> ReadMatrixFrom(this IBrightDataContext context, BinaryReader reader)
+        public static IMatrix ReadMatrixFrom(this IBrightDataContext context, BinaryReader reader)
         {
+            var lap = context.LinearAlgebraProvider2;
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();
-                var ret = new Vector<float>[len];
+                var ret = new IVector[len];
                 for (var i = 0; i < len; i++)
                     ret[i] = context.ReadVectorFrom(reader);
-                return context.CreateMatrixFromRows(ret);
+                return lap.CreateMatrixFromRowsAndThenDisposeInput(ret);
             }
-            return new Matrix<float>(context, reader);
+            return context.Create<IMatrix>(reader);
         }
 
         /// <summary>

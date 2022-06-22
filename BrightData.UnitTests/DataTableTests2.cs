@@ -126,7 +126,7 @@ namespace BrightData.UnitTests
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor3D>("tensor");
             var lap = _context.LinearAlgebraProvider2;
-            using var firstTensor = lap.CreateTensor3D(true,
+            using var firstTensor = lap.CreateTensor3DAndThenDisposeInput(
                 lap.CreateMatrix(5, 5, (i, j) => i + j),
                 lap.CreateMatrix(5, 5, (i, j) => i + j)
             );
@@ -148,12 +148,12 @@ namespace BrightData.UnitTests
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor4D>("tensor");
             var lap = _context.LinearAlgebraProvider2;
-            using var firstTensor = lap.CreateTensor4D(true,
-                lap.CreateTensor3D(true,
+            using var firstTensor = lap.CreateTensor4DAndThenDisposeInput(
+                lap.CreateTensor3DAndThenDisposeInput(
                     lap.CreateMatrix(5, 5, (i, j) => i + j),
                     lap.CreateMatrix(5, 5, (i, j) => i + j)
                 ),
-                lap.CreateTensor3D(true,
+                lap.CreateTensor3DAndThenDisposeInput(
                     lap.CreateMatrix(5, 5, (i, j) => i + j),
                     lap.CreateMatrix(5, 5, (i, j) => i + j)
                 )

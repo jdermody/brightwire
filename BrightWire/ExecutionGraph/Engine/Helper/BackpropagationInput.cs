@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 return _error.Single().Value;
 
             IGraphData? ret = null;
-            IFloatMatrix? matrix = null;
+            IMatrix? matrix = null;
             var count = 0;
             foreach (var item in _error.Values) {
                 if (item?.HasValue != true)

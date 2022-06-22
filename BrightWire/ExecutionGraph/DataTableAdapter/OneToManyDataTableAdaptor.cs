@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
@@ -24,11 +25,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
-            Vector<float>? inputVector = null;
-            Matrix<float>? outputMatrix = null;
+            IVector? inputVector = null;
+            IMatrix? outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputVector = (Vector<float>)row[_featureColumnIndices[0]];
-                outputMatrix = (Matrix<float>)row[_targetColumnIndex];
+                inputVector = (IVector)row[_featureColumnIndices[0]];
+                outputMatrix = (IMatrix)row[_targetColumnIndex];
                 _rowDepth[i] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -60,17 +61,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider;
+            var lap = _dataTable.Context.LinearAlgebraProvider2;
             var data = GetRows(rows)
-                .Select(r => ((Vector<float>)r[_featureColumnIndices[0]], (Matrix<float>)r[_targetColumnIndex]))
+                .Select(r => ((IVector)r[_featureColumnIndices[0]], (IMatrix)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var outputData = new Dictionary<uint, List<Vector<float>>>();
+            var outputData = new Dictionary<uint, List<ITensorSegment2>>();
             foreach (var item in data) {
                 var output = item.Item2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
-                        outputData.Add(i, temp = new List<Vector<float>>());
+                        outputData.Add(i, temp = new());
                     temp.Add(output.Row(i));
                 }
             }
@@ -78,7 +79,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var miniBatch = new MiniBatch(rows, this);
             var curr = lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Item1.Segment[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                var output = lap.CreateMatrixFromRows(item.Value);
+                var output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (outputData.Count - 1)

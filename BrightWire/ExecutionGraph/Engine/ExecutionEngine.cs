@@ -5,6 +5,7 @@ using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Engine
@@ -16,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	{
         readonly IBrightDataContext _context;
 
-        public ExecutionEngine(IBrightDataContext context, ILinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
+        public ExecutionEngine(IBrightDataContext context, LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
         {
             _context = context;
             LinearAlgebraProvider = lap;
@@ -27,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public NodeBase Start { get; }
         public ExecutionGraphModel Graph { get; }
         public IDataSource? DataSource { get; private set; } = null;
-		public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+		public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         //public void AddExecutionResult(IGraphSequenceContext context)
         //{
@@ -108,24 +109,24 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             DataSource = dataSource;
             var provider = new MiniBatchProvider(dataSource, null);
             using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
             float operationCount = executionContext.RemainingOperationCount;
-            float index = 0f;
+            var index = 0f;
 
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
-                LinearAlgebraProvider.PushLayer();
+                LinearAlgebraProvider.PushScope();
                 foreach (var context in operation.Execute()) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
                 }
-                LinearAlgebraProvider.PopLayer();
+                LinearAlgebraProvider.PopScope();
 
                 if (batchCompleteCallback != null) {
                     var percentage = (++index) / operationCount;
@@ -133,12 +134,12 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
             }
 
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
         }
 
         public ExecutionResult? Execute(float[] input)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(DataSource, null);
             using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
@@ -149,13 +150,13 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphSequenceContext? context = null;
             // TODO: check that there is a single operation?
             while ((operation = executionContext.GetNextOperation()) != null) {
-                LinearAlgebraProvider.PushLayer();
+                LinearAlgebraProvider.PushScope();
                 context = operation.Execute().Single();
-                LinearAlgebraProvider.PopLayer();
+                LinearAlgebraProvider.PopScope();
             }
             var ret = context?.Results.SingleOrDefault();
             context?.Dispose();
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
             DataSource = null;
             return ret;
         }
@@ -184,7 +185,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             DataSource = new SequentialRowDataSource(input, LinearAlgebraProvider);
             var provider = new MiniBatchProvider(DataSource, null);
             using var executionContext = new ExecutionContext(_context, LinearAlgebraProvider, this);
@@ -193,22 +194,22 @@ namespace BrightWire.ExecutionGraph.Engine
 
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
-                LinearAlgebraProvider.PushLayer();
+                LinearAlgebraProvider.PushScope();
                 foreach (var context in operation.Execute()) {
                     yield return context.Results.Single();
                     context.Dispose();
                 }
 
-                LinearAlgebraProvider.PopLayer();
+                LinearAlgebraProvider.PopScope();
             }
 
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
             DataSource = null;
         }
 
         public ExecutionResult? ExecuteSingleSequentialStep(IGraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, true, sequenceType, sequenceIndex);
             var provider = new MiniBatchProvider(DataSource, LinearAlgebraProvider.Context.Random);
             // ReSharper disable once AccessToDisposedClosure
@@ -223,7 +224,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             var ret = context?.Results.SingleOrDefault();
             context?.Dispose();
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
             DataSource = null;
             return ret;
         }

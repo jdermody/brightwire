@@ -1,7 +1,6 @@
 ﻿using System;
 using BrightWire.Bayesian.Training;
 using BrightWire.Helper;
-using BrightWire.Linear.Training;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.TreeBased.Training;
@@ -14,7 +13,6 @@ using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
-using BrightWire.Models.Linear;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire
@@ -42,21 +40,21 @@ namespace BrightWire
 	    /// <param name="lambda">Regularisation lambda</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns>The trained model</returns>
-	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
-        {
-            var trainer = table.CreateLogisticRegressionTrainer();
-            return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
-        }
+	    //public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
+     //   {
+     //       var trainer = table.CreateLogisticRegressionTrainer();
+     //       return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
+     //   }
 
         /// <summary>
         /// Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
         /// </summary>
         /// <param name="table">The training data provider</param>
         /// <returns>A trainer that can be used to build a logistic regression model</returns>
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table)
-        {
-            return new LogisticRegressionTrainer(table);
-        }
+        //public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table)
+        //{
+        //    return new LogisticRegressionTrainer(table);
+        //}
 
         /// <summary>
         /// Find the next set of state transitions from a pair of observations
@@ -152,10 +150,10 @@ namespace BrightWire
 	    /// <param name="lambda">L2 regularisation</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns></returns>
-	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
-        {
-            return MultinomialLogisticRegressionTrainner.Train(data, trainingIterations, trainingRate, lambda, costCallback);
-        }
+	    //public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
+     //   {
+     //       return MultinomialLogisticRegressionTrainner.Train(data, trainingIterations, trainingRate, lambda, costCallback);
+     //   }
 
         /// <summary>
         /// Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
@@ -259,10 +257,10 @@ namespace BrightWire
         /// <param name="table">The training data table</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns>A trainer that can be used to build a linear regression model</returns>
-        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, LinearAlgebraProvider lap)
-        {
-            return new RegressionTrainer(lap, table);
-        }
+        //public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, LinearAlgebraProvider lap)
+        //{
+        //    return new RegressionTrainer(lap, table);
+        //}
 
         /// <summary>
         /// Finds the classification with the highest weight
@@ -330,6 +328,8 @@ namespace BrightWire
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
             engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            engine.Test(testData);
+            var testGraph = engine.Graph;
             return bestGraph;
         }
     }

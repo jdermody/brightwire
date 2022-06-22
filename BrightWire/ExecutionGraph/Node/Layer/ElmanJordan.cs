@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             writer.Write(_isElman);
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
-            _memory.Data.WriteTo(writer);
+            _memory.WriteTo(writer);
             Serialise(_activation, writer);
             Serialise(_activation2, writer);
 
@@ -89,15 +89,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var isElman = reader.ReadBoolean();
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = factory.Context.ReadVectorFrom(reader);
+            var memoryData = factory.Context.ReadVectorAndThenGetArrayFrom(reader);
             var activation = Hydrate(factory, reader);
             var activation2 = Hydrate(factory, reader);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                Create(factory, isElman, inputSize, memory.ToArray(), activation, activation2, memoryId);
+                Create(factory, isElman, inputSize, memoryData, activation, activation2, memoryId);
             else
-                _memory.Data = memory;
+                _memory.Data = memoryData;
 
             foreach(var item in SerializedNodes)
                 ReadSubNode(item, factory, reader);

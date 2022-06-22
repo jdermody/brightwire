@@ -16,7 +16,6 @@ namespace BrightData
     {
         ILinearAlgebraProvider                        _lap;
         Lazy<LinearAlgebraProvider>                   _lap2;
-        Lazy<ArrayBasedLinearAlgebraProvider>         _arrayBasedLap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
         readonly TensorPool                           _tensorPool;
         readonly DisposableLayers                     _memoryLayers = new();
@@ -59,8 +58,6 @@ namespace BrightData
             _memoryLayers.Pop();
             _tensorPool.Dispose();
             //TempStreamProvider.Dispose();
-            if(_arrayBasedLap.IsValueCreated)
-                _arrayBasedLap.Value.Dispose();
             if(_lap2.IsValueCreated)
                 _lap2.Value.Dispose();
         }
@@ -89,8 +86,6 @@ namespace BrightData
                 _                => throw new NotImplementedException()
             };
         }
-
-        public ArrayBasedLinearAlgebraProvider ArrayBasedLinearAlgebraProvider => _arrayBasedLap.Value;
 
         /// <summary>
         /// Linear algebra provider

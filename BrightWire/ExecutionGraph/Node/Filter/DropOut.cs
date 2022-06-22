@@ -13,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     {
         class Backpropagation : SingleBackpropagationBase<DropOut>
         {
-            readonly IFloatMatrix _filter;
+            readonly IMatrix _filter;
 
-            public Backpropagation(DropOut source, IFloatMatrix filter) : base(source)
+            public Backpropagation(DropOut source, IMatrix filter) : base(source)
             {
                 _filter = filter;
             }

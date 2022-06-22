@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-using BrightData;
+﻿using BrightData;
+using System.Diagnostics;
+using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
@@ -20,27 +21,22 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Columns { get; } = 0;
         public uint Depth { get; } = 0;
         public uint Count { get; } = 0;
-        public IFloatMatrix GetMatrix()
+        public IMatrix GetMatrix()
         {
             throw new System.NotImplementedException();
         }
 
-        public I4DFloatTensor Get4DTensor()
+        public ITensor4D Get4DTensor()
         {
             throw new System.NotImplementedException();
         }
 
-        public IGraphData ReplaceWith(IFloatMatrix matrix)
+        public IGraphData ReplaceWith(IMatrix matrix)
         {
             throw new System.NotImplementedException();
         }
 
         public float this[uint index] => throw new System.NotImplementedException();
-
-        public IFloatMatrix[] GetSubMatrices()
-        {
-            throw new System.NotImplementedException();
-        }
 
         public bool HasValue { get; } = false;
 
@@ -58,17 +54,17 @@ namespace BrightWire.ExecutionGraph.Helper
 
         public SingleGraphData(float data) => _value = data;
 
-        public IFloatMatrix GetMatrix()
+        public IMatrix GetMatrix()
         {
             throw new System.NotImplementedException();
         }
 
-        public I4DFloatTensor Get4DTensor()
+        public ITensor4D Get4DTensor()
         {
             throw new System.NotImplementedException();
         }
 
-        public IGraphData ReplaceWith(IFloatMatrix matrix)
+        public IGraphData ReplaceWith(IMatrix matrix)
         {
             throw new System.NotImplementedException();
         }
@@ -83,9 +79,9 @@ namespace BrightWire.ExecutionGraph.Helper
     /// </summary>
     internal class MatrixGraphData : IGraphData
     {
-        readonly IFloatMatrix _matrix;
+        readonly IMatrix _matrix;
 
-        public MatrixGraphData(IFloatMatrix matrix)
+        public MatrixGraphData(IMatrix matrix)
         {
             _matrix = matrix;
         }
@@ -95,18 +91,11 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Depth => 1;
         public uint Count => 1;
 
-        public IFloatMatrix GetMatrix() => _matrix;
-        public I4DFloatTensor? Get4DTensor() => null;
-        public IGraphData ReplaceWith(IFloatMatrix matrix) => new MatrixGraphData(matrix);
+        public IMatrix GetMatrix() => _matrix;
+        public ITensor4D? Get4DTensor() => null;
+        public IGraphData ReplaceWith(IMatrix matrix) => new MatrixGraphData(matrix);
 
-        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
-
-        public IFloatMatrix[] GetSubMatrices()
-        {
-            return new[] {
-                _matrix
-            };
-        }
+        public float this[uint index] => _matrix.Segment[index];
         public bool HasValue { get; } = true;
 
         public override string ToString() => $"Matrix graph data (rows:{Rows}, columns:{Columns})";
@@ -117,13 +106,13 @@ namespace BrightWire.ExecutionGraph.Helper
     /// </summary>
     internal class Tensor3DGraphData : IGraphData
     {
-        readonly IFloatMatrix _matrix;
+        readonly IMatrix _matrix;
 
-	    public Tensor3DGraphData(I3DFloatTensor tensor):
+	    public Tensor3DGraphData(ITensor3D tensor):
             this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount)
         {
         }
-        public Tensor3DGraphData(IFloatMatrix matrix, uint rows, uint columns)
+        public Tensor3DGraphData(IMatrix matrix, uint rows, uint columns)
         {
             _matrix = matrix;
             Rows = rows;
@@ -134,28 +123,21 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Columns { get; }
 	    public uint Depth => _matrix.ColumnCount;
         public uint Count => 1;
-	    public IFloatMatrix GetMatrix() => _matrix;
-        public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
-        public IGraphData ReplaceWith(IGraphSequenceContext context, IFloatMatrix[] matrixList)
+	    public IMatrix GetMatrix() => _matrix;
+        public IGraphData ReplaceWith(IMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
+        public IGraphData ReplaceWith(IGraphSequenceContext context, IMatrix[] matrixList)
         {
             Debug.Assert(matrixList.Length == Depth);
-            var tensor = context.LinearAlgebraProvider.Create3DTensor(matrixList);
+            var tensor = context.LinearAlgebraProvider.CreateTensor3D(matrixList);
             return new Tensor3DGraphData(tensor);
         }
-        public IFloatMatrix[] GetSubMatrices()
-        {
-            var ret = new IFloatMatrix[Depth];
-            for (uint i = 0; i < Depth; i++)
-                ret[i] = _matrix.Column(i).ReshapeAsMatrix(Rows, Columns);
-            return ret;
-        }
-        public I4DFloatTensor? Get4DTensor()
+        public ITensor4D? Get4DTensor()
         {
             return null;
         }
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth})";
-        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
+        public float this[uint index] => _matrix.Segment[index];
     }
 
     /// <summary>
@@ -163,13 +145,13 @@ namespace BrightWire.ExecutionGraph.Helper
     /// </summary>
     internal class Tensor4DGraphData : IGraphData
     {
-        readonly IFloatMatrix _matrix;
+        readonly IMatrix _matrix;
 
-	    public Tensor4DGraphData(I4DFloatTensor tensor) :
+	    public Tensor4DGraphData(ITensor4D tensor) :
             this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount, tensor.Depth)
         {
         }
-        public Tensor4DGraphData(IFloatMatrix matrix, uint rows, uint columns, uint depth)
+        public Tensor4DGraphData(IMatrix matrix, uint rows, uint columns, uint depth)
         {
             _matrix = matrix;
             Rows = rows;
@@ -181,26 +163,49 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Columns { get; }
 	    public uint Depth { get; }
 	    public uint Count => _matrix.ColumnCount;
-        public IFloatMatrix GetMatrix() => _matrix;
-        public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
-        public IFloatMatrix[] GetSubMatrices()
-        {
-            var index = 0;
-            var ret = new IFloatMatrix[Count * Depth];
-            for (uint j = 0; j < Count; j++) {
-                var matrix = _matrix.Column(j);
-                using var tensor = matrix.ReshapeAs3DTensor(Rows, Columns, Depth);
-                for (uint i = 0; i < Depth; i++)
-                    ret[index++] = tensor.GetMatrixAt(i);
-            }
-            return ret;
-        }
-        public I4DFloatTensor Get4DTensor()
+        public IMatrix GetMatrix() => _matrix;
+        public IGraphData ReplaceWith(IMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
+        public ITensor4D Get4DTensor()
         {
             return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count})";
-        public float this[uint index] => _matrix.ReshapeAsVector().AsIndexable()[index];
+        public float this[uint index] => _matrix.Segment[index];
+
+    }
+
+    static class GraphHelperMethods
+    {
+        public static IMatrix ReshapeAsMatrix(this ITensor3D tensor)
+        {
+            return tensor.Reshape(tensor.RowCount * tensor.ColumnCount, tensor.Depth);
+        }
+
+        public static IMatrix ReshapeAsMatrix(this ITensor4D tensor)
+        {
+            return tensor.Reshape(tensor.RowCount * tensor.ColumnCount * tensor.Depth, tensor.Count);
+        }
+
+        //public static ITensor3D ReshapeAs3DTensor(this IMatrix inputMatrix, uint rows, uint columns, uint depth)
+        //{
+        //    Debug.Assert(rows * columns * depth == inputMatrix.ColumnCount);
+        //    if (depth > 1) {
+        //        var slice = inputMatrix.Split(depth);
+        //        var matrixList = slice.Select(part => part.Reshape(rows, columns)).ToArray();
+        //        return inputMatrix.LinearAlgebraProvider.CreateTensor3D(true, matrixList);
+        //    }
+        //    var matrix = ReshapeAsMatrix(rows, columns).Data;
+        //    return new Float3DTensor(Data.Context.CreateTensor3D(matrix));
+        //}
+
+        public static ITensor4D ReshapeAs4DTensor(this IMatrix matrix, uint rows, uint columns, uint depth)
+        {
+            var lap = matrix.LinearAlgebraProvider;
+            var list = new ITensor3D[matrix.ColumnCount];
+            for (uint i = 0; i < matrix.ColumnCount; i++)
+                list[i] = lap.CreateTensor3DAndThenDisposeInput(matrix.Column(i).Split(depth).Select(v => v.ToMatrix(lap, rows, columns)).ToArray());
+            return lap.CreateTensor4DAndThenDisposeInput(list);
+        }
     }
 }

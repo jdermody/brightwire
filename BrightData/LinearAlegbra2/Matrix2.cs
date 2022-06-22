@@ -21,7 +21,7 @@ namespace BrightData.LinearAlegbra2
         public override uint Size { get; protected set; }
         public override uint[] Shape
         {
-            get => new[] { RowCount, ColumnCount };
+            get => new[] { ColumnCount, RowCount };
             protected set
             {
                 ColumnCount = value[0];
@@ -68,6 +68,21 @@ namespace BrightData.LinearAlegbra2
             var ret = new ITensorSegment2[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
                 ret[i] = Column(i);
+            return ret;
+        }
+
+        public IVector[] RowVectors()
+        {
+            var ret = new IVector[RowCount];
+            for (uint i = 0; i < RowCount; i++)
+                ret[i] = LinearAlgebraProvider.CreateVector(Row(i));
+            return ret;
+        }
+        public IVector[] ColumnVectors()
+        {
+            var ret = new IVector[ColumnCount];
+            for (uint i = 0; i < ColumnCount; i++)
+                ret[i] = LinearAlgebraProvider.CreateVector(Column(i));
             return ret;
         }
 
@@ -126,6 +141,8 @@ namespace BrightData.LinearAlegbra2
         public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
         public IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => _lap.GetNewMatrixFromRows(this, rowIndices);
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
+        public void AddToEachRow(ITensorSegment2 segment) => _lap.AddToEachRow(this, segment);
+        public void AddToEachColumn(ITensorSegment2 segment) => _lap.AddToEachColumn(this, segment);
 
         /// <inheritdoc />
         public override string ToString()

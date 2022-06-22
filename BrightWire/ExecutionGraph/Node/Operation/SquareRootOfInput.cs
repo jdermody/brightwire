@@ -13,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         /// </summary>
         class Backpropagation : SingleBackpropagationBase<SquareRootOfInput>
         {
-            readonly IFloatMatrix _sqrtOutput;
+            readonly IMatrix _sqrtOutput;
 
-            public Backpropagation(SquareRootOfInput source, IFloatMatrix output) : base(source)
+            public Backpropagation(SquareRootOfInput source, IMatrix output) : base(source)
             {
 	            _sqrtOutput = output;
             }
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f);
+                using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, (i, j) => 0.5f);
                 using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
                 return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }

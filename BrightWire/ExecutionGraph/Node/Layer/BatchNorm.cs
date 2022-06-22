@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
-		IFloatMatrix? _gammaCached, _betaCached, _meanCached, _stdDevCached;
+		IMatrix? _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
 #pragma warning disable 8618
         public BatchNorm(GraphFactory graph, uint inputSize, string? name = null) : base(name)
@@ -77,8 +77,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            IFloatMatrix input;
-			IReadOnlyList<IFloatVector> samples;
+            IMatrix input;
+			IReadOnlyList<IVector> samples;
             var shouldDispose = false;
             (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);
 
@@ -131,18 +131,18 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 			}
 			else if(_statistics != null) {
-				if (_gammaCached?.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
+				if (_gammaCached?.Segment.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
 					_gammaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _gamma.Data[y]);
-				if(_betaCached?.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
+				if(_betaCached?.Segment.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
 					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _beta.Data[y]);
-				if (_meanCached?.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
+				if (_meanCached?.Segment.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
 					var mean = _statistics.Mean;
-					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToList());
+					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToArray());
 				}
-				if (_stdDevCached?.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
+				if (_stdDevCached?.Segment.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
                     using var variance = _statistics.GetSampleVariance();
                     using var stdDev = variance.Sqrt();
-                    _stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToList());
+                    _stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToArray());
                 }
 				
 				input.SubtractInPlace(_meanCached);
@@ -171,20 +171,20 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_beta.WriteTo(writer);
 
 			writer.Write(_statistics.Count);
-			_statistics.Mean.Data.WriteTo(writer);
-			_statistics.M2.Data.WriteTo(writer);
+			_statistics.Mean.WriteTo(writer);
+			_statistics.M2.WriteTo(writer);
 		}
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
 			var inputSize = (uint)reader.ReadInt32();
             var context = factory.Context;
-			var gamma = context.ReadVectorFrom(reader).ToArray();
-			var beta = context.ReadVectorFrom(reader).ToArray();
+			var gamma = context.ReadVectorAndThenGetArrayFrom(reader);
+			var beta = context.ReadVectorAndThenGetArrayFrom(reader);
 
 			var count = (uint)reader.ReadInt32();
-			var mean = context.ReadVectorFrom(reader).ToArray();
-			var m2 = context.ReadVectorFrom(reader).ToArray();
+			var mean = context.ReadVectorAndThenGetArrayFrom(reader);
+			var m2 = context.ReadVectorAndThenGetArrayFrom(reader);
 
 			Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}

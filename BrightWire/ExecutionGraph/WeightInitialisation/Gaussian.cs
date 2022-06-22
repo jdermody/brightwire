@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -11,11 +12,11 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         readonly IContinuousDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;
         readonly GaussianVarianceCount _varianceCount;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly bool _zeroBias;
 
         public Gaussian(
-            ILinearAlgebraProvider lap, 
+            LinearAlgebraProvider lap, 
             bool zeroInitialBias = true, 
             float stdDev = 0.1f, 
             GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
@@ -52,12 +53,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return sample;
         }
 
-        public IFloatVector CreateBias(uint size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, _ => GetBias());
         }
 
-        public IFloatMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }

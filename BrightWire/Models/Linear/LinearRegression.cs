@@ -2,6 +2,7 @@
 using BrightData;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
+using BrightData.Serialisation;
 using BrightWire.Linear;
 
 namespace BrightWire.Models.Linear
@@ -14,7 +15,7 @@ namespace BrightWire.Models.Linear
         /// <summary>
         /// The model parameters
         /// </summary>
-        public Vector<float>? Theta { get; set; }
+        public float[] Theta { get; set; }
 
         /// <summary>
         /// Creates a predictor from this model
@@ -22,19 +23,19 @@ namespace BrightWire.Models.Linear
         /// <param name="lap">The linear algebra provider</param>
         public ILinearRegressionPredictor CreatePredictor(LinearAlgebraProvider lap)
         {
-            return new RegressionPredictor(lap, lap.CreateVector(Theta!));
+            return new RegressionPredictor(lap, lap.CreateVector(Theta));
         }
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
-            Theta!.WriteTo(writer);
+            Theta.WriteTo(writer);
         }
 
         /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
-            Theta = context.CreateVector<float>(reader);
+            Theta = reader.ReadStructArray<float>();
         }
     }
 }

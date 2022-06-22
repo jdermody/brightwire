@@ -25,7 +25,7 @@
         public override uint Size { get; protected set; }
         public override uint[] Shape
         {
-            get => new[] { Count, Depth, RowCount, ColumnCount };
+            get => new[] { ColumnCount, RowCount, Depth, Count };
             protected set
             {
                 ColumnCount = value[0];

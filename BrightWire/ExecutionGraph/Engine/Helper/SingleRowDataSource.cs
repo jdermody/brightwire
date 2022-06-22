@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -59,11 +60,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         readonly float[] _data;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly uint _sequenceIndex;
         readonly MiniBatchSequenceType _sequenceType;
 
-        public SingleRowDataSource(float[] data, ILinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+        public SingleRowDataSource(float[] data, LinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
         {
             _data = data;
             _lap = lap;
@@ -88,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IMiniBatch Get(uint[] rows)
         {
             var data = _lap.CreateVector(_data);
-            return new SingleRowMiniBatch(this, data.ReshapeAsRowMatrix().AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
+            return new SingleRowMiniBatch(this, data.Reshape(1, null).AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
         }
 
         public uint[][] GetSequentialBatches()

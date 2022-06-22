@@ -18,10 +18,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.Row(0);
-            var input = (Tensor3D<float>)firstRow[_featureColumnIndices[0]];
-            var output = (Vector<float>)firstRow[_targetColumnIndex];
+            var input = (ITensor3D)firstRow[_featureColumnIndices[0]];
+            var output = (IVector)firstRow[_targetColumnIndex];
             _outputSize = output.Size;
-            _inputSize = input.Size;
+            _inputSize = input.Segment.Size;
             Height = input.RowCount;
             Width = input.ColumnCount;
             Depth = input.Depth;
@@ -51,9 +51,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
 	    public override IMiniBatch Get(uint[] rows)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider;
+            var lap = _dataTable.Context.LinearAlgebraProvider2;
             var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((Vector<float>)r[_targetColumnIndex]).Segment))
+                .Select(r => (_featureColumnIndices.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((IVector)r[_targetColumnIndex]).Segment))
                 .ToArray()
             ;
             var inputList = new IGraphData[_featureColumnIndices.Length];

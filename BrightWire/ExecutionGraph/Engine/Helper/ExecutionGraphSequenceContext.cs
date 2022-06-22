@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
@@ -25,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public bool IsTraining => false;
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext => null;
-        public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         
         public IGraphData Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) { /* nop */ }
@@ -36,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 if (Data.HasValue)
-                    yield return  new ExecutionResult(BatchSequence, Data.GetMatrix().Data.Rows);
+                    yield return  new ExecutionResult(BatchSequence, Data.GetMatrix().Rows());
             }
         }
 

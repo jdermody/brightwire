@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     public abstract class BinaryGateBase : NodeBase
     {
-        IFloatMatrix? _primary = null, _secondary = null;
+        IMatrix? _primary = null, _secondary = null;
         NodeBase? _primarySource = null, _secondarySource = null;
 
         /// <summary>
@@ -59,6 +59,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="secondary">Secondary signal</param>
         /// <param name="primarySource">Primary source node</param>
         /// <param name="secondarySource">Secondary source node</param>
-        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
+        protected abstract (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
     }
 }

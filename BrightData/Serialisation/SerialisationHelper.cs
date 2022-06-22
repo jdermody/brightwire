@@ -98,10 +98,31 @@ namespace BrightData.Serialisation
         {
             writer.Write(array?.Length ?? 0);
             if (array?.Length > 0) {
-                var bytes = MemoryMarshal.Cast<T, byte>(array);
                 writer.Flush();
-                writer.BaseStream.Write(bytes);
+                writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
             }
+        }
+
+        public static void WriteTo<T>(this T[][]? arrayOfArrays, BinaryWriter writer) where T : struct
+        {
+            writer.Write(arrayOfArrays?.Length ?? 0);
+            writer.Write(arrayOfArrays?.Length > 0 ? arrayOfArrays[0].Length : 0);
+
+            if (arrayOfArrays?.Length > 0 && arrayOfArrays[0].Length > 0) {
+                writer.Flush();
+                foreach(var array in arrayOfArrays)
+                    writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
+            }
+        }
+
+        public static T[][] ReadArrayOfArrays<T>(this BinaryReader reader) where T: struct
+        {
+            var count = reader.ReadInt32();
+            var size = reader.ReadInt32();
+            var ret = new T[count][];
+            for (var i = 0; i < count; i++)
+                ret[i] = reader.BaseStream.ReadArray<T>(size);
+            return ret;
         }
 
         /// <summary>

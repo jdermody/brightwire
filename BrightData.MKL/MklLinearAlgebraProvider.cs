@@ -48,7 +48,7 @@ namespace BrightData.MKL
             var result = CreateSegment(tensor.Size);
             tensor.CopyTo(result);
             result.MutateInPlaceVectorised(
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a * coefficient, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * coefficient, 
                 a => a * coefficient
             );
             return result;
@@ -173,7 +173,6 @@ namespace BrightData.MKL
             var rows = (int)matrix.RowCount;
             var cols = (int)matrix.ColumnCount;
             var mn = Math.Min(rows, cols);
-            var size = rows * cols;
             var buffer = matrix.Segment.GetLocalOrNewArray();
 
             var s = CreateSegment((uint)mn);

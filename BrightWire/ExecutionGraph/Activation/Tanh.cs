@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Tanh>
         {
-            readonly IFloatMatrix _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(Tanh source, IFloatMatrix matrix) : base(source)
+            public Backpropagation(Tanh source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Activation
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            var output = signal.ReplaceWith(input.TanhActivation());
+            var output = signal.ReplaceWith(input.Tanh());
             return (this, output, () => new Backpropagation(this, input));
         }
     }

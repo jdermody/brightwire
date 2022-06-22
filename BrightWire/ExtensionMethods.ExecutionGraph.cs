@@ -159,7 +159,7 @@ namespace BrightWire
         /// Converts the matrix to a generic IGraphData
         /// </summary>
         /// <param name="matrix">Matrix to convert</param>
-        public static IGraphData AsGraphData(this IFloatMatrix matrix)
+        public static IGraphData AsGraphData(this IMatrix matrix)
         {
             return new MatrixGraphData(matrix);
         }
@@ -168,7 +168,7 @@ namespace BrightWire
         /// Converts the 3D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this I3DFloatTensor tensor)
+        public static IGraphData AsGraphData(this ITensor3D tensor)
         {
             return new Tensor3DGraphData(tensor);
         }
@@ -177,7 +177,7 @@ namespace BrightWire
         /// Converts the 4D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this I4DFloatTensor tensor)
+        public static IGraphData AsGraphData(this ITensor4D tensor)
         {
             return new Tensor4DGraphData(tensor);
         }

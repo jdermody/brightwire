@@ -54,7 +54,7 @@ namespace BrightData
                 wasTempUsed = false;
             }
 
-            return ret;
+            return ret.Slice(0, (int)segment.Size);
         }
 
         static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
@@ -71,8 +71,8 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
 
-        public delegate void ComputeVectorisedTwo(in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r);
-        public delegate void ComputeVectorisedOne(in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r);
+        public delegate void ComputeVectorisedTwo(in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r);
+        public delegate void ComputeVectorisedOne(in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r);
         public static ITensorSegment2 ZipVectorised(
             this ITensorSegment2 segment, 
             ITensorSegment2 other, 
@@ -98,7 +98,7 @@ namespace BrightData
                 var ceiling = numVectors * NumericsVectorSize;
 
                 for (var i = 0; i < numVectors; i++)
-                    func1(leftVec[i], rightVec[i], ref resultVec[i]);
+                    func1(leftVec[i], rightVec[i], out resultVec[i]);
                 for (var i = ceiling; i < size; i++)
                     resultPtr[i] = func2(leftPtr[i], rightPtr[i]);
 
@@ -139,7 +139,7 @@ namespace BrightData
                 var ceiling = numVectors * NumericsVectorSize;
 
                 for (var i = 0; i < numVectors; i++)
-                    transfomer1(leftVec[i], ref resultVec[i]);
+                    transfomer1(leftVec[i], out resultVec[i]);
                 for (var i = ceiling; i < size; i++)
                     resultPtr[i] = transfomer2(leftPtr[i]);
 
@@ -192,7 +192,7 @@ namespace BrightData
                 var ceiling = numVectors * NumericsVectorSize;
 
                 for (var i = 0; i < numVectors; i++)
-                    func1(leftVec[i], rightVec[i], ref resultVec[i]);
+                    func1(leftVec[i], rightVec[i], out resultVec[i]);
                 for (var i = ceiling; i < size; i++)
                     resultPtr[i] = func2(leftPtr[i], rightPtr[i]);
 
@@ -229,7 +229,7 @@ namespace BrightData
                 var ceiling = numVectors * NumericsVectorSize;
 
                 for (var i = 0; i < numVectors; i++)
-                    mutator1(leftVec[i], ref resultVec[i]);
+                    mutator1(leftVec[i], out resultVec[i]);
                 for (var i = ceiling; i < size; i++)
                     resultPtr[i] = mutator2(leftPtr[i]);
 
@@ -276,13 +276,13 @@ namespace BrightData
         public static ITensorSegment2 Add(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a + b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a + b, 
             (a, b) => a + b
         );
         public static ITensorSegment2 Add(this ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2,
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2,
             (a, b) => a * coefficient1 + b * coefficient2
         );
         public static ITensorSegment2 Add(this ITensorSegment2 tensor, float scalar)
@@ -290,7 +290,7 @@ namespace BrightData
             var scalarVector = new System.Numerics.Vector<float>(scalar);
             return TransformVectorised(
                 tensor, 
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a + scalarVector, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
@@ -298,13 +298,13 @@ namespace BrightData
         public static void AddInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a + b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a + b, 
             (a, b) => a + b
         );
         public static void AddInPlace(this ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2, 
             (a,b) => a * coefficient1 + b * coefficient2
         );
 
@@ -313,7 +313,7 @@ namespace BrightData
             var scalarVector = new System.Numerics.Vector<float>(scalar);
             MutateInPlaceVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a + scalarVector, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
@@ -323,7 +323,7 @@ namespace BrightData
             var scalarVector = new System.Numerics.Vector<float>(scalar);
             MutateInPlaceVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a * scalarVector, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         }
@@ -333,7 +333,7 @@ namespace BrightData
             var scalarVector = new System.Numerics.Vector<float>(scalar);
             return TransformVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a * scalarVector, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         } 
@@ -341,53 +341,53 @@ namespace BrightData
         public static ITensorSegment2 Subtract(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a - b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a - b, 
             (a, b) => a - b
         );
         public static ITensorSegment2 Subtract(this ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
         public static void SubtractInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a - b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a - b, 
             (a, b) => a - b
         );
         public static void SubtractInPlace(this ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
         public static ITensorSegment2 PointwiseMultiply(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * b, 
             (a, b) => a * b
         );
 
         public static void PointwiseMultiplyInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a * b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * b, 
             (a, b) => a * b
         );
         public static ITensorSegment2 PointwiseDivide(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a / b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a / b, 
             (a, b) => a / b
         );
 
         public static void PointwiseDivideInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, ref System.Numerics.Vector<float> r) => r = a / b, 
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a / b, 
             (a, b) => a / b
         );
 
@@ -559,7 +559,7 @@ namespace BrightData
         public static ITensorSegment2 Exp(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Exp);
         public static ITensorSegment2 Squared(this ITensorSegment2 tensor) => TransformVectorised(
             tensor, 
-            (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => r = a * a, 
+            (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * a, 
             a => a * a
         );
 
@@ -569,7 +569,7 @@ namespace BrightData
             var avgVector = new System.Numerics.Vector<float>(avg);
             var result = TransformVectorised(
                 segment, 
-                (in System.Numerics.Vector<float> a, ref System.Numerics.Vector<float> r) => {
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => {
                     var s = a - avgVector;
                     r = s * s;
                 }, a => {
@@ -646,15 +646,23 @@ namespace BrightData
             MutateInPlace(segment, v => v >= compareTo ? upper : lower);
         }
 
-        static void Analyse(ITensorSegment2 segment, Action<float, uint> analyser)
+        public static void Analyse(ITensorSegment2 segment, Action<float, uint> analyser)
         {
             Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
         }
 
-        static void FeatureScaleNormalization(this ITensorSegment2 segment)
+        public static void FeatureScaleNormalization(this ITensorSegment2 segment)
         {
             var (min, max, _, _) = GetMinAndMaxValues(segment);
             var range = max - min;
+        }
+
+        public static void L1Regularisation(this ITensorSegment2 segment, float coefficient)
+        {
+            for (uint i = 0, len = segment.Size; i < len; i++) {
+                var val = segment[i];
+                segment[i] = val - (val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient;
+            }
         }
 
         public static Vector<float> AsFloatVector(this IVector vector)
@@ -664,49 +672,49 @@ namespace BrightData
             return ret;
         }
 
-        public static IVector ToArrayBased(this IVector vector)
-        {
-            if (vector.Segment.SegmentType == Consts.ArrayBased)
-                return vector;
+        //public static IVector ToArrayBased(this IVector vector)
+        //{
+        //    if (vector.Segment.SegmentType == Consts.ArrayBased)
+        //        return vector;
 
-            var lap = vector.Context.ArrayBasedLinearAlgebraProvider;
-            var segment = lap.CreateSegment(vector.Size);
-            vector.Segment.CopyTo(segment);
-            return new ArrayBasedVector(segment, lap);
-        }
+        //    var lap = vector.Context.ArrayBasedLinearAlgebraProvider;
+        //    var segment = lap.CreateSegment(vector.Size);
+        //    vector.Segment.CopyTo(segment);
+        //    return new ArrayBasedVector(segment, lap);
+        //}
 
-        public static IMatrix ToArrayBased(this IMatrix matrix)
-        {
-            if (matrix.Segment.SegmentType == Consts.ArrayBased)
-                return matrix;
+        //public static IMatrix ToArrayBased(this IMatrix matrix)
+        //{
+        //    if (matrix.Segment.SegmentType == Consts.ArrayBased)
+        //        return matrix;
 
-            var lap = matrix.Context.ArrayBasedLinearAlgebraProvider;
-            var segment = lap.CreateSegment(matrix.Segment.Size);
-            matrix.Segment.CopyTo(segment);
-            return new ArrayBasedMatrix(segment, matrix.RowCount, matrix.ColumnCount, lap);
-        }
+        //    var lap = matrix.Context.ArrayBasedLinearAlgebraProvider;
+        //    var segment = lap.CreateSegment(matrix.Segment.Size);
+        //    matrix.Segment.CopyTo(segment);
+        //    return new ArrayBasedMatrix(segment, matrix.RowCount, matrix.ColumnCount, lap);
+        //}
 
-        public static ITensor3D ToArrayBased(this ITensor3D tensor)
-        {
-            if (tensor.Segment.SegmentType == Consts.ArrayBased)
-                return tensor;
+        //public static ITensor3D ToArrayBased(this ITensor3D tensor)
+        //{
+        //    if (tensor.Segment.SegmentType == Consts.ArrayBased)
+        //        return tensor;
 
-            var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
-            var segment = lap.CreateSegment(tensor.Segment.Size);
-            tensor.Segment.CopyTo(segment);
-            return new ArrayBasedTensor3D(segment, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
-        }
+        //    var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
+        //    var segment = lap.CreateSegment(tensor.Segment.Size);
+        //    tensor.Segment.CopyTo(segment);
+        //    return new ArrayBasedTensor3D(segment, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
+        //}
 
-        public static ITensor4D ToArrayBased(this ITensor4D tensor)
-        {
-            if (tensor.Segment.SegmentType == Consts.ArrayBased)
-                return tensor;
+        //public static ITensor4D ToArrayBased(this ITensor4D tensor)
+        //{
+        //    if (tensor.Segment.SegmentType == Consts.ArrayBased)
+        //        return tensor;
 
-            var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
-            var segment = lap.CreateSegment(tensor.Segment.Size);
-            tensor.Segment.CopyTo(segment);
-            return new ArrayBasedTensor4D(segment, tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
-        }
+        //    var lap = tensor.Context.ArrayBasedLinearAlgebraProvider;
+        //    var segment = lap.CreateSegment(tensor.Segment.Size);
+        //    tensor.Segment.CopyTo(segment);
+        //    return new ArrayBasedTensor4D(segment, tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, lap);
+        //}
 
         public static float FindDistance(this IVector vector, IVector other, DistanceMetric distance) => distance switch {
             DistanceMetric.Cosine => vector.CosineDistance(other),
@@ -732,9 +740,10 @@ namespace BrightData
             var ret = compareTo[0].Context.LinearAlgebraProvider2.CreateMatrix(rows, columns);
 
             Parallel.For(0, rows * columns, ind => {
-                var i = (uint) (ind % columns);
-                var j = (uint) (ind / columns);
-                ret[i, j] = FindDistance(compareTo[i], vectors[(int)j], distanceMetric);
+                var i = (uint) (ind / columns);
+                var j = (uint) (ind % columns);
+                var distance = FindDistance(compareTo[i], vectors[(int)j], distanceMetric);;
+                ret[i, j] = distance;
             });
 
             return ret;
@@ -765,5 +774,12 @@ namespace BrightData
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
         }
+
+        public static IVector ToVector(this ITensorSegment2 segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
+        public static IMatrix ToMatrix(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
+        public static ITensor3D ToTensor3D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
+        public static ITensor4D ToTensor4D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
+
+        public static void CopyTo(this ITensor2 tensor, ITensor2 other) => tensor.Segment.CopyTo(other.Segment);
     }
 }

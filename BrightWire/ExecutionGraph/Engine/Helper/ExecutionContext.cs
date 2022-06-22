@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -15,11 +16,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly IBrightDataContext _context;
         readonly ICreateGraphContext _createGraphContext;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();
-        readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new();
+        readonly ConcurrentDictionary<string, IMatrix> _memory = new();
         readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphSequenceContext, CancellationToken>> _continuationTable = new();
         readonly ConcurrentStack<(IMiniBatch Batch, IGraphData Data, Action<IGraphSequenceContext, IGraphData, CancellationToken> Start, Action<IGraphSequenceContext[]> End)> _additionalBatches = new();
 
-	    public ExecutionContext(IBrightDataContext context, ILinearAlgebraProvider lap, ICreateGraphContext createGraphContext)
+	    public ExecutionContext(IBrightDataContext context, LinearAlgebraProvider lap, ICreateGraphContext createGraphContext)
         {
             _context = context;
             _createGraphContext = createGraphContext;
@@ -33,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _memory.Clear();
         }
 
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public void Add(IEnumerable<IGraphOperation> operations)
         {
@@ -80,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public bool HasMemory(string index) => _memory.ContainsKey(index);
 
-        public IFloatMatrix GetMemory(string index)
+        public IMatrix GetMemory(string index)
         {
             if (_memory.TryGetValue(index, out var output))
                 return output;
@@ -94,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             return null;
         }
 
-        public void SetMemory(string index, IFloatMatrix? memory)
+        public void SetMemory(string index, IMatrix? memory)
         {
             if (memory == null) {
                 if (_memory.TryRemove(index, out var temp))

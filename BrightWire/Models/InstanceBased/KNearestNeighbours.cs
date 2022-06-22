@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.Helper;
 using BrightWire.InstanceBased;
@@ -15,7 +16,7 @@ namespace BrightWire.Models.InstanceBased
         /// <summary>
         /// The list of vectors to match against
         /// </summary>
-        public Vector<float>[] Instance { get; set; } = Array.Empty<Vector<float>>();
+        public float[][] Instance { get; set; } = Array.Empty<float[]>();
 
         /// <summary>
         /// The corresponding list of classifications
@@ -38,7 +39,7 @@ namespace BrightWire.Models.InstanceBased
         /// <param name="lap">The linear algebra provider</param>
         /// <param name="k">The number of instances to consider</param>
         /// <param name="distanceMetric">The distance metric to compare each row with each instance</param>
-        public IRowClassifier CreateClassifier(ILinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public IRowClassifier CreateClassifier(LinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             return new KnnClassifier(lap, this, k, distanceMetric);
         }

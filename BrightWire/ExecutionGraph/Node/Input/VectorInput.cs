@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 // store the updates
                 var learningContext = context.LearningContext!;
                 learningContext.StoreUpdate(_source, columnSums, err => {
-                    var delta = err.AsIndexable();
+                    var delta = err.Segment.GetLocalOrNewArray();
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += delta[j] * learningContext.BatchLearningRate;
                 });
@@ -59,7 +59,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-            _context.ReadVectorFrom(reader).Segment.CopyTo(_data);
+            using var temp = _context.ReadVectorFrom(reader);
+            temp.Segment.CopyTo(_data);
 		}
 	}
 }

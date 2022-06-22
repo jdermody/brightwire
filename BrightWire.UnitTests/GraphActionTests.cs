@@ -14,22 +14,22 @@ namespace BrightWire.UnitTests
 
         public GraphActionTests()
         {
-            _factory = new GraphFactory(_cpu);
+            _factory = new GraphFactory(_lap);
         }
 
         void CheckTestAction(IAction action, IGraphData input, IGraphData expectedOutput)
         {
-            var context = new TestingContext(_cpu);
+            var context = new TestingContext(_lap);
             var output = action.Execute(input, context, null!);
 
-            FloatMath.AreApproximatelyEqual(output.GetMatrix().AsIndexable(), expectedOutput.GetMatrix().AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(output.GetMatrix(), expectedOutput.GetMatrix()).Should().BeTrue();
         }
 
         [Fact]
         public void TestConstrainInput()
         {
-            var input = _cpu.CreateVector(-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f).ReshapeAsMatrix(1, 7);
-            var output = _cpu.CreateVector(-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f).ReshapeAsMatrix(1, 7);
+            var input = _lap.CreateVector(-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f).Reshape(1, 7);
+            var output = _lap.CreateVector(-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f).Reshape(1, 7);
 
             CheckTestAction(_factory.GraphAction.Constrain(), input.AsGraphData(), output.AsGraphData());
         }

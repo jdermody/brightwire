@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 
@@ -39,19 +40,19 @@ namespace BrightWire
         /// Gets the signal as a matrix
         /// </summary>
         /// <returns></returns>
-        IFloatMatrix GetMatrix();
+        IMatrix GetMatrix();
 
         /// <summary>
         /// Gets the signal as a 4D tensor
         /// </summary>
         /// <returns></returns>
-        I4DFloatTensor? Get4DTensor();
+        ITensor4D? Get4DTensor();
 
         /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor meta data)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>
-        IGraphData ReplaceWith(IFloatMatrix matrix);
+        IGraphData ReplaceWith(IMatrix matrix);
 
         /// <summary>
         /// Returns the value at the specified index
@@ -148,7 +149,7 @@ namespace BrightWire
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         /// <summary>
         /// Current mini batch sequence
@@ -229,14 +230,14 @@ namespace BrightWire
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <param name="memory">Segment</param>
-        void SetMemory(string slotName, IFloatMatrix memory);
+        void SetMemory(string slotName, IMatrix memory);
 
         /// <summary>
         /// Reads from a named memory slot
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <returns></returns>
-        IFloatMatrix GetMemory(string slotName);
+        IMatrix GetMemory(string slotName);
 
         /// <summary>
         /// Gets the next queued graph operation (if any)
@@ -253,7 +254,7 @@ namespace BrightWire
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         /// <summary>
         /// How many operations remain queued
@@ -536,7 +537,7 @@ namespace BrightWire
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         /// <summary>
         /// Serialised version of the current graph and its parameters
@@ -683,7 +684,7 @@ namespace BrightWire
         /// <summary>
         /// The current state of the memory node
         /// </summary>
-        Vector<float> Data { get; set; }
+        float[] Data { get; set; }
     }
 
     /// <summary>
@@ -709,19 +710,19 @@ namespace BrightWire
         /// <summary>
         /// Bias vector
         /// </summary>
-        IFloatVector Bias { get; }
+        IVector Bias { get; }
 
         /// <summary>
         /// Weight matrix
         /// </summary>
-        IFloatMatrix Weight { get; }
+        IMatrix Weight { get; }
 
         /// <summary>
         /// Updates the weights
         /// </summary>
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
-        void UpdateWeights(IFloatMatrix delta, ILearningContext context);
+        void UpdateWeights(IMatrix delta, ILearningContext context);
     }
 
     /// <summary>

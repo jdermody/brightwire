@@ -78,7 +78,7 @@ namespace BrightWire.Linear.Training
             }
 
             var ret = new LinearRegression {
-                Theta = theta.AsFloatVector()
+                Theta = theta.Segment.ToNewArray()
             };
             theta.Dispose();
             return ret;

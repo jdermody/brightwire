@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BrightData;
+using BrightData.LinearAlegbra2;
 
 namespace BrightWire.Helper
 {
@@ -15,7 +16,7 @@ namespace BrightWire.Helper
 
         readonly Dictionary<string, object> _data = new();
 
-		public PropertySet(ILinearAlgebraProvider lap)
+		public PropertySet(LinearAlgebraProvider lap)
         {
             LinearAlgebraProvider = lap;
         }
@@ -28,7 +29,7 @@ namespace BrightWire.Helper
             return ret;
         }
 
-		public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+		public LinearAlgebraProvider LinearAlgebraProvider { get; }
 		public IWeightInitialisation? WeightInitialisation
         {
             get => Get<IWeightInitialisation>(WeightInitialisationLabel);

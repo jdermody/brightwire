@@ -14,29 +14,29 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
-        public void TrainLinearModel()
-        {
-            var lap = _context.LinearAlgebraProvider2;
-            var trainer = Training.CreateLinearRegressionTrainer(lap);
-            int iteration = 0;
-            var theta = trainer.GradientDescent(500, 0.000025f, 0f, cost =>
-            {
-                if (iteration++ % 20 == 0)
-                    Console.WriteLine(cost);
-                return true;
-            });
-            Console.WriteLine(theta.Theta);
+        //public void TrainLinearModel()
+        //{
+        //    var lap = _context.LinearAlgebraProvider2;
+        //    var trainer = Training.CreateLinearRegressionTrainer(lap);
+        //    int iteration = 0;
+        //    var theta = trainer.GradientDescent(500, 0.000025f, 0f, cost =>
+        //    {
+        //        if (iteration++ % 20 == 0)
+        //            Console.WriteLine(cost);
+        //        return true;
+        //    });
+        //    Console.WriteLine(theta.Theta);
 
-            var numFeatures = Test.ColumnCount - 1;
-            var numericColumns = numFeatures.AsRange().ToArray();
-            var testData = Test.AsConvertible().Rows().Select(r => (Features: numericColumns.Select(r.GetTyped<float>).ToArray(), Label: r.GetTyped<float>(numFeatures)));
-            var predictor = theta.CreatePredictor(lap);
+        //    var numFeatures = Test.ColumnCount - 1;
+        //    var numericColumns = numFeatures.AsRange().ToArray();
+        //    var testData = Test.AsConvertible().Rows().Select(r => (Features: numericColumns.Select(r.GetTyped<float>).ToArray(), Label: r.GetTyped<float>(numFeatures)));
+        //    var predictor = theta.CreatePredictor(lap);
             
-            foreach (var (features, actual) in testData)
-            {
-                var prediction = predictor.Predict(features);
-            }
-        }
+        //    foreach (var (features, actual) in testData)
+        //    {
+        //        var prediction = predictor.Predict(features);
+        //    }
+        //}
 
         public void TrainNeuralNetwork()
         {

@@ -21,9 +21,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         class Backpropagation : SingleBackpropagationBase<SelfAttention>
         {
             readonly uint _position;
-            readonly List<(IFloatMatrix EncoderState,  IFloatMatrix CombinedState)> _weights;
+            readonly List<(IMatrix EncoderState,  IMatrix CombinedState)> _weights;
 
-            public Backpropagation(SelfAttention source, uint position, List<(IFloatMatrix EncoderState,  IFloatMatrix CombinedState)> weights) : base(source)
+            public Backpropagation(SelfAttention source, uint position, List<(IMatrix EncoderState, IMatrix CombinedState)> weights) : base(source)
             {
                 _position = position;
                 _weights = weights;
@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var feedForwardError = errRows.SoftmaxDerivative();
                     using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
                     collapsed.Multiply(1f / feedForwardError.ColumnCount);
-                    var weightUpdate = collapsed.ReshapeAsColumnMatrix();
+                    var weightUpdate = collapsed.Reshape(null, 1);
 
                     learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
                     learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var currentIndex = context.BatchSequence.SequenceIndex;
 
             // get the previous decoder state
-            IFloatMatrix? decoderHiddenState = null;
+            IMatrix? decoderHiddenState = null;
             if (currentIndex == 0) {
                 if ((FindByName(_decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
                     decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
@@ -82,9 +82,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             if(previous == null)
                 throw new Exception("No previous mini batch");
 
-            IFloatMatrix? weights = null;
-            var encoderStates = new List<IFloatMatrix>();
-            var inputs = new List<IFloatMatrix>();
+            IMatrix? weights = null;
+            var encoderStates = new List<IMatrix>();
+            var inputs = new List<IMatrix>();
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
                 var encoderState = previous.GetSequenceAtIndex(i).GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
                 var combined = decoderHiddenState.ConcatRows(encoderState);
@@ -102,9 +102,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 
             // form the new attention as a product of the weights
-            using var softmax = weights!.SoftmaxActivation();
-            var combinedAttention = context.LinearAlgebraProvider.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, true);
-            var backward = new List<(IFloatMatrix EncoderState, IFloatMatrix CombinedState)>();
+            using var softmax = weights!.Softmax();
+            var combinedAttention = context.LinearAlgebraProvider.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
+            var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softmax.ColumnVectors().Zip(encoderStates)) {
                 var multiplyWeight = first.Average();
@@ -112,8 +112,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
                 var saved = second.Clone();
-                var indexedFirst = first.AsIndexable();
-                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => indexedFirst[i]);
+                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => first[i]);
                 second.PointwiseMultiply(stretched);
                 //second.Multiply(multiplyWeight);
                 combinedAttention.AddInPlace(second);

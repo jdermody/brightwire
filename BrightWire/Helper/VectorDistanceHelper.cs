@@ -96,31 +96,34 @@ namespace BrightWire.Helper
         {
             using var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToArray());
             var result = data.RowSums();
-            result.Multiply(1f / indices.Length);
+            result.MultiplyInPlace(1f / indices.Length);
             return result;
         }
 
-		(uint Index, float Value) GetMinimum(IMatrix matrix, uint columnIndex)
+		(uint Index, float Value) GetMinimum(IMatrix matrix, uint index)
 		{
             var len = _comparison.Count;
 
             switch (len) {
                 case 1:
-                    return (0, matrix[0, columnIndex]);
+                    return (0, matrix[0, index]);
                 case 0:
                     throw new Exception("Cannot find minimum with zero length");
             }
 
-            var bestIndex = uint.MaxValue;
-            var min = float.MaxValue;
-            for (uint j = 0; j < len; j++) {
-                var val = matrix[j, columnIndex];
-                if (val < min) {
-                    bestIndex = j;
-                    min = val;
-                }
-            }
-            return (bestIndex, min);
+            var (min, _, minIndex, _) = matrix.Row(index).GetMinAndMaxValues();
+            return (minIndex, min);
+
+            //var bestIndex = uint.MaxValue;
+            //var min = float.MaxValue;
+            //for (uint j = 0; j < len; j++) {
+            //    var val = matrix[j, columnIndex];
+            //    if (val < min) {
+            //        bestIndex = j;
+            //        min = val;
+            //    }
+            //}
+            //return (bestIndex, min);
         }
 	}
 }

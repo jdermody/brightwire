@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
+                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
                 yield return (errorSignal.ReplaceWith(left), context, _forward);
 
                 var batch = context.BatchSequence.MiniBatch;
@@ -46,8 +46,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
-        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
+        Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
+        Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
 
         Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
         Dictionary<uint, IGraphSequenceContext> _contextTable = new();
@@ -59,8 +59,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
+            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
             _contextTable = new Dictionary<uint, IGraphSequenceContext>();
@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 wire.SendTo.Forward(ct, next, context, wire.Channel, this);
         }
 
-        protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

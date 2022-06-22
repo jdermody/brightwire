@@ -7,9 +7,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     {
         class Backpropagation : SingleBackpropagationBase<InputSquared>
         {
-			readonly IFloatMatrix _input;
+			readonly IMatrix _input;
 
-            public Backpropagation(InputSquared source, IFloatMatrix input) : base(source)
+            public Backpropagation(InputSquared source, IMatrix input) : base(source)
             {
 				_input = input;
             }

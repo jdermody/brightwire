@@ -1,24 +1,19 @@
-﻿using BrightData.Numerics;
+﻿using BrightData.LinearAlegbra2;
+using BrightData.Numerics;
 
 namespace BrightData.UnitTests.Helper
 {
-
-
     public class NumericsBase : UnitTestBase
     {
-        protected readonly ILinearAlgebraProvider _simple;
-        protected readonly ILinearAlgebraProvider _cpu;
+        protected readonly LinearAlgebraProvider _lap;
 
         public NumericsBase()
         {
-            _simple = _context.LinearAlgebraProvider;
-            _cpu = _context.UseNumericsLinearAlgebra();
+            _lap = _context.LinearAlgebraProvider2;
         }
 
         public override void Dispose()
         {
-            _cpu.Dispose();
-            _simple.Dispose();
             base.Dispose();
         }
     }

@@ -12,10 +12,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<MaxPool>
         {
-            readonly I4DFloatTensor _indices;
+            readonly ITensor4D _indices;
             readonly uint _inputColumns, _inputRows, _outputColumns, _outputRows, _depth, _filterWidth, _filterHeight, _xStride, _yStride;
 
-            public Backpropagation(MaxPool source, I4DFloatTensor indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+            public Backpropagation(MaxPool source, ITensor4D indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
                 : base(source)
             {
 	            _indices = indices;

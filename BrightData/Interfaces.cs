@@ -1212,6 +1212,8 @@ namespace BrightData
         ITensorSegment2 Segment { get; }
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);
+        ITensor3D Reshape(uint? depth, uint? rows, uint? columns);
+        ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns);
         void Clear();
         ITensor2 Clone();
     }
@@ -1276,6 +1278,7 @@ namespace BrightData
         T CherryPick(uint[] indices);
         T Map(Func<float, float> mutator);
         void MapInPlace(Func<float, float> mutator);
+        void L1Regularisation(float coefficient);
     }
 
     public interface IVector : ITensor2<IVector>
@@ -1301,6 +1304,8 @@ namespace BrightData
         ITensorSegment2 Column(uint index);
         ITensorSegment2[] Rows();
         ITensorSegment2[] Columns();
+        IVector[] RowVectors();
+        IVector[] ColumnVectors();
         MemoryOwner<float> ToNewColumnMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
@@ -1319,6 +1324,8 @@ namespace BrightData
         (IMatrix U, IVector S, IMatrix VT) Svd();
         IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
         IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
+        void AddToEachRow(ITensorSegment2 segment);
+        void AddToEachColumn(ITensorSegment2 segment);
     }
 
     public interface ITensor3D : ITensor2<ITensor3D>
@@ -1364,6 +1371,7 @@ namespace BrightData
         ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        IVector ColumnSums();
     }
 
     public interface ICountReferences

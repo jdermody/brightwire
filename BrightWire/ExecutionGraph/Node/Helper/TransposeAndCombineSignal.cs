@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         class Backpropagation : SingleBackpropagationBase<TransposeAndCombineSignal>
         {
-            readonly I4DFloatTensor _tensor;
+            readonly ITensor4D _tensor;
 
-            public Backpropagation(TransposeAndCombineSignal source, I4DFloatTensor tensor) : base(source)
+            public Backpropagation(TransposeAndCombineSignal source, ITensor4D tensor) : base(source)
             {
                 _tensor = tensor;
             }
@@ -24,12 +24,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var matrix = errorSignal.GetMatrix();
                 var lap = context.LinearAlgebraProvider;
 
-                var rowList = new List<IFloatVector>();
+                var rowList = new IVector[matrix.RowCount];
                 for(uint i = 0; i < matrix.RowCount; i++) {
-                    var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
+                    var rowMatrix = matrix.Row(i).ToMatrix(lap, _tensor.RowCount, _tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
-                    var tensor = lap.Create3DTensor(matrixList);
-                    rowList.Add(tensor.ReshapeAsVector());
+                    var tensor = lap.CreateTensor3DAndThenDisposeInput(matrixList);
+                    rowList[i] = tensor.Reshape();
                 }
                 var errorMatrix = lap.CreateMatrixFromRows(rowList);
 
@@ -44,11 +44,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
-            var rowList = new List<IFloatVector>();
+            var rowList = new IVector[tensor.Count];
 
             for(uint i = 0; i < tensor.Count; i++) {
-                var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
-                rowList.Add(row);
+                var row = tensor.Tensor(i).CombineDepthSlices().Reshape();
+                rowList[i] = row;
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
@@ -37,12 +38,12 @@ namespace BrightWire.ExecutionGraph.Engine
         }
 
         public IBrightDataContext Context => _factory.Context;
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
         public ExecutionGraphModel Graph => Start.GetGraph();
         public IDataSource DataSource { get; }
         public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             var provider = new MiniBatchProvider(dataSource, null);
             using var executionContext = new ExecutionContext(_factory.Context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
@@ -53,13 +54,13 @@ namespace BrightWire.ExecutionGraph.Engine
 
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null && !ct.IsCancellationRequested) {
-                LinearAlgebraProvider.PushLayer();
+                LinearAlgebraProvider.PushScope();
                 foreach (var context in operation.Execute()) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
                 }
-                LinearAlgebraProvider.PopLayer();
+                LinearAlgebraProvider.PopScope();
 
                 if (batchCompleteCallback != null) {
                     var percentage = (++index) / operationCount;
@@ -67,7 +68,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
             }
 
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
         }
 
         IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
@@ -79,7 +80,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
         {
-            LinearAlgebraProvider.PushLayer();
+            LinearAlgebraProvider.PushScope();
             LearningContext.StartEpoch();
             var provider = new MiniBatchProvider(DataSource, LinearAlgebraProvider.Context.Random);
             executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => Train(executionContext, LearningContext, batch)));
@@ -89,12 +90,12 @@ namespace BrightWire.ExecutionGraph.Engine
             var index = 0f;
             var ct = _factory.Context.CancellationToken;
             while ((operation = executionContext.GetNextOperation()) != null && !ct.IsCancellationRequested) {
-                LinearAlgebraProvider.PushLayer();
+                LinearAlgebraProvider.PushScope();
                 var contextList = operation.Execute().ToList();
                 LearningContext.ApplyUpdates();
                 foreach (var context in contextList)
                     context.Dispose();
-                LinearAlgebraProvider.PopLayer();
+                LinearAlgebraProvider.PopScope();
 
                 if (batchCompleteCallback != null) {
                     var percentage = (++index) / operationCount;
@@ -103,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Engine
             }
 
             LearningContext.EndEpoch();
-            LinearAlgebraProvider.PopLayer();
+            LinearAlgebraProvider.PopScope();
         }
 
         IEnumerable<IGraphSequenceContext> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)

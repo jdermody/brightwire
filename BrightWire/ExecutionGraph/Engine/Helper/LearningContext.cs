@@ -14,8 +14,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
         readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new();
-        readonly List<(NodeBase Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new();
-        readonly List<(NodeBase Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new();
+        readonly List<(NodeBase Node, IMatrix Error, Action<IMatrix> Updater)> _layerMatrixUpdate = new();
+        readonly List<(NodeBase Node, IVector Error, Action<IVector> Updater)> _layerVectorUpdate = new();
         readonly HashSet<NodeBase> _updatesDisabled = new();
         readonly Stopwatch _timer = new();
 
@@ -43,14 +43,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
+        public void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater)
         {
             if (!_updatesDisabled.Contains(fromNode)) {
                 _layerMatrixUpdate.Add((fromNode, update, updater));
             }
         }
 
-        public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
+        public void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater)
         {
             if (!_updatesDisabled.Contains(fromNode)) {
                 _layerVectorUpdate.Add((fromNode, update, updater));

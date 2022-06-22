@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Relu>
         {
-            readonly IFloatMatrix _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(Relu source, IFloatMatrix matrix) : base(source)
+            public Backpropagation(Relu source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Activation
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            var output = signal.ReplaceWith(input.ReluActivation());
+            var output = signal.ReplaceWith(input.Relu());
             return (this, output, () => new Backpropagation(this, input));
         }
     }

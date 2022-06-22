@@ -13,23 +13,24 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IFloatVector[] _rows;
+            readonly IVector[] _rows;
 
-            public Backpropagation(SoftMax source, IFloatVector[] rows) : base(source)
+            public Backpropagation(SoftMax source, IVector[] rows) : base(source)
             {
                 _rows = rows;
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
+                var lap = context.LinearAlgebraProvider;
                 var matrix = errorSignal.GetMatrix();
-                var rowList = new List<IFloatVector>();
+                var rowList = new IVector[matrix.RowCount];
                 for (uint i = 0; i < matrix.RowCount; i++) {
                     using var derivative = _rows[(int)i].SoftmaxDerivative();
-                    var sm = derivative.Multiply(matrix.Row(i));
-                    rowList.Add(sm.ReshapeAsVector());
+                    var sm = derivative.Multiply(matrix.Row(i).ToVector(lap));
+                    rowList[i] = sm.Reshape();
                 }
-                var ret = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+                var ret = lap.CreateMatrixFromRows(rowList);
                 foreach (var item in rowList)
                     item.Dispose();
                 return errorSignal.ReplaceWith(ret);
@@ -40,10 +41,11 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
+            var lap = context.LinearAlgebraProvider;
             var input = signal.GetMatrix();
-            var rowList = new IFloatVector[input.RowCount];
+            var rowList = new IVector[input.RowCount];
             for (uint i = 0; i < input.RowCount; i++) {
-                using var row = input.Row(i);
+                using var row = input.Row(i).ToVector(lap);
                 rowList[i] = row.Softmax();
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);

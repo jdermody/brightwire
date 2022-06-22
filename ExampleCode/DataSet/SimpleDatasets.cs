@@ -224,35 +224,35 @@ namespace ExampleCode.DataSet
             return new SequenceToSequenceTrainer(grammar, context, builder.BuildRowOriented());
         }
 
-        public static LinearTrainer SimpleLinear(this IBrightDataContext context)
-        {
-            var dataTableBuilder = context.BuildTable();
-            dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "labour costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "energy costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "output").SetTarget(true);
+        //public static LinearTrainer SimpleLinear(this IBrightDataContext context)
+        //{
+        //    var dataTableBuilder = context.BuildTable();
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "labour costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "energy costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "output").SetTarget(true);
 
-            dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
-            dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);
-            dataTableBuilder.AddRow(208.904f, 0.532f, 18.005f, 1.985f);
-            dataTableBuilder.AddRow(528.864f, 1.836f, 75.639f, 9.897f);
-            dataTableBuilder.AddRow(307.419f, 1.136f, 52.234f, 5.907f);
-            dataTableBuilder.AddRow(138.283f, 1.085f, 9.027f, 1.832f);
-            dataTableBuilder.AddRow(418.883f, 2.390f, 1.676f, 4.865f);
-            dataTableBuilder.AddRow(247.439f, 1.356f, 31.244f, 2.728f);
-            dataTableBuilder.AddRow(19.478f, 0.115f, 1.739f, 0.125f);
-            dataTableBuilder.AddRow(537.540f, 2.591f, 104.584f, 9.685f);
-            dataTableBuilder.AddRow(605.507f, 2.789f, 82.296f, 8.727f);
-            dataTableBuilder.AddRow(174.765f, 0.933f, 21.990f, 2.239f);
-            dataTableBuilder.AddRow(946.766f, 4.004f, 125.351f, 10.077f);
-            dataTableBuilder.AddRow(296.490f, 1.513f, 43.232f, 4.477f);
-            dataTableBuilder.AddRow(645.690f, 2.540f, 75.581f, 7.037f);
-            dataTableBuilder.AddRow(288.975f, 1.416f, 42.037f, 3.507f);
+        //    dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
+        //    dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);
+        //    dataTableBuilder.AddRow(208.904f, 0.532f, 18.005f, 1.985f);
+        //    dataTableBuilder.AddRow(528.864f, 1.836f, 75.639f, 9.897f);
+        //    dataTableBuilder.AddRow(307.419f, 1.136f, 52.234f, 5.907f);
+        //    dataTableBuilder.AddRow(138.283f, 1.085f, 9.027f, 1.832f);
+        //    dataTableBuilder.AddRow(418.883f, 2.390f, 1.676f, 4.865f);
+        //    dataTableBuilder.AddRow(247.439f, 1.356f, 31.244f, 2.728f);
+        //    dataTableBuilder.AddRow(19.478f, 0.115f, 1.739f, 0.125f);
+        //    dataTableBuilder.AddRow(537.540f, 2.591f, 104.584f, 9.685f);
+        //    dataTableBuilder.AddRow(605.507f, 2.789f, 82.296f, 8.727f);
+        //    dataTableBuilder.AddRow(174.765f, 0.933f, 21.990f, 2.239f);
+        //    dataTableBuilder.AddRow(946.766f, 4.004f, 125.351f, 10.077f);
+        //    dataTableBuilder.AddRow(296.490f, 1.513f, 43.232f, 4.477f);
+        //    dataTableBuilder.AddRow(645.690f, 2.540f, 75.581f, 7.037f);
+        //    dataTableBuilder.AddRow(288.975f, 1.416f, 42.037f, 3.507f);
 
-            var dataTable = dataTableBuilder.BuildRowOriented();
-            var normalized = dataTable.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented();
-            return new LinearTrainer(normalized);
-        }
+        //    var dataTable = dataTableBuilder.BuildRowOriented();
+        //    var normalized = dataTable.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented();
+        //    return new LinearTrainer(normalized);
+        //}
 
         public static BicyclesTrainer Bicycles(this IBrightDataContext context)
         {

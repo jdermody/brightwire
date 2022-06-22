@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
@@ -40,7 +41,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="lap">The linear algebra provider to use</param>
 		/// <param name="propertySet">A property set with initialisation data (optional)</param>
-		public GraphFactory(ILinearAlgebraProvider lap, IPropertySet? propertySet = null)
+		public GraphFactory(LinearAlgebraProvider lap, IPropertySet? propertySet = null)
 		{
 			LinearAlgebraProvider = lap;
 			WeightInitialisation = new WeightInitialisationProvider(LinearAlgebraProvider);
@@ -55,7 +56,7 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         /// <summary>
         /// Bright data context
@@ -95,7 +96,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="weight"></param>
 		/// <returns></returns>
-		public IGradientDescentOptimisation CreateWeightUpdater(IFloatMatrix weight)
+		public IGradientDescentOptimisation CreateWeightUpdater(IMatrix weight)
 		{
 			var propertySet = CurrentPropertySet;
 
@@ -163,7 +164,7 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a data source from a list of vectors
 		/// </summary>
 		/// <param name="vectorList">The list of vectors that will be the rows in the data source</param>
-		public IDataSource CreateDataSource(Vector<float>[] vectorList)
+		public IDataSource CreateDataSource(IVector[] vectorList)
 		{
 			return new VectorDataSource(LinearAlgebraProvider, vectorList);
 		}
@@ -173,7 +174,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(Matrix<float>[] sequenceList)
+		public IDataSource CreateDataSource(IMatrix[] sequenceList)
 		{
 			return new SequentialDataSource(LinearAlgebraProvider, sequenceList);
 		}
@@ -183,7 +184,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="tensorList">The list of tensors that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(Tensor3D<float>[] tensorList)
+		public IDataSource CreateDataSource(ITensor3D[] tensorList)
 		{
 			return new TensorDataSource(LinearAlgebraProvider, tensorList);
 		}
@@ -904,7 +905,7 @@ namespace BrightWire.ExecutionGraph
 			/// </summary>
 			public IWeightInitialisation Identity01 { get; }
 
-			internal WeightInitialisationProvider(ILinearAlgebraProvider lap)
+			internal WeightInitialisationProvider(LinearAlgebraProvider lap)
 			{
 				Ones = new Constant(lap);
 				Zeroes = new Constant(lap, 0f, 0f);

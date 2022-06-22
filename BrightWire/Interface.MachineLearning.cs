@@ -2,10 +2,10 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
-using BrightWire.Models.Linear;
 
 namespace BrightWire
 {
@@ -25,7 +25,7 @@ namespace BrightWire
 		/// <param name="output">The vector that was the output of the model</param>
 		/// <param name="targetOutput">The vector that the model was expected to output</param>
 		/// <returns></returns>
-		float Compute(Vector<float> output, Vector<float> targetOutput);
+		float Compute(IVector output, IVector targetOutput);
 
         /// <summary>
         /// Computes the error between the output vector and target vector
@@ -42,7 +42,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput);
+		IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -158,7 +158,7 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
 		/// <param name="update">The matrix update</param>
 		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
+		void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater);
 
         /// <summary>
         /// Stores an update to the model parameters
@@ -166,7 +166,7 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
         /// <param name="update">The vector update</param>
         /// <param name="updater">Callback to execute the update</param>
-        void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater);
+        void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -254,7 +254,7 @@ namespace BrightWire
 		/// <param name="source">The matrix to update</param>
 		/// <param name="delta">The delta matrix</param>
 		/// <param name="context">The graph learning context</param>
-		void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context);
+		void Update(IMatrix source, IMatrix delta, ILearningContext context);
 	}
 
 	/// <summary>
@@ -281,7 +281,7 @@ namespace BrightWire
 		/// <param name="template">The instance of the matrix that will be updated</param>
 		/// <param name="propertySet">The property set that contains initialisation parameters</param>
 		/// <returns></returns>
-		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet);
+		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
 	}
 
 	/// <summary>
@@ -292,7 +292,7 @@ namespace BrightWire
 		/// <summary>
 		/// The linear algebra provider to use
 		/// </summary>
-		ILinearAlgebraProvider LinearAlgebraProvider { get; }
+		LinearAlgebraProvider LinearAlgebraProvider { get; }
 
 		/// <summary>
 		/// The weight initialiser to use
@@ -423,14 +423,14 @@ namespace BrightWire
 		/// Creates the bias vector
 		/// </summary>
 		/// <param name="size">The size of the vector</param>
-		IFloatVector CreateBias(uint size);
+		IVector CreateBias(uint size);
 
 		/// <summary>
 		/// Creates the weight matrix
 		/// </summary>
 		/// <param name="rows">Row count</param>
 		/// <param name="columns">Column count</param>
-		IFloatMatrix CreateWeight(uint rows, uint columns);
+		IMatrix CreateWeight(uint rows, uint columns);
 	}
 
 	/// <summary>
@@ -467,55 +467,55 @@ namespace BrightWire
 	/// <summary>
 	/// A logistic regression trainer
 	/// </summary>
-	public interface ILogisticRegressionTrainer
-	{
-		/// <summary>
-		/// Trains a model using gradient descent
-		/// </summary>
-		/// <param name="iterations">Number of training epochs</param>
-		/// <param name="learningRate">The training rate</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <param name="costCallback">Callback with current cost - False to stop training</param>
-		/// <returns></returns>
-		LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
+	//public interface ILogisticRegressionTrainer
+	//{
+	//	/// <summary>
+	//	/// Trains a model using gradient descent
+	//	/// </summary>
+	//	/// <param name="iterations">Number of training epochs</param>
+	//	/// <param name="learningRate">The training rate</param>
+	//	/// <param name="lambda">Regularisation lambda</param>
+	//	/// <param name="costCallback">Callback with current cost - False to stop training</param>
+	//	/// <returns></returns>
+	//	LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
 
-		/// <summary>
-		/// Computes the cost of the specified parameters
-		/// </summary>
-		/// <param name="theta">The model parameters</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <returns></returns>
-		float ComputeCost(IVector theta, float lambda);
-	}
+	//	/// <summary>
+	//	/// Computes the cost of the specified parameters
+	//	/// </summary>
+	//	/// <param name="theta">The model parameters</param>
+	//	/// <param name="lambda">Regularisation lambda</param>
+	//	/// <returns></returns>
+	//	float ComputeCost(IVector theta, float lambda);
+	//}
 
-	/// <summary>
-	/// Trainer for linear regression models
-	/// </summary>
-	public interface ILinearRegressionTrainer
-	{
-		// <summary>
-		// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
-		// </summary>
-		// <returns></returns>
-		//LinearRegression Solve();
+	///// <summary>
+	///// Trainer for linear regression models
+	///// </summary>
+	//public interface ILinearRegressionTrainer
+	//{
+	//	// <summary>
+	//	// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
+	//	// </summary>
+	//	// <returns></returns>
+	//	//LinearRegression Solve();
 
-		/// <summary>
-		/// Solves the model using gradient descent
-		/// </summary>
-		/// <param name="iterations">Number of training epochs</param>
-		/// <param name="learningRate">The training rate</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <param name="costCallback">Callback with current cost - False to stop training</param>
-		/// <returns>A trained model</returns>
-		LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
+	//	/// <summary>
+	//	/// Solves the model using gradient descent
+	//	/// </summary>
+	//	/// <param name="iterations">Number of training epochs</param>
+	//	/// <param name="learningRate">The training rate</param>
+	//	/// <param name="lambda">Regularisation lambda</param>
+	//	/// <param name="costCallback">Callback with current cost - False to stop training</param>
+	//	/// <returns>A trained model</returns>
+	//	LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
 
-		/// <summary>
-		/// Computes the cost of the specified parameters
-		/// </summary>
-		/// <param name="theta">The model parameters</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		float ComputeCost(IVector theta, float lambda);
-	}
+	//	/// <summary>
+	//	/// Computes the cost of the specified parameters
+	//	/// </summary>
+	//	/// <param name="theta">The model parameters</param>
+	//	/// <param name="lambda">Regularisation lambda</param>
+	//	float ComputeCost(IVector theta, float lambda);
+	//}
 
 	/// <summary>
 	/// Encodes index lists to dense vectors

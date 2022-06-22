@@ -3,6 +3,8 @@ using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataSource
@@ -13,10 +15,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     internal class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly Matrix<float>[] _data;
-        readonly ILinearAlgebraProvider _lap;
+	    readonly IMatrix[] _data;
+        readonly LinearAlgebraProvider _lap;
 
-        public SequentialDataSource(ILinearAlgebraProvider lap, Matrix<float>[] matrixList)
+        public SequentialDataSource(LinearAlgebraProvider lap, IMatrix[] matrixList)
         {
             _lap = lap;
             _data = matrixList;
@@ -41,19 +43,19 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<Vector<float>>>();
+            var inputData = new Dictionary<uint, List<ITensorSegment2>>();
             foreach (var item in data) {
                 var input = item;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<Vector<float>>());
+                        inputData.Add(i, temp = new());
                     temp.Add(input.Row(i));
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.CreateMatrixFromRows(item.Value);
+                var input = _lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)

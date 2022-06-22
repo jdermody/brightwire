@@ -10,12 +10,12 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class BinaryClassification : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(Vector<float> output, Vector<float> targetOutput)
+        public float Compute(IVector output, IVector targetOutput)
         {
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {

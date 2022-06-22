@@ -23,19 +23,19 @@ namespace ExampleCode
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            Control.UseNativeMKL();
+            //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            useCuda = true;
+            //useCuda = true;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //Xor(context);
-            //IrisClassification(context);
-            //IrisClustering(context);
-            //MarkovChains(context);
-            //TextClustering(context);
+            Xor(context);
+            IrisClassification(context);
+            IrisClustering(context);
+            MarkovChains(context);
+            TextClustering(context);
             //IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
@@ -48,9 +48,9 @@ namespace ExampleCode
             //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
             //MnistFeedForward(context);
-            MnistConvolutional(context, useCuda);
-            TrainIncomePrediction(context);
-            SentimentClassification(context, useCuda);
+            //MnistConvolutional(context, useCuda);
+            //TrainIncomePrediction(context);
+            //SentimentClassification(context, useCuda);
         }
 
         static void Start(BrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
@@ -80,7 +80,7 @@ namespace ExampleCode
         static void Xor(BrightDataContext context)
         {
             Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(4, 100, 0.5f, 4);
+            context.Xor().TrainSigmoidNeuralNetwork(4, 25, 0.5f, 4);
         }
 
         static void IrisClassification(BrightDataContext context)
@@ -91,7 +91,7 @@ namespace ExampleCode
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
-            iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
+            //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
             iris.TrainSigmoidNeuralNetwork(8, 200, 0.1f, 16);
         }
 
@@ -169,7 +169,7 @@ namespace ExampleCode
             textClustering.KMeans();
             textClustering.Nnmf();
             textClustering.RandomProjection();
-            textClustering.LatentSemanticAnalysis();
+            //textClustering.LatentSemanticAnalysis();
         }
 
         static void IntegerAddition(BrightDataContext context)
@@ -207,17 +207,17 @@ namespace ExampleCode
             sequences.TrainSequenceToSequence();
         }
 
-        static void SimpleLinearTest(BrightDataContext context)
-        {
-            Start(context);
-            context.SimpleLinear().TrainLinearRegression();
-        }
+        //static void SimpleLinearTest(BrightDataContext context)
+        //{
+        //    Start(context);
+        //    context.SimpleLinear().TrainLinearRegression();
+        //}
 
-        static void PredictBicyclesWithLinearModel(BrightDataContext context)
-        {
-            Start(context);
-            context.Bicycles().TrainLinearModel();
-        }
+        //static void PredictBicyclesWithLinearModel(BrightDataContext context)
+        //{
+        //    Start(context);
+        //    context.Bicycles().TrainLinearModel();
+        //}
 
         static void PredictBicyclesWithNeuralNetwork(BrightDataContext context)
         {

@@ -12,12 +12,12 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class Quadratic : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(Vector<float> output, Vector<float> targetOutput)
+        public float Compute(IVector output, IVector targetOutput)
         {
             var diff = output.Segment.Values.Zip(targetOutput.Segment.Values, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
             return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));

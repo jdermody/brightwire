@@ -160,18 +160,18 @@ namespace ExampleCode.DataTableTrainers
                 );
 
                 // train a logistic regression classifier
-                var logisticRegression = item.Training.Table
-                    .TrainMultinomialLogisticRegression(2500, 0.25f, 0.01f)
-                    .CreateClassifier(_context.LinearAlgebraProvider2)
-                ;
+                //var logisticRegression = item.Training.Table
+                //    .TrainMultinomialLogisticRegression(2500, 0.25f, 0.01f)
+                //    .CreateClassifier(_context.LinearAlgebraProvider2)
+                //;
 
-                var convertible = item.Test.Table.AsConvertible();
-                Console.WriteLine("\tLogistic regression accuracy: {0:P}", logisticRegression.Classify(item.Test.Table)
-                    .Average(d => convertible.Row(d.RowIndex).GetTyped<string>(targetColumn) == d.Predictions.First().Classification ? 1.0 : 0.0)
-                );
+                //var convertible = item.Test.Table.AsConvertible();
+                //Console.WriteLine("\tLogistic regression accuracy: {0:P}", logisticRegression.Classify(item.Test.Table)
+                //    .Average(d => convertible.Row(d.RowIndex).GetTyped<string>(targetColumn) == d.Predictions.First().Classification ? 1.0 : 0.0)
+                //);
 
                 // train and evaluate k nearest neighbours
-                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider, 10);
+                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider2, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
                     .Average(d => d.Row.GetTyped<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)

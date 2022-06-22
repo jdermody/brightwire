@@ -34,7 +34,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns>A list of sequences</returns>
         public static IRowOrientedDataTable Addition(IBrightDataContext context, int sampleCount)
         {
-            Random rand = context.Random;
+            var rand = context.Random;
             var builder = context.CreateTwoColumnMatrixTableBuilder();
 
             for (var i = 0; i < sampleCount; i++) {

@@ -23,7 +23,7 @@ namespace BrightData.LinearAlegbra2
         public override uint Size { get; protected set; }
         public override uint[] Shape
         {
-            get => new[] { Depth, RowCount, ColumnCount };
+            get => new[] { ColumnCount, RowCount, Depth };
             protected set
             {
                 ColumnCount = value[0];

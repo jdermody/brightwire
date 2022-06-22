@@ -11,12 +11,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     {
         protected float _decayRate;
 
-        public RmsProp(float decayRate, IFloatMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
+        public RmsProp(float decayRate, IMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
         {
             _decayRate = decayRate;
         }
 
-        public override void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
+        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);

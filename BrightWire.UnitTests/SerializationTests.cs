@@ -19,14 +19,14 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+            public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(Vector<float> output, Vector<float> targetOutput)
+            public float Compute(IVector output, IVector targetOutput)
             {
-                return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
+                return output.GetMaxIndex() == targetOutput.GetMaxIndex() ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;
@@ -36,7 +36,7 @@ namespace BrightWire.UnitTests
 
         static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
         {
-            var graph = new GraphFactory(context.LinearAlgebraProvider);
+            var graph = new GraphFactory(context.LinearAlgebraProvider2);
             var data = graph.CreateDataSource(And.Get(context));
             return (graph, data);
         }
