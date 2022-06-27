@@ -8,7 +8,7 @@ using BrightData.Buffer;
 
 namespace BrightData.DataTable2
 {
-    internal class ColumnSegment<CT, T> : IDataTableSegment<T>, ICanEnumerateWithSize<T> 
+    internal class ColumnSegment<CT, T> : IDataTableSegment<T>, ICanEnumerateWithSize<T>, ICanEnumerateDisposable
         where CT : unmanaged
         where T: notnull
     {

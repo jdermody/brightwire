@@ -18,17 +18,17 @@ namespace BrightWire.TreeBased
             _tree = tree;
         }
 
-        public IEnumerable<string> ClassifyInternal(IConvertibleRow row)
+        public IEnumerable<string> ClassifyInternal(IDataTableRow row)
         {
             var p = _tree.Root;
             while(p != null) {
                 if (p.ColumnIndex.HasValue) {
                     string? findChild;
                     if(p.Split.HasValue) {
-                        var val = row.GetTyped<double>(p.ColumnIndex.Value);
+                        var val = row.Get<double>(p.ColumnIndex.Value);
                         findChild = val < p.Split.Value ? "-" : "+";
                     }else
-                        findChild = row.GetTyped<string>(p.ColumnIndex.Value);
+                        findChild = row.Get<string>(p.ColumnIndex.Value);
 
                     var child = p.Children?.FirstOrDefault(c => c.MatchLabel == findChild);
                     if (child != null)
@@ -42,7 +42,7 @@ namespace BrightWire.TreeBased
             }
         }
 
-        public (string Label, float Weight)[] Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IDataTableRow row)
         {
             var classification = ClassifyInternal(row).First();
             return new[] {

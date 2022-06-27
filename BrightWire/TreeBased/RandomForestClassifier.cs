@@ -17,7 +17,7 @@ namespace BrightWire.TreeBased
             _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m)).ToList();
         }
 
-        public (string Label, float Weight)[] Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IDataTableRow row)
         {
             return _forest
                 .Select(t => t.Classify(row).Single())

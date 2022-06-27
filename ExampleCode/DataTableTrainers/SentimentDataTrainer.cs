@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightWire;
 using BrightWire.ExecutionGraph;
@@ -16,11 +17,11 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly (string Classification, IndexList Data)[] _indexedSentencesTraining;
         readonly (string Classification, IndexList Data)[] _indexedSentencesTest;
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         readonly StringTableBuilder _stringTable;
         readonly uint _maxIndex;
 
-        public SentimentDataTrainer(IBrightDataContext context, DirectoryInfo directory)
+        public SentimentDataTrainer(BrightDataContext context, DirectoryInfo directory)
         {
             var files = new[]
             {
@@ -165,7 +166,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static IRowOrientedDataTable GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
             var builder = context.BuildTable();
             var addColumns = true;
@@ -178,12 +179,12 @@ namespace ExampleCode.DataTableTrainers
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(features.Size, "Features");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").SetTarget(true);
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, context.CreateVector(vector));
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
@@ -196,7 +197,7 @@ namespace ExampleCode.DataTableTrainers
             ;
         }
 
-        static IRowOrientedDataTable CreateCombinedDataTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
             var builder = context.BuildTable();
             var addColumns = true;
@@ -211,12 +212,12 @@ namespace ExampleCode.DataTableTrainers
                     builder.AddFixedSizeVectorColumn(features.Size, "Vector");
                     builder.AddColumn(BrightDataType.IndexList, "Index List");
                     builder.AddColumn(BrightDataType.String, "Target");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").SetTarget(true);
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, indexList, classification, context.CreateVector(vector));
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
@@ -302,11 +303,11 @@ namespace ExampleCode.DataTableTrainers
             return engine.CreateExecutionEngine(bestGraph);
         }
 
-        IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        BrightDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.Matrix);
-            builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
 
             var empty = new float[102];
             foreach (var (classification, indexList) in data) {
@@ -318,7 +319,7 @@ namespace ExampleCode.DataTableTrainers
                 builder.AddRow(_context.CreateMatrixFromRows(input), output);
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static float[]? GetInputVector(float c1, float c2, string word)

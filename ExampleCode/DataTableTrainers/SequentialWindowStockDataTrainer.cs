@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
@@ -9,7 +10,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class SequentialWindowStockDataTrainer : DataTableTrainer
     {
-        public SequentialWindowStockDataTrainer(IRowOrientedDataTable table) : base(table)
+        public SequentialWindowStockDataTrainer(BrightDataTable table) : base(table)
         {
         }
 
@@ -42,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
-                var expectedOutput = Test.Column<Vector<float>>(1).ToArray();
+                var expectedOutput = Test.GetColumn<Vector<float>>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i].ToArray())).Average();
                 Console.WriteLine($"Final quadratic prediction error: {score}");

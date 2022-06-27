@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
@@ -14,7 +15,7 @@ namespace ExampleCode.DataTableTrainers
         readonly SequenceGenerator _sequenceGenerator;
         readonly IBrightDataContext _context;
 
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IBrightDataContext context, IRowOrientedDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IBrightDataContext context, BrightDataTable dataTable) : base(dataTable)
         {
             _sequenceGenerator = sequenceGenerator;
             _context = context;
@@ -57,7 +58,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Row(i).Get<Vector<float>>(0).ToArray()),
+                    Input: GetStringIndices(Test.Get<IVector>(i, 0)),
                     Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                 ))
             ;
@@ -66,6 +67,12 @@ namespace ExampleCode.DataTableTrainers
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
                 Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result)}");
             }
+        }
+
+        static uint[] GetStringIndices(IVector vector)
+        {
+            using (vector)
+                return GetStringIndices(vector.Segment.GetLocalOrNewArray());
         }
 
         static uint[] GetStringIndices(float[] vector) => vector
@@ -111,10 +118,16 @@ namespace ExampleCode.DataTableTrainers
 
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
-                .Select(i => (
-                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
-                    Output: GetStringIndices(orderedOutput[i].Last())
-                ))
+                .Select(i => {
+                    using var matrix = Test.Get<IMatrix>(i, 0);
+                    return (
+                        Input: matrix.Rows().Select(r => {
+                            using (r)
+                                return r.GetMinAndMaxValues().MaxIndex;
+                        }).ToArray(),
+                        Output: GetStringIndices(orderedOutput[i].Last())
+                    );
+                })
                 .ToList()
             ;
 
@@ -140,7 +153,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.1f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
-            Training.MetaData.Set("Seq2Seq", true);
+            Training.TableMetaData.Set("Seq2Seq", true);
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
@@ -179,10 +192,16 @@ namespace ExampleCode.DataTableTrainers
 
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
-                .Select(i => (
-                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
-                    Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
-                ))
+                .Select(i => {
+                    using var matrix = Test.Get<IMatrix>(i, 0);
+                    return (
+                        Input: matrix.Rows().Select(r => {
+                            using(r)
+                                return r.GetMinAndMaxValues().MaxIndex;
+                        }).ToArray(),
+                        Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
+                    );
+                })
                 .ToList()
             ;
 

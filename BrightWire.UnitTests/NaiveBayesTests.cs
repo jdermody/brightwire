@@ -17,7 +17,7 @@ namespace BrightWire.UnitTests
             dataTable.AddColumn(BrightDataType.Float, "height");
             dataTable.AddColumn(BrightDataType.Int, "weight");
             dataTable.AddColumn(BrightDataType.Int, "foot-size");
-            dataTable.AddColumn(BrightDataType.String, "gender").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");
@@ -28,20 +28,21 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.BuildRowOriented();
+            var index = dataTable.BuildInMemory();
 
             var testData = _context.BuildTable();
             testData.CopyColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.BuildRowOriented().AsConvertible();
+            var testDataTable = testData.BuildInMemory();
 
             var model = index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
-            var classification = classifier.Classify(testDataTable.Row(0));
+            using var row = testDataTable.GetRow(0);
+            var classification = classifier.Classify(row);
             classification.First().Label.Should().Be("female");
         }
 
-        public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(IBrightDataContext context, StringTableBuilder stringTableBuilder)
+        public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(BrightDataContext context, StringTableBuilder stringTableBuilder)
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             var data = new[] {

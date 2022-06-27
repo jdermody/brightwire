@@ -22,32 +22,32 @@ namespace BrightData.DataTable2
                 }
 
                 if (dataType == typeof(IndexList)) {
-                    var ret = new IndexListConverter(_context, _indices.Value);
+                    var ret = new IndexListConverter(Context, _indices.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(WeightedIndexList)) {
-                    var ret = new WeightedIndexListConverter(_context, _weightedIndices.Value);
+                    var ret = new WeightedIndexListConverter(Context, _weightedIndices.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(IVector)) {
-                    var ret = new VectorConverter(_context, _tensors.Value);
+                    var ret = new VectorConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(IMatrix)) {
-                    var ret = new MatrixConverter(_context, _tensors.Value);
+                    var ret = new MatrixConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(ITensor3D)) {
-                    var ret = new Tensor3DConverter(_context, _tensors.Value);
+                    var ret = new Tensor3DConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(ITensor4D)) {
-                    var ret = new Tensor4DConverter(_context, _tensors.Value);
+                    var ret = new Tensor4DConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 

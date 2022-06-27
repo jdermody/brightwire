@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models;
 
@@ -8,7 +9,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class MnistVectorTrainer : DataTableTrainer
     {
-        public MnistVectorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
+        public MnistVectorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
         {
 
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Converter;
+using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
@@ -309,20 +310,20 @@ namespace BrightData.Transformation
             return _input.SelectMany(i => i.Convert(segment[i.ColumnIndex])).ToArray();
         }
 
-        public DataTableVectoriser(IDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
+        public DataTableVectoriser(BrightDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
         {
-            columnIndices = dataTable.AllOrSelectedColumnIndices(columnIndices).ToArray();
+            columnIndices = dataTable.AllOrSpecifiedColumnIndices(columnIndices).ToArray();
 
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
 
-            var analysis = dataTable.ColumnAnalysis(columnIndices).ToDictionary(d => d.ColumnIndex, d => d.MetaData);
+            var analysis = dataTable.GetColumnAnalysis(columnIndices).ToDictionary(d => d.ColumnIndex, d => d.MetaData);
             _input.AddRange(columnIndices
-                .Select(ci => GetColumnVectoriser(dataTable.Column(ci), analysis[ci], oneHotEncodeToMultipleColumns))
+                .Select(ci => GetColumnVectoriser(dataTable.GetColumn(ci), analysis[ci], oneHotEncodeToMultipleColumns))
             );
         }
 
-        public DataTableVectoriser(IDataTable dataTable, BinaryReader reader)
+        public DataTableVectoriser(BrightDataTable dataTable, BinaryReader reader)
         {
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
@@ -332,10 +333,16 @@ namespace BrightData.Transformation
                 _input.Add(GetColumnVectoriser(dataTable, reader));
         }
 
-        static IColumnVectoriser GetColumnVectoriser(IDataTable dataTable, BinaryReader reader)
+        public void Dispose()
+        {
+            foreach(var item in _input)
+                item.Dispose();
+        }
+
+        static IColumnVectoriser GetColumnVectoriser(BrightDataTable dataTable, BinaryReader reader)
         {
             var type = (VectorisationType) reader.ReadByte();
-            var column = dataTable.Column(reader.ReadUInt32());
+            var column = dataTable.GetColumn(reader.ReadUInt32());
 
             return type switch {
                 VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(column, reader),

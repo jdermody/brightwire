@@ -1,12 +1,13 @@
 ﻿using System;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
     class AdultTrainer : DataTableTrainer
     {
-        public AdultTrainer(IRowOrientedDataTable? table, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(table, training, test)
+        public AdultTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
         {
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightWire.Adaptors;
 using BrightWire.Bayesian.Training;
@@ -22,7 +23,7 @@ namespace BrightWire
         /// <param name="_"></param>
         /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext _, T empty, int minObservations = 1) where T : notnull
+        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this BrightDataContext _, T empty, int minObservations = 1) where T : notnull
         {
             return new MarkovModelTrainer2<T>(empty, minObservations);
         }
@@ -34,7 +35,7 @@ namespace BrightWire
         /// <param name="_"></param>
         /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext _, T empty, int minObservations = 1) where T : notnull
+        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this BrightDataContext _, T empty, int minObservations = 1) where T : notnull
         {
             return new MarkovModelTrainer3<T>(empty, minObservations);
         }
@@ -46,18 +47,7 @@ namespace BrightWire
         /// <param name="indices">Column indices to retrieve</param>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <returns></returns>
-        public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices) where T: notnull => indices.Select(row.GetTyped<T>).ToArray();
-
-        /// <summary>
-        /// Classifies each row in the data table
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="classifier"></param>
-        /// <returns></returns>
-        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
-        {
-            return Classify(dataTable.AsConvertible(), classifier);
-        }
+        public static T[] GetFields<T>(this IDataTableRow row, params uint[] indices) where T: notnull => indices.Select(row.Get<T>).ToArray();
 
         /// <summary>
         /// Classifies each row in the data table
@@ -65,10 +55,10 @@ namespace BrightWire
         /// <param name="convertible"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
-        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
+        public static IEnumerable<(IDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
         {
-            for (uint i = 0, len = convertible.DataTable.RowCount; i < len; i++) {
-                var row = convertible.Row(i);
+            for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
+                var row = dataTable.GetRow(i);
                 yield return (row, classifier.Classify(row));
             }
         }
@@ -78,7 +68,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
+        public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this BrightDataTable dataTable)
         {
             var lap = dataTable.Context.LinearAlgebraProvider2;
             return dataTable.GetVectorisedFeatures()
@@ -91,7 +81,7 @@ namespace BrightWire
         /// <param name="dataTable"></param>
         /// <param name="k">Number of clusters</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this BrightDataTable dataTable, uint k)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -107,7 +97,7 @@ namespace BrightWire
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this BrightDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -122,7 +112,7 @@ namespace BrightWire
         /// <param name="k">Number of clusters</param>
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this BrightDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider2;
             var data = dataTable.GetRowsAsLabeledFeatures()
@@ -160,28 +150,29 @@ namespace BrightWire
         /// <param name="windowSize">The number of rows in each matrix</param>
         /// <param name="columnIndices">Column indices to select</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable CreateSequentialWindow(this IRowOrientedDataTable dataTable, uint windowSize, params uint[] columnIndices)
+        public static BrightDataTable CreateSequentialWindow(this BrightDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
-            var builder = dataTable.Context.BuildTable();
+            var lap = dataTable.Context.LinearAlgebraProvider2;
+            var builder = new BrightDataTableBuilder(dataTable.Context);
             var hasAddedColumns = false;
-            var convertible = dataTable.AsConvertible();
             var context = dataTable.Context;
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
-                var past = context.CreateMatrixFromRows(convertible
-                    .Rows(windowSize.AsRange(i).ToArray())
-                    .Select(r => context.CreateVector(r.GetFields<float>(columnIndices)))
+                var past = context.CreateMatrixFromRows(dataTable
+                    .GetRows(windowSize.AsRange(i).ToArray())
+                    .Select(r => { using (r) return context.CreateVector(r.GetFields<float>(columnIndices)); })
                     .ToArray()
                 );
-                var target = context.CreateVector(convertible.Row(i + windowSize).GetFields<float>(columnIndices));
+                using var targetRow = dataTable.GetRow(i + windowSize);
+                var target = context.CreateVector(targetRow.GetFields<float>(columnIndices));
                 if (!hasAddedColumns) {
                     hasAddedColumns = true;
                     builder.AddFixedSizeMatrixColumn(past.RowCount, past.ColumnCount, "Past");
-                    builder.AddFixedSizeVectorColumn(target.Size, "Future").SetTarget(true);
+                    builder.AddFixedSizeVectorColumn(target.Size, "Future").MetaData.SetTarget(true);
                 }
                 builder.AddRow(past, target);
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
@@ -190,7 +181,7 @@ namespace BrightWire
         /// <param name="dataTable">Data table</param>
         /// <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
         /// <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
-        public static ConfusionMatrix CreateConfusionMatrix(this IConvertibleTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
+        public static ConfusionMatrix CreateConfusionMatrix(this BrightDataTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
         {
             var labels = new Dictionary<string, int>();
             var classifications = new Dictionary<int, Dictionary<int, uint>>();
@@ -203,16 +194,16 @@ namespace BrightWire
                 return index;
             }
 
-            dataTable.ForEachRow(r => {
-                var actual = GetIndex(r.GetTyped<string>(actualClassificationColumnIndex), labels);
-                var expected = GetIndex(r.GetTyped<string>(expectedClassificationColumnIndex), labels);
+            foreach(var row in dataTable.GetRows()) using (row) {
+                var actual = GetIndex(row.Get<string>(actualClassificationColumnIndex), labels);
+                var expected = GetIndex(row.Get<string>(expectedClassificationColumnIndex), labels);
                 if (!classifications.TryGetValue(expected, out var expectedClassification))
                     classifications.Add(expected, expectedClassification = new Dictionary<int, uint>());
                 if (expectedClassification.TryGetValue(actual, out var actualClassification))
                     expectedClassification[actual] = actualClassification + 1;
                 else
                     expectedClassification.Add(actual, 1);
-            });
+            }
 
             return new ConfusionMatrix
             {

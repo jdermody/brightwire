@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
@@ -11,7 +12,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class DataTableTrainer : IDisposable
     {
-        public DataTableTrainer(IRowOrientedDataTable table)
+        public DataTableTrainer(BrightDataTable table)
         {
             TargetColumn = table.GetTargetColumnOrThrow();
             Table = table;
@@ -20,12 +21,12 @@ namespace ExampleCode.DataTableTrainers
             Test = test;
         }
 
-        public DataTableTrainer(IRowOrientedDataTable? table, IRowOrientedDataTable training, IRowOrientedDataTable test)
+        public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
         {
             TargetColumn = training.GetTargetColumnOrThrow();
             Training = training;
             Test = test;
-            Table = table ?? training.Concat(test);
+            Table = table ?? training.ConcatenateRows(test);
         }
 
         public void Dispose()
@@ -36,9 +37,9 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public uint TargetColumn { get; }
-        public IRowOrientedDataTable Table { get; }
-        public IRowOrientedDataTable Training { get; }
-        public IRowOrientedDataTable Test { get; }
+        public BrightDataTable Table { get; }
+        public BrightDataTable Training { get; }
+        public BrightDataTable Test { get; }
 
         public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.KMeans(k));
         public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.HierarchicalCluster(k));
@@ -96,18 +97,24 @@ namespace ExampleCode.DataTableTrainers
         void WriteResults(string type, IRowClassifier classifier)
         {
             var results = Test.Classify(classifier).ToList();
-            var score = results
-                .Average(d => d.Row.GetTyped<string>(TargetColumn) == d.Classification.OrderByDescending(c => c.Weight).First().Label ? 1.0 : 0.0);
-
-            Console.WriteLine($"{type} accuracy: {score:P}");
+            try {
+                var score = results
+                    .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
+                Console.WriteLine($"{type} accuracy: {score:P}");
+            }
+            finally {
+                foreach(var item in results)
+                    item.Row.Dispose();
+            }
         }
 
         void WriteResults(string type, ITableClassifier classifier)
         {
             var results = classifier.Classify(Test).ToList();
-            var expectedLabels = Test.Column(TargetColumn).Enumerate().Select(o => o.ToString()).ToArray();
+            using var column = Test.GetColumn(TargetColumn);
+            var expectedLabels = column.Enumerate().Select(o => o.ToString()).ToArray();
             var score = results
-                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.OrderByDescending(c => c.Weight).First().Classification ? 1.0 : 0.0);
+                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.MaxBy(c => c.Weight).Classification ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }

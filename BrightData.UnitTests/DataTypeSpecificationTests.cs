@@ -13,7 +13,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow("str1");
             builder.AddRow("str2");
-            var table = builder.BuildColumnOriented();
+            var table = builder.BuildInMemory();
 
             var typeInfo = table.GetTypeSpecification();
             var stringType = (IDataTypeSpecification<string>)typeInfo.Children![0];
@@ -30,7 +30,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow("str1");
             builder.AddRow("str2");
-            var table = builder.BuildRowOriented();
+            var table = builder.BuildInMemory();
 
             var typeInfo = table.GetTypeSpecification();
             var stringType = (IDataTypeSpecification<string>)typeInfo.Children![0];

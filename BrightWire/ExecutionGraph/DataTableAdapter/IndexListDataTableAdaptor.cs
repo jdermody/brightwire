@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -12,20 +13,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public IndexListDataTableAdapter(IRowOrientedDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public IndexListDataTableAdapter(BrightDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
             OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
             OutputSize = OutputVectoriser.OutputSize;
 
-            var analysis = dataTable.ColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
+            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
             InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
         }
 
         protected override IEnumerable<(IndexList, float[])> GetRows(uint[] rows)
         {
-            foreach (var tableRow in _dataTable.Rows(rows))
+            foreach (var tableRow in _dataTable.GetRows(rows)) using(tableRow)
                 yield return (Combine(_featureColumnIndices.Select(i => (IndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
         }
 
@@ -48,7 +49,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new IndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
@@ -9,7 +10,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class MnistTensorTrainer : DataTableTrainer
     {
-        public MnistTensorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
+        public MnistTensorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
         {
 
         }
@@ -80,11 +81,12 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
-            var tensor = (ITensor3D) Test.Row(0)[0];
+            using var firstRow = Test.GetRow(0);
+            var tensor = (ITensor3D) firstRow[0];
             var singleData = graph.CreateDataSource(new[] { tensor });
             var result = executionEngine.Execute(singleData);
             var prediction = result.Single().Output.Single().MaximumIndex();
-            var expectedPrediction = ((Vector<float>) Test.Row(0)[1]).MaximumIndex();
+            var expectedPrediction = ((Vector<float>) firstRow[1]).MaximumIndex();
             Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;
         }

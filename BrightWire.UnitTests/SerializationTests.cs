@@ -34,7 +34,7 @@ namespace BrightWire.UnitTests
 
         static GraphModel? _bestNetwork = null;
 
-        static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
+        static (GraphFactory, IDataSource) MakeGraphAndData(BrightDataContext context)
         {
             var graph = new GraphFactory(context.LinearAlgebraProvider2);
             var data = graph.CreateDataSource(And.Get(context));

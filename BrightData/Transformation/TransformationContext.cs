@@ -13,10 +13,10 @@ namespace BrightData.Transformation
         where TT: notnull
     {
         readonly IDataTableSegment<TF> _column;
-        readonly ITransformColumn<TF, TT> _converter;
+        readonly IConvertColumn<TF, TT> _converter;
         readonly IHybridBuffer<TT> _buffer;
 
-        public TransformationContext(IDataTableSegment<TF> column, ITransformColumn<TF, TT> converter, IHybridBuffer<TT> buffer)
+        public TransformationContext(IDataTableSegment<TF> column, IConvertColumn<TF, TT> converter, IHybridBuffer<TT> buffer)
         {
             _column = column;
             _converter = converter;

@@ -14,9 +14,9 @@ namespace BrightWire.Adaptors
             Indexer = indexer;
         }
 
-        public (string Label, float Weight)[] Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IDataTableRow row)
         {
-            var indexList = row.GetTyped<IndexList>(ColumnIndex);
+            var indexList = row.Get<IndexList>(ColumnIndex);
             return Classifier.Classify(indexList);
         }
 

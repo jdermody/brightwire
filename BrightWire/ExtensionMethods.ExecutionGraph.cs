@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
@@ -60,7 +61,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classifiy(this IRowClassifier classifier, IRowOrientedDataTable dataTable)
+        public static IEnumerable<(IDataTableRow Row, (string Label, float Weight)[] Classification)> Classifiy(this IRowClassifier classifier, BrightDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }

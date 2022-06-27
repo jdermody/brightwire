@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using BrightData.DataTable2;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -9,7 +10,7 @@ namespace BrightData.UnitTests
 {
     public class VectorisationTests : UnitTestBase
     {
-        public IColumnOrientedDataTable GetTable()
+        public BrightDataTable GetTable()
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.Boolean, "bool");
@@ -27,10 +28,10 @@ namespace BrightData.UnitTests
             var weightedIndexList = _context.CreateWeightedIndexList((1, 0.1f), (2, 0.5f), (3, 1f));
             var vector = _context.CreateVector(3, 0.25f);
             builder.AddRow(false, 1, 2, 3, 4, 5, 6, indexList, weightedIndexList, vector);
-            return builder.BuildColumnOriented();
+            return builder.BuildInMemory();
         }
 
-        public IColumnOrientedDataTable GetTable2()
+        public BrightDataTable GetTable2()
         {
             var builder = _context.BuildTable();
             builder.AddColumn(BrightDataType.String);
@@ -38,7 +39,7 @@ namespace BrightData.UnitTests
             builder.AddRow("a");
             builder.AddRow("b");
             builder.AddRow("c");
-            return builder.BuildColumnOriented();
+            return builder.BuildInMemory();
         }
 
         [Fact]
@@ -103,7 +104,7 @@ namespace BrightData.UnitTests
         public void OtherVectorisation()
         {
             var table = GetTable();
-            var row = table.AsRowOriented().Row(0);
+            using var row = table.GetRow(0);
             var rowValues = row.ToArray();
             var vectoriser = table.GetVectoriser(false);
             var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();

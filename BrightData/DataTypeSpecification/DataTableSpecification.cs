@@ -1,14 +1,15 @@
 ﻿using System.Linq;
+using BrightData.DataTable2;
 
 namespace BrightData.DataTypeSpecification
 {
     class DataTableSpecification : DataTypeSpecificationBase<IDataTable>
     {
-        public DataTableSpecification(IDataTable dataTable) : base(
-            dataTable.MetaData.GetName(), 
+        public DataTableSpecification(BrightDataTable dataTable) : base(
+            dataTable.TableMetaData.GetName(), 
             DataSpecificationType.Composite,
             false,
-            dataTable.ColumnTypes.Zip(dataTable.AllColumnsMetaData())
+            dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)
                 .Select(ct => ct.First.AsDataFieldSpecification(ct.Second.GetName()))
                 .ToArray()
         )

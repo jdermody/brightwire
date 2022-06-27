@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Buffer.Hybrid;
+using BrightData.DataTable.Consumers;
 using BrightData.DataTable2.Operations;
 using BrightData.Helper;
 
@@ -23,15 +25,63 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IOperation<(string Label, IHybridBuffer[] ColumnData)[]> GroupBy(params uint[] groupByColumnIndices)
+        public IOperation<(string Label, IHybridBuffer[] ColumnData)[]> GroupBy(IProvideTempStreams tempStreams, params uint[] groupByColumnIndices)
         {
             return new GroupByOperation(
-                _context,
+                Context,
+                tempStreams,
                 _header.RowCount,
                 groupByColumnIndices,
                 ColumnMetaData.ToArray(),
                 GetColumnReaders(ColumnIndices)
             );
+        }
+
+        public IEnumerable<IOperation<ISingleTypeTableSegment?>> MutateColumns(IProvideTempStreams temp, IEnumerable<(uint ColumnIndex, IConvertColumn Converter)> converters)
+        {
+            var converterTable = converters.ToDictionary(d => d.ColumnIndex, d => d.Converter);
+
+            foreach (var ci in ColumnIndices) {
+                if (converterTable.TryGetValue(ci, out var converter)) {
+                    if (converter.From != ColumnTypes[ci].GetType())
+                        throw new ArgumentException($"Column types did not agree [{ci}]: Expected {ColumnTypes[ci].GetType()} instead of {converter.From}");
+
+                    var columnReader = GetColumnReader(ci, RowCount);
+                    var outputBuffer = converter.To.GetBrightDataType().GetHybridBufferWithMetaData(ColumnMetaData[ci], Context, temp);
+                    var operation = GenericActivator.Create<IOperation<ISingleTypeTableSegment?>>(typeof(ColumnConversionOperation<,>).MakeGenericType(converter.From, converter.To),
+                        RowCount,
+                        columnReader,
+                        converter,
+                        outputBuffer
+                    );
+                    yield return operation;
+                }
+                else
+                    yield return new NopColumnOperation(RowCount, GetColumn(ci));
+            }
+        }
+
+        public IEnumerable<IOperation<ISingleTypeTableSegment?>> ReinterpretColumns(IProvideTempStreams temp, IEnumerable<IReinterpretColumns> columns)
+        {
+            var rowCount = RowCount;
+            var reinterpreted = columns.SelectMany(c => c.SourceColumnIndices.Select(i => (Column: c, Index: i)))
+                .ToDictionary(d => d.Index, d => d.Column);
+
+            foreach (var ci in ColumnIndices) {
+                if (reinterpreted.TryGetValue(ci, out var rc)) {
+                    if (ci == rc.SourceColumnIndices[0]) {
+                        foreach (var op in rc.GetNewColumnOperations(Context, temp, rowCount, rc.SourceColumnIndices.Select(i => GetColumnReader(i, rowCount)).ToArray()))
+                            yield return op;
+                    }
+                }
+                else
+                    yield return new NopColumnOperation(RowCount, GetColumn(ci));
+            }
+        }
+
+        public IOperation<BrightDataTableBuilder?> Project(Func<object[], object[]?> projector)
+        {
+            return new ProjectionOperation(RowCount, Context, GetAllRowData(true).Select(d => d.Data).GetEnumerator(), projector);
         }
     }
 }

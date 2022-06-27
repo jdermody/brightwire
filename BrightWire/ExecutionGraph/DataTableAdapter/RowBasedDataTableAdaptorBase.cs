@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BrightData;
+using BrightData.DataTable2;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -9,12 +10,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     public abstract class RowBasedDataTableAdapterBase : DataTableAdapterBase<IDataTableSegment>
     {
 	    /// <inheritdoc />
-	    protected RowBasedDataTableAdapterBase(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+	    protected RowBasedDataTableAdapterBase(BrightDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<IDataTableSegment> GetRows(uint[] rows) => _dataTable.Rows(rows);
+        protected override IEnumerable<IDataTableSegment> GetRows(uint[] rows) => _dataTable.GetRows(rows);
     }
 }

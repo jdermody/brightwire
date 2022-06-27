@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
@@ -11,11 +12,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public VectorBasedDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+        public VectorBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            var firstRow = dataTable.Row(0);
+            using var firstRow = dataTable.GetRow(0);
             var input = (IVector)firstRow[_featureColumnIndices.First()];
             var output = (IVector)firstRow[_targetColumnIndex];
 
@@ -35,7 +36,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new VectorBasedDataTableAdapter(dataTable, _featureColumns);
         }

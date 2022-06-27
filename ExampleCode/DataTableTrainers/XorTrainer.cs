@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models;
 
@@ -8,7 +9,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class XorTrainer : DataTableTrainer
     {
-        public XorTrainer(IRowOrientedDataTable table) : base(table, table, table)
+        public XorTrainer(BrightDataTable table) : base(table, table, table)
         {
         }
 
@@ -45,7 +46,7 @@ namespace ExampleCode.DataTableTrainers
                     // print the values that have been learned
                     foreach (var item in output) {
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
-                            var row = Test.Row(index);
+                            using var row = Test.GetRow(index);
                             var result = item.Output[index];
                             var input = row.ToArray()
                                 .Select((v, i) => (Val: v, Ind: i))

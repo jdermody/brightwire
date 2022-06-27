@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
@@ -11,12 +12,12 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class SentenceTable
     {
-        readonly IRowOrientedDataTable _sentenceTable;
+        readonly BrightDataTable _sentenceTable;
         readonly Dictionary<string, uint> _stringIndex = new();
         readonly List<string> _strings = new();
         readonly uint _empty;
 
-        public SentenceTable(IBrightDataContext context, IEnumerable<string[]> sentences)
+        public SentenceTable(BrightDataContext context, IEnumerable<string[]> sentences)
         {
             // create an empty string to represent null
             _empty = GetStringIndex("");
@@ -25,7 +26,7 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(BrightDataType.IndexList, "Sentences");
             foreach(var sentence in sentences)
                 builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
-            _sentenceTable = builder.BuildRowOriented();
+            _sentenceTable = builder.BuildInMemory();
         }
 
         public uint GetStringIndex(string str)
@@ -55,7 +56,8 @@ namespace ExampleCode.DataTableTrainers
             // create a markov trainer that uses a window of size 3
             var context = _sentenceTable.Context;
             var trainer = context.CreateMarkovTrainer3(_empty);
-            foreach(var sentence in _sentenceTable.Column<IndexList>(0).EnumerateTyped())
+            using var column = _sentenceTable.GetColumn<IndexList>(0);
+            foreach(var sentence in column.EnumerateTyped())
                 trainer.Add(sentence.Indices);
 
             var ret = trainer.Build();

@@ -334,7 +334,7 @@ namespace BrightData
         /// <param name="transformations"></param>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        IColumnOrientedDataTable Transform(IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> transformations, string? filePath);
+        IColumnOrientedDataTable Transform(IEnumerable<(uint ColumnIndex, IConvertColumn Transformer)> transformations, string? filePath);
 
         /// <summary>
         /// Copies the selected columns to a new data table
@@ -568,7 +568,7 @@ namespace BrightData
     /// <summary>
     /// Transforms columns
     /// </summary>
-    public interface ITransformColumn : ICanConvert
+    public interface IConvertColumn : ICanConvert
     {
         /// <summary>
         /// Complete the transformation
@@ -582,7 +582,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="TF"></typeparam>
     /// <typeparam name="TT"></typeparam>
-    public interface ITransformColumn<in TF, TT> : ITransformColumn
+    public interface IConvertColumn<in TF, TT> : IConvertColumn
         where TT : notnull
         where TF : notnull
     {
@@ -655,7 +655,7 @@ namespace BrightData
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <returns></returns>
-        public ITransformColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public IConvertColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     /// <summary>
@@ -767,7 +767,7 @@ namespace BrightData
     /// <summary>
     /// Data table vectoriser
     /// </summary>
-    public interface IDataTableVectoriser : ICanWriteToBinaryWriter
+    public interface IDataTableVectoriser : ICanWriteToBinaryWriter, IDisposable
     {
         /// <summary>
         /// Vectorise a table row
@@ -811,16 +811,20 @@ namespace BrightData
         /// <summary>
         /// Source column indices
         /// </summary>
-        uint[] ColumnIndices { get; }
+        uint[] SourceColumnIndices { get; }
 
         /// <summary>
-        /// Gets new columns
+        /// Source column indices
+        /// </summary>
+        uint[] OutputColumnIndices { get; }
+
+        /// <summary>
+        /// Gets new column operations
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="tempStreams">Temp stream provider</param>
-        /// <param name="initialColumnIndex">First column index in the sequence</param>
         /// <param name="columns">Source column data</param>
         /// <returns></returns>
-        IEnumerable<ISingleTypeTableSegment> GetNewColumns(IBrightDataContext context, IProvideTempStreams tempStreams, uint initialColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] columns);
+        IEnumerable<IOperation<ISingleTypeTableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
     }
 }

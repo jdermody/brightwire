@@ -23,14 +23,14 @@ namespace BrightWire.UnitTests
 			builder.AddColumn(BrightDataType.Float, "val1");
 			builder.AddColumn(BrightDataType.Double, "val2");
 			builder.AddColumn(BrightDataType.String, "val3");
-			builder.AddColumn(BrightDataType.String, "cls").SetTarget(true);
+			builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
 			builder.AddRow(0.5f, 1.1, "d", "a");
 			builder.AddRow(0.2f, 1.5, "c", "b");
 			builder.AddRow(0.7f, 0.5, "b", "c");
 			builder.AddRow(0.2f, 0.6, "a", "d");
 
-			var table = builder.BuildRowOriented();
+			var table = builder.BuildInMemory();
             var dataSource = _factory.CreateDataSource(table);
 			var miniBatch = dataSource.Get(new uint[] { 1 });
 			var input = miniBatch.CurrentSequence.Input!.GetMatrix().Row(0);

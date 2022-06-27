@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 
@@ -32,7 +33,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="sampleCount">How many samples to generate</param>
         /// <returns>A list of sequences</returns>
-        public static IRowOrientedDataTable Addition(IBrightDataContext context, int sampleCount)
+        public static BrightDataTable Addition(BrightDataContext context, int sampleCount)
         {
             var rand = context.Random;
             var builder = context.CreateTwoColumnMatrixTableBuilder();
@@ -48,13 +49,13 @@ namespace BrightWire.TrainingData.Artificial
 
                 var inputList = new Vector<float>[r2.Length];
                 var outputList = new Vector<float>[r2.Length];
-                for (int j = 0; j < r2.Length; j++) {
+                for (var j = 0; j < r2.Length; j++) {
                     inputList[j] = context.CreateVector(a2[j], b2[j]);
                     outputList[j] = context.CreateVector(r2[j]);
                 }
                 builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
             }
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
     }
 }

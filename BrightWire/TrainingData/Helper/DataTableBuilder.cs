@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightData.DataTable.Builders;
+using BrightData.DataTable2;
 
 namespace BrightWire.TrainingData.Helper
 {
@@ -20,11 +20,11 @@ namespace BrightWire.TrainingData.Helper
         /// <param name="outputRows"></param>
         /// <param name="outputColumns"></param>
         /// <returns></returns>
-        public static InMemoryTableBuilder CreateTwoColumnMatrixTableBuilder(this IBrightDataContext context, uint? inputRows = null, uint? inputColumns = null, uint? outputRows = null, uint? outputColumns = null)
+        public static BrightDataTableBuilder CreateTwoColumnMatrixTableBuilder(this BrightDataContext context, uint? inputRows = null, uint? inputColumns = null, uint? outputRows = null, uint? outputColumns = null)
         {
-            var ret = context.BuildTable();
+            var ret = new BrightDataTableBuilder(context);
             AddMatrix(ret, inputRows, inputColumns, Input);
-            AddMatrix(ret, outputRows, outputColumns, Target).SetTarget(true);
+            AddMatrix(ret, outputRows, outputColumns, Target).MetaData.SetTarget(true);
             return ret;
         }
 
@@ -35,11 +35,11 @@ namespace BrightWire.TrainingData.Helper
         /// <param name="inputSize">Size of the input vector</param>
         /// <param name="outputSize">Size of the output vector</param>
         /// <returns></returns>
-        public static InMemoryTableBuilder CreateTwoColumnVectorTableBuilder(this IBrightDataContext context, uint? inputSize = null, uint? outputSize = null)
+        public static BrightDataTableBuilder CreateTwoColumnVectorTableBuilder(this BrightDataContext context, uint? inputSize = null, uint? outputSize = null)
         {
-            var ret = context.BuildTable();
+            var ret = new BrightDataTableBuilder(context);
             AddVector(ret, inputSize, Input);
-            AddVector(ret, outputSize, Target).SetTarget(true);
+            AddVector(ret, outputSize, Target).MetaData.SetTarget(true);
             return ret;
         }
 
@@ -52,33 +52,40 @@ namespace BrightWire.TrainingData.Helper
         /// <param name="inputColumns"></param>
         /// <param name="outputSize">Size of the output vector</param>
         /// <returns></returns>
-        public static InMemoryTableBuilder Create3DTensorToVectorTableBuilder(this IBrightDataContext context, uint? inputDepth = null, uint? inputRows = null, uint? inputColumns = null, uint? outputSize = null)
+        public static BrightDataTableBuilder Create3DTensorToVectorTableBuilder(this BrightDataContext context, uint? inputDepth = null, uint? inputRows = null, uint? inputColumns = null, uint? outputSize = null)
         {
-            var ret = context.BuildTable();
+            var ret = new BrightDataTableBuilder(context);
             Add3DTensor(ret, inputDepth, inputRows, inputColumns, Input);
-            AddVector(ret, outputSize, Target).SetTarget(true);
+            AddVector(ret, outputSize, Target).MetaData.SetTarget(true);
             return ret;
         }
 
-        static IMetaData AddVector(InMemoryTableBuilder builder, uint? size, string name)
+        static IHybridBufferWithMetaData AddVector(this BrightDataTableBuilder builder, uint? size, string name)
         {
-            if (size != null)
-                return builder.AddFixedSizeVectorColumn(size.Value, name);
-            return builder.AddColumn(BrightDataType.Vector, name);
+            return size != null 
+                ? builder.AddFixedSizeVectorColumn(size.Value, name) 
+                : builder.AddColumn(BrightDataType.Vector, name);
         }
 
-        static IMetaData AddMatrix(InMemoryTableBuilder builder, uint? rows, uint? columns, string name)
+        static IHybridBufferWithMetaData AddMatrix(this BrightDataTableBuilder builder, uint? rows, uint? columns, string name)
         {
-            if (rows != null && columns != null)
-                return builder.AddFixedSizeMatrixColumn(rows.Value, columns.Value, name);
-            return builder.AddColumn(BrightDataType.Matrix, name);
+            return rows != null && columns != null 
+                ? builder.AddFixedSizeMatrixColumn(rows.Value, columns.Value, name) 
+                : builder.AddColumn(BrightDataType.Matrix, name);
         }
 
-        static IMetaData Add3DTensor(InMemoryTableBuilder builder, uint? depth, uint? rows, uint? columns, string name)
+        static IHybridBufferWithMetaData Add3DTensor(this BrightDataTableBuilder builder, uint? depth, uint? rows, uint? columns, string name)
         {
-            if (depth != null && rows != null && columns != null)
-                return builder.AddFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name);
-            return builder.AddColumn(BrightDataType.Tensor3D, name);
+            return depth != null && rows != null && columns != null 
+                ? builder.AddFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name) 
+                : builder.AddColumn(BrightDataType.Tensor3D, name);
+        }
+
+        static IHybridBufferWithMetaData Add4DTensor(this BrightDataTableBuilder builder, uint? count, uint? depth, uint? rows, uint? columns, string name)
+        {
+            return count != null && depth != null && rows != null && columns != null 
+                ? builder.AddFixedSize4DTensorColumn(count.Value, depth.Value, rows.Value, columns.Value, name) 
+                : builder.AddColumn(BrightDataType.Tensor4D, name);
         }
     }
 }

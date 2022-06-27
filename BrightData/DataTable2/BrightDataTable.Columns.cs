@@ -10,11 +10,26 @@ namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
-        protected IEnumerable<uint> AllOrSpecifiedColumnIndices(uint[]? indices) => (indices is null || indices.Length == 0)
+        public IEnumerable<uint> AllOrSpecifiedColumnIndices(uint[]? indices) => (indices is null || indices.Length == 0)
             ? _header.ColumnCount.AsRange()
             : indices;
 
-        
+        public IEnumerable<ISingleTypeTableSegment> GetAllColumns() => GetColumns(ColumnIndices);
+        public IEnumerable<ISingleTypeTableSegment> GetColumns(IEnumerable<uint> columnIndices) => columnIndices.Select(GetColumn);
+        public ISingleTypeTableSegment GetColumn(uint columnIndex)
+        {
+            var brightDataType = ColumnTypes[columnIndex];
+            var columnDataType = brightDataType.GetColumnType().Type;
+            var dataType = brightDataType.GetDataType();
+            return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
+                Context,
+                dataType,
+                _header.RowCount,
+                GetColumnReader(columnIndex, _header.RowCount),
+                GetColumnMetaData(columnIndex)
+            );
+        }
+        public IDataTableSegment<T> GetColumn<T>(uint columnIndex) where T : notnull => (IDataTableSegment<T>)GetColumn(columnIndex);
 
         //public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         //{

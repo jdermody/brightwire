@@ -11,10 +11,10 @@ namespace BrightData.DataTable.Consumers
         where T: notnull
     {
         public GrowableDataTableSegment(
-            IBrightDataContext context, 
+            BrightDataContext context, 
             IColumnInfo column,
             IProvideTempStreams tempStream
-        ) : base(column.ColumnType, column.MetaData, (IHybridBuffer<T>)column.MetaData.GetGrowableSegment(column.ColumnType, context, tempStream))
+        ) : base(column.ColumnType, column.MetaData, (IHybridBuffer<T>)column.ColumnType.GetHybridBufferWithMetaData(column.MetaData, context, tempStream))
         {
             Context = context;
             ColumnIndex = column.Index;

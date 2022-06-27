@@ -9,7 +9,6 @@ namespace BrightData.DataTable2
 {
     public class BrightDataTableBuilder : IDisposable
     {
-        readonly BrightDataContext   _context;
         readonly uint                _inMemoryBufferSize;
         readonly ushort              _maxUniqueItemCount;
         readonly IProvideTempStreams _tempStreams;
@@ -20,38 +19,63 @@ namespace BrightData.DataTable2
             uint inMemoryBufferSize = 32768 * 1024, 
             ushort maxUniqueItemCount = 32768)
         {
-            _context            = context;
+            Context            = context;
             _inMemoryBufferSize = inMemoryBufferSize;
             _maxUniqueItemCount = maxUniqueItemCount;
             _tempStreams        = context.CreateTempStreamProvider();
         }
 
         public MetaData TableMetaData { get; } = new();
+        public BrightDataContext Context { get; }
 
         public void Dispose()
         {
             _tempStreams.Dispose();
         }
 
-        public IHybridBuffer AddColumn(BrightDataType type, string? name = null)
+        internal static string DefaultColumnName(string? name, int numColumns)
+        {
+            return String.IsNullOrWhiteSpace(name) ? $"Column {numColumns + 1}" : name;
+        }
+
+        public IHybridBufferWithMetaData AddColumn(BrightDataType type, string? name = null)
         {
             var columnMetaData = new MetaData();
-            columnMetaData.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
+            columnMetaData.Set(Consts.Name, DefaultColumnName(name, _columns.Count));
             columnMetaData.Set(Consts.Type, type);
             columnMetaData.Set(Consts.Index, (uint)_columns.Count);
             if (type.IsNumeric())
                 columnMetaData.Set(Consts.IsNumeric, true);
 
-            var buffer = columnMetaData.GetGrowableSegment(type, _context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
+            return AddColumn(type, columnMetaData);
+        }
+
+        public IHybridBufferWithMetaData AddColumn(BrightDataType type, MetaData metaData)
+        {
+            var buffer = type.GetHybridBufferWithMetaData(new MetaData(metaData), Context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
             _columns.Add(buffer);
             return buffer;
         }
 
-        public IHybridBuffer<T> AddColumn<T>(string? name = null)
+        public void CopyColumnsFrom(BrightDataTable table, params uint[] columnIndices)
+        {
+            var columnSet = new HashSet<uint>(table.AllOrSpecifiedColumnIndices(columnIndices));
+            var columnTypes = table.ColumnTypes.Zip(table.ColumnMetaData, (t, m) => (Type: t, MetaData: m))
+                .Select((c, i) => (Column: c, Index: (uint) i));
+
+            var wantedColumnTypes = columnTypes
+                .Where(c => columnSet.Contains(c.Index))
+                .Select(c => c.Column);
+
+            foreach (var column in wantedColumnTypes)
+                AddColumn(column.Type, column.MetaData);
+        }
+
+        public IHybridBufferWithMetaData<T> AddColumn<T>(string? name = null)
             where T : notnull
         {
             var type = typeof(T).GetBrightDataType();
-            return (IHybridBuffer<T>)AddColumn(type, name);
+            return (IHybridBufferWithMetaData<T>)AddColumn(type, name);
         }
 
         public void AddRow(params object[] items)
@@ -62,11 +86,31 @@ namespace BrightData.DataTable2
 
         public void WriteTo(Stream stream)
         {
-            var writer = new BrightDataTableWriter(_context, _tempStreams, stream, _inMemoryBufferSize, _maxUniqueItemCount);
+            var writer = new BrightDataTableWriter(Context, _tempStreams, stream, _inMemoryBufferSize, _maxUniqueItemCount);
             writer.Write(
                 TableMetaData,
                 _columns.Cast<ISingleTypeTableSegment>().ToArray()
             );
+        }
+
+        public IHybridBufferWithMetaData AddFixedSizeVectorColumn(uint size, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IHybridBufferWithMetaData AddFixedSizeMatrixColumn(uint rows, uint columns, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IHybridBufferWithMetaData AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IHybridBufferWithMetaData AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string name)
+        {
+            throw new NotImplementedException();
         }
     }
 }

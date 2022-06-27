@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
@@ -77,7 +78,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             ;
         }
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }

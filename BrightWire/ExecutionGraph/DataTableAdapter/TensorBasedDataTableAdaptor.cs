@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 
@@ -13,11 +14,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _featureColumns;
         readonly uint _inputSize, _outputSize;
 
-        public TensorBasedDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns)
+        public TensorBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            var firstRow = dataTable.Row(0);
+            using var firstRow = dataTable.GetRow(0);
             var input = (ITensor3D)firstRow[_featureColumnIndices[0]];
             var output = (IVector)firstRow[_targetColumnIndex];
             _outputSize = output.Size;
@@ -27,7 +28,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             Depth = input.Depth;
         }
 
-        TensorBasedDataTableAdapter(IRowOrientedDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns) 
+        TensorBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             _inputSize = inputSize;
@@ -38,7 +39,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _featureColumns = featureColumns;
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new TensorBasedDataTableAdapter(dataTable, _inputSize, _outputSize, Height, Width, Depth, _featureColumns);
         }

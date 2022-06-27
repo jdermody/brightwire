@@ -30,13 +30,13 @@ namespace BrightWire.InstanceBased
                 _instance[i] = lap.CreateVector(model.Instance[i]);
         }
 
-        IEnumerable<(string, float)> ClassifyInternal(IConvertibleRow row)
+        IEnumerable<(string Label, float Score)> ClassifyInternal(IDataTableRow row)
         {
             // encode the features into a vector
             var featureCount = _model.DataColumns.Length;
             var features = new float[featureCount];
             for (var i = 0; i < featureCount; i++)
-                features[i] = row.GetTyped<float>(_model.DataColumns[i]);
+                features[i] = row.Get<float>(_model.DataColumns[i]);
 
             // TODO: categorical features?
 
@@ -44,18 +44,18 @@ namespace BrightWire.InstanceBased
             using var vector = _lap.CreateVector(features);
             var distances = vector.FindDistances(_instance, _distanceMetric);
             return distances.Segment.Values
-                .Zip(_model.Classification, (s, l) => (l, s))
-                .OrderBy(d => d.Item2)
+                .Zip(_model.Classification, (s, l) => (Label: l, Score:s))
+                .OrderBy(d => d.Score)
                 .Take((int)_k)
-                .GroupBy(d => d.Item1)
-                .Select(g => (g.Key, g.Sum(d => 1f / d.Item2)))
+                .GroupBy(d => d.Label)
+                .Select(g => (g.Key, g.Sum(d => 1f / d.Score)))
             ;
         }
 
-        public (string Label, float Weight)[] Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IDataTableRow row)
         {
             return ClassifyInternal(row)
-                .Select(d => (d.Item1, d.Item2))
+                .Select(d => (d.Label, d.Score))
                 .ToArray()
             ;
         }

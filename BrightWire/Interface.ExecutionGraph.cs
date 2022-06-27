@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
@@ -361,7 +362,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable">The new data table</param>
         /// <returns></returns>
-        IDataSource CloneWith(IRowOrientedDataTable dataTable);
+        IDataSource CloneWith(BrightDataTable dataTable);
 
         /// <summary>
         /// Table vectoriser to create a feature vector

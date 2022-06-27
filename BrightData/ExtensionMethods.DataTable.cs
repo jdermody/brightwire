@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using BrightData.Analysis;
 using BrightData.Buffer.Hybrid;
 using BrightData.Buffer.InMemory;
@@ -11,6 +14,7 @@ using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Builders;
 using BrightData.DataTable.Consumers;
+using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightData.Input;
 using BrightData.LinearAlegbra2;
@@ -212,7 +216,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<uint> RowIndices(this IDataTable dataTable)
+        public static IEnumerable<uint> RowIndices(this BrightDataTable dataTable)
         {
             return dataTable.RowCount.AsRange();
         }
@@ -222,28 +226,17 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<uint> ColumnIndices(this IDataTable dataTable)
+        public static IEnumerable<uint> ColumnIndices(this BrightDataTable dataTable)
         {
             return dataTable.ColumnCount.AsRange();
-        }
-
-        /// <summary>
-        /// Invokes a callback on each row of a data table
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="callback"></param>
-        public static void ForEachRow(this IDataTable dataTable, Action<object[]> callback)
-        {
-            dataTable.ForEachRow((row, _) => callback(row));
         }
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
         /// </summary>
         /// <param name="dataTable"></param>
-        /// <param name="callback"></param>
         /// <typeparam name="T0"></typeparam>
-        public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0]));
+        public static IEnumerable<T0> ForEachRow<T0>(this BrightDataTable dataTable) => dataTable.GetAllRowData().Select(d => (T0)d.Data[0]);
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -251,8 +244,7 @@ namespace BrightData
         /// <typeparam name="T0"></typeparam>
         /// <typeparam name="T1"></typeparam>
         /// <param name="dataTable"></param>
-        /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1]));
+        public static IEnumerable<(T0, T1)> ForEachRow<T0, T1>(this BrightDataTable dataTable) => dataTable.GetAllRowData().Select(d => ((T0)d.Data[0], (T1)d.Data[1]));
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -261,8 +253,7 @@ namespace BrightData
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <param name="dataTable"></param>
-        /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
+        public static IEnumerable<(T0, T1, T2)> ForEachRow<T0, T1, T2>(this BrightDataTable dataTable) => dataTable.GetAllRowData().Select(d => ((T0)d.Data[0], (T1)d.Data[1], (T2)d.Data[2]));
 
         /// <summary>
         /// Invokes a typed callback on each row of a data table
@@ -272,48 +263,7 @@ namespace BrightData
         /// <typeparam name="T2"></typeparam>
         /// <typeparam name="T3"></typeparam>
         /// <param name="dataTable"></param>
-        /// <param name="callback"></param>
-        public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, _) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
-
-        //public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
-        //{
-        //    var ret = new List<T>();
-        //    dataTable.ForEachRow((row, index) => ret.Add(callback(row, index)));
-        //    return ret;
-        //}
-
-        //public static List<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
-        //public static List<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
-
-        /// <summary>
-        /// Returns meta data for all columns
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <returns></returns>
-        public static IMetaData[] AllColumnsMetaData(this IDataTable dataTable)
-        {
-            var ret = new IMetaData[dataTable.ColumnCount];
-            for (uint i = 0, len = dataTable.ColumnCount; i < len; i++)
-                ret[i] = dataTable.ColumnMetaData(i);
-            return ret;
-        }
-
-        /// <summary>
-        /// Enumerates metadata for each specified column
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="columnIndices">Column indices to retrieve</param>
-        public static IEnumerable<IMetaData> ColumnMetaData(this IDataTable dataTable, params uint[] columnIndices) => dataTable.AllOrSelectedColumnIndices(columnIndices).Select(dataTable.ColumnMetaData);
-
-        /// <summary>
-        /// Returns selected column indices or all if nothing selected
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="columnIndices">Column indices to retrieve</param>
-        /// <returns></returns>
-        public static IEnumerable<uint> AllOrSelectedColumnIndices(this IDataTable dataTable, uint[] columnIndices) => columnIndices.Length > 0
-            ? columnIndices
-            : dataTable.ColumnIndices();
+        public static IEnumerable<(T0, T1, T2, T3)> ForEachRow<T0, T1, T2, T3>(this BrightDataTable dataTable) => dataTable.GetAllRowData().Select(d => ((T0)d.Data[0], (T1)d.Data[1], (T2)d.Data[2], (T3)d.Data[3]));
 
         /// <summary>
         /// Creates a column analyser
@@ -321,7 +271,7 @@ namespace BrightData
         /// <param name="type">Column type</param>
         /// <param name="metaData">Column meta data</param>
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-        /// <param name="maxCount">Maximum number of distinct items to track</param>
+        /// <param name="maxDistinctCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
         public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {
@@ -362,7 +312,7 @@ namespace BrightData
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static IColumnOrientedDataTable ParseCsvIntoMemory(this IBrightDataContext context,
+        public static BrightDataTable ParseCsvIntoMemory(this BrightDataContext context,
             StreamReader reader,
             bool hasHeader,
             char delimiter = ',',
@@ -416,11 +366,11 @@ namespace BrightData
                     ++rowCount;
             }
 
-            var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
+            var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
-            return segments.BuildColumnOrientedTable(metaData, context, rowCount, null);
+            return context.BuildDataTableInMemory(metaData, segments);
         }
 
         /// <summary>
@@ -436,7 +386,7 @@ namespace BrightData
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <param name="tempBasePath"></param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable ParseCsv(this IBrightDataContext context,
+        public static BrightDataTable ParseCsv(this BrightDataContext context,
             StreamReader reader,
             bool hasHeader,
             char delimiter = ',',
@@ -496,11 +446,11 @@ namespace BrightData
                     ++rowCount;
             }
 
-            var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
+            var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
-            return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath);
+            return context.BuildDataTable(metaData, segments, fileOutputPath);
         }
 
         /// <summary>
@@ -509,12 +459,12 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="size">Number of rows to return</param>
         /// <returns></returns>
-        public static List<object[]> Head(this IDataTable dataTable, uint size = 10)
-        {
-            var ret = new List<object[]>();
-            dataTable.ForEachRow((row, _) => ret.Add(row), size);
-            return ret;
-        }
+        public static List<object[]> Head(this BrightDataTable dataTable, uint size = 10) => dataTable
+            .GetAllRowData(false)
+            .Select(d => d.Data)
+            .Take((int)size)
+            .ToList()
+        ;
 
         /// <summary>
         /// Loads a data table from disk
@@ -522,26 +472,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="filePath">File path on disk</param>
         /// <returns></returns>
-        public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
-        {
-            var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            var streamCloner = new StreamCloner(input);
-            using var reader = new BinaryReader(input, Encoding.UTF8, true);
-            var version = reader.ReadInt32();
-
-            if (version > Consts.DataTableVersion)
-                throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
-            var orientation = (DataTableOrientation)reader.ReadByte();
-            if (orientation == DataTableOrientation.ColumnOriented) {
-                var ret = new ColumnOrientedDataTable(context, input, false, streamCloner);
-                input.Dispose();
-                return ret;
-            }
-
-            if (orientation == DataTableOrientation.RowOriented)
-                return new RowOrientedDataTable(context, input, false);
-            throw new Exception($"Found unknown data table orientation: {orientation}");
-        }
+        public static BrightDataTable LoadTable(this BrightDataContext context, string filePath) => new(context, new FileStream(filePath, FileMode.Open, FileAccess.Read));
 
         /// <summary>
         /// Copies a data table segment to a tensor segment
@@ -575,28 +506,14 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Returns columns as vectors
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="columnIndices">Column indices to return as vectors</param>
-        /// <returns></returns>
-        public static IEnumerable<IVector> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
-        {
-            var readers = dataTable.AllOrSelectedColumnIndices(columnIndices).Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
-            dataTable.ReadTyped(readers.Select(r => r.Consumer));
-            var context = dataTable.Context;
-            return readers.Select(r => context.LinearAlgebraProvider2.CreateVector(r.Array.Data));
-        }
-
-        /// <summary>
         /// Sets the target column of the data table
         /// </summary>
         /// <param name="table"></param>
         /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
-        public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
+        public static void SetTargetColumn(this BrightDataTable table, uint? columnIndex)
         {
-            var metaData = table.AllColumnsMetaData();
-            for (uint i = 0; i < table.ColumnCount; i++)
+            var metaData = table.ColumnMetaData;
+            for (int i = 0, len = metaData.Length; i < len; i++)
                 metaData[i].Set(Consts.IsTarget, i == columnIndex);
         }
 
@@ -605,10 +522,10 @@ namespace BrightData
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public static uint? GetTargetColumn(this IDataTable table)
+        public static uint? GetTargetColumn(this BrightDataTable table)
         {
-            var metaData = table.AllColumnsMetaData();
-            for (uint i = 0; i < table.ColumnCount; i++) {
+            var metaData = table.ColumnMetaData;
+            for (uint i = 0, len = (uint)metaData.Length; i < len; i++) {
                 if (metaData[i].IsTarget())
                     return i;
             }
@@ -620,7 +537,7 @@ namespace BrightData
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public static uint GetTargetColumnOrThrow(this IDataTable table)
+        public static uint GetTargetColumnOrThrow(this BrightDataTable table)
         {
             return GetTargetColumn(table) ?? throw new Exception("No target column was set on the table");
         }
@@ -630,10 +547,10 @@ namespace BrightData
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public static IEnumerable<uint> ColumnIndicesOfFeatures(this IDataTable table)
+        public static IEnumerable<uint> ColumnIndicesOfFeatures(this BrightDataTable table)
         {
             var targetColumn = table.GetTargetColumn();
-            var ret = table.ColumnIndices();
+            var ret = table.ColumnIndices;
             if (targetColumn.HasValue)
                 ret = ret.Where(i => i != targetColumn.Value);
             return ret;
@@ -651,27 +568,6 @@ namespace BrightData
             return metaData;
         }
 
-        //public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
-        //{
-        //    var metaData = table.AllMetaData();
-        //    var featureColumns = new HashSet<uint>(columnIndices);
-
-        //    for (uint i = 0; i < table.ColumnCount; i++) {
-        //        metaData[(int)i].Set(Consts.IsFeature, featureColumns.Contains(i));
-        //    }
-        //}
-
-        //public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
-        //{
-        //    var metaData = table.AllMetaData().ToList();
-        //    var featureColumns = new HashSet<uint>(columnIndices);
-
-        //    for (uint i = 0; i < table.ColumnCount; i++)
-        //    {
-        //        metaData[(int)i].Set(Consts.IsSequential, featureColumns.Contains(i));
-        //    }
-        //}
-
         /// <summary>
         /// Creates an appendable buffer for a column type
         /// </summary>
@@ -682,7 +578,7 @@ namespace BrightData
         /// <param name="bufferSize">In memory cache size</param>
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IHybridBuffer GetGrowableSegment(this IMetaData metaData, BrightDataType type, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static IHybridBufferWithMetaData GetHybridBufferWithMetaData(this BrightDataType type, IMetaData metaData, BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
             var columnType = GetDataType(type);
 
@@ -695,7 +591,7 @@ namespace BrightData
                 buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize);
 
             var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(columnType);
-            return GenericActivator.Create<IHybridBuffer>(segmentType,
+            return GenericActivator.Create<IHybridBufferWithMetaData>(segmentType,
                 type,
                 new MetaData(metaData, Consts.StandardMetaData),
                 buffer
@@ -703,94 +599,19 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a column oriented data table from a list of segments
-        /// </summary>
-        /// <param name="segments"></param>
-        /// <param name="metaData">Table meta data</param>
-        /// <param name="context"></param>
-        /// <param name="rowCount">Number of rows</param>
-        /// <param name="filePath">File path to save on disk (optional)</param>
-        /// <returns></returns>
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(
-            this List<ISingleTypeTableSegment> segments,
-            IMetaData metaData,
-            IBrightDataContext context,
-            uint rowCount,
-            string? filePath = null
-        ) {
-            var columnCount = (uint)segments.Count;
-            var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
-            using var builder = new ColumnOrientedTableBuilder(filePath);
-
-            builder.WriteHeader(columnCount, rowCount, metaData);
-            foreach (var segment in segments) {
-                var position = builder.Write(segment);
-                var endPosition = builder.GetCurrentPosition();
-                columnOffsets.Add((position, endPosition));
-            }
-            builder.WriteColumnOffsets(columnOffsets);
-            return builder.Build(context);
-        }
-
-        /// <summary>
-        /// Creates a row oriented data table from a list of segments
-        /// </summary>
-        /// <param name="segments"></param>
-        /// <param name="metaData">Table meta data</param>
-        /// <param name="context"></param>
-        /// <param name="rowCount">Number of rows</param>
-        /// <param name="filePath">File path to save on disk (optional)</param>
-        /// <returns></returns>
-        public static IRowOrientedDataTable BuildRowOrientedTable(this List<ISingleTypeTableSegment> segments, IMetaData metaData, IBrightDataContext context, uint rowCount, string? filePath = null)
-        {
-            using var builder = new RowOrientedTableBuilder(metaData, rowCount, filePath);
-            var readers = segments
-                .Select(b => b.Enumerate().GetEnumerator())
-                .ToList();
-            while (readers.All(r => r.MoveNext())) {
-                var row = readers.Select(r => r.Current).ToArray();
-                builder.AddRow(row);
-            }
-            return builder.Build(context);
-        }
-
-        /// <summary>
-        /// Creates a column info with a new column type
-        /// </summary>
-        /// <param name="column">Column info source</param>
-        /// <param name="newType">New column type</param>
-        /// <returns></returns>
-        public static IColumnInfo ChangeColumnType(this IColumnInfo column, BrightDataType newType)
-        {
-            if (column.ColumnType == newType)
-                return column;
-            return new ColumnInfo(column.Index, newType, new MetaData(column.MetaData, Consts.Index, Consts.Name));
-        }
-
-        /// <summary>
-        /// Creates a convertible data table
-        /// </summary>
-        /// <param name="dataTable">Data table to use as basis</param>
-        /// <returns></returns>
-        public static IConvertibleTable AsConvertible(this IRowOrientedDataTable dataTable)
-        {
-            return new DataTableConverter(dataTable);
-        }
-
-        /// <summary>
         /// Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(IVector Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
+        public static IEnumerable<(IVector Numeric, string? Label)> GetVectorisedFeatures(this BrightDataTable dataTable)
         {
             var target = dataTable.GetTargetColumn();
-            var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
+            using var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
             if (target.HasValue) {
-                var targetColumn = dataTable.Column(target.Value).Enumerate().Select(o => o.ToString());
+                using var column = dataTable.GetColumn(target.Value);
+                var targetColumn = column.Enumerate().Select(o => o.ToString());
                 return vectoriser.Enumerate().Zip(targetColumn);
             }
-
             return vectoriser.Enumerate().Select(v => (v, (string?)null));
         }
 
@@ -809,13 +630,6 @@ namespace BrightData
         public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
 
         /// <summary>
-        /// Creates a table builder
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static InMemoryTableBuilder BuildTable(this IBrightDataContext context) => new(context);
-
-        /// <summary>
         /// Splits a data table into training and test tables (rows are randomly selected for either)
         /// </summary>
         /// <param name="table"></param>
@@ -823,10 +637,14 @@ namespace BrightData
         /// <param name="trainingFilePath">Path to write training table to disk (optional)</param>
         /// <param name="testFilePath">Path to write test table to disk (optional)</param>
         /// <returns></returns>
-        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingFraction = 0.8, string? trainingFilePath = null, string? testFilePath = null)
+        public static (BrightDataTable Training, BrightDataTable Test) Split(this BrightDataTable table, double trainingFraction = 0.8, string? trainingFilePath = null, string? testFilePath = null)
         {
-            var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingFraction);
-            return (table.CopyRows(trainingFilePath, training), table.CopyRows(testFilePath, test));
+            var context = table.Context;
+            var (training, test) = table.AllRowIndices.Shuffle(table.Context.Random).ToArray().Split(trainingFraction);
+            var trainingOutput = table.WriteRowsTo(GetMemoryOrFileStream(trainingFilePath), training);
+            var testOutput = table.WriteRowsTo(GetMemoryOrFileStream(testFilePath), test);
+            var results = CompleteInParallel(trainingOutput, testOutput);
+            return (context.LoadTableFromStream(results[0]!), context.LoadTableFromStream(results[1]!));
         }
 
         /// <summary>
@@ -836,7 +654,7 @@ namespace BrightData
         /// <param name="k">Number of buckets to create</param>
         /// <param name="shuffle">True to shuffle the table before folding</param>
         /// <returns></returns>
-        public static IEnumerable<(IRowOrientedDataTable Training, IRowOrientedDataTable Validation)> Fold(this IRowOrientedDataTable table, int k, bool shuffle = true)
+        public static IEnumerable<(BrightDataTable Training, BrightDataTable Validation)> Fold(this BrightDataTable table, int k, bool shuffle = true)
         {
             var context = table.Context;
             var input = table.RowCount.AsRange();
@@ -853,15 +671,15 @@ namespace BrightData
 
                 var writer1 = context.BuildTable();
                 writer1.CopyColumnsFrom(table);
-                foreach (var row in table.Rows(trainingRows))
-                    writer1.AddRow(row.ToArray());
+                foreach (var (_, row) in table.GetAllRowData(true, trainingRows))
+                    writer1.AddRow(row);
 
                 var writer2 = context.BuildTable();
                 writer2.CopyColumnsFrom(table);
-                foreach (var row in table.Rows(validationRows))
-                    writer2.AddRow(row.ToArray());
+                foreach (var (_, row) in table.GetAllRowData(true, validationRows))
+                    writer2.AddRow(row);
 
-                yield return (writer1.BuildRowOriented(), writer2.BuildRowOriented());
+                yield return (writer1.BuildInMemory(), writer2.BuildInMemory());
             }
         }
 
@@ -900,21 +718,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Returns analysed column meta data
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="columnIndices">Column indices</param>
-        /// <returns></returns>
-        public static IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(this IDataTable dataTable, params uint[] columnIndices) => dataTable.ColumnAnalysis(AllOrSelectedColumnIndices(dataTable, columnIndices));
-
-        /// <summary>
-        /// Returns analysed column meta data for all columns in the data table
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <returns></returns>
-        public static IMetaData[] AllColumnAnalysis(this IDataTable dataTable) => dataTable.ColumnAnalysis(dataTable.ColumnCount.AsRange()).Select(d => d.MetaData).ToArray();
-
-        /// <summary>
         /// Strongly typed enumeration of items in segment
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -935,7 +738,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static (IMatrix Features, IMatrix Target) AsMatrices(this IDataTable dataTable)
+        public static (IMatrix Features, IMatrix Target) AsMatrices(this BrightDataTable dataTable)
         {
             var targetColumn = dataTable.GetTargetColumnOrThrow();
             var featureColumns = dataTable.ColumnIndices().Where(i => i != targetColumn).ToArray();
@@ -948,7 +751,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices to include in the matrix</param>
         /// <returns></returns>
-        public static IMatrix AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
+        public static IMatrix AsMatrix(this BrightDataTable dataTable, params uint[] columnIndices)
         {
             // consider the simple case
             if (columnIndices.Length == 1) {
@@ -956,7 +759,7 @@ namespace BrightData
                 if (columnType == BrightDataType.Vector) {
                     var index = 0;
                     var rows = new IVector[dataTable.RowCount];
-                    var vectorSegment = (IDataTableSegment<IVector>)dataTable.Column(columnIndices[0]);
+                    var vectorSegment = (IDataTableSegment<IVector>)dataTable.GetColumn(columnIndices[0]);
                     foreach (var row in vectorSegment.EnumerateTyped())
                         rows[index++] = row;
                     return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(rows);
@@ -964,7 +767,7 @@ namespace BrightData
 
                 if (columnType.IsNumeric()) {
                     var ret = dataTable.Context.LinearAlgebraProvider2.CreateMatrix(dataTable.RowCount, 1);
-                    dataTable.Column(columnIndices[0]).CopyTo(ret.Segment);
+                    dataTable.GetColumn(columnIndices[0]).CopyTo(ret.Segment);
                     return ret;
                 }
             }
@@ -980,7 +783,7 @@ namespace BrightData
         /// <param name="oneHotEncodeToMultipleColumns"></param>
         /// <param name="filePath">Optional path to save data table to disk</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, bool oneHotEncodeToMultipleColumns, string? filePath = null)
+        public static BrightDataTable Vectorise(this BrightDataTable dataTable, bool oneHotEncodeToMultipleColumns, string? filePath = null)
         {
             return Vectorise(dataTable, oneHotEncodeToMultipleColumns, dataTable.ColumnIndices(), filePath);
         }
@@ -993,13 +796,13 @@ namespace BrightData
         /// <param name="columnIndices">Columns to use</param>
         /// <param name="filePath">Optional path to save data table to disk</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, bool oneHotEncodeToMultipleColumns, IEnumerable<uint> columnIndices, string? filePath = null)
+        public static BrightDataTable Vectorise(this BrightDataTable dataTable, bool oneHotEncodeToMultipleColumns, IEnumerable<uint> columnIndices, string? filePath = null)
         {
             var target = dataTable.GetTargetColumn();
             var columnIndexList = columnIndices.ToList();
             if(columnIndexList.Count == 0)
                 columnIndexList.AddRange(dataTable.ColumnIndices());
-            var builder = new RowOrientedTableBuilder(dataTable.MetaData, dataTable.RowCount, filePath);
+            var builder = new BrightDataTableBuilder(dataTable.Context);
 
             // create an optional output vectoriser
             DataTableVectoriser? outputVectoriser = null;
@@ -1012,29 +815,22 @@ namespace BrightData
             var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndexList.ToArray());
             builder.AddFixedSizeVectorColumn(inputVectoriser.OutputSize, "Features");
             if (outputVectoriser != null)
-                builder.AddFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").SetTarget(true);
+                builder.AddFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").MetaData.SetTarget(true);
 
             // vectorise each row
             var context = dataTable.Context;
-            dataTable.ForEachRow(row => {
-                var input = context.CreateVector(inputVectoriser.Vectorise(row));
+            var lap = context.LinearAlgebraProvider2;
+            foreach(var (_, row) in dataTable.GetAllRowData()) {
+                var input = lap.CreateVector(inputVectoriser.Vectorise(row));
                 if (outputVectoriser != null)
-                    builder.AddRow(input, context.CreateVector(outputVectoriser.Vectorise(row)));
+                    builder.AddRow(input, lap.CreateVector(outputVectoriser.Vectorise(row)));
                 else
                     builder.AddRow(input);
-            });
+            }
 
-            return builder.Build(context);
+
+            return builder.Build(filePath);
         }
-
-        /// <summary>
-        /// Returns a data table segment from the data table
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dataTable"></param>
-        /// <param name="columnIndex"></param>
-        /// <returns></returns>
-        public static IDataTableSegment<T> Column<T>(this IDataTable dataTable, uint columnIndex) where T : notnull => (IDataTableSegment<T>)dataTable.Column(columnIndex);
 
         /// <summary>
         /// Converts a data table segment to an array
@@ -1049,16 +845,16 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, IndexList Data)> data, IBrightDataContext context)
+        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, IndexList Data)> data, BrightDataContext context)
         {
-            var builder = context.BuildTable();
+            var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.IndexList, "Index");
-            builder.AddColumn(BrightDataType.String, "Label").SetTarget(true);
+            builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
             foreach (var (label, indexList) in data)
                 builder.AddRow(indexList, label);
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
@@ -1066,16 +862,16 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static IRowOrientedDataTable ConvertToTable(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
         {
-            var builder = context.BuildTable();
+            var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.WeightedIndexList, "Weighted Index");
-            builder.AddColumn(BrightDataType.String, "Label").SetTarget(true);
+            builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
             foreach (var (label, weightedIndexList) in data)
                 builder.AddRow(weightedIndexList, label);
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
@@ -1085,13 +881,13 @@ namespace BrightData
         /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, IVector Data)> data, bool preserveVectors, IBrightDataContext context)
+        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, IVector Data)> data, bool preserveVectors, BrightDataContext context)
         {
-            var builder = context.BuildTable();
+            var builder = new BrightDataTableBuilder(context);
             if (preserveVectors) {
                 var first = data[0].Data;
                 builder.AddFixedSizeVectorColumn(first.Size, "Vector");
-                builder.AddColumn(BrightDataType.String, "Label").SetTarget(true);
+                builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
                 foreach (var (label, vector) in data)
                     builder.AddRow(vector, label);
@@ -1101,7 +897,7 @@ namespace BrightData
                 var size = data[0].Data.Size;
                 for (var i = 1; i <= size; i++)
                     builder.AddColumn(BrightDataType.Float, "Value " + i);
-                builder.AddColumn(BrightDataType.String, "Label").SetTarget(true);
+                builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
                 foreach (var (label, vector) in data) {
                     var row = new List<object>();
@@ -1112,7 +908,7 @@ namespace BrightData
                 }
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
@@ -1120,15 +916,16 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static IReadOnlyList<(string Classification, IVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(string Classification, IVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
+            var lap = context.LinearAlgebraProvider2;
             IVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
                 foreach (var item in weightedIndexList.Indices)
                     ret[item.Index] = item.Weight;
-                return context.LinearAlgebraProvider2.CreateVector(ret);
+                return lap.CreateVector(ret);
             }
             return data.Select(r => (r.Label, Create(r.Data))).ToList();
         }
@@ -1160,7 +957,7 @@ namespace BrightData
         /// <param name="oneHotEncodeToMultipleColumns"></param>
         /// <param name="columnIndices">Column indices to vectorise</param>
         /// <returns></returns>
-        public static IDataTableVectoriser GetVectoriser(this IDataTable table, bool oneHotEncodeToMultipleColumns = true, params uint[] columnIndices) => new DataTableVectoriser(table, oneHotEncodeToMultipleColumns, columnIndices);
+        public static IDataTableVectoriser GetVectoriser(this BrightDataTable table, bool oneHotEncodeToMultipleColumns = true, params uint[] columnIndices) => new DataTableVectoriser(table, oneHotEncodeToMultipleColumns, columnIndices);
 
         /// <summary>
         /// Loads a previously created data table vectoriser
@@ -1168,18 +965,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="reader">Reader to load parameters from</param>
         /// <returns></returns>
-        public static IDataTableVectoriser LoadVectoriser(this IDataTable dataTable, BinaryReader reader) => new DataTableVectoriser(dataTable, reader);
-
-        /// <summary>
-        /// Converts columns
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="conversions"></param>
-        /// <returns></returns>
-        public static IColumnOrientedDataTable ConvertTable(this IColumnOrientedDataTable dataTable, params ColumnConversionType[] conversions)
-        {
-            return dataTable.Convert(conversions.Select((c, i) => (IColumnTransformationParam)new ColumnConversion((uint)i, c)).ToArray());
-        }
+        public static IDataTableVectoriser LoadVectoriser(this BrightDataTable dataTable, BinaryReader reader) => new DataTableVectoriser(dataTable, reader);
 
         /// <summary>
         /// Creates a column conversion parameter
@@ -1203,10 +989,11 @@ namespace BrightData
         /// <param name="sourceColumnIndices"></param>
         /// <param name="newColumnType"></param>
         /// <param name="newColumnName"></param>
+        /// <param name="outputColumnIndex"></param>
         /// <returns></returns>
-        public static IReinterpretColumns ReinterpretColumns(this uint[] sourceColumnIndices, BrightDataType newColumnType, string newColumnName)
+        public static IReinterpretColumns ReinterpretColumns(this uint[] sourceColumnIndices, BrightDataType newColumnType, string newColumnName, uint outputColumnIndex)
         {
-            return new ManyToOneColumn(newColumnType, newColumnName, sourceColumnIndices);
+            return new ManyToOneColumn(newColumnType, newColumnName, outputColumnIndex, sourceColumnIndices);
         }
 
         /// <summary>
@@ -1224,18 +1011,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Returns a strongly typed column from the data table
-        /// </summary>
-        /// <param name="table"></param>
-        /// <param name="columnIndex">Column index to retrieve</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IDataTableSegment<T> GetColumn<T>(this IColumnOrientedDataTable table, uint columnIndex) where T : notnull
-        {
-            return (IDataTableSegment<T>)table.Column(columnIndex);
-        }
-
-        /// <summary>
         /// Casts the value at column index to type T
         /// </summary>
         /// <param name="segment"></param>
@@ -1250,14 +1025,14 @@ namespace BrightData
         /// <param name="table"></param>
         /// <param name="sampleSize">Number of rows to sample</param>
         /// <returns></returns>
-        public static IEnumerable<IDataTableSegment> Sample(this IRowOrientedDataTable table, uint sampleSize)
+        public static IEnumerable<IDataTableSegment> Sample(this BrightDataTable table, uint sampleSize)
         {
             var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int)sampleSize).OrderBy(i => i).ToArray();
-            return table.Rows(rows);
+            return table.GetRows(rows);
         }
 
         /// <summary>
-        /// Creates a custom column converter
+        /// Creates a custom column mutator
         /// </summary>
         /// <param name="table"></param>
         /// <param name="columnIndex">Column index to convert</param>
@@ -1267,7 +1042,7 @@ namespace BrightData
         /// <typeparam name="TT"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IColumnTransformationParam CreateCustomColumnConverter<TF, TT>(this IColumnOrientedDataTable table, uint columnIndex, Func<TF, TT> converter, Action<IMetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
+        public static IColumnTransformationParam CreateCustomColumnMutator<TF, TT>(this BrightDataTable table, uint columnIndex, Func<TF, TT> converter, Action<IMetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
         {
             var type = table.ColumnTypes[columnIndex].GetDataType();
             if (type != typeof(TF))
@@ -1285,7 +1060,9 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable Convert(this IColumnOrientedDataTable dataTable, params IColumnTransformationParam[] conversion) => Convert(dataTable, null, conversion);
+        public static BrightDataTable Convert(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
+
+        public static BrightDataTable Convert(this BrightDataTable dataTable, params ColumnConversionType[] conversionTypes) => MutateColumns(dataTable, null, conversionTypes.Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
 
         /// <summary>
         /// Normalizes the data in all columns of the table
@@ -1293,22 +1070,21 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="conversion">Column normalization parameters</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable Normalize(this IColumnOrientedDataTable dataTable, params IColumnTransformationParam[] conversion) => Normalize(dataTable, null, conversion);
+        public static BrightDataTable Normalize(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
 
         /// <summary>
         /// Creates a new data table with this concatenated with other column oriented data tables
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="others">Other tables to concatenate</param>
-        public static IColumnOrientedDataTable ConcatColumns(this IColumnOrientedDataTable dataTable, params IColumnOrientedDataTable[] others) => dataTable.ConcatColumns(null, others);
+        public static BrightDataTable ConcatenateColumns(this BrightDataTable dataTable, params BrightDataTable[] others) => ConcatenateColumns(dataTable, null, others);
 
         /// <summary>
-        /// Copies the selected columns to a new data table
+        /// Creates a new data table with this concatenated with other column oriented data tables
         /// </summary>
         /// <param name="dataTable"></param>
-        /// <param name="columnIndices">Column indices to copy</param>
-        /// <returns></returns>
-        public static IColumnOrientedDataTable CopyColumns(this IColumnOrientedDataTable dataTable, params uint[] columnIndices) => dataTable.CopyColumns(null, columnIndices);
+        /// <param name="others">Other tables to concatenate</param>
+        public static BrightDataTable ConcatenateRows(this BrightDataTable dataTable, params BrightDataTable[] others) => ConcatenateRows(dataTable, null, others);
 
         /// <summary>
         /// Many to one or one to many style column transformations
@@ -1316,23 +1092,47 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable ReinterpretColumns(this IColumnOrientedDataTable dataTable, params IReinterpretColumns[] columns) => dataTable.ReinterpretColumns(null, columns);
+        public static BrightDataTable ReinterpretColumns(this BrightDataTable dataTable, IProvideTempStreams tempStreams, string? filePath, params IReinterpretColumns[] columns)
+        {
+            var ops = dataTable.ReinterpretColumns(tempStreams, columns).ToArray();
+            var newColumns = EnsureCompleted(CompleteInParallel(ops));
+            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, newColumns, GetMemoryOrFileStream(filePath));
+        }
 
-        /// <summary>
-        /// Creates a new table of this concatenated with other row oriented data tables
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="others">Other row oriented data tables to concatenate</param>
-        /// <returns></returns>
-        public static IRowOrientedDataTable Concat(this IRowOrientedDataTable dataTable, params IRowOrientedDataTable[] others) => dataTable.ConcatRows(null, others);
+        public static BrightDataTable ConcatenateColumns(this BrightDataTable table, string? filePath, BrightDataTable[] others)
+        {
+            var stream = GetMemoryOrFileStream(filePath);
+            table.ConcatenateColumns(others, stream);
+            return table.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable ConcatenateRows(this BrightDataTable table, string? filePath, BrightDataTable[] others)
+        {
+            var operation = table.ConcatenateRows(others, GetMemoryOrFileStream(filePath));
+            var stream = EnsureCompleted(operation.Complete(null, CancellationToken.None));
+            return table.Context.LoadTableFromStream(stream);
+        }
 
         /// <summary>
         /// Copy specified rows from this to a new data table
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="filePath"></param>
         /// <param name="rowIndices">Row indices to copy</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable CopyRows(this IRowOrientedDataTable dataTable, params uint[] rowIndices) => dataTable.CopyRows(null, rowIndices);
+        public static BrightDataTable CopyRows(this BrightDataTable dataTable, string? filePath, params uint[] rowIndices)
+        {
+            var op = dataTable.WriteRowsTo(GetMemoryOrFileStream(filePath), rowIndices);
+            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            return dataTable.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable CopyColumnsToNewTable(this BrightDataTable table, string? filePath, params uint[] columnIndices)
+        {
+            var stream = GetMemoryOrFileStream(filePath);
+            table.WriteColumnsTo(stream, columnIndices);
+            return table.Context.LoadTableFromStream(stream);
+        }
 
         /// <summary>
         /// Gets column transformers
@@ -1340,10 +1140,9 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="input">Column transformation parameter objects</param>
         /// <returns></returns>
-        public static IEnumerable<(uint ColumnIndex, ITransformColumn Transformer)> GetColumnTransformers(this IColumnOrientedDataTable dataTable, IEnumerable<IColumnTransformationParam> input)
+        public static IEnumerable<(uint ColumnIndex, IConvertColumn Transformer)> GetColumnTransformers(this BrightDataTable dataTable, IProvideTempStreams temp, IEnumerable<IColumnTransformationParam> input)
         {
             var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
-            using var tempStreamProvider = dataTable.Context.CreateTempStreamProvider();
 
             // build the map of columns to transform
             uint nextIndex = 0;
@@ -1356,40 +1155,30 @@ namespace BrightData
                     columnConversionTable[nextIndex++] = item;
             }
 
-            uint index = 0;
-            foreach (var (segment, columnType) in dataTable.Columns().Zip(dataTable.ColumnTypes)) {
-                if (columnConversionTable.TryGetValue(index, out var conversion)) {
-                    var index1 = index;
-                    var converter = conversion.GetTransformer(columnType, segment, () => dataTable.ColumnAnalysis(index1), tempStreamProvider);
+            foreach (var ci in dataTable.ColumnIndices) {
+                if (columnConversionTable.TryGetValue(ci, out var conversion)) {
+                    var columnIndex = ci;
+                    var converter = conversion.GetTransformer(dataTable.ColumnTypes[ci], dataTable.GetColumn(ci), () => dataTable.GetColumnAnalysis(columnIndex), temp);
                     if (converter is not null)
-                        yield return (index, converter);
+                        yield return (ci, converter);
                 }
-                ++index;
             }
         }
 
         /// <summary>
-        /// Normalizes the data in all columns of the table
+        /// 
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="conversionParams">Column normalization parameters</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable Normalize(this IColumnOrientedDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversionParams)
+        public static BrightDataTable MutateColumns(this BrightDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversionParams)
         {
-            return dataTable.Transform(dataTable.GetColumnTransformers(conversionParams), filePath);
-        }
-
-        /// <summary>
-        /// Creates a new table with columns that have been converted
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to store new table on disk</param>
-        /// <param name="conversionParams">Column conversion parameters</param>
-        /// <returns></returns>
-        public static IColumnOrientedDataTable Convert(this IColumnOrientedDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversionParams)
-        {
-            return dataTable.Transform(dataTable.GetColumnTransformers(conversionParams), filePath);
+            using var tempStream = dataTable.Context.CreateTempStreamProvider();
+            var transformers = dataTable.GetColumnTransformers(tempStream, conversionParams);
+            var operations = dataTable.MutateColumns(tempStream, transformers);
+            var results = EnsureCompleted(CompleteInParallel(operations.ToArray()));
+            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
         }
 
         /// <summary>
@@ -1397,9 +1186,9 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(uint Index, BrightDataType Type, IMetaData MetaData)> GetColumnInfo(this IDataTable dataTable)
+        public static IEnumerable<(uint Index, BrightDataType Type, MetaData MetaData)> GetColumnInfo(this BrightDataTable dataTable)
         {
-            return dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData())
+            return dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)
                 .Select((z, i) => ((uint) i, z.First, z.Second));
         }
 
@@ -1409,7 +1198,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="type">Normalization type</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable Normalize(this IColumnOrientedDataTable dataTable, NormalizationType type) => Normalize(dataTable, null, type);
+        public static BrightDataTable Normalize(this BrightDataTable dataTable, NormalizationType type) => Normalize(dataTable, null, type);
 
         /// <summary>
         /// Normalizes the data in all columns of the table
@@ -1418,15 +1207,68 @@ namespace BrightData
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="type">Normalization type</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable Normalize(this IColumnOrientedDataTable dataTable, string? filePath, NormalizationType type)
+        public static BrightDataTable Normalize(this BrightDataTable dataTable, string? filePath, NormalizationType type)
         {
             if (type == NormalizationType.None)
                 return dataTable;
-            var transformers = dataTable.GetColumnTransformers(dataTable.GetColumnInfo()
+
+            using var tempStream = dataTable.Context.CreateTempStreamProvider();
+            var transformers = GetColumnTransformers(dataTable, tempStream, dataTable.GetColumnInfo()
                 .Where(c => !c.MetaData.IsCategorical() && c.Type.IsNumeric())
                 .Select(c => new ColumnNormalization(c.Index, type))
             );
-            return dataTable.Transform(transformers, filePath);
+            var operations = dataTable.MutateColumns(tempStream, transformers);
+            var results = EnsureCompleted(CompleteInParallel(operations.ToArray()));
+            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
+
+        }
+
+        public static BrightDataTable Project(this BrightDataTable dataTable, string? filePath, Func<object[], object[]?> projector)
+        {
+            var op = dataTable.Project(projector);
+            var builder = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            return builder.Build(filePath);
+        }
+
+        public static BrightDataTable Bag(this BrightDataTable dataTable, string? filePath, uint sampleCount)
+        {
+            var op = dataTable.Bag(sampleCount, GetMemoryOrFileStream(filePath));
+            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            return dataTable.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable ShuffleRows(this BrightDataTable dataTable, string? filePath)
+        {
+            var op = dataTable.Shuffle(GetMemoryOrFileStream(filePath));
+            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            return dataTable.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable Clone(this BrightDataTable dataTable, string? filePath)
+        {
+            var allColumns = dataTable.GetAllColumns().ToArray();
+            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, allColumns, filePath);
+        }
+
+        public static (string Label, BrightDataTable Table)[] GroupBy(this BrightDataTable dataTable, params uint[] groupByColumnIndices) => GroupBy(dataTable, null, groupByColumnIndices);
+        public static (string Label, BrightDataTable Table)[] GroupBy(this BrightDataTable dataTable, Func<string, string?>? filePathProvider, params uint[] groupByColumnIndices)
+        {
+            var context = dataTable.Context;
+            using var tempStreams = context.CreateTempStreamProvider();
+            var op = dataTable.GroupBy(tempStreams, groupByColumnIndices);
+            var groups = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            var ret = new (string Label, BrightDataTable Table)[groups.Length];
+
+            foreach (var (label, columnData) in groups) {
+                var filePath = filePathProvider?.Invoke(label);
+                var writer = new BrightDataTableWriter(context, tempStreams, GetMemoryOrFileStream(filePath));
+                writer.Write(
+                    dataTable.TableMetaData,
+                    columnData.Cast<ISingleTypeTableSegment>().ToArray()
+                );
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -1434,10 +1276,10 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static string GetTableSignature(this IDataTable dataTable)
+        public static string GetTableSignature(this BrightDataTable dataTable)
         {
             var sb = new StringBuilder();
-            foreach (var (type, metaData) in dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData())) {
+            foreach (var (_, type, metaData) in dataTable.GetColumnInfo()) {
                 if (sb.Length > 0)
                     sb.Append('|');
                 sb.Append(type);
@@ -1463,50 +1305,83 @@ namespace BrightData
             return sb.ToString();
         }
 
-        /// <summary>
-        /// Creates a new table using the same column information as this data table but with modified column data
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="buffers">New column buffers (correctly typed and one for each column)</param>
-        /// <param name="filePath">File path to save on disk (optional)</param>
-        /// <returns></returns>
-        public static IColumnOrientedDataTable CreateWithNewColumnData(this IDataTable dataTable, IHybridBuffer[] buffers, string? filePath = null)
+        public static BrightDataTable BuildInMemory(this BrightDataTableBuilder builder)
         {
-            var segments = new List<ISingleTypeTableSegment>();
-            uint rowCount = 0;
-            foreach (var (metaData, buffer) in dataTable.ColumnMetaData().Zip(buffers)) {
-                var dataType = buffer.DataType;
-                var brightDataType = dataType.GetBrightDataType();
-                var columnMetaData = new MetaData(metaData, Consts.StandardMetaData);
-                columnMetaData.SetType(brightDataType);
-
-                var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(dataType);
-                segments.Add(GenericActivator.Create<ISingleTypeTableSegment>(segmentType,
-                    brightDataType,
-                    columnMetaData,
-                    buffer
-                ));
-                rowCount = buffer.Size;
-            }
-
-            return segments.BuildColumnOrientedTable(dataTable.MetaData, dataTable.Context, rowCount, filePath);
+            var stream = new MemoryStream();
+            builder.WriteTo(stream);
+            return builder.Context.LoadTableFromStream(stream);
         }
 
-        /// <summary>
-        /// Creates a column info
-        /// </summary>
-        /// <param name="columnIndex">Column index</param>
-        /// <param name="columnType">Column data type</param>
-        /// <param name="metaData">Column meta data (optional)</param>
-        /// <returns></returns>
-        public static IColumnInfo CreateColumnInfo(uint columnIndex, BrightDataType columnType, IMetaData? metaData = null)
+        public static BrightDataTable BuildToStream(this BrightDataTableBuilder builder, Stream stream)
         {
-            if (metaData is null) {
-                metaData = new MetaData();
-                metaData.Set(Consts.Index, columnIndex);
-                metaData.Set(Consts.Type, columnType);
+            builder.WriteTo(stream);
+            return builder.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable Build(this BrightDataTableBuilder builder, string? filePath) => builder.BuildToStream(GetMemoryOrFileStream(filePath));
+
+        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations)
+        {
+            var ret = new T[operations.Length];
+            Parallel.ForEach(operations, (op, _, i) => ret[i] = op.Complete(null, CancellationToken.None));
+            return ret;
+        }
+
+        static T EnsureCompleted<T>(T? result) => result ?? throw new Exception("Operation failed");
+        static T[] EnsureCompleted<T>(T?[] results)
+        {
+            var ret = new T[results.Length];
+            for (int i = 0, len = results.Length; i < len; i++)
+                ret[i] = EnsureCompleted(results[i]);
+            return ret;
+        }
+
+        static Stream GetMemoryOrFileStream(string? filePath) => String.IsNullOrWhiteSpace(filePath)
+            ? new MemoryStream()
+            : new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite)
+        ;
+
+        static BrightDataTable LoadTableFromStream(this BrightDataContext context, Stream stream, uint bufferSize = 32768)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            return new BrightDataTable(context, stream, bufferSize);
+        }
+
+        public static void WriteDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, Stream stream)
+        {
+            if (columns.Any()) {
+                try {
+                    using var tempStream = context.CreateTempStreamProvider();
+                    var writer = new BrightDataTableWriter(context, tempStream, stream);
+                    writer.Write(tableMetaData, columns);
+                }
+                finally {
+                    foreach (var item in columns)
+                        item.Dispose();
+                }
             }
-            return new ColumnInfo(columnIndex, columnType, metaData);
+        }
+
+        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, Stream stream)
+        {
+            context.WriteDataTable(tableMetaData, columns, stream);
+            return context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable BuildDataTableInMemory(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns) => context
+            .BuildDataTable(tableMetaData, columns, new MemoryStream())
+        ;
+
+        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, string? filePath) => context
+            .BuildDataTable(tableMetaData, columns, GetMemoryOrFileStream(filePath))
+        ;
+
+        public static IEnumerable<T> MapRows<T>(this BrightDataTable dataTable, Func<IDataTableRow, T> mapper)
+        {
+            foreach (var row in dataTable.GetRows()) {
+                using (row)
+                    yield return mapper(row);
+            }
         }
 
         /// <summary>

@@ -893,7 +893,7 @@ namespace BrightData
     /// <summary>
     /// Hybrid buffers write first to memory but then to disk once it's cache is exhausted
     /// </summary>
-    public interface IHybridBuffer : ICanEnumerate, IHaveSize
+    public interface IHybridBuffer : ICanEnumerate, IHaveSize, IDisposable
     {
         /// <summary>
         /// Copies the buffer to a stream
@@ -927,6 +927,15 @@ namespace BrightData
         where T : notnull
     {
         Dictionary<T, uint>? DistinctItems { get; }
+    }
+
+    public interface IHybridBufferWithMetaData : IHybridBuffer, IHaveMetaData
+    {
+    }
+
+    public interface IHybridBufferWithMetaData<T> : IHybridBuffer<T>, IHaveMetaData
+        where T : notnull
+    {
     }
 
     /// <summary>

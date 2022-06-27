@@ -16,40 +16,14 @@ namespace BrightData.DataTable2
             var columns = GetColumns(AllOrSpecifiedColumnIndices(columnIndices)).ToArray();
             WriteTo(columns, stream);
         }
-
-        IEnumerable<ISingleTypeTableSegment> GetAllColumns() => GetColumns(ColumnIndices);
-        IEnumerable<ISingleTypeTableSegment> GetColumns(IEnumerable<uint> columnIndices)
+        public void WriteColumnsTo(Stream stream, IEnumerable<uint> columnIndices)
         {
-            foreach (var ci in columnIndices) {
-                var brightDataType = ColumnTypes[ci];
-                var columnDataType = brightDataType.GetColumnType().Type;
-                var dataType = brightDataType.GetDataType();
-                yield return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
-                    _context,
-                    dataType,
-                    _header.RowCount,
-                    GetColumnReader(ci, _header.RowCount),
-                    GetColumnMetaData(ci)
-                );
-            }
+            var columns = GetColumns(columnIndices).ToArray();
+            WriteTo(columns, stream);
         }
+        void WriteTo(ISingleTypeTableSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
 
-        void WriteTo(ISingleTypeTableSegment[] columns, Stream stream)
-        {
-            if (columns.Any()) {
-                try {
-                    using var tempStream = _context.CreateTempStreamProvider();
-                    var writer = new BrightDataTableWriter(_context, tempStream, stream);
-                    writer.Write(TableMetaData, columns);
-                }
-                finally {
-                    foreach (var item in columns)
-                        item.Dispose();
-                }
-            }
-        }
-
-        public void ConcatColumns(BrightDataTable[] tables, Stream stream)
+        public void ConcatenateColumns(BrightDataTable[] tables, Stream stream)
         {
             if (tables.Any(t => t.RowCount != RowCount))
                 throw new ArgumentException("Row count across tables must agree");
@@ -58,10 +32,10 @@ namespace BrightData.DataTable2
             WriteTo(columns, stream);
         }
 
-        public IOperation<bool> ConcatRows(BrightDataTable[] tables, Stream stream)
+        public IOperation<Stream?> ConcatenateRows(BrightDataTable[] tables, Stream stream)
         {
             var rowCount = RowCount;
-            var data = GetAllRowData(true);
+            var data = GetAllRowData();
             foreach (var other in tables) {
                 if (other.ColumnCount != ColumnCount)
                     throw new ArgumentException("Columns must agree - column count was different");
@@ -72,11 +46,11 @@ namespace BrightData.DataTable2
                 data = data.Concat(other.GetAllRowData(true));
             }
 
-            var tempStream = _context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => m.GetGrowableSegment(ColumnTypes[ci], _context, tempStream)).ToArray();
+            var tempStream = Context.CreateTempStreamProvider();
+            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
 
             return new WriteRowsOperation(
-                _context,
+                Context,
                 data.GetEnumerator(),
                 null,
                 null,
@@ -88,13 +62,13 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IOperation<bool> WriteRowsTo(Stream stream, params uint[] rowIndices)
+        public IOperation<Stream?> WriteRowsTo(Stream stream, params uint[] rowIndices)
         {
-            var tempStream = _context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => m.GetGrowableSegment(ColumnTypes[ci], _context, tempStream)).ToArray();
+            var tempStream = Context.CreateTempStreamProvider();
+            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
 
             return new WriteRowsOperation(
-                _context,
+                Context,
                 GetAllRowData(true).GetEnumerator(),
                 rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null,
                 null,
@@ -106,13 +80,13 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IOperation<bool> WriteRowsTo(Stream stream, Predicate<object[]> predicate, params uint[] rowIndices)
+        public IOperation<Stream?> WriteRowsTo(Stream stream, Predicate<object[]> predicate, params uint[] rowIndices)
         {
-            var tempStream = _context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => m.GetGrowableSegment(ColumnTypes[ci], _context, tempStream)).ToArray();
+            var tempStream = Context.CreateTempStreamProvider();
+            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
 
             return new WriteRowsOperation(
-                _context,
+                Context,
                 GetAllRowData(true).GetEnumerator(),
                 rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null,
                 predicate,
@@ -124,15 +98,15 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IOperation<bool> Bag(uint sampleCount, Stream stream)
+        public IOperation<Stream?> Bag(uint sampleCount, Stream stream)
         {
-            var rowIndices = AllRowIndices.ToArray().Bag(sampleCount, _context.Random);
+            var rowIndices = AllRowIndices.ToArray().Bag(sampleCount, Context.Random);
             return WriteRowsTo(stream, rowIndices);
         }
 
-        public IOperation<bool> Shuffle(Stream stream)
+        public IOperation<Stream?> Shuffle(Stream stream)
         {
-            var rowIndices = AllRowIndices.Shuffle(_context.Random).ToArray();
+            var rowIndices = AllRowIndices.Shuffle(Context.Random).ToArray();
             return WriteRowsTo(stream, rowIndices);
         }
     }

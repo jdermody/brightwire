@@ -33,6 +33,11 @@ namespace BrightData.Buffer.Hybrid
             }
         }
 
+        public void Dispose()
+        {
+            // nop
+        }
+
         public void Add(T item)
         {
             if (_index == _maxCount) {

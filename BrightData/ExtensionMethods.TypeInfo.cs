@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData.DataTable2;
 using BrightData.DataTypeSpecification;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -43,7 +44,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
+        public static IDataTypeSpecification GetTypeSpecification(this BrightDataTable dataTable) => new DataTableSpecification(dataTable);
 
         class ColumnFilter<T> : IConsumeColumnData<T> where T: notnull
         {
@@ -81,7 +82,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
+        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, BrightDataTable dataTable)
         {
             if (typeInfo.UnderlyingType != typeof(IDataTable))
                 throw new ArgumentException("Expected data table specification");
@@ -89,10 +90,8 @@ namespace BrightData
                 throw new ArgumentException("Expected data table and type info column count to match");
 
             var ret = new HashSet<uint>();
-            var readers = dataTable.ColumnTypes
-                .Select((ct, i) => (ColumnType:ct, Index:(uint)i))
-                .Zip(typeInfo.Children!, (ct, ts) => GetColumnReader(ct.Index, ct.ColumnType, ret, ts));
-            dataTable.ReadTyped(readers);
+            var ops = dataTable.CopyToColumnConsumers(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts))).ToArray();
+            EnsureCompleted(CompleteInParallel(ops));
             return ret;
         }
     }

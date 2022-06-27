@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using BrightData.Converter;
+using BrightData.DataTable2;
 using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -551,5 +552,7 @@ namespace BrightData
             if (startRange.HasValue)
                 yield return (startRange.Value, prev!.Value);
         }
+
+        public static BrightDataTableBuilder BuildTable(this BrightDataContext context) => new(context);
     }
 }

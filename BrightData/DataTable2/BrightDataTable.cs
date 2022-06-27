@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer;
 using BrightData.Buffer.ReadOnly;
+using BrightData.DataTable2.Operations;
 using BrightData.Helper;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -49,7 +50,6 @@ namespace BrightData.DataTable2
             public uint DataTypeSize;
         }
 
-        readonly BrightDataContext                                    _context;
         readonly IReadOnlyBuffer                                      _buffer;
         readonly uint                                                 _bufferSize;
         readonly Header                                               _header;
@@ -77,7 +77,7 @@ namespace BrightData.DataTable2
             else
                 throw new ArgumentException("Expected file or memory stream", nameof(stream));
 
-            _context = context;
+            Context = context;
             _bufferSize = bufferSize;
             using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
@@ -104,7 +104,7 @@ namespace BrightData.DataTable2
                 lock (_stream) {
                     _stream.Seek(_header.StringOffset, SeekOrigin.Begin);
                     using var reader2 = new BinaryReader(_stream, Encoding.UTF8, true);
-                    var ret = _context.GetBufferReader<string>(reader2, _bufferSize).EnumerateTyped().ToArray();
+                    var ret = Context.GetBufferReader<string>(reader2, _bufferSize).EnumerateTyped().ToArray();
                     return ret;
                 }
             }
@@ -151,14 +151,16 @@ namespace BrightData.DataTable2
             _buffer.Dispose();
         }
 
+        public BrightDataContext Context { get; }
         public MetaData TableMetaData => _metaData.Value[0];
         public BrightDataType[] ColumnTypes { get; }
         public MetaData GetColumnMetaData(uint columnIndex) => _metaData.Value[columnIndex+1];
-        public IEnumerable<MetaData> ColumnMetaData => _header.ColumnCount.AsRange().Select(GetColumnMetaData);
         public IEnumerable<uint> ColumnIndices => _header.ColumnCount.AsRange();
+        public ICanEnumerateDisposable ReadColumn(uint columnIndex) => GetColumnReader(columnIndex, _header.RowCount);
         public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
         public uint ColumnCount => _header.ColumnCount;
         public uint RowCount => _header.RowCount;
+        public MetaData[] ColumnMetaData => _metaData.Value;
 
         public T Get<T>(uint rowIndex, uint columnIndex)
         {
@@ -171,13 +173,14 @@ namespace BrightData.DataTable2
             var ret = GetColumnMetaData(columnIndex);
             if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
                 using var operation = CreateColumnAnalyser(columnIndex, writeCount, maxDistinctCount);
-                operation.Complete(null, _context.CancellationToken);
+                operation.Complete(null, Context.CancellationToken);
                 ret.Set(Consts.HasBeenAnalysed, true);
             }
 
             return ret;
         }
         public IEnumerable<(uint ColumnIndex, IMetaData MetaData)> GetColumnAnalysis(IEnumerable<uint> columnIndices) => columnIndices.Select(ci => (ci, GetColumnAnalysis(ci)));
+        public IMetaData[] AllColumnAnalysis() => GetColumnAnalysis(ColumnCount.AsRange()).Select(d => d.MetaData).ToArray();
 
         public void PersistMetaData()
         {
@@ -227,6 +230,15 @@ namespace BrightData.DataTable2
             for (uint i = 0; i < columnCount; i++)
                 ret[i] = GetColumnReader(i, _header.RowCount);
             return ret;
+        }
+
+        public IEnumerable<IOperation<bool>> CopyToColumnConsumers(IEnumerable<IConsumeColumnData> consumers, uint maxRows = uint.MaxValue)
+        {
+            foreach (var consumer in consumers) {
+                var columnReader = GetColumnReader(consumer.ColumnIndex, maxRows);
+                var type = typeof(CopyToConsumerOperation<>).MakeGenericType(consumer.ColumnType.GetDataType());
+                yield return GenericActivator.Create<IOperation<bool>>(type, columnReader, consumer);
+            }
         }
 
         /// <inheritdoc />

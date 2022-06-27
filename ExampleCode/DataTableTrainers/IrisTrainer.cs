@@ -1,4 +1,5 @@
 ﻿using BrightData;
+using BrightData.DataTable2;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -6,7 +7,7 @@ namespace ExampleCode.DataTableTrainers
     {
         public string[] Labels { get; }
 
-        public IrisTrainer(IRowOrientedDataTable table, string[] labels) : base(table)
+        public IrisTrainer(BrightDataTable table, string[] labels) : base(table)
         {
             Labels = labels;
         }

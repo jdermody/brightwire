@@ -11,7 +11,7 @@ namespace BrightData.Transformation
     {
         readonly bool _toFloat;
 
-        class NormalizeToFloat<T> : ITransformColumn<T, float>, INormalize where T: struct
+        class NormalizeToFloat<T> : IConvertColumn<T, float>, INormalize where T: struct
         {
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
@@ -49,7 +49,7 @@ namespace BrightData.Transformation
             public double Divide => _normalize.Divide;
             public double Subtract => _normalize.Subtract;
         }
-        class NormalizeToDouble<T> : ITransformColumn<T, double>, INormalize where T: struct
+        class NormalizeToDouble<T> : IConvertColumn<T, double>, INormalize where T: struct
         {
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
@@ -85,17 +85,18 @@ namespace BrightData.Transformation
             public double Subtract => _normalize.Subtract;
         }
 
-        public ITransformColumn GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = _toFloat
                 ? typeof(NormalizeToFloat<>).MakeGenericType(columnType)
                 : typeof(NormalizeToDouble<>).MakeGenericType(columnType)
             ;
-            return GenericActivator.Create<ITransformColumn>(contextType, NormalizationType, analysedMetaData());
+            return GenericActivator.Create<IConvertColumn>(contextType, NormalizationType, analysedMetaData());
         }
 
         public uint? ColumnIndex { get; }
+
         public NormalizationType NormalizationType { get; }
 
         public ColumnNormalization(uint? index, NormalizationType type, bool toFloat = true)

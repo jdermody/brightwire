@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models;
 
@@ -12,12 +13,12 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly IBrightDataContext _context;
 
-        public EmotionsTrainer(IBrightDataContext context, IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(table, training, test)
+        public EmotionsTrainer(BrightDataContext context, BrightDataTable table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
         {
             _context = context;
         }
 
-        public static IRowOrientedDataTable Parse(IBrightDataContext context, string filePath)
+        public static BrightDataTable Parse(BrightDataContext context, string filePath)
         {
             const int TARGET_COLUMN_COUNT = 6;
 
@@ -41,25 +42,24 @@ namespace ExampleCode.DataTableTrainers
             using var converted = table.Convert(columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var reinterpeted = converted.ReinterpretColumns(targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
-            reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
+            using var tempStreams = context.CreateTempStreamProvider();
+            var reinterpreted = converted.ReinterpretColumns(tempStreams, filePath, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets", (uint)featureColumns.Length));
+            reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
 
-            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
+            return reinterpreted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
 
-            // return as row oriented
-            return normalized.AsRowOriented();
         }
 
-        static IRowOrientedDataTable ConvertToBinary(IRowOrientedDataTable table, uint indexOffset)
+        static BrightDataTable ConvertToBinary(BrightDataTable table, uint indexOffset)
         {
             // converts the index list to a boolean based on if the flag is set
-            var ret = table.Project(r => {
+            var ret = table.Project(null, r => {
                 var ret2 = (object[]) r.Clone();
                 var indexList = (IndexList) ret2[r.Length - 1];
                 ret2[r.Length - 1] = indexList.HasIndex(indexOffset);
                 return ret2;
             });
-            ret!.SetTargetColumn(ret!.ColumnCount-1);
+            ret.SetTargetColumn(ret.ColumnCount-1);
             return ret;
         }
 
@@ -156,7 +156,7 @@ namespace ExampleCode.DataTableTrainers
                 var naiveBayes = item.Training.Table.TrainNaiveBayes().CreateClassifier();
                 Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
                     .Classify(naiveBayes)
-                    .Average(d => d.Row.GetTyped<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 
                 // train a logistic regression classifier
@@ -174,7 +174,7 @@ namespace ExampleCode.DataTableTrainers
                 var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider2, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
-                    .Average(d => d.Row.GetTyped<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 
                 // create a training engine

@@ -31,12 +31,12 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
-            IrisClassification(context);
-            IrisClustering(context);
-            MarkovChains(context);
-            TextClustering(context);
-            //IntegerAddition(context);
+            //Xor(context);
+            //IrisClassification(context);
+            //IrisClustering(context);
+            //MarkovChains(context);
+            //TextClustering(context);
+            IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
@@ -101,7 +101,7 @@ namespace ExampleCode
             var iris = context.Iris();
 
             // select only the first three columns (ignore the training label)
-            var irisTable = iris.Table.AsColumnOriented().CopyColumns(3.AsRange().ToArray());
+            var irisTable = iris.Table.CopyColumnsToNewTable(null, 3.AsRange().ToArray());
 
             void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {

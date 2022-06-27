@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
@@ -16,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
 
-	    public OneToManyDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+	    public OneToManyDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
@@ -27,13 +28,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _rowDepth = new uint[dataTable.RowCount];
             IVector? inputVector = null;
             IMatrix? outputMatrix = null;
-            dataTable.ForEachRow((row, i) => {
+            foreach(var (i, row) in dataTable.GetAllRowData()) {
                 inputVector = (IVector)row[_featureColumnIndices[0]];
                 outputMatrix = (IMatrix)row[_targetColumnIndex];
                 _rowDepth[i] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
-            });
+            }
             if (inputVector == null || outputMatrix == null)
                 throw new Exception("No data found");
 
@@ -41,7 +42,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputSize = outputMatrix.ColumnCount;
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new OneToManyDataTableAdapter(dataTable, _featureColumns);
         }

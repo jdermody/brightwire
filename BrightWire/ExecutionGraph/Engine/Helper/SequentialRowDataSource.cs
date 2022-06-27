@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
@@ -29,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }

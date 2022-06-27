@@ -14,7 +14,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow(6, "test");
             builder.AddRow(7, "test 2");
-            var table = builder.BuildRowOriented();
+            var table = builder.BuildInMemory();
             table.ColumnTypes[0].Should().Be(BrightDataType.Int);
         }
     }

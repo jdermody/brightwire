@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
@@ -47,7 +48,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
         }
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }

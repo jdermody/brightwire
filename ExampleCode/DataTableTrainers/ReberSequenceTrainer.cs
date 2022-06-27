@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using MathNet.Numerics.Distributions;
@@ -12,7 +13,7 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly IBrightDataContext _context;
 
-        public ReberSequenceTrainer(IBrightDataContext context, IRowOrientedDataTable dataTable) : base(dataTable)
+        public ReberSequenceTrainer(IBrightDataContext context, BrightDataTable dataTable) : base(dataTable)
         {
             _context = context;
         }

@@ -10,33 +10,40 @@ namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
-        IEnumerable<uint> AllRowIndices => _header.RowCount.AsRange();
+        public IEnumerable<uint> AllRowIndices => _header.RowCount.AsRange();
 
-        IEnumerable<uint> AllOrSpecifiedRowIndices(uint[]? indices) => (indices is null || indices.Length == 0)
+        public IEnumerable<uint> AllOrSpecifiedRowIndices(uint[]? indices) => (indices is null || indices.Length == 0)
             ? AllRowIndices
             : indices
         ;
 
-        public IEnumerable<(uint RowIndex, object[] Data)> GetAllRowData(bool reuseArrayForEachIteration = true)
+        public IEnumerable<(uint RowIndex, object[] Data)> GetAllRowData(bool reuseArrayForEachIteration = true, params uint[] rowIndices)
         {
             var rowCount = _header.RowCount;
             var columnCount = _header.ColumnCount;
             var readers = GetColumnReaders(ColumnIndices);
             var enumerators = readers.Select(r => r.Enumerate().GetEnumerator()).ToArray();
+            var selectedRowIndices = rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null;
             
             try {
                 var ret = new object[columnCount];
                 for (uint j = 0; j < rowCount; j++) {
-                    if(!reuseArrayForEachIteration && j > 0)
-                        ret = new object[columnCount];
-
-                    for (uint i = 0; i < columnCount; i++) {
-                        var enumerator = enumerators[i];
-                        enumerator.MoveNext();
-                        ret[i] = enumerator.Current;
+                    if (selectedRowIndices?.Contains(j) == false) {
+                        foreach (var item in enumerators)
+                            item.MoveNext();
                     }
+                    else {
+                        if (!reuseArrayForEachIteration && j > 0)
+                            ret = new object[columnCount];
 
-                    yield return (j, ret);
+                        for (uint i = 0; i < columnCount; i++) {
+                            var enumerator = enumerators[i];
+                            enumerator.MoveNext();
+                            ret[i] = enumerator.Current;
+                        }
+
+                        yield return (j, ret);
+                    }
                 }
             }
             finally {

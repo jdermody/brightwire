@@ -2,6 +2,7 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
@@ -564,7 +565,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row to classify</param>
 		/// <returns></returns>
-        (string Label, float Weight)[] Classify(IConvertibleRow row);
+        (string Label, float Weight)[] Classify(IDataTableRow row);
 	}
 
     /// <summary>
@@ -577,6 +578,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">Table to classify</param>
         /// <returns></returns>
-        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(IDataTable table);
+        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(BrightDataTable table);
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 
@@ -17,12 +18,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _rowDepth;
         readonly bool _sequenceLengthsAreVaried = false;
 
-	    public SequentialDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
+	    public SequentialDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
-            if (dataTable.MetaData.Get("Seq2Seq", false))
+            if (dataTable.TableMetaData.Get("Seq2Seq", false))
                 sequenceLengthsAreVaried = true;
             _featureColumns = featureColumns;
 
@@ -30,13 +31,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             IMatrix? inputMatrix = null, outputMatrix = null;
-            dataTable.ForEachRow((row, i) => {
+            foreach(var (i, row) in dataTable.GetAllRowData()) {
                 inputMatrix = (IMatrix) row[_featureColumnIndices[0]];
                 outputMatrix = (IMatrix) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
-            });
+            }
             if (inputMatrix == null || outputMatrix == null)
                 throw new Exception("No data found");
 
@@ -47,10 +48,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(IMatrix Input, IMatrix? Output)> GetRows(uint[] rows)
         {
-            return _dataTable.Rows(rows).Select(row => ((IMatrix) row[_featureColumnIndices[0]], (IMatrix?) row[_targetColumnIndex]));
+            return _dataTable.GetRows(rows).Select(row => {
+                using(row) return ((IMatrix)row[_featureColumnIndices[0]], (IMatrix?)row[_targetColumnIndex]);
+            });
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new SequentialDataTableAdapter(dataTable, _featureColumns, _sequenceLengthsAreVaried);
         }

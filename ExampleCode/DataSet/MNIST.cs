@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
@@ -12,11 +13,11 @@ namespace ExampleCode.DataSet
 {
     internal class Mnist
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         public Image[] TrainingImages { get; }
         public Image[] TestImages { get; }
 
-        public Mnist(IBrightDataContext context, Image[] trainingImages, Image[] testImages)
+        public Mnist(BrightDataContext context, Image[] trainingImages, Image[] testImages)
         {
             _context = context;
             TrainingImages = trainingImages;
@@ -162,7 +163,7 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public static IRowOrientedDataTable BuildVectorToVectorDataTable(IBrightDataContext context, Image[] images)
+        public static BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a vector => vector mapping
             var dataTable = context.CreateTwoColumnVectorTableBuilder();
@@ -172,10 +173,10 @@ namespace ExampleCode.DataSet
                 dataTable.AddRow(data, label);
             }
 
-            return dataTable.BuildRowOriented();
+            return dataTable.BuildInMemory();
         }
 
-        public static IRowOrientedDataTable Build3DTensorToVectorDataTable(IBrightDataContext context, Image[] images)
+        public static BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a 3D tensor => vector mapping
             var dataTable = context.Create3DTensorToVectorTableBuilder();
@@ -185,7 +186,7 @@ namespace ExampleCode.DataSet
                 dataTable.AddRow(tensor, label);
             }
 
-            return dataTable.BuildRowOriented();
+            return dataTable.BuildInMemory();
         }
     }
 }

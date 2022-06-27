@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2.Operations
 {
-    internal class WriteRowsOperation : OperationBase<bool>
+    internal class WriteRowsOperation : OperationBase<Stream?>
     {
         readonly BrightDataContext                           _context;
         readonly IEnumerator<(uint RowIndex, object[] Data)> _enumerator;
@@ -63,11 +63,16 @@ namespace BrightData.DataTable2.Operations
                 _buffers[i].AddObject(row[i]);
         }
 
-        protected override bool GetResult(bool wasCancelled)
+        protected override Stream? GetResult(bool wasCancelled)
         {
+            if (wasCancelled) {
+                _stream.Dispose();
+                return null;
+            }
+
             var writer = new BrightDataTableWriter(_context, _tempStreams, _stream);
             writer.Write(_tableMetaData, _buffers.Cast<ISingleTypeTableSegment>().ToArray());
-            return !wasCancelled;
+            return _stream;
         }
     }
 }

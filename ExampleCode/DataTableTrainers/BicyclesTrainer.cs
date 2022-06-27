@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
@@ -9,7 +10,7 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly IBrightDataContext _context;
 
-        public BicyclesTrainer(IBrightDataContext context, IRowOrientedDataTable table) : base(table)
+        public BicyclesTrainer(IBrightDataContext context, BrightDataTable table) : base(table)
         {
             _context = context;
         }

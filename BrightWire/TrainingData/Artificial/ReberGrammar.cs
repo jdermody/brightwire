@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 
@@ -56,7 +57,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
-        public static IRowOrientedDataTable GetOneHot(IBrightDataContext context, IEnumerable<string> strList)
+        public static BrightDataTable GetOneHot(BrightDataContext context, IEnumerable<string> strList)
         {
 	        var strList2 = strList.ToList();
 
@@ -98,7 +99,7 @@ namespace BrightWire.TrainingData.Artificial
                 }
                 builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
             }
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
