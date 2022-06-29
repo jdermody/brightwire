@@ -14,7 +14,7 @@ namespace BrightData.DataTable
         readonly ICanEnumerateWithSize<T> _reader;
         readonly ICanReadSection _stream;
 
-        public Column(uint index, BrightDataType columnType, MetaData metaData, IBrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)
+        public Column(uint index, BrightDataType columnType, MetaData metaData, BrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)
         {
             _metadata = metaData;
 
@@ -41,7 +41,7 @@ namespace BrightData.DataTable
             ((ICanWriteToBinaryWriter)_reader).WriteTo(writer);
         }
 
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
         public BrightDataType SingleType { get; }
         public BrightDataType[] Types { get; }
         public uint Size => _reader.Size;

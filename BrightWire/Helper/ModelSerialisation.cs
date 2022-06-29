@@ -20,7 +20,7 @@ namespace BrightWire.Helper
             model.DataSource?.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, GraphModel model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, GraphModel model)
         {
             model.Version = reader.ReadString();
             model.Name = reader.ReadString();
@@ -38,7 +38,7 @@ namespace BrightWire.Helper
             model.Graph.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, DataSourceModel model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, DataSourceModel model)
         {
             model.Version = reader.ReadString();
             model.Name = reader.ReadString();
@@ -56,7 +56,7 @@ namespace BrightWire.Helper
             model.Wires.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, ExecutionGraphModel model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, ExecutionGraphModel model)
         {
             model.Version = reader.ReadString();
             model.Name = reader.ReadString();
@@ -76,7 +76,7 @@ namespace BrightWire.Helper
                 writer.Write(model.Data);
         }
 
-        public static void ReadFrom(IBrightDataContext _, BinaryReader reader, ExecutionGraphModel.Node model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, ExecutionGraphModel.Node model)
         {
             model.TypeName = reader.ReadString();
             model.Id = reader.ReadString();
@@ -93,7 +93,7 @@ namespace BrightWire.Helper
             model.InputChannel.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext _, BinaryReader reader, ExecutionGraphModel.Wire model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, ExecutionGraphModel.Wire model)
         {
             model.FromId = reader.ReadString();
             model.ToId = reader.ReadString();
@@ -106,7 +106,7 @@ namespace BrightWire.Helper
             model.Vocabulary.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, BernoulliNaiveBayes model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, BernoulliNaiveBayes model)
         {
             model.ClassData = reader.ReadArray<BernoulliNaiveBayes.Class>(context);
             model.Vocabulary = reader.ReadStructArray<uint>();
@@ -119,7 +119,7 @@ namespace BrightWire.Helper
             model.InverseProbability.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext _, BinaryReader reader, BernoulliNaiveBayes.StringIndexProbability model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, BernoulliNaiveBayes.StringIndexProbability model)
         {
             model.StringIndex = reader.ReadUInt32();
             model.ConditionalProbability = reader.ReadDouble();
@@ -135,7 +135,7 @@ namespace BrightWire.Helper
             model.InverseMissingProbability.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, BernoulliNaiveBayes.Class model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, BernoulliNaiveBayes.Class model)
         {
             model.Label = reader.ReadString();
             model.Prior = reader.ReadDouble();
@@ -149,7 +149,7 @@ namespace BrightWire.Helper
             model.ClassData.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, MultinomialNaiveBayes model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, MultinomialNaiveBayes model)
         {
             model.ClassData = reader.ReadArray<MultinomialNaiveBayes.Class>(context);
         }
@@ -160,7 +160,7 @@ namespace BrightWire.Helper
             model.ConditionalProbability.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext _, BinaryReader reader, MultinomialNaiveBayes.StringIndexProbability model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, MultinomialNaiveBayes.StringIndexProbability model)
         {
             model.StringIndex = reader.ReadUInt32();
             model.ConditionalProbability = reader.ReadDouble();
@@ -174,7 +174,7 @@ namespace BrightWire.Helper
             model.Index.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, MultinomialNaiveBayes.Class model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, MultinomialNaiveBayes.Class model)
         {
             model.Label = reader.ReadString();
             model.Prior = reader.ReadDouble();
@@ -187,7 +187,7 @@ namespace BrightWire.Helper
             model.Class.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, NaiveBayes model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, NaiveBayes model)
         {
             model.Class = reader.ReadArray<NaiveBayes.ClassSummary>(context);
         }
@@ -201,7 +201,7 @@ namespace BrightWire.Helper
             model.Probability.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, NaiveBayes.Column model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, NaiveBayes.Column model)
         {
             model.ColumnIndex = reader.ReadUInt32();
             model.Type = (NaiveBayes.ColumnType)reader.ReadByte();
@@ -217,7 +217,7 @@ namespace BrightWire.Helper
             model.Probability.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext _, BinaryReader reader, NaiveBayes.CategorialProbability model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, NaiveBayes.CategorialProbability model)
         {
             model.Category = reader.ReadString();
             model.LogProbability = reader.ReadDouble();
@@ -232,7 +232,7 @@ namespace BrightWire.Helper
             model.Prior.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, NaiveBayes.ClassSummary model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, NaiveBayes.ClassSummary model)
         {
             model.Label = reader.ReadString();
             model.LogPrior = reader.ReadDouble();
@@ -248,7 +248,7 @@ namespace BrightWire.Helper
             model.TargetColumn.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, KNearestNeighbours model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, KNearestNeighbours model)
         {
             model.Instance = reader.ReadArrayOfArrays<float>();
             model.Classification = reader.ReadStringArray();
@@ -263,7 +263,7 @@ namespace BrightWire.Helper
         //    model.FeatureColumn.WriteTo(writer);
         //}
 
-        //public static void ReadFrom(IBrightDataContext context, BinaryReader reader, MultinomialLogisticRegression model)
+        //public static void ReadFrom(BrightDataContext context, BinaryReader reader, MultinomialLogisticRegression model)
         //{
         //    model.Model = reader.ReadArray<LogisticRegression>(context);
         //    model.Classification = reader.ReadStringArray();
@@ -276,7 +276,7 @@ namespace BrightWire.Helper
             model.Root.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, DecisionTree model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, DecisionTree model)
         {
             model.ClassColumnIndex = reader.ReadUInt32();
             model.Root = context.Create<DecisionTree.Node>(reader);
@@ -291,7 +291,7 @@ namespace BrightWire.Helper
             model.Classification.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, DecisionTree.Node model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, DecisionTree.Node model)
         {
             model.Children = reader.ReadArray<DecisionTree.Node>(context);
             model.ColumnIndex = reader.ReadNullable(reader.ReadUInt32);
@@ -305,7 +305,7 @@ namespace BrightWire.Helper
             model.Forest.WriteTo(writer);
         }
 
-        public static void ReadFrom(IBrightDataContext context, BinaryReader reader, RandomForest model)
+        public static void ReadFrom(BrightDataContext context, BinaryReader reader, RandomForest model)
         {
             model.Forest = reader.ReadArray<DecisionTree>(context);
         }

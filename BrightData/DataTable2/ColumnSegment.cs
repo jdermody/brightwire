@@ -15,7 +15,7 @@ namespace BrightData.DataTable2
         readonly ColumnReader<CT, T> _reader;
 
         public ColumnSegment(
-            IBrightDataContext context,
+            BrightDataContext context,
             BrightDataType dataType,
             uint size,
             ColumnReader<CT, T> reader, 
@@ -48,6 +48,6 @@ namespace BrightData.DataTable2
         }
 
         public uint Size { get; }
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
     }
 }

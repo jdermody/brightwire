@@ -12,13 +12,15 @@ namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
-        public IOperation<MetaData> CreateColumnAnalyser(uint columnIndex, uint writeCount, uint maxDistinctCount)
+        public IOperation<(uint, MetaData)> CreateColumnAnalyser(uint columnIndex, uint writeCount, uint maxDistinctCount)
         {
             var metaData = GetColumnMetaData(columnIndex);
             var type = metaData.GetColumnType();
             var analyser = type.GetColumnAnalyser(metaData, writeCount, maxDistinctCount);
 
-            return GenericActivator.Create<IOperation<MetaData>>(typeof(AnalyseColumnOperation<>).MakeGenericType(type.GetDataType()),
+            return GenericActivator.Create<IOperation<(uint, MetaData)>>(typeof(AnalyseColumnOperation<>).MakeGenericType(type.GetDataType()),
+                RowCount,
+                columnIndex,
                 metaData,
                 GetColumnReader(columnIndex, _header.ColumnCount),
                 analyser
@@ -32,7 +34,7 @@ namespace BrightData.DataTable2
                 tempStreams,
                 _header.RowCount,
                 groupByColumnIndices,
-                ColumnMetaData.ToArray(),
+                ColumnMetaData,
                 GetColumnReaders(ColumnIndices)
             );
         }
@@ -57,7 +59,7 @@ namespace BrightData.DataTable2
                     yield return operation;
                 }
                 else
-                    yield return new NopColumnOperation(RowCount, GetColumn(ci));
+                    yield return new NopColumnOperation(GetColumn(ci));
             }
         }
 
@@ -75,7 +77,7 @@ namespace BrightData.DataTable2
                     }
                 }
                 else
-                    yield return new NopColumnOperation(RowCount, GetColumn(ci));
+                    yield return new NopColumnOperation(GetColumn(ci));
             }
         }
 

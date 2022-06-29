@@ -655,7 +655,14 @@ namespace BrightData
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <returns></returns>
-        public IConvertColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public IConvertColumn? GetTransformer(
+            BrightDataContext context, 
+            BrightDataType fromType, 
+            ISingleTypeTableSegment column, 
+            Func<IMetaData> analysedMetaData, 
+            IProvideTempStreams tempStreams, 
+            uint inMemoryRowCount = 32768
+        );
     }
 
     /// <summary>

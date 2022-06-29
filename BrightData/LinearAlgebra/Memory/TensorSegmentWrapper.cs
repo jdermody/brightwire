@@ -56,7 +56,7 @@ namespace BrightData.LinearAlgebra.Memory
                 item = this[index++];
             return ret;
         }
-        public IBrightDataContext Context => _segment.Context;
+        public BrightDataContext Context => _segment.Context;
 
         public IEnumerable<T> Values
         {

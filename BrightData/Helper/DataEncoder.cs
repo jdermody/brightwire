@@ -11,8 +11,8 @@ namespace BrightData.Helper
     /// </summary>
     public class DataEncoder : IDataReader
     {
-        readonly IBrightDataContext _context;
-        internal DataEncoder(IBrightDataContext context) => _context = context;
+        readonly BrightDataContext _context;
+        internal DataEncoder(BrightDataContext context) => _context = context;
 
         /// <summary>
         /// Generic method to read from a binary reader
@@ -77,23 +77,19 @@ namespace BrightData.Helper
             }
 
             if (typeOfT == typeof(IVector)) {
-                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.VectorType);
-                val.Initialize(_context, reader);
+                var val = _context.CreateVector(reader);
                 return __refvalue(__makeref(val), T);
             }
             if (typeOfT == typeof(IMatrix)) {
-                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.MatrixType);
-                val.Initialize(_context, reader);
+                var val = _context.CreateMatrix(reader);
                 return __refvalue(__makeref(val), T);
             }
             if (typeOfT == typeof(ITensor3D)) {
-                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
-                val.Initialize(_context, reader);
+                var val = _context.CreateTensor3D(reader);
                 return __refvalue(__makeref(val), T);
             }
             if (typeOfT == typeof(ITensor4D)) {
-                var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor4DType);
-                val.Initialize(_context, reader);
+                var val = _context.CreateTensor4D(reader);
                 return __refvalue(__makeref(val), T);
             }
 
@@ -178,37 +174,27 @@ namespace BrightData.Helper
             if (typeOfT == typeof(IVector)) {
                 var ret = new IVector[len];
                 for (uint i = 0; i < len; i++) {
-                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.VectorType);
-                    val.Initialize(_context, reader);
+                    var val = _context.CreateVector(reader);
                     ret[i] = (IVector)val;
                 }
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(IMatrix)) {
                 var ret = new IMatrix[len];
-                for (uint i = 0; i < len; i++) {
-                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.MatrixType);
-                    val.Initialize(_context, reader);
-                    ret[i] = (IMatrix)val;
-                }
+                for (uint i = 0; i < len; i++)
+                    ret[i] = _context.CreateMatrix(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(ITensor3D)) {
                 var ret = new ITensor3D[len];
-                for (uint i = 0; i < len; i++) {
-                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
-                    val.Initialize(_context, reader);
-                    ret[i] = (ITensor3D)val;
-                }
+                for (uint i = 0; i < len; i++)
+                    ret[i] = _context.CreateTensor3D(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(ITensor4D)) {
                 var ret = new ITensor4D[len];
-                for (uint i = 0; i < len; i++) {
-                    var val = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(_context.LinearAlgebraProvider2.Tensor3DType);
-                    val.Initialize(_context, reader);
-                    ret[i] = (ITensor4D)val;
-                }
+                for (uint i = 0; i < len; i++)
+                    ret[i] = _context.CreateTensor4D(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(BinaryData)) {

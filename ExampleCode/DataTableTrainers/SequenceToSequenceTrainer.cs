@@ -13,9 +13,9 @@ namespace ExampleCode.DataTableTrainers
     internal class SequenceToSequenceTrainer : DataTableTrainer
     {
         readonly SequenceGenerator _sequenceGenerator;
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IBrightDataContext context, BrightDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataContext context, BrightDataTable dataTable) : base(dataTable)
         {
             _sequenceGenerator = sequenceGenerator;
             _context = context;

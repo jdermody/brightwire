@@ -10,7 +10,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class TestClusteringTrainer
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
         public class AaaiDocument
         {
@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
             /// </summary>
             public string[] Group { get; }
 
-            public (string Classification, WeightedIndexList Data) AsClassification(IBrightDataContext context, StringTableBuilder stringTable)
+            public (string Classification, WeightedIndexList Data) AsClassification(BrightDataContext context, StringTableBuilder stringTable)
             {
                 var weightedIndex = new List<WeightedIndexList.Item>();
                 foreach (var item in Keyword)
@@ -70,7 +70,7 @@ namespace ExampleCode.DataTableTrainers
         readonly Dictionary<IVector, AaaiDocument> _documentTable = new();
         readonly uint _groupCount;
 
-        public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
+        public TestClusteringTrainer(BrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
         {
             _context = context;
             var lap = context.LinearAlgebraProvider2;

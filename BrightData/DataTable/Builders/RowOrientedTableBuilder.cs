@@ -132,7 +132,7 @@ namespace BrightData.DataTable.Builders
     //        }
     //    }
 
-    //    public IRowOrientedDataTable Build(IBrightDataContext context)
+    //    public IRowOrientedDataTable Build(BrightDataContext context)
     //    {
     //        // write the actual row indices
     //        _stream.Seek(_rowIndexPosition, SeekOrigin.Begin);

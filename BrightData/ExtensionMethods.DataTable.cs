@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1108,7 +1109,7 @@ namespace BrightData
 
         public static BrightDataTable ConcatenateRows(this BrightDataTable table, string? filePath, BrightDataTable[] others)
         {
-            var operation = table.ConcatenateRows(others, GetMemoryOrFileStream(filePath));
+            using var operation = table.ConcatenateRows(others, GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(operation.Complete(null, CancellationToken.None));
             return table.Context.LoadTableFromStream(stream);
         }
@@ -1122,7 +1123,7 @@ namespace BrightData
         /// <returns></returns>
         public static BrightDataTable CopyRows(this BrightDataTable dataTable, string? filePath, params uint[] rowIndices)
         {
-            var op = dataTable.WriteRowsTo(GetMemoryOrFileStream(filePath), rowIndices);
+            using var op = dataTable.WriteRowsTo(GetMemoryOrFileStream(filePath), rowIndices);
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return dataTable.Context.LoadTableFromStream(stream);
         }
@@ -1158,7 +1159,7 @@ namespace BrightData
             foreach (var ci in dataTable.ColumnIndices) {
                 if (columnConversionTable.TryGetValue(ci, out var conversion)) {
                     var columnIndex = ci;
-                    var converter = conversion.GetTransformer(dataTable.ColumnTypes[ci], dataTable.GetColumn(ci), () => dataTable.GetColumnAnalysis(columnIndex), temp);
+                    var converter = conversion.GetTransformer(dataTable.Context, dataTable.ColumnTypes[ci], dataTable.GetColumn(ci), () => dataTable.GetColumnAnalysis(columnIndex), temp);
                     if (converter is not null)
                         yield return (ci, converter);
                 }
@@ -1225,21 +1226,21 @@ namespace BrightData
 
         public static BrightDataTable Project(this BrightDataTable dataTable, string? filePath, Func<object[], object[]?> projector)
         {
-            var op = dataTable.Project(projector);
+            using var op = dataTable.Project(projector);
             var builder = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return builder.Build(filePath);
         }
 
         public static BrightDataTable Bag(this BrightDataTable dataTable, string? filePath, uint sampleCount)
         {
-            var op = dataTable.Bag(sampleCount, GetMemoryOrFileStream(filePath));
+            using var op = dataTable.Bag(sampleCount, GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return dataTable.Context.LoadTableFromStream(stream);
         }
 
         public static BrightDataTable ShuffleRows(this BrightDataTable dataTable, string? filePath)
         {
-            var op = dataTable.Shuffle(GetMemoryOrFileStream(filePath));
+            using var op = dataTable.Shuffle(GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return dataTable.Context.LoadTableFromStream(stream);
         }
@@ -1255,7 +1256,7 @@ namespace BrightData
         {
             var context = dataTable.Context;
             using var tempStreams = context.CreateTempStreamProvider();
-            var op = dataTable.GroupBy(tempStreams, groupByColumnIndices);
+            using var op = dataTable.GroupBy(tempStreams, groupByColumnIndices);
             var groups = EnsureCompleted(op.Complete(null, CancellationToken.None));
             var ret = new (string Label, BrightDataTable Table)[groups.Length];
 
@@ -1320,18 +1321,22 @@ namespace BrightData
 
         public static BrightDataTable Build(this BrightDataTableBuilder builder, string? filePath) => builder.BuildToStream(GetMemoryOrFileStream(filePath));
 
-        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations)
+        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations) => CompleteInParallel(Array.AsReadOnly(operations));
+        public static T[] CompleteInParallel<T>(this IReadOnlyList<IOperation<T>> operations)
         {
-            var ret = new T[operations.Length];
-            Parallel.ForEach(operations, (op, _, i) => ret[i] = op.Complete(null, CancellationToken.None));
+            var ret = new T[operations.Count];
+            Parallel.ForEach(operations, (op, _, i) => {
+                using(op)
+                    ret[i] = op.Complete(null, CancellationToken.None);
+            });
             return ret;
         }
 
-        static T EnsureCompleted<T>(T? result) => result ?? throw new Exception("Operation failed");
-        static T[] EnsureCompleted<T>(T?[] results)
+        public static T EnsureCompleted<T>(T? result) => result ?? throw new Exception("Operation failed");
+        public static T[] EnsureCompleted<T>(this IReadOnlyList<T?> results)
         {
-            var ret = new T[results.Length];
-            for (int i = 0, len = results.Length; i < len; i++)
+            var ret = new T[results.Count];
+            for (int i = 0, len = results.Count; i < len; i++)
                 ret[i] = EnsureCompleted(results[i]);
             return ret;
         }
@@ -1393,7 +1398,7 @@ namespace BrightData
         /// <param name="metaData">Column meta data (optional)</param>
         /// <returns></returns>
         //public static (ISingleTypeTableSegment Segment, IHybridBuffer Buffer) GetSegmentWithHybridBuffer(
-        //    this IBrightDataContext context, 
+        //    this BrightDataContext context, 
         //    uint columnIndex, 
         //    BrightDataType columnType, 
         //    IMetaData? metaData = null

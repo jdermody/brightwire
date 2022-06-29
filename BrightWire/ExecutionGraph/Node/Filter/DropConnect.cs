@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution? _probabilityToDrop;
 
-        public DropConnect(IBrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string? name = null) 
+        public DropConnect(BrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string? name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;

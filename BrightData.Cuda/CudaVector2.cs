@@ -7,10 +7,12 @@ using BrightData.LinearAlegbra2;
 
 namespace BrightData.Cuda
 {
-    internal class CudaVector2 : Vector2<CudaLinearAlgebraProvider>
+    internal class CudaVector2 : Vector2<CudaLinearAlgebraProvider>, IHaveDeviceMemory
     {
         public CudaVector2(ITensorSegment2 data, CudaLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
+
+        public IDeviceMemoryPtr Memory => CudaLinearAlgebraProvider.GetDeviceMemoryPtr(Segment);
     }
 }

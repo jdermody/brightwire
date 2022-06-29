@@ -6,12 +6,12 @@ namespace BrightData.UnitTests.Helper
 {
     public class CudaBase : NumericsBase
     {
-        readonly ILinearAlgebraProvider              _cudaProvider;
+        readonly CudaProvider                        _cudaProvider;
         protected readonly CudaLinearAlgebraProvider _cuda;
 
         public CudaBase()
         {
-            _cudaProvider = _context.UseCudaLinearAlgebra(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
+            _cudaProvider = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
             _cuda = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cudaProvider);
         }
 

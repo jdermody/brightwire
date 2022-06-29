@@ -5,9 +5,9 @@ namespace BrightData.Distribution
 {
     internal class CategoricalDistribution : INonNegativeDiscreteDistribution
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public CategoricalDistribution(IBrightDataContext context, IEnumerable<float> categoricalValues)
+        public CategoricalDistribution(BrightDataContext context, IEnumerable<float> categoricalValues)
         {
             _context = context;
 

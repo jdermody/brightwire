@@ -164,7 +164,7 @@ namespace BrightData
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static uint GetIndex(this IMetaData metadata) => metadata.Get(Consts.Index, uint.MaxValue);
+        public static uint GetColumnIndex(this IMetaData metadata) => metadata.Get(Consts.ColumnIndex, uint.MaxValue);
 
         /// <summary>
         /// True if the item is numeric
@@ -212,7 +212,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static ICanConvert<T, float> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
+        public static ICanConvert<T, float> GetFloatConverter<T>(this BrightDataContext context) where T: struct
         {
             return context.Get($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
         }
@@ -331,14 +331,14 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <param name="use">True to enable</param>
-        public static void UseLegacySerializationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
+        public static void UseLegacySerializationInput(this BrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
 
         /// <summary>
         /// Creates a data encoder
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new(context);
+        public static DataEncoder GetDataEncoder(this BrightDataContext context) => new(context);
 
         /// <summary>
         /// Converts the object to a serialized buffer
@@ -554,5 +554,11 @@ namespace BrightData
         }
 
         public static BrightDataTableBuilder BuildTable(this BrightDataContext context) => new(context);
+
+        public static void DisposeAll(this IEnumerable<IDisposable> disposables)
+        {
+            foreach(var item in disposables)
+                item.Dispose();
+        }
     }
 }

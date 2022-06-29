@@ -309,7 +309,7 @@
             </summary>
             <param name="reader">Binary reader to read binary data from</param>
         </member>
-        <member name="M:BrightData.BinaryData.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.BinaryData.WriteTo(System.IO.BinaryWriter)">
@@ -483,7 +483,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -493,7 +493,7 @@
             <param name="bufferSize"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32)">
+        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.Type,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -759,7 +759,7 @@
             Extension methods to attach analyser creation to the bright data context
             </summary>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDateAnalyser(BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetDateAnalyser(BrightData.BrightDataContext,System.UInt32)">
             <summary>
             Creates a date analyzer
             </summary>
@@ -767,7 +767,7 @@
             <param name="maxCount">Max distinct items</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates a numeric analyzer
             </summary>
@@ -777,7 +777,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetConvertToStringAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetConvertToStringAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates a frequency analyzer
             </summary>
@@ -787,7 +787,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalyser(BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalyser(BrightData.BrightDataContext,System.UInt32)">
             <summary>
             Creates a dimension analyzer
             </summary>
@@ -795,7 +795,7 @@
             <param name="maxCount">Max distinct items</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates a frequency analyzer
             </summary>
@@ -805,7 +805,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetIndexAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetIndexAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates an index analyzer
             </summary>
@@ -814,7 +814,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates a numeric analyzer
             </summary>
@@ -823,7 +823,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetStringAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetStringAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
             <summary>
             Creates a string analyzer
             </summary>
@@ -832,7 +832,7 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser(BrightData.IBrightDataContext,System.Type,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser(BrightData.BrightDataContext,System.Type,System.UInt32,System.UInt32)">
             <summary>
             Creates a frequency analyzer
             </summary>
@@ -942,7 +942,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer``1(BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates a struct buffer
             </summary>
@@ -953,7 +953,7 @@
             <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer(BrightData.BrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates a struct buffer
             </summary>
@@ -964,7 +964,7 @@
             <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateHybridStringBuffer(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStringBuffer(BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates a string buffer
             </summary>
@@ -974,7 +974,7 @@
             <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer``1(BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Creates an object buffer
             </summary>
@@ -984,7 +984,7 @@
             <param name="bufferSize">Max items to cache in memory</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer(BrightData.BrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Creates an object buffer
             </summary>
@@ -994,7 +994,7 @@
             <param name="bufferSize">Max items to cache in memory</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetBufferReader``1(BrightData.IBrightDataContext,System.IO.BinaryReader,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetBufferReader``1(BrightData.BrightDataContext,System.IO.BinaryReader,System.UInt32)">
             <summary>
             Returns a reader that buffers items in memory
             </summary>
@@ -1116,7 +1116,7 @@
             <param name="writer"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFloatConverter``1(BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.GetFloatConverter``1(BrightData.BrightDataContext)">
             <summary>
             Lazy create a float converter per context
             </summary>
@@ -1209,14 +1209,14 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.UseLegacySerializationInput(BrightData.IBrightDataContext,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.UseLegacySerializationInput(BrightData.BrightDataContext,System.Boolean)">
             <summary>
             Enables or disables legacy (version 2) binary serialization - only when reading
             </summary>
             <param name="context"></param>
             <param name="use">True to enable</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDataEncoder(BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.GetDataEncoder(BrightData.BrightDataContext)">
             <summary>
             Creates a data encoder
             </summary>
@@ -1461,7 +1461,7 @@
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsvIntoMemory(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Int32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsvIntoMemory(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Int32,System.UInt16)">
             <summary>
             Parse CSV in memory without writing to disk (for small data sets)
             </summary>
@@ -1474,7 +1474,7 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16)">
             <summary>
             Parse CSV into a column oriented data table using hybrid buffers
             </summary>
@@ -1497,7 +1497,7 @@
             <param name="size">Number of rows to return</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.LoadTable(BrightData.IBrightDataContext,System.String)">
+        <member name="M:BrightData.ExtensionMethods.LoadTable(BrightData.BrightDataContext,System.String)">
             <summary>
             Loads a data table from disk
             </summary>
@@ -1566,7 +1566,7 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetGrowableSegment(BrightData.IMetaData,BrightData.BrightDataType,BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.GetGrowableSegment(BrightData.IMetaData,BrightData.BrightDataType,BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates an appendable buffer for a column type
             </summary>
@@ -1578,7 +1578,7 @@
             <param name="maxDistinct">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildColumnOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.IBrightDataContext,System.UInt32,System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildColumnOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.BrightDataContext,System.UInt32,System.String)">
             <summary>
             Creates a column oriented data table from a list of segments
             </summary>
@@ -1589,7 +1589,7 @@
             <param name="filePath">File path to save on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.IBrightDataContext,System.UInt32,System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.BrightDataContext,System.UInt32,System.String)">
             <summary>
             Creates a row oriented data table from a list of segments
             </summary>
@@ -1636,7 +1636,7 @@
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildTable(BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.BuildTable(BrightData.BrightDataContext)">
             <summary>
             Creates a table builder
             </summary>
@@ -1744,21 +1744,21 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts indexed classifications to a data table
             </summary>
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts weighted index classifications to a data table
             </summary>
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IVector}},System.Boolean,BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IVector}},System.Boolean,BrightData.BrightDataContext)">
             <summary>
             Converts the vector classifications into a data table
             </summary>
@@ -1767,7 +1767,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts the weighted index classification list to a list of dense vectors
             </summary>
@@ -2007,14 +2007,14 @@
             <param name="metaData">Column meta data (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.BrightDataContext)">
             <summary>
             Returns a randomly initialized float greater than or equal to 0f, and less than 1f
             </summary>
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.RandomIndex(BrightData.IBrightDataContext,System.Int32)">
+        <member name="M:BrightData.ExtensionMethods.RandomIndex(BrightData.BrightDataContext,System.Int32)">
             <summary>
             Returns a randomly initialized positive number
             </summary>
@@ -2022,7 +2022,7 @@
             <param name="length">Exclusive upper bound</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.RandomIndex(BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.RandomIndex(BrightData.BrightDataContext,System.UInt32)">
             <summary>
             Returns a randomly initialized positive number
             </summary>
@@ -2030,7 +2030,7 @@
             <param name="length">Exclusive upper bound</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateBernoulliDistribution(BrightData.IBrightDataContext,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateBernoulliDistribution(BrightData.BrightDataContext,System.Single)">
             <summary>
             Create a bernoulli distribution
             </summary>
@@ -2038,7 +2038,7 @@
             <param name="probability"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateBinomialDistribution(BrightData.IBrightDataContext,System.Single,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateBinomialDistribution(BrightData.BrightDataContext,System.Single,System.UInt32)">
             <summary>
             Create a binomial distribution
             </summary>
@@ -2047,7 +2047,7 @@
             <param name="numTrials"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCategoricalDistribution(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateCategoricalDistribution(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{System.Single})">
             <summary>
             Create a categorical distribution
             </summary>
@@ -2055,7 +2055,7 @@
             <param name="categoricalValues"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateContinuousDistribution(BrightData.IBrightDataContext,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateContinuousDistribution(BrightData.BrightDataContext,System.Single,System.Single)">
             <summary>
             Create a continuous distribution
             </summary>
@@ -2064,7 +2064,7 @@
             <param name="exclusiveUpperBound"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateDiscreteUniformDistribution(BrightData.IBrightDataContext,System.Int32,System.Int32)">
+        <member name="M:BrightData.ExtensionMethods.CreateDiscreteUniformDistribution(BrightData.BrightDataContext,System.Int32,System.Int32)">
             <summary>
             Create a discrete uniform distribution
             </summary>
@@ -2073,7 +2073,7 @@
             <param name="exclusiveUpperBound"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateNormalDistribution(BrightData.IBrightDataContext,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateNormalDistribution(BrightData.BrightDataContext,System.Single,System.Single)">
             <summary>
             Create a normal distribution
             </summary>
@@ -2082,7 +2082,7 @@
             <param name="stdDev">Standard deviation</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.BrightDataContext,System.UInt32[])">
             <summary>
             Creates an index list from indices
             </summary>
@@ -2090,7 +2090,7 @@
             <param name="indices">Indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{System.UInt32})">
             <summary>
             Creates an index list from indices
             </summary>
@@ -2098,14 +2098,14 @@
             <param name="indices">Indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates an index list from a binary reader
             </summary>
             <param name="context"></param>
             <param name="reader">The binary reader</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.ValueTuple{System.UInt32,System.Single}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.BrightDataContext,System.ValueTuple{System.UInt32,System.Single}[])">
             <summary>
             Creates a weighted index list from weighted indices
             </summary>
@@ -2113,7 +2113,7 @@
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
             <summary>
             Creates a weighted index list from weighted indices
             </summary>
@@ -2121,7 +2121,7 @@
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
             <summary>
             Creates a weighted index list from weighted indices
             </summary>
@@ -2129,7 +2129,7 @@
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a weighted index list from a binary reader
             </summary>
@@ -2182,7 +2182,7 @@
             </summary>
             <returns>Newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.UInt32,System.Func{System.UInt32,``0})">
+        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,``0})">
             <summary>
             Creates a vector
             </summary>
@@ -2192,7 +2192,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.UInt32,``0)">
+        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.BrightDataContext,System.UInt32,``0)">
             <summary>
             Creates a vector
             </summary>
@@ -2202,7 +2202,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,``0[])">
+        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.BrightDataContext,``0[])">
             <summary>
             Creates a vector
             </summary>
@@ -2211,7 +2211,7 @@
             <param name="initialData">Initial data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a vector from a binary reader
             </summary>
@@ -2220,7 +2220,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,``0})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,``0})">
             <summary>
             Creates a matrix
             </summary>
@@ -2231,7 +2231,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,``0)">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.BrightDataContext,System.UInt32,System.UInt32,``0)">
             <summary>
             Creates a matrix
             </summary>
@@ -2242,7 +2242,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.ITensorSegment{``0})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.ITensorSegment{``0})">
             <summary>
             Creates a matrix from a segment
             </summary>
@@ -2252,7 +2252,7 @@
             <param name="segment">Segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a matrix from a binary reader
             </summary>
@@ -2261,7 +2261,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.BrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
             <summary>
             Creates a matrix from vectors (each will become a row)
             </summary>
@@ -2270,7 +2270,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.IBrightDataContext,``0[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.BrightDataContext,``0[][])">
             <summary>
             Creates a matrix from rows (each will become a row)
             </summary>
@@ -2279,7 +2279,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.BrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -2288,7 +2288,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.IBrightDataContext,``0[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.BrightDataContext,``0[][])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -2297,7 +2297,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a 3D tensor
             </summary>
@@ -2308,7 +2308,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Matrix{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.BrightDataContext,BrightData.LinearAlgebra.Matrix{``0}[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -2317,7 +2317,7 @@
             <param name="slices"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Create a 3D tensor from a binary reader
             </summary>
@@ -2326,7 +2326,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a 4D tensor
             </summary>
@@ -2338,7 +2338,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a 4D tensor from a binary reader
             </summary>
@@ -2347,7 +2347,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Tensor3D{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor4D``1(BrightData.BrightDataContext,BrightData.LinearAlgebra.Tensor3D{``0}[])">
             <summary>
             Creates a 4D tensor from 3D tensors
             </summary>
@@ -2600,7 +2600,7 @@
             <param name="getValue"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.IBrightDataContext,Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{``0})">
+        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.BrightDataContext,Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{``0})">
             <summary>
             Creates a tensor segment from an existing array
             </summary>
@@ -2609,7 +2609,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateSegment``1(BrightData.BrightDataContext,System.UInt32)">
             <summary>
             Creates a tensor segment
             </summary>
@@ -2665,7 +2665,7 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReadVectorFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.ReadVectorFrom(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Reads a vector from a binary reader
             </summary>
@@ -2673,7 +2673,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReadMatrixFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.ReadMatrixFrom(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Reads a matrix from a binary reader
             </summary>
@@ -3196,7 +3196,7 @@
             </summary>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.IndexList.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.IndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.ToXml">
@@ -3251,7 +3251,7 @@
             Indicates that the type can initialize from a binary reader
             </summary>
         </member>
-        <member name="M:BrightData.ICanInitializeFromBinaryReader.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ICanInitializeFromBinaryReader.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Initialize from a binary reader
             </summary>
@@ -3541,44 +3541,44 @@
             Linear algebra provider
             </summary>
         </member>
-        <member name="T:BrightData.IBrightDataContext">
+        <member name="T:BrightData.BrightDataContext">
             <summary>
             Bright data context
             </summary>
         </member>
-        <member name="P:BrightData.IBrightDataContext.Random">
+        <member name="P:BrightData.BrightDataContext.Random">
             <summary>
             Random number generator
             </summary>
         </member>
-        <member name="P:BrightData.IBrightDataContext.TensorPool">
+        <member name="P:BrightData.BrightDataContext.TensorPool">
             <summary>
             Tensor pool
             </summary>
         </member>
-        <member name="P:BrightData.IBrightDataContext.MemoryLayer">
+        <member name="P:BrightData.BrightDataContext.MemoryLayer">
             <summary>
             Disposable memory layers
             </summary>
         </member>
-        <member name="P:BrightData.IBrightDataContext.DataReader">
+        <member name="P:BrightData.BrightDataContext.DataReader">
             <summary>
             Data reader
             </summary>
         </member>
-        <member name="M:BrightData.IBrightDataContext.GetComputation``1">
+        <member name="M:BrightData.BrightDataContext.GetComputation``1">
             <summary>
             Typed computation
             </summary>
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBrightDataContext.CreateTempStreamProvider">
+        <member name="M:BrightData.BrightDataContext.CreateTempStreamProvider">
             <summary>
             Creates a new temp stream provider
             </summary>
         </member>
-        <member name="M:BrightData.IBrightDataContext.Get``1(System.String,``0)">
+        <member name="M:BrightData.BrightDataContext.Get``1(System.String,``0)">
             <summary>
             Returns transient, context specific meta data
             </summary>
@@ -3587,7 +3587,7 @@
             <param name="defaultValue">Default value if not already set</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBrightDataContext.Get``1(System.String,System.Func{``0})">
+        <member name="M:BrightData.BrightDataContext.Get``1(System.String,System.Func{``0})">
             <summary>
             Returns transient, context specific meta data
             </summary>
@@ -3596,7 +3596,7 @@
             <param name="defaultValueCreator">Returns a default value if not already set</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBrightDataContext.Get``1(System.String)">
+        <member name="M:BrightData.BrightDataContext.Get``1(System.String)">
             <summary>
             Returns optional context specific meta data
             </summary>
@@ -3604,7 +3604,7 @@
             <param name="name">Name of value</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBrightDataContext.Set``1(System.String,``0)">
+        <member name="M:BrightData.BrightDataContext.Set``1(System.String,``0)">
             <summary>
             Sets transient, context specific meta data
             </summary>
@@ -3613,7 +3613,7 @@
             <param name="value">Value</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBrightDataContext.Set``1(System.String,System.Func{``0})">
+        <member name="M:BrightData.BrightDataContext.Set``1(System.String,System.Func{``0})">
             <summary>
             Sets transient, context specific meta data
             </summary>
@@ -3622,23 +3622,23 @@
             <param name="valueCreator">Function that will create value to set on demand if not already set</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IBrightDataContext.IsStochastic">
+        <member name="P:BrightData.BrightDataContext.IsStochastic">
             <summary>
             True if random generator has been initialized with a random initial seed
             </summary>
         </member>
-        <member name="M:BrightData.IBrightDataContext.ResetRandom(System.Nullable{System.Int32})">
+        <member name="M:BrightData.BrightDataContext.ResetRandom(System.Nullable{System.Int32})">
             <summary>
             Resets the random number generator
             </summary>
             <param name="seed">Random seed (or null to randomly initialize)</param>
         </member>
-        <member name="P:BrightData.IBrightDataContext.UserNotifications">
+        <member name="P:BrightData.BrightDataContext.UserNotifications">
             <summary>
             Progress notifications for long running operations
             </summary>
         </member>
-        <member name="P:BrightData.IBrightDataContext.CancellationToken">
+        <member name="P:BrightData.BrightDataContext.CancellationToken">
             <summary>
             Cancellation token for the current context
             </summary>
@@ -4974,7 +4974,7 @@
             Source column indices
             </summary>
         </member>
-        <member name="M:BrightData.IReinterpretColumns.GetNewColumns(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.ValueTuple{BrightData.IColumnInfo,BrightData.ISingleTypeTableSegment}[])">
+        <member name="M:BrightData.IReinterpretColumns.GetNewColumns(BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.ValueTuple{BrightData.IColumnInfo,BrightData.ISingleTypeTableSegment}[])">
             <summary>
             Gets new columns
             </summary>
@@ -6535,14 +6535,14 @@
             <param name="segment">Data segment</param>
             <param name="shape">Shape of tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.TensorBase`2.#ctor(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.#ctor(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Initialize from binary reader
             </summary>
             <param name="context">Bright data context</param>
             <param name="reader">Reader to initialize from</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.TensorBase`2.Dispose">
@@ -7204,7 +7204,7 @@
             <param name="array"></param>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.Create``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.Serialisation.SerialisationHelper.Create``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a new object after reading its serialized data from the reader
             </summary>
@@ -7213,7 +7213,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadArray``1(System.IO.BinaryReader,BrightData.IBrightDataContext)">
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadArray``1(System.IO.BinaryReader,BrightData.BrightDataContext)">
             <summary>
             Reads an array from the reader
             </summary>
@@ -7378,7 +7378,7 @@
             ToString override
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.WeightedIndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList},BrightData.AggregationType)">

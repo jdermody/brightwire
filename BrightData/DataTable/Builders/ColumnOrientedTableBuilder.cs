@@ -88,7 +88,7 @@ namespace BrightData.DataTable.Builders
     //        return _stream.Position;
     //    }
 
-    //    public IColumnOrientedDataTable Build(IBrightDataContext context)
+    //    public IColumnOrientedDataTable Build(BrightDataContext context)
     //    {
     //        _writer.Flush();
     //        _stream.Flush();

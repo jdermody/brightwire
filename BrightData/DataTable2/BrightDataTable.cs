@@ -22,6 +22,7 @@ namespace BrightData.DataTable2
         internal struct Header
         {
             public byte Version;
+            public DataTableOrientation Orientation;
             public uint ColumnCount;
             public uint RowCount;
             public uint DataOffset;
@@ -55,6 +56,7 @@ namespace BrightData.DataTable2
         readonly Header                                               _header;
         readonly Column[]                                             _columns;
         readonly Lazy<MetaData[]>                                     _metaData;
+        readonly Lazy<MetaData[]>                                     _columnMetaData;
         readonly Lazy<string[]>                                       _stringTable;
         readonly Lazy<ICanRandomlyAccessData<float>>                  _tensors;
         readonly Lazy<ICanRandomlyAccessData<byte>>                   _binaryData;
@@ -128,6 +130,7 @@ namespace BrightData.DataTable2
             _indices         = new(() => GetBlockAccessor<uint>(_header.IndexOffset, _header.IndexCount));
             _weightedIndices = new(() => GetBlockAccessor<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexCount));
             _metaData        = new(() => ReadMetaData(_header.MetaDataOffset));
+            _columnMetaData  = new(() => _metaData.Value.Skip(1).ToArray());
 
             // resolve generic methods
             var genericMethods = GetType().GetGenericMethods();
@@ -160,27 +163,41 @@ namespace BrightData.DataTable2
         public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
         public uint ColumnCount => _header.ColumnCount;
         public uint RowCount => _header.RowCount;
-        public MetaData[] ColumnMetaData => _metaData.Value;
+        public MetaData[] ColumnMetaData => _columnMetaData.Value;
 
-        public T Get<T>(uint rowIndex, uint columnIndex)
+        public T Get<T>(uint rowIndex, uint columnIndex) where T : notnull
         {
             using var reader = GetColumnReader<T>(columnIndex, 1, size => size * rowIndex);
             return reader.EnumerateTyped().First();
         }
 
-        public IMetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        public MetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {
             var ret = GetColumnMetaData(columnIndex);
             if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
                 using var operation = CreateColumnAnalyser(columnIndex, writeCount, maxDistinctCount);
                 operation.Complete(null, Context.CancellationToken);
-                ret.Set(Consts.HasBeenAnalysed, true);
             }
 
             return ret;
         }
-        public IEnumerable<(uint ColumnIndex, IMetaData MetaData)> GetColumnAnalysis(IEnumerable<uint> columnIndices) => columnIndices.Select(ci => (ci, GetColumnAnalysis(ci)));
-        public IMetaData[] AllColumnAnalysis() => GetColumnAnalysis(ColumnCount.AsRange()).Select(d => d.MetaData).ToArray();
+
+        public IEnumerable<(uint ColumnIndex, MetaData MetaData)> GetColumnAnalysis(IEnumerable<uint> columnIndices, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        {
+            var operations = new List<IOperation<(uint ColumnIndex, MetaData MetaData)>>();
+            foreach (var ci in columnIndices) {
+                var metaData = GetColumnMetaData(ci);
+                if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
+                    operations.Add(CreateColumnAnalyser(ci, writeCount, maxDistinctCount));
+                }
+                else
+                    operations.Add(new NopMetaDataOperation(ci, metaData));
+            }
+
+            var results = operations.CompleteInParallel();
+            return results.EnsureCompleted();
+        }
+        public IMetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount, maxDistinctCount).Select(d => d.MetaData).ToArray();
 
         public void PersistMetaData()
         {
@@ -194,42 +211,6 @@ namespace BrightData.DataTable2
                 _stream.Seek(_header.MetaDataOffset, SeekOrigin.Begin);
                 tempBuffer.WriteTo(_stream);
             }
-        }
-
-        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
-        {
-            ref readonly var column = ref _columns[columnIndex];
-            if (column.DataType.GetDataType() != typeof(T))
-                throw new ArgumentException($"Data types do not align - expected {column.DataType.GetDataType()} but received {typeof(T)}", nameof(T));
-            
-            var offset = _columnOffset[columnIndex];
-            if(offsetAdjuster is not null)
-                offset += offsetAdjuster(column.DataTypeSize);
-            var (columnDataType, _) = column.DataType.GetColumnType();
-            var sizeInBytes = countToRead * column.DataTypeSize;
-            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { offset, sizeInBytes })!;
-        }
-
-        ICanEnumerateDisposable GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
-        {
-            ref readonly var column = ref _columns[columnIndex];
-
-            var offset = _columnOffset[columnIndex];
-            if(offsetAdjuster is not null)
-                offset += offsetAdjuster(column.DataTypeSize);
-            var (columnDataType, _) = column.DataType.GetColumnType();
-            var dataType = column.DataType.GetDataType();
-            var sizeInBytes = countToRead * column.DataTypeSize;
-            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
-        }
-
-        ICanEnumerateDisposable[] GetColumnReaders(IEnumerable<uint> columnIndices)
-        {
-            var columnCount = _header.ColumnCount;
-            var ret = new ICanEnumerateDisposable[columnCount];
-            for (uint i = 0; i < columnCount; i++)
-                ret[i] = GetColumnReader(i, _header.RowCount);
-            return ret;
         }
 
         public IEnumerable<IOperation<bool>> CopyToColumnConsumers(IEnumerable<IConsumeColumnData> consumers, uint maxRows = uint.MaxValue)

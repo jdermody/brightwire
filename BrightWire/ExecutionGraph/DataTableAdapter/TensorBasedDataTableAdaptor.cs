@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider2;
             var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((IVector)r[_targetColumnIndex]).Segment))
+                .Select(r => (_featureColumnIndices.Select(i => ((ITensor3D)r[i]).Segment).ToList(), Data: ((IVector)r[_targetColumnIndex]).Segment))
                 .ToArray()
             ;
             var inputList = new IGraphData[_featureColumnIndices.Length];

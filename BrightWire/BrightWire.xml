@@ -2119,7 +2119,7 @@
             Static extension methods
             </summary>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.IBrightDataContext,``0,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.BrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 2
             </summary>
@@ -2128,7 +2128,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.IBrightDataContext,``0,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.BrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 3
             </summary>
@@ -2203,7 +2203,7 @@
             <param name="dataSource"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext)">
             <summary>
             Creates a graph factory
             </summary>
@@ -2381,7 +2381,7 @@
             <param name="k">The number of clusters to find</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
             </summary>
@@ -3938,7 +3938,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class">
@@ -3974,7 +3974,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.ClassData">
@@ -3996,7 +3996,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModelStateTransition`1">
@@ -4171,7 +4171,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class">
@@ -4202,7 +4202,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.MultinomialNaiveBayes.ClassData">
@@ -4219,7 +4219,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes">
@@ -4275,7 +4275,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability">
@@ -4301,7 +4301,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary">
@@ -4332,7 +4332,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.NaiveBayes.Class">
@@ -4349,7 +4349,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ConfusionMatrix">
@@ -4408,7 +4408,7 @@
         <member name="M:BrightWire.Models.DataSourceModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.DataSourceModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.DataSourceModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel">
@@ -4460,7 +4460,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.Node.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel.Wire">
@@ -4486,7 +4486,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.WriteTo(System.IO.BinaryWriter)">
@@ -4526,7 +4526,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.VisitNodes``1(``0,System.Action{``0,BrightWire.Models.ExecutionGraphModel.Node,System.UInt32},System.Action{``0,BrightWire.Models.ExecutionGraphModel.Node})">
@@ -4615,7 +4615,7 @@
         <member name="M:BrightWire.Models.GraphModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.GraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.GraphModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.InstanceBased.KNearestNeighbours">
@@ -4654,7 +4654,7 @@
         <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Linear.LinearRegression">
@@ -4676,7 +4676,7 @@
         <member name="M:BrightWire.Models.Linear.LinearRegression.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Linear.LinearRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Linear.LinearRegression.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Linear.LogisticRegression">
@@ -4698,7 +4698,7 @@
         <member name="M:BrightWire.Models.Linear.LogisticRegression.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Linear.LogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Linear.LogisticRegression.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Linear.MultinomialLogisticRegression">
@@ -4731,7 +4731,7 @@
         <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.StringTable">
@@ -4788,7 +4788,7 @@
         <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.TreeBased.DecisionTree.ClassColumnIndex">
@@ -4815,7 +4815,7 @@
         <member name="M:BrightWire.Models.TreeBased.DecisionTree.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.TreeBased.RandomForest">
@@ -4837,7 +4837,7 @@
         <member name="M:BrightWire.Models.TreeBased.RandomForest.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.RandomForest.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.RandomForest.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.And">
@@ -4845,7 +4845,7 @@
             Simple AND training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.And.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.And.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing AND training data
             </summary>
@@ -4862,7 +4862,7 @@
             </summary>
             <param name="val">The number to convert</param>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.BinaryIntegers.Addition(BrightData.IBrightDataContext,System.Int32)">
+        <member name="M:BrightWire.TrainingData.Artificial.BinaryIntegers.Addition(BrightData.BrightDataContext,System.Int32)">
             <summary>
             Creates random integers added together as feature vectors
             The input feature contains two features, one for each bit at that position
@@ -4877,7 +4877,7 @@
             Simple OR training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.Or.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.Or.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing OR training data
             </summary>
@@ -4901,14 +4901,14 @@
             <param name="ch">The character to query</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.Encode(BrightData.IBrightDataContext,System.String)">
+        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.Encode(BrightData.BrightDataContext,System.String)">
             <summary>
             Encodes a reber sequence as a sequence of one hot encoded vectors
             </summary>
             <param name="context"></param>
             <param name="sequence">The reber sequence to encode</param>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetOneHot(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetOneHot(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             One hot encodes the REBER strings
             </summary>
@@ -4946,7 +4946,7 @@
             Generates random alphabetical sequences
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.SequenceGenerator.#ctor(BrightData.IBrightDataContext,System.Int32,System.UInt32,System.UInt32,System.Boolean)">
+        <member name="M:BrightWire.TrainingData.Artificial.SequenceGenerator.#ctor(BrightData.BrightDataContext,System.Int32,System.UInt32,System.UInt32,System.Boolean)">
             <summary>
             Constructor
             </summary>
@@ -5007,7 +5007,7 @@
             Simple XOR training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.Xor.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.Xor.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing XOR training data
             </summary>
@@ -5049,7 +5049,7 @@
             Creates standard data table builders
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature matrix column and one target matrix column
             </summary>
@@ -5060,7 +5060,7 @@
             <param name="outputColumns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature vector column and one target vector column
             </summary>
@@ -5069,7 +5069,7 @@
             <param name="outputSize">Size of the output vector</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature tensor 3D columns and one target vector column
             </summary>

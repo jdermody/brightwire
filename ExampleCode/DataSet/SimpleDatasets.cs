@@ -163,7 +163,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new Vector<float>[sequenceData.Count];
+                var rows = new IVector[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -194,7 +194,7 @@ namespace ExampleCode.DataSet
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new Vector<float>[sequence.Length];
+                var rows = new IVector[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
@@ -229,7 +229,7 @@ namespace ExampleCode.DataSet
             return new SequenceToSequenceTrainer(grammar, context, builder.BuildInMemory());
         }
 
-        //public static LinearTrainer SimpleLinear(this IBrightDataContext context)
+        //public static LinearTrainer SimpleLinear(this BrightDataContext context)
         //{
         //    var dataTableBuilder = context.BuildTable();
         //    dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
@@ -343,7 +343,7 @@ namespace ExampleCode.DataSet
             return new AdultTrainer(null, adultTraining, adultTest);
         }
 
-        static string GetDataFilePath(this IBrightDataContext context, string name)
+        static string GetDataFilePath(this BrightDataContext context, string name)
         {
             var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
 
@@ -377,12 +377,12 @@ namespace ExampleCode.DataSet
             return context.LoadTable(path);
         }
 
-        static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string? remoteUrl = null)
+        static StreamReader GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
         {
             return new(GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this IBrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
+        static Stream GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
         {
             var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
@@ -427,7 +427,7 @@ namespace ExampleCode.DataSet
             return new FileStream(filePath, FileMode.Open, FileAccess.Read);
         }
 
-        static DirectoryInfo ExtractToDirectory(IBrightDataContext context, string directoryName, string localName, string remoteUrl)
+        static DirectoryInfo ExtractToDirectory(BrightDataContext context, string directoryName, string localName, string remoteUrl)
         {
             var directoryPath = GetDataFilePath(context, directoryName);
             if (!Directory.Exists(directoryPath))

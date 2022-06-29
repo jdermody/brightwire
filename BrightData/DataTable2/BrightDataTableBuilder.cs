@@ -43,7 +43,7 @@ namespace BrightData.DataTable2
             var columnMetaData = new MetaData();
             columnMetaData.Set(Consts.Name, DefaultColumnName(name, _columns.Count));
             columnMetaData.Set(Consts.Type, type);
-            columnMetaData.Set(Consts.Index, (uint)_columns.Count);
+            columnMetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             if (type.IsNumeric())
                 columnMetaData.Set(Consts.IsNumeric, true);
 
@@ -52,7 +52,8 @@ namespace BrightData.DataTable2
 
         public IHybridBufferWithMetaData AddColumn(BrightDataType type, MetaData metaData)
         {
-            var buffer = type.GetHybridBufferWithMetaData(new MetaData(metaData), Context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
+            var buffer = type.GetHybridBufferWithMetaData(new MetaData(metaData, Consts.StandardMetaData), Context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
+            buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
             return buffer;
         }
@@ -93,24 +94,28 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IHybridBufferWithMetaData AddFixedSizeVectorColumn(uint size, string name)
+        public IHybridBufferWithMetaData<IVector> AddFixedSizeVectorColumn(uint size, string name)
         {
-            throw new NotImplementedException();
+            // TODO: add constraint
+            return AddColumn<IVector>(name);
         }
 
-        public IHybridBufferWithMetaData AddFixedSizeMatrixColumn(uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<IMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string name)
         {
-            throw new NotImplementedException();
+            // TODO: add constraint
+            return AddColumn<IMatrix>(name);
         }
 
-        public IHybridBufferWithMetaData AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<ITensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string name)
         {
-            throw new NotImplementedException();
+            // TODO: add constraint
+            return AddColumn<ITensor3D>(name);
         }
 
-        public IHybridBufferWithMetaData AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<ITensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string name)
         {
-            throw new NotImplementedException();
+            // TODO: add constraint
+            return AddColumn<ITensor4D>(name);
         }
     }
 }

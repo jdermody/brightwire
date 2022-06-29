@@ -100,7 +100,7 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (Vector<float> Data, Vector<float> Label) AsFloatArray(IBrightDataContext context)
+            public (IVector Data, IVector Label) AsFloatArray(BrightDataContext context)
             {
                 var label = new float[10];
                 label[Label] = 1;
@@ -114,11 +114,11 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor(IBrightDataContext context)
+            public (ITensor3D Tensor, IVector Label) AsFloatTensor(BrightDataContext context)
             {
                 const int SIZE = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new List<Vector<float>>();
+                var rows = new List<IVector>();
 
                 for (var y = 0; y < SIZE; y++) {
                     var row = new float[SIZE];

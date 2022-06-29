@@ -5,7 +5,6 @@ using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
-using MathNet.Numerics.Distributions;
 using Xunit;
 
 namespace BrightData.UnitTests

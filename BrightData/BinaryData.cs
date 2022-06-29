@@ -30,7 +30,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext? context, BinaryReader reader)
+        public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var size = reader.ReadInt32();
             Data = reader.ReadBytes(size);

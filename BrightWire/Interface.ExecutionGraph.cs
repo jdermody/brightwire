@@ -632,7 +632,7 @@ namespace BrightWire
         /// <summary>
         /// Bright data context
         /// </summary>
-        IBrightDataContext Context { get; }
+        BrightDataContext Context { get; }
 
         /// <summary>
         /// Graph learning context

@@ -21,7 +21,7 @@ namespace BrightData.DataTable.Consumers
             Types = new[] { SingleType };
         }
 
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
         public BrightDataType[] Types { get; }
         public IEnumerable<object?> Data => Enumerate();
         public uint ColumnIndex { get; }

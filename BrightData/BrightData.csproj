@@ -29,6 +29,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Computation\ComputationBase.cs" />
+    <Compile Remove="Computation\DecimalComputation.cs" />
+    <Compile Remove="Computation\DoubleComputation.cs" />
+    <Compile Remove="Computation\FloatComputation.cs" />
+    <Compile Remove="Computation\UIntComputation.cs" />
+    <Compile Remove="LinearAlgebra\FloatTensor\Float3DTensor.cs" />
+    <Compile Remove="LinearAlgebra\FloatTensor\Float4DTensor.cs" />
+    <Compile Remove="LinearAlgebra\FloatTensor\FloatMatrix.cs" />
+    <Compile Remove="LinearAlgebra\FloatTensor\FloatVector.cs" />
+    <Compile Remove="LinearAlgebra\Matrix.cs" />
+    <Compile Remove="LinearAlgebra\SimpleLinearAlgebraProvider.cs" />
+    <Compile Remove="LinearAlgebra\Tensor3D.cs" />
+    <Compile Remove="LinearAlgebra\Tensor4D.cs" />
+    <Compile Remove="LinearAlgebra\TensorBase.cs" />
+    <Compile Remove="LinearAlgebra\Vector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
@@ -42,6 +60,11 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Computation\" />
+    <Folder Include="LinearAlgebra\FloatTensor\" />
   </ItemGroup>
 
 </Project>

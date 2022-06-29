@@ -13,7 +13,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
+        public static IndexList CreateIndexList(this BrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
 
         /// <summary>
         /// Creates an index list from indices
@@ -21,14 +21,14 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this IBrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
+        public static IndexList CreateIndexList(this BrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
 
         /// <summary>
         /// Creates an index list from a binary reader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="reader">The binary reader</param>
-        public static IndexList CreateIndexList(this IBrightDataContext context, BinaryReader reader)
+        public static IndexList CreateIndexList(this BrightDataContext context, BinaryReader reader)
         {
             var ret = new IndexList(context, Array.Empty<uint>());
             ret.Initialize(context, reader);
@@ -41,7 +41,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -49,7 +49,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -57,21 +57,21 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(context, indexList);
 
         /// <summary>
         /// Creates a weighted index list from a binary reader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="reader">The binary reader</param>
-        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, BinaryReader reader)
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = reader.BaseStream.ReadArray<WeightedIndexList.Item>(len);
             return WeightedIndexList.Create(context, ret);
         }
 
-        static IBrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveDataContext => list.Count == 0 
+        static BrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveDataContext => list.Count == 0 
             ? null 
             : list[0].Data.Context
         ;

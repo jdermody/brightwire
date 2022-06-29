@@ -30,20 +30,23 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _rowDepth = new uint[dataTable.RowCount];
 
             // find the number of sequences of each row
-            IMatrix? inputMatrix = null, outputMatrix = null;
+            var foundData = false;
             foreach(var (i, row) in dataTable.GetAllRowData()) {
-                inputMatrix = (IMatrix) row[_featureColumnIndices[0]];
-                outputMatrix = (IMatrix) row[_targetColumnIndex];
+                using var inputMatrix = (IMatrix) row[_featureColumnIndices[0]];
+                using var outputMatrix = (IMatrix) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
+                if (!foundData) {
+                    InputSize = inputMatrix.ColumnCount;
+                    OutputSize = outputMatrix.ColumnCount;
+                    foundData = true;
+                }
             }
-            if (inputMatrix == null || outputMatrix == null)
+            if (!foundData)
                 throw new Exception("No data found");
 
             _sequenceLengthsAreVaried = sequenceLengthsAreVaried;
-            InputSize = inputMatrix.ColumnCount;
-            OutputSize = outputMatrix.ColumnCount;
         }
 
         protected override IEnumerable<(IMatrix Input, IMatrix? Output)> GetRows(uint[] rows)

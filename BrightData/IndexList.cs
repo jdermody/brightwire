@@ -15,23 +15,23 @@ namespace BrightData
     /// </summary>
     public class IndexList : IHaveIndices, ISerializable, IHaveDataContext
     {
-        internal IndexList(IBrightDataContext context, uint[] indices)
+        internal IndexList(BrightDataContext context, uint[] indices)
         {
             Context = context;
             Indices = indices;
         }
 
         /// <inheritdoc />
-        public IBrightDataContext Context { get; private set; }
+        public BrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
         /// </summary>
         public uint[] Indices { get; private set; }
 
-        internal static IndexList Create(IBrightDataContext context, params uint[] indices) => new(context, indices);
-        internal static IndexList Create(IBrightDataContext context, ReadOnlySpan<uint> indices) => new(context, indices.ToArray());
-        internal static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new(context, indices.ToArray());
+        internal static IndexList Create(BrightDataContext context, params uint[] indices) => new(context, indices);
+        internal static IndexList Create(BrightDataContext context, ReadOnlySpan<uint> indices) => new(context, indices.ToArray());
+        internal static IndexList Create(BrightDataContext context, IEnumerable<uint> indices) => new(context, indices.ToArray());
 
         /// <summary>
         /// The number of items in the list
@@ -56,7 +56,7 @@ namespace BrightData
         /// <param name="lists">Lists to merge</param>
         public static IndexList Merge(IEnumerable<IndexList> lists)
         {
-            IBrightDataContext? context = null;
+            BrightDataContext? context = null;
             var items = new HashSet<uint>();
             foreach (var list in lists) {
                 context = list.Context;
@@ -107,7 +107,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
             Indices = reader.BaseStream.ReadArray<uint>(len);

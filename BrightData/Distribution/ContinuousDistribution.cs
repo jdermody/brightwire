@@ -4,9 +4,9 @@ namespace BrightData.Distribution
 {
     internal class ContinuousDistribution : IContinuousDistribution
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public ContinuousDistribution(IBrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f)
+        public ContinuousDistribution(BrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f)
         {
             if (inclusiveLowerBound > exclusiveUpperBound)
                 throw new ArgumentException("Lower bound was higher than upper bound");

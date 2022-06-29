@@ -27,10 +27,7 @@ namespace BrightData.Cuda
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
         public override ITensorSegment2 CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size, true));
-        public override IVector CreateVector(ITensorSegment2 data) => new CudaVector2(OptionallyCopyToDevice(data), this);
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix2(OptionallyCopyToDevice(data), rowCount, columnCount, this);
-
-        public override IVector CreateVector(uint size, Func<uint, float> initializer)
+        public override ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
         {
             using var buffer = SpanOwner<float>.Allocate((int)size);
             var ptr = buffer.Span;
@@ -38,8 +35,11 @@ namespace BrightData.Cuda
                 ptr[(int)i] = initializer(i);
             var deviceMemory = _cuda.Memory.GetMemory(size);
             deviceMemory.CopyToDevice(ptr);
-            return CreateVector(new CudaTensorSegment(deviceMemory));
+            return new CudaTensorSegment(deviceMemory);
         }
+        public override IVector CreateVector(ITensorSegment2 data) => new CudaVector2(OptionallyCopyToDevice(data), this);
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix2(OptionallyCopyToDevice(data), rowCount, columnCount, this);
+
 
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
@@ -165,8 +165,8 @@ namespace BrightData.Cuda
         public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2)
         {
             var size = GetSize(tensor1, tensor2);
-            var ret = _cuda.PointwiseMultiply(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor1), size);
-            return new CudaTensorSegment(ret);
+            var ret = new CudaTensorSegment(_cuda.PointwiseMultiply(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor2), size));
+            return ret;
         }
 
         public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other)
@@ -697,7 +697,7 @@ namespace BrightData.Cuda
         }
 
         static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment2 segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
-        static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment2 segment)
+        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment2 segment)
         {
             if (segment is CudaTensorSegment cudaSegment) {
                 if (!segment.IsValid)
@@ -706,6 +706,68 @@ namespace BrightData.Cuda
             }
 
             throw new Exception("CUDA tensors can only be used with other CUDA tensors");
+        }
+
+        public IMatrix CreateMatrix(uint rows, uint columns)
+        {
+            return new CudaMatrix2(CreateSegment(rows * columns), rows, columns, this);
+        }
+
+        public override IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+        {
+            if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))
+                throw new NotImplementedException();
+
+            var size = vectors[0].Size;
+            var rows = (uint)compareTo.Count;
+            var columns = (uint)vectors.Length;
+            var ret = _cuda.Allocate(rows * columns, true);
+
+            using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToArray()))
+            using (var compareToPtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToArray())) {
+                if (distanceMetric == DistanceMetric.Cosine) {
+                    var aa = _cuda.Allocate(rows * columns, true);
+                    var bb = _cuda.Allocate(rows * columns, true);
+                    _cuda.InvokeTensor(_cuda._multiCosine, size, columns, rows,
+                        vectorPtr.DevicePointer,
+                        compareToPtr.DevicePointer,
+                        aa.DevicePointer,
+                        ret.DevicePointer,
+                        bb.DevicePointer,
+                        rows,
+                        columns,
+                        size
+                    );
+                    using var ones = CreateMatrix(rows, columns, (i, j) => 1f);
+                    using var vectorMagnitude = new CudaMatrix2(new CudaTensorSegment(aa), rows, columns, this);
+                    using var vectorSqrt = vectorMagnitude.Sqrt();
+                    using var compareToMagnitude = new CudaMatrix2(new CudaTensorSegment(bb), rows, columns, this);
+                    using var compareToSqrt = compareToMagnitude.Sqrt();
+                    using var norms = vectorSqrt.PointwiseMultiply(compareToSqrt);
+                    using var result = new CudaMatrix2(new CudaTensorSegment(ret), rows, columns, this);
+                    using var distance = result.PointwiseDivide(norms);
+                    return ones.Subtract(distance);
+                }
+
+                _cuda.InvokeTensor(_cuda._calculateDistance, size, columns, rows,
+                    vectorPtr.DevicePointer,
+                    compareToPtr.DevicePointer,
+                    ret.DevicePointer,
+                    rows,
+                    columns,
+                    size,
+                    (uint)distanceMetric
+                );
+            }
+
+            IMatrix matrix = new CudaMatrix2(new CudaTensorSegment(ret), rows, columns, this);
+            if (distanceMetric == DistanceMetric.Euclidean) {
+                var sqrt = matrix.Sqrt();
+                matrix.Dispose();
+                matrix = sqrt;
+            }
+
+            return matrix;
         }
     }
 }

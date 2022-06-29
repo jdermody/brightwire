@@ -17,7 +17,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
+        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
             tempStream.CreateHybridStructBuffer<T>(bufferSize, maxDistinct);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+        public static IHybridBuffer CreateHybridStructBuffer(this BrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
             tempStream.CreateHybridStructBuffer(type, bufferSize, maxDistinct);
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+        public static IHybridBuffer<string> CreateHybridStringBuffer(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
             tempStream.CreateHybridStringBuffer(bufferSize, maxDistinct);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
+        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
             tempStream.CreateHybridObjectBuffer<T>(context, bufferSize);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
+        public static IHybridBuffer CreateHybridObjectBuffer(this BrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
             tempStream.CreateHybridObjectBuffer(context, type, bufferSize);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace BrightData
         /// <param name="reader">Binary reader</param>
         /// <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
         /// <returns></returns>
-        public static ICanEnumerateWithSize<T> GetBufferReader<T>(this IBrightDataContext context, BinaryReader reader, uint inMemorySize) where T : notnull
+        public static ICanEnumerateWithSize<T> GetBufferReader<T>(this BrightDataContext context, BinaryReader reader, uint inMemorySize) where T : notnull
         {
             var stream = reader.BaseStream;
             var type = (HybridBufferType)reader.ReadByte();

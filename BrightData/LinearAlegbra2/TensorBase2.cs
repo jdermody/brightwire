@@ -45,7 +45,7 @@ namespace BrightData.LinearAlegbra2
             }
         }
 
-        public virtual void Initialize(IBrightDataContext context, BinaryReader reader)
+        public virtual void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var shape = reader.ReadStructArray<uint>();
             Shape = shape;

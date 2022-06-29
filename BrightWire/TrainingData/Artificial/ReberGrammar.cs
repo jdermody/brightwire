@@ -41,7 +41,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static Matrix<float> Encode(IBrightDataContext context, string sequence)
+        public static IMatrix Encode(BrightDataContext context, string sequence)
         {
             return context.CreateMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
@@ -80,8 +80,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
-                var inputList = new Vector<float>[str.Length];
-                var outputList = new Vector<float>[str.Length];
+                var inputList = new IVector[str.Length];
+                var outputList = new IVector[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {

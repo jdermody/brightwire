@@ -16,7 +16,7 @@ namespace BrightWire.Unsupervised
 		List<(uint[] DataIndices, IVector Cluster)> _clusters = new();
 		readonly IVector[] _data;
 
-		public KMeans(IBrightDataContext context, uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+		public KMeans(BrightDataContext context, uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 		{
 			_data = data.ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);

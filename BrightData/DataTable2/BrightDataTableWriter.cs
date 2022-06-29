@@ -58,6 +58,7 @@ namespace BrightData.DataTable2
             _stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
             header.Version = 1;
+            header.Orientation = DataTableOrientation.ColumnOriented;
             header.ColumnCount = (uint)columnSegments.Length;
             header.RowCount = firstColumn.Size;
 

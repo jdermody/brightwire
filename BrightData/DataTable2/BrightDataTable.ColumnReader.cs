@@ -8,6 +8,42 @@ namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
+        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
+        {
+            ref readonly var column = ref _columns[columnIndex];
+            if (column.DataType.GetDataType() != typeof(T))
+                throw new ArgumentException($"Data types do not align - expected {column.DataType.GetDataType()} but received {typeof(T)}", nameof(T));
+            
+            var offset = _columnOffset[columnIndex];
+            if(offsetAdjuster is not null)
+                offset += offsetAdjuster(column.DataTypeSize);
+            var (columnDataType, _) = column.DataType.GetColumnType();
+            var sizeInBytes = countToRead * column.DataTypeSize;
+            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { offset, sizeInBytes })!;
+        }
+
+        ICanEnumerateDisposable GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
+        {
+            ref readonly var column = ref _columns[columnIndex];
+
+            var offset = _columnOffset[columnIndex];
+            if(offsetAdjuster is not null)
+                offset += offsetAdjuster(column.DataTypeSize);
+            var (columnDataType, _) = column.DataType.GetColumnType();
+            var dataType = column.DataType.GetDataType();
+            var sizeInBytes = countToRead * column.DataTypeSize;
+            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
+        }
+
+        ICanEnumerateDisposable[] GetColumnReaders(IEnumerable<uint> columnIndices)
+        {
+            var columnCount = _header.ColumnCount;
+            var ret = new ICanEnumerateDisposable[columnCount];
+            for (uint i = 0; i < columnCount; i++)
+                ret[i] = GetColumnReader(i, _header.RowCount);
+            return ret;
+        }
+
         ICanEnumerate<T> GetReader<CT, T>(uint offset, uint sizeInBytes)
             where T: notnull
             where CT: unmanaged
@@ -83,10 +119,10 @@ namespace BrightData.DataTable2
 
         class IndexListConverter : IConvertStructsToObjects<DataRangeColumnType, IndexList>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<uint> _indices;
 
-            public IndexListConverter(IBrightDataContext context, ICanRandomlyAccessData<uint> indices)
+            public IndexListConverter(BrightDataContext context, ICanRandomlyAccessData<uint> indices)
             {
                 _context = context;
                 _indices = indices;
@@ -101,10 +137,10 @@ namespace BrightData.DataTable2
 
         class WeightedIndexListConverter : IConvertStructsToObjects<DataRangeColumnType, WeightedIndexList>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<WeightedIndexList.Item> _indices;
 
-            public WeightedIndexListConverter(IBrightDataContext context, ICanRandomlyAccessData<WeightedIndexList.Item> indices)
+            public WeightedIndexListConverter(BrightDataContext context, ICanRandomlyAccessData<WeightedIndexList.Item> indices)
             {
                 _context = context;
                 _indices = indices;
@@ -119,10 +155,10 @@ namespace BrightData.DataTable2
 
         class VectorConverter : IConvertStructsToObjects<DataRangeColumnType, IVector>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public VectorConverter(IBrightDataContext context, ICanRandomlyAccessData<float> data)
+            public VectorConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
@@ -140,10 +176,10 @@ namespace BrightData.DataTable2
 
         class MatrixConverter : IConvertStructsToObjects<MatrixColumnType, IMatrix>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public MatrixConverter(IBrightDataContext context, ICanRandomlyAccessData<float> data)
+            public MatrixConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
@@ -162,10 +198,10 @@ namespace BrightData.DataTable2
 
         class Tensor3DConverter : IConvertStructsToObjects<Tensor3DColumnType, ITensor3D>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor3DConverter(IBrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor3DConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
@@ -184,10 +220,10 @@ namespace BrightData.DataTable2
 
         class Tensor4DConverter : IConvertStructsToObjects<Tensor4DColumnType, ITensor4D>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor4DConverter(IBrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor4DConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;

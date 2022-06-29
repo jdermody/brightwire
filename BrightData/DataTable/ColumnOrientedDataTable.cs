@@ -67,7 +67,7 @@ namespace BrightData.DataTable
 
     //    readonly (IColumnInfo Info, ISingleTypeTableSegment Segment)[] _columns;
 
-    //    public ColumnOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader, ICloneStreams streamCloner) : base(context)
+    //    public ColumnOrientedDataTable(BrightDataContext context, Stream stream, bool readHeader, ICloneStreams streamCloner) : base(context)
     //    {
     //        using var reader = new BinaryReader(stream, Encoding.UTF8);
     //        if (readHeader)

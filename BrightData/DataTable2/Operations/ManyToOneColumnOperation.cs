@@ -35,7 +35,6 @@ namespace BrightData.DataTable2.Operations
                 item.Dispose();
             foreach(var item in _input)
                 item.Dispose();
-            _outputBuffer.Dispose();
         }
 
         protected override void NextStep(uint index)

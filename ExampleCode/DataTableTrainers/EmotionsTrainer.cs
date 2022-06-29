@@ -11,7 +11,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class EmotionsTrainer : DataTableTrainer
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
         public EmotionsTrainer(BrightDataContext context, BrightDataTable table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
         {

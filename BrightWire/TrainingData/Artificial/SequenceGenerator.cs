@@ -13,7 +13,7 @@ namespace BrightWire.TrainingData.Artificial
     public class SequenceGenerator
     {
 	    readonly uint _minSize, _maxSize;
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         readonly bool _noRepeat;
         readonly Random _rnd;
 
@@ -40,7 +40,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="minSize">The minimum size of each sequence</param>
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
-        public SequenceGenerator(IBrightDataContext context, int dictionarySize, uint minSize, uint maxSize, bool noRepeat = true)
+        public SequenceGenerator(BrightDataContext context, int dictionarySize, uint minSize, uint maxSize, bool noRepeat = true)
         {
             _rnd = context.Random;
             _context = context;
@@ -94,7 +94,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="ch"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        public Vector<float> Encode(char ch, float val = 1f)
+        public IVector Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
@@ -106,7 +106,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public Vector<float> Encode(IEnumerable<(char, float)> data)
+        public IVector Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
@@ -119,9 +119,9 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public Matrix<float> Encode(string str)
+        public IMatrix Encode(string str)
         {
-            var data = new Vector<float>[str.Length];
+            var data = new IVector[str.Length];
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 

@@ -126,7 +126,7 @@ namespace BrightWire
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] KMeans(this IEnumerable<IVector> data, IBrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IVector[][] KMeans(this IEnumerable<IVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
@@ -328,7 +328,6 @@ namespace BrightWire
             var testData = trainingData.CloneWith(testTable);
             engine.Train(numIterations, testData, model => bestGraph = model.Graph);
             engine.Test(testData);
-            var testGraph = engine.Graph;
             return bestGraph;
         }
     }

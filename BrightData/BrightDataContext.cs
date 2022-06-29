@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using BrightData.Computation;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
@@ -12,17 +11,12 @@ namespace BrightData
     /// <summary>
     /// Bright data context
     /// </summary>
-    public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
+    public class BrightDataContext : ISetLinearAlgebraProvider, IDisposable
     {
-        ILinearAlgebraProvider                        _lap;
-        Lazy<LinearAlgebraProvider>                   _lap2;
+        Lazy<LinearAlgebraProvider>                   _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
         readonly TensorPool                           _tensorPool;
         readonly DisposableLayers                     _memoryLayers = new();
-        readonly FloatComputation                     _floatComputation;
-        readonly DoubleComputation                    _doubleComputation;
-        readonly DecimalComputation                   _decimalComputation;
-        readonly UIntComputation                      _uintComputation;
         readonly DataEncoder                          _dataReader;
 
         /// <summary>
@@ -39,17 +33,11 @@ namespace BrightData
             _tensorPool = new TensorPool();
             _dataReader = new DataEncoder(this);
 
-            _floatComputation = new FloatComputation(this);
-            _doubleComputation = new DoubleComputation(this);
-            _decimalComputation = new DecimalComputation(this);
-            _uintComputation = new UIntComputation(this);
-
             _memoryLayers.Push();
-            _lap = new SimpleLinearAlgebraProvider(this, true);
             if (lap is not null)
-                _lap2 = new(lap);
+                _lap = new(lap);
             else
-                _lap2 = new(() => new LinearAlgebraProvider(this));
+                _lap = new(() => new LinearAlgebraProvider(this));
         }
 
         /// <inheritdoc />
@@ -57,9 +45,8 @@ namespace BrightData
         {
             _memoryLayers.Pop();
             _tensorPool.Dispose();
-            //TempStreamProvider.Dispose();
-            if(_lap2.IsValueCreated)
-                _lap2.Value.Dispose();
+            if(_lap.IsValueCreated)
+                _lap.Value.Dispose();
         }
 
         /// <inheritdoc />
@@ -74,43 +61,17 @@ namespace BrightData
         /// <inheritdoc />
         public IDataReader DataReader => _dataReader;
 
-        /// <inheritdoc />
-        public INumericComputation<T> GetComputation<T>() where T : struct
-        {
-            var typeCode = Type.GetTypeCode(typeof(T));
-            return typeCode switch {
-                TypeCode.Single  => (INumericComputation<T>) _floatComputation,
-                TypeCode.Double  => (INumericComputation<T>) _doubleComputation,
-                TypeCode.Decimal => (INumericComputation<T>) _decimalComputation,
-                TypeCode.UInt32  => (INumericComputation<T>) _uintComputation,
-                _                => throw new NotImplementedException()
-            };
-        }
-
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        public ILinearAlgebraProvider LinearAlgebraProvider
-        {
-            get => _lap;
-            set
-            {
-                _lap.Dispose();
-                _lap = value;
-            }
-        }
-
         /// <summary>
         /// Linear algebra provider
         /// </summary>
         public LinearAlgebraProvider LinearAlgebraProvider2
         {
-            get => _lap2.Value;
+            get => _lap.Value;
             set
             {
-                if(_lap2.IsValueCreated)
-                    _lap2.Value.Dispose();
-                _lap2 = new(value);
+                if(_lap.IsValueCreated)
+                    _lap.Value.Dispose();
+                _lap = new(value);
             }
         }
 

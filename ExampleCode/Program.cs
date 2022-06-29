@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
-using BrightData.Numerics;
 using BrightWire;
 using ExampleCode.DataSet;
 // ReSharper disable once RedundantUsingDirective
@@ -31,12 +30,12 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //Xor(context);
+            Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
-            IntegerAddition(context);
+            //IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
@@ -61,12 +60,11 @@ namespace ExampleCode
             Console.WriteLine("*");
             Console.WriteLine($"* {title}");
             if (useCuda) {
-                context.UseCudaLinearAlgebra();
+                context.CreateCudaProvider();
                 Console.WriteLine("* (CUDA)");
             }
             else {
-                context.UseNumericsLinearAlgebra();
-                Console.WriteLine("* (Numerics)");
+                Console.WriteLine("* (Standard)");
             }
             Console.WriteLine("*");
             Console.WriteLine("*********************************************");

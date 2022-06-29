@@ -15,14 +15,14 @@ namespace BrightData.DataTable.Builders
     //    readonly List<object[]> _rows = new();
 
     //    /// <inheritdoc />
-    //    public IBrightDataContext Context { get; }
+    //    public BrightDataContext Context { get; }
 
     //    /// <summary>
     //    /// Table meta data
     //    /// </summary>
     //    public IMetaData MetaData { get; } = new MetaData();
 
-    //    internal InMemoryTableBuilder(IBrightDataContext context)
+    //    internal InMemoryTableBuilder(BrightDataContext context)
     //    {
     //        Context = context;
     //    }

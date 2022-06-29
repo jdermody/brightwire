@@ -20,7 +20,7 @@ namespace BrightData.LinearAlgebra.Memory
         protected readonly MemoryOwner<T> _data;
         int _refCount = 0;
 
-        protected ReferenceCountedBlock(IBrightDataContext context, MemoryOwner<T> data)
+        protected ReferenceCountedBlock(BrightDataContext context, MemoryOwner<T> data)
         {
             _data = data;
             Size = (uint) _data.Length;
@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra.Memory
 #endif
             return Interlocked.Increment(ref _refCount);
         } 
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);

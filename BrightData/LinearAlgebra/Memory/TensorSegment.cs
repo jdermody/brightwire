@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra.Memory
         bool _wasDisposed = false;
         readonly T[] _array;
 
-        public TensorSegment(IBrightDataContext context, MemoryOwner<T> data) : base(context, data)
+        public TensorSegment(BrightDataContext context, MemoryOwner<T> data) : base(context, data)
         {
             _array = data.DangerousGetArray().Array!;
         }

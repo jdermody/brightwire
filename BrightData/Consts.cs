@@ -31,7 +31,7 @@
         public const uint RowProcessingNotificationCadence = 1000;
 
 #pragma warning disable 1591
-        public const string Index                         = "Index";
+        public const string ColumnIndex                         = "ColumnIndex";
         public const string Name                          = "Name";
         public const string Type                          = "Type";
         public const string IsNumeric                     = "IsNumeric";
@@ -79,11 +79,11 @@
         /// <summary>
         /// Standard metadata
         /// </summary>
-        public static readonly string[] SimpleMetaData = { Index, Name, IsTarget };
+        public static readonly string[] SimpleMetaData = { ColumnIndex, Name, IsTarget };
 
         /// <summary>
         /// Standard metadata
         /// </summary>
-        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget };
+        public static readonly string[] StandardMetaData = { ColumnIndex, Name, Type, IsNumeric, IsTarget };
     }
 }

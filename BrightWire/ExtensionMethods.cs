@@ -133,7 +133,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new(context.LinearAlgebraProvider2);
+        public static GraphFactory CreateGraphFactory(this BrightDataContext context) => new(context.LinearAlgebraProvider2);
 
 
         /// <summary>

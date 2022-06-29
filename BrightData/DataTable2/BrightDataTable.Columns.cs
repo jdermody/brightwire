@@ -23,7 +23,7 @@ namespace BrightData.DataTable2
             var dataType = brightDataType.GetDataType();
             return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
                 Context,
-                dataType,
+                brightDataType,
                 _header.RowCount,
                 GetColumnReader(columnIndex, _header.RowCount),
                 GetColumnMetaData(columnIndex)

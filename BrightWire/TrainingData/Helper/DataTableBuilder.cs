@@ -63,28 +63,28 @@ namespace BrightWire.TrainingData.Helper
         static IHybridBufferWithMetaData AddVector(this BrightDataTableBuilder builder, uint? size, string name)
         {
             return size != null 
-                ? builder.AddFixedSizeVectorColumn(size.Value, name) 
+                ? (IHybridBufferWithMetaData)builder.AddFixedSizeVectorColumn(size.Value, name) 
                 : builder.AddColumn(BrightDataType.Vector, name);
         }
 
         static IHybridBufferWithMetaData AddMatrix(this BrightDataTableBuilder builder, uint? rows, uint? columns, string name)
         {
             return rows != null && columns != null 
-                ? builder.AddFixedSizeMatrixColumn(rows.Value, columns.Value, name) 
+                ? (IHybridBufferWithMetaData)builder.AddFixedSizeMatrixColumn(rows.Value, columns.Value, name) 
                 : builder.AddColumn(BrightDataType.Matrix, name);
         }
 
         static IHybridBufferWithMetaData Add3DTensor(this BrightDataTableBuilder builder, uint? depth, uint? rows, uint? columns, string name)
         {
             return depth != null && rows != null && columns != null 
-                ? builder.AddFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name) 
+                ? (IHybridBufferWithMetaData)builder.AddFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name) 
                 : builder.AddColumn(BrightDataType.Tensor3D, name);
         }
 
         static IHybridBufferWithMetaData Add4DTensor(this BrightDataTableBuilder builder, uint? count, uint? depth, uint? rows, uint? columns, string name)
         {
             return count != null && depth != null && rows != null && columns != null 
-                ? builder.AddFixedSize4DTensorColumn(count.Value, depth.Value, rows.Value, columns.Value, name) 
+                ? (IHybridBufferWithMetaData)builder.AddFixedSize4DTensorColumn(count.Value, depth.Value, rows.Value, columns.Value, name) 
                 : builder.AddColumn(BrightDataType.Tensor4D, name);
         }
     }

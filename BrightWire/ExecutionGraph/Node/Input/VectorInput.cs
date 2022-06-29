@@ -30,10 +30,10 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         readonly float[] _data;
 
-		public VectorInput(IBrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
+		public VectorInput(BrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
         {
             _context = context;
             _data = data;

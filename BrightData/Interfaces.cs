@@ -42,7 +42,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="reader">Reader to read from to initialize</param>
-        void Initialize(IBrightDataContext context, BinaryReader reader);
+        void Initialize(BrightDataContext context, BinaryReader reader);
     }
 
     /// <summary>
@@ -231,36 +231,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Typed tensor base interface
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ITensor<T> : ITensor
-        where T : struct
-    {
-        /// <summary>
-        /// Returns a copy of the underlying data segment
-        /// </summary>
-        /// <returns></returns>
-        ITensorSegment<T> GetDataCopy();
-
-        /// <summary>
-        /// Underlying data segment
-        /// </summary>
-        ITensorSegment<T> Segment { get; }
-
-        /// <summary>
-        /// Typed computation interface
-        /// </summary>
-        INumericComputation<T> Computation { get; }
-
-        /// <summary>
-        /// Convert to an array
-        /// </summary>
-        /// <returns></returns>
-        T[] ToArray();
-    }
-
-    /// <summary>
     /// Typed data reader
     /// </summary>
     public interface IDataReader
@@ -359,7 +329,6 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { set; }
         LinearAlgebraProvider LinearAlgebraProvider2 { set; }
     }
 
@@ -371,113 +340,106 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        LinearAlgebraProvider LinearAlgebraProvider2 { get; }
     }
 
     /// <summary>
     /// Bright data context
     /// </summary>
-    public interface IBrightDataContext : IDisposable, IHaveLinearAlgebraProvider
-    {
-        /// <summary>
-        /// Random number generator
-        /// </summary>
-        Random Random { get; }
+    //public interface BrightDataContext : IDisposable, IHaveLinearAlgebraProvider
+    //{
+    //    /// <summary>
+    //    /// Random number generator
+    //    /// </summary>
+    //    Random Random { get; }
 
-        /// <summary>
-        /// Tensor pool
-        /// </summary>
-        ITensorPool TensorPool { get; }
+    //    /// <summary>
+    //    /// Tensor pool
+    //    /// </summary>
+    //    ITensorPool TensorPool { get; }
 
-        /// <summary>
-        /// Disposable memory layers
-        /// </summary>
-        IDisposableLayers MemoryLayer { get; }
+    //    /// <summary>
+    //    /// Disposable memory layers
+    //    /// </summary>
+    //    IDisposableLayers MemoryLayer { get; }
 
-        /// <summary>
-        /// Data reader
-        /// </summary>
-        IDataReader DataReader { get; }
+    //    /// <summary>
+    //    /// Data reader
+    //    /// </summary>
+    //    IDataReader DataReader { get; }
 
-        /// <summary>
-        /// Typed computation
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        INumericComputation<T> GetComputation<T>() where T : struct;
+    //    /// <summary>
+    //    /// Creates a new temp stream provider
+    //    /// </summary>
+    //    IProvideTempStreams CreateTempStreamProvider();
 
-        /// <summary>
-        /// Creates a new temp stream provider
-        /// </summary>
-        IProvideTempStreams CreateTempStreamProvider();
+    //    LinearAlgebraProvider LinearAlgebraProvider2 { get; }
 
-        LinearAlgebraProvider LinearAlgebraProvider2 { get; }
+    //    /// <summary>
+    //    /// Returns transient, context specific meta data
+    //    /// </summary>
+    //    /// <typeparam name="T"></typeparam>
+    //    /// <param name="name">Name of value</param>
+    //    /// <param name="defaultValue">Default value if not already set</param>
+    //    /// <returns></returns>
+    //    T Get<T>(string name, T defaultValue) where T : notnull;
 
-        /// <summary>
-        /// Returns transient, context specific meta data
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of value</param>
-        /// <param name="defaultValue">Default value if not already set</param>
-        /// <returns></returns>
-        T Get<T>(string name, T defaultValue) where T : notnull;
+    //    /// <summary>
+    //    /// Returns transient, context specific meta data
+    //    /// </summary>
+    //    /// <typeparam name="T"></typeparam>
+    //    /// <param name="name">Name of value</param>
+    //    /// <param name="defaultValueCreator">Returns a default value if not already set</param>
+    //    /// <returns></returns>
+    //    T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull;
 
-        /// <summary>
-        /// Returns transient, context specific meta data
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of value</param>
-        /// <param name="defaultValueCreator">Returns a default value if not already set</param>
-        /// <returns></returns>
-        T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull;
+    //    /// <summary>
+    //    /// Returns optional context specific meta data
+    //    /// </summary>
+    //    /// <typeparam name="T"></typeparam>
+    //    /// <param name="name">Name of value</param>
+    //    /// <returns></returns>
+    //    T? Get<T>(string name) where T : class;
 
-        /// <summary>
-        /// Returns optional context specific meta data
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of value</param>
-        /// <returns></returns>
-        T? Get<T>(string name) where T : class;
+    //    /// <summary>
+    //    /// Sets transient, context specific meta data
+    //    /// </summary>
+    //    /// <typeparam name="T"></typeparam>
+    //    /// <param name="name">Name of value</param>
+    //    /// <param name="value">Value</param>
+    //    /// <returns></returns>
+    //    T Set<T>(string name, T value) where T : notnull;
 
-        /// <summary>
-        /// Sets transient, context specific meta data
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of value</param>
-        /// <param name="value">Value</param>
-        /// <returns></returns>
-        T Set<T>(string name, T value) where T : notnull;
+    //    /// <summary>
+    //    /// Sets transient, context specific meta data
+    //    /// </summary>
+    //    /// <typeparam name="T"></typeparam>
+    //    /// <param name="name">Name of value</param>
+    //    /// <param name="valueCreator">Function that will create value to set on demand if not already set</param>
+    //    /// <returns></returns>
+    //    T Set<T>(string name, Func<T> valueCreator) where T : notnull;
 
-        /// <summary>
-        /// Sets transient, context specific meta data
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of value</param>
-        /// <param name="valueCreator">Function that will create value to set on demand if not already set</param>
-        /// <returns></returns>
-        T Set<T>(string name, Func<T> valueCreator) where T : notnull;
+    //    /// <summary>
+    //    /// True if random generator has been initialized with a random initial seed
+    //    /// </summary>
+    //    bool IsStochastic { get; }
 
-        /// <summary>
-        /// True if random generator has been initialized with a random initial seed
-        /// </summary>
-        bool IsStochastic { get; }
+    //    /// <summary>
+    //    /// Resets the random number generator
+    //    /// </summary>
+    //    /// <param name="seed">Random seed (or null to randomly initialize)</param>
+    //    public void ResetRandom(int? seed);
 
-        /// <summary>
-        /// Resets the random number generator
-        /// </summary>
-        /// <param name="seed">Random seed (or null to randomly initialize)</param>
-        public void ResetRandom(int? seed);
+    //    /// <summary>
+    //    /// Progress notifications for long running operations
+    //    /// </summary>
+    //    public INotifyUser? UserNotifications { get; set; }
 
-        /// <summary>
-        /// Progress notifications for long running operations
-        /// </summary>
-        public INotifyUser? UserNotifications { get; set; }
-
-        /// <summary>
-        /// Cancellation token for the current context
-        /// </summary>
-        CancellationToken CancellationToken { get; }
-    }
+    //    /// <summary>
+    //    /// Cancellation token for the current context
+    //    /// </summary>
+    //    CancellationToken CancellationToken { get; }
+    //}
 
     /// <summary>
     /// Indicates that the type has a data context
@@ -487,7 +449,7 @@ namespace BrightData
         /// <summary>
         /// Bright data context
         /// </summary>
-        IBrightDataContext Context { get; }
+        BrightDataContext Context { get; }
     }
 
     /// <summary>
@@ -581,87 +543,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         T[] GetArrayForLocalUseOnly();
-    }
-
-    /// <summary>
-    /// Typed generic computation
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface INumericComputation<T>
-        where T : struct
-    {
-#pragma warning disable 1591
-        ITensorSegment<T> Abs(ITensorSegment<T> tensor);
-        ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2);
-        ITensorSegment<T> Add(ITensorSegment<T> tensor1, T scalar);
-        void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2);
-        void AddInPlace(ITensorSegment<T> target, T scalar);
-        void ConstrainInPlace(ITensorSegment<T> segment, T? minValue, T? maxValue);
-
-        T Average(ITensorSegment<T> segment);
-        T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other);
-        T EuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        T MeanSquaredDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        T SquaredEuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        ITensorSegment<T> Exp(ITensorSegment<T> tensor);
-        T L1Norm(ITensorSegment<T> segment);
-        T L2Norm(ITensorSegment<T> segment);
-        ITensorSegment<T> Log(ITensorSegment<T> tensor);
-        T ManhattanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        void MultiplyInPlace(ITensorSegment<T> target, T scalar);
-        ITensorSegment<T> Multiply(ITensorSegment<T> target, T scalar);
-        T NextRandom();
-        ITensorSegment<T> PointwiseDivide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        void PointwiseDivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        ITensorSegment<T> PointwiseMultiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        void PointwiseMultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        uint? Search(ITensorSegment<T> segment, T value);
-        ITensorSegment<T> Sqrt(ITensorSegment<T> tensor);
-        ITensorSegment<T> Squared(ITensorSegment<T> tensor);
-        T StdDev(ITensorSegment<T> segment, T? mean);
-        ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2);
-        void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2);
-        T Sum(ITensorSegment<T> tensor);
-        T LengthOf(ITensorSegment<T> tensor);
-        (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment);
-        bool IsEntirelyFinite(ITensorSegment<T> segment);
-        ITensorSegment<T> Reverse(ITensorSegment<T> segment);
-        List<ITensorSegment<T>> Split(ITensorSegment<T> segment, uint blockCount);
-        ITensorSegment<T> Sigmoid(ITensorSegment<T> segment);
-        ITensorSegment<T> SigmoidDerivative(ITensorSegment<T> segment);
-        ITensorSegment<T> Tanh(ITensorSegment<T> segment);
-        ITensorSegment<T> TanhDerivative(ITensorSegment<T> segment);
-        ITensorSegment<T> Relu(ITensorSegment<T> segment);
-        ITensorSegment<T> ReluDerivative(ITensorSegment<T> segment);
-        ITensorSegment<T> LeakyRelu(ITensorSegment<T> segment);
-        ITensorSegment<T> LeakyReluDerivative(ITensorSegment<T> segment);
-        ITensorSegment<T> Softmax(ITensorSegment<T> segment);
-        Matrix<T> SoftmaxDerivative(ITensorSegment<T> segment);
-        ITensorSegment<T> Pow(ITensorSegment<T> segment, T power);
-        void RoundInPlace(ITensorSegment<T> segment, T lower, T upper, T? mid);
-
-        T Get(uint val);
-        T Get(float val);
-        T Get(double val);
-        T Get(decimal val);
-        T Add(T a, T b);
-        T Subtract(T a, T b);
-        T Multiply(T a, T b);
-        T Divide(T a, T b);
-        T Sqrt(T a);
-        T Abs(T a);
-        T Log(T a);
-        T Exp(T a);
-        T Pow(T a, T rank);
-
-        public T Zero { get; }
-        public T One { get; }
-#pragma warning restore 1591
     }
 
     //public interface ITensorComputation<T>
@@ -893,7 +774,7 @@ namespace BrightData
     /// <summary>
     /// Hybrid buffers write first to memory but then to disk once it's cache is exhausted
     /// </summary>
-    public interface IHybridBuffer : ICanEnumerate, IHaveSize, IDisposable
+    public interface IHybridBuffer : ICanEnumerate, IHaveSize
     {
         /// <summary>
         /// Copies the buffer to a stream

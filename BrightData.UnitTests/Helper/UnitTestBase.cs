@@ -9,7 +9,7 @@ namespace BrightData.UnitTests.Helper
     {
         protected readonly BrightDataContext _context = new(null, 0);
 
-        public Vector<float> CreateRandomVector(uint size = 32)
+        public IVector CreateRandomVector(uint size = 32)
         {
             var rand = new Random();
             return _context.CreateVector(size, _ => FloatMath.Next(rand));

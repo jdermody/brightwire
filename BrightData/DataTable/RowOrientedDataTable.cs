@@ -50,7 +50,7 @@ namespace BrightData.DataTable
     //    readonly IColumnReader[] _columnReaders;
     //    readonly Stream _stream;
 
-    //    public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context)
+    //    public RowOrientedDataTable(BrightDataContext context, Stream stream, bool readHeader) : base(context)
     //    {
     //        _stream = stream;
     //        using var reader = new BinaryReader(stream, Encoding.UTF8, true);

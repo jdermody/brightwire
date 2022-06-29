@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Numerics;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
@@ -20,9 +19,9 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
 	/// </summary>
-    public class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
+    public class CudaProvider : IGpuLinearAlgebraProvider, IHaveDataContext, IDisposable
 	{
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         const int BlockDim = 16;
 		const int BlockDim2 = BlockDim * BlockDim;
 		//const int PTR_SIZE = 8;
@@ -96,9 +95,8 @@ namespace BrightData.Cuda
 		readonly CudaBlas _blas;
 		readonly Lazy<CudaSolveDense> _solver = new();
 		readonly KernelModule _kernel;
-		readonly ILinearAlgebraProvider _numerics;
 
-        readonly CUfunction
+        internal readonly CUfunction
 			_pointwiseMultiply,
 			_addInPlace,
 			_subtractInPlace,
@@ -158,10 +156,9 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
 
-		public CudaProvider(IBrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint memoryCacheSize)
+		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint memoryCacheSize)
         {
             _context = context;
-            _numerics = new NumericsProvider(context);
             _cuda = new CudaContext();
 
             if (cudaKernelPath == null) {
@@ -247,8 +244,7 @@ namespace BrightData.Cuda
 				_blas.Dispose();
 				_cuda.Dispose();
 				Memory.Dispose();
-                _numerics.Dispose();
-				_disposed = true;
+                _disposed = true;
 			}
 		}
 
@@ -258,10 +254,9 @@ namespace BrightData.Cuda
 			GC.SuppressFinalize(this);
 		}
 
-		public ILinearAlgebraProvider NumericsProvider => _numerics;
         public string Name { get; } = "Cuda";
-        IBrightDataContext IHaveDataContext.Context => _context;
-        public IBrightDataContext DataContext => _context;
+        BrightDataContext IHaveDataContext.Context => _context;
+        public BrightDataContext DataContext => _context;
         public bool IsGpu => true;
 		internal CudaContext Context => _cuda;
 		public CudaBlas Blas => _blas;
@@ -310,7 +305,7 @@ namespace BrightData.Cuda
 			execution.Run(0, param);
 		}
 
-        void InvokeMatrix(CUfunction function, uint rows, uint columns, params object[] param)
+        internal void InvokeMatrix(CUfunction function, uint rows, uint columns, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
@@ -324,7 +319,7 @@ namespace BrightData.Cuda
 			execution.Run(0, param);
 		}
 
-		void InvokeTensor(CUfunction function, uint rows, uint columns, uint depth, params object[] param)
+        internal void InvokeTensor(CUfunction function, uint rows, uint columns, uint depth, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
@@ -929,199 +924,138 @@ namespace BrightData.Cuda
             return (ret, outputRows, outputColumns, outputDepth, count);
 		}
 
-		public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
-		{
-			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
-				throw new NotImplementedException();
+        //      public IFloatVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
 
-            var size = vectors[0].Count;
-            var rows = (uint)compareTo.Count;
-            var columns = (uint)vectors.Length;
-			var ret = Allocate(rows * columns, true);
+        //      public IFloatVector CreateVector(uint length, bool setToZero = false)
+        //{
+        //	var data = Allocate(length, setToZero);
+        //	return new CudaVector(this, data, true);
+        //}
 
-			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToArray()))
-			using (var compareToPtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToArray())) {
-				if (distanceMetric == DistanceMetric.Cosine) {
-					var aa = Allocate(rows * columns, true);
-					var bb = Allocate(rows * columns, true);
-					InvokeTensor(_multiCosine, size, columns, rows,
-						vectorPtr.DevicePointer,
-						compareToPtr.DevicePointer,
-						aa.DevicePointer,
-						ret.DevicePointer,
-						bb.DevicePointer,
-						rows,
-						columns,
-						size
-					);
-                    using var ones = CreateMatrix(rows, columns, (i, j) => 1f);
-                    using var vectorMagnitude = new CudaMatrix(this, rows, columns, aa, true);
-                    using var vectorSqrt = vectorMagnitude.Sqrt();
-                    using var compareToMagnitude = new CudaMatrix(this, rows, columns, bb, true);
-                    using var compareToSqrt = compareToMagnitude.Sqrt();
-                    using var norms = vectorSqrt.PointwiseMultiply(compareToSqrt);
-                    using var result = new CudaMatrix(this, rows, columns, ret, true);
-                    using var distance = result.PointwiseDivide(norms);
-                    return ones.Subtract(distance);
-                }
+        //public IFloatVector CreateVector(uint length, Func<uint, float> init)
+        //{
+        //	using var data = MemoryOwner<float>.Allocate((int)length);
+        //          var dataArray = data.DangerousGetArray().Array!;
+        //	for (uint i = 0; i < length; i++)
+        //              dataArray[i] = init(i);
+        //	var ptr = Allocate(length);
+        //	ptr.CopyToDevice(dataArray);
 
-				InvokeTensor(_calculateDistance, size, columns, rows,
-					vectorPtr.DevicePointer,
-					compareToPtr.DevicePointer,
-					ret.DevicePointer,
-					rows,
-					columns,
-					size,
-					(uint) distanceMetric
-				);
-			}
+        //	return new CudaVector(this, ptr, true);
+        //}
 
-			IFloatMatrix matrix = new CudaMatrix(this, rows, columns, ret, true);
-			if (distanceMetric == DistanceMetric.Euclidean) {
-				var sqrt = matrix.Sqrt();
-				matrix.Dispose();
-				matrix = sqrt;
-			}
+        
 
-			return matrix;
-		}
+        //public IFloatMatrix CreateMatrixFromRows(IFloatVector[] vectorRows)
+        //{
+        //	var rows = (uint)vectorRows.Length;
+        //	var columns = vectorRows[0].Count;
 
-        public IFloatVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
-
-        public IFloatVector CreateVector(uint length, bool setToZero = false)
-		{
-			var data = Allocate(length, setToZero);
-			return new CudaVector(this, data, true);
-		}
-
-		public IFloatVector CreateVector(uint length, Func<uint, float> init)
-		{
-			using var data = MemoryOwner<float>.Allocate((int)length);
-            var dataArray = data.DangerousGetArray().Array!;
-			for (uint i = 0; i < length; i++)
-                dataArray[i] = init(i);
-			var ptr = Allocate(length);
-			ptr.CopyToDevice(dataArray);
-
-			return new CudaVector(this, ptr, true);
-		}
-
-		public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
-		{
-			var data = Allocate(rows * columns, setToZero);
-			return new CudaMatrix(this, rows, columns, data, true);
-		}
-
-		public IFloatMatrix CreateMatrixFromRows(IFloatVector[] vectorRows)
-		{
-			var rows = (uint)vectorRows.Length;
-			var columns = vectorRows[0].Count;
-
-			var ret = Allocate(rows * columns);
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
-				devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-                CopyToMatrixRows(rows, columns, devicePtr, ret);
-            }
-			return new CudaMatrix(this, rows, columns, ret, true);
-		}
+        //	var ret = Allocate(rows * columns);
+        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
+        //		devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+        //              CopyToMatrixRows(rows, columns, devicePtr, ret);
+        //          }
+        //	return new CudaMatrix(this, rows, columns, ret, true);
+        //}
 
         public void CopyToMatrixRows(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to)
         {
             InvokeMatrix(_copyToMatrixRows, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
         }
 
-		public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
-		{
-			var columns = (uint)vectorColumns.Length;
-			var rows = vectorColumns[0].Count;
+        //public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
+        //{
+        //	var columns = (uint)vectorColumns.Length;
+        //	var rows = vectorColumns[0].Count;
 
-			var ret = Allocate(rows * columns);
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
-				devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-                CopyToMatrixColumns(rows, columns, devicePtr, ret);
-            }
-			return new CudaMatrix(this, rows, columns, ret, true);
-		}
+        //	var ret = Allocate(rows * columns);
+        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
+        //		devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+        //              CopyToMatrixColumns(rows, columns, devicePtr, ret);
+        //          }
+        //	return new CudaMatrix(this, rows, columns, ret, true);
+        //}
 
         public void CopyToMatrixColumns(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to)
         {
             InvokeMatrix(_copyToMatrixColumns, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
         }
 
-		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
-		{
-			var size = rows * columns;
-			using var data = SpanOwner<float>.Allocate((int)size);
-            var dataArray = data.DangerousGetArray().Array!;
-			for (uint j = 0; j < columns; j++) {
-				for (uint i = 0; i < rows; i++) {
-                    dataArray[j * rows + i] = init(i, j);
-				}
-			}
-			var ptr = Allocate(size);
-			ptr.CopyToDevice(dataArray);
-			return new CudaMatrix(this, rows, columns, ptr, true);
-		}
+        //public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
+        //{
+        //	var size = rows * columns;
+        //	using var data = SpanOwner<float>.Allocate((int)size);
+        //          var dataArray = data.DangerousGetArray().Array!;
+        //	for (uint j = 0; j < columns; j++) {
+        //		for (uint i = 0; i < rows; i++) {
+        //                  dataArray[j * rows + i] = init(i, j);
+        //		}
+        //	}
+        //	var ptr = Allocate(size);
+        //	ptr.CopyToDevice(dataArray);
+        //	return new CudaMatrix(this, rows, columns, ptr, true);
+        //}
 
-		public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
-		{
-			var data = Allocate(rows * columns * depth, setToZero);
-			return new Cuda3DTensor(this, rows, columns, depth, data, true);
-		}
+        //public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
+        //{
+        //	var data = Allocate(rows * columns * depth, setToZero);
+        //	return new Cuda3DTensor(this, rows, columns, depth, data, true);
+        //}
 
-		public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
-		{
-			var depth = (uint)matrices.Length;
-			var first = matrices[0];
-			var rows = first.RowCount;
-			var columns = first.ColumnCount;
-			var outputRows = rows * columns;
-			var outputColumns = depth;
+        //public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
+        //{
+        //	var depth = (uint)matrices.Length;
+        //	var first = matrices[0];
+        //	var rows = first.RowCount;
+        //	var columns = first.ColumnCount;
+        //	var outputRows = rows * columns;
+        //	var outputColumns = depth;
 
-			var ret = Allocate(rows * columns * depth);
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-				devicePtr.CopyToDevice(matrices.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-				InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
-			}
-			return new Cuda3DTensor(this, rows, columns, depth, ret, true);
-		}
+        //	var ret = Allocate(rows * columns * depth);
+        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+        //		devicePtr.CopyToDevice(matrices.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+        //		InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
+        //	}
+        //	return new Cuda3DTensor(this, rows, columns, depth, ret, true);
+        //}
 
-		public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
-		{
-			var data = Allocate(rows * columns * depth * count, setToZero);
-			return new Cuda4DTensor(this, rows, columns, depth, count, data, true);
-		}
+        //public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
+        //{
+        //	var data = Allocate(rows * columns * depth * count, setToZero);
+        //	return new Cuda4DTensor(this, rows, columns, depth, count, data, true);
+        //}
 
-		public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
-		{
-			var count = (uint)tensors.Length;
-			var first = tensors[0];
-			var rows = first.RowCount;
-			var columns = first.ColumnCount;
-			var depth = first.Depth;
-			var outputRows = rows * columns * depth;
-			var outputColumns = count;
+        //public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
+        //{
+        //	var count = (uint)tensors.Length;
+        //	var first = tensors[0];
+        //	var rows = first.RowCount;
+        //	var columns = first.ColumnCount;
+        //	var depth = first.Depth;
+        //	var outputRows = rows * columns * depth;
+        //	var outputColumns = count;
 
-			var ret = Allocate(rows * columns * depth * count);
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(count)) {
-				devicePtr.CopyToDevice(tensors.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-				InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
-			}
-			return new Cuda4DTensor(this, rows, columns, depth, count, ret, true);
-		}
+        //	var ret = Allocate(rows * columns * depth * count);
+        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(count)) {
+        //		devicePtr.CopyToDevice(tensors.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+        //		InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
+        //	}
+        //	return new Cuda4DTensor(this, rows, columns, depth, count, ret, true);
+        //}
 
-		public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
-		{
-			var first = tensors[0];
-			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Length);
-			var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Length, data, true);
+        //public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
+        //{
+        //	var first = tensors[0];
+        //	var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Length);
+        //	var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Length, data, true);
 
-			for (int i = 0; i < tensors.Length; i++)
-				ret.GetTensorAt((uint)i).Data = tensors[i];
-			return ret;
-		}
+        //	for (int i = 0; i < tensors.Length; i++)
+        //		ret.GetTensorAt((uint)i).Data = tensors[i];
+        //	return ret;
+        //}
 
-		public void PushLayer()
+        public void PushLayer()
 		{
 			Memory.PushLayer();
             DataContext.MemoryLayer.Push();

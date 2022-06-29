@@ -128,11 +128,11 @@ namespace BrightData.Transformation
 
         class StringTokeniser : IConvertColumn<string, IndexList>
         {
-            readonly IBrightDataContext _context;
+            readonly BrightDataContext _context;
             readonly Func<string, StringIndexer, IEnumerable<uint>> _tokeniser;
             readonly StringIndexer _stringIndexer = new();
 
-            public StringTokeniser(IBrightDataContext context, Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
+            public StringTokeniser(BrightDataContext context, Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
             {
                 _context = context;
                 _tokeniser = tokeniser;
@@ -210,11 +210,9 @@ namespace BrightData.Transformation
         static readonly IConvertColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
         static readonly IConvertColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly IConvertColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
-        static readonly IConvertColumn VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
         static readonly IConvertColumn IndexListToVector = new Converter<IndexList, IVector>(v => v.AsDense());
         static readonly IConvertColumn WeightedIndexListToVector = new Converter<IndexList, IVector>(v => v.AsDense());
         static readonly IConvertColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
-        static readonly IConvertColumn VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 
         static DateTime ParseDate(string str)
         {
@@ -244,7 +242,7 @@ namespace BrightData.Transformation
         public uint? ColumnIndex { get; }
 
         /// <inheritdoc />
-        public IConvertColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;
@@ -339,7 +337,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
-                    return VectorToIndexList;
+                    return new Converter<IVector, IndexList>(v => v.Segment.ToSparse(context).AsIndexList());
 
                 // vector
                 case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
@@ -355,7 +353,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
                     return IndexListToWeightedIndexList;
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.Vector:
-                    return VectorToWeightedIndexList;
+                    return new Converter<IVector, WeightedIndexList>(v => v.Segment.ToSparse(context));
 
                 default:
                     throw new Exception($"Converting from {fromType} to {_toType} is not supported");

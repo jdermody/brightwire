@@ -10,7 +10,7 @@ namespace BrightData.DataTable2.Operations
     {
         readonly ISingleTypeTableSegment _column;
 
-        public NopColumnOperation(uint rowCount, ISingleTypeTableSegment column) : base(rowCount, null, true)
+        public NopColumnOperation(ISingleTypeTableSegment column) : base(0, null, true)
         {
             _column = column;
         }

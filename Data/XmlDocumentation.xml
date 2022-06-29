@@ -370,7 +370,7 @@
 				<param type="BrightWire.ExecutionGraph.Node.NodeBase[]" name="parents" summary="" />
 			</method>
 </interface>
-<interface name="BrightData.IBrightDataContext" base="System.IDisposable">
+<interface name="BrightData.BrightDataContext" base="System.IDisposable">
 	<summary>
 		Bright data context
 	</summary>
@@ -493,7 +493,7 @@
 	</summary>
 		<method type="System.Void" name="Initialize">
 		<summary>Initialize from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
+				<param type="BrightData.BrightDataContext" name="context" summary="Bright data context" />
 				<param type="System.IO.BinaryReader" name="reader" summary="Reader to read from to initialize" />
 			</method>
 </interface>
@@ -1650,7 +1650,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 				<param type="System.Action&lt;System.Single, System.Boolean, System.Boolean&gt;" name="values" summary="Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data" />
 			</method>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary>Bright data context</summary>
 	</property>
 	<property type="BrightWire.ILearningContext" name="LearningContext">
@@ -1686,7 +1686,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	<summary>
 		Indicates that the type has a data context
 	</summary>
-		<property type="BrightData.IBrightDataContext" name="Context">
+		<property type="BrightData.BrightDataContext" name="Context">
 		<summary>Bright data context</summary>
 	</property>
 </interface>
@@ -2689,7 +2689,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</property>
 	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.ISingleTypeTableSegment&gt;" name="GetNewColumns">
 		<summary>Gets new columns</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
+				<param type="BrightData.BrightDataContext" name="context" summary="Bright data context" />
 				<param type="BrightData.IProvideTempStreams" name="tempStreams" summary="Temp stream provider" />
 				<param type="System.UInt32" name="initialColumnIndex" summary="First column index in the sequence" />
 				<param type="(BrightData.IColumnInfo Info, BrightData.ISingleTypeTableSegment Segment)[]" name="columns" summary="Source column data" />
@@ -2987,7 +2987,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</summary>
 	<method type="BrightData.IRowOrientedDataTable" name="Get" is-static="true">
 		<summary>Generates a data table containing AND training data</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 </class>
 <class name="BrightWire.ExecutionGraph.Node.BackpropagationBase&lt;T&gt;" base="" is-static="false" is-abstract="true">
@@ -3023,7 +3023,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3062,7 +3062,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
@@ -3103,7 +3103,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 		<summary>Creates random integers added together as feature vectors
 The input feature contains two features, one for each bit at that position
 The output feature contains a single feature: 1 or 0 if that bit is set in the result</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Int32" name="sampleCount" summary="How many samples to generate" />
 			</method>
 </class>
@@ -3197,7 +3197,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3226,7 +3226,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3252,7 +3252,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3278,7 +3278,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3307,7 +3307,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3514,7 +3514,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3555,7 +3555,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	</summary>
 	<method type="BrightData.DataTable.Builders.InMemoryTableBuilder" name="CreateTwoColumnMatrixTableBuilder" is-static="true">
 		<summary>Creates a data table builder with one feature matrix column and one target matrix column</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputRows" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputColumns" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="outputRows" summary="" />
@@ -3563,13 +3563,13 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="BrightData.DataTable.Builders.InMemoryTableBuilder" name="CreateTwoColumnVectorTableBuilder" is-static="true">
 		<summary>Creates a data table builder with one feature vector column and one target vector column</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputSize" summary="Size of the input vector" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="outputSize" summary="Size of the output vector" />
 			</method>
 	<method type="BrightData.DataTable.Builders.InMemoryTableBuilder" name="Create3DTensorToVectorTableBuilder" is-static="true">
 		<summary>Creates a data table builder with one feature tensor 3D columns and one target vector column</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputDepth" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputRows" summary="" />
 				<param type="System.Nullable&lt;System.UInt32&gt;" name="inputColumns" summary="" />
@@ -3629,7 +3629,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -3751,7 +3751,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.Void" name="VisitNodes" is-static="false">
@@ -3842,53 +3842,53 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	</summary>
 	<method type="BrightData.IDataAnalyser&lt;System.DateTime&gt;" name="GetDateAnalyser" is-static="true">
 		<summary>Creates a date analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;T&gt;" name="GetNumericAnalyser" is-static="true">
 		<summary>Creates a numeric analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;T&gt;" name="GetConvertToStringAnalyser" is-static="true">
 		<summary>Creates a frequency analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;BrightData.ITensor&lt;System.Single&gt;&gt;" name="GetDimensionAnalyser" is-static="true">
 		<summary>Creates a dimension analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;T&gt;" name="GetFrequencyAnalyser" is-static="true">
 		<summary>Creates a frequency analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;BrightData.IHaveIndices&gt;" name="GetIndexAnalyser" is-static="true">
 		<summary>Creates an index analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;System.Double&gt;" name="GetNumericAnalyser" is-static="true">
 		<summary>Creates a numeric analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser&lt;System.String&gt;" name="GetStringAnalyser" is-static="true">
 		<summary>Creates a string analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
 			</method>
 	<method type="BrightData.IDataAnalyser" name="GetFrequencyAnalyser" is-static="true">
 		<summary>Creates a frequency analyzer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.Type" name="type" summary="" />
 				<param type="System.UInt32" name="maxCount" summary="Max distinct items" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum count to write to meta data" />
@@ -3956,14 +3956,14 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	</summary>
 	<method type="BrightData.IHybridBuffer&lt;T&gt;" name="CreateHybridStructBuffer" is-static="true">
 		<summary>Creates a struct buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="Temp stream provider" />
 				<param type="System.UInt32" name="bufferSize" summary="Max items to cache in memory" />
 				<param type="System.UInt16" name="maxDistinct" summary="Maximum number of distinct items (to encode)" />
 			</method>
 	<method type="BrightData.IHybridBuffer" name="CreateHybridStructBuffer" is-static="true">
 		<summary>Creates a struct buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="System.Type" name="type" summary="Type of structs" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="Temp stream provider" />
 				<param type="System.UInt32" name="bufferSize" summary="Max items to cache in memory" />
@@ -3971,27 +3971,27 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.IHybridBuffer&lt;System.String&gt;" name="CreateHybridStringBuffer" is-static="true">
 		<summary>Creates a string buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="Temp stream provider" />
 				<param type="System.UInt32" name="bufferSize" summary="Max items to cache in memory" />
 				<param type="System.UInt16" name="maxDistinct" summary="Maximum number of distinct items (to encode)" />
 			</method>
 	<method type="BrightData.IHybridBuffer&lt;T&gt;" name="CreateHybridObjectBuffer" is-static="true">
 		<summary>Creates an object buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="Temp stream provider" />
 				<param type="System.UInt32" name="bufferSize" summary="Max items to cache in memory" />
 			</method>
 	<method type="BrightData.IHybridBuffer" name="CreateHybridObjectBuffer" is-static="true">
 		<summary>Creates an object buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Type" name="type" summary="Type of objects" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="Temp stream provider" />
 				<param type="System.UInt32" name="bufferSize" summary="Max items to cache in memory" />
 			</method>
 	<method type="BrightData.ICanEnumerate&lt;T&gt;" name="GetBufferReader" is-static="true">
 		<summary>Returns a reader that buffers items in memory</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
+				<param type="BrightData.BrightDataContext" name="context" summary="Bright data context" />
 				<param type="System.IO.BinaryReader" name="reader" summary="Binary reader" />
 				<param type="System.UInt32" name="inMemorySize" summary="Number of bytes to use as an in memory buffer" />
 			</method>
@@ -4067,7 +4067,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.ICanConvert&lt;T, System.Single&gt;" name="GetFloatConverter" is-static="true">
 		<summary>Lazy create a float converter per context</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="AsRange" is-static="true">
 		<summary>Generates a range of positive integers</summary>
@@ -4122,12 +4122,12 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="System.Void" name="UseLegacySerializationInput" is-static="true">
 		<summary>Enables or disables legacy (version 2) binary serialization - only when reading</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Boolean" name="use" summary="True to enable" />
 			</method>
 	<method type="BrightData.Helper.DataEncoder" name="GetDataEncoder" is-static="true">
 		<summary>Creates a data encoder</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="System.Byte[]" name="GetData" is-static="true">
 		<summary>Converts the object to a serialized buffer</summary>
@@ -4265,7 +4265,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="ParseCsvIntoMemory" is-static="true">
 		<summary>Parse CSV in memory without writing to disk (for small data sets)</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.StreamReader" name="reader" summary="Stream reader that contains CSV data" />
 				<param type="System.Boolean" name="hasHeader" summary="True if the data contains a header" />
 				<param type="System.Char" name="delimiter" summary="CSV delimiter character" />
@@ -4274,7 +4274,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="ParseCsv" is-static="true">
 		<summary>Parse CSV into a column oriented data table using hybrid buffers</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
+				<param type="BrightData.BrightDataContext" name="context" summary="Bright data context" />
 				<param type="System.IO.StreamReader" name="reader" summary="CSV" />
 				<param type="System.Boolean" name="hasHeader" summary="True if the CSV has a text based header" />
 				<param type="System.Char" name="delimiter" summary="CSV delimiter" />
@@ -4291,7 +4291,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.IDataTable" name="LoadTable" is-static="true">
 		<summary>Loads a data table from disk</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.String" name="filePath" summary="File path on disk" />
 			</method>
 	<method type="System.UInt32" name="CopyToFloatSegment" is-static="true">
@@ -4335,7 +4335,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Creates an appendable buffer for a column type</summary>
 				<param type="BrightData.IMetaData" name="metaData" summary="" />
 				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
 				<param type="System.UInt32" name="bufferSize" summary="In memory cache size" />
 				<param type="System.UInt16" name="maxDistinct" summary="Maximum number of distinct items to track" />
@@ -4344,7 +4344,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Creates a column oriented data table from a list of segments</summary>
 				<param type="System.Collections.Generic.List&lt;BrightData.ISingleTypeTableSegment&gt;" name="segments" summary="" />
 				<param type="BrightData.IMetaData" name="metaData" summary="Table meta data" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rowCount" summary="Number of rows" />
 				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
 			</method>
@@ -4352,7 +4352,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Creates a row oriented data table from a list of segments</summary>
 				<param type="System.Collections.Generic.List&lt;BrightData.ISingleTypeTableSegment&gt;" name="segments" summary="" />
 				<param type="BrightData.IMetaData" name="metaData" summary="Table meta data" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rowCount" summary="Number of rows" />
 				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
 			</method>
@@ -4379,7 +4379,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.DataTable.Builders.InMemoryTableBuilder" name="BuildTable" is-static="true">
 		<summary>Creates a table builder</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="(BrightData.IRowOrientedDataTable Training, BrightData.IRowOrientedDataTable Test)" name="Split" is-static="true">
 		<summary>Splits a data table into training and test tables (rows are randomly selected for either)</summary>
@@ -4445,23 +4445,23 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="BrightData.IDataTable" name="ConvertToTable" is-static="true">
 		<summary>Converts indexed classifications to a data table</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.IndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="BrightData.IRowOrientedDataTable" name="ConvertToTable" is-static="true">
 		<summary>Converts weighted index classifications to a data table</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="BrightData.IDataTable" name="ConvertToTable" is-static="true">
 		<summary>Converts the vector classifications into a data table</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.LinearAlgebra.Vector&lt;System.Single&gt; Data)&gt;" name="data" summary="" />
 				<param type="System.Boolean" name="preserveVectors" summary="True to create a data table with a vector column type, false to to convert to columns of floats" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Classification, BrightData.LinearAlgebra.Vector&lt;System.Single&gt; Data)&gt;" name="Vectorise" is-static="true">
 		<summary>Converts the weighted index classification list to a list of dense vectors</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="data" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="System.Object" name="GetDefaultValue" is-static="true">
 		<summary>Returns a default value for a column type</summary>
@@ -4610,7 +4610,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="(BrightData.ISingleTypeTableSegment Segment, BrightData.IHybridBuffer Buffer)" name="GetSegmentWithHybridBuffer" is-static="true">
 		<summary>Creates a table segment with an associated hybrid buffer</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="Column index" />
 				<param type="BrightData.BrightDataType" name="columnType" summary="Column data type" />
 				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data (optional)" />
@@ -4622,49 +4622,49 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	</summary>
 	<method type="System.Single" name="NextRandomFloat" is-static="true">
 		<summary>Returns a randomly initialized float</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="System.UInt32" name="RandomIndex" is-static="true">
 		<summary>Returns a randomly initialized positive number</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Int32" name="length" summary="Exclusive upper bound" />
 			</method>
 	<method type="System.UInt32" name="RandomIndex" is-static="true">
 		<summary>Returns a randomly initialized positive number</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="length" summary="Exclusive upper bound" />
 			</method>
 	<method type="BrightData.INonNegativeDiscreteDistribution" name="CreateBernoulliDistribution" is-static="true">
 		<summary>Create a bernoulli distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Single" name="probability" summary="" />
 			</method>
 	<method type="BrightData.INonNegativeDiscreteDistribution" name="CreateBinomialDistribution" is-static="true">
 		<summary>Create a binomial distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Single" name="probability" summary="" />
 				<param type="System.UInt32" name="numTrials" summary="" />
 			</method>
 	<method type="BrightData.INonNegativeDiscreteDistribution" name="CreateCategoricalDistribution" is-static="true">
 		<summary>Create a categorical distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="categoricalValues" summary="" />
 			</method>
 	<method type="BrightData.IContinuousDistribution" name="CreateContinuousDistribution" is-static="true">
 		<summary>Create a continuous distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Single" name="inclusiveLowerBound" summary="" />
 				<param type="System.Single" name="exclusiveUpperBound" summary="" />
 			</method>
 	<method type="BrightData.IDiscreteDistribution" name="CreateDiscreteUniformDistribution" is-static="true">
 		<summary>Create a discrete uniform distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Int32" name="inclusiveLowerBound" summary="" />
 				<param type="System.Int32" name="exclusiveUpperBound" summary="" />
 			</method>
 	<method type="BrightData.IContinuousDistribution" name="CreateNormalDistribution" is-static="true">
 		<summary>Create a normal distribution</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Single" name="mean" summary="" />
 				<param type="System.Single" name="stdDev" summary="Standard deviation" />
 			</method>
@@ -4675,37 +4675,37 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	</summary>
 	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
 		<summary>Creates an index list from indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32[]" name="indices" summary="Indices" />
 			</method>
 	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
 		<summary>Creates an index list from indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="indices" summary="Indices" />
 			</method>
 	<method type="BrightData.IndexList" name="CreateIndexList" is-static="true">
 		<summary>Creates an index list from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
 			</method>
 	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
 		<summary>Creates a weighted index list from weighted indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="(System.UInt32 Index, System.Single Weight)[]" name="indexList" summary="Weighted indices" />
 			</method>
 	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
 		<summary>Creates a weighted index list from weighted indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, System.Single Weight)&gt;" name="indexList" summary="Weighted indices" />
 			</method>
 	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
 		<summary>Creates a weighted index list from weighted indices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.WeightedIndexList.Item&gt;" name="indexList" summary="Weighted indices" />
 			</method>
 	<method type="BrightData.WeightedIndexList" name="CreateWeightedIndexList" is-static="true">
 		<summary>Creates a weighted index list from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="The binary reader" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, BrightData.WeightedIndexList Data)&gt;" name="ConvertToWeightedIndexList" is-static="true">
@@ -4748,92 +4748,92 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	</summary>
 	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="CreateVector" is-static="true">
 		<summary>Creates a vector</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="size" summary="Size of vector" />
 				<param type="System.Func&lt;System.UInt32, T&gt;" name="initializer" summary="Callback to initialize each value (optional)" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="CreateVector" is-static="true">
 		<summary>Creates a vector</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="size" summary="Size of vector" />
 				<param type="T" name="initialValue" summary="Initial value of each element" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="CreateVector" is-static="true">
 		<summary>Creates a vector</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="T[]" name="initialData" summary="Initial data" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Vector&lt;T&gt;" name="CreateVector" is-static="true">
 		<summary>Creates a vector from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
 		<summary>Creates a matrix</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rows" summary="Number of rows" />
 				<param type="System.UInt32" name="columns" summary="Number of columns" />
 				<param type="System.Func&lt;System.UInt32, System.UInt32, T&gt;" name="initializer" summary="Callback to initialize each value (optional)" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
 		<summary>Creates a matrix</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rows" summary="Number of rows" />
 				<param type="System.UInt32" name="columns" summary="Number of columns" />
 				<param type="T" name="initialValue" summary="Initial value of each element" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
 		<summary>Creates a matrix from a segment</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rows" summary="Number of rows" />
 				<param type="System.UInt32" name="columns" summary="Number of columns" />
 				<param type="BrightData.ITensorSegment&lt;T&gt;" name="segment" summary="Segment" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrix" is-static="true">
 		<summary>Creates a matrix from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrixFromRows" is-static="true">
 		<summary>Creates a matrix from vectors (each will become a row)</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.LinearAlgebra.Vector&lt;T&gt;[]" name="rows" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrixFromRows" is-static="true">
 		<summary>Creates a matrix from rows (each will become a row)</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="T[][]" name="rows" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrixFromColumns" is-static="true">
 		<summary>Creates a matrix from vectors (each will become a column)</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.LinearAlgebra.Vector&lt;T&gt;[]" name="columns" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;T&gt;" name="CreateMatrixFromColumns" is-static="true">
 		<summary>Creates a matrix from vectors (each will become a column)</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="T[][]" name="columns" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Tensor3D&lt;T&gt;" name="CreateTensor3D" is-static="true">
 		<summary>Creates a 3D tensor</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="depth" summary="Number of matrices" />
 				<param type="System.UInt32" name="rows" summary="Number of rows in each matrix" />
 				<param type="System.UInt32" name="columns" summary="Number of columns in each matrix" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Tensor3D&lt;T&gt;" name="CreateTensor3D" is-static="true">
 		<summary>Creates a 3D tensor from matrices</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.LinearAlgebra.Matrix&lt;T&gt;[]" name="slices" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Tensor3D&lt;T&gt;" name="CreateTensor3D" is-static="true">
 		<summary>Create a 3D tensor from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Tensor4D&lt;T&gt;" name="CreateTensor4D" is-static="true">
 		<summary>Creates a 4D tensor</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="count" summary="Number of 3D tensors" />
 				<param type="System.UInt32" name="depth" summary="Number of matrices in each 3D tensor" />
 				<param type="System.UInt32" name="rows" summary="Number of rows in each matrix" />
@@ -4841,7 +4841,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightData.LinearAlgebra.Tensor4D&lt;T&gt;" name="CreateTensor4D" is-static="true">
 		<summary>Creates a 4D tensor from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.UInt32" name="GetColumnCount" is-static="true">
@@ -4997,12 +4997,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightData.ITensorSegment&lt;T&gt;" name="CreateSegment" is-static="true">
 		<summary>Creates a tensor segment from an existing array</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="T[]" name="block" summary="Array to copy values from" />
 			</method>
 	<method type="BrightData.ITensorSegment&lt;T&gt;" name="CreateSegment" is-static="true">
 		<summary>Creates a tensor segment</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="size" summary="Size of new segment" />
 			</method>
 	<method type="System.Void" name="InitializeRandomly" is-static="true">
@@ -5051,12 +5051,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightData.LinearAlgebra.Vector&lt;System.Single&gt;" name="ReadVectorFrom" is-static="true">
 		<summary>Reads a vector from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;System.Single&gt;" name="ReadMatrixFrom" is-static="true">
 		<summary>Reads a matrix from a binary reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.IFloatVector" name="ColumnSums" is-static="true">
@@ -5134,13 +5134,13 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</summary>
 	<method type="BrightWire.IMarkovModelTrainer2&lt;T&gt;" name="CreateMarkovTrainer2" is-static="true">
 		<summary>Create a markov model trainer of window size 2</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="T" name="empty" summary="Null value for T" />
 				<param type="System.Int32" name="minObservations" summary="Minimum number of data points to record an observation" />
 			</method>
 	<method type="BrightWire.IMarkovModelTrainer3&lt;T&gt;" name="CreateMarkovTrainer3" is-static="true">
 		<summary>Create a markov model trainer of window size 3</summary>
-				<param type="BrightData.IBrightDataContext" name="_" summary="" />
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
 				<param type="T" name="empty" summary="Null value for T" />
 				<param type="System.Int32" name="minObservations" summary="Minimum number of data points to record an observation" />
 			</method>
@@ -5187,7 +5187,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="BrightWire.ExecutionGraph.GraphFactory" name="CreateGraphFactory" is-static="true">
 		<summary>Creates a graph factory</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.GraphFactory" name="CreateGraphFactory" is-static="true">
 		<summary>Creates a graph factory</summary>
@@ -5316,7 +5316,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="BrightData.IFloatVector[][]" name="KMeans" is-static="true">
 		<summary>K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;BrightData.IFloatVector&gt;" name="data" summary="The list of vectors to cluster" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="Bright data context" />
+				<param type="BrightData.BrightDataContext" name="context" summary="Bright data context" />
 				<param type="System.UInt32" name="k" summary="The number of clusters to find" />
 				<param type="System.UInt32" name="maxIterations" summary="The maximum number of iterations" />
 				<param type="BrightData.DistanceMetric" name="distanceMetric" summary="Distance metric to use to compare centroids" />
@@ -5595,7 +5595,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="BrightData.ILinearAlgebraProvider" name="LinearAlgebraProvider">
 		<summary>Linear algebra provider</summary>
 	</property>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary>Bright data context</summary>
 	</property>
 	<property type="BrightWire.IPropertySet" name="CurrentPropertySet">
@@ -5944,7 +5944,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -5990,7 +5990,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		Contains a list of indices
 	</summary>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary></summary>
 	</property>
 	<property type="System.UInt32[]" name="Indices">
@@ -6024,7 +6024,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.String" name="ToXml" is-static="false">
@@ -6047,7 +6047,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		Builds tables dynamically in memory
 	</summary>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary></summary>
 	</property>
 	<property type="BrightData.IMetaData" name="MetaData">
@@ -6120,7 +6120,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6141,7 +6141,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6162,7 +6162,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6530,7 +6530,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6550,7 +6550,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6570,7 +6570,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6603,7 +6603,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6639,7 +6639,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6831,7 +6831,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</summary>
 	<method type="BrightData.IRowOrientedDataTable" name="Get" is-static="true">
 		<summary>Generates a data table containing OR training data</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 </class>
 <class name="BrightWire.Models.TreeBased.RandomForest" base="" is-static="false" is-abstract="false">
@@ -6850,7 +6850,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -6868,12 +6868,12 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="BrightData.LinearAlgebra.Matrix&lt;System.Single&gt;" name="Encode" is-static="true">
 		<summary>Encodes a reber sequence as a sequence of one hot encoded vectors</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.String" name="sequence" summary="The reber sequence to encode" />
 			</method>
 	<method type="BrightData.IRowOrientedDataTable" name="GetOneHot" is-static="true">
 		<summary>One hot encodes the REBER strings</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="strList" summary="A list of REBER sequences" />
 			</method>
 	<property type="System.Int32" name="Size">
@@ -6916,7 +6916,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</summary>
 	<method type="System.Void" name="SequenceGenerator" is-static="false">
 		<summary>Constructor</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Int32" name="dictionarySize" summary="The number of letters to use" />
 				<param type="System.UInt32" name="minSize" summary="The minimum size of each sequence" />
 				<param type="System.UInt32" name="maxSize" summary="The maximum size of each sequence" />
@@ -7023,13 +7023,13 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="T" name="Create" is-static="true">
 		<summary>Creates a new object after reading its serialized data from the reader</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="T[]" name="ReadArray" is-static="true">
 		<summary>Reads an array from the reader</summary>
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 	<method type="T[]" name="ReadStructArray" is-static="true">
 		<summary>Reads an array of structs from the reader</summary>
@@ -7166,13 +7166,13 @@ Double not or punctuation stops the not mode</summary>
 	<method type="BrightData.IHybridBuffer&lt;T&gt;" name="CreateHybridObjectBuffer" is-static="true">
 		<summary>Creates a buffer to store objects</summary>
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="bufferSize" summary="" />
 			</method>
 	<method type="BrightData.IHybridBuffer" name="CreateHybridObjectBuffer" is-static="true">
 		<summary>Creates a buffer to store objects</summary>
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.Type" name="type" summary="" />
 				<param type="System.UInt32" name="bufferSize" summary="" />
 			</method>
@@ -7283,7 +7283,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -7303,7 +7303,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 </class>
@@ -7517,7 +7517,7 @@ Double not or punctuation stops the not mode</summary>
 	</summary>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.Void" name="Dispose" is-static="false">
@@ -7533,7 +7533,7 @@ Double not or punctuation stops the not mode</summary>
 	<method type="BrightData.ITensorSegment&lt;T&gt;" name="GetDataCopy" is-static="false">
 		<summary></summary>
 			</method>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary></summary>
 	</property>
 	<property type="System.Boolean" name="IsValid">
@@ -7846,7 +7846,7 @@ Double not or punctuation stops the not mode</summary>
 	<summary>
 		A list of weighted indices is a sparse vector
 	</summary>
-	<property type="BrightData.IBrightDataContext" name="Context">
+	<property type="BrightData.BrightDataContext" name="Context">
 		<summary></summary>
 	</property>
 	<property type="BrightData.WeightedIndexList.Item[]" name="Indices">
@@ -7860,7 +7860,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="BrightData.WeightedIndexList" name="Merge" is-static="true">
@@ -7954,7 +7954,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="System.Void" name="Initialize" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
@@ -8202,7 +8202,7 @@ Double not or punctuation stops the not mode</summary>
 	</summary>
 	<method type="BrightData.IRowOrientedDataTable" name="Get" is-static="true">
 		<summary>Generates a data table containing XOR training data</summary>
-				<param type="BrightData.IBrightDataContext" name="context" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 </class>
 </assembly>

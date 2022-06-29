@@ -146,7 +146,7 @@ namespace BrightData.Serialisation
         /// <param name="reader"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Create<T>(this IBrightDataContext context, BinaryReader reader)
+        public static T Create<T>(this BrightDataContext context, BinaryReader reader)
             where T : ICanInitializeFromBinaryReader
         {
             T ret;
@@ -171,7 +171,7 @@ namespace BrightData.Serialisation
         /// <param name="context"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] ReadArray<T>(this BinaryReader reader, IBrightDataContext context)
+        public static T[] ReadArray<T>(this BinaryReader reader, BrightDataContext context)
             where T : ICanInitializeFromBinaryReader
         {
             var len = reader.ReadInt32();

@@ -22,7 +22,7 @@ namespace BrightData.UnitTests
         readonly BrightDataContext         _context = new(null, 0);
         readonly LinearAlgebraProvider     _linearAlgebraProvider;
         readonly MklLinearAlgebraProvider  _mklLinearAlgebraProvider;
-        readonly ILinearAlgebraProvider    _cuda;
+        readonly CudaProvider              _cudaProvider;
         readonly CudaLinearAlgebraProvider _cudaLinearAlgebraProvider;
         readonly ITestOutputHelper         _output;
 
@@ -35,13 +35,16 @@ namespace BrightData.UnitTests
             _output                    = output;
             _linearAlgebraProvider     = new LinearAlgebraProvider(_context);
             _mklLinearAlgebraProvider  = new MklLinearAlgebraProvider(_context);
-            _cuda                      = _context.UseCudaLinearAlgebra(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
-            _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cuda);
+            _cudaProvider              = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
+            _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cudaProvider);
         }
 
         public void Dispose()
         {
             _linearAlgebraProvider.Dispose();
+            _cudaLinearAlgebraProvider.Dispose();
+            _cudaProvider.Dispose();
+            _mklLinearAlgebraProvider.Dispose();
         }
 
         [Fact]
@@ -267,7 +270,7 @@ namespace BrightData.UnitTests
             vector[0].Should().Be(distance1);
             vector[1].Should().Be(distance2);
 
-            using var matrix = vectorGroup1.FindDistances(vectorGroup2, DistanceMetric.Euclidean);
+            using var matrix = _linearAlgebraProvider.FindDistances(vectorGroup1, vectorGroup2, DistanceMetric.Euclidean);
 
             matrix[0, 0].Should().Be(distance1);
             matrix[0, 1].Should().Be(distance2);

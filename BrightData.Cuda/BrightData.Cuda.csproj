@@ -130,15 +130,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="managed-cuda\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData\BrightData.csproj" />
   </ItemGroup>
 
   <ItemGroup>

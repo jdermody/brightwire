@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 
@@ -15,7 +16,7 @@ namespace BrightWire.UnitTests.Helper
 
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; set; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; set; }
         public uint CurrentEpoch { get; set; }
         public float LearningRate { get; set; }
         public float BatchLearningRate { get; set; }

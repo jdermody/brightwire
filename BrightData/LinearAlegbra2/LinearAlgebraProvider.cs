@@ -45,6 +45,14 @@ namespace BrightData.LinearAlegbra2
         internal bool AddToScope(IDisposable obj) => _scope.Last().Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _scope.Last().Remove(obj);
         public virtual ITensorSegment2 CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
+        public virtual ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
+        {
+            var ret = MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear);
+            var ptr = ret.Span;
+            for (var i = 0; i < ptr.Length; i++)
+                ptr[i] = initializer((uint)i);
+            return new ArrayPoolTensorSegment(ret);
+        }
 
         public virtual ITensorSegment2 Clone(ITensorSegment2 tensor)
         {
@@ -69,14 +77,8 @@ namespace BrightData.LinearAlegbra2
             segment.CopyFrom(span);
             return CreateVector(segment);
         }
-        public virtual IVector CreateVector(uint size, Func<uint, float> initializer)
-        {
-            var segment = CreateSegment(size);
-            var array = segment.GetArrayForLocalUseOnly()!;
-            for (uint i = 0, len = segment.Size; i < len; i++)
-                array[i] = initializer(i);
-            return CreateVector(segment);
-        }
+        public IVector CreateVector(uint size, Func<uint, float> initializer) => CreateVector(CreateSegment(size, initializer));
+        public IVector CreateVector(IVector vector) => CreateVector(vector.Segment);
 
         // matrix creation
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new Matrix2(data, rowCount, columnCount, this);
@@ -89,6 +91,7 @@ namespace BrightData.LinearAlegbra2
                 array[i] = initializer(i / columnCount, i % columnCount);
             return CreateMatrix(rowCount, columnCount, segment);
         }
+        public IMatrix CreateMatrix(IMatrix matrix) => CreateMatrix(matrix.RowCount, matrix.ColumnCount, matrix.Segment);
         public IMatrix CreateMatrixFromRows(params IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
         public IMatrix CreateMatrixFromRowsAndThenDisposeInput(params IVector[] rows)
         {
@@ -174,6 +177,7 @@ namespace BrightData.LinearAlegbra2
         public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor3D2(data, depth, rowCount, columnCount, this);
         public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount));
         public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
+        public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, tensor.Segment);
         public ITensor3D CreateTensor3DAndThenDisposeInput(params IMatrix[] matrices)
         {
             try {
@@ -226,6 +230,7 @@ namespace BrightData.LinearAlegbra2
         public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor4D2(data, count, depth, rowCount, columnCount, this);
         public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount));
         public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
+        public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, tensor.Segment);
         public ITensor4D CreateTensor4DAndThenDisposeInput(params ITensor3D[] tensors)
         {
             try {
@@ -871,6 +876,22 @@ namespace BrightData.LinearAlegbra2
         public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment2 vector)
         {
             matrix.MapIndexedInPlace((j, _, v) => v + vector[j]);
+        }
+
+        public virtual IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+        {
+            var rows = (uint)compareTo.Count;
+            var columns = (uint)vectors.Length;
+            var ret = CreateMatrix(rows, columns);
+
+            Parallel.For(0, rows * columns, ind => {
+                var i = (uint) (ind / columns);
+                var j = (uint) (ind % columns);
+                var distance = compareTo[(int)i].FindDistance(vectors[(int)j], distanceMetric);;
+                ret[i, j] = distance;
+            });
+
+            return ret;
         }
     }
 }

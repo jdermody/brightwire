@@ -13,7 +13,7 @@ namespace BrightData.Buffer.InMemory
         readonly HashSet<T> _unique = new();
         bool _isDistinct = true;
 
-        public InMemorySegment(IBrightDataContext context, BrightDataType type, IMetaData metaData, ushort maxDistinct)
+        public InMemorySegment(BrightDataContext context, BrightDataType type, IMetaData metaData, ushort maxDistinct)
         {
             _maxDistinct = maxDistinct;
             MetaData = metaData;
@@ -45,7 +45,7 @@ namespace BrightData.Buffer.InMemory
         public uint Size => _buffer.Size;
         public void Add(object? obj) => Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
 
         public void Add(T obj)
         {

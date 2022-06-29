@@ -13,7 +13,7 @@ namespace BrightData.DataTable
         {
             ColumnType = (BrightDataType)reader.ReadSByte();
             MetaData = new MetaData(reader);
-            MetaData.Set(Consts.Index, index);
+            MetaData.Set(Consts.ColumnIndex, index);
             Index = index;
         }
 
@@ -22,7 +22,7 @@ namespace BrightData.DataTable
             Index = index;
             ColumnType = type;
             MetaData = metaData;
-            MetaData.Set(Consts.Index, index);
+            MetaData.Set(Consts.ColumnIndex, index);
         }
 
         public uint Index { get; }

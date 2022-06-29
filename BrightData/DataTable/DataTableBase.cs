@@ -13,7 +13,7 @@ namespace BrightData.DataTable
     //{
     //    readonly MetaData _tableMetaData = new();
 
-    //    protected DataTableBase(IBrightDataContext context)
+    //    protected DataTableBase(BrightDataContext context)
     //    {
     //        Context = context;
     //    }
@@ -23,7 +23,7 @@ namespace BrightData.DataTable
     //        return String.IsNullOrWhiteSpace(name) ? $"Column {numColumns + 1}" : name;
     //    }
 
-    //    public IBrightDataContext Context { get; }
+    //    public BrightDataContext Context { get; }
     //    public uint RowCount { get; protected set; }
     //    public uint ColumnCount { get; protected set; }
     //    public IMetaData MetaData => _tableMetaData;

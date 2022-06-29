@@ -76,28 +76,28 @@ namespace BrightData
             }
         }
 
-        internal WeightedIndexList(IBrightDataContext context, Item[] indices)
+        internal WeightedIndexList(BrightDataContext context, Item[] indices)
         {
             Context = context;
             Indices = indices;
         }
 
         /// <inheritdoc />
-        public IBrightDataContext Context { get; private set; }
+        public BrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
         /// </summary>
         public Item[] Indices { get; private set; }
 
-        internal static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new(context, indexList);
-        internal static WeightedIndexList Create(IBrightDataContext context, ReadOnlySpan<Item> indexList) => new(context, indexList.ToArray());
-        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new(context, indexList.ToArray());
+        internal static WeightedIndexList Create(BrightDataContext context, params Item[] indexList) => new(context, indexList);
+        internal static WeightedIndexList Create(BrightDataContext context, ReadOnlySpan<Item> indexList) => new(context, indexList.ToArray());
+        internal static WeightedIndexList Create(BrightDataContext context, IEnumerable<Item> indexList) => new(context, indexList.ToArray());
 
-        internal static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) =>
+        internal static WeightedIndexList Create(BrightDataContext context, params (uint Index, float Weight)[] indexList) =>
             new(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
-        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) =>
+        internal static WeightedIndexList Create(BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) =>
             new(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             Context = context;
             var len = reader.ReadInt32();
@@ -134,7 +134,7 @@ namespace BrightData
         /// <returns></returns>
         public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average)
         {
-            IBrightDataContext? context = null;
+            BrightDataContext? context = null;
             var items = new Dictionary<uint, List<float>>();
             foreach (var list in lists) {
                 context = list.Context;

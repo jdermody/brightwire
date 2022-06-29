@@ -11,9 +11,9 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class ReberSequenceTrainer : DataTableTrainer
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public ReberSequenceTrainer(IBrightDataContext context, BrightDataTable dataTable) : base(dataTable)
+        public ReberSequenceTrainer(BrightDataContext context, BrightDataTable dataTable) : base(dataTable)
         {
             _context = context;
         }

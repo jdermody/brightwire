@@ -33,11 +33,11 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         readonly SetMemory _setMemory;
         readonly string? _contextName;
 
-        public MemoryFeeder(IBrightDataContext context, float[] data, string? contextName, string? name = null, string? id = null) : base(name, id)
+        public MemoryFeeder(BrightDataContext context, float[] data, string? contextName, string? name = null, string? id = null) : base(name, id)
         {
             _context = context;
             Data = data;

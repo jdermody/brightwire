@@ -1,5 +1,4 @@
 ﻿using BrightData.LinearAlegbra2;
-using BrightData.Numerics;
 
 namespace BrightData.UnitTests.Helper
 {

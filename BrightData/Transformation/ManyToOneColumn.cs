@@ -35,7 +35,7 @@ namespace BrightData.Transformation
                 if (!String.IsNullOrWhiteSpace(Name))
                     metaData.SetName(Name);
                 metaData.SetType(NewType);
-                metaData.Set(Consts.Index, _outputColumnIndex);
+                metaData.Set(Consts.ColumnIndex, _outputColumnIndex);
                 var outputBuffer = NewType.GetHybridBufferWithMetaData(metaData, context, tempStreams);
 
                 if (NewType == BrightDataType.IndexList)
@@ -63,7 +63,7 @@ namespace BrightData.Transformation
                     yield return new ManyToOneColumnOperation<string>(
                         rowCount,
                         sourceColumns,
-                        obj => ToString(context, obj),
+                        ToString,
                         (IHybridBuffer<string>)outputBuffer
                     );
                 else
@@ -73,7 +73,7 @@ namespace BrightData.Transformation
                 throw new NotImplementedException("Currently not supported");
         }
 
-        static IndexList ToIndexList(IBrightDataContext context, object[] vals)
+        static IndexList ToIndexList(BrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -83,7 +83,7 @@ namespace BrightData.Transformation
             return context.CreateIndexList(indices);
         }
 
-        static WeightedIndexList ToWeightedIndexList(IBrightDataContext context, object[] vals)
+        static WeightedIndexList ToWeightedIndexList(BrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -94,25 +94,25 @@ namespace BrightData.Transformation
             return context.CreateWeightedIndexList(indices);
         }
 
-        static IVector ToVector(IBrightDataContext context, object[] values)
+        static IVector ToVector(BrightDataContext context, object[] values)
         {
             var data = values.Select(Convert.ToSingle).ToArray();
             return context.LinearAlgebraProvider2.CreateVector(data);
         }
 
-        static string ToString(IBrightDataContext context, object[] vals) => String.Join('|', vals.Select(Convert.ToString));
+        static string ToString(object[] vals) => String.Join('|', vals.Select(Convert.ToString));
 
         //class ManyToOne<T> : ISingleTypeTableSegment where T : notnull
         //{
         //    readonly IHybridBuffer<T> _buffer;
 
         //    public ManyToOne(
-        //        IBrightDataContext context,
+        //        BrightDataContext context,
         //        IProvideTempStreams tempStreams,
         //        string name,
         //        uint newColumnIndex,
         //        ISingleTypeTableSegment[] sourceColumns,
-        //        Func<IBrightDataContext, object[], T> converter
+        //        Func<BrightDataContext, object[], T> converter
         //    )
         //    {
         //        Index = newColumnIndex;

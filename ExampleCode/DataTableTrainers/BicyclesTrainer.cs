@@ -8,9 +8,9 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class BicyclesTrainer : DataTableTrainer
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public BicyclesTrainer(IBrightDataContext context, BrightDataTable table) : base(table)
+        public BicyclesTrainer(BrightDataContext context, BrightDataTable table) : base(table)
         {
             _context = context;
         }

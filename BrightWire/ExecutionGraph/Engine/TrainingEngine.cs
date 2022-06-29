@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Engine
             Start = startNode ?? _start;
         }
 
-        public IBrightDataContext Context => _factory.Context;
+        public BrightDataContext Context => _factory.Context;
         public LinearAlgebraProvider LinearAlgebraProvider { get; }
         public ExecutionGraphModel Graph => Start.GetGraph();
         public IDataSource DataSource { get; }

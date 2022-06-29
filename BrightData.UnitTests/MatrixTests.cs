@@ -3,7 +3,6 @@ using System.Linq;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
-using MathNet.Numerics.Distributions;
 using Xunit;
 
 namespace BrightData.UnitTests

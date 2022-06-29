@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.FloatTensor;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -665,13 +664,6 @@ namespace BrightData
             }
         }
 
-        public static Vector<float> AsFloatVector(this IVector vector)
-        {
-            var ret = vector.Context.CreateVector<float>(vector.Size);
-            // TODO: copy to ret
-            return ret;
-        }
-
         //public static IVector ToArrayBased(this IVector vector)
         //{
         //    if (vector.Segment.SegmentType == Consts.ArrayBased)
@@ -730,22 +722,6 @@ namespace BrightData
             var size = (uint)vectors.Count;
             var ret = compareTo.Context.LinearAlgebraProvider2.CreateVector(size);
             Parallel.For(0, size, ind => ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric));
-            return ret;
-        }
-
-        public static IMatrix FindDistances(this IVector[] compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
-        {
-            var rows = (uint)compareTo.Length;
-            var columns = (uint)vectors.Count;
-            var ret = compareTo[0].Context.LinearAlgebraProvider2.CreateMatrix(rows, columns);
-
-            Parallel.For(0, rows * columns, ind => {
-                var i = (uint) (ind / columns);
-                var j = (uint) (ind % columns);
-                var distance = FindDistance(compareTo[i], vectors[(int)j], distanceMetric);;
-                ret[i, j] = distance;
-            });
-
             return ret;
         }
 

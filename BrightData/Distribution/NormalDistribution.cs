@@ -5,9 +5,9 @@ namespace BrightData.Distribution
 {
     internal class NormalDistribution : IContinuousDistribution
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public NormalDistribution(IBrightDataContext context, float mean = 0f, float stdDev = 1f)
+        public NormalDistribution(BrightDataContext context, float mean = 0f, float stdDev = 1f)
         {
             _context = context;
             Mean = mean;

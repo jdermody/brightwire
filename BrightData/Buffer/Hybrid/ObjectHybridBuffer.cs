@@ -9,9 +9,9 @@ namespace BrightData.Buffer.Hybrid
     internal class ObjectHybridBuffer<T> : HybridBufferBase<T>
         where T : ISerializable
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public ObjectHybridBuffer(IBrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
+        public ObjectHybridBuffer(BrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
         {
             _context = context;
         }

@@ -77,7 +77,7 @@ namespace BrightData.Transformation
             readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
             {
             }
 
@@ -93,7 +93,7 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator()) { }
             public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
@@ -123,7 +123,7 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
             public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
@@ -149,9 +149,9 @@ namespace BrightData.Transformation
                 writer.Write(_maxSize);
             }
         }
-        class TensorVectoriser : VectoriserBase<ITensor<float>>
+        class TensorVectoriser : VectoriserBase<ITensor2>
         {
-            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator()) {}
+            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<ITensor2>)column).EnumerateTyped().GetEnumerator()) {}
             public TensorVectoriser(uint size, ISingleTypeTableSegment column) : this(column)
             {
                 Size = size;
@@ -170,7 +170,7 @@ namespace BrightData.Transformation
             public override uint Size { get; }
             public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
-            protected override IEnumerable<float> Vectorize(ITensor<float> obj)
+            protected override IEnumerable<float> Vectorize(ITensor2 obj)
             {
                 return obj.Segment.Values;
             }
@@ -188,7 +188,7 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
 #pragma warning disable 8618
-            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator()) { }
+            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), column.Enumerate().GetEnumerator()) { }
 #pragma warning restore 8618
             public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column) : this(column)
             {
@@ -247,7 +247,7 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
             public OneHotEncode(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator())
+                : base(column.MetaData.GetColumnIndex(), column.Enumerate().GetEnumerator())
             {
                 Size = 1;
             }
@@ -298,7 +298,7 @@ namespace BrightData.Transformation
 
         public uint OutputSize => (uint)_input.Sum(c => c.Size);
         public uint RowCount { get; }
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
 
         public float[] Vectorise(object[] row)
         {

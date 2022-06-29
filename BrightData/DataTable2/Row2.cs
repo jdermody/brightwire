@@ -13,11 +13,12 @@ namespace BrightData.DataTable2
         readonly BrightDataTable _dataTable;
         readonly object[] _data;
 
-        public Row2(BrightDataTable dataTable, object[] data, uint index)
+        public Row2(BrightDataTable dataTable, object[] data, uint index, uint columnCount)
         {
             _data = data;
             RowIndex = index;
             _dataTable = dataTable;
+            Size = columnCount;
         }
 
         public void Dispose()
@@ -27,7 +28,7 @@ namespace BrightData.DataTable2
 
         public object this[uint index] => _data[index];
         public BrightDataType[] Types => _dataTable.ColumnTypes;
-        public uint Size => (uint)_data.Length;
+        public uint Size { get; }
         public IEnumerable<object> Data => _data;
 
         public override string ToString()

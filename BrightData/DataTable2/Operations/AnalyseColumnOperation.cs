@@ -7,17 +7,26 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2.Operations
 {
-    internal class AnalyseColumnOperation<T> : OperationBase<MetaData> where T : notnull
+    internal class AnalyseColumnOperation<T> : OperationBase<(uint, MetaData)> where T : notnull
     {
-        readonly MetaData         _metaData;
-        readonly IEnumerator<T>   _enumerator;
-        readonly IDataAnalyser<T> _analyser;
+        readonly uint                       _columnIndex;
+        readonly MetaData                   _metaData;
+        readonly ICanEnumerateDisposable<T> _reader;
+        readonly IEnumerator<T>             _enumerator;
+        readonly IDataAnalyser<T>           _analyser;
 
-        public AnalyseColumnOperation(uint rowCount, MetaData metaData, IEnumerator<T> enumerator, IDataAnalyser<T> analyser) : base(rowCount, null)
+        public AnalyseColumnOperation(uint rowCount, uint columnIndex, MetaData metaData, ICanEnumerateDisposable<T> reader, IDataAnalyser<T> analyser) : base(rowCount, null)
         {
+            _columnIndex = columnIndex;
             _metaData = metaData;
-            _enumerator = enumerator;
+            _reader = reader;
+            _enumerator = _reader.EnumerateTyped().GetEnumerator();
             _analyser = analyser;
+        }
+
+        public override void Dispose()
+        {
+            _reader.Dispose();
         }
 
         protected override void NextStep(uint index)
@@ -26,10 +35,13 @@ namespace BrightData.DataTable2.Operations
                 _analyser.Add(_enumerator.Current);
         }
 
-        protected override MetaData GetResult(bool wasCancelled)
+        protected override (uint, MetaData) GetResult(bool wasCancelled)
         {
+            if(!wasCancelled)
+                _metaData.Set(Consts.HasBeenAnalysed, true);
+
             _analyser.WriteTo(_metaData);
-            return _metaData;
+            return (_columnIndex, _metaData);
         }
     }
 }

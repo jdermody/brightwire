@@ -105,8 +105,7 @@ namespace BrightData.UnitTests
         public void EncodeFloatVector()
         {
             Encode(
-                _context.Context.CreateVector(8, i => (float)i), 
-                options => options.Excluding(v => v.Segment.AllocationIndex)
+                _context.Context.CreateVector(8, i => i)
             );
         }
 
@@ -116,7 +115,7 @@ namespace BrightData.UnitTests
             EncodeArray(new [] {
                 _context.Context.CreateVector(8, i => (float)i),
                 _context.Context.CreateVector(8, i => (float)i*2)
-            }, options => options.Excluding(v => v.Segment.AllocationIndex));
+            });
         }
 
         //[Fact]

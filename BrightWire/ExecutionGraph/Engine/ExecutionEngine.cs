@@ -15,9 +15,9 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
     internal class ExecutionEngine : IGraphExecutionEngine
 	{
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public ExecutionEngine(IBrightDataContext context, LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
+        public ExecutionEngine(BrightDataContext context, LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
         {
             _context = context;
             LinearAlgebraProvider = lap;
