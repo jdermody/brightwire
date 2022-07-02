@@ -18,5 +18,10 @@ namespace BrightData.Numerics
             if(useNumericsMkl)
                 Control.UseNativeMKL();
         }
+
+        public override IVector CreateVector(ITensorSegment2 data)
+        {
+            return base.CreateVector(data);
+        }
     }
 }

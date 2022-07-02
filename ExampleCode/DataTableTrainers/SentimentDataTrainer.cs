@@ -170,10 +170,10 @@ namespace ExampleCode.DataTableTrainers
         {
             var builder = context.BuildTable();
             var addColumns = true;
-
+            var lap = context.LinearAlgebraProvider2;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(maxIndex);
+                var features = indexList.AsDense(lap, maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
@@ -201,10 +201,10 @@ namespace ExampleCode.DataTableTrainers
         {
             var builder = context.BuildTable();
             var addColumns = true;
-
+            var lap = context.LinearAlgebraProvider2;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(maxIndex);
+                var features = indexList.AsDense(lap, maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {

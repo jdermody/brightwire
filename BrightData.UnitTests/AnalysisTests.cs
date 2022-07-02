@@ -84,7 +84,7 @@ namespace BrightData.UnitTests
         public void IndexAnalysis()
         {
             using var context = new BrightDataContext();
-            var analysis = new[] {
+            var analysis = new IHaveIndices [] {
                 context.CreateIndexList(1, 2, 3),
                 context.CreateIndexList(4, 5, 6),
             }.Analyze();

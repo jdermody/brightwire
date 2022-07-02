@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -13,25 +14,21 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public class IndexList : IHaveIndices, ISerializable, IHaveDataContext
+    public struct IndexList : IHaveIndices, ISerializable
     {
-        internal IndexList(BrightDataContext context, uint[] indices)
+        public IndexList(uint[] indices)
         {
-            Context = context;
             Indices = indices;
         }
-
-        /// <inheritdoc />
-        public BrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
         /// </summary>
         public uint[] Indices { get; private set; }
 
-        internal static IndexList Create(BrightDataContext context, params uint[] indices) => new(context, indices);
-        internal static IndexList Create(BrightDataContext context, ReadOnlySpan<uint> indices) => new(context, indices.ToArray());
-        internal static IndexList Create(BrightDataContext context, IEnumerable<uint> indices) => new(context, indices.ToArray());
+        public static IndexList Create(params uint[] indices) => new(indices);
+        public static IndexList Create(ReadOnlySpan<uint> indices) => new(indices.ToArray());
+        public static IndexList Create(IEnumerable<uint> indices) => new(indices.ToArray());
 
         /// <summary>
         /// The number of items in the list
@@ -56,16 +53,13 @@ namespace BrightData
         /// <param name="lists">Lists to merge</param>
         public static IndexList Merge(IEnumerable<IndexList> lists)
         {
-            BrightDataContext? context = null;
             var items = new HashSet<uint>();
             foreach (var list in lists) {
-                context = list.Context;
                 foreach (var index in list.Indices)
                     items.Add(index);
             }
 
             return new IndexList(
-                context ?? throw new ArgumentException("No valid index lists were supplied"), 
                 items.OrderBy(d => d).ToArray()
             );
         }
@@ -111,7 +105,6 @@ namespace BrightData
         {
             var len = reader.ReadInt32();
             Indices = reader.BaseStream.ReadArray<uint>(len);
-            Context = context;
         }
 
         /// <summary>
@@ -159,7 +152,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public IVector AsDense(uint? maxIndex = null)
+        public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
@@ -171,8 +164,8 @@ namespace BrightData
             }
 
             if(indices.Any())
-                return Context.LinearAlgebraProvider2.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? 0, 0f);
+                return lap.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
+            return lap.CreateVector(maxIndex ?? 0, 0f);
         }
 
         /// <summary>

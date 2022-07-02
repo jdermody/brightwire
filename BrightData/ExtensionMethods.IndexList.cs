@@ -13,7 +13,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this BrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
+        public static IndexList CreateIndexList(this BrightDataContext context, params uint[] indices) => IndexList.Create(indices);
 
         /// <summary>
         /// Creates an index list from indices
@@ -21,7 +21,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this BrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
+        public static IndexList CreateIndexList(this BrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(indices);
 
         /// <summary>
         /// Creates an index list from a binary reader
@@ -30,7 +30,7 @@ namespace BrightData
         /// <param name="reader">The binary reader</param>
         public static IndexList CreateIndexList(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = new IndexList(context, Array.Empty<uint>());
+            var ret = new IndexList(Array.Empty<uint>());
             ret.Initialize(context, reader);
             return ret;
         }
@@ -41,7 +41,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -49,7 +49,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -57,7 +57,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from a binary reader
@@ -68,7 +68,7 @@ namespace BrightData
         {
             var len = reader.ReadInt32();
             var ret = reader.BaseStream.ReadArray<WeightedIndexList.Item>(len);
-            return WeightedIndexList.Create(context, ret);
+            return WeightedIndexList.Create(ret);
         }
 
         static BrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveDataContext => list.Count == 0 
@@ -86,11 +86,10 @@ namespace BrightData
             bool groupByClassification
         )
         {
-            var context = GetContext(data);
             if (groupByClassification)
             {
                 return data.GroupBy(c => c.Label)
-                    .Select(g => (g.Key, WeightedIndexList.Create(context!, g.SelectMany(d => d.Data.Indices)
+                    .Select(g => (g.Key, WeightedIndexList.Create(g.SelectMany(d => d.Data.Indices)
                         .GroupBy(d => d)
                         .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
                         .ToArray()
@@ -99,7 +98,7 @@ namespace BrightData
                 ;
             }
             return data
-                .Select(d => (d.Label, WeightedIndexList.Create(context!, d.Data.Indices
+                .Select(d => (d.Label, WeightedIndexList.Create(d.Data.Indices
                     .GroupBy(i => i)
                     .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
                     .ToArray()
@@ -143,10 +142,8 @@ namespace BrightData
         public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalize(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             var maxWeight = data.GetMaxWeight();
-            var context = GetContext(data);
 
             return data.Select(r => (r.Label, WeightedIndexList.Create(
-                context!, 
                 r.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
             ))).ToList();
         }
@@ -186,27 +183,24 @@ namespace BrightData
         public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data) where T: notnull
         {
             var ret = new List<(T Label, WeightedIndexList Data)>();
-            var context = GetContext(data);
 
-            if (context != null) {
-                var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
-                var numDocs = (float)data.Count;
+            var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
+            var numDocs = (float)data.Count;
 
-                // calculate tf-idf for each document
-                foreach (var (label, weightedIndexList) in data) {
-                    var totalWords = classificationSum[label];
-                    var classificationIndex = new List<WeightedIndexList.Item>();
-                    foreach (var item in weightedIndexList.Indices) {
-                        var index = item.Index;
-                        var tf = item.Weight / totalWords;
-                        var docsWithTerm = (float)indexOccurrence[index];
-                        var idf = MathF.Log(numDocs / (docsWithTerm + 1f)) + 1f;
-                        var score = tf * idf;
-                        classificationIndex.Add(new WeightedIndexList.Item(index, score));
-                    }
-
-                    ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
+            // calculate tf-idf for each document
+            foreach (var (label, weightedIndexList) in data) {
+                var totalWords = classificationSum[label];
+                var classificationIndex = new List<WeightedIndexList.Item>();
+                foreach (var item in weightedIndexList.Indices) {
+                    var index = item.Index;
+                    var tf = item.Weight / totalWords;
+                    var docsWithTerm = (float)indexOccurrence[index];
+                    var idf = MathF.Log(numDocs / (docsWithTerm + 1f)) + 1f;
+                    var score = tf * idf;
+                    classificationIndex.Add(new WeightedIndexList.Item(index, score));
                 }
+
+                ret.Add((label, WeightedIndexList.Create(classificationIndex.ToArray())));
             }
 
             return ret;
@@ -219,29 +213,26 @@ namespace BrightData
         /// <returns>Newly weighted classification set</returns>
         public static IReadOnlyList<(T Label, WeightedIndexList Data)> Bm25Plus<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
         {
-            var context = GetContext(data);
             var ret = new List<(T Label, WeightedIndexList Data)>();
 
-            if (context != null) {
-                var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
-                var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
-                var numDocs = (float)data.Count;
+            var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
+            var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
+            var numDocs = (float)data.Count;
                 
-                // calculate bm25f score for each document
-                foreach (var (label, weightedIndexList) in data) {
-                    var documentWeight = classificationSum[label] / averageDocumentWeight;
-                    var classificationIndex = new List<WeightedIndexList.Item>();
-                    foreach (var item in weightedIndexList.Indices) {
-                        var index = item.Index;
-                        var tf = (item.Weight * (k+1)) / ((item.Weight + k) * (1 - b + (b * documentWeight))) + d;
-                        var docsWithTerm = (float)indexOccurrence[index];
-                        var idf = MathF.Log((numDocs - docsWithTerm + 0.5f) / (0.5f + docsWithTerm) + 1);
-                        var score = tf * idf;
-                        classificationIndex.Add(new WeightedIndexList.Item(index, score));
-                    }
-
-                    ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
+            // calculate bm25f score for each document
+            foreach (var (label, weightedIndexList) in data) {
+                var documentWeight = classificationSum[label] / averageDocumentWeight;
+                var classificationIndex = new List<WeightedIndexList.Item>();
+                foreach (var item in weightedIndexList.Indices) {
+                    var index = item.Index;
+                    var tf = (item.Weight * (k+1)) / ((item.Weight + k) * (1 - b + (b * documentWeight))) + d;
+                    var docsWithTerm = (float)indexOccurrence[index];
+                    var idf = MathF.Log((numDocs - docsWithTerm + 0.5f) / (0.5f + docsWithTerm) + 1);
+                    var score = tf * idf;
+                    classificationIndex.Add(new WeightedIndexList.Item(index, score));
                 }
+
+                ret.Add((label, WeightedIndexList.Create(classificationIndex.ToArray())));
             }
 
             return ret;

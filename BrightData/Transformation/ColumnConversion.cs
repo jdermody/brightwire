@@ -128,19 +128,17 @@ namespace BrightData.Transformation
 
         class StringTokeniser : IConvertColumn<string, IndexList>
         {
-            readonly BrightDataContext _context;
             readonly Func<string, StringIndexer, IEnumerable<uint>> _tokeniser;
             readonly StringIndexer _stringIndexer = new();
 
-            public StringTokeniser(BrightDataContext context, Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
+            public StringTokeniser(Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
             {
-                _context = context;
                 _tokeniser = tokeniser;
             }
 
             public bool Convert(string input, IHybridBuffer<IndexList> buffer, uint index)
             {
-                var indexList = IndexList.Create(_context, _tokeniser(input, _stringIndexer));
+                var indexList = IndexList.Create(_tokeniser(input, _stringIndexer));
                 buffer.Add(indexList);
                 return true;
             }
@@ -210,9 +208,7 @@ namespace BrightData.Transformation
         static readonly IConvertColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
         static readonly IConvertColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly IConvertColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
-        static readonly IConvertColumn IndexListToVector = new Converter<IndexList, IVector>(v => v.AsDense());
-        static readonly IConvertColumn WeightedIndexListToVector = new Converter<IndexList, IVector>(v => v.AsDense());
-        static readonly IConvertColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
+        static readonly IConvertColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Indices.Select(ind => (ind, 1f))));
 
         static DateTime ParseDate(string str)
         {
@@ -247,6 +243,7 @@ namespace BrightData.Transformation
             if (_converter != null)
                 return _converter;
 
+            var lap = context.LinearAlgebraProvider2;
             switch (_toType) {
                 case ColumnConversionType.Unchanged:
                     return null;
@@ -343,9 +340,9 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
                     return null;
                 case ColumnConversionType.ToVector when fromType == BrightDataType.WeightedIndexList:
-                    return WeightedIndexListToVector;
+                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
                 case ColumnConversionType.ToVector when fromType == BrightDataType.IndexList:
-                    return IndexListToVector;
+                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
 
                 // weighted index list
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:

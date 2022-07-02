@@ -322,7 +322,7 @@ namespace BrightData
         /// <returns></returns>
         public static WeightedIndexList ToSparse(this ITensorSegment2 segment, BrightDataContext context)
         {
-            return WeightedIndexList.Create(context, segment.Values
+            return WeightedIndexList.Create(segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
@@ -522,7 +522,7 @@ namespace BrightData
             uint[]? shape = null;
             foreach(var item in tensors) {
                 if (ret is null) {
-                    ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.Size);
+                    ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.TotalSize);
                     shape = item.Shape;
                 }
                 else

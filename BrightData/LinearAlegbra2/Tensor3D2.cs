@@ -2,26 +2,26 @@
 
 namespace BrightData.LinearAlegbra2
 {
-    public class Tensor3D2<CU> : TensorBase2<ITensor3D, CU>, ITensor3D
-        where CU: LinearAlgebraProvider
+    public class Tensor3D2<LAP> : TensorBase2<ITensor3D, LAP>, ITensor3D
+        where LAP: LinearAlgebraProvider
     {
-        public Tensor3D2(ITensorSegment2 data, uint depth, uint rowCount, uint columnCount, CU computationUnit) : base(data, computationUnit)
+        public Tensor3D2(ITensorSegment2 data, uint depth, uint rowCount, uint columnCount, LAP lap) : base(data, lap)
         {
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
             MatrixSize = rowCount * columnCount;
-            Size = MatrixSize * depth;
+            TotalSize = MatrixSize * depth;
         }
 
-        public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D2<CU>(segment, Depth, RowCount, ColumnCount, _lap);
+        public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D2<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
 
         public uint Depth { get; private set; }
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
         public uint MatrixSize { get; private set; }
-        public sealed override uint Size { get; protected set; }
-        public override uint[] Shape
+        public sealed override uint TotalSize { get; protected set; }
+        public sealed override uint[] Shape
         {
             get => new[] { ColumnCount, RowCount, Depth };
             protected set
@@ -30,7 +30,7 @@ namespace BrightData.LinearAlegbra2
                 RowCount = value[1];
                 Depth = value[2];
                 MatrixSize = RowCount * ColumnCount;
-                Size = MatrixSize * Depth;
+                TotalSize = MatrixSize * Depth;
             }
         }
 
@@ -60,12 +60,12 @@ namespace BrightData.LinearAlegbra2
         /// </summary>
         public MemoryOwner<float> ToNewColumnMajor()
         {
-            var ret = MemoryOwner<float>.Allocate((int)Size);
+            var ret = MemoryOwner<float>.Allocate((int)TotalSize);
             var ptr = ret.Span;
-            var blockSize = Size / Depth;
+            var blockSize = TotalSize / Depth;
             var k = 0;
 
-            for(uint z = 0; z < Size; z++) {
+            for(uint z = 0; z < TotalSize; z++) {
                 using var matrix = Matrix(z);
                 var i = 0;
                 var rowCount = matrix.RowCount;
@@ -84,7 +84,10 @@ namespace BrightData.LinearAlegbra2
 
             return ret;
         }
-
+        public ITensor3D Create(LinearAlgebraProvider lap)
+        {
+            throw new System.NotImplementedException();
+        }
         public IMatrix Matrix(uint index) => _lap.GetMatrix(this, index);
         public ITensor3D AddPadding(uint padding) => _lap.AddPadding(this, padding);
         public ITensor3D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);

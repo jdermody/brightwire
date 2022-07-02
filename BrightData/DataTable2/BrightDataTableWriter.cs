@@ -95,13 +95,13 @@ namespace BrightData.DataTable2
                 else if (dataType == BrightDataType.String)
                     WriteStringData((ICanEnumerateWithSize<string>)columnSegment, stringTableWriter.Value);
                 else if (dataType == BrightDataType.Vector)
-                    WriteVectors((ICanEnumerateWithSize<IVector>)columnSegment, tensorWriter.Value);
+                    WriteVectors((ICanEnumerateWithSize<IVectorInfo>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Matrix)
-                    WriteMatrices((ICanEnumerateWithSize<IMatrix>)columnSegment, tensorWriter.Value);
+                    WriteMatrices((ICanEnumerateWithSize<IMatrixInfo>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Tensor3D)
-                    WriteTensors((ICanEnumerateWithSize<ITensor3D>)columnSegment, tensorWriter.Value);
+                    WriteTensors((ICanEnumerateWithSize<ITensor3DInfo>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Tensor4D)
-                    WriteTensors((ICanEnumerateWithSize<ITensor4D>)columnSegment, tensorWriter.Value);
+                    WriteTensors((ICanEnumerateWithSize<ITensor4DInfo>)columnSegment, tensorWriter.Value);
                 else
                     _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment });
             }
@@ -213,49 +213,65 @@ namespace BrightData.DataTable2
             });
         }
 
-        void WriteVectors(ICanEnumerateWithSize<IVector> buffer, IHybridBuffer<float> floats)
+        void WriteVectors(ICanEnumerateWithSize<IVectorInfo> buffer, IHybridBuffer<float> floats)
         {
-            Write<IVector, DataRangeColumnType>(buffer, (item, ptr, index) => {
+            Write<IVectorInfo, DataRangeColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Size;
-                floats.CopyFrom(item.Segment);
+                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
+                floats.CopyFrom(span);
+                if(wasTempUsed)
+                    temp.Dispose();
             });
         }
 
-        void WriteMatrices(ICanEnumerateWithSize<IMatrix> buffer, IHybridBuffer<float> floats)
+        void WriteMatrices(ICanEnumerateWithSize<IMatrixInfo> buffer, IHybridBuffer<float> floats)
         {
-            Write<IMatrix, MatrixColumnType>(buffer, (item, ptr, index) => {
+            Write<IMatrixInfo, MatrixColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.CopyFrom(item.Segment);
+                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
+                floats.CopyFrom(span);
+                if(wasTempUsed)
+                    temp.Dispose();
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<ITensor3D> buffer, IHybridBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<ITensor3DInfo> buffer, IHybridBuffer<float> floats)
         {
-            Write<ITensor3D, Tensor3DColumnType>(buffer, (item, ptr, index) => {
+            Write<ITensor3DInfo, Tensor3DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.CopyFrom(item.Segment);
+                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
+                floats.CopyFrom(span);
+                if(wasTempUsed)
+                    temp.Dispose();
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<ITensor4D> buffer, IHybridBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<ITensor4DInfo> buffer, IHybridBuffer<float> floats)
         {
-            Write<ITensor4D, Tensor4DColumnType>(buffer, (item, ptr, index) => {
+            Write<ITensor4DInfo, Tensor4DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Count;
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                floats.CopyFrom(item.Segment);
+                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
+                floats.CopyFrom(span);
+                if(wasTempUsed)
+                    temp.Dispose();
             });
         }
     }

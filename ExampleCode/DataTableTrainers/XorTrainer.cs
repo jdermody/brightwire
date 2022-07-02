@@ -15,11 +15,10 @@ namespace ExampleCode.DataTableTrainers
 
         public ExecutionGraphModel? TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
-            var context = Table.Context;
-            var targetColumnIndex = Table.GetTargetColumnOrThrow();
+            var targetColumnIndex = Table.Value.GetTargetColumnOrThrow();
 
             // train a model
-            var graph = context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
             var model = graph.TrainSimpleNeuralNetwork(
                 Training, 

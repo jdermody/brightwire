@@ -3,31 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using BrightData.LinearAlegbra2.TensorData;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public class Matrix2<CU> : TensorBase2<IMatrix, CU>, IMatrix
-        where CU: LinearAlgebraProvider
+    public class Matrix2<LAP> : TensorBase2<IMatrix, LAP>, IMatrix, IMatrixInfo
+        where LAP: LinearAlgebraProvider
     {
-        public Matrix2(ITensorSegment2 data, uint rows, uint columns, CU computationUnit) : base(data, computationUnit)
+        public Matrix2(ITensorSegment2 data, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             RowCount = rows;
             ColumnCount = columns;
-            Size = rows * columns;
+            TotalSize = rows * columns;
         }
 
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
-        public sealed override uint Size { get; protected set; }
-        public override uint[] Shape
+        public sealed override uint TotalSize { get; protected set; }
+        public sealed override uint[] Shape
         {
             get => new[] { ColumnCount, RowCount };
             protected set
             {
                 ColumnCount = value[0];
                 RowCount = value[1];
-                Size = RowCount * ColumnCount;
+                TotalSize = RowCount * ColumnCount;
             }
         }
 
@@ -52,14 +53,14 @@ namespace BrightData.LinearAlegbra2
             set => Segment[rowY * ColumnCount + columnX] = value;
         }
 
-        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<CU>(segment, RowCount, ColumnCount, _lap);
-
-        public ITensorSegment2 Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
-        public ITensorSegment2 Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
+        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
+        public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
+        public TensorSegmentWrapper2 Row(uint index) => new(Segment, index * ColumnCount, 1, ColumnCount);
+        public TensorSegmentWrapper2 Column(uint index) => new(Segment, index, ColumnCount, RowCount);
 
         public unsafe ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed)
         {
-            temp = SpanOwner<float>.Allocate((int)Size);
+            temp = SpanOwner<float>.Allocate((int)TotalSize);
             var span = temp.Span;
             fixed (float* ptr = &MemoryMarshal.GetReference(span)) {
                 Segment.CopyTo(ptr, (int)columnIndex, (int)ColumnCount, (int)RowCount);
@@ -72,6 +73,8 @@ namespace BrightData.LinearAlegbra2
             var ret = Segment.GetSpan();
             return ret.Slice((int)(rowIndex * ColumnCount), (int)ColumnCount);
         }
+
+        public IVectorInfo GetRow(uint rowIndex) => new VectorData(Row(rowIndex));
 
         public ITensorSegment2[] Rows()
         {
@@ -105,7 +108,7 @@ namespace BrightData.LinearAlegbra2
 
         public MemoryOwner<float> ToNewColumnMajor()
         {
-            var ret = MemoryOwner<float>.Allocate((int)Size);
+            var ret = MemoryOwner<float>.Allocate((int)TotalSize);
             var array = ret.DangerousGetArray();
             Parallel.For(0, ColumnCount, ind => {
                 var i = (uint) ind;
@@ -165,7 +168,7 @@ namespace BrightData.LinearAlegbra2
         public override string ToString()
         {
             var preview = String.Join("|", Segment.Values.Take(8));
-            if (Size > 8)
+            if (TotalSize > 8)
                 preview += "|...";
             return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }

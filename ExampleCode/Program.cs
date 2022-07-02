@@ -31,8 +31,8 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context));
-            //Xor(context);
+            //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
@@ -48,7 +48,7 @@ namespace ExampleCode
             //PredictBicyclesWithNeuralNetwork(context);
             //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
-            MnistFeedForward(context);
+            //MnistFeedForward(context);
             //MnistConvolutional(context, useCuda);
             //TrainIncomePrediction(context);
             //SentimentClassification(context, useCuda);
@@ -101,7 +101,7 @@ namespace ExampleCode
             var iris = context.Iris();
 
             // select only the first three columns (ignore the training label)
-            var irisTable = iris.Table.CopyColumnsToNewTable(null, 3.AsRange().ToArray());
+            var irisTable = iris.Table.Value.CopyColumnsToNewTable(null, 3.AsRange().ToArray());
 
             void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {
@@ -137,7 +137,7 @@ namespace ExampleCode
         static void MnistFeedForward(BrightDataContext context)
         {
             Start(context);
-            context.Mnist().TrainFeedForwardNeuralNetwork();
+            context.Mnist()/*.TrainFeedForwardNeuralNetwork()*/;
         }
 
         static void MnistConvolutional(BrightDataContext context, bool useCuda)

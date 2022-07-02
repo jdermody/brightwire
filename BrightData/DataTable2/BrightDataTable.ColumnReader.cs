@@ -3,34 +3,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.DataTable2.TensorData;
 
 namespace BrightData.DataTable2
 {
     public partial class BrightDataTable
     {
+        static void ValidateColumnTypes(Type columnType, Type requestedType)
+        {
+            if (columnType == typeof(IVector)) {
+                if(requestedType != typeof(VectorData))
+                    throw new ArgumentException($"Use {nameof(VectorData)} instead");
+            }
+            else if (columnType == typeof(IMatrix)) {
+                if(requestedType != typeof(MatrixData))
+                    throw new ArgumentException($"Use {nameof(MatrixData)} instead");
+            }
+            else if (columnType == typeof(ITensor3D)) {
+                if(requestedType != typeof(Tensor3DData))
+                    throw new ArgumentException($"Use {nameof(Tensor3DData)} instead");
+            }
+            else if (columnType == typeof(ITensor4D)) {
+                if(requestedType != typeof(Tensor4DData))
+                    throw new ArgumentException($"Use {nameof(Tensor4DData)} instead");
+            }
+            else if (columnType != requestedType)
+                throw new ArgumentException($"Data types do not align - expected {columnType} but received {requestedType}");
+        }
+
         ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
         {
             ref readonly var column = ref _columns[columnIndex];
-            if (column.DataType.GetDataType() != typeof(T))
-                throw new ArgumentException($"Data types do not align - expected {column.DataType.GetDataType()} but received {typeof(T)}", nameof(T));
-            
+            var requestedType = typeof(T);
+            ValidateColumnTypes(column.DataType.GetDataType(), requestedType);
+
             var offset = _columnOffset[columnIndex];
             if(offsetAdjuster is not null)
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
             var sizeInBytes = countToRead * column.DataTypeSize;
-            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, typeof(T)).Invoke(this, new object[] { offset, sizeInBytes })!;
+            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, requestedType).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
 
         ICanEnumerateDisposable GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
         {
             ref readonly var column = ref _columns[columnIndex];
+            var dataType = column.DataType.GetDataType();
+            if (dataType == typeof(IVector))
+                dataType = typeof(VectorData);
+            else if(dataType == typeof(IMatrix))
+                dataType = typeof(MatrixData);
 
             var offset = _columnOffset[columnIndex];
             if(offsetAdjuster is not null)
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
-            var dataType = column.DataType.GetDataType();
             var sizeInBytes = countToRead * column.DataTypeSize;
             return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
@@ -58,32 +85,32 @@ namespace BrightData.DataTable2
                 }
 
                 if (dataType == typeof(IndexList)) {
-                    var ret = new IndexListConverter(Context, _indices.Value);
+                    var ret = new IndexListConverter(_indices.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(WeightedIndexList)) {
-                    var ret = new WeightedIndexListConverter(Context, _weightedIndices.Value);
+                    var ret = new WeightedIndexListConverter(_weightedIndices.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
-                if (dataType == typeof(IVector)) {
-                    var ret = new VectorConverter(Context, _tensors.Value);
+                if (dataType == typeof(IVectorInfo)) {
+                    var ret = new VectorInfoConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
-                if (dataType == typeof(IMatrix)) {
-                    var ret = new MatrixConverter(Context, _tensors.Value);
+                if (dataType == typeof(IMatrixInfo)) {
+                    var ret = new MatrixInfoConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
-                if (dataType == typeof(ITensor3D)) {
-                    var ret = new Tensor3DConverter(Context, _tensors.Value);
+                if (dataType == typeof(ITensor3DInfo)) {
+                    var ret = new Tensor3DInfoConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
-                if (dataType == typeof(ITensor4D)) {
-                    var ret = new Tensor4DConverter(Context, _tensors.Value);
+                if (dataType == typeof(ITensor4DInfo)) {
+                    var ret = new Tensor4DInfoConverter(Context, _tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
@@ -119,124 +146,101 @@ namespace BrightData.DataTable2
 
         class IndexListConverter : IConvertStructsToObjects<DataRangeColumnType, IndexList>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<uint> _indices;
 
-            public IndexListConverter(BrightDataContext context, ICanRandomlyAccessData<uint> indices)
+            public IndexListConverter(ICanRandomlyAccessData<uint> indices)
             {
-                _context = context;
                 _indices = indices;
             }
 
             public IndexList Convert(ref DataRangeColumnType item)
             {
                 var span = _indices.GetSpan(item.StartIndex, item.Count);
-                return IndexList.Create(_context, span);
+                return IndexList.Create(span);
             }
         }
 
         class WeightedIndexListConverter : IConvertStructsToObjects<DataRangeColumnType, WeightedIndexList>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<WeightedIndexList.Item> _indices;
 
-            public WeightedIndexListConverter(BrightDataContext context, ICanRandomlyAccessData<WeightedIndexList.Item> indices)
+            public WeightedIndexListConverter(ICanRandomlyAccessData<WeightedIndexList.Item> indices)
             {
-                _context = context;
                 _indices = indices;
             }
 
             public WeightedIndexList Convert(ref DataRangeColumnType item)
             {
                 var span = _indices.GetSpan(item.StartIndex, item.Count);
-                return WeightedIndexList.Create(_context, span);
+                return WeightedIndexList.Create(span);
             }
         }
 
-        class VectorConverter : IConvertStructsToObjects<DataRangeColumnType, IVector>
+        class VectorInfoConverter : IConvertStructsToObjects<DataRangeColumnType, VectorData>
         {
             readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public VectorConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public VectorInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
             }
 
-            public IVector Convert(ref DataRangeColumnType item)
+            public VectorData Convert(ref DataRangeColumnType item)
             {
-                var cu = _context.LinearAlgebraProvider2;
-                var span = _data.GetSpan(item.StartIndex, item.Count);
-                var segment = cu.CreateSegment(item.Count);
-                segment.CopyFrom(span);
-                return cu.CreateVector(segment);
+                return new VectorData(_context, _data, item.StartIndex, item.Count);
             }
         }
 
-        class MatrixConverter : IConvertStructsToObjects<MatrixColumnType, IMatrix>
+        class MatrixInfoConverter : IConvertStructsToObjects<MatrixColumnType, MatrixData>
         {
             readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public MatrixConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public MatrixInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
             }
 
-            public IMatrix Convert(ref MatrixColumnType item)
+            public MatrixData Convert(ref MatrixColumnType item)
             {
-                var cu = _context.LinearAlgebraProvider2;
-                var size = item.RowCount * item.ColumnCount;
-                var span = _data.GetSpan(item.StartIndex, size);
-                var segment = cu.CreateSegment(size);
-                segment.CopyFrom(span);
-                return cu.CreateMatrix(item.RowCount, item.ColumnCount, segment);
+                return new MatrixData(_context, _data, item.StartIndex, item.RowCount, item.ColumnCount);
             }
         }
 
-        class Tensor3DConverter : IConvertStructsToObjects<Tensor3DColumnType, ITensor3D>
+        class Tensor3DInfoConverter : IConvertStructsToObjects<Tensor3DColumnType, Tensor3DData>
         {
             readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor3DConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor3DInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
             }
 
-            public ITensor3D Convert(ref Tensor3DColumnType item)
+            public Tensor3DData Convert(ref Tensor3DColumnType item)
             {
-                var cu = _context.LinearAlgebraProvider2;
-                var size = item.RowCount * item.ColumnCount * item.Depth;
-                var span = _data.GetSpan(item.StartIndex, size);
-                var segment = cu.CreateSegment(size);
-                segment.CopyFrom(span);
-                return cu.CreateTensor3D(item.Depth, item.RowCount, item.ColumnCount, segment);
+                return new Tensor3DData(_context, _data, item.StartIndex, item.Depth, item.RowCount, item.ColumnCount);
             }
         }
 
-        class Tensor4DConverter : IConvertStructsToObjects<Tensor4DColumnType, ITensor4D>
+        class Tensor4DInfoConverter : IConvertStructsToObjects<Tensor4DColumnType, Tensor4DData>
         {
             readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor4DConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor4DInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
             {
                 _context = context;
                 _data = data;
             }
 
-            public ITensor4D Convert(ref Tensor4DColumnType item)
+            public Tensor4DData Convert(ref Tensor4DColumnType item)
             {
-                var cu = _context.LinearAlgebraProvider2;
-                var size = item.RowCount * item.ColumnCount * item.Depth * item.Count;
-                var span = _data.GetSpan(item.StartIndex, size);
-                var segment = cu.CreateSegment(size);
-                segment.CopyFrom(span);
-                return cu.CreateTensor4D(item.Count, item.Depth, item.RowCount, item.ColumnCount, segment);
+                return new Tensor4DData(_context, _data, item.StartIndex, item.Count, item.Depth, item.RowCount, item.ColumnCount);
             }
         }
     }

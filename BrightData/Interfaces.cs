@@ -1095,7 +1095,7 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
-    public interface ITensor2 : IDisposable, ISerializable
+    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan
     {
         BrightDataContext Context { get; }
         LinearAlgebraProvider LinearAlgebraProvider { get; }
@@ -1106,11 +1106,11 @@ namespace BrightData
         ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns);
         void Clear();
         ITensor2 Clone();
-        uint Size { get; }
+        uint TotalSize { get; }
         uint[] Shape { get; }
     }
 
-    public interface ITensor2<out T> : ITensor2 
+    public interface ITensor2<out T> : ITensor2
         where T: ITensor2
     {
         new T Clone();
@@ -1173,29 +1173,26 @@ namespace BrightData
         void L1Regularisation(float coefficient);
     }
 
-    public interface IVector : ITensor2<IVector>
+    public interface IVector : ITensor2<IVector>, IVectorInfo
     {
-        public uint Size { get; }
-        float this[int index] { get; set; }
-        float this[uint index] { get; set; }
+        new float this[int index] { get; set; }
+        new float this[uint index] { get; set; }
         float this[long index] { get; set; }
         float this[ulong index] { get; set; }
         IVector MapIndexed(Func<uint, float, float> mutator);
         void MapIndexedInPlace(Func<uint, float, float> mutator);
     }
 
-    public interface IMatrix : ITensor2<IMatrix>
+    public interface IMatrix : ITensor2<IMatrix>, IMatrixInfo
     {
-        uint RowCount { get; }
-        uint ColumnCount { get; }
-        float this[int rowY, int columnX] { get; set; }
-        float this[uint rowY, uint columnX] { get; set; }
+        new float this[int rowY, int columnX] { get; set; }
+        new float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }
         float this[ulong rowY, ulong columnX] { get; set; }
         ReadOnlySpan<float> GetRowSpan(uint rowIndex);
         ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed);
-        ITensorSegment2 Row(uint index);
-        ITensorSegment2 Column(uint index);
+        TensorSegmentWrapper2 Row(uint index);
+        TensorSegmentWrapper2 Column(uint index);
         ITensorSegment2[] Rows();
         ITensorSegment2[] Columns();
         IVector[] RowVectors();
@@ -1222,14 +1219,10 @@ namespace BrightData
         void AddToEachColumn(ITensorSegment2 segment);
     }
 
-    public interface ITensor3D : ITensor2<ITensor3D>
+    public interface ITensor3D : ITensor2<ITensor3D>, ITensor3DInfo
     {
-        uint Depth { get; }
-        uint RowCount { get; }
-        uint ColumnCount { get; }
-        uint MatrixSize { get; }
-        float this[int depth, int rowY, int columnX] { get; set; }
-        float this[uint depth, uint rowY, uint columnX] { get; set; }
+        new float this[int depth, int rowY, int columnX] { get; set; }
+        new float this[uint depth, uint rowY, uint columnX] { get; set; }
         float this[long depth, long rowY, long columnX] { get; set; }
         float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
         IMatrix Matrix(uint index);
@@ -1246,16 +1239,10 @@ namespace BrightData
         ITensor3D TransposeThisAndMultiply(ITensor4D other);
     }
 
-    public interface ITensor4D : ITensor2<ITensor4D>
+    public interface ITensor4D : ITensor2<ITensor4D>, ITensor4DInfo
     {
-        uint Count { get; }
-        uint Depth { get; }
-        uint RowCount { get; }
-        uint ColumnCount { get; }
-        uint MatrixSize { get; }
-        uint TensorSize { get; }
-        float this[int count, int depth, int rowY, int columnX] { get; set; }
-        float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
+        new float this[int count, int depth, int rowY, int columnX] { get; set; }
+        new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
         float this[long count, long depth, long rowY, long columnX] { get; set; }
         float this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
         ITensor3D Tensor(uint index);

@@ -16,9 +16,9 @@ namespace BrightData.Cuda
     {
         readonly CudaProvider _cuda;
 
-        public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider cuda) : base(context)
+        public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : base(context)
         {
-            _cuda = cuda;
+            _cuda = cuda ?? context.CreateCudaProvider();
         }
 
         public override void Dispose()
@@ -776,5 +776,6 @@ namespace BrightData.Cuda
 
             return matrix;
         }
+
     }
 }

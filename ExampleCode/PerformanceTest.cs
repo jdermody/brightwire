@@ -22,29 +22,45 @@ namespace ExampleCode
             var table = new Table(new TableConfiguration(Style.Unicode), headers);
             AddLine("Matrix Multiply 10", table, laps.Select(lap => MatrixMultiply(lap, 10)));
             AddLine("Matrix Multiply 100", table, laps.Select(lap => MatrixMultiply(lap, 100)));
-            AddLine("Matrix Multiply 300", table, laps.Select(lap => MatrixMultiply(lap, 300)));
-            AddLine("Matrix Multiply 600", table, laps.Select(lap => MatrixMultiply(lap, 600)));
-
-            Console.Write(table.ToString());
+            AddLine("Matrix Multiply 500", table, laps.Select(lap => MatrixMultiply(lap, 500)));
+            AddLine("Matrix Multiply 1000", table, laps.Select(lap => MatrixMultiply(lap, 1000)));
+            AddLine("Matrix Multiply 2000", table, laps.Select(lap => MatrixMultiply(lap, 2000)));
+            AddLine("Matrix Transpose 10", table, laps.Select(lap => MatrixTranspose(lap, 10)));
+            AddLine("Matrix Transpose 100", table, laps.Select(lap => MatrixTranspose(lap, 100)));
+            AddLine("Matrix Transpose 500", table, laps.Select(lap => MatrixTranspose(lap, 500)));
+            AddLine("Matrix Transpose 1000", table, laps.Select(lap => MatrixTranspose(lap, 1000)));
+            AddLine("Matrix Transpose 2000", table, laps.Select(lap => MatrixTranspose(lap, 2000)));
         }
 
         static void AddLine(string name, Table table, IEnumerable<TimeSpan> results)
         {
+            Console.CursorLeft = 0;
+            Console.CursorTop = 0;
             table.AddRow(name.ToEnumerable()
                 .Concat(results.Select(r => $"{r.TotalMilliseconds:N0}"))
                 .Cast<object>()
                 .ToArray()
             );
+            Console.Write(table.ToString());
         }
 
         static TimeSpan MatrixMultiply(LinearAlgebraProvider lap, uint size)
         {
-            using var matrix = lap.CreateMatrix(size, size);
-            matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
+            using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
             using var matrix2 = matrix.Clone();
 
             var sw = Stopwatch.StartNew();
             using var result = matrix.Multiply(matrix2);
+            sw.Stop();
+            return sw.Elapsed;
+        }
+
+        static TimeSpan MatrixTranspose(LinearAlgebraProvider lap, uint size)
+        {
+            using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
+
+            var sw = Stopwatch.StartNew();
+            using var result = matrix.Transpose();
             sw.Stop();
             return sw.Elapsed;
         }

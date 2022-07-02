@@ -14,7 +14,7 @@ namespace ExampleCode.DataTableTrainers
         public virtual void TrainNeuralNetwork()
         {
             // create a neural network graph factory
-            var graph = Table.Context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
 
             // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
             var errorMetric = graph.ErrorMetric.OneHotEncoding;

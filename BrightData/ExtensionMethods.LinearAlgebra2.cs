@@ -763,7 +763,7 @@ namespace BrightData
 
         public static WeightedIndexList ToSparse(this IVector vector)
         {
-            return WeightedIndexList.Create(vector.Context, vector.Segment.Values
+            return WeightedIndexList.Create(vector.Segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );

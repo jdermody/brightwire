@@ -23,6 +23,7 @@ namespace BrightData.MKL
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
         public override IVector CreateVector(ITensorSegment2 data) => new MklVector(data, this);
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new MklMatrix(data, rowCount, columnCount, this);
 
         public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2)
         {
@@ -106,7 +107,7 @@ namespace BrightData.MKL
             var cols = (int)matrix.ColumnCount;
 
             var ret = Apply(matrix.Segment, (size, a, r) => {
-                Array.Copy(a, r, a.Length);
+                //Array.Copy(a, r, a.Length);
                 Blas.imatcopy(
                     LayoutChar.ColMajor, 
                     TransChar.Yes,

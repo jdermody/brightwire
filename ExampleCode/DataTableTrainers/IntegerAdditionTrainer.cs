@@ -16,8 +16,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void TrainRecurrentNeuralNetwork(bool writeResults = true)
         {
-            var context = Table.Context;
-            var graph = context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
 
             // binary classification rounds each output to either 0 or 1
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -49,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(context, 8));
+                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(_context, 8));
                 var results = executionEngine.Execute(testData2).ToArray();
 
                 // group the output

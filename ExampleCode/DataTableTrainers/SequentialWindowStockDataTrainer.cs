@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void TrainLstm(uint hiddenLayerSize)
         {
-            var graph = Table.Context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
 
             // create the property set

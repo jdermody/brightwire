@@ -55,3 +55,5 @@
 /BrightData2/obj
 /BrightData.Cuda2/bin
 /BrightData.Cuda2/obj
+/BrightData.OpenBlas/bin/Debug/net6.0
+/BrightData.OpenBlas/obj

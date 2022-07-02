@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify each step of a sequence
     /// </summary>
-    internal class SequentialDataTableAdapter : DataTableAdapterBase<(IMatrix Input, IMatrix? Output)>
+    internal class SequentialDataTableAdapter : DataTableAdapterBase<(IMatrixInfo Input, IMatrixInfo? Output)>
     {
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
@@ -32,8 +32,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             // find the number of sequences of each row
             var foundData = false;
             foreach(var (i, row) in dataTable.GetAllRowData()) {
-                using var inputMatrix = (IMatrix) row[_featureColumnIndices[0]];
-                using var outputMatrix = (IMatrix) row[_targetColumnIndex];
+                var inputMatrix = (IMatrixInfo) row[_featureColumnIndices[0]];
+                var outputMatrix = (IMatrixInfo) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
@@ -49,10 +49,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _sequenceLengthsAreVaried = sequenceLengthsAreVaried;
         }
 
-        protected override IEnumerable<(IMatrix Input, IMatrix? Output)> GetRows(uint[] rows)
+        protected override IEnumerable<(IMatrixInfo Input, IMatrixInfo? Output)> GetRows(uint[] rows)
         {
             return _dataTable.GetRows(rows).Select(row => {
-                using(row) return ((IMatrix)row[_featureColumnIndices[0]], (IMatrix?)row[_targetColumnIndex]);
+                using(row) return ((IMatrixInfo)row[_featureColumnIndices[0]], (IMatrixInfo?)row[_targetColumnIndex]);
             });
         }
 
@@ -69,21 +69,21 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider2;
             if (_sequenceLengthsAreVaried) {
-                var inputData = new Dictionary<uint, List<ITensorSegment2>>();
-                var outputData = new Dictionary<uint, List<ITensorSegment2>>();
+                var inputData = new Dictionary<uint, List<IVectorInfo>>();
+                var outputData = new Dictionary<uint, List<IVectorInfo>>();
 
                 foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {
                         if (!inputData.TryGetValue(i, out var temp))
                             inputData.Add(i, temp = new());
-                        temp.Add(input.Row(i));
+                        temp.Add(input.GetRow(i));
                     }
 
                     if (output != null) {
                         for (uint i = 0, len = output.RowCount; i < len; i++) {
                             if (!outputData.TryGetValue(i, out var temp))
                                 outputData.Add(i, temp = new());
-                            temp.Add(output.Row(i));
+                            temp.Add(output.GetRow(i));
                         }
                     }
                 }

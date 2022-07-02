@@ -101,5 +101,11 @@ namespace BrightData
             for(uint i = 0, len = segment.Size; i < len; i++)
                 buffer.Add(segment[i]);
         }
+
+        public static void CopyFrom(this IHybridBuffer<float> buffer, ReadOnlySpan<float> span)
+        {
+            for(int i = 0, len = span.Length; i < len; i++)
+                buffer.Add(span[i]);
+        }
     }
 }

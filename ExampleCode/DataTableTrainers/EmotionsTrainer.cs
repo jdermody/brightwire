@@ -147,7 +147,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
-            var targetColumn = Table.GetTargetColumnOrThrow();
+            var targetColumn = Table.Value.GetTargetColumnOrThrow();
 
             foreach (var item in trainingTables.Zip(testTables, (train, test) => (Training: train, Test: test))) {
                 Console.WriteLine("Training on {0}", item.Training.Label);

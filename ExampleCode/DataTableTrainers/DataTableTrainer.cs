@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using BrightData;
 using BrightData.DataTable2;
 using BrightWire;
@@ -12,10 +13,13 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class DataTableTrainer : IDisposable
     {
+        protected readonly BrightDataContext _context;
+
         public DataTableTrainer(BrightDataTable table)
         {
+            _context = table.Context;
             TargetColumn = table.GetTargetColumnOrThrow();
-            Table = table;
+            Table = new(table);
             var (training, test) = table.Split();
             Training = training;
             Test = test;
@@ -23,27 +27,32 @@ namespace ExampleCode.DataTableTrainers
 
         public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
         {
+            _context = training.Context;
             TargetColumn = training.GetTargetColumnOrThrow();
             Training = training;
             Test = test;
-            Table = table ?? training.ConcatenateRows(test);
+            if (table is null)
+                Table = new(() => training.ConcatenateRows(test));
+            else
+                Table = new(table);
         }
 
         public void Dispose()
         {
-            Table.Dispose();
+            if(Table.IsValueCreated)
+                Table.Value.Dispose();
             Training.Dispose();
             Test.Dispose();
         }
 
         public uint TargetColumn { get; }
-        public BrightDataTable Table { get; }
+        public Lazy<BrightDataTable> Table { get; }
         public BrightDataTable Training { get; }
         public BrightDataTable Test { get; }
 
-        public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.KMeans(k));
-        public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.HierarchicalCluster(k));
-        public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
+        public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.Value.KMeans(k));
+        public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.Value.HierarchicalCluster(k));
+        public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.Value.NonNegativeMatrixFactorisation(k));
 
         static IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string? Label)[]> clusters) => clusters
             .Select(c => String.Join(';', c
@@ -83,7 +92,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2, k));
+                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider2, k));
             return ret;
         }
 
@@ -103,8 +112,8 @@ namespace ExampleCode.DataTableTrainers
                 Console.WriteLine($"{type} accuracy: {score:P}");
             }
             finally {
-                foreach(var item in results)
-                    item.Row.Dispose();
+                foreach(var (row, _) in results)
+                    row.Dispose();
             }
         }
 
@@ -122,7 +131,7 @@ namespace ExampleCode.DataTableTrainers
         public virtual void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
         {
             // create a neural network graph factory
-            var graph = Table.Context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
 
             // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
             var errorMetric = graph.ErrorMetric.OneHotEncoding;

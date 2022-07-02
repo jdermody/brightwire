@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.DataTable2;
+using BrightData.DataTable2.TensorData;
 using BrightData.LinearAlegbra2;
 using FluentAssertions;
 using Xunit;
@@ -88,7 +89,7 @@ namespace BrightData.UnitTests
         public void InMemoryVector()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var vectorBuilder = builder.AddColumn<IVector>("vector");
+            var vectorBuilder = builder.AddColumn<IVectorInfo>("vector");
             using var firstVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
 
@@ -97,7 +98,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<IVector>(0, 0);
+            using var fromTable = dataTable.Get<IVectorInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstVector);
             fromTable.Segment.Should().BeEquivalentTo(firstVector.Segment);
         }
@@ -106,7 +107,7 @@ namespace BrightData.UnitTests
         public void InMemoryMatrix()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var matrixBuilder = builder.AddColumn<IMatrix>("matrix");
+            var matrixBuilder = builder.AddColumn<IMatrixInfo>("matrix");
             using var firstMatrix = _context.LinearAlgebraProvider2.CreateMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
 
@@ -115,7 +116,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<IMatrix>(0, 0);
+            using var fromTable = dataTable.Get<IMatrixInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstMatrix);
             fromTable.Segment.Should().BeEquivalentTo(firstMatrix.Segment);
         }
@@ -124,7 +125,7 @@ namespace BrightData.UnitTests
         public void InMemoryTensor3D()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var tensorBuilder = builder.AddColumn<ITensor3D>("tensor");
+            var tensorBuilder = builder.AddColumn<ITensor3DInfo>("tensor");
             var lap = _context.LinearAlgebraProvider2;
             using var firstTensor = lap.CreateTensor3DAndThenDisposeInput(
                 lap.CreateMatrix(5, 5, (i, j) => i + j),
@@ -137,7 +138,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<ITensor3D>(0, 0);
+            using var fromTable = dataTable.Get<ITensor3DInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstTensor);
             fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
         }
@@ -146,7 +147,7 @@ namespace BrightData.UnitTests
         public void InMemoryTensor4D()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var tensorBuilder = builder.AddColumn<ITensor4D>("tensor");
+            var tensorBuilder = builder.AddColumn<ITensor4DInfo>("tensor");
             var lap = _context.LinearAlgebraProvider2;
             using var firstTensor = lap.CreateTensor4DAndThenDisposeInput(
                 lap.CreateTensor3DAndThenDisposeInput(
@@ -165,7 +166,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<ITensor4D>(0, 0);
+            using var fromTable = dataTable.Get<ITensor4DInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstTensor);
             fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
         }

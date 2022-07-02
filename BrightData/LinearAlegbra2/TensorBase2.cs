@@ -61,26 +61,28 @@ namespace BrightData.LinearAlegbra2
         }
 
         public abstract T Create(ITensorSegment2 segment);
-        public abstract uint Size { get; protected set; }
+        public abstract uint TotalSize { get; protected set; }
         public abstract uint[] Shape { get; protected set; }
         public ITensorSegment2 Segment { get; private set; }
         public BrightDataContext Context => _lap.Context;
         public LinearAlgebraProvider LinearAlgebraProvider => _lap;
 
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+
         public IVector Reshape() => _lap.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
         {
-            var shape = ResolveShape(Size, rows, columns);
+            var shape = ResolveShape(TotalSize, rows, columns);
             return _lap.CreateMatrix(shape[0], shape[1], Segment);
         }
         public ITensor3D Reshape(uint? depth, uint? rows, uint? columns)
         {
-            var shape = ResolveShape(Size, depth, rows, columns);
+            var shape = ResolveShape(TotalSize, depth, rows, columns);
             return _lap.CreateTensor3D(shape[0], shape[1], shape[2], Segment);
         }
         public ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
-            var shape = ResolveShape(Size, count, depth, rows, columns);
+            var shape = ResolveShape(TotalSize, count, depth, rows, columns);
             return _lap.CreateTensor4D(shape[0], shape[1], shape[2], shape[3], Segment);
         }
         static uint[] ResolveShape(uint total, params uint?[] shape)

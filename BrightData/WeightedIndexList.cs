@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 
 namespace BrightData
@@ -14,7 +15,7 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public class WeightedIndexList : IHaveIndices, ISerializable, IHaveDataContext
+    public struct WeightedIndexList : IHaveIndices, ISerializable
     {
         /// <summary>
         /// An item within a weighted index list
@@ -76,29 +77,25 @@ namespace BrightData
             }
         }
 
-        internal WeightedIndexList(BrightDataContext context, Item[] indices)
+        public WeightedIndexList(Item[] indices)
         {
-            Context = context;
             Indices = indices;
         }
-
-        /// <inheritdoc />
-        public BrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
         /// </summary>
         public Item[] Indices { get; private set; }
 
-        internal static WeightedIndexList Create(BrightDataContext context, params Item[] indexList) => new(context, indexList);
-        internal static WeightedIndexList Create(BrightDataContext context, ReadOnlySpan<Item> indexList) => new(context, indexList.ToArray());
-        internal static WeightedIndexList Create(BrightDataContext context, IEnumerable<Item> indexList) => new(context, indexList.ToArray());
+        public static WeightedIndexList Create(params Item[] indexList) => new(indexList);
+        public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => new(indexList.ToArray());
+        public static WeightedIndexList Create(IEnumerable<Item> indexList) => new(indexList.ToArray());
 
-        internal static WeightedIndexList Create(BrightDataContext context, params (uint Index, float Weight)[] indexList) =>
-            new(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+        public static WeightedIndexList Create(params (uint Index, float Weight)[] indexList) =>
+            new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
-        internal static WeightedIndexList Create(BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) =>
-            new(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+        public static WeightedIndexList Create(IEnumerable<(uint Index, float Weight)> indexList) =>
+            new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
         /// <summary>
         /// The number of items in the list
@@ -121,7 +118,6 @@ namespace BrightData
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
-            Context = context;
             var len = reader.ReadInt32();
             Indices = reader.BaseStream.ReadArray<Item>(len);
         }
@@ -134,10 +130,8 @@ namespace BrightData
         /// <returns></returns>
         public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average)
         {
-            BrightDataContext? context = null;
             var items = new Dictionary<uint, List<float>>();
             foreach (var list in lists) {
-                context = list.Context;
                 foreach (var index in list.Indices) {
                     if (!items.TryGetValue(index.Index, out var weights))
                         items.Add(index.Index, weights = new List<float>());
@@ -146,7 +140,6 @@ namespace BrightData
             }
 
             return new WeightedIndexList(
-                context ?? throw new ArgumentException("No valid lists were supplied"),
                 items.Select(d => new Item(d.Key, mergeOperation.Aggregate(d.Value))).ToArray()
             );
         }
@@ -197,7 +190,7 @@ namespace BrightData
         /// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
         /// </summary>
         /// <returns></returns>
-        public IndexList AsIndexList() => IndexList.Create(Context, Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray());
+        public IndexList AsIndexList() => IndexList.Create(Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray());
 
         IEnumerable<uint> IHaveIndices.Indices => Indices.Select(ind => ind.Index);
 
@@ -268,7 +261,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
-        public IVector AsDense(uint? maxIndex = null)
+        public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)
         {
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
@@ -283,8 +276,8 @@ namespace BrightData
             }
 
             if (indices.Any())
-                return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
-            return Context.LinearAlgebraProvider2.CreateVector(maxIndex ?? 0, _ => 0f);
+                return lap.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
+            return lap.CreateVector(maxIndex ?? 0, _ => 0f);
         }
 
         /// <inheritdoc />
@@ -305,12 +298,12 @@ namespace BrightData
         /// <returns>New weighted index list with unique indices</returns>
         public WeightedIndexList Unique(AggregationType type = AggregationType.Sum)
         {
-            return Context.CreateWeightedIndexList(Indices
+            return new WeightedIndexList(Indices
                 .GroupBy(d => d.Index)
                 .Select(g => new Item(g.Key, g.Count() == 1 
                     ? g.Single().Weight 
                     : type.Aggregate(g.Select(d => d.Weight)))
-                )
+                ).ToArray()
             );
         }
 
