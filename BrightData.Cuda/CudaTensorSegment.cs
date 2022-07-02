@@ -106,10 +106,27 @@ namespace BrightData.Cuda
             using var buffer = ToNewMemoryOwner();
             buffer.Span.CopyTo(destination);
         }
+        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        {
+            throw new NotImplementedException();
+        }
 
         public void Clear()
         {
             DeviceMemory.Clear();
+        }
+
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = true;
+            temp = SpanOwner<float>.Allocate((int)Size);
+            DeviceMemory.CopyToHost(temp.DangerousGetArray());
+            return temp.Span;
+        }
+
+        public ReadOnlySpan<float> GetSpan()
+        {
+            throw new NotImplementedException();
         }
 
         public override string ToString()

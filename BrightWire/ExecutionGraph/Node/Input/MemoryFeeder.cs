@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
@@ -22,10 +23,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
                 var es = errorSignal.GetMatrix();
                 using var columnSums = es.ColumnSums();
-                columnSums.Multiply(1f / es.RowCount);
-                var initialDelta = columnSums;
-                for (uint j = 0; j < _source.Data.Length; j++)
+                using var initialDelta = columnSums.Multiply(1f / es.RowCount);
+                for (uint j = 0; j < _source.Data.Length; j++) {
                     _source.Data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
+                }
+                #if DEBUG
+                foreach(var item in _source.Data)
+                    Debug.Assert(!float.IsNaN(item));
+                #endif
 
                 if(_source._contextName != null)
                     context.SetData(_source._contextName, "hidden-backward", errorSignal);
@@ -48,13 +53,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public IAction SetMemoryAction => _setMemory;
         public float[] Data { get; set; }
 
-        public bool LoadNextFromMemory { get; set; }
+        public bool LoadNextFromMemory { get; set; } = false;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IMatrix memory;
             if (!LoadNextFromMemory && context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)Data.Length, (_, y) => Data[y]);
+                memory = context.GetLinearAlgebraProvider().CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)Data.Length, (_, y) => Data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
             }
             else {

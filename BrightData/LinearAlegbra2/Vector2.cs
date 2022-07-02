@@ -10,10 +10,10 @@ namespace BrightData.LinearAlegbra2
         {
         }
 
-        public override uint Size
+        public sealed override uint Size
         {
             get => Segment.Size;
-            protected set { }
+            protected set => throw new NotSupportedException();
         }
 
         public override uint[] Shape

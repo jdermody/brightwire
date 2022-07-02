@@ -4,29 +4,9 @@
         <name>BrightData.Cuda</name>
     </assembly>
     <members>
-        <member name="T:BrightData.Cuda.Cuda3DTensor">
-            <summary>
-            GPU backed 3D tensor
-            </summary>
-        </member>
-        <member name="T:BrightData.Cuda.Cuda4DTensor">
-            <summary>
-            GPU backed 4D tensor
-            </summary>
-        </member>
-        <member name="T:BrightData.Cuda.CudaMatrix">
-            <summary>
-            GPU backed matrix
-            </summary>
-        </member>
         <member name="T:BrightData.Cuda.CudaProvider">
             <summary>
             Manages the bright wire cuda kernels and implements the cuda linear algebra provider
-            </summary>
-        </member>
-        <member name="T:BrightData.Cuda.CudaVector">
-            <summary>
-            GPU backed vector
             </summary>
         </member>
         <member name="T:BrightData.Cuda.ExtensionMethods">
@@ -34,7 +14,7 @@
             Provides a GPU based linear algebra provider
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.ExtensionMethods.UseCudaLinearAlgebra(BrightData.BrightDataContext,System.String,System.UInt32)">
+        <member name="M:BrightData.Cuda.ExtensionMethods.CreateCudaProvider(BrightData.BrightDataContext,System.String,System.UInt32)">
             <summary>
             Creates a linear alebra provider that runs on the GPU
             </summary>

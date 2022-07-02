@@ -131,18 +131,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 			}
 			else if(_statistics != null) {
+                var lap = context.GetLinearAlgebraProvider();
 				if (_gammaCached?.Segment.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
-					_gammaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _gamma.Data[y]);
+					_gammaCached = lap.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _gamma.Data[y]);
 				if(_betaCached?.Segment.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
-					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _beta.Data[y]);
+					_betaCached = lap.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _beta.Data[y]);
 				if (_meanCached?.Segment.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
 					var mean = _statistics.Mean;
-					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToArray());
+					_meanCached = lap.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToArray());
 				}
 				if (_stdDevCached?.Segment.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
                     using var variance = _statistics.GetSampleVariance();
                     using var stdDev = variance.Sqrt();
-                    _stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToArray());
+                    _stdDevCached = lap.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToArray());
                 }
 				
 				input.SubtractInPlace(_meanCached);

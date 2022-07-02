@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
-            IGraphExecutionContext executionContext,
+            GraphExecutionContext executionContext,
             IMiniBatchSequence batchSequence) : base(batchSequence)
         {
             LearningContext = learningContext;
@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         
-        public IGraphExecutionContext ExecutionContext { get; }
+        public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
         public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 

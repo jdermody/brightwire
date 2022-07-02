@@ -560,5 +560,10 @@ namespace BrightData
             foreach(var item in disposables)
                 item.Dispose();
         }
+
+        public static IEnumerable<T> ToEnumerable<T>(this T obj)
+        {
+            yield return obj;
+        }
     }
 }

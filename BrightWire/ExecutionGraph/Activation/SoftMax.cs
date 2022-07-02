@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
                 var rowList = new IVector[matrix.RowCount];
                 for (uint i = 0; i < matrix.RowCount; i++) {
@@ -41,14 +41,14 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var lap = context.LinearAlgebraProvider;
+            var lap = context.GetLinearAlgebraProvider();
             var input = signal.GetMatrix();
             var rowList = new IVector[input.RowCount];
             for (uint i = 0; i < input.RowCount; i++) {
                 using var row = input.Row(i).ToVector(lap);
                 rowList[i] = row.Softmax();
             }
-            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+            var output = lap.CreateMatrixFromRows(rowList);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }

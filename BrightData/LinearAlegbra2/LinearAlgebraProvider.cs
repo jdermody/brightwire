@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -22,8 +24,9 @@ namespace BrightData.LinearAlegbra2
         }
 
         public BrightDataContext Context { get; }
+        public virtual string Name => "default";
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             foreach (var set in _scope) {
                 foreach(var item in set)
@@ -42,8 +45,8 @@ namespace BrightData.LinearAlegbra2
             foreach(var item in popped)
                 item.Dispose();
         }
-        internal bool AddToScope(IDisposable obj) => _scope.Last().Add(obj);
-        internal bool RemoveFromScope(IDisposable obj) => _scope.Last().Remove(obj);
+        internal bool AddToScope(IDisposable obj) => _scope.First().Add(obj);
+        internal bool RemoveFromScope(IDisposable obj) => _scope.First().Remove(obj);
         public virtual ITensorSegment2 CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
         public virtual ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
         {
@@ -357,7 +360,7 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
-        public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
+        public virtual IMatrix OldMultiply(IMatrix matrix, IMatrix other)
         {
             var rowCount = matrix.RowCount;
             var ret = CreateMatrix(rowCount, other.ColumnCount);
@@ -378,14 +381,58 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
+        public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
+        {
+            if (matrix.ColumnCount != other.RowCount)
+                throw new Exception("Matrix sizes do not agree");
+
+            // transpose so that we can can get contiguous vectors
+            using var transposedOther = other.Transpose();
+            return MultiplyWithOtherTransposed(matrix, transposedOther);
+        }
+
+        protected IMatrix MultiplyWithOtherTransposed(IMatrix matrix, IMatrix transposedOther)
+        {
+            var size = (int)matrix.ColumnCount;
+            var rowCount = matrix.RowCount;
+            var columnCount = transposedOther.RowCount;
+            var ret = CreateMatrix(rowCount, columnCount);
+            var vectorSize = ExtensionMethods.NumericsVectorSize;
+
+            Parallel.For(0, matrix.RowCount * columnCount, ind => {
+                var i = (uint)(ind % rowCount);
+                var j = (uint)(ind / rowCount);
+                var leftPtr = transposedOther.GetRowSpan(j);
+                var rightPtr = matrix.GetRowSpan(i);
+                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(leftPtr);
+                var rightVec = MemoryMarshal.Cast<float, Vector<float>>(rightPtr);
+
+                var numVectors = size / vectorSize;
+                var ceiling = numVectors * vectorSize;
+
+                var sum = 0f;
+                for (var x = 0; x < numVectors; x++) {
+                    var temp = Vector.Multiply(leftVec[x], rightVec[x]);
+                    sum += Vector.Sum(temp);
+                }
+                for (var y = ceiling; y < size; y++)
+                    sum += leftPtr[y] * rightPtr[y];
+                ret[i, j] = sum;
+            });
+            return ret;
+        }
+
         public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
-            using var transpose = Transpose(other);
-            return Multiply(matrix, transpose);
+            if (matrix.ColumnCount != other.ColumnCount)
+                throw new Exception("Matrix sizes do not agree");
+            return MultiplyWithOtherTransposed(matrix, other);
         }
 
         public virtual IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
+            if (matrix.RowCount != other.RowCount)
+                throw new Exception("Matrix sizes do not agree");
             using var transpose = Transpose(matrix);
             return Multiply(transpose, other);
         }
@@ -892,6 +939,35 @@ namespace BrightData.LinearAlegbra2
             });
 
             return ret;
+        }
+
+        public ITensor2 CreateTensor(uint[] shape, ITensorSegment2 segment)
+        {
+            if (shape.Length == 1) {
+                if (shape[0] != segment.Size)
+                    throw new ArgumentException("Shape does not match segment size");
+                return CreateVector(segment);
+            }
+
+            if (shape.Length == 2) {
+                if(shape[0] * shape[1] != segment.Size)
+                    throw new ArgumentException("Shape does not match segment size");
+                return CreateMatrix(shape[1], shape[0], segment);
+            }
+
+            if (shape.Length == 3) {
+                if(shape[0] * shape[1] * shape[2] != segment.Size)
+                    throw new ArgumentException("Shape does not match segment size");
+                return CreateTensor3D(shape[2], shape[1], shape[0], segment);
+            }
+
+            if (shape.Length == 4) {
+                if(shape[0] * shape[1] * shape[2] * shape[3] != segment.Size)
+                    throw new ArgumentException("Shape does not match segment size");
+                return CreateTensor4D(shape[3], shape[2], shape[1], shape[0], segment);
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

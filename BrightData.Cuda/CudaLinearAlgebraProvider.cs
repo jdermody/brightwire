@@ -21,6 +21,13 @@ namespace BrightData.Cuda
             _cuda = cuda;
         }
 
+        public override void Dispose()
+        {
+            _cuda.Dispose();
+            base.Dispose();
+        }
+
+        public override string Name => "cuda";
         public override Type VectorType { get; } = typeof(CudaVector2);
         public override Type MatrixType { get; } = typeof(CudaMatrix2);
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);

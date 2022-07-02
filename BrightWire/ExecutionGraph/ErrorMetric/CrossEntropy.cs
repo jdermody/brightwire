@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     {
         public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
         {
-            var lap = context.LinearAlgebraProvider;
+            var lap = context.GetLinearAlgebraProvider();
             using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, (i, j) => 1f);
             using var oneMinusOutput = ones.Subtract(output);
             using var oneMinusOutputTimesOutput = oneMinusOutput.PointwiseMultiply(output);

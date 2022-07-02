@@ -20,7 +20,7 @@ namespace BrightData.LinearAlegbra2
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
         public uint MatrixSize { get; private set; }
-        public override uint Size { get; protected set; }
+        public sealed override uint Size { get; protected set; }
         public override uint[] Shape
         {
             get => new[] { ColumnCount, RowCount, Depth };

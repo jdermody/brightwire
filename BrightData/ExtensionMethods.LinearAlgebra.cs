@@ -500,26 +500,7 @@ namespace BrightData
         /// <param name="dispose">True to dispose each of the input matrices</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IMatrix Average(this IEnumerable<IMatrix> matrices, bool dispose)
-        {
-            if(matrices == null)
-                throw new ArgumentException("Null enumerable", nameof(matrices));
-            IMatrix? ret = null;
-            var count = 0;
-            foreach(var item in matrices) {
-                if(ret is null)
-                    ret = item.LinearAlgebraProvider.CreateMatrix(item.RowCount, item.ColumnCount);
-                else
-                    ret.AddInPlace(item);
-                ++count;
-                if(dispose)
-                    item.Dispose();
-            }
-            if(ret is null)
-                throw new ArgumentException("Empty enumerable", nameof(matrices));
-            ret.Multiply(1f / count);
-            return ret;
-        }
+        public static IMatrix Average(this IEnumerable<IMatrix> matrices, bool dispose) => Average<IMatrix>(matrices, dispose);
 
         /// <summary>
         /// Calculates an average vector from a collection of vectors
@@ -528,25 +509,33 @@ namespace BrightData
         /// <param name="dispose">True to dispose each of the input vectors</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IVector Average(this IEnumerable<IVector> vectors, bool dispose)
+        public static IVector Average(this IEnumerable<IVector> vectors, bool dispose) => Average<IVector>(vectors, dispose);
+
+        static T Average<T>(this IEnumerable<T> tensors, bool dispose)
+            where T: ITensor2
         {
-            if(vectors == null)
-                throw new ArgumentException("Null enumerable", nameof(vectors));
-            IVector? ret = null;
+            if(tensors == null)
+                throw new ArgumentException("Null enumerable", nameof(tensors));
+            ITensorSegment2? ret = null;
             var count = 0;
-            foreach(var item in vectors) {
-                if(ret is null)
-                    ret = item.LinearAlgebraProvider.CreateVector(item.Size);
+            LinearAlgebraProvider? lap = null;
+            uint[]? shape = null;
+            foreach(var item in tensors) {
+                if (ret is null) {
+                    ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.Size);
+                    shape = item.Shape;
+                }
                 else
-                    ret.AddInPlace(item);
+                    ret.AddInPlace(item.Segment);
                 ++count;
                 if(dispose)
                     item.Dispose();
             }
-            if(ret is null)
-                throw new ArgumentException("Empty enumerable", nameof(vectors));
+
+            if (ret is null || lap is null || shape is null)
+                throw new ArgumentException("Empty enumerable", nameof(tensors));
             ret.Multiply(1f / count);
-            return ret;
+            return (T)lap.CreateTensor(shape, ret);
         }
     }
 }

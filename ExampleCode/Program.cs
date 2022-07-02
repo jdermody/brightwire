@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
+using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
 // ReSharper disable once RedundantUsingDirective
@@ -22,7 +23,7 @@ namespace ExampleCode
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            //Control.UseNativeMKL();
+            //context.UseMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
             //useCuda = true;
@@ -30,7 +31,8 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
+            //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context));
+            //Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
@@ -46,7 +48,7 @@ namespace ExampleCode
             //PredictBicyclesWithNeuralNetwork(context);
             //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
-            //MnistFeedForward(context);
+            MnistFeedForward(context);
             //MnistConvolutional(context, useCuda);
             //TrainIncomePrediction(context);
             //SentimentClassification(context, useCuda);

@@ -221,7 +221,7 @@ namespace BrightData
         /// Magnitude of weights
         /// </summary>
         public float Magnitude => Indices.Any()
-            ? MathF.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
+            ? FloatMath.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
             : 0f
         ;
 

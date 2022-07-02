@@ -1106,6 +1106,8 @@ namespace BrightData
         ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns);
         void Clear();
         ITensor2 Clone();
+        uint Size { get; }
+        uint[] Shape { get; }
     }
 
     public interface ITensor2<out T> : ITensor2 
@@ -1190,6 +1192,8 @@ namespace BrightData
         float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }
         float this[ulong rowY, ulong columnX] { get; set; }
+        ReadOnlySpan<float> GetRowSpan(uint rowIndex);
+        ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed);
         ITensorSegment2 Row(uint index);
         ITensorSegment2 Column(uint index);
         ITensorSegment2[] Rows();
@@ -1285,7 +1289,10 @@ namespace BrightData
         void CopyFrom(ReadOnlySpan<float> span);
         void CopyTo(ITensorSegment2 segment);
         void CopyTo(Span<float> destination);
+        unsafe void CopyTo(float* destination, int offset, int stride, int count);
         void Clear();
+        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
+        ReadOnlySpan<float> GetSpan();
     }
 
     public interface ICanIterateData<T> : IDisposable where T: unmanaged

@@ -103,7 +103,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // form the new attention as a product of the weights
             using var softmax = weights!.Softmax();
-            var combinedAttention = context.LinearAlgebraProvider.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
+            var lap = context.GetLinearAlgebraProvider();
+            var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softmax.ColumnVectors().Zip(encoderStates)) {
@@ -112,7 +113,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
                 var saved = second.Clone();
-                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => first[i]);
+                using var stretched = lap.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => first[i]);
                 second.PointwiseMultiply(stretched);
                 //second.Multiply(multiplyWeight);
                 combinedAttention.AddInPlace(second);

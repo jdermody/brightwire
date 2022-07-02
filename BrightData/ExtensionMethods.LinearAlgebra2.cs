@@ -57,7 +57,7 @@ namespace BrightData
         }
 
         static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
-        static readonly int NumericsVectorSize = System.Numerics.Vector<float>.Count;
+        internal static readonly int NumericsVectorSize = System.Numerics.Vector<float>.Count;
 
         public static ITensorSegment2 ZipParallel(this ITensorSegment2 segment, ITensorSegment2 other, Func<float, float, float> func)
         {
@@ -240,13 +240,13 @@ namespace BrightData
             }
         }
 
-        public static unsafe float Sum(this ITensorSegment2 segment)
+        public static unsafe float Sum(this Span<float> span) => Sum((ReadOnlySpan<float>)span);
+        public static unsafe float Sum(this ReadOnlySpan<float> span)
         {
+            var result = 0f;
             if (Sse3.IsSupported) {
-                float result;
-                var size = segment.Size;
-
-                fixed (float* pSource = segment.GetLocalOrNewArray()) {
+                var size = span.Length;
+                fixed (float* pSource = &MemoryMarshal.GetReference(span)) {
                     var vResult = Vector128<float>.Zero;
 
                     var i = 0;
@@ -265,11 +265,29 @@ namespace BrightData
                         i++;
                     }
                 }
+            }
+            else {
+                foreach (var item in span)
+                    result += item;
+            }
+            return result;
+        }
 
-                return result;
+        public static float Sum(this ITensorSegment2 segment)
+        {
+            if (Sse3.IsSupported) {
+                var temp = SpanOwner<float>.Empty;
+                var span = segment.GetSpan(ref temp, out var wasTempUsed);
+                try {
+                    return span.Sum();
+                }
+                finally {
+                    if(wasTempUsed)
+                        temp.Dispose();
+                }
             }
 
-            return segment.Values.AsParallel().Sum();
+            return segment.Values/*.AsParallel()*/.Sum();
         }
 
         public static ITensorSegment2 Add(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
@@ -401,7 +419,7 @@ namespace BrightData
             }
         }
 
-        public static ITensorSegment2 Sqrt(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Sqrt);
+        public static ITensorSegment2 Sqrt(this ITensorSegment2 tensor) => TransformParallel(tensor, x => FloatMath.Sqrt(x));
 
         public static uint? Search(this ITensorSegment2 segment, float value)
         {
@@ -441,7 +459,7 @@ namespace BrightData
         {
             var squared = Squared(segment);
             try {
-                return MathF.Sqrt(Sum(squared));
+                return FloatMath.Sqrt(Sum(squared));
             }
             finally {
                 squared.Release();
@@ -492,7 +510,7 @@ namespace BrightData
             var ab = DotProduct(tensor, other);
             var aa = DotProduct(tensor, tensor);
             var bb = DotProduct(other, other);
-            return 1f - ab / (MathF.Sqrt(aa) * MathF.Sqrt(bb));
+            return 1f - ab / (FloatMath.Sqrt(aa) * FloatMath.Sqrt(bb));
         }
 
         public static float EuclideanDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
@@ -501,7 +519,7 @@ namespace BrightData
             try {
                 var squared = Squared(distance);
                 try {
-                    return MathF.Sqrt(Sum(squared));
+                    return FloatMath.Sqrt(Sum(squared));
                 }
                 finally {
                     squared.Release();
@@ -577,7 +595,7 @@ namespace BrightData
                 }
             );
             try {
-                return MathF.Sqrt(Average(result));
+                return FloatMath.Sqrt(Average(result));
             }
             finally {
                 result.Release();
@@ -757,5 +775,7 @@ namespace BrightData
         public static ITensor4D ToTensor4D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
         public static void CopyTo(this ITensor2 tensor, ITensor2 other) => tensor.Segment.CopyTo(other.Segment);
+
+        
     }
 }

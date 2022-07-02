@@ -98,7 +98,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public float this[uint index] => _matrix.Segment[index];
         public bool HasValue { get; } = true;
 
-        public override string ToString() => $"Matrix graph data (rows:{Rows}, columns:{Columns})";
+        public override string ToString() => $"Matrix graph data: {_matrix}";
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public IGraphData ReplaceWith(IGraphSequenceContext context, IMatrix[] matrixList)
         {
             Debug.Assert(matrixList.Length == Depth);
-            var tensor = context.LinearAlgebraProvider.CreateTensor3D(matrixList);
+            var tensor = context.GetLinearAlgebraProvider().CreateTensor3D(matrixList);
             return new Tensor3DGraphData(tensor);
         }
         public ITensor4D? Get4DTensor()
@@ -136,7 +136,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return null;
         }
         public bool HasValue { get; } = true;
-        public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth})";
+        public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}): {_matrix}";
         public float this[uint index] => _matrix.Segment[index];
     }
 
@@ -170,7 +170,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
         public bool HasValue { get; } = true;
-        public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count})";
+        public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count}): {_matrix}";
         public float this[uint index] => _matrix.Segment[index];
 
     }

@@ -69,16 +69,33 @@ namespace BrightData.LinearAlegbra2
         public void CopyFrom(ReadOnlySpan<float> span) => span.CopyTo(_data.Span);
         public void CopyTo(ITensorSegment2 segment)
         {
-            var span = _array.AsSpan(0, (int)Size);
-
+            var span = GetSpan();
             var destination = segment.GetArrayForLocalUseOnly();
             if(destination is not null)
                 span.CopyTo(destination);
             else
                 segment.CopyFrom(span);
         }
-        public void CopyTo(Span<float> destination) => _array.AsSpan(0, (int)Size).CopyTo(destination);
+        public void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
+        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        {
+            fixed (float* buffer = &_array[offset]) {
+                var ptr = buffer;
+                for (var i = 0; i < count; i++) {
+                    *destination++ = *ptr;
+                    ptr += stride;
+                }
+            }
+        }
         public void Clear() => _data.Span.Clear();
+
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = false;
+            return _array.AsSpan(0, (int)Size);
+        }
+
+        public ReadOnlySpan<float> GetSpan() => _array.AsSpan(0, (int)Size);
 
         public override string ToString()
         {

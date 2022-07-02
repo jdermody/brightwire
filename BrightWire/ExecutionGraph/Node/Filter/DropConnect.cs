@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
                 var input = signal;
                 var inputMatrix = input.GetMatrix();
                 var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (_, _) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);

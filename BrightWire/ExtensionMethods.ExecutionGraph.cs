@@ -9,6 +9,7 @@ using System.Linq;
 using BrightData;
 using BrightData.DataTable2;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
 
@@ -26,12 +27,12 @@ namespace BrightWire
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new ExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
+            var executionContext = new GraphExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
             var userNotifications = engine.LinearAlgebraProvider.Context.UserNotifications;
             // ReSharper disable once AccessToModifiedClosure
 
-            var testId = Guid.NewGuid().ToString("n");
-            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            //var testId = Guid.NewGuid().ToString("n");
+            //engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
 
             var count = 0;
             GraphModel? ret = null;
@@ -196,5 +197,7 @@ namespace BrightWire
                     yield return context;
             }
         }
+
+        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphSequenceContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

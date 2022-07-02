@@ -8,6 +8,7 @@ using BrightData;
 using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire
@@ -140,17 +141,12 @@ namespace BrightWire
         /// <summary>
         /// Current execution context
         /// </summary>
-        IGraphExecutionContext ExecutionContext { get; }
+        GraphExecutionContext ExecutionContext { get; }
 
         /// <summary>
         /// Current learning context (optional)
         /// </summary>
         ILearningContext? LearningContext { get; }
-
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         /// <summary>
         /// Current mini batch sequence
@@ -224,77 +220,77 @@ namespace BrightWire
     /// <summary>
     /// Graph execution context
     /// </summary>
-    public interface IGraphExecutionContext : IDisposable
-    {
-        /// <summary>
-        /// Writes to a named memory slot
-        /// </summary>
-        /// <param name="slotName">Slot name</param>
-        /// <param name="memory">Segment</param>
-        void SetMemory(string slotName, IMatrix memory);
+    //public interface IGraphExecutionContext : IDisposable
+    //{
+    //    /// <summary>
+    //    /// Writes to a named memory slot
+    //    /// </summary>
+    //    /// <param name="slotName">Slot name</param>
+    //    /// <param name="memory">Segment</param>
+    //    void SetMemory(string slotName, IMatrix memory);
 
-        /// <summary>
-        /// Reads from a named memory slot
-        /// </summary>
-        /// <param name="slotName">Slot name</param>
-        /// <returns></returns>
-        IMatrix GetMemory(string slotName);
+    //    /// <summary>
+    //    /// Reads from a named memory slot
+    //    /// </summary>
+    //    /// <param name="slotName">Slot name</param>
+    //    /// <returns></returns>
+    //    IMatrix GetMemory(string slotName);
 
-        /// <summary>
-        /// Gets the next queued graph operation (if any)
-        /// </summary>
-        /// <returns></returns>
-        IGraphOperation? GetNextOperation();
+    //    /// <summary>
+    //    /// Gets the next queued graph operation (if any)
+    //    /// </summary>
+    //    /// <returns></returns>
+    //    IGraphOperation? GetNextOperation();
 
-        /// <summary>
-        /// Adds a list of graph operations to the queue
-        /// </summary>
-        /// <param name="operationList">List of operations</param>
-        void Add(IEnumerable<IGraphOperation> operationList);
+    //    /// <summary>
+    //    /// Adds a list of graph operations to the queue
+    //    /// </summary>
+    //    /// <param name="operationList">List of operations</param>
+    //    void Add(IEnumerable<IGraphOperation> operationList);
 
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { get; }
+    //    /// <summary>
+    //    /// Linear algebra provider
+    //    /// </summary>
+    //    LinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        /// <summary>
-        /// How many operations remain queued
-        /// </summary>
-        int RemainingOperationCount { get; }
+    //    /// <summary>
+    //    /// How many operations remain queued
+    //    /// </summary>
+    //    int RemainingOperationCount { get; }
 
-        /// <summary>
-        /// Registers a continuation that will be executed after the current sequence has been processed in full
-        /// </summary>
-        /// <param name="sequence">Sequence index</param>
-        /// <param name="callback">Continuation</param>
-        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext, CancellationToken> callback);
+    //    /// <summary>
+    //    /// Registers a continuation that will be executed after the current sequence has been processed in full
+    //    /// </summary>
+    //    /// <param name="sequence">Sequence index</param>
+    //    /// <param name="callback">Continuation</param>
+    //    void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext, CancellationToken> callback);
 
-        /// <summary>
-        /// Registers an additional mini batch to execute after the current mini batch has completed
-        /// </summary>
-        /// <param name="miniBatch">Mini batch to execute</param>
-        /// <param name="data">Initial data</param>
-        /// <param name="startCallback">Callback when starting the batch</param>
-        /// <param name="endCallback">Callback when ending the batch</param>
-        void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData, CancellationToken> startCallback, Action<IGraphSequenceContext[]> endCallback);
+    //    /// <summary>
+    //    /// Registers an additional mini batch to execute after the current mini batch has completed
+    //    /// </summary>
+    //    /// <param name="miniBatch">Mini batch to execute</param>
+    //    /// <param name="data">Initial data</param>
+    //    /// <param name="startCallback">Callback when starting the batch</param>
+    //    /// <param name="endCallback">Callback when ending the batch</param>
+    //    void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData, CancellationToken> startCallback, Action<IGraphSequenceContext[]> endCallback);
 
-        /// <summary>
-        /// True if there are registered continuations or additional mini batches to execute
-        /// </summary>
-        bool HasContinuations { get; }
+    //    /// <summary>
+    //    /// True if there are registered continuations or additional mini batches to execute
+    //    /// </summary>
+    //    bool HasContinuations { get; }
 
-        /// <summary>
-        /// Execute any registered continuation for this context
-        /// </summary>
-        /// <param name="context">Context with an associated IMiniBatchSequence</param>
-        void Continue(IGraphSequenceContext context);
+    //    /// <summary>
+    //    /// Execute any registered continuation for this context
+    //    /// </summary>
+    //    /// <param name="context">Context with an associated IMiniBatchSequence</param>
+    //    void Continue(IGraphSequenceContext context);
 
-        /// <summary>
-        /// Executes any additionally registered mini batches
-        /// </summary>
-        /// <param name="learningContext">Learning context (null if executing without training)</param>
-        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext);
-    }
+    //    /// <summary>
+    //    /// Executes any additionally registered mini batches
+    //    /// </summary>
+    //    /// <param name="learningContext">Learning context (null if executing without training)</param>
+    //    IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext);
+    //}
 
     /// <summary>
     /// A type that can create a graph context
@@ -308,7 +304,7 @@ namespace BrightWire
         /// <param name="sequence">Mini batch sequence</param>
         /// <param name="learningContext">Learning context (null if executing without training)</param>
         /// <returns></returns>
-        IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
+        IGraphSequenceContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
     }
 
     /// <summary>
@@ -585,7 +581,7 @@ namespace BrightWire
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSingleSequentialStep(IGraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        ExecutionResult? ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -598,7 +594,7 @@ namespace BrightWire
         /// Creates a graph execution context
         /// </summary>
         /// <returns></returns>
-        IGraphExecutionContext CreateExecutionContext();
+        GraphExecutionContext CreateExecutionContext();
     }
 
     /// <summary>
@@ -612,7 +608,7 @@ namespace BrightWire
 	    /// <param name="executionContext">Graph execution context</param>
 	    /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
 	    /// <returns>Graph training error</returns>
-	    void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
+	    void Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph

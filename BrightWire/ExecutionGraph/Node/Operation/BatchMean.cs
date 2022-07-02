@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var ones = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => 1f / _rowCount);
+                using var ones = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => 1f / _rowCount);
                 return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
         }
@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             columnSums.Multiply(1f / input.RowCount);
             var mean = columnSums.Segment.GetLocalOrNewArray();
 
-            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);
+            var output = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }

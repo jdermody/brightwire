@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData;
 using BrightData.LinearAlegbra2;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
@@ -27,7 +28,7 @@ namespace BrightWire.UnitTests.Helper
 
         public NodeBase Source { get; }
         public IGraphData Data { get; set; }
-        public IGraphExecutionContext ExecutionContext { get; }
+        public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
         public LinearAlgebraProvider LinearAlgebraProvider { get; }
 

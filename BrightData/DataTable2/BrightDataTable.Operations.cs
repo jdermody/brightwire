@@ -45,7 +45,7 @@ namespace BrightData.DataTable2
 
             foreach (var ci in ColumnIndices) {
                 if (converterTable.TryGetValue(ci, out var converter)) {
-                    if (converter.From != ColumnTypes[ci].GetType())
+                    if (converter.From != ColumnTypes[ci].GetDataType())
                         throw new ArgumentException($"Column types did not agree [{ci}]: Expected {ColumnTypes[ci].GetType()} instead of {converter.From}");
 
                     var columnReader = GetColumnReader(ci, RowCount);

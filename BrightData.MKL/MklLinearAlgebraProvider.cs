@@ -16,6 +16,7 @@ namespace BrightData.MKL
         {
         }
 
+        public override string Name => "mkl";
         public override Type VectorType { get; } = typeof(MklVector);
         public override Type MatrixType { get; } = typeof(MklMatrix);
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);

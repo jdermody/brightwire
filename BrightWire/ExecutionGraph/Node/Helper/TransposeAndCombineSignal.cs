@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix();
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
 
                 var rowList = new IVector[matrix.RowCount];
                 for(uint i = 0; i < matrix.RowCount; i++) {
@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var row = tensor.Tensor(i).CombineDepthSlices().Reshape();
                 rowList[i] = row;
             }
-            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+            var output = context.GetLinearAlgebraProvider().CreateMatrixFromRows(rowList);
 
             return (this, output.AsGraphData(), () => new Backpropagation(this, tensor));
         }

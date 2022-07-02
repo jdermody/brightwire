@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         {
             if (context.LearningContext != null) {
                 // drop out random neurons during training
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
                 var matrix = signal.GetMatrix();
                 var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (_, _) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);

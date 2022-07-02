@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (_, y) => _data[y]);
+            var data = context.GetLinearAlgebraProvider().CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (_, y) => _data[y]);
             return (this, data.AsGraphData(), () => new Backpropagation(this));
         }
 

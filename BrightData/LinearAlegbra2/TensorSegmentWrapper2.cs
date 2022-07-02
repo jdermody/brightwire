@@ -85,11 +85,33 @@ namespace BrightData.LinearAlegbra2
             for(var i = 0; i < Size; i++)
                 destination[i] = this[i];
         }
+        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        {
+            for (var i = 0; i < count; i++)
+                *destination++ = this[offset + (stride * i)];
+        }
 
         public void Clear()
         {
             for (uint i = 0; i < Size; i++)
                 this[i] = 0f;
+        }
+
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            if (_stride == 1)
+                return _segment.GetSpan(ref temp, out wasTempUsed).Slice((int)_offset, (int)Size);
+
+            temp = SpanOwner<float>.Allocate((int)Size);
+            var span = temp.Span;
+            CopyTo(span);
+            wasTempUsed = true;
+            return span;
+        }
+
+        public ReadOnlySpan<float> GetSpan()
+        {
+            throw new NotImplementedException();
         }
 
         public override string ToString()

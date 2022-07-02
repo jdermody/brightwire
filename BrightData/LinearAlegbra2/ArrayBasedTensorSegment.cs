@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
@@ -76,12 +77,25 @@ namespace BrightData.LinearAlegbra2
         {
             _data.CopyTo(destination);
         }
+        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        {
+            for (var i = 0; i < count; i++)
+                *destination++ = _data[offset + (stride * i)];
+        }
 
         public void Clear()
         {
             for(var i = 0; i < _data.Length; i++)
                 _data[i] = 0f;
         }
+
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = false;
+            return new(_data); 
+        }
+
+        public ReadOnlySpan<float> GetSpan() => new(_data);
 
         public override string ToString()
         {

@@ -115,6 +115,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             int depth = 0;
             IGraphData? lastError = null;
+            // TOD: average the error?
             while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
                 var (data, callback) = _deferredBackpropagation.Pop();
                 var error = callback(signalOverride ?? data ?? lastError);

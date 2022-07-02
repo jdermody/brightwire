@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -18,7 +19,7 @@ namespace BrightData.LinearAlegbra2
 
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
-        public override uint Size { get; protected set; }
+        public sealed override uint Size { get; protected set; }
         public override uint[] Shape
         {
             get => new[] { ColumnCount, RowCount };
@@ -55,6 +56,22 @@ namespace BrightData.LinearAlegbra2
 
         public ITensorSegment2 Row(uint index) => new TensorSegmentWrapper2(Segment, index * ColumnCount, 1, ColumnCount);
         public ITensorSegment2 Column(uint index) => new TensorSegmentWrapper2(Segment, index, ColumnCount, RowCount);
+
+        public unsafe ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            temp = SpanOwner<float>.Allocate((int)Size);
+            var span = temp.Span;
+            fixed (float* ptr = &MemoryMarshal.GetReference(span)) {
+                Segment.CopyTo(ptr, (int)columnIndex, (int)ColumnCount, (int)RowCount);
+            }
+            wasTempUsed = true;
+            return span;
+        }
+        public ReadOnlySpan<float> GetRowSpan(uint rowIndex)
+        {
+            var ret = Segment.GetSpan();
+            return ret.Slice((int)(rowIndex * ColumnCount), (int)ColumnCount);
+        }
 
         public ITensorSegment2[] Rows()
         {
@@ -147,7 +164,9 @@ namespace BrightData.LinearAlegbra2
         /// <inheritdoc />
         public override string ToString()
         {
-            var preview = Size <= 8 ? string.Join('|', Segment.Values) : "";
+            var preview = String.Join("|", Segment.Values.Take(8));
+            if (Size > 8)
+                preview += "|...";
             return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
     }
