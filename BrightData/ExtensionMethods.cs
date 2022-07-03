@@ -25,7 +25,7 @@ namespace BrightData
         /// </summary>
         /// <param name="code">Type code</param>
         /// <returns></returns>
-        public static Type? ToType(this TypeCode code)
+        public static Type ToType(this TypeCode code)
         {
             return code switch
             {
@@ -36,7 +36,6 @@ namespace BrightData
                 TypeCode.DBNull   => typeof(DBNull),
                 TypeCode.Decimal  => typeof(decimal),
                 TypeCode.Double   => typeof(double),
-                TypeCode.Empty    => null,
                 TypeCode.Int16    => typeof(short),
                 TypeCode.Int32    => typeof(int),
                 TypeCode.Int64    => typeof(long),
@@ -47,7 +46,7 @@ namespace BrightData
                 TypeCode.UInt16   => typeof(ushort),
                 TypeCode.UInt32   => typeof(uint),
                 TypeCode.UInt64   => typeof(ulong),
-                _                 => null,
+                _                 => throw new NotImplementedException()
             };
         }
 

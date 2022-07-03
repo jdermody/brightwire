@@ -8,7 +8,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public class Matrix2<LAP> : TensorBase2<IMatrix, LAP>, IMatrix, IMatrixInfo
+    public class Matrix2<LAP> : TensorBase2<IMatrix, LAP>, IMatrix
         where LAP: LinearAlgebraProvider
     {
         public Matrix2(ITensorSegment2 data, uint rows, uint columns, LAP lap) : base(data, lap)
@@ -54,7 +54,7 @@ namespace BrightData.LinearAlegbra2
         }
 
         public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
-        public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
+        IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
         public TensorSegmentWrapper2 Row(uint index) => new(Segment, index * ColumnCount, 1, ColumnCount);
         public TensorSegmentWrapper2 Column(uint index) => new(Segment, index, ColumnCount, RowCount);
 

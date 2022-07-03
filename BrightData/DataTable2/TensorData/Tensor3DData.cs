@@ -10,7 +10,7 @@ namespace BrightData.DataTable2.TensorData
         readonly ICanRandomlyAccessData<float> _data;
         readonly uint _startIndex;
 
-        public Tensor3DData(BrightDataContext context, ICanRandomlyAccessData<float> data, uint startIndex, uint depth, uint rowCount, uint columnCount)
+        public Tensor3DData(ICanRandomlyAccessData<float> data, uint startIndex, uint depth, uint rowCount, uint columnCount)
         {
             _data = data;
             _startIndex = startIndex;
@@ -24,17 +24,8 @@ namespace BrightData.DataTable2.TensorData
         public uint ColumnCount { get; internal init; }
         public uint MatrixSize => RowCount * ColumnCount;
 
-        public float this[int depth, int rowY, int columnX]
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
-
-        public float this[uint depth, uint rowY, uint columnX]
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
+        public float this[int depth, int rowY, int columnX] => _data[depth * (int)MatrixSize + rowY * (int)ColumnCount + columnX];
+        public float this[uint depth, uint rowY, uint columnX] => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {

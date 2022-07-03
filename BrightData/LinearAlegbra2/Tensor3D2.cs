@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.HighPerformance.Buffers;
+﻿using System.Linq;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
@@ -15,6 +16,7 @@ namespace BrightData.LinearAlegbra2
         }
 
         public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D2<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
+        ITensor3D ITensor3DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(Matrix).ToArray());
 
         public uint Depth { get; private set; }
         public uint RowCount { get; private set; }
@@ -84,10 +86,7 @@ namespace BrightData.LinearAlegbra2
 
             return ret;
         }
-        public ITensor3D Create(LinearAlgebraProvider lap)
-        {
-            throw new System.NotImplementedException();
-        }
+        
         public IMatrix Matrix(uint index) => _lap.GetMatrix(this, index);
         public ITensor3D AddPadding(uint padding) => _lap.AddPadding(this, padding);
         public ITensor3D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);

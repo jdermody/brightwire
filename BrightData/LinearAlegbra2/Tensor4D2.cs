@@ -1,4 +1,6 @@
-﻿namespace BrightData.LinearAlegbra2
+﻿using System.Linq;
+
+namespace BrightData.LinearAlegbra2
 {
     public class Tensor4D2<LAP> : TensorBase2<ITensor4D, LAP>, ITensor4D
         where LAP: LinearAlgebraProvider
@@ -15,6 +17,7 @@
         }
 
         public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D2<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
+        ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(Tensor).ToArray());
 
         public uint Count { get; private set; }
         public uint Depth { get; private set; }
@@ -40,27 +43,23 @@
 
         public float this[int count, int depth, int rowY, int columnX]
         {
-            get => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
         public float this[uint count, uint depth, uint rowY, uint columnX]
         {
-            get => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
         public float this[long count, long depth, long rowY, long columnX]
         {
-            get => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
         public float this[ulong count, ulong depth, ulong rowY, ulong columnX]
         {
-            get => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TotalSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
-        }
-        public ITensor4D Create(LinearAlgebraProvider lap)
-        {
-            throw new System.NotImplementedException();
+            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
         public ITensor3D Tensor(uint index) => _lap.GetTensor(this, index);
         public ITensor4D AddPadding(uint padding) => _lap.AddPadding(this, padding);

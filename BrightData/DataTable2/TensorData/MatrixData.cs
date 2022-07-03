@@ -7,13 +7,11 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class MatrixData : IMatrixInfo
     {
-        readonly BrightDataContext _context;
         readonly ICanRandomlyAccessData<float> _data;
         readonly uint _startIndex;
 
-        public MatrixData(BrightDataContext context, ICanRandomlyAccessData<float> data, uint startIndex, uint rowCount, uint columnCount)
+        public MatrixData(ICanRandomlyAccessData<float> data, uint startIndex, uint rowCount, uint columnCount)
         {
-            _context = context;
             _data = data;
             _startIndex = startIndex;
             RowCount = rowCount;
@@ -23,8 +21,8 @@ namespace BrightData.DataTable2.TensorData
         public uint RowCount { get; }
         public uint ColumnCount { get; }
 
-        public float this[int rowY, int columnX] => throw new NotImplementedException();
-        public float this[uint rowY, uint columnX] => throw new NotImplementedException();
+        public float this[int rowY, int columnX] => _data[rowY * (int)ColumnCount + columnX];
+        public float this[uint rowY, uint columnX] => _data[rowY * ColumnCount + columnX];
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
@@ -42,7 +40,7 @@ namespace BrightData.DataTable2.TensorData
             return lap.CreateMatrix(RowCount, ColumnCount, segment);
         }
 
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_context, _data, rowIndex * ColumnCount, RowCount);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, rowIndex * ColumnCount, RowCount);
 
         public void WriteTo(BinaryWriter writer)
         {

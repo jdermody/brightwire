@@ -95,22 +95,22 @@ namespace BrightData.DataTable2
                 }
 
                 if (dataType == typeof(IVectorInfo)) {
-                    var ret = new VectorInfoConverter(Context, _tensors.Value);
+                    var ret = new VectorInfoConverter(_tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(IMatrixInfo)) {
-                    var ret = new MatrixInfoConverter(Context, _tensors.Value);
+                    var ret = new MatrixInfoConverter(_tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(ITensor3DInfo)) {
-                    var ret = new Tensor3DInfoConverter(Context, _tensors.Value);
+                    var ret = new Tensor3DInfoConverter(_tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
                 if (dataType == typeof(ITensor4DInfo)) {
-                    var ret = new Tensor4DInfoConverter(Context, _tensors.Value);
+                    var ret = new Tensor4DInfoConverter(_tensors.Value);
                     return (IConvertStructsToObjects<CT, T>)ret;
                 }
 
@@ -178,69 +178,61 @@ namespace BrightData.DataTable2
 
         class VectorInfoConverter : IConvertStructsToObjects<DataRangeColumnType, VectorData>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public VectorInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public VectorInfoConverter(ICanRandomlyAccessData<float> data)
             {
-                _context = context;
                 _data = data;
             }
 
             public VectorData Convert(ref DataRangeColumnType item)
             {
-                return new VectorData(_context, _data, item.StartIndex, item.Count);
+                return new VectorData(_data, item.StartIndex, item.Count);
             }
         }
 
         class MatrixInfoConverter : IConvertStructsToObjects<MatrixColumnType, MatrixData>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public MatrixInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public MatrixInfoConverter(ICanRandomlyAccessData<float> data)
             {
-                _context = context;
                 _data = data;
             }
 
             public MatrixData Convert(ref MatrixColumnType item)
             {
-                return new MatrixData(_context, _data, item.StartIndex, item.RowCount, item.ColumnCount);
+                return new MatrixData(_data, item.StartIndex, item.RowCount, item.ColumnCount);
             }
         }
 
         class Tensor3DInfoConverter : IConvertStructsToObjects<Tensor3DColumnType, Tensor3DData>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor3DInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor3DInfoConverter(ICanRandomlyAccessData<float> data)
             {
-                _context = context;
                 _data = data;
             }
 
             public Tensor3DData Convert(ref Tensor3DColumnType item)
             {
-                return new Tensor3DData(_context, _data, item.StartIndex, item.Depth, item.RowCount, item.ColumnCount);
+                return new Tensor3DData(_data, item.StartIndex, item.Depth, item.RowCount, item.ColumnCount);
             }
         }
 
         class Tensor4DInfoConverter : IConvertStructsToObjects<Tensor4DColumnType, Tensor4DData>
         {
-            readonly BrightDataContext _context;
             readonly ICanRandomlyAccessData<float> _data;
 
-            public Tensor4DInfoConverter(BrightDataContext context, ICanRandomlyAccessData<float> data)
+            public Tensor4DInfoConverter(ICanRandomlyAccessData<float> data)
             {
-                _context = context;
                 _data = data;
             }
 
             public Tensor4DData Convert(ref Tensor4DColumnType item)
             {
-                return new Tensor4DData(_context, _data, item.StartIndex, item.Count, item.Depth, item.RowCount, item.ColumnCount);
+                return new Tensor4DData(_data, item.StartIndex, item.Count, item.Depth, item.RowCount, item.ColumnCount);
             }
         }
     }

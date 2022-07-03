@@ -140,7 +140,7 @@ namespace BrightData
                     foreach (var item in GetNonEmpty()) {
                         writer.WriteStartElement("item");
                         writer.WriteAttributeString("name", item.Name);
-                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
+                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
                         writer.WriteValue(item.String);
                         writer.WriteEndElement();
                     }
@@ -181,12 +181,9 @@ namespace BrightData
                 var typeCode = (TypeCode)reader.ReadByte();
                 var str = reader.ReadString();
                 var type = typeCode.ToType();
-
-                if (type != null) {
-                    var typeConverter = TypeDescriptor.GetConverter(type);
-                    if(typeConverter.ConvertFromString(str) is IConvertible obj)
-                        Set(name, obj);
-                }
+                var typeConverter = TypeDescriptor.GetConverter(type);
+                if(typeConverter.ConvertFromString(str) is IConvertible obj)
+                    Set(name, obj);
             }
         }
 

@@ -35,7 +35,7 @@ namespace BrightData.LinearAlegbra2
         }
 
         public float[] ToArray() => Segment.ToNewArray();
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(ToArray());
+        IVector IVectorInfo.Create(LinearAlgebraProvider lap) => lap.CreateVector(ToArray());
 
         public float this[long index]
         {

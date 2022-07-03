@@ -8,13 +8,11 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class VectorData : IVectorInfo
     {
-        BrightDataContext _context;
         ICanRandomlyAccessData<float> _data;
         uint _startIndex;
 
-        internal VectorData(BrightDataContext context, ICanRandomlyAccessData<float> data, uint startIndex, uint size)
+        internal VectorData(ICanRandomlyAccessData<float> data, uint startIndex, uint size)
         {
-            _context = context;
             _data = data;
             _startIndex = startIndex;
             Size = size;
