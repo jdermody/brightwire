@@ -1189,15 +1189,15 @@ namespace BrightData
         new float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }
         float this[ulong rowY, ulong columnX] { get; set; }
-        ReadOnlySpan<float> GetRowSpan(uint rowIndex);
-        ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed);
+        ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp);
+        ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
         TensorSegmentWrapper2 Row(uint index);
         TensorSegmentWrapper2 Column(uint index);
-        ITensorSegment2[] Rows();
-        ITensorSegment2[] Columns();
+        TensorSegmentWrapper2[] Rows();
+        TensorSegmentWrapper2[] Columns();
         IVector[] RowVectors();
         IVector[] ColumnVectors();
-        MemoryOwner<float> ToNewColumnMajor();
+        MemoryOwner<float> ToRowMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
         IMatrix TransposeAndMultiply(IMatrix other);
@@ -1226,7 +1226,6 @@ namespace BrightData
         float this[long depth, long rowY, long columnX] { get; set; }
         float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
         IMatrix Matrix(uint index);
-        MemoryOwner<float> ToNewColumnMajor();
         ITensor3D AddPadding(uint padding);
         ITensor3D RemovePadding(uint padding);
         IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);

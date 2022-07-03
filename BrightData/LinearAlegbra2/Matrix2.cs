@@ -34,58 +34,57 @@ namespace BrightData.LinearAlegbra2
 
         public float this[int rowY, int columnX]
         {
-            get => Segment[rowY * ColumnCount + columnX];
-            set => Segment[rowY * ColumnCount + columnX] = value;
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
         }
         public float this[uint rowY, uint columnX]
         {
-            get => Segment[rowY * ColumnCount + columnX];
-            set => Segment[rowY * ColumnCount + columnX] = value;
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
         }
         public float this[long rowY, long columnX]
         {
-            get => Segment[rowY * ColumnCount + columnX];
-            set => Segment[rowY * ColumnCount + columnX] = value;
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
         }
         public float this[ulong rowY, ulong columnX]
         {
-            get => Segment[rowY * ColumnCount + columnX];
-            set => Segment[rowY * ColumnCount + columnX] = value;
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
         }
 
         public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
         IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
-        public TensorSegmentWrapper2 Row(uint index) => new(Segment, index * ColumnCount, 1, ColumnCount);
-        public TensorSegmentWrapper2 Column(uint index) => new(Segment, index, ColumnCount, RowCount);
+        public TensorSegmentWrapper2 Row(uint index) => new(Segment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper2 Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
 
-        public unsafe ReadOnlySpan<float> GetColumnSpan(uint columnIndex, ref SpanOwner<float> temp, out bool wasTempUsed)
+        public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
         {
             temp = SpanOwner<float>.Allocate((int)TotalSize);
             var span = temp.Span;
             fixed (float* ptr = &MemoryMarshal.GetReference(span)) {
-                Segment.CopyTo(ptr, (int)columnIndex, (int)ColumnCount, (int)RowCount);
+                Segment.CopyTo(ptr, (int)rowIndex * (int)RowCount, (int)RowCount, (int)ColumnCount);
             }
-            wasTempUsed = true;
             return span;
         }
-        public ReadOnlySpan<float> GetRowSpan(uint rowIndex)
+        public ReadOnlySpan<float> GetColumnSpan(uint rowIndex)
         {
             var ret = Segment.GetSpan();
-            return ret.Slice((int)(rowIndex * ColumnCount), (int)ColumnCount);
+            return ret.Slice((int)rowIndex, (int)ColumnCount);
         }
-
         public IVectorInfo GetRow(uint rowIndex) => new VectorData(Row(rowIndex));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(Column(columnIndex));
 
-        public ITensorSegment2[] Rows()
+        public TensorSegmentWrapper2[] Rows()
         {
-            var ret = new ITensorSegment2[RowCount];
+            var ret = new TensorSegmentWrapper2[RowCount];
             for (uint i = 0; i < RowCount; i++)
                 ret[i] = Row(i);
             return ret;
         }
-        public ITensorSegment2[] Columns()
+        public TensorSegmentWrapper2[] Columns()
         {
-            var ret = new ITensorSegment2[ColumnCount];
+            var ret = new TensorSegmentWrapper2[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
                 ret[i] = Column(i);
             return ret;
@@ -106,16 +105,16 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
-        public MemoryOwner<float> ToNewColumnMajor()
+        public MemoryOwner<float> ToRowMajor()
         {
             var ret = MemoryOwner<float>.Allocate((int)TotalSize);
             var array = ret.DangerousGetArray();
-            Parallel.For(0, ColumnCount, ind => {
+            Parallel.For(0, RowCount, ind => {
                 var i = (uint) ind;
-                var column = Column(i);
-                var offset = i * RowCount;
-                for (uint j = 0; j < RowCount; j++)
-                    array[(int)(offset + j)] = column[j];
+                using var row = Row(i);
+                var offset = i * ColumnCount;
+                for (uint j = 0; j < ColumnCount; j++)
+                    array[(int)(offset + j)] = row[j];
             });
             return ret;
         }

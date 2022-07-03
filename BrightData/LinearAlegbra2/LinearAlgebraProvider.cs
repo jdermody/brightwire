@@ -384,7 +384,7 @@ namespace BrightData.LinearAlegbra2
             if (r <= 16 && c <= 16) {
                 for (var i = rb; i < re; i++) {
                     for (var j = cb; j < ce; j++) {
-                        to[j * rows + i] = from[i * columns + j];
+                        to[i * columns + j] = from[j * rows + i];
                     }
                 }
             } else if (r >= c) {
@@ -437,42 +437,50 @@ namespace BrightData.LinearAlegbra2
             var rowCount = matrix.RowCount;
             var columnCount = transposedOther.RowCount;
             var ret = CreateMatrix(rowCount, columnCount);
-            
-            var matrixSpan = matrix.Segment.GetSpan();
-            var otherSpan = transposedOther.Segment.GetSpan();
-            var retSpan = ret.Segment.GetSpan();
-            var matrixColumnCount = (int)matrix.ColumnCount;
-            var otherColumnCount = (int)transposedOther.ColumnCount;
-            fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrixSpan))
-            fixed (float* otherPtr = &MemoryMarshal.GetReference(otherSpan))
-            fixed (float* retPtr = &MemoryMarshal.GetReference(retSpan)) {
-                var matrixPtr2 = matrixPtr;
-                var otherPtr2 = otherPtr;
-                var retPtr2 = retPtr;
-                Parallel.For(0, rowCount, i => {
-                    var xPtr = &matrixPtr2[i * matrixColumnCount];
-                    var xSpan = new ReadOnlySpan<float>(xPtr, matrixColumnCount);
-                    var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
-                    for (var j = 0; j < columnCount; j++) {
-                        var yPtr = &otherPtr2[j * otherColumnCount];
-                        var ySpan = new ReadOnlySpan<float>(yPtr, otherColumnCount);
-                        var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
 
-                        var sum = 0f;
-                        for (var z = 0; z < numVectors; z++) {
-                            var temp = Vector.Multiply(xVectors[z], yVectors[z]);
-                            sum += Vector.Sum(temp);
+            SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
+            var matrixSpan = matrix.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
+            var otherSpan = transposedOther.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
+            try {
+                var retSpan = ret.Segment.GetSpan();
+                var matrixColumnCount = (int)matrix.ColumnCount;
+                var otherColumnCount = (int)transposedOther.ColumnCount;
+                fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrixSpan))
+                fixed (float* otherPtr = &MemoryMarshal.GetReference(otherSpan))
+                fixed (float* retPtr = &MemoryMarshal.GetReference(retSpan)) {
+                    var matrixPtr2 = matrixPtr;
+                    var otherPtr2 = otherPtr;
+                    var retPtr2 = retPtr;
+                    Parallel.For(0, rowCount, i => {
+                        var xPtr = &matrixPtr2[i * matrixColumnCount];
+                        var xSpan = new ReadOnlySpan<float>(xPtr, matrixColumnCount);
+                        var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
+                        for (var j = 0; j < columnCount; j++) {
+                            var yPtr = &otherPtr2[j * otherColumnCount];
+                            var ySpan = new ReadOnlySpan<float>(yPtr, otherColumnCount);
+                            var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
+
+                            var sum = 0f;
+                            for (var z = 0; z < numVectors; z++) {
+                                var temp = Vector.Multiply(xVectors[z], yVectors[z]);
+                                sum += Vector.Sum(temp);
+                            }
+
+                            for (var z = ceiling; z < size; z++)
+                                sum += xSpan[z] * ySpan[z];
+                            retPtr2[i * columnCount + j] = sum;
                         }
-
-                        for (var z = ceiling; z < size; z++)
-                            sum += xSpan[z] * ySpan[z];
-                        retPtr2[i * columnCount + j] = sum;
-                    }
-                });
+                    });
+                }
             }
-            
+            finally {
+                if(wasMatrixTempUsed)
+                    matrixTemp.Dispose();
+                if(wasOtherTempUsed)
+                    otherTemp.Dispose();
+            }
 
-            
+
             //Parallel.For(0, matrix.RowCount * columnCount, ind => {
             //    var i = (uint)(ind % rowCount);
             //    var j = (uint)(ind / rowCount);

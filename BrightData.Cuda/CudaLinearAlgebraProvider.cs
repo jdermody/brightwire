@@ -426,19 +426,20 @@ namespace BrightData.Cuda
         {
             var ret = _cuda.Allocate(matrix.RowCount * matrix.ColumnCount);
             float alpha = 1.0f, beta = 0.0f;
-            CudaBlasNativeMethods.cublasSgeam(_cuda.Blas.CublasHandle,
+            var status = CudaBlasNativeMethods.cublasSgeam(_cuda.Blas.CublasHandle,
                 Operation.Transpose,
                 Operation.NonTranspose,
-                (int)matrix.RowCount,
                 (int)matrix.ColumnCount,
+                (int)matrix.RowCount,
                 ref alpha,
                 GetDeviceMemoryPtr(matrix.Segment).DevicePointer,
-                (int)matrix.ColumnCount,
+                (int)matrix.RowCount,
+
                 ref beta,
                 new CUdeviceptr(0),
-                (int)matrix.ColumnCount,
+                (int)matrix.RowCount,
                 ret.DevicePointer,
-                (int)matrix.RowCount
+                (int)matrix.ColumnCount
             );
             return CreateMatrix(matrix.ColumnCount, matrix.RowCount, new CudaTensorSegment(ret));
         }

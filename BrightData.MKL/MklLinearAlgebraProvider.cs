@@ -107,7 +107,7 @@ namespace BrightData.MKL
             var cols = (int)matrix.ColumnCount;
 
             var ret = Apply(matrix.Segment, (size, a, r) => {
-                //Array.Copy(a, r, a.Length);
+                Array.Copy(a, r, a.Length);
                 Blas.imatcopy(
                     LayoutChar.ColMajor, 
                     TransChar.Yes,
@@ -115,8 +115,8 @@ namespace BrightData.MKL
                     cols,
                     1f, 
                     r,
-                    cols,
-                    rows
+                    rows,
+                    cols
                 );
             });
             return CreateMatrix(matrix.ColumnCount, matrix.RowCount, ret);

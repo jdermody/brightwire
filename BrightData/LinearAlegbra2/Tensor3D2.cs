@@ -38,55 +38,25 @@ namespace BrightData.LinearAlegbra2
 
         public float this[int depth, int rowY, int columnX]
         {
-            get => Segment[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[uint depth, uint rowY, uint columnX]
         {
-            get => Segment[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[long depth, long rowY, long columnX]
         {
-            get => Segment[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[ulong depth, ulong rowY, ulong columnX]
         {
-            get => Segment[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
-        /// <summary>
-        /// Converts the segment to a column major vector (default is row major)
-        /// </summary>
-        public MemoryOwner<float> ToNewColumnMajor()
-        {
-            var ret = MemoryOwner<float>.Allocate((int)TotalSize);
-            var ptr = ret.Span;
-            var blockSize = TotalSize / Depth;
-            var k = 0;
-
-            for(uint z = 0; z < TotalSize; z++) {
-                using var matrix = Matrix(z);
-                var i = 0;
-                var rowCount = matrix.RowCount;
-                var rows = matrix.Rows();
-                foreach (var row in rows) {
-                    var j = 0;
-                    foreach (var item in row.Values) {
-                        var index = (j * rowCount + i) + (k * blockSize);
-                        ptr[(int)index] = item;
-                        ++j;
-                    }
-                    ++i;
-                }
-                ++k;
-            }
-
-            return ret;
-        }
-        
         public IMatrix Matrix(uint index) => _lap.GetMatrix(this, index);
         public ITensor3D AddPadding(uint padding) => _lap.AddPadding(this, padding);
         public ITensor3D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);

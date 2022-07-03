@@ -43,23 +43,23 @@ namespace BrightData.LinearAlegbra2
 
         public float this[int count, int depth, int rowY, int columnX]
         {
-            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[uint count, uint depth, uint rowY, uint columnX]
         {
-            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[long count, long depth, long rowY, long columnX]
         {
-            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public float this[ulong count, ulong depth, ulong rowY, ulong columnX]
         {
-            get => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => Segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
         public ITensor3D Tensor(uint index) => _lap.GetTensor(this, index);
         public ITensor4D AddPadding(uint padding) => _lap.AddPadding(this, padding);

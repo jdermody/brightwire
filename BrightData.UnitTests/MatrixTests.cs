@@ -9,6 +9,39 @@ namespace BrightData.UnitTests
 {
     public class MatrixTests : CudaBase
     {
+        [Fact]
+        public void Simple()
+        {
+            using var matrix = _lap.CreateMatrix(2, 2);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            var array = matrix.Segment.ToNewArray();
+            array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
+
+            matrix.Column(0).ToNewArray().Should().BeEquivalentTo(new[] { 1, 2 });
+            matrix.Column(1).ToNewArray().Should().BeEquivalentTo(new[] { 3, 4 });
+            matrix.Row(0).ToNewArray().Should().BeEquivalentTo(new[] { 1, 3 });
+            matrix.Row(1).ToNewArray().Should().BeEquivalentTo(new[] { 2, 4 });
+        }
+
+        [Fact]
+        public void RowMajor()
+        {
+            using var matrix = _lap.CreateMatrix(2, 2);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            var array = matrix.Segment.ToNewArray();
+            array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
+
+            using var buffer = matrix.ToRowMajor();
+            var array2 = buffer.Span.ToArray();
+            array2.Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
+        }
+
         //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatMatrix b, Func<IFloatMatrix, IFloatMatrix, IFloatMatrix> func)
         //{
         //    using var otherA = lap.CreateMatrix(a);

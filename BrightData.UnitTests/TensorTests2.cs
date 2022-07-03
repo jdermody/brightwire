@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -84,6 +85,11 @@ namespace BrightData.UnitTests
                 var ret = new (R Result, string Type, TimeSpan Time)[3];
 
                 var sw = Stopwatch.StartNew();
+                var r1 = test(simple, simple2);
+                sw.Stop();
+                ret[0] = (r1, "default", sw.Elapsed);
+
+                sw.Restart();
                 var r2 = test(mkl, mkl2);
                 sw.Stop();
                 ret[1] = (r2, "mkl", sw.Elapsed);
@@ -92,11 +98,6 @@ namespace BrightData.UnitTests
                 var r3 = test(cuda, cuda2);
                 sw.Stop();
                 ret[2] = (r3, "cuda", sw.Elapsed);
-                
-                sw.Restart();
-                var r1 = test(simple, simple2);
-                sw.Stop();
-                ret[0] = (r1, "default", sw.Elapsed);
 
                 // make sure that all pairs of results validate
                 var firstResult = ret[0].Result;
@@ -131,32 +132,34 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void MatrixMultiply()
-        {
-            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
-            matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
-
-            Test(
-                matrix, 
-                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
-                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
-                (v1, v2) => v1.Multiply(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
-            );
-        }
-
-        [Fact]
         public void MatrixTranspose()
         {
-            const int RowCount = 2, ColumnCount = 3;
-            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
-            matrix.MapIndexedInPlace((i, j, v) => i + j + 1);
+            var index = 1;
+            const int RowCount = 3, ColumnCount = 2;
+            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, (i, j) => index++);
 
             Test(
                 matrix, 
                 _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
                 _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
                 (v1, v2) => v1.Transpose(),
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
+        }
+
+        [Fact]
+        public void MatrixMultiply()
+        {
+            var index = 1;
+            uint rowCount = 2;
+            uint columnCount = 2;
+            using var matrix = _linearAlgebraProvider.CreateMatrix(rowCount, columnCount, (i, j) => index++);
+
+            Test(
+                matrix, 
+                _mklLinearAlgebraProvider.CreateMatrix(rowCount, columnCount), 
+                _cudaLinearAlgebraProvider.CreateMatrix(rowCount, columnCount), 
+                (v1, v2) => v1.Multiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
         }
@@ -273,8 +276,8 @@ namespace BrightData.UnitTests
             using var matrix = _linearAlgebraProvider.FindDistances(vectorGroup1, vectorGroup2, DistanceMetric.Euclidean);
 
             matrix[0, 0].Should().Be(distance1);
-            matrix[0, 1].Should().Be(distance2);
-            matrix[1, 0].Should().Be(distance3);
+            matrix[1, 0].Should().Be(distance2);
+            matrix[0, 1].Should().Be(distance3);
             matrix[1, 1].Should().Be(distance4);
         }
     }
