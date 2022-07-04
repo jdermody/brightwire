@@ -17,16 +17,17 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 ## Tutorials
 
-* [Getting Started](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
-* [Classification Overview](http://www.jackdermody.net/brightwire/article/Classification_Overview_with_Bright_Wire)
-* [Building a Language Model](http://www.jackdermody.net/brightwire/article/Generating_Text_with_Markov_Chains)
-* [Recognising Handwritten Digits (MNIST)](http://www.jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
-* [Sentiment Analysis](http://www.jackdermody.net/brightwire/article/Sentiment_Analysis)
-* [Text Clustering](http://www.jackdermody.net/brightwire/article/Text_Clustering_Four_Ways)
-* [Simple Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/Teaching_a_Recurrent_Neural_Net_Binary_Addition)
-* [GRU Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)
-* [Sequence to Sequence Neural Networks with LSTM](http://www.jackdermody.net/brightwire/article/Sequence_to_Sequence_with_LSTM)
-* [Convolutional Neural Networks](http://www.jackdermody.net/brightwire/article/Convolutional_Neural_Networks)
+* [Getting Started](https://github.com/jdermody/brightwire/wiki/0.-Getting-Started)
+* [Introduction](https://github.com/jdermody/brightwire/wiki/01.-Introduction)
+* [Classification Overview](https://github.com/jdermody/brightwire/wiki/02.-Classification-Overview)
+* [Building a Language Model](https://github.com/jdermody/brightwire/wiki/03.-Generating-Text-with-Markov-Chains)
+* [Recognising Handwritten Digits (MNIST)](https://github.com/jdermody/brightwire/wiki/04.-Recognising-Handwritten-Digits-(MNIST))
+* [Sentiment Analysis](https://github.com/jdermody/brightwire/wiki/05.-Sentiment-Analysis)
+* [Text Clustering](https://github.com/jdermody/brightwire/wiki/06.-Text-Clustering-Four-Ways)
+* [Simple Recurrent Neural Networks](https://github.com/jdermody/brightwire/wiki/07.-Teaching-a-Recurrent-Neural-Net-Binary-Addition)
+* [GRU Recurrent Neural Networks](https://github.com/jdermody/brightwire/wiki/08.-GRU-Recurrent-Neural-Networks)
+* [Sequence to Sequence Neural Networks with LSTM](https://github.com/jdermody/brightwire/wiki/09.-Sequence-to-Sequence-with-LSTM)
+* [Convolutional Neural Networks](https://github.com/jdermody/brightwire/wiki/10.-Convolutional-Neural-Networks)
 
 ## Nuget Installation
 
