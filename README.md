@@ -1,4 +1,4 @@
-<img src="http://www.jackdermody.net/image/bright-wire.png" alt="Bright Wire" style="max-height:144" />
+![image](https://user-images.githubusercontent.com/1952388/177148366-bb4f2d2f-92af-4f60-a0de-ce5e3b08f135.png)
 
 Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
 
