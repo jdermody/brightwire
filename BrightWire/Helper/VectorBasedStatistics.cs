@@ -26,7 +26,7 @@ namespace BrightWire.Helper
 			++Count;
             using var delta = data.Subtract(Mean);
             using var diff = delta.Clone();
-            diff.Multiply(1f / Count);
+            diff.MultiplyInPlace(1f / Count);
             Mean.AddInPlace(diff);
 
             using var delta2 = data.Subtract(Mean);
@@ -36,16 +36,14 @@ namespace BrightWire.Helper
 
         public IVector GetVariance()
 		{
-			var ret = M2.Clone();
-			ret.Multiply(1f / Count);
-			return ret;
-		}
+			using var ret = M2.Clone();
+			return ret.Multiply(1f / Count);
+        }
 
 		public IVector GetSampleVariance()
 		{
-			var ret = M2.Clone();
-			ret.Multiply(1f / (Count-1));
-			return ret;
-		}
+            using var ret = M2.Clone();
+			return ret.Multiply(1f / (Count-1));
+        }
 	}
 }

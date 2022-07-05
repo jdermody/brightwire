@@ -181,7 +181,7 @@ namespace BrightData.Cuda
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
 
-			_pointwiseMultiply      = _kernel.LoadFunction("PointwiseMultiply");
+            _pointwiseMultiply      = _kernel.LoadFunction("PointwiseMultiply");
 			_addInPlace             = _kernel.LoadFunction("AddInPlace");
 			_subtractInPlace        = _kernel.LoadFunction("SubtractInPlace");
 			_addToEachRow           = _kernel.LoadFunction("AddToEachRow");

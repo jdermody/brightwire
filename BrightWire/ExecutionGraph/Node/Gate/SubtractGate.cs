@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
                 var es = errorSignal.GetMatrix();
                 var negative = es.Clone();
-                negative.Multiply(-1f);
+                negative.MultiplyInPlace(-1f);
 
                 yield return (errorSignal, context, _primarySource);
                 yield return (errorSignal.ReplaceWith(negative), context, _secondarySource);

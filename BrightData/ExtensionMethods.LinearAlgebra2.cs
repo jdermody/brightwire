@@ -321,8 +321,8 @@ namespace BrightData
         public static void AddInPlace(this ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2, 
-            (a,b) => a * coefficient1 + b * coefficient2
+            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = (a * coefficient1) + (b * coefficient2), 
+            (a,b) => (a * coefficient1) + (b * coefficient2)
         );
 
         public static void AddInPlace(this ITensorSegment2 target, float scalar)

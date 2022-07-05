@@ -31,8 +31,8 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            Xor(context);
+            PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);

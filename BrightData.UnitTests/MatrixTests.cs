@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.LinearAlegbra2;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -42,64 +43,113 @@ namespace BrightData.UnitTests
             array2.Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
         }
 
-        //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatMatrix b, Func<IFloatMatrix, IFloatMatrix, IFloatMatrix> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    using var otherB = lap.CreateMatrix(b);
-        //    using var otherC = func(otherA, otherB);
-        //    return otherC.AsIndexable();
-        //}
+        [Fact]
+        public void SimpleTranspose()
+        {
+            using var matrix = _lap.CreateMatrix(2, 2);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
 
-        //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatMatrix b, Action<IFloatMatrix, IFloatMatrix> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    using var otherB = lap.CreateMatrix(b);
-        //    func(otherA, otherB);
-        //    return otherA.AsIndexable();
-        //}
+            using var transpose = matrix.Transpose();
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
+        }
 
-        //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatVector b, Action<IFloatMatrix, IFloatVector> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    using var otherB = lap.CreateVector(b);
-        //    func(otherA, otherB);
-        //    return otherA.AsIndexable();
-        //}
+        [Fact]
+        public void SimpleTranspose2()
+        {
+            using var matrix = _lap.CreateMatrix(2, 3);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            matrix[0, 2] = 5;
+            matrix[1, 2] = 6;
 
-        //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Func<IFloatMatrix, IFloatMatrix> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    using var otherB = func(otherA);
-        //    return otherB.AsIndexable();
-        //}
+            using var transpose = matrix.Transpose();
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 5, 2, 4, 6 });
+        }
 
-        //static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Action<IFloatMatrix> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    func(otherA);
-        //    return otherA.AsIndexable();
-        //}
+        [Fact]
+        public void Multiply2x2()
+        {
+            using var matrix = _lap.CreateMatrix(2, 2);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            using var matrix2 = matrix.Clone();
 
-        //static IIndexableFloatVector Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Func<IFloatMatrix, IFloatVector> func)
-        //{
-        //    using var otherA = lap.CreateMatrix(a);
-        //    using var otherRow = func(otherA);
-        //    return otherRow.AsIndexable();
-        //}
+            using var multiplied = matrix.Multiply(matrix2);
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 7, 10, 15, 22 });
+        }
 
-        //void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
-        //{
-        //    var rand = new Random(1);
-        //    var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-        //    var b = _cpu.CreateMatrix(columnsArowsB, columnsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-        //    var cpuResults = a.Multiply(b);
+        [Fact]
+        public void Multiply3x2()
+        {
+            var index = 1;
+            using var matrix = _lap.CreateMatrix(3, 2, (i, j) => index++);
+            using var matrix2 = matrix.Transpose();
 
-        //    var gpuResults = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
-        //    FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var multiplied = matrix.Multiply(matrix2);
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 17, 22, 27, 22, 29, 36, 27, 36, 45 });
+        }
 
-        //    var simpleResults = Apply(_simple, a, b, (a, b) => a.Multiply(b));
-        //    FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
-        //}
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Func<IMatrix, IMatrix, IMatrix> func)
+        {
+            using var otherA = lap.CreateMatrix(a);
+            using var otherB = lap.CreateMatrix(b);
+            return func(otherA, otherB);
+        }
+
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Action<IMatrix, IMatrix> func)
+        {
+            var otherA = lap.CreateMatrix(a);
+            using var otherB = lap.CreateMatrix(b);
+            func(otherA, otherB);
+            return otherA;
+        }
+
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IVector b, Action<IMatrix, IVector> func)
+        {
+            var otherA = lap.CreateMatrix(a);
+            using var otherB = lap.CreateVector(b);
+            func(otherA, otherB);
+            return otherA;
+        }
+
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, IMatrix> func)
+        {
+            using var otherA = lap.CreateMatrix(a);
+            var otherB = func(otherA);
+            return otherB;
+        }
+
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Action<IMatrix> func)
+        {
+            var otherA = lap.CreateMatrix(a);
+            func(otherA);
+            return otherA;
+        }
+
+        static IVector Apply(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, IVector> func)
+        {
+            using var otherA = lap.CreateMatrix(a);
+            var otherRow = func(otherA);
+            return otherRow;
+        }
+
+        void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
+        {
+            var rand = new Random(1);
+            using var a = _lap.CreateMatrix(rowsA, columnsArowsB, (_, _) => Convert.ToSingle(rand.NextDouble()));
+            using var b = _lap.CreateMatrix(columnsArowsB, columnsB, (_, _) => Convert.ToSingle(rand.NextDouble()));
+            using var cpuResults = a.Multiply(b);
+
+            using var gpuResults = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
+            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
+        }
 
         //[Fact]
         //public void TestMatrixCreationFromRows()
@@ -149,101 +199,99 @@ namespace BrightData.UnitTests
         //    simpleRowList.ForEach(v => v.Dispose());
         //}
 
-        //[Fact]
-        //public void MatrixMultiplication()
-        //{
-        //    CheckMatrixMultiplication(5, 2, 5);
-        //}
+        [Fact]
+        public void MatrixMultiplication()
+        {
+            CheckMatrixMultiplication(5, 2, 5);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication2()
-        //{
-        //    CheckMatrixMultiplication(500, 200, 500);
-        //}
+        [Fact]
+        public void MatrixMultiplication2()
+        {
+            CheckMatrixMultiplication(500, 200, 500);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication3()
-        //{
-        //    CheckMatrixMultiplication(5, 5, 5);
-        //}
+        [Fact]
+        public void MatrixMultiplication3()
+        {
+            CheckMatrixMultiplication(5, 5, 5);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication4()
-        //{
-        //    CheckMatrixMultiplication(5, 10, 5);
-        //}
+        [Fact]
+        public void MatrixMultiplication4()
+        {
+            CheckMatrixMultiplication(5, 10, 5);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication5()
-        //{
-        //    CheckMatrixMultiplication(5, 10, 2);
-        //}
+        [Fact]
+        public void MatrixMultiplication5()
+        {
+            CheckMatrixMultiplication(5, 10, 2);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication6()
-        //{
-        //    CheckMatrixMultiplication(50, 10, 2);
-        //}
+        [Fact]
+        public void MatrixMultiplication6()
+        {
+            CheckMatrixMultiplication(50, 10, 2);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication7()
-        //{
-        //    CheckMatrixMultiplication(2, 10, 20);
-        //}
+        [Fact]
+        public void MatrixMultiplication7()
+        {
+            CheckMatrixMultiplication(2, 10, 20);
+        }
 
-        //[Fact]
-        //public void MatrixMultiplication8()
-        //{
-        //    CheckMatrixMultiplication(20, 1, 19);
-        //}
+        [Fact]
+        public void MatrixMultiplication8()
+        {
+            CheckMatrixMultiplication(20, 1, 19);
+        }
 
-        //void Transpose(uint rows, uint columns)
-        //{
-        //    var a = _cpu.CreateMatrix(rows, columns, (j, k) => k).AsIndexable();
-        //    var aT = a.Transpose();
+        void Transpose(uint rows, uint columns)
+        {
+            var index = 1;
+            using var a = _lap.CreateMatrix(rows, columns, (j, k) => index++);
+            using var aT = a.Transpose();
 
-        //    var gpuResults = Apply(_cuda, a, a => a.Transpose());
-        //    FloatMath.AreApproximatelyEqual(gpuResults, aT.AsIndexable()).Should().BeTrue();
+            using var gpuResults = Apply(_cuda, a, a => a.Transpose());
+            FloatMath.AreApproximatelyEqual(gpuResults, aT).Should().BeTrue();
+        }
 
-        //    var simpleResults = Apply(_simple, a, a => a.Transpose());
-        //    FloatMath.AreApproximatelyEqual(simpleResults, aT.AsIndexable()).Should().BeTrue();
-        //}
+        [Fact]
+        public void MatrixTranspose()
+        {
+            Transpose(2, 5);
+        }
 
-        //[Fact]
-        //public void MatrixTranspose()
-        //{
-        //    Transpose(2, 5);
-        //}
+        [Fact]
+        public void MatrixTranspose2()
+        {
+            Transpose(5, 2);
+        }
 
-        //[Fact]
-        //public void MatrixTranspose2()
-        //{
-        //    Transpose(5, 2);
-        //}
+        [Fact]
+        public void MatrixTranspose3()
+        {
+            Transpose(500, 2);
+        }
 
-        //[Fact]
-        //public void MatrixTranspose3()
-        //{
-        //    Transpose(500, 2);
-        //}
+        [Fact]
+        public void MatrixTranspose4()
+        {
+            Transpose(2, 500);
+        }
 
-        //[Fact]
-        //public void MatrixTranspose4()
-        //{
-        //    Transpose(2, 500);
-        //}
+        [Fact]
+        public void MatrixTranspose5()
+        {
+            Transpose(20, 20);
+        }
 
-        //[Fact]
-        //public void MatrixTranspose5()
-        //{
-        //    Transpose(20, 20);
-        //}
-
-        //[Fact]
-        //public void MatrixTranspose6()
-        //{
-        //    Transpose(500, 500);
-        //}
+        [Fact]
+        public void MatrixTranspose6()
+        {
+            Transpose(500, 500);
+        }
 
         //[Fact]
         //public void MatrixTransposeAndMultiplication()
@@ -656,7 +704,7 @@ namespace BrightData.UnitTests
         //{
         //    var rows = new uint[] { 1, 2, 9 };
         //    var a = _cpu.CreateMatrix(13, 12, (j, k) => k + 1).AsIndexable();
-            
+
         //    var gpuResults = Apply(_cuda, a, a => a.ClearRows(rows));
         //    var simpleResults = Apply(_simple, a, a => a.ClearRows(rows));
 

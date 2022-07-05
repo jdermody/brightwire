@@ -2602,9 +2602,6 @@
             Contains a list of indices
             </summary>
         </member>
-        <member name="P:BrightData.IndexList.Context">
-            <inheritdoc />
-        </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
             The list of indices
@@ -2660,7 +2657,7 @@
             <param name="other">Index list to compare to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IndexList.AsDense(System.Nullable{System.UInt32})">
+        <member name="M:BrightData.IndexList.AsDense(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>
@@ -4337,11 +4334,6 @@
         <member name="M:BrightData.LinearAlegbra2.Matrix2`1.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlegbra2.Tensor3D2`1.ToNewColumnMajor">
-            <summary>
-            Converts the segment to a column major vector (default is row major)
-            </summary>
-        </member>
         <member name="T:BrightData.LinearAlgebra.Memory.DisposableLayers">
             <summary>
             Collects allocations within a "layer" that can all be released at once
@@ -4681,9 +4673,6 @@
             <param name="right"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Context">
-            <inheritdoc />
-        </member>
         <member name="P:BrightData.WeightedIndexList.Indices">
             <summary>
             The list of indices
@@ -4763,7 +4752,7 @@
             </summary>
             <param name="other">Other list to compare</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsDense(System.Nullable{System.UInt32})">
+        <member name="M:BrightData.WeightedIndexList.AsDense(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>

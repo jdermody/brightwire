@@ -38,11 +38,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 foreach (var (encoderState, combinedState) in _weights) {
                     using var err = encoderState.PointwiseMultiply(right);
                     using var errRows = err.RowSums();
-                    errRows.Multiply(1f / err.ColumnCount);
+                    errRows.MultiplyInPlace(1f / err.ColumnCount);
 
                     var feedForwardError = errRows.SoftmaxDerivative();
                     using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
-                    collapsed.Multiply(1f / feedForwardError.ColumnCount);
+                    collapsed.MultiplyInPlace(1f / feedForwardError.ColumnCount);
                     var weightUpdate = collapsed.Reshape(null, 1);
 
                     learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
@@ -114,12 +114,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 var saved = second.Clone();
                 using var stretched = lap.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => first[i]);
-                second.PointwiseMultiply(stretched);
+                second.PointwiseMultiplyInPlace(stretched);
                 //second.Multiply(multiplyWeight);
                 combinedAttention.AddInPlace(second);
                 backward.Add((saved, inputs[index++]));
             }
-            combinedAttention.Multiply(1f / index);
+            combinedAttention.MultiplyInPlace(1f / index);
 
             // concatenate signal with combined attention
             var final = signal.GetMatrix().ConcatRows(combinedAttention);

@@ -72,7 +72,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             if (matrix != null) {
                 if (count > 1)
-                    matrix.Multiply(1f / count);
+                    matrix.MultiplyInPlace(1f / count);
                 return ret!.ReplaceWith(matrix);
             }
 

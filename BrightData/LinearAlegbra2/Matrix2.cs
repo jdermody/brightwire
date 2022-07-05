@@ -67,10 +67,10 @@ namespace BrightData.LinearAlegbra2
             }
             return span;
         }
-        public ReadOnlySpan<float> GetColumnSpan(uint rowIndex)
+        public ReadOnlySpan<float> GetColumnSpan(uint columnIndex)
         {
             var ret = Segment.GetSpan();
-            return ret.Slice((int)rowIndex, (int)ColumnCount);
+            return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
         }
         public IVectorInfo GetRow(uint rowIndex) => new VectorData(Row(rowIndex));
         public IVectorInfo GetColumn(uint columnIndex) => new VectorData(Column(columnIndex));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
@@ -180,14 +181,12 @@ namespace BrightData.Cuda
         {
             var size = GetSize(target, other);
             _cuda.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
-            base.SubtractInPlace(target, other);
         }
 
         public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             _cuda.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
-            base.SubtractInPlace(target, other);
         }
 
         public override ITensorSegment2 Multiply(ITensorSegment2 target, float scalar)
@@ -239,15 +238,19 @@ namespace BrightData.Cuda
         public override (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment2 segment)
         {
             var ptr = GetDeviceMemoryPtr(segment);
-            var (min, max) = _cuda.FindMinAndMax(ptr, segment.Size);
-            var maxIndex = (uint)_cuda.Blas.Max(ptr.DeviceVariable, 1) - 1;
-            var minIndex = (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
-            return (min, max, minIndex, maxIndex);
+            var buffer = MemoryOwner<float>.Allocate((int)ptr.Size);
+            using var temp = new ArrayPoolTensorSegment(buffer);
+            ptr.CopyToHost(buffer.DangerousGetArray());
+            return segment.GetMinAndMaxValues();
+            //var (min, max) = _cuda.FindMinAndMax(ptr, segment.Size);
+            //var maxIndex = (uint)_cuda.Blas.Max(ptr.DeviceVariable, 1) - 1;
+            //var minIndex = (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
+            //return (min, max, minIndex, maxIndex);
         }
-        public override float GetMin(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
-        public override float GetMax(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
-        public override uint GetMinIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
-        public override uint GetMaxIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Max(GetDeviceVariable(segment), 1) - 1;
+        //public override float GetMin(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
+        //public override float GetMax(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
+        //public override uint GetMinIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
+        //public override uint GetMaxIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Max(GetDeviceVariable(segment), 1) - 1;
 
         public override bool IsEntirelyFinite(ITensorSegment2 segment) => _cuda.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
 
@@ -437,7 +440,7 @@ namespace BrightData.Cuda
 
                 ref beta,
                 new CUdeviceptr(0),
-                (int)matrix.RowCount,
+                (int)matrix.ColumnCount,
                 ret.DevicePointer,
                 (int)matrix.ColumnCount
             );

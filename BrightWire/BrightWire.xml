@@ -212,7 +212,7 @@
             <param name="rows">Row indices</param>
             <param name="data">List of input/output tuples</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IMatrix,BrightData.IMatrix}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IMatrixInfo,BrightData.IMatrixInfo}[])">
             <summary>
             Creates a sequential mini batch
             </summary>

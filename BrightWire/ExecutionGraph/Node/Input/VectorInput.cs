@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 var es = errorSignal.GetMatrix();
 
                 using var columnSums = es.ColumnSums();
-                columnSums.Multiply(1f / es.RowCount);
+                columnSums.MultiplyInPlace(1f / es.RowCount);
 
                 // store the updates
                 var learningContext = context.LearningContext!;

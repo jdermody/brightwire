@@ -93,7 +93,7 @@ namespace BrightData.MKL
                     rowsA,
                     b,
                     columnsArowsB,
-                    1f,
+                    0f,
                     r,
                     rowsA
                 );

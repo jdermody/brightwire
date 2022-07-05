@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             var input = signal.GetMatrix();
             using var columnSums = input.ColumnSums();
-            columnSums.Multiply(1f / input.RowCount);
+            columnSums.MultiplyInPlace(1f / input.RowCount);
             var mean = columnSums.Segment.GetLocalOrNewArray();
 
             var output = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);

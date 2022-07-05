@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             {
                 var es = errorSignal.GetMatrix();
                 var err = es.PointwiseMultiply(_input);
-                err.Multiply(2f);
+                err.MultiplyInPlace(2f);
                 return errorSignal.ReplaceWith(err);
             }
         }
