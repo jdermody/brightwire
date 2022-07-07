@@ -8,7 +8,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public class Matrix2<LAP> : TensorBase2<IMatrix, LAP>, IMatrix
+    public class Matrix2<LAP> : TensorBase2<IMatrix, LAP>, IMatrix, IMatrixSegments
         where LAP: LinearAlgebraProvider
     {
         public Matrix2(ITensorSegment2 data, uint rows, uint columns, LAP lap) : base(data, lap)
@@ -52,12 +52,8 @@ namespace BrightData.LinearAlegbra2
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
-
-        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
-        IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
         public TensorSegmentWrapper2 Row(uint index) => new(Segment, index, RowCount, ColumnCount);
         public TensorSegmentWrapper2 Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
-
         public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
         {
             temp = SpanOwner<float>.Allocate((int)TotalSize);
@@ -72,38 +68,41 @@ namespace BrightData.LinearAlegbra2
             var ret = Segment.GetSpan();
             return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
         }
+
+        public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
+        IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
         public IVectorInfo GetRow(uint rowIndex) => new VectorData(Row(rowIndex));
         public IVectorInfo GetColumn(uint columnIndex) => new VectorData(Column(columnIndex));
 
-        public TensorSegmentWrapper2[] Rows()
+        public IVectorInfo[] AllRows()
         {
-            var ret = new TensorSegmentWrapper2[RowCount];
+            var ret = new IVectorInfo[RowCount];
             for (uint i = 0; i < RowCount; i++)
-                ret[i] = Row(i);
+                ret[i] = GetRow(i);
             return ret;
         }
-        public TensorSegmentWrapper2[] Columns()
+        public IVectorInfo[] AllColumns()
         {
-            var ret = new TensorSegmentWrapper2[ColumnCount];
+            var ret = new IVectorInfo[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = Column(i);
+                ret[i] = GetColumn(i);
             return ret;
         }
 
-        public IVector[] RowVectors()
-        {
-            var ret = new IVector[RowCount];
-            for (uint i = 0; i < RowCount; i++)
-                ret[i] = LinearAlgebraProvider.CreateVector(Row(i));
-            return ret;
-        }
-        public IVector[] ColumnVectors()
-        {
-            var ret = new IVector[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = LinearAlgebraProvider.CreateVector(Column(i));
-            return ret;
-        }
+        //public IVector[] RowVectors()
+        //{
+        //    var ret = new IVector[RowCount];
+        //    for (uint i = 0; i < RowCount; i++)
+        //        ret[i] = LinearAlgebraProvider.CreateVector(Row(i));
+        //    return ret;
+        //}
+        //public IVector[] ColumnVectors()
+        //{
+        //    var ret = new IVector[ColumnCount];
+        //    for (uint i = 0; i < ColumnCount; i++)
+        //        ret[i] = LinearAlgebraProvider.CreateVector(Column(i));
+        //    return ret;
+        //}
 
         public MemoryOwner<float> ToRowMajor()
         {
@@ -131,8 +130,8 @@ namespace BrightData.LinearAlegbra2
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
             var ret = _lap.MapParallel(Segment, (ind, val) => {
-                var i = ind / ColumnCount;
-                var j = ind % ColumnCount;
+                var i = ind % RowCount;
+                var j = ind / RowCount;
                 return mutator(i, j, val);
             });
             return _lap.CreateMatrix(RowCount, ColumnCount, ret);
@@ -141,8 +140,8 @@ namespace BrightData.LinearAlegbra2
         public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
         {
             var ret = _lap.MapParallel(Segment, (ind, val) => {
-                var i = ind / ColumnCount;
-                var j = ind % ColumnCount;
+                var i = ind % RowCount;
+                var j = ind / RowCount;
                 return mutator(i, j, val);
             });
             try {

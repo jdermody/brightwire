@@ -78,7 +78,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IMatrix input;
-			IReadOnlyList<IVector> samples;
+            IVectorInfo[]? samples;
+            var lap = context.GetLinearAlgebraProvider();
             var shouldDispose = false;
             (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);
 
@@ -104,15 +105,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 			else {
 				input = signal.GetMatrix();
-				samples = input.RowVectors();
+				samples = input.AllRows();
 			}
 
 			// collect statistics
 			if (context.LearningContext != null) {
 				foreach (var vector in samples) {
-					_statistics.Update(vector);
-					vector.Dispose();
-				}
+                    using var temp = vector.Create(lap);
+					_statistics.Update(temp);
+                }
 			}
 
 			if (context.LearningContext != null) {
@@ -131,8 +132,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 			}
 			else if(_statistics != null) {
-                var lap = context.GetLinearAlgebraProvider();
-				if (_gammaCached?.Segment.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
+                if (_gammaCached?.Segment.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
 					_gammaCached = lap.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _gamma.Data[y]);
 				if(_betaCached?.Segment.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
 					_betaCached = lap.CreateMatrix(input.RowCount, input.ColumnCount, (_, y) => _beta.Data[y]);
@@ -155,8 +155,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 			if (shouldDispose)
 				input.Dispose();
-			foreach (var item in samples)
-				item.Dispose();
             return ret;
         }
 

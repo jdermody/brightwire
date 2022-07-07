@@ -52,9 +52,14 @@ namespace BrightData.Buffer.ReadOnly
             }
 
             public bool MoveNext() => ++_index < _length;
-            public void Reset() => _index = -1;
+            public void Seek(uint index) => _index = (int)index - 1;
             public ref readonly T Current => ref *(_ptr + _index);
             ref T IHaveMutableReference<T>.Current => ref *(_ptr + _index);
+
+            public void Dispose()
+            {
+                // nop
+            }
         }
         class EnumerableBlock<T> : IEnumerable<T> where T : unmanaged
         {

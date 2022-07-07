@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 var z = i / _matrixSize;
                 var x = rem % _rows;
                 var y = rem / _rows;
-                return tensor.Matrix(z).Row(x)[y];
+                return tensor.GetMatrix(z).GetRow(x)[y];
             });
             return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
         }

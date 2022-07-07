@@ -17,7 +17,7 @@ namespace BrightData.LinearAlegbra2
         }
 
         public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D2<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
-        ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(Tensor).ToArray());
+        ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
 
         public uint Count { get; private set; }
         public uint Depth { get; private set; }
@@ -61,7 +61,7 @@ namespace BrightData.LinearAlegbra2
             get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
-        public ITensor3D Tensor(uint index) => _lap.GetTensor(this, index);
+        public ITensor3D GetTensor(uint index) => _lap.GetTensor(this, index);
         public ITensor4D AddPadding(uint padding) => _lap.AddPadding(this, padding);
         public ITensor4D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);
         public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);

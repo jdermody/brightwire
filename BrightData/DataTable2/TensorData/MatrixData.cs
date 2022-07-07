@@ -1,16 +1,17 @@
 ﻿using System;
 using System.IO;
 using BrightData.LinearAlegbra2;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2.TensorData
 {
     internal class MatrixData : IMatrixInfo
     {
-        readonly ICanRandomlyAccessData<float> _data;
-        readonly uint _startIndex;
+        ICanRandomlyAccessData<float> _data;
+        uint _startIndex;
 
-        public MatrixData(ICanRandomlyAccessData<float> data, uint startIndex, uint rowCount, uint columnCount)
+        public MatrixData(ICanRandomlyAccessData<float> data, uint rowCount, uint columnCount, uint startIndex)
         {
             _data = data;
             _startIndex = startIndex;
@@ -18,8 +19,8 @@ namespace BrightData.DataTable2.TensorData
             ColumnCount = columnCount;
         }
 
-        public uint RowCount { get; }
-        public uint ColumnCount { get; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
 
         public float this[int rowY, int columnX] => _data[rowY * (int)ColumnCount + columnX];
         public float this[uint rowY, uint columnX] => _data[rowY * ColumnCount + columnX];
@@ -40,16 +41,27 @@ namespace BrightData.DataTable2.TensorData
             return lap.CreateMatrix(RowCount, ColumnCount, segment);
         }
 
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, rowIndex * ColumnCount, RowCount);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, rowIndex, RowCount, ColumnCount);
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, columnIndex * RowCount, 1, RowCount);
 
         public void WriteTo(BinaryWriter writer)
         {
-            throw new NotImplementedException();
+            writer.Write(2);
+            writer.Write(ColumnCount);
+            writer.Write(RowCount);
+            writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
         }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
-            throw new NotImplementedException();
+            if (reader.ReadInt32() != 2)
+                throw new Exception("Unexpected array size");
+            ColumnCount = reader.ReadUInt32();
+            RowCount = reader.ReadUInt32();
+            _startIndex = 0;
+            _data = new TempFloatData(reader, Size);
         }
+
+        public uint Size => ColumnCount * RowCount;
     }
 }

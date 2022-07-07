@@ -23,22 +23,25 @@ namespace BrightData.LinearAlegbra2
             PushScope();
         }
 
-        public BrightDataContext Context { get; }
-        public virtual string Name => "default";
-
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
             foreach (var set in _scope) {
                 foreach(var item in set)
                     item.Dispose();
             }
         }
 
-        public void PushScope()
-        {
-            _scope.Push(new());
-        }
+        public BrightDataContext Context { get; }
+        public virtual string Name => "default";
 
+        public virtual Type VectorType { get; } = typeof(Vector2);
+        public virtual Type MatrixType { get; } = typeof(Matrix2);
+        public virtual Type Tensor3DType { get; } = typeof(Tensor3D2);
+        public virtual Type Tensor4DType { get; } = typeof(Tensor4D2);
+
+        // scope
+        public void PushScope() => _scope.Push(new());
         public void PopScope()
         {
             var popped = _scope.Pop();
@@ -47,6 +50,8 @@ namespace BrightData.LinearAlegbra2
         }
         internal bool AddToScope(IDisposable obj) => _scope.First().Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _scope.First().Remove(obj);
+
+        // segment creation
         public virtual ITensorSegment2 CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
         public virtual ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
         {
@@ -56,18 +61,12 @@ namespace BrightData.LinearAlegbra2
                 ptr[i] = initializer((uint)i);
             return new ArrayPoolTensorSegment(ret);
         }
-
-        public virtual ITensorSegment2 Clone(ITensorSegment2 tensor)
+        public virtual ITensorSegment2 Clone(ITensorSegment2 segment)
         {
-            var ret = CreateSegment(tensor.Size);
-            tensor.CopyTo(ret);
+            var ret = CreateSegment(segment.Size);
+            segment.CopyTo(ret);
             return ret;
         }
-
-        public virtual Type VectorType { get; } = typeof(Vector2);
-        public virtual Type MatrixType { get; } = typeof(Matrix2);
-        public virtual Type Tensor3DType { get; } = typeof(Tensor3D2);
-        public virtual Type Tensor4DType { get; } = typeof(Tensor4D2);
 
         // vector creation
         public virtual IVector CreateVector(ITensorSegment2 data) => new Vector2(data, this);
@@ -81,7 +80,8 @@ namespace BrightData.LinearAlegbra2
             return CreateVector(segment);
         }
         public IVector CreateVector(uint size, Func<uint, float> initializer) => CreateVector(CreateSegment(size, initializer));
-        public IVector CreateVector(IVector vector) => CreateVector(vector.Segment);
+        public IVector CreateVector(IVector vector) => CreateVector(Clone(vector.Segment));
+        public IVector CreateVector(IVectorInfo vector) => vector.Create(this);
 
         // matrix creation
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new Matrix2(data, rowCount, columnCount, this);
@@ -91,10 +91,11 @@ namespace BrightData.LinearAlegbra2
             var segment = CreateSegment(rowCount * columnCount);
             var array = segment.GetArrayForLocalUseOnly()!;
             for (uint i = 0, len = segment.Size; i < len; i++)
-                array[i] = initializer(i / columnCount, i % columnCount);
+                array[i] = initializer(i % rowCount, i / rowCount);
             return CreateMatrix(rowCount, columnCount, segment);
         }
-        public IMatrix CreateMatrix(IMatrix matrix) => CreateMatrix(matrix.RowCount, matrix.ColumnCount, matrix.Segment);
+        public IMatrix CreateMatrix(IMatrix matrix) => CreateMatrix(matrix.RowCount, matrix.ColumnCount, Clone(matrix.Segment));
+        public IMatrix CreateMatrix(IMatrixInfo matrix) => matrix.Create(this);
 
         // create from rows
         public IMatrix CreateMatrixFromRows(params IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
@@ -113,17 +114,19 @@ namespace BrightData.LinearAlegbra2
         {
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns);
+            var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < rows.Length; i++)
-                rows[i].CopyTo(ret.Row((uint)i));
+                rows[i].CopyTo(matrix.Row((uint)i));
             return ret;
         }
         public IMatrix CreateMatrixFromRows(ReadOnlySpan<IVectorInfo> rows)
         {
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns);
+            var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < rows.Length; i++) {
                 var sourceRow = rows[i];
-                var targetRow = ret.Row((uint)i);
+                var targetRow = matrix.Row((uint)i);
                 for (var j = 0; j < columns; j++)
                     targetRow[j] = sourceRow[j];
             } 
@@ -147,17 +150,19 @@ namespace BrightData.LinearAlegbra2
         {
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length);
+            var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < columns.Length; i++)
-                columns[i].CopyTo(ret.Column((uint)i));
+                columns[i].CopyTo(matrix.Column((uint)i));
             return ret;
         }
         public IMatrix CreateMatrixFromColumns(ReadOnlySpan<IVectorInfo> columns)
         {
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length);
+            var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < columns.Length; i++) {
                 var sourceColumn = columns[i];
-                var targetColumn = ret.Column((uint)i);
+                var targetColumn = matrix.Column((uint)i);
                 for (var j = 0; j < rows; j++)
                     targetColumn[j] = sourceColumn[j];
             } 
@@ -168,7 +173,8 @@ namespace BrightData.LinearAlegbra2
         public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor3D2(data, depth, rowCount, columnCount, this);
         public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount));
         public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
-        public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, tensor.Segment);
+        public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
+        public ITensor3D CreateTensor3D(ITensor3DInfo tensor) => tensor.Create(this);
         public ITensor3D CreateTensor3DAndThenDisposeInput(params IMatrix[] matrices)
         {
             try {
@@ -200,7 +206,7 @@ namespace BrightData.LinearAlegbra2
             var ret = CreateTensor3D(depth, rows, columns, data);
             var allSame = true;
             for (uint i = 0; i < ret.Depth; i++) {
-                using var t = ret.Matrix(i);
+                using var t = ret.GetMatrix(i);
                 var s = matrices[(int)i];
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
                     s.Segment.CopyTo(t.Segment);
@@ -221,7 +227,8 @@ namespace BrightData.LinearAlegbra2
         public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor4D2(data, count, depth, rowCount, columnCount, this);
         public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount));
         public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
-        public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, tensor.Segment);
+        public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
+        public ITensor4D CreateTensor4D(ITensor4DInfo tensor) => tensor.Create(this);
         public ITensor4D CreateTensor4DAndThenDisposeInput(params ITensor3D[] tensors)
         {
             try {
@@ -254,7 +261,7 @@ namespace BrightData.LinearAlegbra2
             var ret = CreateTensor4D(count, depth, rows, columns, data);
             var allSame = true;
             for (uint i = 0; i < ret.Depth; i++) {
-                using var t = ret.Tensor(i);
+                using var t = ret.GetTensor(i);
                 var s = tensors[(int)i];
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount && s.Depth == t.Depth)
                     s.Segment.CopyTo(t.Segment);
@@ -341,8 +348,8 @@ namespace BrightData.LinearAlegbra2
             fixed (float* retPtr = &MemoryMarshal.GetReference(ret.Segment.GetSpan())) {
                 CacheTranspose(matrixPtr, matrix.RowCount, matrix.ColumnCount, 0, matrix.RowCount, 0, matrix.ColumnCount, retPtr);
                 //Parallel.For(0, matrix.Segment.Size, ind => {
-                //    var i = (uint)(ind / columnCount);
-                //    var j = (uint)(ind % columnCount);
+                //    var i = (uint)(ind % rowCount);
+                //    var j = (uint)(ind / rowCount);
                 //    ret[j, i] = matrix[i, j];
                 //});
                 if (wasTempUsed)
@@ -368,27 +375,27 @@ namespace BrightData.LinearAlegbra2
             }
         }
 
-        public virtual IMatrix OldMultiply(IMatrix matrix, IMatrix other)
-        {
-            var rowCount = matrix.RowCount;
-            var ret = CreateMatrix(rowCount, other.ColumnCount);
-            var rows = matrix.Rows();
-            var columns = other.Columns();
+        //public virtual IMatrix OldMultiply(IMatrix matrix, IMatrix other)
+        //{
+        //    var rowCount = matrix.RowCount;
+        //    var ret = CreateMatrix(rowCount, other.ColumnCount);
+        //    var rows = matrix.AllRows();
+        //    var columns = other.AllColumns();
             
-            //for (uint ind = 0; ind < matrix.RowCount * other.ColumnCount; ind++) {
-            Parallel.For(0, matrix.RowCount * other.ColumnCount, ind => {
-                var i = (uint)(ind % rowCount);
-                var j = (uint)(ind / rowCount);
-                var row = rows[i];
-                var column = columns[j];
-                var val = row.DotProduct(column);
-                ret[i, j] = val;
-            });
-            //}
+        //    //for (uint ind = 0; ind < matrix.RowCount * other.ColumnCount; ind++) {
+        //    Parallel.For(0, matrix.RowCount * other.ColumnCount, ind => {
+        //        var i = (uint)(ind % rowCount);
+        //        var j = (uint)(ind / rowCount);
+        //        var row = rows[i];
+        //        var column = columns[j];
+        //        var val = row.DotProduct(column);
+        //        ret[i, j] = val;
+        //    });
+        //    //}
 
-            // don't need to dispose the wrappers
-            return ret;
-        }
+        //    // don't need to dispose the wrappers
+        //    return ret;
+        //}
 
         public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
@@ -481,75 +488,75 @@ namespace BrightData.LinearAlegbra2
             return ret;
         }
 
-        protected unsafe IMatrix MultiplyWithOtherTransposed(IMatrix matrix, IMatrix transposedOther)
-        {
-            var size = (int)matrix.ColumnCount;
-            var vectorSize = ExtensionMethods.NumericsVectorSize;
-            var numVectors = size / vectorSize;
-            var ceiling = numVectors * vectorSize;
+        //protected unsafe IMatrix MultiplyWithOtherTransposed(IMatrix matrix, IMatrix transposedOther)
+        //{
+        //    var size = (int)matrix.ColumnCount;
+        //    var vectorSize = ExtensionMethods.NumericsVectorSize;
+        //    var numVectors = size / vectorSize;
+        //    var ceiling = numVectors * vectorSize;
 
-            var rowCount = matrix.RowCount;
-            var columnCount = transposedOther.RowCount;
-            var ret = CreateMatrix(rowCount, columnCount);
+        //    var rowCount = matrix.RowCount;
+        //    var columnCount = transposedOther.RowCount;
+        //    var ret = CreateMatrix(rowCount, columnCount);
 
-            SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
-            var matrixSpan = matrix.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
-            var otherSpan = transposedOther.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
-            try {
-                var retSpan = ret.Segment.GetSpan();
-                var matrixColumnCount = (int)matrix.ColumnCount;
-                var otherColumnCount = (int)transposedOther.ColumnCount;
-                fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrixSpan))
-                fixed (float* otherPtr = &MemoryMarshal.GetReference(otherSpan))
-                fixed (float* retPtr = &MemoryMarshal.GetReference(retSpan)) {
-                    var matrixPtr2 = matrixPtr;
-                    var otherPtr2 = otherPtr;
-                    var retPtr2 = retPtr;
-                    Parallel.For(0, rowCount, i => {
-                        var xPtr = &matrixPtr2[i * matrixColumnCount];
-                        var xSpan = new ReadOnlySpan<float>(xPtr, matrixColumnCount);
-                        var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
-                        for (var j = 0; j < columnCount; j++) {
-                            var yPtr = &otherPtr2[j * otherColumnCount];
-                            var ySpan = new ReadOnlySpan<float>(yPtr, otherColumnCount);
-                            var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
+        //    SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
+        //    var matrixSpan = matrix.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
+        //    var otherSpan = transposedOther.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
+        //    try {
+        //        var retSpan = ret.Segment.GetSpan();
+        //        var matrixColumnCount = (int)matrix.ColumnCount;
+        //        var otherColumnCount = (int)transposedOther.ColumnCount;
+        //        fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrixSpan))
+        //        fixed (float* otherPtr = &MemoryMarshal.GetReference(otherSpan))
+        //        fixed (float* retPtr = &MemoryMarshal.GetReference(retSpan)) {
+        //            var matrixPtr2 = matrixPtr;
+        //            var otherPtr2 = otherPtr;
+        //            var retPtr2 = retPtr;
+        //            Parallel.For(0, rowCount, i => {
+        //                var xPtr = &matrixPtr2[i * matrixColumnCount];
+        //                var xSpan = new ReadOnlySpan<float>(xPtr, matrixColumnCount);
+        //                var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
+        //                for (var j = 0; j < columnCount; j++) {
+        //                    var yPtr = &otherPtr2[j * otherColumnCount];
+        //                    var ySpan = new ReadOnlySpan<float>(yPtr, otherColumnCount);
+        //                    var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
 
-                            var sum = 0f;
-                            for (var z = 0; z < numVectors; z++) {
-                                var temp = Vector.Multiply(xVectors[z], yVectors[z]);
-                                sum += Vector.Sum(temp);
-                            }
+        //                    var sum = 0f;
+        //                    for (var z = 0; z < numVectors; z++) {
+        //                        var temp = Vector.Multiply(xVectors[z], yVectors[z]);
+        //                        sum += Vector.Sum(temp);
+        //                    }
 
-                            for (var z = ceiling; z < size; z++)
-                                sum += xSpan[z] * ySpan[z];
-                            retPtr2[i * columnCount + j] = sum;
-                        }
-                    });
-                }
-            }
-            finally {
-                if(wasMatrixTempUsed)
-                    matrixTemp.Dispose();
-                if(wasOtherTempUsed)
-                    otherTemp.Dispose();
-            }
+        //                    for (var z = ceiling; z < size; z++)
+        //                        sum += xSpan[z] * ySpan[z];
+        //                    retPtr2[i * columnCount + j] = sum;
+        //                }
+        //            });
+        //        }
+        //    }
+        //    finally {
+        //        if(wasMatrixTempUsed)
+        //            matrixTemp.Dispose();
+        //        if(wasOtherTempUsed)
+        //            otherTemp.Dispose();
+        //    }
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
         public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
             if (matrix.ColumnCount != other.ColumnCount)
                 throw new Exception("Matrix sizes do not agree");
-            return MultiplyWithOtherTransposed(matrix, other);
+            using var transposed = other.Transpose();
+            return Multiply(matrix, transposed);
         }
 
         public virtual IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
             if (matrix.RowCount != other.RowCount)
                 throw new Exception("Matrix sizes do not agree");
-            using var transpose = Transpose(matrix);
-            return Multiply(transpose, other);
+            return MultiplyWithThisTransposed(matrix, other);
         }
 
         public virtual IVector GetDiagonal(IMatrix matrix)
@@ -561,21 +568,21 @@ namespace BrightData.LinearAlegbra2
 
         public virtual IVector RowSums(IMatrix matrix)
         {
-            var rows = matrix.Rows();
-            return CreateVector(matrix.RowCount, i => rows[i].Sum());
+            var rows = matrix.AllRows();
+            return CreateVector(matrix.RowCount, i => rows[i].UnderlyingSegment!.Sum());
         }
 
         public virtual IVector ColumnSums(IMatrix matrix)
         {
-            var columns = matrix.Columns();
-            return CreateVector(matrix.ColumnCount, i => columns[i].Sum());
+            var columns = matrix.AllColumns();
+            return CreateVector(matrix.ColumnCount, i => columns[i].UnderlyingSegment!.Sum());
         }
 
         public virtual IVector ColumnSums(ITensor4D tensor)
         {
             IVector? ret = null;
             for (uint i = 0, count = tensor.Count; i < count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 using var tensorAsMatrix = subTensor.Reshape(subTensor.RowCount * subTensor.ColumnCount, subTensor.Depth);
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)
@@ -819,10 +826,10 @@ namespace BrightData.LinearAlegbra2
             var ptr = matrixList.Span;
 
             for (uint k = 0; k < tensor.Depth; k++) {
-                using var source = tensor.Matrix(k);
+                using var source = tensor.GetMatrix(k);
                 var sourceRows = source.RowCount;
                 var sourceColumns = source.ColumnCount;
-                using var index = indices.Matrix(k);
+                using var index = indices.GetMatrix(k);
                 var target = ptr[(int)k] = CreateMatrix(outputRows, outputColumns);
 
                 for (uint j = 0; j < sourceColumns; j++) {
@@ -848,8 +855,8 @@ namespace BrightData.LinearAlegbra2
             for (var i = 0; i < outputDepth; i++)
                 ptr[i] = CreateMatrix(outputRows, outputColumns);
             for (uint k = 0; k < tensor.Depth; k++) {
-                using var slice = tensor.Matrix(k);
-                var filters = filter.Column(k).Split(outputDepth).ToArray();
+                using var slice = tensor.GetMatrix(k);
+                var filters = filter.GetColumn(k).UnderlyingSegment!.Split(outputDepth).ToArray();
 
                 foreach (var (cx, cy) in convolutions) {
                     var errorY = cy / xStride;
@@ -875,7 +882,7 @@ namespace BrightData.LinearAlegbra2
             var ret = CreateMatrix(tensor.RowCount, tensor.ColumnCount);
 
             for (uint i = 0; i < tensor.Depth; i++) {
-                using var matrix = tensor.Matrix(i);
+                using var matrix = tensor.GetMatrix(i);
                 ret.AddInPlace(matrix);
             }
 
@@ -888,7 +895,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
 
             for (uint i = 0; i < tensor.Depth; i++) {
-                using var matrix = tensor.Matrix(i);
+                using var matrix = tensor.GetMatrix(i);
                 ptr[(int)i] = matrix.Multiply(other);
             }
             return CreateTensor3DAndThenDisposeInput(ptr);
@@ -911,9 +918,9 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
 
             for (uint i = 0; i < other.Count; i++) {
-                using var item = other.Tensor(i);
+                using var item = other.GetTensor(i);
                 using var multiplyWith = item.Reshape(other.MatrixSize, other.Count);
-                using var slice = tensor.Matrix(i);
+                using var slice = tensor.GetMatrix(i);
                 ptr[(int)i] = slice.TransposeThisAndMultiply(multiplyWith);
             }
 
@@ -926,7 +933,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 ptr[(int)i] = subTensor.AddPadding(padding);
             }
 
@@ -939,7 +946,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 ptr[(int)i] = subTensor.RemovePadding(padding);
             }
 
@@ -955,7 +962,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 var (result, indices) = subTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
                 ptr[(int)i] = result;
                 if (indexList != null && indices != null)
@@ -971,8 +978,8 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
-                using var indexTensor = indices.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
+                using var indexTensor = indices.GetTensor(i);
                 var result = subTensor.ReverseMaxPool(indexTensor, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
                 ptr[(int)i] = result;
             }
@@ -986,7 +993,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 ptr[(int)i] = subTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
             }
 
@@ -999,7 +1006,7 @@ namespace BrightData.LinearAlegbra2
             var ptr = ret.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
-                using var subTensor = tensor.Tensor(i);
+                using var subTensor = tensor.GetTensor(i);
                 ptr[(int)i] = subTensor.ReverseIm2Col(filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
             }
 
@@ -1020,13 +1027,13 @@ namespace BrightData.LinearAlegbra2
 
         public virtual IMatrix GetNewMatrixFromRows(IMatrix matrix, IEnumerable<uint> rowIndices)
         {
-            var ret = CreateMatrixFromRows(rowIndices.Select(matrix.Row).ToArray());
+            var ret = CreateMatrixFromRows(rowIndices.Select(matrix.GetRow).ToArray());
             return ret;
         }
 
         public virtual IMatrix GetNewMatrixFromColumns(IMatrix matrix, IEnumerable<uint> columnIndices)
         {
-            var ret = CreateMatrixFromRows(columnIndices.Select(matrix.Column).ToArray());
+            var ret = CreateMatrixFromColumns(columnIndices.Select(matrix.GetColumn).ToArray());
             return ret;
         }
 
@@ -1047,8 +1054,8 @@ namespace BrightData.LinearAlegbra2
             var ret = CreateMatrix(rows, columns);
 
             Parallel.For(0, rows * columns, ind => {
-                var i = (uint) (ind / columns);
-                var j = (uint) (ind % columns);
+                var i = (uint) (ind % rows);
+                var j = (uint) (ind / rows);
                 var distance = compareTo[(int)i].FindDistance(vectors[(int)j], distanceMetric);;
                 ret[i, j] = distance;
             });
@@ -1083,6 +1090,11 @@ namespace BrightData.LinearAlegbra2
             }
 
             throw new NotImplementedException();
+        }
+
+        public virtual void BindThread()
+        {
+            // nop
         }
     }
 }

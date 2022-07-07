@@ -10,7 +10,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
 {
-    public abstract class TensorBase2<T, LAP> : ITensor2<T>
+    public abstract class TensorBase2<T, LAP> : ITensor2<T>, IHaveSize
         where T: ITensor2
         where LAP: LinearAlgebraProvider
     {
@@ -62,6 +62,7 @@ namespace BrightData.LinearAlegbra2
 
         public abstract T Create(ITensorSegment2 segment);
         public abstract uint TotalSize { get; protected set; }
+        uint IHaveSize.Size => TotalSize;
         public abstract uint[] Shape { get; protected set; }
         public ITensorSegment2 Segment { get; private set; }
         public BrightDataContext Context => _lap.Context;

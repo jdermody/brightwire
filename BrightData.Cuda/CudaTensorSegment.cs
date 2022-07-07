@@ -26,6 +26,8 @@ namespace BrightData.Cuda
             Release();
         }
 
+        public static bool IsCuda(ITensorSegment2 segment) => segment.SegmentType == CudaSegmentType;
+
         public int AddRef() => DeviceMemory.AddRef();
         public int Release()
         {

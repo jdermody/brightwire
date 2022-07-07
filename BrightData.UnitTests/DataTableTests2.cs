@@ -92,6 +92,8 @@ namespace BrightData.UnitTests
             var vectorBuilder = builder.AddColumn<IVectorInfo>("vector");
             using var firstVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
+            using var secondVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 2);
+            vectorBuilder.Add(secondVector);
 
             using var stream = new MemoryStream();
             builder.WriteTo(stream);
@@ -100,7 +102,8 @@ namespace BrightData.UnitTests
 
             using var fromTable = dataTable.Get<IVectorInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstVector);
-            fromTable.Segment.Should().BeEquivalentTo(firstVector.Segment);
+            using var fromTable2 = dataTable.Get<IVectorInfo>(1, 0).Create(_context.LinearAlgebraProvider2);
+            fromTable2.Should().BeEquivalentTo(secondVector);
         }
 
         [Fact]

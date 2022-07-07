@@ -83,15 +83,16 @@ namespace BrightData.Helper
             return AlmostEqual2SComplement(v1, v2, maxDifference);
         }
 
-        public static bool AreApproximatelyEqual(ITensor2 t1, ITensor2 t2, int maxDifference = 6)
+        public static bool AreApproximatelyEqual<T>(T t1, T t2, int maxDifference = 6)
+            where T: IHaveSize, IHaveSpan
         {
-            var len = t1.Segment.Size;
-            if (len != t2.Segment.Size)
+            var len = t1.Size;
+            if (len != t2.Size)
                 return false;
 
             SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
-            var p1 = t1.Segment.GetSpan(ref temp1, out var wasTemp1Used);
-            var p2 = t2.Segment.GetSpan(ref temp2, out var wasTemp2Used);
+            var p1 = t1.GetSpan(ref temp1, out var wasTemp1Used);
+            var p2 = t2.GetSpan(ref temp2, out var wasTemp2Used);
 
             try {
                 for (var i = 0; i < len; i++) {

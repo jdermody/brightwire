@@ -14,7 +14,7 @@ namespace BrightData.UnitTests
         [Fact]
 		public void TensorConvertToVector()
         {
-            using var cpuTensor = _lap.CreateTensor3DAndThenDisposeInput(3.AsRange().Select(i => _lap.CreateMatrix(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
+            using var cpuTensor = _cpu.CreateTensor3DAndThenDisposeInput(3.AsRange().Select(i => _cpu.CreateMatrix(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor.Depth, cpuTensor.RowCount, cpuTensor.ColumnCount, cpuTensor.Segment);
 
             using var cpuVector = cpuTensor.Reshape();

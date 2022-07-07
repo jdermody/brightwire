@@ -67,13 +67,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 .Select(r => ((IVector)r[_featureColumnIndices[0]], (IMatrix)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var outputData = new Dictionary<uint, List<ITensorSegment2>>();
+            var outputData = new Dictionary<uint, List<IVectorInfo>>();
             foreach (var item in data) {
                 var output = item.Item2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = new());
-                    temp.Add(output.Row(i));
+                    temp.Add(output.GetRow(i));
                 }
             }
 

@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables with weighted index list based columns (corresponding to a sparse vector)
     /// </summary>
-    internal class WeightedIndexListDataTableAdapter : DataTableAdapterBase<(WeightedIndexList, float[])>, IWeightedIndexListEncoder
+    internal class WeightedIndexListDataTableAdapter : DataTableAdapterBase<(WeightedIndexList IndexList, float[] Output)>, IWeightedIndexListEncoder
     {
         readonly uint[] _featureColumns;
 
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override uint InputSize { get; }
         public override uint? OutputSize { get; }
 
-        protected override IEnumerable<(WeightedIndexList, float[])> GetRows(uint[] rows)
+        protected override IEnumerable<(WeightedIndexList IndexList, float[] Output)> GetRows(uint[] rows)
         {
             foreach (var tableRow in _dataTable.GetRows(rows)) using (tableRow)
                 yield return (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => (new[] { Encode(r.Item1) }, r.Item2))
+                .Select(r => (Encode(r.IndexList), r.Output))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);

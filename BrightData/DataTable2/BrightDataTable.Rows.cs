@@ -62,23 +62,23 @@ namespace BrightData.DataTable2
             var readers = new ICanEnumerateDisposable[columnCount];
             var enumerators = new IEnumerator<object>[columnCount];
 
-            foreach (var (firstRowIndex, last) in AllOrSpecifiedRowIndices(rowIndices).FindDistinctContiguousRanges()) {
+            foreach (var (first, last) in AllOrSpecifiedRowIndices(rowIndices).FindDistinctContiguousRanges()) {
                 try {
-                    var rowIndexCount = last - firstRowIndex + 1;
+                    var count = last - first + 1;
                     for (uint i = 0; i < columnCount; i++) {
-                        var reader = readers[i] = GetColumnReader(i, rowIndexCount, size => size * firstRowIndex);
+                        var reader = readers[i] = GetColumnReader(i, count, size => size * first);
                         enumerators[i] = reader.Enumerate().GetEnumerator();
                     }
 
                     var ret = ArrayPool<object>.Shared.Rent((int)columnCount);
-                    for (uint j = 0; j < rowIndexCount; j++) {
+                    for (uint j = 0; j < count; j++) {
                         for (uint i = 0; i < columnCount; i++) {
                             var enumerator = enumerators[i];
                             enumerator.MoveNext();
                             ret[i] = enumerator.Current;
                         }
 
-                        yield return new Row2(this, ret, firstRowIndex + j, ColumnCount);
+                        yield return new Row2(this, ret, first + j, ColumnCount);
                     }
                 }
                 finally {

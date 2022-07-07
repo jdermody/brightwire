@@ -20,7 +20,11 @@ namespace BrightData.LinearAlegbra2
         public sealed override uint[] Shape
         {
             get => new[] { Size };
-            protected set { /*nop*/ }
+            protected set
+            {
+                if (value.Length != 1 && value[0] != Size)
+                    throw new ArgumentException("Unexpected shape");
+            }
         }
 
         public float this[int index]
@@ -36,6 +40,7 @@ namespace BrightData.LinearAlegbra2
 
         public float[] ToArray() => Segment.ToNewArray();
         IVector IVectorInfo.Create(LinearAlgebraProvider lap) => lap.CreateVector(ToArray());
+        ITensorSegment2? IVectorInfo.UnderlyingSegment => Segment;
 
         public float this[long index]
         {

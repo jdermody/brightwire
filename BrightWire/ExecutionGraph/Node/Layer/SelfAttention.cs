@@ -107,8 +107,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
-            foreach (var (first, second) in softmax.ColumnVectors().Zip(encoderStates)) {
-                var multiplyWeight = first.Average();
+            foreach (var (first, second) in softmax.AllColumns().Zip(encoderStates)) {
+                var multiplyWeight = first.UnderlyingSegment!.Average();
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 

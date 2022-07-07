@@ -1095,7 +1095,7 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
-    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan
+    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan, IHaveSize
     {
         BrightDataContext Context { get; }
         LinearAlgebraProvider LinearAlgebraProvider { get; }
@@ -1191,12 +1191,10 @@ namespace BrightData
         float this[ulong rowY, ulong columnX] { get; set; }
         ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp);
         ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
-        TensorSegmentWrapper2 Row(uint index);
-        TensorSegmentWrapper2 Column(uint index);
-        TensorSegmentWrapper2[] Rows();
-        TensorSegmentWrapper2[] Columns();
-        IVector[] RowVectors();
-        IVector[] ColumnVectors();
+        IVectorInfo GetRow(uint index);
+        IVectorInfo GetColumn(uint index);
+        IVectorInfo[] AllRows();
+        IVectorInfo[] AllColumns();
         MemoryOwner<float> ToRowMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
@@ -1219,13 +1217,19 @@ namespace BrightData
         void AddToEachColumn(ITensorSegment2 segment);
     }
 
+    public interface IMatrixSegments
+    {
+        TensorSegmentWrapper2 Row(uint index);
+        TensorSegmentWrapper2 Column(uint index);
+    }
+
     public interface ITensor3D : ITensor2<ITensor3D>, ITensor3DInfo
     {
         new float this[int depth, int rowY, int columnX] { get; set; }
         new float this[uint depth, uint rowY, uint columnX] { get; set; }
         float this[long depth, long rowY, long columnX] { get; set; }
         float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
-        IMatrix Matrix(uint index);
+        IMatrix GetMatrix(uint index);
         ITensor3D AddPadding(uint padding);
         ITensor3D RemovePadding(uint padding);
         IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
@@ -1244,7 +1248,7 @@ namespace BrightData
         new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
         float this[long count, long depth, long rowY, long columnX] { get; set; }
         float this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
-        ITensor3D Tensor(uint index);
+        ITensor3D GetTensor(uint index);
         ITensor4D AddPadding(uint padding);
         ITensor4D RemovePadding(uint padding);
         (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
@@ -1299,10 +1303,10 @@ namespace BrightData
         ref T Current { get; }
     }
 
-    public interface IReadOnlyEnumerator<T> where T : unmanaged
+    public interface IReadOnlyEnumerator<T> : IDisposable where T : unmanaged
     {
         bool MoveNext();
-        void Reset();
+        void Seek(uint index);
         ref readonly T Current { get; }
     }
 

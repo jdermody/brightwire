@@ -11,23 +11,7 @@ namespace BrightData.DataTable2
     {
         static void ValidateColumnTypes(Type columnType, Type requestedType)
         {
-            if (columnType == typeof(IVector)) {
-                if(requestedType != typeof(VectorData))
-                    throw new ArgumentException($"Use {nameof(VectorData)} instead");
-            }
-            else if (columnType == typeof(IMatrix)) {
-                if(requestedType != typeof(MatrixData))
-                    throw new ArgumentException($"Use {nameof(MatrixData)} instead");
-            }
-            else if (columnType == typeof(ITensor3D)) {
-                if(requestedType != typeof(Tensor3DData))
-                    throw new ArgumentException($"Use {nameof(Tensor3DData)} instead");
-            }
-            else if (columnType == typeof(ITensor4D)) {
-                if(requestedType != typeof(Tensor4DData))
-                    throw new ArgumentException($"Use {nameof(Tensor4DData)} instead");
-            }
-            else if (columnType != requestedType)
+            if (columnType != requestedType)
                 throw new ArgumentException($"Data types do not align - expected {columnType} but received {requestedType}");
         }
 
@@ -49,11 +33,6 @@ namespace BrightData.DataTable2
         {
             ref readonly var column = ref _columns[columnIndex];
             var dataType = column.DataType.GetDataType();
-            if (dataType == typeof(IVector))
-                dataType = typeof(VectorData);
-            else if(dataType == typeof(IMatrix))
-                dataType = typeof(MatrixData);
-
             var offset = _columnOffset[columnIndex];
             if(offsetAdjuster is not null)
                 offset += offsetAdjuster(column.DataTypeSize);
@@ -187,7 +166,7 @@ namespace BrightData.DataTable2
 
             public VectorData Convert(ref DataRangeColumnType item)
             {
-                return new VectorData(_data, item.StartIndex, item.Count);
+                return new VectorData(_data, item.StartIndex, 1, item.Count);
             }
         }
 

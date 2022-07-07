@@ -63,18 +63,25 @@ namespace BrightData.Cuda
             return CreateMatrix(rowCount, columnCount, new CudaTensorSegment(deviceMemory));
         }
 
-        public override ITensorSegment2 Clone(ITensorSegment2 tensor)
+        public override ITensorSegment2 Clone(ITensorSegment2 segment)
         {
-            var ret = (CudaTensorSegment)CreateSegment(tensor.Size);
-            ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor));
-            return ret;
+            if (CudaTensorSegment.IsCuda(segment)) {
+                var ret = (CudaTensorSegment)CreateSegment(segment.Size);
+                ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(segment));
+                return ret;
+            }
+            return CopyToDevice(segment);
         }
 
         ITensorSegment2 OptionallyCopyToDevice(ITensorSegment2 segment)
         {
-            if (segment.SegmentType == "cuda")
+            if (CudaTensorSegment.IsCuda(segment))
                 return segment;
+            return CopyToDevice(segment);
+        }
 
+        ITensorSegment2 CopyToDevice(ITensorSegment2 segment)
+        {
             var deviceMemory = _cuda.Memory.GetMemory(segment.Size);
             var temp = SpanOwner<float>.Empty;
             var span = segment.GetSpan(ref temp, out var wasTempUsed);
@@ -155,7 +162,6 @@ namespace BrightData.Cuda
         {
             var ptr = GetDeviceMemoryPtr(segment);
             _cuda.Constrain(ptr, segment.Size, minValue ?? float.MinValue, maxValue ?? float.MaxValue);
-            base.ConstrainInPlace(segment, minValue, maxValue);
         }
 
         public override float CosineDistance(ITensorSegment2 tensor, ITensorSegment2 other)
@@ -592,9 +598,11 @@ namespace BrightData.Cuda
 
         public override (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
         {
-            var ret1 = CreateMatrix(matrix.RowCount, columnIndex, (x, y) => matrix[x, y]);
-            var ret2 = CreateMatrix(matrix.RowCount, matrix.ColumnCount - columnIndex, (x, y) => matrix[x, columnIndex + y]);
-            return (ret1, ret2);
+            var size = matrix.ColumnCount - columnIndex;
+            var ret1 = _cuda.Allocate(matrix.RowCount * columnIndex);
+            var ret2 = _cuda.Allocate(matrix.RowCount * size);
+            _cuda.SplitRows(GetDeviceMemoryPtr(matrix.Segment), ret1, ret2, matrix.RowCount, matrix.ColumnCount, columnIndex);
+            return (CreateMatrix(matrix.RowCount, columnIndex, new CudaTensorSegment(ret1)), CreateMatrix(matrix.RowCount, size, new CudaTensorSegment(ret2)));
         }
 
         public override (IMatrix Top, IMatrix Bottom) SplitAtRow(IMatrix matrix, uint rowIndex)
@@ -781,5 +789,9 @@ namespace BrightData.Cuda
             return matrix;
         }
 
+        public override void BindThread()
+        {
+            _cuda.BindThread();
+        }
     }
 }

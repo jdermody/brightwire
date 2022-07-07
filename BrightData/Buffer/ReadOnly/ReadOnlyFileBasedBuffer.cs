@@ -16,20 +16,20 @@ namespace BrightData.Buffer.ReadOnly
         class ReferenceStructFromStreamReader<T> : IReadOnlyEnumerator<T>, IHaveMutableReference<T>
             where T : unmanaged
         {
-            readonly MemoryOwner<T> _buffer;
+            readonly MemoryOwner<T>         _buffer;
             readonly MemoryMappedViewStream _stream;
-            readonly long _iterableCount, _initialStreamPosition;
-            readonly int _sizeOfT;
-            int _index = -1, _bufferIndex = -1, _bufferSize;
+            readonly long                   _iterableCount, _initialStreamPosition;
+            readonly int                    _sizeOfT;
+            int                             _index = -1, _bufferIndex = -1, _bufferSize;
 
             public ReferenceStructFromStreamReader(MemoryMappedViewStream stream, long iterableCount, int bufferSize = 1024)
             {
-                _stream = stream;
+                _stream                = stream;
                 _initialStreamPosition = stream.Position;
-                _iterableCount = iterableCount;
-                _sizeOfT = Unsafe.SizeOf<T>();
-                _buffer = MemoryOwner<T>.Allocate((int)Math.Min(_iterableCount, bufferSize));
-                ReadIntoBuffer();
+                _iterableCount         = iterableCount;
+                _sizeOfT               = Unsafe.SizeOf<T>();
+                _buffer                = MemoryOwner<T>.Allocate((int)Math.Min(_iterableCount, bufferSize));
+                _bufferSize            = 0;
             }
 
             public void Dispose()
@@ -57,11 +57,15 @@ namespace BrightData.Buffer.ReadOnly
 
                 return false;
             }
-            public void Reset()
+            public void Seek(uint index)
             {
-                _index = -1;
+                if(index > _iterableCount)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+
+                _index = (int)index - 1;
                 _bufferIndex = -1;
-                _stream.Seek(_initialStreamPosition, SeekOrigin.Begin);
+                _bufferSize = 0;
+                _stream.Seek(_initialStreamPosition + index * _sizeOfT, SeekOrigin.Begin);
             }
             public ref readonly T Current => ref _buffer.Span[_bufferIndex];
             ref T IHaveMutableReference<T>.Current => ref _buffer.Span[_bufferIndex];

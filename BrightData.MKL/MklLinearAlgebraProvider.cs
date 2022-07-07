@@ -38,6 +38,13 @@ namespace BrightData.MKL
             return result;
         }
 
+        ITensorSegment2 Apply(ITensorSegment2 tensor, ITensorSegment2 tensor2, uint resultSize, Action<float[], float[], float[]> mkl)
+        {
+            var result = CreateSegment(resultSize);
+            mkl(tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetArrayForLocalUseOnly()!);
+            return result;
+        }
+
         ITensorSegment2 Apply(ITensorSegment2 tensor, Action<int, float[], float[]> mkl)
         {
             var result = CreateSegment(tensor.Size);
@@ -79,20 +86,23 @@ namespace BrightData.MKL
 
         public override IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
-            int rowsA = (int)matrix.RowCount, columnsArowsB = (int)matrix.ColumnCount, columnsB = (int)other.ColumnCount;
-            var ret = Apply(matrix.Segment, matrix.Segment, (size, a, b, r) => {
+            int rowsA = (int)matrix.RowCount, 
+                columnsARowsB = (int)matrix.ColumnCount, 
+                columnsB = (int)other.ColumnCount
+            ;
+            var ret = Apply(matrix.Segment, other.Segment, matrix.RowCount * other.ColumnCount, (a, b, r) => {
                 Blas.gemm(
                     Layout.ColMajor,
                     Trans.No,
                     Trans.No,
                     rowsA,
                     columnsB,
-                    columnsArowsB,
+                    columnsARowsB,
                     1f,
                     a,
                     rowsA,
                     b,
-                    columnsArowsB,
+                    columnsARowsB,
                     0f,
                     r,
                     rowsA
@@ -124,8 +134,12 @@ namespace BrightData.MKL
 
         public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
-            int rowsA = (int)matrix.RowCount, columnsA = (int)matrix.ColumnCount, columnsB = (int)other.ColumnCount, rowsB = (int)other.RowCount;
-            var ret = Apply(matrix.Segment, matrix.Segment, (size, a, b, r) => {
+            int rowsA = (int)matrix.RowCount, 
+                columnsA = (int)matrix.ColumnCount, 
+                columnsB = (int)other.ColumnCount, 
+                rowsB = (int)other.RowCount
+            ;
+            var ret = Apply(matrix.Segment, other.Segment, matrix.ColumnCount * other.ColumnCount, (a, b, r) => {
                 Blas.gemm(
                     Layout.ColMajor,
                     Trans.Yes,
@@ -148,15 +162,18 @@ namespace BrightData.MKL
 
         public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
-            int rowsA = (int)matrix.RowCount, columnsArowsB = (int)matrix.ColumnCount, rowsB = (int)other.RowCount;
-            var ret = Apply(matrix.Segment, matrix.Segment, (size, a, b, r) => {
+            int rowsA = (int)matrix.RowCount, 
+                columnsARowsB = (int)matrix.ColumnCount, 
+                rowsB = (int)other.RowCount
+            ;
+            var ret = Apply(matrix.Segment, other.Segment, matrix.RowCount * other.RowCount, (a, b, r) => {
                 Blas.gemm(
                     Layout.ColMajor,
                     Trans.No,
                     Trans.Yes,
                     rowsA,
                     rowsB,
-                    columnsArowsB,
+                    columnsARowsB,
                     1f,
                     a,
                     rowsA,
@@ -207,10 +224,10 @@ namespace BrightData.MKL
         public override float L2Norm(ITensorSegment2 segment) => Blas.nrm2(segment.GetLocalOrNewArray());
         public override ITensorSegment2 Exp(ITensorSegment2 tensor) => Apply(tensor, Vml.Exp);
         public override ITensorSegment2 Tanh(ITensorSegment2 tensor) => Apply(tensor, Vml.Tanh);
-        //public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Mul);
-        //public override ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Div);
-        public override ITensorSegment2 Sqrt(ITensorSegment2 tensor) => Apply(tensor, Vml.Sqrt);
-        public override ITensorSegment2 Log(ITensorSegment2 tensor) => Apply(tensor, Vml.Ln);
+        public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Mul);
+        public override ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Div);
+        //public override ITensorSegment2 Sqrt(ITensorSegment2 tensor) => Apply(tensor, Vml.Sqrt);
+        //public override ITensorSegment2 Log(ITensorSegment2 tensor) => Apply(tensor, Vml.Ln);
         public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => Apply(tensor1, tensor2, Vml.Sub);
         public override ITensorSegment2 Squared(ITensorSegment2 tensor) => Apply(tensor, Vml.Sqr);
     }

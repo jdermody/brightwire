@@ -16,7 +16,7 @@ namespace BrightData.LinearAlegbra2
         }
 
         public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D2<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
-        ITensor3D ITensor3DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(Matrix).ToArray());
+        ITensor3D ITensor3DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
 
         public uint Depth { get; private set; }
         public uint RowCount { get; private set; }
@@ -57,7 +57,7 @@ namespace BrightData.LinearAlegbra2
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
-        public IMatrix Matrix(uint index) => _lap.GetMatrix(this, index);
+        public IMatrix GetMatrix(uint index) => _lap.GetMatrix(this, index);
         public ITensor3D AddPadding(uint padding) => _lap.AddPadding(this, padding);
         public ITensor3D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);
         public IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);

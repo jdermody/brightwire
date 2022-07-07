@@ -44,13 +44,13 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<ITensorSegment2>>();
+            var inputData = new Dictionary<uint, List<IVectorInfo>>();
             foreach (var item in data) {
                 var input = item;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = new());
-                    temp.Add(input.Row(i));
+                    temp.Add(input.GetRow(i));
                 }
             }
 

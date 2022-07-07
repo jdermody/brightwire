@@ -2,6 +2,7 @@
 using System.IO;
 using BrightData.LinearAlegbra2;
 using BrightData.Serialisation;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2.TensorData
@@ -10,20 +11,30 @@ namespace BrightData.DataTable2.TensorData
     {
         ICanRandomlyAccessData<float> _data;
         uint _startIndex;
+        uint _stride;
 
-        internal VectorData(ICanRandomlyAccessData<float> data, uint startIndex, uint size)
+        internal VectorData(ICanRandomlyAccessData<float> data, uint startIndex, uint stride, uint size)
         {
             _data = data;
             _startIndex = startIndex;
+            _stride = stride;
             Size = size;
         }
 
-        public uint Size { get; }
+        public uint Size { get; private set; }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
-            wasTempUsed = false;
-            return _data.GetSpan(_startIndex, Size);
+            if (_stride == 1) {
+                wasTempUsed = false;
+                return _data.GetSpan(_startIndex, Size);
+            }
+            temp = SpanOwner<float>.Allocate((int)Size);
+            wasTempUsed = true;
+            var ret = temp.Span;
+            for(var i = 0; i < Size; i++)
+                ret[i] = this[i];
+            return ret;
         }
 
         public IVector Create(LinearAlgebraProvider lap)
@@ -34,18 +45,37 @@ namespace BrightData.DataTable2.TensorData
             return lap.CreateVector(segment);
         }
 
-        public float this[int index] => _data[index];
-        public float this[uint index] => _data[index];
-        public float[] ToArray() => _data.GetSpan(_startIndex, Size).ToArray();
+        public ITensorSegment2? UnderlyingSegment => null;
+        public float this[int index] => _data[(int)(_startIndex + index * _stride)];
+        public float this[uint index] => _data[_startIndex + index * _stride];
+
+        public float[] ToArray()
+        {
+            var temp = SpanOwner<float>.Empty;
+            var span = GetSpan(ref temp, out var wasTempUsed);
+            try {
+                return span.ToArray();
+            }
+            finally {
+                if(wasTempUsed)
+                    temp.Dispose();
+            }
+        }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
-            throw new System.NotImplementedException();
+            if (reader.ReadInt32() != 1)
+                throw new Exception("Unexpected array size");
+            Size = reader.ReadUInt32();
+            _startIndex = 0;
+            _data = new TempFloatData(reader, Size);
         }
 
         public void WriteTo(BinaryWriter writer)
         {
-            throw new System.NotImplementedException();
+            writer.Write(1);
+            writer.Write(Size);
+            writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
         }
     }
 }

@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var data = GetRows(rows).Select(r => (new[] { Encode(r.Item1)}, r.Item2)).ToArray();
+            var data = GetRows(rows).Select(r => (Encode(r.Item1), r.Item2)).ToArray();
             return GetMiniBatch(rows, data);
         }
 

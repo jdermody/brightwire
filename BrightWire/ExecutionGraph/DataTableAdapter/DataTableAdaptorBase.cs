@@ -79,24 +79,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// Creates a mini batch
 		/// </summary>
 		/// <param name="rows">Row indices</param>
-		/// <param name="data">List of input/output tuples</param>
-        protected IMiniBatch GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
+		/// <param name="data">Array of input/output pairs</param>
+        protected IMiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
         {
-            var numInputs = (uint)data[0].Input.Length;
-            var inputList = new IGraphData[numInputs];
             var lap = _dataTable.Context.LinearAlgebraProvider2;
-
-            for (uint i = 0; i < numInputs; i++) {
-                var i1 = i;
-                inputList[i] = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[(int) x].Input[i1][y]).AsGraphData();
-            }
-
-	        var output = OutputSize > 0 
-                ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]).AsGraphData()
+            var input = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[rows[x]].Input[y]).AsGraphData();
+            var output = OutputSize > 0 
+                ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[rows[x]].Output[y]).AsGraphData()
                 : null;
 
-            // TODO: change from single
-            return new MiniBatch(rows, this, inputList.Single(), output);
+            return new MiniBatch(rows, this, input, output);
         }
 
 		/// <summary>

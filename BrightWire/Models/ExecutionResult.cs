@@ -17,12 +17,12 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<ITensorSegment2> output)
+        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<IVectorInfo> output)
         {
             _miniBatch = miniBatch;
-            Output = output.Select(d => d.ToNewArray()).ToArray();
-            Target = _miniBatch.Target?.GetMatrix().Rows().Select(d => d.ToNewArray()).ToArray();
-            Input = _miniBatch.Input?.GetMatrix().Rows().Select(d => d.ToNewArray()).ToArray();
+            Output = output.Select(d => d.ToArray()).ToArray();
+            Target = _miniBatch.Target?.GetMatrix().AllRows().Select(d => d.ToArray()).ToArray();
+            Input = _miniBatch.Input?.GetMatrix().AllRows().Select(d => d.ToArray()).ToArray();
         }
 
         /// <summary>

@@ -68,232 +68,244 @@ namespace BrightData.UnitTests
         {
             var values = Enumerable.Range(0, 10).Select(v => (float)v).ToArray();
 
-            using var a = _lap.CreateVector(values);
+            var a = _cpu.CreateVector(values);
             a[4].Should().Be(4f);
             a[0].Should().Be(0f);
             a[9].Should().Be(9f);
 
-            using var b = _cuda.CreateVector(values);
-            FloatMath.AreApproximatelyEqual(a, b).Should().BeTrue();
+            AssertSameAndThenDispose(a, _cuda.CreateVector(values), _mkl.CreateVector(values));
+        }
+
+        void TestDistances(DistanceMetric distanceMetric)
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
+            var vectors = Enumerable.Range(0, 10).Select(_ => _cpu.CreateVector(100, _ => distribution.Sample())).ToArray();
+            var compareTo = Enumerable.Range(0, 20).Select(_ => _cpu.CreateVector(100, _ => distribution.Sample())).ToArray();
+
+            var gpuVectors = vectors.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
+            var gpuCompareTo = compareTo.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
+
+            var mklVectors = vectors.Select(v => _mkl.CreateVector(v.Segment)).ToArray();
+            var mklCompareTo = compareTo.Select(v => _mkl.CreateVector(v.Segment)).ToArray();
+
+            try {
+                AssertSameAndThenDispose(
+                    _cpu.FindDistances(vectors, compareTo, distanceMetric), 
+                    _cuda.FindDistances(gpuVectors, gpuCompareTo, distanceMetric), 
+                    _mkl.FindDistances(mklVectors, mklCompareTo, distanceMetric)
+                );
+            }
+            finally {
+                vectors.DisposeAll();
+                compareTo.DisposeAll();
+                gpuVectors.DisposeAll();
+                gpuCompareTo.DisposeAll();
+                mklVectors.DisposeAll();
+                mklCompareTo.DisposeAll();
+            }
         }
 
         [Fact]
         public void TestManhattanDistance()
         {
-            var distribution = _context.CreateNormalDistribution(0, 5);
-            var vectors = Enumerable.Range(0, 10).Select(_ => _lap.CreateVector(100, _ => distribution.Sample())).ToArray();
-            var compareTo = Enumerable.Range(0, 20).Select(_ => _lap.CreateVector(100, _ => distribution.Sample())).ToArray();
-            var gpuVectors = vectors.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
-            var gpuCompareTo = compareTo.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
-            try {
-                using var distances = _lap.FindDistances(vectors, compareTo, DistanceMetric.Manhattan);
-                using var gpuDistances = _cuda.FindDistances(gpuVectors, gpuCompareTo, DistanceMetric.Manhattan);
-                FloatMath.AreApproximatelyEqual(distances, gpuDistances).Should().BeTrue();
-            }
-            finally {
-                vectors.DisposeAll();
-                compareTo.DisposeAll();
-                gpuVectors.DisposeAll();
-                gpuCompareTo.DisposeAll();
-            }
+            TestDistances(DistanceMetric.Manhattan);
         }
 
         [Fact]
         public void TestCosineDistance()
         {
-            var distribution = _context.CreateNormalDistribution(0, 5);
-            var vectors = Enumerable.Range(0, 10).Select(_ => _lap.CreateVector(100, _ => distribution.Sample())).ToArray();
-            var compareTo = Enumerable.Range(0, 20).Select(_ => _lap.CreateVector(100, _ => distribution.Sample())).ToArray();
-            var gpuVectors = vectors.Select(v => _cuda.CreateVector(v)).ToArray();
-            var gpuCompareTo = compareTo.Select(v => _cuda.CreateVector(v)).ToArray();
-            try {
-                var distances = _lap.FindDistances(vectors, compareTo, DistanceMetric.Cosine);
-                var gpuDistances = _cuda.FindDistances(gpuVectors, gpuCompareTo, DistanceMetric.Cosine);
-                FloatMath.AreApproximatelyEqual(distances, gpuDistances).Should().BeTrue();
-            }
-            finally {
-                vectors.DisposeAll();
-                compareTo.DisposeAll();
-                gpuVectors.DisposeAll();
-                gpuCompareTo.DisposeAll();
-            }
+            TestDistances(DistanceMetric.Cosine);
         }
 
         [Fact]
         public void VectorColumnMatrix()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var matrix = a.Reshape(null, 1);
-            matrix.ColumnCount.Should().Be(1);
-            matrix.RowCount.Should().Be(5);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var cpu = a.Reshape(null, 1);
+            cpu.ColumnCount.Should().Be(1);
+            cpu.RowCount.Should().Be(5);
 
-            using var gpuResults = Apply(_cuda, a, a => a.Reshape(null, 1));
-            FloatMath.AreApproximatelyEqual(matrix, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, a => a.Reshape(null, 1));
+            using var mkl = Apply(_mkl, a, a => a.Reshape(null, 1));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorRowMatrix()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var matrix = a.Reshape(1, null);
-            matrix.ColumnCount.Should().Be(5);
-            matrix.RowCount.Should().Be(1);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var cpu = a.Reshape(1, null);
+            cpu.ColumnCount.Should().Be(5);
+            cpu.RowCount.Should().Be(1);
 
-            using var gpuResults = Apply(_cuda, a, a => a.Reshape(1, null));
-            FloatMath.AreApproximatelyEqual(matrix, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, a => a.Reshape(1, null));
+            using var mkl = Apply(_mkl, a, a => a.Reshape(1, null));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorAdd()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var b = _lap.CreateVector(5, i => i * 2);
-            using var c = a.Add(b);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var b = _cpu.CreateVector(5, i => i * 2);
+            using var cpu = a.Add(b);
 
-            using var gpuResults = Apply(_cuda, a, b, (a, b) => a.Add(b));
-            FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.Add(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.Add(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorSubtract()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var b = _lap.CreateVector(5, i => i * 2);
-            using var c = a.Subtract(b);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var b = _cpu.CreateVector(5, i => i * 2);
+            using var cpu = a.Subtract(b);
 
-            using var gpuResults = Apply(_cuda, a, b, (a, b) => a.Subtract(b));
-            FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.Subtract(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.Subtract(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorPointwiseMultiply()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var b = _lap.CreateVector(5, i => i * 2);
-            using var c = a.PointwiseMultiply(b);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var b = _cpu.CreateVector(5, i => i * 2);
+            using var cpu = a.PointwiseMultiply(b);
 
-            using var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseMultiply(b));
-            FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseMultiply(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseMultiply(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorDotProduct()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            using var b = _lap.CreateVector(5, i => i * 2);
+            using var a = _cpu.CreateVector(5, i => i);
+            using var b = _cpu.CreateVector(5, i => i * 2);
             var cpu = a.DotProduct(b);
-
             var gpu = Apply(_cuda, a, b, (a, b) => a.DotProduct(b));
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_mkl, a, b, (a, b) => a.DotProduct(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorL2Norm()
         {
-            using var a = _lap.CreateVector(5, i => i);
+            using var a = _cpu.CreateVector(5, i => i);
             var cpu = a.L2Norm();
-
             var gpu = Apply(_cuda, a, a => a.L2Norm());
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_cuda, a, a => a.L2Norm());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorMaximumIndex()
         {
-            using var a = _lap.CreateVector(1.0f, 2.0f, 1.0f, 1.0f, -5f);
+            using var a = _cpu.CreateVector(1.0f, 2.0f, 1.0f, 1.0f, -5f);
             var cpu = a.GetMaxIndex();
-
             var gpu = Apply(_cuda, a, a => a.GetMaxIndex());
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_cuda, a, a => a.GetMaxIndex());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorMinimumIndex()
         {
-            using var a = _lap.CreateVector(3.0f, -2.0f, 1.0f, 2.0f);
+            using var a = _cpu.CreateVector(3.0f, -2.0f, 1.0f, 2.0f);
             var cpu = a.GetMinIndex();
-
             var gpu = Apply(_cuda, a, a => a.GetMinIndex());
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_mkl, a, a => a.GetMinIndex());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorAddInPlace()
         {
-            using var a = _lap.CreateVector(5, i => i * 2);
-            using var b = _lap.CreateVector(5, i => i);
+            using var cpu = _cpu.CreateVector(5, i => i * 2);
+            using var b = _cpu.CreateVector(5, i => i);
 
-            using var gpuResults = Apply(_cuda, a, b, (a, b) => a.AddInPlace(b, 2, 3));
-            a.AddInPlace(b, 2, 3);
-            FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, cpu, b, (a, b) => a.AddInPlace(b, 2, 3));
+            using var mkl = Apply(_mkl, cpu, b, (a, b) => a.AddInPlace(b, 2, 3));
+            cpu.AddInPlace(b, 2, 3);
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorSubtractInPlace()
         {
-            using var a = _lap.CreateVector(5, i => i * 2);
-            using var b = _lap.CreateVector(5, i => i);
+            using var cpu = _cpu.CreateVector(5, i => i * 2);
+            using var b = _cpu.CreateVector(5, i => i);
 
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.SubtractInPlace(b, 2, 3));
-            a.SubtractInPlace(b, 2, 3);
-            FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
+            var gpu = Apply(_cuda, cpu, b, (a, b) => a.SubtractInPlace(b, 2, 3));
+            var mkl = Apply(_mkl, cpu, b, (a, b) => a.SubtractInPlace(b, 2, 3));
+            cpu.SubtractInPlace(b, 2, 3);
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorSqrt()
         {
-            using var a = _lap.CreateVector(10, i => i * 2);
-            using var cpuResults = a.Sqrt();
-
-            using var gpuResults = Apply(_cuda, a, a => a.Sqrt());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+            using var a = _cpu.CreateVector(10, i => i * 2);
+            using var cpu = a.Sqrt();
+            using var gpu = Apply(_cuda, a, a => a.Sqrt());
+            using var mkl = Apply(_mkl, a, a => a.Sqrt());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorGetNewVectorFromIndices()
         {
-            using var a = _lap.CreateVector(10, i => i * 2);
+            using var a = _cpu.CreateVector(10, i => i * 2);
             var array = new uint[] { 2, 3, 5 };
-            using var cpuResults = a.CherryPick(array);
-
-            using var gpuResults = Apply(_cuda, a, a => a.CherryPick(array));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+            using var cpu = a.CherryPick(array);
+            using var gpu = Apply(_cuda, a, a => a.CherryPick(array));
+            using var mkl = Apply(_mkl, a, a => a.CherryPick(array));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorCopyTo()
         {
-            using var cpuResults = _lap.CreateVector(10, i => i * 2);
-            using var b = _lap.CreateVector(10, 0);
-            cpuResults.CopyTo(b);
-            FloatMath.AreApproximatelyEqual(cpuResults, b);
+            using var cpuA = _cpu.CreateVector(10, i => i * 2);
+            using var cpuB = _cpu.CreateVector(10, 0);
+            cpuA.CopyTo(cpuB);
+            AssertSame(cpuA, cpuB);
 
-            using var gpuA = _cuda.CreateVector(cpuResults);
+            using var gpuA = _cuda.CreateVector(cpuA);
             using var gpuB = _cuda.CreateVector(10, 0);
             gpuA.CopyTo(gpuB);
-            FloatMath.AreApproximatelyEqual(b, gpuB).Should().BeTrue();
+
+            using var mklA = _mkl.CreateVector(cpuA);
+            using var mklB = _mkl.CreateVector(10, 0);
+            mklA.CopyTo(mklB);
+
+            AssertSame(cpuB, gpuB, mklB);
         }
 
         [Fact]
         public void VectorClone()
         {
-            using var a = _lap.CreateVector(5, i => i);
-            var cpuResults = a.Clone();
-            FloatMath.AreApproximatelyEqual(a, cpuResults);
+            using var a = _cpu.CreateVector(5, i => i);
+            var cpu = a.Clone();
+            FloatMath.AreApproximatelyEqual(a, cpu);
 
-            var gpuResults = Apply(_cuda, a, a => a.Clone());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
+            var gpu = Apply(_cuda, a, a => a.Clone());
+            var mkl = Apply(_mkl, a, a => a.Clone());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void VectorMultiply()
         {
-            using var a = _lap.CreateVector(5, i => i);
+            using var a = _cpu.CreateVector(5, i => i);
             const float OPERAND = 2f;
 
-            using var gpuResults = Apply(_cuda, a, a => a.Multiply(OPERAND));
-            using var cpuResults = a.Multiply(OPERAND);
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
+            using var gpu = Apply(_cuda, a, a => a.Multiply(OPERAND));
+            using var mkl = Apply(_mkl, a, a => a.Multiply(OPERAND));
+            using var cpu = a.Multiply(OPERAND);
+            AssertSame(cpu, gpu, mkl);
         }
 
         //[Fact]
@@ -330,12 +342,13 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(500, _ => distribution.Sample());
-            using var b = _lap.CreateVector(500, _ => distribution.Sample());
-            var cpuDistance = a.EuclideanDistance(b);
+            using var a = _cpu.CreateVector(500, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(500, _ => distribution.Sample());
+            var cpu = a.EuclideanDistance(b);
 
-            var gpuDistance = Apply(_cuda, a, b, (a, b) => a.EuclideanDistance(b));
-            FloatMath.AreApproximatelyEqual(cpuDistance, gpuDistance, 10).Should().BeTrue();
+            var gpu = Apply(_cuda, a, b, (a, b) => a.EuclideanDistance(b));
+            var mkl = Apply(_mkl, a, b, (a, b) => a.EuclideanDistance(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -343,12 +356,12 @@ namespace BrightData.UnitTests
         {
             var rand = new Random(0);
 
-            using var a = _lap.CreateVector(5000, _ => rand.NextSingle());
-            using var b = _lap.CreateVector(5000, _ => rand.NextSingle());
-            var cpuDistance = a.CosineDistance(b);
-
-            var gpuDistance = Apply(_cuda, a, b, (a, b) => a.CosineDistance(b));
-            FloatMath.AreApproximatelyEqual(cpuDistance, gpuDistance, 10).Should().BeTrue();
+            using var a = _cpu.CreateVector(5000, _ => rand.NextSingle());
+            using var b = _cpu.CreateVector(5000, _ => rand.NextSingle());
+            var cpu = a.CosineDistance(b);
+            var gpu = Apply(_cuda, a, b, (a, b) => a.CosineDistance(b));
+            var mkl = Apply(_mkl, a, b, (a, b) => a.CosineDistance(b));
+            AssertSameWithMaxDifference(10, cpu, gpu, mkl);
         }
 
         [Fact]
@@ -356,12 +369,13 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
-            using var b = _lap.CreateVector(5000, _ => distribution.Sample());
-            var cpuDistance = a.ManhattanDistance(b);
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
+            var cpu = a.ManhattanDistance(b);
 
-            var gpuDistance = Apply(_cuda, a, b, (a, b) => a.ManhattanDistance(b));
-            FloatMath.AreApproximatelyEqual(cpuDistance, gpuDistance, 10).Should().BeTrue();
+            var gpu = Apply(_cuda, a, b, (a, b) => a.ManhattanDistance(b));
+            var mkl = Apply(_mkl, a, b, (a, b) => a.ManhattanDistance(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -369,12 +383,12 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(1000, _ => distribution.Sample());
-            using var b = _lap.CreateVector(1000, _ => distribution.Sample());
-            var cpuDistance = a.MeanSquaredDistance(b);
-
-            var gpuDistance = Apply(_cuda, a, b, (a, b) => a.MeanSquaredDistance(b));
-            FloatMath.AreApproximatelyEqual(cpuDistance, gpuDistance, 10).Should().BeTrue();
+            using var a = _cpu.CreateVector(1000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(1000, _ => distribution.Sample());
+            var cpu = a.MeanSquaredDistance(b);
+            var gpu = Apply(_cuda, a, b, (a, b) => a.MeanSquaredDistance(b));
+            var mkl = Apply(_mkl, a, b, (a, b) => a.MeanSquaredDistance(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -382,12 +396,13 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(1000, _ => distribution.Sample());
-            using var b = _lap.CreateVector(1000, _ => distribution.Sample());
-            var cpuDistance = a.SquaredEuclideanDistance(b);
+            using var a = _cpu.CreateVector(1000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(1000, _ => distribution.Sample());
+            var cpu = a.SquaredEuclideanDistance(b);
 
-            var gpuDistance = Apply(_cuda, a, b, (a, b) => a.SquaredEuclideanDistance(b));
-            FloatMath.AreApproximatelyEqual(cpuDistance, gpuDistance, 10).Should().BeTrue();
+            var gpu = Apply(_cuda, a, b, (a, b) => a.SquaredEuclideanDistance(b));
+            var mkl = Apply(_cuda, a, b, (a, b) => a.SquaredEuclideanDistance(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -395,14 +410,14 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             var (min, max, minIndex, maxIndex) = a.GetMinAndMaxValues();
 
             var gpuMinMax = Apply(_cuda, a, a => a.GetMinAndMaxValues());
-            FloatMath.AreApproximatelyEqual(min, gpuMinMax.Min).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(max, gpuMinMax.Max).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(minIndex, gpuMinMax.MinIndex).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(maxIndex, gpuMinMax.MaxIndex).Should().BeTrue();
+            AssertSame(min, gpuMinMax.Min);
+            AssertSame(max, gpuMinMax.Max);
+            AssertSame(minIndex, gpuMinMax.MinIndex);
+            AssertSame(maxIndex, gpuMinMax.MaxIndex);
         }
 
         [Fact]
@@ -410,11 +425,11 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
-            var cpuAverage = a.Average();
-
-            var gpuAverage = Apply(_cuda, a, a => a.Average());
-            FloatMath.AreApproximatelyEqual(cpuAverage, gpuAverage, 7).Should().BeTrue();
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            var cpu = a.Average();
+            var gpu = Apply(_cuda, a, a => a.Average());
+            var mkl = Apply(_mkl, a, a => a.Average());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -422,11 +437,11 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             var cpu = a.L1Norm();
-
             var gpu = Apply(_cuda, a, a => a.L1Norm());
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_mkl, a, a => a.L1Norm());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -434,11 +449,11 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
-            var cpuResults = a.Abs();
-
-            var gpuResults = Apply(_cuda, a, a => a.Abs());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            var cpu = a.Abs();
+            using var gpu = Apply(_cuda, a, a => a.Abs());
+            using var mkl = Apply(_mkl, a, a => a.Abs());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -446,11 +461,12 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
-            var cpuResults = a.Log();
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            var cpu = a.Log();
 
-            var gpuResults = Apply(_cuda, a, a => a.Log());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults, 14).Should().BeTrue();
+            var gpu = Apply(_cuda, a, a => a.Log());
+            var mkl = Apply(_mkl, a, a => a.Log());
+            AssertSameWithMaxDifference(10, cpu, gpu, mkl);
         }
 
         [Fact]
@@ -458,11 +474,11 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             var cpu = a.StdDev(null);
-
             var gpu = Apply(_cuda, a, a => a.StdDev(null));
-            FloatMath.AreApproximatelyEqual(cpu, gpu).Should().BeTrue();
+            var mkl = Apply(_mkl, a, a => a.StdDev(null));
+            AssertSame(cpu, gpu, mkl);
         }
 
         //void TestNormalise(NormalizationType type)
@@ -474,7 +490,7 @@ namespace BrightData.UnitTests
         //        gpuA.(type);
         //        gpuResults = gpuA;
         //    }
-        //    using (var simpleA = _simple.CreateVector(a)) {
+        //    using (var simpleA = _mkl.CreateVector(a)) {
         //        simpleA.Normalize(type);
         //        simpleResults = simpleA;
         //    }
@@ -521,48 +537,42 @@ namespace BrightData.UnitTests
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
 
-            using var a = _lap.CreateVector(5000, _ => distribution.Sample());
-            using var b = _lap.CreateVector(5000, _ => distribution.Sample());
-            using var c = _lap.CreateVector(5000, _ => distribution.Sample());
-            using var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean);
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean);
 
-            using var gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
-            FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
+            using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
+            using var mkl = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
+            AssertSame(cpu, gpu, mkl);
         }
 
-        //[Fact]
-        //public void MultiManhattanDistance()
-        //{
-        //    var distribution = _context.CreateNormalDistribution(0, 5);
+        [Fact]
+        public void MultiManhattanDistance()
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
 
-        //    var a = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var b = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var c = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan);
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan);
+            using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Manhattan);
+            using var mkl = TestMultiDistance(_mkl, a, b, c, DistanceMetric.Manhattan);
+            AssertSame(cpu, gpu, mkl);        }
 
-        //    IIndexableFloatVector gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Manhattan);
-        //    FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
+        [Fact]
+        public void MultiCosineDistance()
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
 
-        //    IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Manhattan);
-        //    FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
-        //}
-
-        //[Fact]
-        //public void MultiCosineDistance()
-        //{
-        //    var distribution = _context.CreateNormalDistribution(0, 5);
-
-        //    var a = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var b = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var c = _cpu.CreateVector(5000, _ => distribution.Sample());
-        //    var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine);
-
-        //    IIndexableFloatVector gpuDistance = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Cosine);
-        //    FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
-
-        //    IIndexableFloatVector simpleDistance = TestMultiDistance(_simple, a, b, c, DistanceMetric.Cosine);
-        //    FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
-        //}
+            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
+            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine);
+            using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Cosine);
+            using var mkl = TestMultiDistance(_mkl, a, b, c, DistanceMetric.Cosine);
+            AssertSame(cpu, gpu, mkl);
+        }
 
         //[Fact]
         //public void MultiCosineDistance2()
@@ -577,7 +587,7 @@ namespace BrightData.UnitTests
         //    var c = _cpu.CreateVector(5000, _ => distribution.Sample());
         //    var distance = a.CosineDistance(new[] { b, c }, ref dataNorm1);
 
-        //    IIndexableFloatVector gpuDistance;
+        //    using var gpuDistance;
         //    using (var gpuA = _cuda.CreateVector(a))
         //    using (var gpuB = _cuda.CreateVector(b))
         //    using (var gpuC = _cuda.CreateVector(c))
@@ -585,154 +595,119 @@ namespace BrightData.UnitTests
         //        gpuDistance = temp;
         //    FloatMath.AreApproximatelyEqual(distance, gpuDistance, 10).Should().BeTrue();
 
-        //    IIndexableFloatVector simpleDistance;
-        //    using (var simpleA = _simple.CreateVector(a))
-        //    using (var simpleB = _simple.CreateVector(b))
-        //    using (var simpleC = _simple.CreateVector(c))
+        //    using var simpleDistance;
+        //    using (var simpleA = _mkl.CreateVector(a))
+        //    using (var simpleB = _mkl.CreateVector(b))
+        //    using (var simpleC = _mkl.CreateVector(c))
         //    using (var temp = simpleA.CosineDistance(new[] { simpleB, simpleC }, ref dataNorm3))
         //        simpleDistance = temp;
         //    FloatMath.AreApproximatelyEqual(distance, simpleDistance, 10).Should().BeTrue();
         //}
 
-        //[Fact]
-        //public void VectorAddScalar()
-        //{
-        //    var a = _cpu.CreateVector(1000, i => i);
+        [Fact]
+        public void VectorAddScalar()
+        {
+            using var vector = _cpu.CreateVector(1000, i => i);
+            using var cpu = vector.Add(0.5f);
+            using var gpu = Apply(_cuda, vector, a => a.Add(0.5f));
+            using var mkl = Apply(_mkl, vector, a => a.Add(0.5f));
+            AssertSame(cpu, gpu, mkl);
+        }
 
-        //    IIndexableFloatVector gpuResults = Apply(_cuda, a, a => a.Add(0.5f));
-        //    IIndexableFloatVector simpleResults = Apply(_simple, a, a => a.Add(0.5f));
+        [Fact]
+        public void VectorSigmoid()
+        {
+            using var a = _cpu.CreateVector(1000, i => i);
+            using var cpu = a.Sigmoid();
+            using var gpu = Apply(_cuda, a, a => a.Sigmoid());
+            using var mkl = Apply(_mkl, a, a => a.Sigmoid());
+            AssertSame(cpu, gpu, mkl);
+        }
 
-        //    a.Add(0.5f);
-        //    FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
-        //    FloatMath.AreApproximatelyEqual(a, simpleResults).Should().BeTrue();
-        //}
+        [Fact]
+        public void MatrixVectorMultiply()
+        {
+            using var a = _cpu.CreateMatrix(256, 256, (x, y) => x * y);
+            using var b = _cpu.CreateVector(256, i => i * 0.5f);
+            using var cpu = a.Multiply(b);
 
-        //[Fact]
-        //public void VectorSigmoid()
-        //{
-        //    var a = _cpu.CreateVector(1000, i => i);
-        //    var cpuResults = a.Sigmoid();
+            using var gpuA = _cuda.CreateMatrix(a);
+            using var gpuB = _cuda.CreateVector(b);
+            using var gpu = gpuA.Multiply(gpuB);
 
-        //    IIndexableFloatVector gpuResults = Apply(_cuda, a, a => a.Sigmoid());
-        //    FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+            using var mklA = _mkl.CreateMatrix(a);
+            using var mklB = _mkl.CreateVector(b);
+            using var mkl = mklA.Multiply(mklB);
+            AssertSame(cpu, gpu, mkl);
+        }
 
-        //    IIndexableFloatVector simpleResults = Apply(_cuda, a, a => a.Sigmoid());
-        //    FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        //}
+        [Fact]
+        public void VectorSplit()
+        {
+            const int BLOCK_COUNT = 3;
+            using var a = _cpu.CreateVector(12, i => i);
+            var cpu = a.Split(BLOCK_COUNT).Select(v => v).ToList();
+            foreach (var item in cpu)
+                item.Size.Should().Be(4);
 
-        //[Fact]
-        //public void MatrixVectorMultiply()
-        //{
-        //    var a = _cpu.CreateMatrix(256, 256, (x, y) => x * y);
-        //    var b = _cpu.CreateVector(256, i => i * 0.5f);
-        //    var cpuResults = a.Multiply(b);
+            var gpu = new List<IVector>();
+            using (var gpuA = _cuda.CreateVector(a)) {
+                gpu.AddRange(gpuA.Split(BLOCK_COUNT));
+            }
+            
+            var mkl = new List<IVector>();
+            using (var mklA = _mkl.CreateVector(a)) {
+                mkl.AddRange(mklA.Split(BLOCK_COUNT));
+            }
+            for (var i = 0; i < cpu.Count; i++)
+                AssertSameAndThenDispose(cpu[i], gpu[i], mkl[i]);
+        }
 
-        //    IIndexableFloatMatrix gpuResults;
-        //    using (var gpuA = _cuda.CreateMatrix(a))
-        //    using (var gpuB = _cuda.CreateVector(b))
-        //    using (var gpuC = gpuA.Multiply(gpuB)) {
-        //        gpuResults = gpuC;
-        //    }
-        //    FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+        [Fact]
+        public void VectorSoftMax()
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
+            using var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            using var cpu = a.Softmax();
 
-        //    IIndexableFloatMatrix simpleResults;
-        //    using (var simpleA = _simple.CreateMatrix(a))
-        //    using (var simpleB = _simple.CreateVector(b))
-        //    using (var simpleC = simpleA.Multiply(simpleB)) {
-        //        simpleResults = simpleC;
-        //    }
-        //    FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        //}
+            using var gpu = Apply(_cuda, a, a => a.Softmax());
+            using var mkl = Apply(_mkl, a, a => a.Softmax());
+            AssertSame(cpu, gpu, mkl);
+        }
 
-        //[Fact]
-        //public void VectorSplit()
-        //{
-        //    const int BLOCK_COUNT = 3;
-        //    var a = _cpu.CreateVector(12, i => i);
-        //    var cpuResult = a.Split(BLOCK_COUNT).Select(v => v).ToList();
+        [Fact]
+        public void VectorSoftMaxDerivative()
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
+            using var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            using var cpu = a.SoftmaxDerivative();
 
-        //    var gpuResult = new List<IIndexableFloatVector>();
-        //    using (var gpuA = _cuda.CreateVector(a)) {
-        //        var split = gpuA.Split(BLOCK_COUNT);
-        //        foreach (var item in split) {
-        //            gpuResult.Add(item);
-        //            item.Dispose();
-        //        }
-        //    }
-        //    for (var i = 0; i < cpuResult.Count; i++) {
-        //        cpuResult[i].Count.Should().Be(4);
-        //        FloatMath.AreApproximatelyEqual(cpuResult[i], gpuResult[i]).Should().BeTrue();
-        //    }
+            using var gpuA = _cuda.CreateVector(a);
+            using var gpu = gpuA.SoftmaxDerivative();
 
-        //    var simpleResult = new List<IIndexableFloatVector>();
-        //    using (var simpleA = _simple.CreateVector(a)) {
-        //        var split = simpleA.Split(BLOCK_COUNT);
-        //        foreach (var item in split) {
-        //            simpleResult.Add(item);
-        //            item.Dispose();
-        //        }
-        //    }
-        //    for (var i = 0; i < cpuResult.Count; i++) {
-        //        FloatMath.AreApproximatelyEqual(cpuResult[i], simpleResult[i]).Should().BeTrue();
-        //    }
-        //}
+            using var mklA = _mkl.CreateVector(a);
+            using var mkl = mklA.SoftmaxDerivative();
+            AssertSame(cpu, gpu, mkl);
+        }
 
-        //[Fact]
-        //public void VectorSoftMax()
-        //{
-        //    var distribution = _context.CreateNormalDistribution(0, 5);
-        //    var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
-        //    var cpuResult = a.Softmax();
+        [Fact]
+        public void VectorReverse()
+        {
+            var distribution = _context.CreateNormalDistribution(0, 5);
+            var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            var cpu = a.Reverse();
 
-        //    IIndexableFloatVector gpuResult = Apply(_cuda, a, a => a.Softmax());
-        //    FloatMath.AreApproximatelyEqual(gpuResult, cpuResult).Should().BeTrue();
-
-        //    IIndexableFloatVector simpleResult = Apply(_simple, a, a => a.Softmax());
-        //    FloatMath.AreApproximatelyEqual(simpleResult, cpuResult).Should().BeTrue();
-        //}
-
-        //[Fact]
-        //public void VectorSoftMaxDerivative()
-        //{
-        //    var distribution = _context.CreateNormalDistribution(0, 5);
-        //    var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
-        //    var cpuResult = a.SoftmaxDerivative();
-
-        //    IIndexableFloatMatrix gpuResult;
-        //    using (var gpuA = _cuda.CreateVector(a)) {
-        //        using var softmaxDerivative = gpuA.SoftmaxDerivative();
-        //        gpuResult = softmaxDerivative;
-        //    }
-        //    FloatMath.AreApproximatelyEqual(gpuResult, cpuResult).Should().BeTrue();
-
-        //    IIndexableFloatMatrix simpleResult;
-        //    using (var simpleA = _simple.CreateVector(a)) {
-        //        using var softmaxDerivative = simpleA.SoftmaxDerivative();
-        //        simpleResult = softmaxDerivative;
-        //    }
-        //    FloatMath.AreApproximatelyEqual(simpleResult, cpuResult).Should().BeTrue();
-        //}
-
-        //[Fact]
-        //public void VectorReverse()
-        //{
-        //    var distribution = _context.CreateNormalDistribution(0, 5);
-        //    var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
-        //    var cpuResult = a.Reverse();
-
-        //    IIndexableFloatVector gpuResult = Apply(_cuda, a, a => a.Reverse());
-        //    FloatMath.AreApproximatelyEqual(gpuResult, cpuResult).Should().BeTrue();
-
-        //    IIndexableFloatVector simpleResult = Apply(_simple, a, a => a.Reverse());
-        //    FloatMath.AreApproximatelyEqual(simpleResult, cpuResult).Should().BeTrue();
-        //}
+            using var gpu = Apply(_cuda, a, a => a.Reverse());
+            using var mkl = Apply(_mkl, a, a => a.Reverse());
+            AssertSame(cpu, gpu, mkl);
+        }
 
         //[Fact]
         //public void VectorRotate()
         //{
         //    var cpu = _cpu.CreateVector(4, i => i + 1);
         //    using var gpuA = _cuda.CreateVector(cpu);
-        //    using var simpleA = _simple.CreateVector(cpu);
+        //    using var simpleA = _mkl.CreateVector(cpu);
         //    cpu.RotateInPlace();
         //    gpuA.RotateInPlace();
         //    simpleA.RotateInPlace();
@@ -746,7 +721,7 @@ namespace BrightData.UnitTests
         //    const int BLOCK_COUNT = 2;
         //    var cpu = _cpu.CreateVector(8, i => i + 1);
         //    using var gpuA = _cuda.CreateVector(cpu);
-        //    using var simpleA = _simple.CreateVector(cpu);
+        //    using var simpleA = _mkl.CreateVector(cpu);
         //    cpu.RotateInPlace(BLOCK_COUNT);
         //    gpuA.RotateInPlace(BLOCK_COUNT);
         //    simpleA.RotateInPlace(BLOCK_COUNT);
@@ -754,93 +729,92 @@ namespace BrightData.UnitTests
         //    FloatMath.AreApproximatelyEqual(simpleA, cpu).Should().BeTrue();
         //}
 
-        //[Fact]
-        //public void TestFinite()
-        //{
-        //    var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f);
-        //    vector.IsEntirelyFinite().Should().BeTrue();
+        [Fact]
+        public void TestFinite()
+        {
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f);
+            vector.IsEntirelyFinite().Should().BeTrue();
 
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    gpuVector.IsEntirelyFinite().Should().BeTrue();
+            using var gpuVector = _cuda.CreateVector(vector);
+            gpuVector.IsEntirelyFinite().Should().BeTrue();
 
-        //    using var simpleVector = _simple.CreateVector(vector);
-        //    simpleVector.IsEntirelyFinite().Should().BeTrue();
-        //}
+            using var mklVector = _mkl.CreateVector(vector);
+            mklVector.IsEntirelyFinite().Should().BeTrue();
+        }
 
-        //[Fact]
-        //public void TestFinite2()
-        //{
-        //    var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f, float.Epsilon);
-        //    vector.IsEntirelyFinite().Should().BeTrue();
+        [Fact]
+        public void TestFinite2()
+        {
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f, float.Epsilon);
+            vector.IsEntirelyFinite().Should().BeTrue();
 
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    gpuVector.IsEntirelyFinite().Should().BeTrue();
+            using var gpuVector = _cuda.CreateVector(vector);
+            gpuVector.IsEntirelyFinite().Should().BeTrue();
 
-        //    using var simpleVector = _simple.CreateVector(vector);
-        //    simpleVector.IsEntirelyFinite().Should().BeTrue();
-        //}
+            using var mklVector = _mkl.CreateVector(vector);
+            mklVector.IsEntirelyFinite().Should().BeTrue();
+        }
 
-        //[Fact]
-        //public void TestNotFinite()
-        //{
-        //    var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NaN);
-        //    vector.IsEntirelyFinite().Should().BeFalse();
+        [Fact]
+        public void TestNotFinite()
+        {
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NaN);
+            vector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    gpuVector.IsEntirelyFinite().Should().BeFalse();
+            using var gpuVector = _cuda.CreateVector(vector);
+            gpuVector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var simpleVector = _simple.CreateVector(vector);
-        //    simpleVector.IsEntirelyFinite().Should().BeFalse();
-        //}
+            using var mklVector = _mkl.CreateVector(vector);
+            mklVector.IsEntirelyFinite().Should().BeFalse();
+        }
 
-        //[Fact]
-        //public void TestNotFinite2()
-        //{
-        //    var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NegativeInfinity);
-        //    vector.IsEntirelyFinite().Should().BeFalse();
+        [Fact]
+        public void TestNotFinite2()
+        {
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NegativeInfinity);
+            vector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    gpuVector.IsEntirelyFinite().Should().BeFalse();
+            using var gpuVector = _cuda.CreateVector(vector);
+            gpuVector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var simpleVector = _simple.CreateVector(vector);
-        //    simpleVector.IsEntirelyFinite().Should().BeFalse();
-        //}
+            using var mklVector = _mkl.CreateVector(vector);
+            mklVector.IsEntirelyFinite().Should().BeFalse();
+        }
 
-        //[Fact]
-        //public void TestNotFinite3()
-        //{
-        //    var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.PositiveInfinity);
-        //    vector.IsEntirelyFinite().Should().BeFalse();
+        [Fact]
+        public void TestNotFinite3()
+        {
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.PositiveInfinity);
+            vector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    gpuVector.IsEntirelyFinite().Should().BeFalse();
+            using var gpuVector = _cuda.CreateVector(vector);
+            gpuVector.IsEntirelyFinite().Should().BeFalse();
 
-        //    using var simpleVector = _simple.CreateVector(vector);
-        //    simpleVector.IsEntirelyFinite().Should().BeFalse();
-        //}
+            using var mklVector = _mkl.CreateVector(vector);
+            mklVector.IsEntirelyFinite().Should().BeFalse();
+        }
 
-        //[Fact]
-        //public void TestRoundInPlace()
-        //{
-        //    using var vector = _cpu.CreateVector(0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f);
-        //    using var gpuVector = _cuda.CreateVector(vector);
-        //    using var simpleVector = _simple.CreateVector(vector);
+        [Fact]
+        public void TestRoundInPlace()
+        {
+            using var cpu = _cpu.CreateVector(0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f);
+            using var gpu = _cuda.CreateVector(cpu);
+            using var mkl = _mkl.CreateVector(cpu);
 
-        //    vector.RoundInPlace();
-        //    gpuVector.RoundInPlace();
-        //    simpleVector.RoundInPlace();
-        //    FloatMath.AreApproximatelyEqual(gpuVector, vector).Should().BeTrue();
-        //    FloatMath.AreApproximatelyEqual(simpleVector, vector).Should().BeTrue();
+            cpu.RoundInPlace(0f, 1f, null);
+            gpu.RoundInPlace(0f, 1f, null);
+            mkl.RoundInPlace(0f, 1f, null);
+            AssertSame(cpu, gpu, mkl);
 
-        //    var data = vector.Data;
-        //    data[0].Should().Be(1f);
-        //    data[1].Should().Be(1f);
-        //    data[2].Should().Be(1f);
-        //    data[3].Should().Be(1f);
-        //    data[4].Should().Be(0f);
-        //    data[5].Should().Be(0f);
-        //    data[6].Should().Be(0f);
-        //    data[7].Should().Be(0f);
-        //}
+            var data = cpu.Segment;
+            data[0].Should().Be(1f);
+            data[1].Should().Be(1f);
+            data[2].Should().Be(1f);
+            data[3].Should().Be(1f);
+            data[4].Should().Be(0f);
+            data[5].Should().Be(0f);
+            data[6].Should().Be(0f);
+            data[7].Should().Be(0f);
+        }
     }
 }

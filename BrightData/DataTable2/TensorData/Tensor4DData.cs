@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
 using BrightData.LinearAlegbra2;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable2.TensorData
 {
     internal class Tensor4DData : ITensor4DInfo
     {
-        readonly ICanRandomlyAccessData<float> _data;
-        readonly uint _startIndex;
+        ICanRandomlyAccessData<float> _data;
+        uint _startIndex;
 
         public Tensor4DData(ICanRandomlyAccessData<float> data, uint startIndex, uint count, uint depth, uint rowCount, uint columnCount)
         {
@@ -20,10 +21,10 @@ namespace BrightData.DataTable2.TensorData
             ColumnCount = columnCount;
         }
 
-        public uint Count { get; internal init; }
-        public uint Depth { get; internal init; }
-        public uint RowCount { get; internal init; }
-        public uint ColumnCount { get; internal init; }
+        public uint Count { get; private set; }
+        public uint Depth { get; private set; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
 
@@ -33,13 +34,12 @@ namespace BrightData.DataTable2.TensorData
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            var size = RowCount * ColumnCount * Depth * Count;
-            return _data.GetSpan(_startIndex, size);
+            return _data.GetSpan(_startIndex, Size);
         }
 
         public ITensor4D Create(LinearAlgebraProvider lap)
         {
-            var size = RowCount * ColumnCount * Depth * Count;
+            var size = Size;
             var span = _data.GetSpan(_startIndex, size);
             var segment = lap.CreateSegment(size);
             segment.CopyFrom(span);
@@ -48,12 +48,26 @@ namespace BrightData.DataTable2.TensorData
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
-            throw new System.NotImplementedException();
+            if (reader.ReadInt32() != 4)
+                throw new Exception("Unexpected array size");
+            ColumnCount = reader.ReadUInt32();
+            RowCount = reader.ReadUInt32();
+            Depth = reader.ReadUInt32();
+            Count = reader.ReadUInt32();
+            _startIndex = 0;
+            _data = new TempFloatData(reader, Size);
         }
 
         public void WriteTo(BinaryWriter writer)
         {
-            throw new System.NotImplementedException();
+            writer.Write(4);
+            writer.Write(ColumnCount);
+            writer.Write(RowCount);
+            writer.Write(Depth);
+            writer.Write(Count);
+            writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
         }
+
+        public uint Size => Count * Depth * ColumnCount * RowCount;
     }
 }

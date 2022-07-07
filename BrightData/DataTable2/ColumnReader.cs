@@ -21,12 +21,12 @@ namespace BrightData.DataTable2
             {
                 _structEnumerator = structEnumerator;
                 _mutableReference = (IHaveMutableReference<CT>)_structEnumerator;
-                _structEnumerator.Reset();
+                _structEnumerator.Seek(0);
                 _converter = converter;
             }
 
             public bool MoveNext() => _structEnumerator.MoveNext();
-            public void Reset() => _structEnumerator.Reset();
+            public void Reset() => _structEnumerator.Seek(0);
             public T Current => _converter.Convert(ref _mutableReference.Current);
             object IEnumerator.Current => Current;
 
@@ -59,7 +59,7 @@ namespace BrightData.DataTable2
 
         public void Dispose()
         {
-            //_enumerator.Dispose();
+            _enumerator.Dispose();
             _stream.Dispose();
         }
 

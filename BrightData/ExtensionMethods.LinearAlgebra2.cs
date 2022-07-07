@@ -53,7 +53,7 @@ namespace BrightData
                 wasTempUsed = false;
             }
 
-            return ret.Slice(0, (int)segment.Size);
+            return ret[..(int)segment.Size];
         }
 
         static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
@@ -668,11 +668,11 @@ namespace BrightData
             Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
         }
 
-        public static void FeatureScaleNormalization(this ITensorSegment2 segment)
-        {
-            var (min, max, _, _) = GetMinAndMaxValues(segment);
-            var range = max - min;
-        }
+        //public static void FeatureScaleNormalization(this ITensorSegment2 segment)
+        //{
+        //    var (min, max, _, _) = GetMinAndMaxValues(segment);
+        //    var range = max - min;
+        //}
 
         public static void L1Regularisation(this ITensorSegment2 segment, float coefficient)
         {
@@ -738,8 +738,12 @@ namespace BrightData
         public static IVector FindDistances(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
         {
             var size = (uint)vectors.Count;
-            var ret = compareTo.Context.LinearAlgebraProvider2.CreateVector(size);
-            Parallel.For(0, size, ind => ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric));
+            var lap = compareTo.LinearAlgebraProvider;
+            var ret = lap.CreateVector(size);
+            Parallel.For(0, size, ind => {
+                lap.BindThread();
+                ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric);
+            });
             return ret;
         }
 
@@ -775,7 +779,5 @@ namespace BrightData
         public static ITensor4D ToTensor4D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
         public static void CopyTo(this ITensor2 tensor, ITensor2 other) => tensor.Segment.CopyTo(other.Segment);
-
-        
     }
 }

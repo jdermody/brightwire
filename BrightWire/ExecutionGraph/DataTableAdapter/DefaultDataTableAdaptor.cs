@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var rows = GetRows(rowIndices);
             var data = rows
-                .Select(r => (new[] { InputVectoriser!.Vectorise(r) }, OutputVectoriser!.Vectorise(r)))
+                .Select(r => (InputVectoriser!.Vectorise(r), OutputVectoriser!.Vectorise(r)))
                 .ToArray()
             ;
             return GetMiniBatch(rowIndices, data);
