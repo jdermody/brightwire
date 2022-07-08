@@ -104,7 +104,7 @@ namespace BrightData.UnitTests
         public void OtherVectorisation()
         {
             var table = GetTable();
-            using var row = table.GetRow(0);
+            var row = table.GetRow(0);
             var rowValues = row.ToArray();
             var vectoriser = table.GetVectoriser(false);
             var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();

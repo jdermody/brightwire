@@ -51,9 +51,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(IMatrixInfo Input, IMatrixInfo? Output)> GetRows(uint[] rows)
         {
-            return _dataTable.GetRows(rows).Select(row => {
-                using(row) return ((IMatrixInfo)row[_featureColumnIndices[0]], (IMatrixInfo?)row[_targetColumnIndex]);
-            });
+            return _dataTable.GetRows(rows).Select(row => ((IMatrixInfo)row[_featureColumnIndices[0]], (IMatrixInfo?)row[_targetColumnIndex]));
         }
 
         public override IDataSource CloneWith(BrightDataTable dataTable)

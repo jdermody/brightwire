@@ -15,7 +15,7 @@ namespace BrightData.DataTable2
                 throw new ArgumentException($"Data types do not align - expected {columnType} but received {requestedType}");
         }
 
-        ICanEnumerateDisposable<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
+        ICanEnumerateOrRandomlyAccess<T> GetColumnReader<T>(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null) where T : notnull
         {
             ref readonly var column = ref _columns[columnIndex];
             var requestedType = typeof(T);
@@ -26,10 +26,10 @@ namespace BrightData.DataTable2
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
             var sizeInBytes = countToRead * column.DataTypeSize;
-            return (ICanEnumerateDisposable<T>)_getReader.MakeGenericMethod(columnDataType, requestedType).Invoke(this, new object[] { offset, sizeInBytes })!;
+            return (ICanEnumerateOrRandomlyAccess<T>)_getReader.MakeGenericMethod(columnDataType, requestedType).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
 
-        ICanEnumerateDisposable GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
+        ICanEnumerateOrRandomlyAccess GetColumnReader(uint columnIndex, uint countToRead, Func<uint, uint>? offsetAdjuster = null)
         {
             ref readonly var column = ref _columns[columnIndex];
             var dataType = column.DataType.GetDataType();
@@ -38,13 +38,13 @@ namespace BrightData.DataTable2
                 offset += offsetAdjuster(column.DataTypeSize);
             var (columnDataType, _) = column.DataType.GetColumnType();
             var sizeInBytes = countToRead * column.DataTypeSize;
-            return (ICanEnumerateDisposable)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
+            return (ICanEnumerateOrRandomlyAccess)_getReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new object[] { offset, sizeInBytes })!;
         }
 
-        ICanEnumerateDisposable[] GetColumnReaders(IEnumerable<uint> columnIndices)
+        ICanEnumerateOrRandomlyAccess[] GetColumnReaders(IEnumerable<uint> columnIndices)
         {
             var columnCount = _header.ColumnCount;
-            var ret = new ICanEnumerateDisposable[columnCount];
+            var ret = new ICanEnumerateOrRandomlyAccess[columnCount];
             for (uint i = 0; i < columnCount; i++)
                 ret[i] = GetColumnReader(i, _header.RowCount);
             return ret;

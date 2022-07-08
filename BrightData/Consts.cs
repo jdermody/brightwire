@@ -31,7 +31,7 @@
         public const uint RowProcessingNotificationCadence = 1000;
 
 #pragma warning disable 1591
-        public const string ColumnIndex                         = "ColumnIndex";
+        public const string ColumnIndex                   = "ColumnIndex";
         public const string Name                          = "Name";
         public const string Type                          = "Type";
         public const string IsNumeric                     = "IsNumeric";

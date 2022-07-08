@@ -45,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
                     // print the values that have been learned
                     foreach (var item in output) {
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
-                            using var row = Test.GetRow(index);
+                            var row = Test.GetRow(index);
                             var result = item.Output[index];
                             var input = row.ToArray()
                                 .Select((v, i) => (Val: v, Ind: i))

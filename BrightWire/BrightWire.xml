@@ -29,7 +29,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.IDataTableRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable2.BrightDataTableRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -205,12 +205,12 @@
             </summary>
             <param name="rows">List of row indices</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[][],System.Single[]}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[],System.Single[]}[])">
             <summary>
             Creates a mini batch
             </summary>
             <param name="rows">Row indices</param>
-            <param name="data">List of input/output tuples</param>
+            <param name="data">Array of input/output pairs</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IMatrixInfo,BrightData.IMatrixInfo}[])">
             <summary>
@@ -2137,7 +2137,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.IDataTableRow,System.UInt32[])">
+        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.DataTable2.BrightDataTableRow,System.UInt32[])">
             <summary>
             Gets the strongly typed fields from a convertible row as an array
             </summary>
@@ -3666,7 +3666,7 @@
             Classifies convertible rows
             </summary>
         </member>
-        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.IDataTableRow)">
+        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable2.BrightDataTableRow)">
             <summary>
             Classifies a convertible row
             </summary>
@@ -4323,7 +4323,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,System.Collections.Generic.IEnumerable{BrightData.ITensorSegment2})">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,System.Collections.Generic.IEnumerable{BrightData.IVectorInfo})">
             <summary>
             Constructor
             </summary>

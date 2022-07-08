@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace BrightData.DataTable2
                 RowCount,
                 columnIndex,
                 metaData,
-                GetColumnReader(columnIndex, _header.ColumnCount),
+                GetColumnReader(columnIndex, _header.RowCount),
                 analyser
             );
         }
@@ -84,6 +85,18 @@ namespace BrightData.DataTable2
         public IOperation<BrightDataTableBuilder?> Project(Func<object[], object[]?> projector)
         {
             return new ProjectionOperation(RowCount, Context, GetAllRowData(true).Select(d => d.Data).GetEnumerator(), projector);
+        }
+
+        public IOperation<Stream?> BagToStream(uint sampleCount, Stream stream)
+        {
+            var rowIndices = AllRowIndices.ToArray().Bag(sampleCount, Context.Random);
+            return WriteRowsTo(stream, rowIndices);
+        }
+
+        public IOperation<Stream?> ShuffleToStream(Stream stream)
+        {
+            var rowIndices = AllRowIndices.Shuffle(Context.Random).ToArray();
+            return WriteRowsTo(stream, rowIndices);
         }
     }
 }

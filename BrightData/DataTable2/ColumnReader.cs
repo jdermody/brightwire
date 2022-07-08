@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2
 {
-    public class ColumnReader<CT, T> : ICanEnumerateDisposable<T>, ICanEnumerateDisposable, IEnumerable<T>
+    public class ColumnReader<CT, T> : ICanEnumerateDisposable<T>, ICanEnumerateDisposable, IEnumerable<T>, ICanEnumerateOrRandomlyAccess<T>
         where CT : unmanaged
         where T : notnull
     {
@@ -56,6 +56,15 @@ namespace BrightData.DataTable2
         {
             return GetEnumerator();
         }
+
+        public T Get(uint index)
+        {
+            _enumerator.Seek(index);
+            _enumerator.MoveNext();
+            var mutableReference = (IHaveMutableReference<CT>)_enumerator;
+            return _converter.Convert(ref mutableReference.Current);
+        }
+        object ICanEnumerateOrRandomlyAccess.Get(uint index) => Get(index);
 
         public void Dispose()
         {

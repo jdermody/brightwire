@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased
@@ -17,7 +18,7 @@ namespace BrightWire.TreeBased
             _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m)).ToList();
         }
 
-        public (string Label, float Weight)[] Classify(IDataTableRow row)
+        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
         {
             return _forest
                 .Select(t => t.Classify(row).Single())

@@ -430,7 +430,9 @@ namespace BrightData
                 var cols = row.Count;
                 for (var i = columns.Count; i < cols; i++) {
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
-                    columns.Add(new HybridBufferSegment<string>(BrightDataType.String, new MetaData(), buffer));
+                    var columnMetaData = new MetaData();
+                    columnMetaData.Set(Consts.ColumnIndex, (uint)i);
+                    columns.Add(new HybridBufferSegment<string>(BrightDataType.String, columnMetaData, buffer));
                 }
 
                 for (var i = 0; i < cols; i++) {
@@ -1097,7 +1099,7 @@ namespace BrightData
         public static BrightDataTable ReinterpretColumns(this BrightDataTable dataTable, IProvideTempStreams tempStreams, string? filePath, params IReinterpretColumns[] columns)
         {
             var ops = dataTable.ReinterpretColumns(tempStreams, columns).ToArray();
-            var newColumns = EnsureCompleted(CompleteInParallel(ops));
+            var newColumns = EnsureAllCompleted(CompleteInParallel(ops));
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, newColumns, GetMemoryOrFileStream(filePath));
         }
 
@@ -1179,7 +1181,7 @@ namespace BrightData
             using var tempStream = dataTable.Context.CreateTempStreamProvider();
             var transformers = dataTable.GetColumnTransformers(tempStream, conversionParams);
             var operations = dataTable.MutateColumns(tempStream, transformers);
-            var results = EnsureCompleted(CompleteInParallel(operations.ToArray()));
+            var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
         }
 
@@ -1220,7 +1222,7 @@ namespace BrightData
                 .Select(c => new ColumnNormalization(c.Index, type))
             );
             var operations = dataTable.MutateColumns(tempStream, transformers);
-            var results = EnsureCompleted(CompleteInParallel(operations.ToArray()));
+            var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
 
         }
@@ -1234,14 +1236,14 @@ namespace BrightData
 
         public static BrightDataTable Bag(this BrightDataTable dataTable, string? filePath, uint sampleCount)
         {
-            using var op = dataTable.Bag(sampleCount, GetMemoryOrFileStream(filePath));
+            using var op = dataTable.BagToStream(sampleCount, GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return dataTable.Context.LoadTableFromStream(stream);
         }
 
-        public static BrightDataTable ShuffleRows(this BrightDataTable dataTable, string? filePath)
+        public static BrightDataTable Shuffle(this BrightDataTable dataTable, string? filePath)
         {
-            using var op = dataTable.Shuffle(GetMemoryOrFileStream(filePath));
+            using var op = dataTable.ShuffleToStream(GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
             return dataTable.Context.LoadTableFromStream(stream);
         }
@@ -1334,7 +1336,7 @@ namespace BrightData
         }
 
         public static T EnsureCompleted<T>(T? result) => result ?? throw new Exception("Operation failed");
-        public static T[] EnsureCompleted<T>(this IReadOnlyList<T?> results)
+        public static T[] EnsureAllCompleted<T>(this IReadOnlyList<T?> results)
         {
             var ret = new T[results.Count];
             for (int i = 0, len = results.Count; i < len; i++)
@@ -1382,11 +1384,10 @@ namespace BrightData
             .BuildDataTable(tableMetaData, columns, GetMemoryOrFileStream(filePath))
         ;
 
-        public static IEnumerable<T> MapRows<T>(this BrightDataTable dataTable, Func<IDataTableRow, T> mapper)
+        public static IEnumerable<T> MapRows<T>(this BrightDataTable dataTable, Func<BrightDataTableRow, T> mapper)
         {
             foreach (var row in dataTable.GetRows()) {
-                using (row)
-                    yield return mapper(row);
+                yield return mapper(row);
             }
         }
 

@@ -565,7 +565,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row to classify</param>
 		/// <returns></returns>
-        (string Label, float Weight)[] Classify(IDataTableRow row);
+        (string Label, float Weight)[] Classify(BrightDataTableRow row);
 	}
 
     /// <summary>

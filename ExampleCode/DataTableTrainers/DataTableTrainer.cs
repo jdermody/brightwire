@@ -17,12 +17,18 @@ namespace ExampleCode.DataTableTrainers
 
         public DataTableTrainer(BrightDataTable table)
         {
-            _context = table.Context;
-            TargetColumn = table.GetTargetColumnOrThrow();
-            Table = new(table);
-            var (training, test) = table.Split();
-            Training = training;
-            Test = test;
+            try {
+                var shuffled = table.Shuffle(null);
+                _context = table.Context;
+                TargetColumn = table.GetTargetColumnOrThrow();
+                Table = new(shuffled);
+                var (training, test) = shuffled.Split();
+                Training = training;
+                Test = test;
+            }
+            finally {
+                table.Dispose();
+            }
         }
 
         public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
@@ -106,15 +112,9 @@ namespace ExampleCode.DataTableTrainers
         void WriteResults(string type, IRowClassifier classifier)
         {
             var results = Test.Classify(classifier).ToList();
-            try {
-                var score = results
-                    .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
-                Console.WriteLine($"{type} accuracy: {score:P}");
-            }
-            finally {
-                foreach(var (row, _) in results)
-                    row.Dispose();
-            }
+            var score = results
+                .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
+            Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
         void WriteResults(string type, ITableClassifier classifier)

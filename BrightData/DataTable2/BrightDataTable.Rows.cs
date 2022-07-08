@@ -54,9 +54,28 @@ namespace BrightData.DataTable2
             }
         }
 
-        public IDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
+        public BrightDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
 
-        public IEnumerable<IDataTableRow> GetRows(params uint[] rowIndices)
+        public IEnumerable<BrightDataTableRow> GetRows(params uint[] rowIndices)
+        {
+            var columnCount = _header.ColumnCount;
+            var readers = GetColumnReaders(ColumnIndices);
+
+            try {
+                foreach (var ri in AllOrSpecifiedRowIndices(rowIndices)) {
+                    var ret = new object[columnCount];
+                    for (uint i = 0; i < columnCount; i++)
+                        ret[i] = readers[i].Get(ri);
+                    yield return new BrightDataTableRow(this, ret, ri);
+                }
+            }
+            finally {
+                foreach(var item in readers)
+                    item.Dispose();
+            }
+        }
+
+        public IEnumerable<BrightDataTableRow> GetSparseRows(params uint[] rowIndices)
         {
             var columnCount = _header.ColumnCount;
             var readers = new ICanEnumerateDisposable[columnCount];
@@ -70,15 +89,14 @@ namespace BrightData.DataTable2
                         enumerators[i] = reader.Enumerate().GetEnumerator();
                     }
 
-                    var ret = ArrayPool<object>.Shared.Rent((int)columnCount);
                     for (uint j = 0; j < count; j++) {
+                        var ret = new object[columnCount];
                         for (uint i = 0; i < columnCount; i++) {
                             var enumerator = enumerators[i];
                             enumerator.MoveNext();
                             ret[i] = enumerator.Current;
                         }
-
-                        yield return new Row2(this, ret, first + j, ColumnCount);
+                        yield return new BrightDataTableRow(this, ret, first + j);
                     }
                 }
                 finally {
@@ -87,6 +105,8 @@ namespace BrightData.DataTable2
                 }
             }
         }
+
+        public IEnumerable<BrightDataTableRow> AllRows => GetRows();
 
         //public object[] GetRowData(uint rowIndex)
         //{

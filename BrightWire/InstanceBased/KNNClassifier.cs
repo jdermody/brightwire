@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable2;
 using BrightData.LinearAlegbra2;
 using BrightWire.Models.InstanceBased;
 
@@ -30,7 +31,7 @@ namespace BrightWire.InstanceBased
                 _instance[i] = lap.CreateVector(model.Instance[i]);
         }
 
-        IEnumerable<(string Label, float Score)> ClassifyInternal(IDataTableRow row)
+        IEnumerable<(string Label, float Score)> ClassifyInternal(BrightDataTableRow row)
         {
             // encode the features into a vector
             var featureCount = _model.DataColumns.Length;
@@ -52,7 +53,7 @@ namespace BrightWire.InstanceBased
             ;
         }
 
-        public (string Label, float Weight)[] Classify(IDataTableRow row)
+        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
         {
             return ClassifyInternal(row)
                 .Select(d => (d.Label, d.Score))

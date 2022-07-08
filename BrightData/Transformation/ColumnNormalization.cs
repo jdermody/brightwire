@@ -64,7 +64,6 @@ namespace BrightData.Transformation
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
-
                 buffer.Add(normalized);
                 return true;
             }

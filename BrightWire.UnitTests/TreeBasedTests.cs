@@ -20,14 +20,8 @@ namespace BrightWire.UnitTests
             var model = data.TrainDecisionTree();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows().ToArray();
-            try {
-                classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
-                classifier.Classify(testRows[1]).GetBestClassification().Should().Be("china");
-            }
-            finally {
-                foreach(var item in testRows)
-                    item.Dispose();
-            }
+            classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
+            classifier.Classify(testRows[1]).GetBestClassification().Should().Be("china");
         }
 
         [Fact]
@@ -40,13 +34,7 @@ namespace BrightWire.UnitTests
             var model = data.TrainRandomForest();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows().ToArray();
-            try {
-                classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
-            }
-            finally {
-                foreach(var item in testRows)
-                    item.Dispose();
-            }
+            classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
         }
     }
 }

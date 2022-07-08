@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            using var firstRow = dataTable.GetRow(0);
+            var firstRow = dataTable.GetRow(0);
             var input = (IVectorInfo)firstRow[_featureColumnIndices.Single()];
             var output = (IVectorInfo)firstRow[_targetColumnIndex];
 

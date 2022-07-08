@@ -63,19 +63,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var rows = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows);
-            try {
-                var resultList = rows
-                    .Select(row => _classifier.Classify(row)
-                        .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
-                        .ToDictionary(d => d.Index, d => d.Weight)
-                    ).ToArray();
-                var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-                return (this, output.AsGraphData(), () => new Backpropagation(this));
-            }
-            finally {
-                foreach(var item in rows)
-                    item.Dispose();
-            }
+            var resultList = rows
+                .Select(row => _classifier.Classify(row)
+                    .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
+                    .ToDictionary(d => d.Index, d => d.Weight)
+                ).ToArray();
+            var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
+            return (this, output.AsGraphData(), () => new Backpropagation(this));
         }
     }
 }

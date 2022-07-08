@@ -32,8 +32,8 @@ namespace ExampleCode
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
             //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            Xor(context);
-            //IrisClassification(context);
+            //Xor(context);
+            IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
@@ -80,7 +80,7 @@ namespace ExampleCode
         static void Xor(BrightDataContext context)
         {
             Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(4, 25, 0.5f, 4);
+            context.Xor().TrainSigmoidNeuralNetwork(4, 40, 0.5f, 4);
         }
 
         static void IrisClassification(BrightDataContext context)
@@ -92,7 +92,7 @@ namespace ExampleCode
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(8, 200, 0.1f, 16);
+            iris.TrainSigmoidNeuralNetwork(32, 500, 0.1f, 16, 50);
         }
 
         static void IrisClustering(BrightDataContext context)

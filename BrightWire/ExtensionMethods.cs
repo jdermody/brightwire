@@ -47,7 +47,7 @@ namespace BrightWire
         /// <param name="indices">Column indices to retrieve</param>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <returns></returns>
-        public static T[] GetFields<T>(this IDataTableRow row, params uint[] indices) where T: notnull => indices.Select(row.Get<T>).ToArray();
+        public static T[] GetFields<T>(this BrightDataTableRow row, params uint[] indices) where T: notnull => indices.Select(row.Get<T>).ToArray();
 
         /// <summary>
         /// Classifies each row in the data table
@@ -55,7 +55,7 @@ namespace BrightWire
         /// <param name="convertible"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
-        public static IEnumerable<(IDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
+        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
         {
             for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
                 var row = dataTable.GetRow(i);
@@ -159,10 +159,10 @@ namespace BrightWire
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
                 var past = context.CreateMatrixFromRows(dataTable
                     .GetRows(windowSize.AsRange(i).ToArray())
-                    .Select(r => { using (r) return context.CreateVector(r.GetFields<float>(columnIndices)); })
+                    .Select(r => context.CreateVector(r.GetFields<float>(columnIndices)))
                     .ToArray()
                 );
-                using var targetRow = dataTable.GetRow(i + windowSize);
+                var targetRow = dataTable.GetRow(i + windowSize);
                 var target = context.CreateVector(targetRow.GetFields<float>(columnIndices));
                 if (!hasAddedColumns) {
                     hasAddedColumns = true;
@@ -194,7 +194,7 @@ namespace BrightWire
                 return index;
             }
 
-            foreach(var row in dataTable.GetRows()) using (row) {
+            foreach(var row in dataTable.GetRows()) {
                 var actual = GetIndex(row.Get<string>(actualClassificationColumnIndex), labels);
                 var expected = GetIndex(row.Get<string>(expectedClassificationColumnIndex), labels);
                 if (!classifications.TryGetValue(expected, out var expectedClassification))

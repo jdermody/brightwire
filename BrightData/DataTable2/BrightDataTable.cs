@@ -64,7 +64,7 @@ namespace BrightData.DataTable2
         readonly Lazy<ICanRandomlyAccessData<WeightedIndexList.Item>> _weightedIndices;
         readonly uint                                                 _rowSize;
         readonly long                                                 _dataOffset;
-        readonly MethodInfo                                           _getReader;
+        readonly MethodInfo                                           _getReader, _readNopColumn;
         readonly uint[]                                               _columnOffset;
         readonly BrightDataType[]                                     _columnTypes;
         readonly Stream                                               _stream;
@@ -195,7 +195,7 @@ namespace BrightData.DataTable2
             }
 
             var results = operations.CompleteInParallel();
-            return results.EnsureCompleted();
+            return results.EnsureAllCompleted();
         }
         public IMetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount, maxDistinctCount).Select(d => d.MetaData).ToArray();
 

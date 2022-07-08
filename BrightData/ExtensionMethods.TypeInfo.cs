@@ -91,7 +91,7 @@ namespace BrightData
 
             var ret = new HashSet<uint>();
             var ops = dataTable.CopyToColumnConsumers(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts))).ToArray();
-            EnsureCompleted(CompleteInParallel(ops));
+            EnsureAllCompleted(CompleteInParallel(ops));
             return ret;
         }
     }

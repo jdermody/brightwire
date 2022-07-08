@@ -610,10 +610,7 @@
         <member name="M:BrightData.DataTable2.BrightDataTable.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable2.ColumnReader`2.EnumerateTyped">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.DataTable2.Row2.Get``1(System.UInt32)">
+        <member name="M:BrightData.DataTable2.BrightDataTableRow.Get``1(System.UInt32)">
             <summary>
             Returns a value (dynamic conversion to type T)
             </summary>
@@ -621,10 +618,13 @@
             <param name="index">Column index</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.DataTable2.Row2.RowIndex">
+        <member name="P:BrightData.DataTable2.BrightDataTableRow.RowIndex">
             <summary>
             Row index
             </summary>
+        </member>
+        <member name="M:BrightData.DataTable2.ColumnReader`2.EnumerateTyped">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.DataTable.Column`1">
             <summary>

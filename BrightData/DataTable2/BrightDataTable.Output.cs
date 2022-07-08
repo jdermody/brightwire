@@ -35,7 +35,7 @@ namespace BrightData.DataTable2
         public IOperation<Stream?> ConcatenateRows(BrightDataTable[] tables, Stream stream)
         {
             var rowCount = RowCount;
-            var data = GetAllRowData();
+            var data = AllRows;
             foreach (var other in tables) {
                 if (other.ColumnCount != ColumnCount)
                     throw new ArgumentException("Columns must agree - column count was different");
@@ -43,7 +43,7 @@ namespace BrightData.DataTable2
                     throw new ArgumentException("Columns must agree - types were different");
 
                 rowCount += other.RowCount;
-                data = data.Concat(other.GetAllRowData(true));
+                data = data.Concat(other.AllRows);
             }
 
             var tempStream = Context.CreateTempStreamProvider();
@@ -52,7 +52,6 @@ namespace BrightData.DataTable2
             return new WriteRowsOperation(
                 Context,
                 data.GetEnumerator(),
-                null,
                 null,
                 buffers,
                 RowCount,
@@ -69,8 +68,7 @@ namespace BrightData.DataTable2
 
             return new WriteRowsOperation(
                 Context,
-                GetAllRowData(true).GetEnumerator(),
-                rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null,
+                GetRows(rowIndices).GetEnumerator(),
                 null,
                 buffers,
                 RowCount,
@@ -80,15 +78,14 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IOperation<Stream?> WriteRowsTo(Stream stream, Predicate<object[]> predicate, params uint[] rowIndices)
+        public IOperation<Stream?> WriteRowsTo(Stream stream, Predicate<BrightDataTableRow> predicate, params uint[] rowIndices)
         {
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
 
             return new WriteRowsOperation(
                 Context,
-                GetAllRowData(true).GetEnumerator(),
-                rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null,
+                GetRows(rowIndices).GetEnumerator(),
                 predicate,
                 buffers,
                 RowCount,
@@ -96,18 +93,6 @@ namespace BrightData.DataTable2
                 stream,
                 TableMetaData
             );
-        }
-
-        public IOperation<Stream?> Bag(uint sampleCount, Stream stream)
-        {
-            var rowIndices = AllRowIndices.ToArray().Bag(sampleCount, Context.Random);
-            return WriteRowsTo(stream, rowIndices);
-        }
-
-        public IOperation<Stream?> Shuffle(Stream stream)
-        {
-            var rowIndices = AllRowIndices.Shuffle(Context.Random).ToArray();
-            return WriteRowsTo(stream, rowIndices);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace BrightWire.UnitTests
 
             var model = index.TrainKNearestNeighbours();
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider2, 2);
-            using var row = testDataTable.GetRow(0);
+            var row = testDataTable.GetRow(0);
             var classification = classifier.Classify(row);
             classification.MaxBy(c => c.Weight).Label.Should().Be("female");
         }

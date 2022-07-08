@@ -8,27 +8,21 @@ using BrightData.Helper;
 
 namespace BrightData.DataTable2
 {
-    internal class Row2 : IDataTableRow
+    public class BrightDataTableRow : IDataTableSegment
     {
         readonly BrightDataTable _dataTable;
         readonly object[] _data;
 
-        public Row2(BrightDataTable dataTable, object[] data, uint index, uint columnCount)
+        public BrightDataTableRow(BrightDataTable dataTable, object[] data, uint rowIndex)
         {
             _data = data;
-            RowIndex = index;
+            RowIndex = rowIndex;
             _dataTable = dataTable;
-            Size = columnCount;
-        }
-
-        public void Dispose()
-        {
-            ArrayPool<object>.Shared.Return(_data);
         }
 
         public object this[uint index] => _data[index];
         public BrightDataType[] Types => _dataTable.ColumnTypes;
-        public uint Size { get; }
+        public uint Size => (uint)_data.Length;
         public IEnumerable<object> Data => _data;
 
         public override string ToString()

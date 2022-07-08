@@ -904,6 +904,16 @@ namespace BrightData
     {
     }
 
+    public interface ICanEnumerateOrRandomlyAccess : ICanEnumerateDisposable
+    {
+        object Get(uint index);
+    }
+
+    public interface ICanEnumerateOrRandomlyAccess<out T> : ICanEnumerateDisposable<T>, ICanEnumerateOrRandomlyAccess where T : notnull
+    {
+        T Get(uint index);
+    }
+
     /// <summary>
     /// Indicates that the type can convert string to string indices
     /// </summary>

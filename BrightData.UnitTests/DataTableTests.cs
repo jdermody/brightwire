@@ -28,7 +28,7 @@ namespace BrightData.UnitTests
             builder.AddRow(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
             var dataTable = builder.BuildInMemory();
 
-            using var firstRow = dataTable.GetRow(0);
+            var firstRow = dataTable.GetRow(0);
             firstRow.Get<bool>(0).Should().BeTrue();
             firstRow.Get<byte>(1).Should().Be(100);
             firstRow.Get<DateTime>(2).Should().Be(now);
@@ -40,7 +40,7 @@ namespace BrightData.UnitTests
 
         }
 
-        static void CompareRows(IDataTableRow row1, IDataTableRow row2)
+        static void CompareRows(BrightDataTableRow row1, BrightDataTableRow row2)
         {
             row1.Size.Should().Be(row2.Size);
             for (uint i = 0; i < row1.Size; i++)
@@ -56,18 +56,18 @@ namespace BrightData.UnitTests
 
             for (uint i = 0; i < 128; i++) {
                 var index = (uint)rand.Next((int)table1.RowCount);
-                using var row1 = table1.GetRow(index);
-                using var row2 = table2.GetRow(index);
+                var row1 = table1.GetRow(index);
+                var row2 = table2.GetRow(index);
                 CompareRows(row1, row2);
             }
         }
 
-        static void RandomSample(uint rowCount, BrightDataTable table, Action<uint, IDataTableRow> callback)
+        static void RandomSample(uint rowCount, BrightDataTable table, Action<uint, BrightDataTableRow> callback)
         {
             var rand = new Random();
             for (var i = 0; i < 128; i++) {
                 var index = (uint)rand.Next((int)rowCount);
-                using var row = table.GetRow(index);
+                var row = table.GetRow(index);
                 callback(index, row);
             }
         }
@@ -135,10 +135,7 @@ namespace BrightData.UnitTests
         public void TestTableSlice()
         {
             var table = GetSimpleTable();
-            var rows = table.CopyRows(null, Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).GetRows().Select(r => {
-                using(r)
-                    return r.Get<int>(0);
-            }).ToList();
+            var rows = table.CopyRows(null, Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).GetRows().Select(r => r.Get<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)
                 rows[i].Should().Be(5000 + i);
@@ -164,7 +161,7 @@ namespace BrightData.UnitTests
 
             RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                using var prevRow = table.GetRow(index);
+                var prevRow = table.GetRow(index);
                 var prevVal = prevRow.Get<double>(0);
                 var expected = (prevVal - mean) / stdDev;
                 DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
@@ -193,7 +190,7 @@ namespace BrightData.UnitTests
         public void ShuffleTables()
         {
             using var table = CreateComplexTable(_context);
-            using var shuffled = table.ShuffleRows(null);
+            using var shuffled = table.Shuffle(null);
             shuffled.RowCount.Should().Be(table.RowCount);
         }
 
@@ -224,7 +221,7 @@ namespace BrightData.UnitTests
             RandomSample(table.RowCount, normalised, (index, row) =>
             {
                 var val = row.Get<double>(0);
-                using var prevRow = table.GetRow(index);
+                var prevRow = table.GetRow(index);
                 var prevVal = (double)prevRow[0];
                 var expected = (prevVal - analysis.Mean) / analysis.PopulationStdDev!;
                 DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
@@ -241,7 +238,7 @@ namespace BrightData.UnitTests
             RandomSample(table.RowCount, normalised, (index, row) =>
             {
                 var val = row.Get<double>(0);
-                using var prevRow = table.GetRow(index);
+                var prevRow = table.GetRow(index);
                 var prevVal = (double)prevRow[0];
                 var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
                 DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
@@ -261,7 +258,7 @@ namespace BrightData.UnitTests
             RandomSample(table.RowCount, normalised, (index, row) =>
             {
                 var val = row.Get<double>(0);
-                using var prevRow = table.GetRow(index);
+                var prevRow = table.GetRow(index);
                 var prevVal = prevRow.Get<double>(0);
                 var expected = prevVal / analysis.L2Norm;
                 DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
@@ -281,7 +278,7 @@ namespace BrightData.UnitTests
             RandomSample(table.RowCount, normalised, (index, row) =>
             {
                 var val = row.Get<double>(0);
-                using var prevRow = table.GetRow(index);
+                var prevRow = table.GetRow(index);
                 var prevVal = prevRow.Get<double>(0);
                 var expected = prevVal / analysis.L1Norm;
                 DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();

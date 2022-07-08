@@ -29,8 +29,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(WeightedIndexList IndexList, float[] Output)> GetRows(uint[] rows)
         {
-            foreach (var tableRow in _dataTable.GetRows(rows)) using (tableRow)
-                yield return (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
+            return _dataTable.GetRows(rows).Select(tableRow => (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
         }
 
         public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists) => WeightedIndexList.Merge(lists);

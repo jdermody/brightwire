@@ -84,7 +84,7 @@ namespace BrightWire.TreeBased.Training
 	        readonly Dictionary<uint, string> _category = new();
             readonly Dictionary<uint, double> _continuous = new();
 
-            public InMemoryRow(IDataTableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
+            public InMemoryRow(BrightDataTableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
                 ClassificationLabel = row.Get<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)
@@ -123,7 +123,7 @@ namespace BrightWire.TreeBased.Training
                             _continuous.Add(i);
                     }
                 }
-                foreach(var row in table.GetRows()) using(row) {
+                foreach(var row in table.GetRows()) {
                     Data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex));
                 }
             }

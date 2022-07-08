@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(IndexList, float[])> GetRows(uint[] rows)
         {
-            foreach (var tableRow in _dataTable.GetRows(rows)) using(tableRow)
+            foreach (var tableRow in _dataTable.GetRows(rows))
                 yield return (Combine(_featureColumnIndices.Select(i => (IndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
         }
 
