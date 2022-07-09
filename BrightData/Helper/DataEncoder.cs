@@ -76,19 +76,19 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(val), T);
             }
 
-            if (typeOfT == typeof(IVector)) {
-                var val = _context.CreateVector(reader);
+            if (typeOfT == typeof(IVectorInfo)) {
+                var val = _context.CreateVectorInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(IMatrix)) {
-                var val = _context.CreateMatrix(reader);
+            if (typeOfT == typeof(IMatrixInfo)) {
+                var val = _context.CreateMatrixInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(ITensor3D)) {
+            if (typeOfT == typeof(ITensor3DInfo)) {
                 var val = _context.CreateTensor3D(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(ITensor4D)) {
+            if (typeOfT == typeof(ITensor4DInfo)) {
                 var val = _context.CreateTensor4D(reader);
                 return __refvalue(__makeref(val), T);
             }
@@ -172,27 +172,26 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(IVector)) {
-                var ret = new IVector[len];
+                var ret = new IVectorInfo[len];
                 for (uint i = 0; i < len; i++) {
-                    var val = _context.CreateVector(reader);
-                    ret[i] = (IVector)val;
+                    ret[i] = _context.CreateVectorInfo(reader);
                 }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(IMatrix)) {
-                var ret = new IMatrix[len];
+            if (typeOfT == typeof(IMatrixInfo)) {
+                var ret = new IMatrixInfo[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = _context.CreateMatrix(reader);
+                    ret[i] = _context.CreateMatrixInfo(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(ITensor3D)) {
-                var ret = new ITensor3D[len];
+            if (typeOfT == typeof(ITensor3DInfo)) {
+                var ret = new ITensor3DInfo[len];
                 for (uint i = 0; i < len; i++)
                     ret[i] = _context.CreateTensor3D(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(ITensor4D)) {
-                var ret = new ITensor4D[len];
+            if (typeOfT == typeof(ITensor4DInfo)) {
+                var ret = new ITensor4DInfo[len];
                 for (uint i = 0; i < len; i++)
                     ret[i] = _context.CreateTensor4D(reader);
                 return __refvalue(__makeref(ret), T[]);

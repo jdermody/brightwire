@@ -94,11 +94,11 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="ch"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        public IVector Encode(char ch, float val = 1f)
+        public IVectorInfo Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
-            return _context.CreateVector(ret);
+            return _context.CreateVectorInfo(ret);
         }
 
         /// <summary>
@@ -106,12 +106,12 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public IVector Encode(IEnumerable<(char, float)> data)
+        public IVectorInfo Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[CharTable[item.Item1]] = item.Item2;
-            return _context.CreateVector(ret);
+            return _context.CreateVectorInfo(ret);
         }
 
         /// <summary>
@@ -119,13 +119,13 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public IMatrix Encode(string str)
+        public IMatrixInfo Encode(string str)
         {
-            var data = new IVector[str.Length];
+            var data = new IVectorInfo[str.Length];
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return _context.CreateMatrixFromRows(data);
+            return _context.CreateMatrixInfoFromRows(data);
         }
 
         /// <summary>

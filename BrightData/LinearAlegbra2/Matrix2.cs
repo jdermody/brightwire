@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using BrightData.LinearAlegbra2.TensorData;
+using BrightData.LinearAlegbra2.TensorInfo;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlegbra2
@@ -71,8 +71,8 @@ namespace BrightData.LinearAlegbra2
 
         public override IMatrix Create(ITensorSegment2 segment) => new Matrix2<LAP>(segment, RowCount, ColumnCount, _lap);
         IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(Row(rowIndex));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(Column(columnIndex));
+        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
 
         public IVectorInfo[] AllRows()
         {

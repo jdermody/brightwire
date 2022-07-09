@@ -41,12 +41,12 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static IMatrix Encode(BrightDataContext context, string sequence)
+        public static IMatrixInfo Encode(BrightDataContext context, string sequence)
         {
-            return context.CreateMatrixFromRows(sequence.Select(ch => {
+            return context.CreateMatrixInfoFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
                     ret[Ch[ch]] = 1f;
-                    return context.CreateVector(ret);
+                    return context.CreateVectorInfo(ret);
                 }).ToArray()
             );
         }
@@ -80,8 +80,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
-                var inputList = new IVector[str.Length];
-                var outputList = new IVector[str.Length];
+                var inputList = new IVectorInfo[str.Length];
+                var outputList = new IVectorInfo[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {
@@ -94,10 +94,10 @@ namespace BrightWire.TrainingData.Artificial
                         foreach (var item in temp)
                             output[item] = 1f;
                     }
-                    inputList[i] = context.CreateVector(input);
-                    outputList[i] = context.CreateVector(output);
+                    inputList[i] = context.CreateVectorInfo(input);
+                    outputList[i] = context.CreateVectorInfo(output);
                 }
-                builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
+                builder.AddRow(context.CreateMatrixInfoFromRows(inputList), context.CreateMatrixInfoFromRows(outputList));
             }
             return builder.BuildInMemory();
         }

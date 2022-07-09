@@ -9,10 +9,10 @@ namespace BrightData.UnitTests.Helper
     {
         protected readonly BrightDataContext _context = new(null, 0);
 
-        public IVector CreateRandomVector(uint size = 32)
+        public IVectorInfo CreateRandomVector(uint size = 32)
         {
             var rand = new Random();
-            return _context.CreateVector(size, _ => FloatMath.Next(rand));
+            return _context.CreateVectorInfo(size, _ => FloatMath.Next(rand));
         }
 
         protected static void AssertSame(params float[] values)

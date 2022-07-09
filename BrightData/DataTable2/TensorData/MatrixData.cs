@@ -9,6 +9,7 @@ namespace BrightData.DataTable2.TensorData
     internal class MatrixData : IMatrixInfo
     {
         ICanRandomlyAccessData<float> _data;
+        ITensorSegment2? _segment;
         uint _startIndex;
 
         public MatrixData(ICanRandomlyAccessData<float> data, uint rowCount, uint columnCount, uint startIndex)
@@ -28,8 +29,7 @@ namespace BrightData.DataTable2.TensorData
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            var size = RowCount * ColumnCount;
-            return _data.GetSpan(_startIndex, size);
+            return _data.GetSpan(_startIndex, Size);
         }
 
         public IMatrix Create(LinearAlgebraProvider lap)
@@ -43,6 +43,7 @@ namespace BrightData.DataTable2.TensorData
 
         public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, rowIndex, RowCount, ColumnCount);
         public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, columnIndex * RowCount, 1, RowCount);
+        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)
         {

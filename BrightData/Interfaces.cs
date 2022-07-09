@@ -1105,7 +1105,7 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
-    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan, IHaveSize
+    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         BrightDataContext Context { get; }
         LinearAlgebraProvider LinearAlgebraProvider { get; }

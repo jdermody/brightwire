@@ -121,7 +121,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     using var matrix = Test.Get<IMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.UnderlyingSegment!.GetMinAndMaxValues().MaxIndex).ToArray(),
+                        Input: matrix.AllRows().Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
                     );
                 })
@@ -192,7 +192,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     using var matrix = Test.Get<IMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.UnderlyingSegment!.GetMinAndMaxValues().MaxIndex).ToArray(),
+                        Input: matrix.AllRows().Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                     );
                 })

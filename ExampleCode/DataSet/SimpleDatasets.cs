@@ -163,7 +163,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new IVector[sequenceData.Count];
+                var rows = new IVectorInfo[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -171,7 +171,7 @@ namespace ExampleCode.DataSet
                     rows[index++] = row;
                 }
 
-                var output = context.CreateMatrixFromRows(rows);
+                var output = context.CreateMatrixInfoFromRows(rows);
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
@@ -194,7 +194,7 @@ namespace ExampleCode.DataSet
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new IVector[sequence.Length];
+                var rows = new IVectorInfo[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
@@ -203,7 +203,7 @@ namespace ExampleCode.DataSet
                 }
 
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
-                builder.AddRow(context.CreateMatrixFromRows(rows), target);
+                builder.AddRow(context.CreateMatrixInfoFromRows(rows), target);
             }
             return new SequenceToSequenceTrainer(grammar, context, builder.BuildInMemory());
         }

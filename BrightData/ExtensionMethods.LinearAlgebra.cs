@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData.Helper;
 using BrightData.LinearAlegbra2;
+using BrightData.LinearAlegbra2.TensorInfo;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Memory;
 using BrightData.Serialisation;
@@ -21,9 +22,9 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static IVector CreateVector(this BrightDataContext context, uint size, Func<uint, float>? initializer) => initializer is not null
-            ? context.LinearAlgebraProvider2.CreateVector(size, initializer)
-            : context.LinearAlgebraProvider2.CreateVector(size)
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext _, uint size, Func<uint, float>? initializer) => initializer is not null
+            ? new VectorInfo(size, initializer)
+            : new VectorInfo(size)
         ;
 
         /// <summary>
@@ -34,9 +35,9 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static IVector CreateVector(this BrightDataContext context, uint size, float initialValue = 0f) => initialValue == 0f
-            ? context.LinearAlgebraProvider2.CreateVector(size)
-            : context.LinearAlgebraProvider2.CreateVector(size, _ => initialValue)
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext _, uint size, float initialValue = 0f) => initialValue == 0f
+            ? new VectorInfo(size)
+            : new VectorInfo(size, _ => initialValue)
         ;
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
-        public static IVector CreateVector(this BrightDataContext context, params float[] initialData) => context.LinearAlgebraProvider2.CreateVector(initialData);
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext _, params float[] initialData) => new VectorInfo(initialData);
 
         /// <summary>
         /// Creates a vector from a binary reader
@@ -55,11 +56,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static IVector CreateVector(this BrightDataContext context, BinaryReader reader)
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.VectorType);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(VectorInfo));
             ret.Initialize(context, reader);
-            return (IVector)ret;
+            return (IVectorInfo)ret;
         }
 
 
@@ -72,9 +73,9 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this BrightDataContext context, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
-            ? context.LinearAlgebraProvider2.CreateMatrix(rows, columns, initializer)
-            : context.LinearAlgebraProvider2.CreateMatrix(rows, columns)
+        public static IMatrixInfo CreateMatrixInfo(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
+            ? new MatrixInfo(rows, columns, initializer)
+            : new MatrixInfo(rows, columns)
         ;
 
         /// <summary>
@@ -86,20 +87,10 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this BrightDataContext context, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
-            ? context.LinearAlgebraProvider2.CreateMatrix(rows, columns)
-            : context.LinearAlgebraProvider2.CreateMatrix(rows, columns, (_, _) => initialValue)
+        public static IMatrixInfo CreateMatrixInfo(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
+            ? new MatrixInfo(rows, columns)
+            : new MatrixInfo(rows, columns, (_, _) => initialValue)
         ;
-
-        /// <summary>
-        /// Creates a matrix from a segment
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <param name="segment">Segment</param>
-        /// <returns></returns>
-        public static IMatrix CreateMatrix(this BrightDataContext context, uint rows, uint columns, ITensorSegment2 segment) => context.LinearAlgebraProvider2.CreateMatrix(rows, columns, segment);
 
         /// <summary>
         /// Creates a matrix from a binary reader
@@ -108,9 +99,9 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this BrightDataContext context, BinaryReader reader)
+        public static IMatrixInfo CreateMatrixInfo(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.MatrixType);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(MatrixInfo));
             ret.Initialize(context, reader);
             return (IMatrix)ret;
         }
@@ -122,7 +113,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static IMatrix CreateMatrixFromRows(this BrightDataContext context, params IVector[] rows) => context.LinearAlgebraProvider2.CreateMatrixFromRows(rows);
+        public static IMatrixInfo CreateMatrixInfoFromRows(this BrightDataContext _, params IVectorInfo[] rows)
+        {
+            var columns = rows[0].Size;
+            var ret = new MatrixInfo((uint)rows.Length, columns);
+            for (var i = 0; i < rows.Length; i++) {
+                var source = rows[i];
+                var target = ret.GetRow((uint)i);
+                source.Segment.CopyTo(target.Segment);
+            } 
+            return ret;
+        }
 
         /// <summary>
         /// Creates a matrix from rows (each will become a row)
@@ -131,9 +132,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static IMatrix CreateMatrixFromRows(this BrightDataContext context, params float[][] rows) => context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(
-            rows.Select(x => context.LinearAlgebraProvider2.CreateVector(x)).ToArray()
-        );
+        public static IMatrixInfo CreateMatrixInfoFromRows(this BrightDataContext context, params float[][] rows)
+        {
+            var columns = (uint)rows[0].Length;
+            var ret = new MatrixInfo((uint)rows.Length, columns);
+            for (var i = 0; i < rows.Length; i++) {
+                var source = rows[i];
+                var target = ret.GetRow((uint)i);
+                target.Segment.CopyFrom(source);
+            } 
+            return ret;
+        }
 
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
@@ -142,7 +151,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static IMatrix CreateMatrixFromColumns(this BrightDataContext context, params IVector[] columns) => context.LinearAlgebraProvider2.CreateMatrixFromColumns(columns);
+        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext context, params IVectorInfo[] columns)
+        {
+            var rows = columns[0].Size;
+            var ret = new MatrixInfo(rows, (uint)columns.Length);
+            for (var i = 0; i < columns.Length; i++) {
+                var source = columns[i];
+                var target = ret.GetRow((uint)i);
+                source.Segment.CopyTo(target.Segment);
+            } 
+            return ret;
+        }
 
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
@@ -151,9 +170,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static IMatrix CreateMatrixFromColumns(this BrightDataContext context, params float[][] columns) => context.LinearAlgebraProvider2.CreateMatrixFromColumnsAndThenDisposeInput(
-            columns.Select(x => context.LinearAlgebraProvider2.CreateVector(x)).ToArray()
-        );
+        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext context, params float[][] columns)
+        {
+            var rows = (uint)columns[0].Length;
+            var ret = new MatrixInfo(rows, (uint)columns.Length);
+            for (var i = 0; i < columns.Length; i++) {
+                var source = columns[i];
+                var target = ret.GetRow((uint)i);
+                target.Segment.CopyFrom(source);
+            } 
+            return ret;
+        }
 
         /// <summary>
         /// Creates a 3D tensor
@@ -164,7 +191,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor3D CreateTensor3D(this BrightDataContext context, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor3D(depth, rows, columns);
+        public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor3D(depth, rows, columns);
 
         /// <summary>
         /// Creates a 3D tensor from matrices
@@ -173,7 +200,34 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="slices"></param>
         /// <returns></returns>
-        public static ITensor3D CreateTensor3D(this BrightDataContext context, params IMatrix[] slices) => context.LinearAlgebraProvider2.CreateTensor3D(slices);
+        public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, params IMatrixInfo[] matrices)
+        {
+            throw new NotImplementedException();
+            //var first = matrices[0];
+            //var depth = (uint)matrices.Length;
+            //var rows = first.RowCount;
+            //var columns = first.ColumnCount;
+
+            //var data = CreateSegment(depth * rows * columns);
+            //var ret = CreateTensor3D(depth, rows, columns, data);
+            //var allSame = true;
+            //for (uint i = 0; i < ret.Depth; i++) {
+            //    using var t = ret.GetMatrix(i);
+            //    var s = matrices[(int)i];
+            //    if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
+            //        s.Segment.CopyTo(t.Segment);
+            //    else {
+            //        allSame = false;
+            //        break;
+            //    }
+            //}
+
+            //if (!allSame) {
+            //    throw new ArgumentException("Input matrices had different sizes");
+            //}
+
+            //return ret;
+        }
 
         /// <summary>
         /// Create a 3D tensor from a binary reader
@@ -182,7 +236,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ITensor3D CreateTensor3D(this BrightDataContext context, BinaryReader reader)
+        public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, BinaryReader reader)
         {
             var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.Tensor3DType);
             ret.Initialize(context, reader);
@@ -199,7 +253,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor4D CreateTensor4D(this BrightDataContext context, uint count, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor4D(count, depth, rows, columns);
+        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, uint count, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor4D(count, depth, rows, columns);
 
         /// <summary>
         /// Creates a 4D tensor from a binary reader
@@ -208,7 +262,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ITensor4D CreateTensor4D(this BrightDataContext context, BinaryReader reader)
+        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, BinaryReader reader)
         {
             var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.Tensor4DType);
             ret.Initialize(context, reader);
@@ -223,7 +277,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static ITensor4D CreateTensor4D(this BrightDataContext context, params ITensor3D[] tensors) => context.LinearAlgebraProvider2.CreateTensor4D(tensors);
+        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, params ITensor3D[] tensors) => context.LinearAlgebraProvider2.CreateTensor4D(tensors);
 
         /// <summary>
         /// Creates an identity matrix (each diagonal element is 1, each other element is 0)
@@ -320,7 +374,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static WeightedIndexList ToSparse(this ITensorSegment2 segment, BrightDataContext context)
+        public static WeightedIndexList ToSparse(this ITensorSegment2 segment)
         {
             return WeightedIndexList.Create(segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
@@ -334,7 +388,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static IVector ReadVectorFrom(this BrightDataContext context, BinaryReader reader)
+        public static IVectorInfo ReadVectorFrom(this BrightDataContext context, BinaryReader reader)
         {
             var lap = context.LinearAlgebraProvider2;
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
@@ -345,7 +399,7 @@ namespace BrightData
                     ret[i] = reader.ReadSingle();
                 return lap.CreateVector(ret);
             }
-            return context.CreateVector(reader);
+            return context.CreateVectorInfo(reader);
         }
 
         public static float[] ReadVectorAndThenGetArrayFrom(this BrightDataContext context, BinaryReader reader)
@@ -359,7 +413,7 @@ namespace BrightData
                 return ret;
             }
             // TODO: refactor this to avoid creating the vector
-            using var temp = context.CreateVector(reader);
+            var temp = context.CreateVectorInfo(reader);
             return temp.Segment.ToNewArray();
         }
 
@@ -369,18 +423,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static IMatrix ReadMatrixFrom(this BrightDataContext context, BinaryReader reader)
+        public static IMatrixInfo ReadMatrixFrom(this BrightDataContext context, BinaryReader reader)
         {
-            var lap = context.LinearAlgebraProvider2;
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();
-                var ret = new IVector[len];
+                var ret = new IVectorInfo[len];
                 for (var i = 0; i < len; i++)
                     ret[i] = context.ReadVectorFrom(reader);
-                return lap.CreateMatrixFromRowsAndThenDisposeInput(ret);
+                return context.CreateMatrixInfoFromRows(ret);
             }
-            return context.Create<IMatrix>(reader);
+            return context.CreateMatrixInfo(reader);
         }
 
         /// <summary>

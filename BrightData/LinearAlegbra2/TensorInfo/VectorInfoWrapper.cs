@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlegbra2.TensorData
+namespace BrightData.LinearAlegbra2.TensorInfo
 {
-    internal class VectorData : IVectorInfo
+    internal class VectorInfoWrapper : IVectorInfo
     {
         readonly TensorSegmentWrapper2 _segment;
 
-        public VectorData(TensorSegmentWrapper2 segment)
+        public VectorInfoWrapper(TensorSegmentWrapper2 segment)
         {
             _segment = segment;
         }
@@ -28,7 +28,7 @@ namespace BrightData.LinearAlegbra2.TensorData
                 writer.Write(temp.Span.AsBytes());
             }
             finally {
-                if(wasTempUsed)
+                if (wasTempUsed)
                     temp.Dispose();
             }
         }
@@ -44,6 +44,6 @@ namespace BrightData.LinearAlegbra2.TensorData
         public float this[uint index] => _segment[index];
         public float[] ToArray() => _segment.ToNewArray();
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_segment);
-        public ITensorSegment2? UnderlyingSegment => _segment;
+        public ITensorSegment2 Segment => _segment;
     }
 }

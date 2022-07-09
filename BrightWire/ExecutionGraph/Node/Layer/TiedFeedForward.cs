@@ -73,16 +73,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            var lap = factory.LinearAlgebraProvider;
             _layerId = reader.ReadString();
 
             var bias = factory.Context.ReadVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
-                _bias = bias;
-            else {
+                _bias = bias.Create(lap);
+            else
                 bias.CopyTo(_bias);
-                bias.Dispose();
-            }
         }
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)

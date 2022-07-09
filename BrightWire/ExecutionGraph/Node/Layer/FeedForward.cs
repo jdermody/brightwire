@@ -105,6 +105,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            var lap = factory.LinearAlgebraProvider;
             InputSize = (uint)reader.ReadInt32();
             OutputSize = (uint)reader.ReadInt32();
 
@@ -112,21 +113,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var bias = factory.Context.ReadVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (Bias == null)
-                Bias = bias;
-            else {
-                bias.Segment.CopyTo(Bias.Segment);
-                bias.Dispose();
-            }
+                Bias = bias.Create(lap);
+            else
+                bias.CopyTo(Bias);
 
             // read the weight parameters
             var weight = factory.Context.ReadMatrixFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (Weight == null)
-                Weight = weight;
-            else {
-                weight.Segment.CopyTo(Weight.Segment);
-                weight.Dispose();
-            }
+                Weight = weight.Create(lap);
+            else
+                weight.CopyTo(Weight);
 
             // ReSharper disable once ConstantNullCoalescingCondition
             _updater ??= factory.CreateWeightUpdater(Weight);

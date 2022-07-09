@@ -204,7 +204,7 @@ namespace BrightWire.ExecutionGraph.Helper
             var lap = matrix.LinearAlgebraProvider;
             var list = new ITensor3D[matrix.ColumnCount];
             for (uint i = 0; i < matrix.ColumnCount; i++)
-                list[i] = lap.CreateTensor3DAndThenDisposeInput(matrix.GetColumn(i).UnderlyingSegment!.Split(depth).Select(v => v.ToMatrix(lap, rows, columns)).ToArray());
+                list[i] = lap.CreateTensor3DAndThenDisposeInput(matrix.GetColumn(i).Segment.Split(depth).Select(v => v.ToMatrix(lap, rows, columns)).ToArray());
             return lap.CreateTensor4DAndThenDisposeInput(list);
         }
     }

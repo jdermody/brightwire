@@ -100,34 +100,34 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (IVector Data, IVector Label) AsFloatArray(BrightDataContext context)
+            public (IVectorInfo Data, IVectorInfo Label) AsFloatArray(BrightDataContext context)
             {
                 var label = new float[10];
                 label[Label] = 1;
 
                 return (
-                    context.CreateVector(Data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
-                    context.CreateVector(label)
+                    context.CreateVectorInfo(Data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
+                    context.CreateVectorInfo(label)
                 );
             }
 
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (ITensor3D Tensor, IVector Label) AsFloatTensor(BrightDataContext context)
+            public (ITensor3DInfo Tensor, IVectorInfo Label) AsFloatTensor(BrightDataContext context)
             {
                 const int SIZE = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new List<IVector>();
+                var rows = new List<IVectorInfo>();
 
                 for (var y = 0; y < SIZE; y++) {
                     var row = new float[SIZE];
                     for (var x = 0; x < SIZE; x++)
                         row[x] = vector[(y * SIZE) + x];
-                    rows.Add(context.CreateVector(row));
+                    rows.Add(context.CreateVectorInfo(row));
                 }
 
-                var tensor = context.CreateTensor3D(context.CreateMatrixFromRows(rows.ToArray()));
+                var tensor = context.CreateTensor3D(context.CreateMatrixInfoFromRows(rows.ToArray()));
                 return (tensor, Label: label);
             }
         }

@@ -26,7 +26,7 @@ namespace BrightData.UnitTests
 
             var indexList = _context.CreateIndexList(1, 2, 3);
             var weightedIndexList = _context.CreateWeightedIndexList((1, 0.1f), (2, 0.5f), (3, 1f));
-            var vector = _context.CreateVector(3, 0.25f);
+            var vector = _context.CreateVectorInfo(3, 0.25f);
             builder.AddRow(false, 1, 2, 3, 4, 5, 6, indexList, weightedIndexList, vector);
             return builder.BuildInMemory();
         }

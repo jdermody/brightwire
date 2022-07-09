@@ -42,16 +42,19 @@ namespace BrightData
         ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
     }
 
-    public interface IVectorInfo : ISerializable, IHaveSpan, IHaveSize
+    public interface IHaveTensorSegment
+    {
+        ITensorSegment2 Segment { get; }
+    }
+
+    public interface IVectorInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         float this[int index] { get; }
         float this[uint index] { get; }
-        float[] ToArray();
         IVector Create(LinearAlgebraProvider lap);
-        ITensorSegment2? UnderlyingSegment { get; }
     }
 
-    public interface IMatrixInfo : ISerializable, IHaveSpan, IHaveSize
+    public interface IMatrixInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint RowCount { get; }
         uint ColumnCount { get; }
@@ -62,7 +65,7 @@ namespace BrightData
         IVectorInfo GetColumn(uint columnIndex);
     }
 
-    public interface ITensor3DInfo : ISerializable, IHaveSpan, IHaveSize
+    public interface ITensor3DInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint Depth { get; }
         uint RowCount { get; }
@@ -72,7 +75,7 @@ namespace BrightData
         float this[uint depth, uint rowY, uint columnX] { get; }
         ITensor3D Create(LinearAlgebraProvider lap);
     }
-    public interface ITensor4DInfo : ISerializable, IHaveSpan, IHaveSize
+    public interface ITensor4DInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint Count { get; }
         uint Depth { get; }

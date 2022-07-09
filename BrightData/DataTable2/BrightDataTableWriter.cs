@@ -219,7 +219,7 @@ namespace BrightData.DataTable2
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Size;
-                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var temp = SpanOwner<float>.Empty;
                 var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
@@ -234,7 +234,7 @@ namespace BrightData.DataTable2
                 data.StartIndex = floats.Size;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var temp = SpanOwner<float>.Empty;
                 var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
@@ -250,7 +250,7 @@ namespace BrightData.DataTable2
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var temp = SpanOwner<float>.Empty;
                 var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
@@ -267,7 +267,7 @@ namespace BrightData.DataTable2
                 data.Depth = item.Depth;
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
-                SpanOwner<float> temp = SpanOwner<float>.Empty;
+                var temp = SpanOwner<float>.Empty;
                 var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)

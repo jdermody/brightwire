@@ -564,5 +564,23 @@ namespace BrightData
         {
             yield return obj;
         }
+
+        public static float[] ToArray(this IHaveSpan spanOwner)
+        {
+            var temp = SpanOwner<float>.Empty;
+            var span = spanOwner.GetSpan(ref temp, out var wasTempUsed);
+            try {
+                return span.ToArray();
+            }
+            finally {
+                if(wasTempUsed)
+                    temp.Dispose();
+            }
+        }
+
+        public static void CopyTo(this IHaveTensorSegment source, IHaveTensorSegment target)
+        {
+            source.Segment.CopyTo(target.Segment);
+        }
     }
 }

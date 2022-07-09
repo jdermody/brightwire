@@ -64,8 +64,8 @@ namespace BrightWire.Unsupervised
             }
 
             // weights gives cluster membership
-            var documentClusters = weights.AllRows().Select(r => r.UnderlyingSegment!)
-                .Select((c, i) => (Index: i, MaxIndex: c.GetMinAndMaxValues().MaxIndex))
+            var documentClusters = weights.AllRows()
+                .Select((r, i) => (Index: i, r.Segment.GetMinAndMaxValues().MaxIndex))
                 .ToList();
             weights.Dispose();
             features.Dispose();

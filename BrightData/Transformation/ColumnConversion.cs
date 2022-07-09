@@ -334,7 +334,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
                 case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
-                    return new Converter<IVector, IndexList>(v => v.Segment.ToSparse(context).AsIndexList());
+                    return new Converter<IVector, IndexList>(v => v.Segment.ToSparse().AsIndexList());
 
                 // vector
                 case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
@@ -350,7 +350,7 @@ namespace BrightData.Transformation
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
                     return IndexListToWeightedIndexList;
                 case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.Vector:
-                    return new Converter<IVector, WeightedIndexList>(v => v.Segment.ToSparse(context));
+                    return new Converter<IVector, WeightedIndexList>(v => v.Segment.ToSparse());
 
                 default:
                     throw new Exception($"Converting from {fromType} to {_toType} is not supported");

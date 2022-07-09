@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlegbra2.TensorData
+namespace BrightData.LinearAlegbra2.TensorInfo
 {
-    internal class MatrixData : IMatrixInfo
+    internal class MatrixInfoWrapper : IMatrixInfo
     {
         readonly TensorSegmentWrapper2 _segment;
 
-        public MatrixData(TensorSegmentWrapper2 segment, uint rowCount, uint columnCount)
+        public MatrixInfoWrapper(TensorSegmentWrapper2 segment, uint rowCount, uint columnCount)
         {
             RowCount = rowCount;
             ColumnCount = columnCount;
@@ -31,7 +31,7 @@ namespace BrightData.LinearAlegbra2.TensorData
                 writer.Write(temp.Span.AsBytes());
             }
             finally {
-                if(wasTempUsed)
+                if (wasTempUsed)
                     temp.Dispose();
             }
         }
@@ -49,8 +49,9 @@ namespace BrightData.LinearAlegbra2.TensorData
         public float this[uint rowY, uint columnX] => _segment[columnX * RowCount + rowY];
 
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, _segment);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(new TensorSegmentWrapper2(_segment, rowIndex, RowCount, ColumnCount));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(new TensorSegmentWrapper2(_segment, columnIndex * RowCount, 1, RowCount));
+        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(new TensorSegmentWrapper2(_segment, rowIndex, RowCount, ColumnCount));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper2(_segment, columnIndex * RowCount, 1, RowCount));
         public uint Size => RowCount * ColumnCount;
+        public ITensorSegment2 Segment => _segment;
     }
 }

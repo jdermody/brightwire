@@ -569,13 +569,13 @@ namespace BrightData.LinearAlegbra2
         public virtual IVector RowSums(IMatrix matrix)
         {
             var rows = matrix.AllRows();
-            return CreateVector(matrix.RowCount, i => rows[i].UnderlyingSegment!.Sum());
+            return CreateVector(matrix.RowCount, i => rows[i].Segment.Sum());
         }
 
         public virtual IVector ColumnSums(IMatrix matrix)
         {
             var columns = matrix.AllColumns();
-            return CreateVector(matrix.ColumnCount, i => columns[i].UnderlyingSegment!.Sum());
+            return CreateVector(matrix.ColumnCount, i => columns[i].Segment.Sum());
         }
 
         public virtual IVector ColumnSums(ITensor4D tensor)
@@ -856,7 +856,7 @@ namespace BrightData.LinearAlegbra2
                 ptr[i] = CreateMatrix(outputRows, outputColumns);
             for (uint k = 0; k < tensor.Depth; k++) {
                 using var slice = tensor.GetMatrix(k);
-                var filters = filter.GetColumn(k).UnderlyingSegment!.Split(outputDepth).ToArray();
+                var filters = filter.GetColumn(k).Segment.Split(outputDepth).ToArray();
 
                 foreach (var (cx, cy) in convolutions) {
                     var errorY = cy / xStride;

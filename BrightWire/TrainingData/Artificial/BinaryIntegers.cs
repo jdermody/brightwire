@@ -47,13 +47,13 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = GetBitArray(b);
                 var r2 = GetBitArray(a + b);
 
-                var inputList = new IVector[r2.Length];
-                var outputList = new IVector[r2.Length];
+                var inputList = new IVectorInfo[r2.Length];
+                var outputList = new IVectorInfo[r2.Length];
                 for (var j = 0; j < r2.Length; j++) {
-                    inputList[j] = context.CreateVector(a2[j], b2[j]);
-                    outputList[j] = context.CreateVector(r2[j]);
+                    inputList[j] = context.CreateVectorInfo(a2[j], b2[j]);
+                    outputList[j] = context.CreateVectorInfo(r2[j]);
                 }
-                builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
+                builder.AddRow(context.CreateMatrixInfoFromRows(inputList), context.CreateMatrixInfoFromRows(outputList));
             }
             return builder.BuildInMemory();
         }

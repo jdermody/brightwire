@@ -160,21 +160,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			var bias = factory.Context.ReadVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
-                _bias = bias;
-            else {
-                bias.Segment.CopyTo(_bias.Segment);
-                bias.Dispose();
-            }
+                _bias = bias.Create(lap);
+            else
+                bias.CopyTo(_bias);
 
             // read the weight parameters
 			var weight = factory.Context.ReadMatrixFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_filter == null)
-				_filter = weight;
-            else {
-                weight.Segment.CopyTo(_filter.Segment);
-                weight.Dispose();
-            }
+				_filter = weight.Create(lap);
+            else
+                weight.CopyTo(_filter);
 
             // read the updater
 			_updater ??= factory.CreateWeightUpdater(_filter);

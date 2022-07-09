@@ -33,11 +33,11 @@ namespace ExampleCode
 
             //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
             //Xor(context);
-            IrisClassification(context);
+            //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
-            //IntegerAddition(context);
+            IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);

@@ -181,7 +181,7 @@ namespace ExampleCode.DataTableTrainers
                     builder.AddFixedSizeVectorColumn(features.Size, "Features");
                     builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
                 }
-                builder.AddRow(features, context.CreateVector(vector));
+                builder.AddRow(features, context.CreateVectorInfo(vector));
             }
 
             return builder.BuildInMemory();
@@ -214,7 +214,7 @@ namespace ExampleCode.DataTableTrainers
                     builder.AddColumn(BrightDataType.String, "Target");
                     builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
-                builder.AddRow(features, indexList, classification, context.CreateVector(vector));
+                builder.AddRow(features, indexList, classification, context.CreateVectorInfo(vector));
             }
 
             return builder.BuildInMemory();
@@ -313,10 +313,10 @@ namespace ExampleCode.DataTableTrainers
             foreach (var (classification, indexList) in data) {
                 var c1 = bernoulli.Classify(indexList).First().Label == "positive" ? 1f : 0f;
                 var c2 = multinomial.Classify(indexList).First().Label == "positive" ? 1f : 0f;
-                var input = indexList.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 2, (_, j) => GetOutputValue(j, classification == "positive"));
+                var input = indexList.Indices.Select(i => _context.CreateVectorInfo(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateMatrixInfo((uint)input.Length, 2, (_, j) => GetOutputValue(j, classification == "positive"));
                 
-                builder.AddRow(_context.CreateMatrixFromRows(input), output);
+                builder.AddRow(_context.CreateMatrixInfoFromRows(input), output);
             }
 
             return builder.BuildInMemory();

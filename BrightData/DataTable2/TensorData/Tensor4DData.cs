@@ -9,6 +9,7 @@ namespace BrightData.DataTable2.TensorData
     internal class Tensor4DData : ITensor4DInfo
     {
         ICanRandomlyAccessData<float> _data;
+        ITensorSegment2? _segment;
         uint _startIndex;
 
         public Tensor4DData(ICanRandomlyAccessData<float> data, uint startIndex, uint count, uint depth, uint rowCount, uint columnCount)
@@ -69,5 +70,6 @@ namespace BrightData.DataTable2.TensorData
         }
 
         public uint Size => Count * Depth * ColumnCount * RowCount;
+        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
     }
 }
