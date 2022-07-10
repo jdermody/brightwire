@@ -138,17 +138,50 @@ namespace BrightData
     [Flags]
     public enum ColumnClass : byte
     {
-#pragma warning disable 1591
+        /// <summary>
+        /// Unknown category
+        /// </summary>
         Unknown = 0,
+
+        /// <summary>
+        /// Forms a category - a set of possible values
+        /// </summary>
         Categorical = 1,
+
+        /// <summary>
+        /// Numbers (float, int etc)
+        /// </summary>
         Numeric = 2,
+
+        /// <summary>
+        /// Floating point numbers (float, double, decimal)
+        /// </summary>
         Decimal = 4,
+
+        /// <summary>
+        /// Struct (blittable)
+        /// </summary>
         Structable = 8,
+
+        /// <summary>
+        /// Tensor (vector, matrix etc)
+        /// </summary>
         Tensor = 16,
+
+        /// <summary>
+        /// Has an index (index list, weighted index list)
+        /// </summary>
         IndexBased = 32,
-        Continuous = 64,
+
+        /// <summary>
+        /// Date and time
+        /// </summary>
+        DateTime = 64,
+
+        /// <summary>
+        /// Whole number
+        /// </summary>
         Integer = 128
-#pragma warning restore 1591
     }
 
     /// <summary>

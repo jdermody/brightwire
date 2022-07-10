@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
@@ -14,6 +13,7 @@ using ExampleCode.DataTableTrainers;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {

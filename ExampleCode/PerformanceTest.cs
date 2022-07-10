@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BetterConsoleTables;
-using BrightData.LinearAlegbra2;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace ExampleCode
 {
@@ -20,13 +20,11 @@ namespace ExampleCode
                 .ToArray();
 
             var table = new Table(new TableConfiguration(Style.Unicode), headers);
-            AddLine("Matrix Multiply 10", table, laps.Select(lap => MatrixMultiply(lap, 10)));
             AddLine("Matrix Multiply 100", table, laps.Select(lap => MatrixMultiply(lap, 100)));
             AddLine("Matrix Multiply 500", table, laps.Select(lap => MatrixMultiply(lap, 500)));
             AddLine("Matrix Multiply 1000", table, laps.Select(lap => MatrixMultiply(lap, 1000)));
             AddLine("Matrix Multiply 2000", table, laps.Select(lap => MatrixMultiply(lap, 2000)));
 
-            AddLine("Matrix Transpose 10", table, laps.Select(lap => MatrixTranspose(lap, 10)));
             AddLine("Matrix Transpose 100", table, laps.Select(lap => MatrixTranspose(lap, 100)));
             AddLine("Matrix Transpose 500", table, laps.Select(lap => MatrixTranspose(lap, 500)));
             AddLine("Matrix Transpose 1000", table, laps.Select(lap => MatrixTranspose(lap, 1000)));

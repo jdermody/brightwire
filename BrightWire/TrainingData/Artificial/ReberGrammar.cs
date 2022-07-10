@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {

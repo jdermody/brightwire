@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {

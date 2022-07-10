@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
+using BrightData.DataTable;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {

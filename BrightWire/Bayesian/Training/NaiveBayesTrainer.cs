@@ -3,8 +3,8 @@ using BrightData.Analysis;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using BrightData.DataTable2;
 using BrightData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.Bayesian.Training
 {

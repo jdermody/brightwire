@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,15 +11,10 @@ using BrightData.Buffer.Hybrid;
 using BrightData.Buffer.InMemory;
 using BrightData.Converter;
 using BrightData.DataTable;
-using BrightData.DataTable.Builders;
-using BrightData.DataTable.Consumers;
-using BrightData.DataTable2;
-using BrightData.DataTable2.TensorData;
 using BrightData.Helper;
 using BrightData.Input;
-using BrightData.LinearAlegbra2;
-using BrightData.LinearAlgebra;
 using BrightData.Transformation;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData
 {

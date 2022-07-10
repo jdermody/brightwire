@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;

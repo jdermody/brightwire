@@ -4,11 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.DataTable2;
-using BrightData.DataTable2.TensorData;
-using BrightData.LinearAlegbra2;
+using BrightData.DataTable;
 using FluentAssertions;
 using Xunit;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {

@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.Helper
 {

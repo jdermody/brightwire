@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {

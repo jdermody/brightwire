@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.Cuda
 {
-    public class CudaMatrix2 : Matrix2<CudaLinearAlgebraProvider>
+    public class CudaMatrix2 : Matrix<CudaLinearAlgebraProvider>
     {
         public CudaMatrix2(ITensorSegment2 data, uint rows, uint columns, CudaLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {

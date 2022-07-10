@@ -5,7 +5,7 @@ using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
 using BrightData;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Engine

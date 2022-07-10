@@ -7,7 +7,7 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public class BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
         /// <summary>
         /// Constructor
@@ -22,11 +22,10 @@ namespace BrightData
         /// Constructor
         /// </summary>
         /// <param name="reader">Binary reader to read binary data from</param>
-#pragma warning disable 8618
         public BinaryData(BinaryReader reader)
-#pragma warning restore 8618
         {
-            Initialize(null, reader);
+            var size = reader.ReadInt32();
+            Data = reader.ReadBytes(size);
         }
 
         /// <inheritdoc />

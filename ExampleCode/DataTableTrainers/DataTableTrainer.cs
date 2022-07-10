@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using BrightData;
-using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {

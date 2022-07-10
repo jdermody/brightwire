@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
+using BrightData.DataTable;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased

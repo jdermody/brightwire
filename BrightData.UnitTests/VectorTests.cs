@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using Xunit;
 using FluentAssertions;

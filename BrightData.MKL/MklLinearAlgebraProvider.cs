@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 using MKLNET;
 

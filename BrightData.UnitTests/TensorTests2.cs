@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightData.Cuda;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightData.Serialisation;
 using FluentAssertions;

@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightData.DataTable2;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {

@@ -1055,19 +1055,7 @@ namespace BrightData.Cuda
         //	return ret;
         //}
 
-        public void PushLayer()
-		{
-			Memory.PushLayer();
-            DataContext.MemoryLayer.Push();
-		}
-
-		public void PopLayer()
-		{
-			Memory.PopLayer();
-            DataContext.MemoryLayer.Pop();
-		}
-
-		internal IDeviceMemoryPtr Allocate(uint size, bool setToZero = false)
+        internal IDeviceMemoryPtr Allocate(uint size, bool setToZero = false)
 		{
 			var ret = Memory.GetMemory(size);
 			if (setToZero)

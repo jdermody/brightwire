@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {

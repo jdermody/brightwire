@@ -1,4 +1,4 @@
-﻿using BrightData.LinearAlegbra2;
+﻿using BrightData.LinearAlgebra;
 using BrightData.MKL;
 
 namespace BrightData.UnitTests.Helper

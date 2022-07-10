@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 

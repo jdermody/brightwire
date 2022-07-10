@@ -1,232 +1,188 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using BrightData.LinearAlgebra.Memory;
+using BrightData.LinearAlgebra.TensorInfo;
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    /// <summary>
-    /// Matrix type
-    /// </summary>
-    /// <typeparam name="T">Data type within the matrix</typeparam>
-    public class Matrix<T> : TensorBase<T, Matrix<T>>
-        where T: struct
+    public class Matrix<LAP> : TensorBase<IMatrix, LAP>, IMatrix, IMatrixSegments
+        where LAP: LinearAlgebraProvider
     {
-        internal Matrix(ITensorSegment<T> segment, uint rows, uint columns) : base(segment, new[] { rows, columns }) { }
-        internal Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
-
-        /// <summary>
-        /// Number of rows
-        /// </summary>
-        public uint RowCount => Shape[0];
-
-        /// <summary>
-        /// Number of columns
-        /// </summary>
-        public uint ColumnCount => Shape[1];
-
-        /// <summary>
-        /// Returns a row as a vector
-        /// </summary>
-        /// <param name="index">Row index</param>
-        /// <returns></returns>
-        public Vector<T> Row(uint index) => new(new TensorSegmentWrapper<T>(_segment, index * ColumnCount, 1, ColumnCount));
-
-        /// <summary>
-        /// Returns a column as a vector
-        /// </summary>
-        /// <param name="index">Column index</param>
-        /// <returns></returns>
-        public Vector<T> Column(uint index) => new(new TensorSegmentWrapper<T>(_segment, index, ColumnCount, RowCount));
-
-        /// <summary>
-        /// All rows
-        /// </summary>
-        public IEnumerable<Vector<T>> Rows => RowCount.AsRange().Select(Row);
-
-        /// <summary>
-        /// All columns
-        /// </summary>
-        public IEnumerable<Vector<T>> Columns => ColumnCount.AsRange().Select(Column);
-
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
-        public T this[int rowY, int columnX]
+        public Matrix(ITensorSegment2 data, uint rows, uint columns, LAP lap) : base(data, lap)
         {
-            get => _segment[rowY * ColumnCount + columnX];
-            set => _segment[rowY * ColumnCount + columnX] = value;
+            RowCount = rows;
+            ColumnCount = columns;
+            TotalSize = rows * columns;
         }
 
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
-        public T this[uint rowY, uint columnX]
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
+        public sealed override uint TotalSize { get; protected set; }
+        public sealed override uint[] Shape
         {
-            get => _segment[rowY * ColumnCount + columnX];
-            set => _segment[rowY * ColumnCount + columnX] = value;
+            get => new[] { ColumnCount, RowCount };
+            protected set
+            {
+                ColumnCount = value[0];
+                RowCount = value[1];
+                TotalSize = RowCount * ColumnCount;
+            }
         }
 
-        /// <inheritdoc />
-        public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");
-
-        /// <summary>
-        /// Converts to a column major array format (default is row major)
-        /// </summary>
-        /// <returns></returns>
-        public T[] ToColumnMajor()
+        public float this[int rowY, int columnX]
         {
-            var ret = new T[Size];
-            Parallel.For(0, ColumnCount, ind => {
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
+        }
+        public float this[uint rowY, uint columnX]
+        {
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
+        }
+        public float this[long rowY, long columnX]
+        {
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
+        }
+        public float this[ulong rowY, ulong columnX]
+        {
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
+        }
+        public TensorSegmentWrapper Row(uint index) => new(Segment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
+        public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
+        {
+            temp = SpanOwner<float>.Allocate((int)TotalSize);
+            var span = temp.Span;
+            fixed (float* ptr = &MemoryMarshal.GetReference(span)) {
+                Segment.CopyTo(ptr, (int)rowIndex * (int)RowCount, (int)RowCount, (int)ColumnCount);
+            }
+            return span;
+        }
+        public ReadOnlySpan<float> GetColumnSpan(uint columnIndex)
+        {
+            var ret = Segment.GetSpan();
+            return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
+        }
+
+        public override IMatrix Create(ITensorSegment2 segment) => new Matrix<LAP>(segment, RowCount, ColumnCount, _lap);
+        IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
+
+        public IVectorInfo[] AllRows()
+        {
+            var ret = new IVectorInfo[RowCount];
+            for (uint i = 0; i < RowCount; i++)
+                ret[i] = GetRow(i);
+            return ret;
+        }
+        public IVectorInfo[] AllColumns()
+        {
+            var ret = new IVectorInfo[ColumnCount];
+            for (uint i = 0; i < ColumnCount; i++)
+                ret[i] = GetColumn(i);
+            return ret;
+        }
+
+        //public IVector[] RowVectors()
+        //{
+        //    var ret = new IVector[RowCount];
+        //    for (uint i = 0; i < RowCount; i++)
+        //        ret[i] = LinearAlgebraProvider.CreateVector(Row(i));
+        //    return ret;
+        //}
+        //public IVector[] ColumnVectors()
+        //{
+        //    var ret = new IVector[ColumnCount];
+        //    for (uint i = 0; i < ColumnCount; i++)
+        //        ret[i] = LinearAlgebraProvider.CreateVector(Column(i));
+        //    return ret;
+        //}
+
+        public MemoryOwner<float> ToRowMajor()
+        {
+            var ret = MemoryOwner<float>.Allocate((int)TotalSize);
+            var array = ret.DangerousGetArray();
+            Parallel.For(0, RowCount, ind => {
                 var i = (uint) ind;
-                var column = Column(i);
-                var offset = i * RowCount;
-                for (uint j = 0; j < RowCount; j++)
-                    ret[offset + j] = column[j];
+                using var row = Row(i);
+                var offset = i * ColumnCount;
+                for (uint j = 0; j < ColumnCount; j++)
+                    array[(int)(offset + j)] = row[j];
             });
             return ret;
         }
 
-        /// <summary>
-        /// Transpose the matrix
-        /// </summary>
-        /// <returns></returns>
-        public Matrix<T> Transpose()
+        public IMatrix Transpose() => _lap.Transpose(this);
+        public IMatrix Multiply(IMatrix other) => _lap.Multiply(this, other);
+        public IVector GetDiagonal() => _lap.GetDiagonal(this);
+        public IVector RowSums() => _lap.RowSums(this);
+        public IVector ColumnSums() => _lap.ColumnSums(this);
+        public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
+        public IMatrix TransposeAndMultiply(IMatrix other) => _lap.TransposeSecondAndMultiply(this, other);
+        public IMatrix TransposeThisAndMultiply(IMatrix other) => _lap.TransposeFirstAndMultiply(this, other);
+
+        public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
-            var ret = new Matrix<T>(Context.CreateSegment<T>(Size), ColumnCount, RowCount);
-            Parallel.For(0, ret.Size, ind => {
-                var j = (uint)(ind / ColumnCount);
-                var i = (uint)(ind % ColumnCount);
-                ret[i, j] = this[j, i];
+            var ret = _lap.MapParallel(Segment, (ind, val) => {
+                var i = ind % RowCount;
+                var j = ind / RowCount;
+                return mutator(i, j, val);
             });
-            return ret;
+            return _lap.CreateMatrix(RowCount, ColumnCount, ret);
         }
 
-        /// <summary>
-        /// Multiply the matrix with another matrix
-        /// </summary>
-        /// <param name="other">Other matrix to multiply</param>
-        /// <returns></returns>
-        public Matrix<T> Multiply(Matrix<T> other)
+        public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
         {
-            var ret = new Matrix<T>(Context.CreateSegment<T>(RowCount * other.ColumnCount), RowCount, other.ColumnCount);
-            Parallel.For(0, ret.Size, ind => {
-                var i = (uint) (ind % RowCount);
-                var j = (uint) (ind / RowCount);
-                var val = Row(i).DotProduct(other.Column(j));
-                ret[i, j] = val;
+            var ret = _lap.MapParallel(Segment, (ind, val) => {
+                var i = ind % RowCount;
+                var j = ind / RowCount;
+                return mutator(i, j, val);
             });
-            return ret;
+            try {
+                ret.CopyTo(Segment);
+            }
+            finally {
+                ret.Release();
+            }
         }
 
-        /// <summary>
-        /// Returns the diagonal of the matrix as a vector
-        /// </summary>
-        /// <returns></returns>
-        public Vector<T> GetDiagonal()
-        {
-            if(RowCount != ColumnCount)
-                throw new Exception("Diagonal can only be found from square matrices");
-            return Context.CreateVector(RowCount, i => this[i, i]);
-        }
-
-        /// <summary>
-        /// Returns the sum of each row as a vector
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Vector<T> RowSums() => Context.CreateVector(Rows.Select(r => r.Sum()).ToArray());
-
-        /// <summary>
-        /// Returns the sum of each column as a vector
-        /// </summary>
-        /// <returns></returns>
-        public Vector<T> ColumnSums() => Context.CreateVector(Columns.Select(r => r.Sum()).ToArray());
-
-        /// <summary>
-        /// Multiplies the matrix with a vector
-        /// </summary>
-        /// <param name="vector">Vector to multiply</param>
-        /// <returns></returns>
-        public Matrix<T> Multiply(Vector<T> vector) => Multiply(vector.Reshape(null, 1));
+        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex) => _lap.SplitAtColumn(this, columnIndex);
+        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _lap.SplitAtRow(this, rowIndex);
+        public IMatrix ConcatColumns(IMatrix bottom) => _lap.ConcatColumns(this, bottom);
+        public IMatrix ConcatRows(IMatrix right) => _lap.ConcatRows(this, right);
+        public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
+        public IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => _lap.GetNewMatrixFromRows(this, rowIndices);
+        public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
+        public void AddToEachRow(ITensorSegment2 segment) => _lap.AddToEachRow(this, segment);
+        public void AddToEachColumn(ITensorSegment2 segment) => _lap.AddToEachColumn(this, segment);
 
         /// <inheritdoc />
-        protected override Matrix<T> Create(ITensorSegment<T> segment) => new(segment, RowCount, ColumnCount);
-
-        /// <summary>
-        /// Applies a mapping function to each value within the matrix - creating a new matrix as a result
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        /// <returns></returns>
-        public Matrix<T> Map(Func<T, T> mutator)
+        public override string ToString()
         {
-            var ret = MapParallel((_, v) => mutator(v));
-            return new Matrix<T>(ret, RowCount, ColumnCount);
+            var preview = String.Join("|", Segment.Values.Take(Consts.PreviewSize));
+            if (TotalSize > Consts.PreviewSize)
+                preview += "|...";
+            return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
+    }
 
-        /// <summary>
-        /// Applies a mapping function to each value within the matrix
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        public void MapInPlace(Func<T, T> mutator)
+    public class Matrix2 : Matrix<LinearAlgebraProvider>
+    {
+        public Matrix2(ITensorSegment2 data, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
-            using var ret = MapParallel((_, v) => mutator(v));
-            ret.CopyTo(_segment);
         }
+    }
 
-        /// <summary>
-        /// Applies an indexed mapping function to each value within the matrix - creating a new matrix as a result
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        /// <returns></returns>
-        public Matrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
+    public class ArrayBasedMatrix : Matrix<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedMatrix(ITensorSegment2 data, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
-            var ret = MapParallel((ind, val) => {
-                var i = ind / ColumnCount;
-                var j = ind % ColumnCount;
-                return mutator(i, j, val);
-            });
-            return new Matrix<T>(ret, RowCount, ColumnCount);
-        }
-
-        /// <summary>
-        /// Applies an indexed mapping function to each value within the matrix
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
-        {
-            using var ret = MapParallel((ind, val) => {
-                var i = ind / ColumnCount;
-                var j = ind % ColumnCount;
-                return mutator(i, j, val);
-            });
-            ret.CopyTo(_segment);
-        }
-
-        /// <summary>
-        /// Adds a vector to each row of the current matrix (in place)
-        /// </summary>
-        /// <param name="other"></param>
-        public void AddToEachRow(Vector<T> other)
-        {
-            MapIndexedInPlace((_, k, v) => Computation.Add(v, other[k]));
-        }
-
-        /// <summary>
-        /// Adds a vector to each column of the current matrix (in place)
-        /// </summary>
-        /// <param name="other"></param>
-        public void AddToEachColumn(Vector<T> other)
-        {
-            MapIndexedInPlace((j, _, v) => Computation.Add(v, other[j]));
         }
     }
 }

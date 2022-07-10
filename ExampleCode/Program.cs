@@ -22,7 +22,7 @@ namespace ExampleCode
             using var context = new BrightDataContext(null, RandomSeed);
             var useCuda = false;
 
-            context.UseMKL();
+            //context.UseMKL();
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
             //context.UseMKL();
 
@@ -32,14 +32,14 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
             //Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
             //IntegerAddition(context);
-            ReberPrediction(context);
+            //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
             //SequenceToSequence(context, useCuda);

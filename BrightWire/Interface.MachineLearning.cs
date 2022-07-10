@@ -2,11 +2,11 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using BrightData.DataTable2;
-using BrightData.LinearAlegbra2;
+using BrightData.DataTable;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {

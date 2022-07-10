@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
-using BrightData.DataTable2;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {

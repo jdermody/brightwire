@@ -29,7 +29,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable2.BrightDataTableRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable.BrightDataTableRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -168,7 +168,7 @@
             Data table
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.DataTable2.BrightDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <summary>
             Constructor
             </summary>
@@ -187,7 +187,7 @@
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.Get(System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.CloneWith(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.CloneWith(BrightData.DataTable.BrightDataTable)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputVectoriser">
@@ -244,7 +244,7 @@
             Base class for data tables that work with data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.DataTable2.BrightDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetRows(System.UInt32[])">
@@ -372,7 +372,7 @@
             Creates graph nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.LinearAlegbra2.LinearAlgebraProvider,BrightWire.IPropertySet)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.IPropertySet)">
             <summary>
             Constructor
             </summary>
@@ -449,7 +449,7 @@
             <param name="tensorList">The list of tensors that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.DataTable2.BrightDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <summary>
             Creates a data source from a data table
             </summary>
@@ -457,7 +457,7 @@
             <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.DataTable2.BrightDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable,System.String)">
             <summary>
             Create a row classifier node
             </summary>
@@ -1851,7 +1851,7 @@
             <param name="height">New height</param>
             <param name="depth">New depth</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.DataTable2.BrightDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable,System.String)">
             <summary>
             Connects a row classifier
             </summary>
@@ -2137,7 +2137,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.DataTable2.BrightDataTableRow,System.UInt32[])">
+        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.DataTable.BrightDataTableRow,System.UInt32[])">
             <summary>
             Gets the strongly typed fields from a convertible row as an array
             </summary>
@@ -2146,7 +2146,7 @@
             <typeparam name="T">Type to convert to</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.DataTable2.BrightDataTable,BrightWire.IRowClassifier)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.DataTable.BrightDataTable,BrightWire.IRowClassifier)">
             <summary>
             Classifies each row in the data table
             </summary>
@@ -2154,14 +2154,14 @@
             <param name="classifier"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetRowsAsLabeledFeatures(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.GetRowsAsLabeledFeatures(BrightData.DataTable.BrightDataTable)">
             <summary>
             Enumerates rows in the table as vectorized rows
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(BrightData.DataTable2.BrightDataTable,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(BrightData.DataTable.BrightDataTable,System.UInt32)">
             <summary>
             Clusters the rows in the data table using hierarchical clustering
             </summary>
@@ -2169,7 +2169,7 @@
             <param name="k">Number of clusters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(BrightData.DataTable2.BrightDataTable,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.ExtensionMethods.KMeans(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             Clusters the rows in the data table using k-means clustering
             </summary>
@@ -2179,7 +2179,7 @@
             <param name="distanceMetric">Distance metric to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.NonNegativeMatrixFactorisation(BrightData.DataTable2.BrightDataTable,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.NonNegativeMatrixFactorisation(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32)">
             <summary>
             Clusters the rows in the data table using non negative matrix factorisation clustering
             </summary>
@@ -2202,14 +2202,14 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlegbra2.LinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph factory
             </summary>
             <param name="lap"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateSequentialWindow(BrightData.DataTable2.BrightDataTable,System.UInt32,System.UInt32[])">
+        <member name="M:BrightWire.ExtensionMethods.CreateSequentialWindow(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32[])">
             <summary>
             Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows
             </summary>
@@ -2218,7 +2218,7 @@
             <param name="columnIndices">Column indices to select</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.DataTable2.BrightDataTable,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32)">
             <summary>
             Creates a confusion matrix from two columns of a data table
             </summary>
@@ -2253,7 +2253,7 @@
             <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
             <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable)">
             <summary>
             Classifies each row of the data table
             </summary>
@@ -2307,7 +2307,7 @@
             <param name="miniBatch"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
             <summary>
             Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
             </summary>
@@ -2337,7 +2337,7 @@
             <param name="item3">The third observation</param>
             <returns>The list of state transitions or null if nothing was found</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
             Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
@@ -2366,13 +2366,13 @@
             <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.DataTable.BrightDataTable)">
             <summary>
             K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
             </summary>
             <param name="data">The training data</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightData.DataTable2.BrightDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightData.DataTable.BrightDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
             </summary>
@@ -2382,7 +2382,7 @@
             <param name="config"></param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightData.DataTable2.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightData.DataTable.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Decision trees build a logical tree to classify data. Various measures can be specified to prevent overfitting.
             </summary>
@@ -2397,7 +2397,7 @@
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
@@ -2411,14 +2411,14 @@
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
             </summary>
             <param name="table">The training data table that must have an index-list based column</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Naive bayes is a classifier that assumes conditional independence between all features
             </summary>
@@ -2432,7 +2432,7 @@
             <param name="classifications">List of weighted classifications</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainSimpleNeuralNetwork(BrightWire.ExecutionGraph.GraphFactory,BrightData.DataTable2.BrightDataTable,BrightData.DataTable2.BrightDataTable,BrightWire.IErrorMetric,System.Single,System.UInt32,System.UInt32,System.UInt32,System.Func{BrightWire.ExecutionGraph.GraphFactory,BrightWire.ExecutionGraph.Node.NodeBase},System.Func{BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider,BrightWire.ICreateTemplateBasedGradientDescent},System.Func{BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider,BrightWire.IWeightInitialisation})">
+        <member name="M:BrightWire.ExtensionMethods.TrainSimpleNeuralNetwork(BrightWire.ExecutionGraph.GraphFactory,BrightData.DataTable.BrightDataTable,BrightData.DataTable.BrightDataTable,BrightWire.IErrorMetric,System.Single,System.UInt32,System.UInt32,System.UInt32,System.Func{BrightWire.ExecutionGraph.GraphFactory,BrightWire.ExecutionGraph.Node.NodeBase},System.Func{BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider,BrightWire.ICreateTemplateBasedGradientDescent},System.Func{BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider,BrightWire.IWeightInitialisation})">
             <summary>
             Trains a neural network with a single hidden layer
             </summary>
@@ -2795,7 +2795,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IDataSource.CloneWith(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.IDataSource.CloneWith(BrightData.DataTable.BrightDataTable)">
             <summary>
             Creates a new data source, using the current as a template but replacing the data table
             </summary>
@@ -3653,7 +3653,7 @@
             Classifies convertible rows
             </summary>
         </member>
-        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable2.BrightDataTableRow)">
+        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable.BrightDataTableRow)">
             <summary>
             Classifies a convertible row
             </summary>
@@ -3665,7 +3665,7 @@
             Classifies a data table
             </summary>
         </member>
-        <member name="M:BrightWire.ITableClassifier.Classify(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightWire.ITableClassifier.Classify(BrightData.DataTable.BrightDataTable)">
             <summary>
             Classifies each row of a data table
             </summary>
@@ -4405,7 +4405,7 @@
             The vector indexes to use to encode the other column(s) as a classification target
             </summary>
         </member>
-        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             Creates a classifier from this model
             </summary>
@@ -4892,7 +4892,7 @@
             Decision tree configuration
             </summary>
         </member>
-        <member name="M:BrightWire.TreeBased.Training.DecisionTreeTrainer.Train(BrightData.DataTable2.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.TreeBased.Training.DecisionTreeTrainer.Train(BrightData.DataTable.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Trains a decision tree
             </summary>

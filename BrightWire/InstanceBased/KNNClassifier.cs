@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
-using BrightData.LinearAlegbra2;
+using BrightData.DataTable;
+using BrightData.LinearAlgebra;
 using BrightWire.Models.InstanceBased;
 
 namespace BrightWire.InstanceBased

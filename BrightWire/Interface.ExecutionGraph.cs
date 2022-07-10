@@ -5,11 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData;
-using BrightData.DataTable2;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {

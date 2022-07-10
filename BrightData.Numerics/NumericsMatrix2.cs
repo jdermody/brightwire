@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.LinearAlegbra2;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace BrightData.Numerics
 {
-    internal class NumericsMatrix2 : Matrix2<NumericsLinearAlgebraProvider>
+    internal class NumericsMatrix2 : LinearAlgebra.Matrix<NumericsLinearAlgebraProvider>
     {
-        readonly Matrix<float> _matrix;
+        readonly MathNet.Numerics.LinearAlgebra.Matrix<float> _matrix;
 
         public NumericsMatrix2(ITensorSegment2 data, uint rows, uint columns, NumericsLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {

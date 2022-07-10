@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {

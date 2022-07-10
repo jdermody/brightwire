@@ -1,100 +1,89 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BrightData.LinearAlgebra.Memory;
+﻿using System.Linq;
 
 namespace BrightData.LinearAlgebra
 {
-    /// <summary>
-    /// 4D tensor type
-    /// </summary>
-    /// <typeparam name="T">Data type within the tensor</typeparam>
-    public class Tensor4D<T> : TensorBase<T, Tensor4D<T>>
-        where T: struct
+    public class Tensor4D<LAP> : TensorBase<ITensor4D, LAP>, ITensor4D
+        where LAP: LinearAlgebraProvider
     {
-        internal Tensor4D(ITensorSegment<T> segment, uint count, uint depth, uint rows, uint columns) : base(segment, new[] { count, depth, rows, columns }) { }
-        internal Tensor4D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
-
-        /// <summary>
-        /// Number of 3D tensors
-        /// </summary>
-        public uint Count => Shape[0];
-
-        /// <summary>
-        /// Number of matrices within each 3D tensor
-        /// </summary>
-        public uint Depth => Shape[1];
-
-        /// <summary>
-        /// Number of rows within each matrix
-        /// </summary>
-        public uint RowCount => Shape[2];
-
-        /// <summary>
-        /// Number of columns within each matrix
-        /// </summary>
-        public uint ColumnCount => Shape[3];
-
-        /// <summary>
-        /// Size of each matrix
-        /// </summary>
-        public uint MatrixSize => RowCount * ColumnCount;
-
-        /// <summary>
-        /// Size of each 3D tensor
-        /// </summary>
-        public uint TensorSize => Depth * MatrixSize;
-        //public new uint Size => Count * TensorSize;
-
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="count">3D tensor index</param>
-        /// <param name="depth">Matrix depth within the 3D tensor</param>
-        /// <param name="rowY">Row within the matrix</param>
-        /// <param name="columnX">Column within the matrix</param>
-        public T this[int count, int depth, int rowY, int columnX]
+        public Tensor4D(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
-            get => _segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => _segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            Count = count;
+            Depth = depth;
+            RowCount = rows;
+            ColumnCount = columns;
+            MatrixSize = RowCount * ColumnCount;
+            TensorSize = MatrixSize * Depth;
+            TotalSize = TensorSize * Count;
         }
 
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="count">3D tensor index</param>
-        /// <param name="depth">Matrix depth within the 3D tensor</param>
-        /// <param name="rowY">Row within the matrix</param>
-        /// <param name="columnX">Column within the matrix</param>
-        /// <returns></returns>
-        public T this[uint count, uint depth, uint rowY, uint columnX]
+        public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
+        ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
+
+        public uint Count { get; private set; }
+        public uint Depth { get; private set; }
+        public uint RowCount { get; private set; }
+        public uint ColumnCount { get; private set; }
+        public uint MatrixSize { get; private set; }
+        public uint TensorSize { get; private set; }
+        public sealed override uint TotalSize { get; protected set; }
+        public sealed override uint[] Shape
         {
-            get => _segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => _segment[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => new[] { ColumnCount, RowCount, Depth, Count };
+            protected set
+            {
+                ColumnCount = value[0];
+                RowCount = value[1];
+                Depth = value[2];
+                Count = value[3];
+                MatrixSize = RowCount * ColumnCount;
+                TensorSize = MatrixSize * Depth;
+                TotalSize = TensorSize * Count;
+            }
         }
 
-        /// <summary>
-        /// Returns a nested 3D tensor
-        /// </summary>
-        /// <param name="index">Tensor index</param>
-        public Tensor3D<T> Tensor(uint index)
+        public float this[int count, int depth, int rowY, int columnX]
         {
-            var segment = new TensorSegmentWrapper<T>(_segment, index * TensorSize, 1, TensorSize);
-            return new Tensor3D<T>(segment, Depth, RowCount, ColumnCount);
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+        public float this[uint count, uint depth, uint rowY, uint columnX]
+        {
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
+        }
+        public float this[long count, long depth, long rowY, long columnX]
+        {
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
+        }
+        public float this[ulong count, ulong depth, ulong rowY, ulong columnX]
+        {
+            get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+            set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
+        }
+        public ITensor3D GetTensor(uint index) => _lap.GetTensor(this, index);
+        public ITensor4D AddPadding(uint padding) => _lap.AddPadding(this, padding);
+        public ITensor4D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);
+        public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
+        public ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+        public ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
+        public ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+        public IVector ColumnSums() => _lap.ColumnSums(this);
 
-        /// <summary>
-        /// All 3D tensors
-        /// </summary>
-        public IEnumerable<Tensor3D<T>> Tensors => Count.AsRange().Select(Tensor);
-
-        /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
+    }
 
-        /// <inheritdoc />
-        protected override Tensor4D<T> Create(ITensorSegment<T> segment)
+    public class Tensor4D2 : Tensor4D<LinearAlgebraProvider>
+    {
+        public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
         {
-            return new(segment, Count, Depth, RowCount, ColumnCount);
+        }
+    }
+
+    public class ArrayBasedTensor4D : Tensor4D<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedTensor4D(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
+        {
         }
     }
 }

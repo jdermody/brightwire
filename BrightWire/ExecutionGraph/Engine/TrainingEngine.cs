@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;

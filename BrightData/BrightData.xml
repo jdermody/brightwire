@@ -334,7 +334,7 @@
             Bright data context
             </summary>
         </member>
-        <member name="M:BrightData.BrightDataContext.#ctor(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.Int32})">
+        <member name="M:BrightData.BrightDataContext.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Nullable{System.Int32})">
             <summary>
             Constructor
             </summary>
@@ -344,12 +344,6 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.BrightDataContext.Random">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.BrightDataContext.TensorPool">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.BrightDataContext.MemoryLayer">
             <inheritdoc />
         </member>
         <member name="P:BrightData.BrightDataContext.DataReader">
@@ -614,13 +608,13 @@
             <typeparam name="TT">Type to convert to</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.DataTable2.BrightDataTable.Dispose">
+        <member name="M:BrightData.DataTable.BrightDataTable.Dispose">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable2.BrightDataTable.ToString">
+        <member name="M:BrightData.DataTable.BrightDataTable.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable2.BrightDataTableRow.Get``1(System.UInt32)">
+        <member name="M:BrightData.DataTable.BrightDataTableRow.Get``1(System.UInt32)">
             <summary>
             Returns a value (dynamic conversion to type T)
             </summary>
@@ -628,35 +622,13 @@
             <param name="index">Column index</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.DataTable2.BrightDataTableRow.RowIndex">
+        <member name="P:BrightData.DataTable.BrightDataTableRow.RowIndex">
             <summary>
             Row index
             </summary>
         </member>
-        <member name="M:BrightData.DataTable2.SequentialColumnReader`2.EnumerateTyped">
+        <member name="M:BrightData.DataTable.SequentialColumnReader`2.EnumerateTyped">
             <inheritdoc />
-        </member>
-        <member name="T:BrightData.DataTable.Column`1">
-            <summary>
-            A data table column
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.DataTable.ColumnInfo">
-            <summary>
-            Data table column information
-            </summary>
-        </member>
-        <member name="T:BrightData.DataTable.Consumers.GrowableDataTableSegment`1">
-            <summary>
-            A typed data table segment that can grow in size
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.DataTable.Row">
-            <summary>
-            A row within a data table
-            </summary>
         </member>
         <member name="T:BrightData.ExtensionMethods">
             <summary>
@@ -1274,28 +1246,28 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.RowIndices(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.RowIndices(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns all row indices as an enumerable
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ColumnIndices(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ColumnIndices(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns all column indices as an enumerable
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ForEachRow``1(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ForEachRow``1(BrightData.DataTable.BrightDataTable)">
             <summary>
             Invokes a typed callback on each row of a data table
             </summary>
             <param name="dataTable"></param>
             <typeparam name="T0"></typeparam>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ForEachRow``2(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ForEachRow``2(BrightData.DataTable.BrightDataTable)">
             <summary>
             Invokes a typed callback on each row of a data table
             </summary>
@@ -1303,7 +1275,7 @@
             <typeparam name="T1"></typeparam>
             <param name="dataTable"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ForEachRow``3(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ForEachRow``3(BrightData.DataTable.BrightDataTable)">
             <summary>
             Invokes a typed callback on each row of a data table
             </summary>
@@ -1312,7 +1284,7 @@
             <typeparam name="T2"></typeparam>
             <param name="dataTable"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ForEachRow``4(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ForEachRow``4(BrightData.DataTable.BrightDataTable)">
             <summary>
             Invokes a typed callback on each row of a data table
             </summary>
@@ -1360,7 +1332,7 @@
             <param name="tempBasePath"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Head(BrightData.DataTable2.BrightDataTable,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.Head(BrightData.DataTable.BrightDataTable,System.UInt32)">
             <summary>
             Returns the head (first few rows) of the data table
             </summary>
@@ -1393,28 +1365,28 @@
             <param name="vector">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.DataTable2.BrightDataTable,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.DataTable.BrightDataTable,System.Nullable{System.UInt32})">
             <summary>
             Sets the target column of the data table
             </summary>
             <param name="table"></param>
             <param name="columnIndex">Column index to make target (or null to set no target)</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetTargetColumn(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetTargetColumn(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns the target column of the data table
             </summary>
             <param name="table"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetTargetColumnOrThrow(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetTargetColumnOrThrow(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns the target column or throws an exception if none set
             </summary>
             <param name="table"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ColumnIndicesOfFeatures(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.ColumnIndicesOfFeatures(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns the feature (non target) columns of the data table
             </summary>
@@ -1441,7 +1413,7 @@
             <param name="maxDistinct">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetVectorisedFeatures(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetVectorisedFeatures(BrightData.DataTable.BrightDataTable)">
             <summary>
             Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)
             </summary>
@@ -1462,7 +1434,7 @@
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Split(BrightData.DataTable2.BrightDataTable,System.Double,System.String,System.String)">
+        <member name="M:BrightData.ExtensionMethods.Split(BrightData.DataTable.BrightDataTable,System.Double,System.String,System.String)">
             <summary>
             Splits a data table into training and test tables (rows are randomly selected for either)
             </summary>
@@ -1472,7 +1444,7 @@
             <param name="testFilePath">Path to write test table to disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Fold(BrightData.DataTable2.BrightDataTable,System.Int32,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.Fold(BrightData.DataTable.BrightDataTable,System.Int32,System.Boolean)">
             <summary>
             Folds the data table into k buckets (for k fold cross validation)
             </summary>
@@ -1497,14 +1469,14 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsMatrices(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.AsMatrices(BrightData.DataTable.BrightDataTable)">
             <summary>
             Converts the data table to feature and target matrices
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsMatrix(BrightData.DataTable2.BrightDataTable,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.AsMatrix(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <summary>
             Converts data table columns to a matrix
             </summary>
@@ -1512,7 +1484,7 @@
             <param name="columnIndices">Column indices to include in the matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.DataTable2.BrightDataTable,System.Boolean,System.String)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.DataTable.BrightDataTable,System.Boolean,System.String)">
             <summary>
             Creates a new data table that has two vector columns, one for the features and the other for the target
             </summary>
@@ -1521,7 +1493,7 @@
             <param name="filePath">Optional path to save data table to disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.DataTable2.BrightDataTable,System.Boolean,System.Collections.Generic.IEnumerable{System.UInt32},System.String)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.DataTable.BrightDataTable,System.Boolean,System.Collections.Generic.IEnumerable{System.UInt32},System.String)">
             <summary>
             Creates a new data table that has two vector columns, one for the features and the other for the target
             </summary>
@@ -1576,7 +1548,7 @@
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.DataTable2.BrightDataTable,System.Boolean,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.DataTable.BrightDataTable,System.Boolean,System.UInt32[])">
             <summary>
             Returns a vectoriser
             </summary>
@@ -1585,7 +1557,7 @@
             <param name="columnIndices">Column indices to vectorise</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.LoadVectoriser(BrightData.DataTable2.BrightDataTable,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.LoadVectoriser(BrightData.DataTable.BrightDataTable,System.IO.BinaryReader)">
             <summary>
             Loads a previously created data table vectoriser
             </summary>
@@ -1635,7 +1607,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Sample(BrightData.DataTable2.BrightDataTable,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.Sample(BrightData.DataTable.BrightDataTable,System.UInt32)">
             <summary>
             Samples rows from the data table
             </summary>
@@ -1643,7 +1615,7 @@
             <param name="sampleSize">Number of rows to sample</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCustomColumnMutator``2(BrightData.DataTable2.BrightDataTable,System.UInt32,System.Func{``0,``1},System.Action{BrightData.IMetaData})">
+        <member name="M:BrightData.ExtensionMethods.CreateCustomColumnMutator``2(BrightData.DataTable.BrightDataTable,System.UInt32,System.Func{``0,``1},System.Action{BrightData.IMetaData})">
             <summary>
             Creates a custom column mutator
             </summary>
@@ -1656,7 +1628,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.DataTable2.BrightDataTable,BrightData.IColumnTransformationParam[])">
+        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.DataTable.BrightDataTable,BrightData.IColumnTransformationParam[])">
             <summary>
             Creates a new table with columns that have been converted
             </summary>
@@ -1664,7 +1636,7 @@
             <param name="conversion">Column conversion parameters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable2.BrightDataTable,BrightData.IColumnTransformationParam[])">
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable.BrightDataTable,BrightData.IColumnTransformationParam[])">
             <summary>
             Normalizes the data in all columns of the table
             </summary>
@@ -1672,21 +1644,21 @@
             <param name="conversion">Column normalization parameters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConcatenateColumns(BrightData.DataTable2.BrightDataTable,BrightData.DataTable2.BrightDataTable[])">
+        <member name="M:BrightData.ExtensionMethods.ConcatenateColumns(BrightData.DataTable.BrightDataTable,BrightData.DataTable.BrightDataTable[])">
             <summary>
             Creates a new data table with this concatenated with other column oriented data tables
             </summary>
             <param name="dataTable"></param>
             <param name="others">Other tables to concatenate</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConcatenateRows(BrightData.DataTable2.BrightDataTable,BrightData.DataTable2.BrightDataTable[])">
+        <member name="M:BrightData.ExtensionMethods.ConcatenateRows(BrightData.DataTable.BrightDataTable,BrightData.DataTable.BrightDataTable[])">
             <summary>
             Creates a new data table with this concatenated with other column oriented data tables
             </summary>
             <param name="dataTable"></param>
             <param name="others">Other tables to concatenate</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(BrightData.DataTable2.BrightDataTable,BrightData.IProvideTempStreams,System.String,BrightData.IReinterpretColumns[])">
+        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(BrightData.DataTable.BrightDataTable,BrightData.IProvideTempStreams,System.String,BrightData.IReinterpretColumns[])">
             <summary>
             Many to one or one to many style column transformations
             </summary>
@@ -1694,7 +1666,7 @@
             <param name="columns">Parameters to determine which columns are reinterpreted</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyRows(BrightData.DataTable2.BrightDataTable,System.String,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.CopyRows(BrightData.DataTable.BrightDataTable,System.String,System.UInt32[])">
             <summary>
             Copy specified rows from this to a new data table
             </summary>
@@ -1703,7 +1675,7 @@
             <param name="rowIndices">Row indices to copy</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnTransformers(BrightData.DataTable2.BrightDataTable,BrightData.IProvideTempStreams,System.Collections.Generic.IEnumerable{BrightData.IColumnTransformationParam})">
+        <member name="M:BrightData.ExtensionMethods.GetColumnTransformers(BrightData.DataTable.BrightDataTable,BrightData.IProvideTempStreams,System.Collections.Generic.IEnumerable{BrightData.IColumnTransformationParam})">
             <summary>
             Gets column transformers
             </summary>
@@ -1711,7 +1683,7 @@
             <param name="input">Column transformation parameter objects</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.MutateColumns(BrightData.DataTable2.BrightDataTable,System.String,BrightData.IColumnTransformationParam[])">
+        <member name="M:BrightData.ExtensionMethods.MutateColumns(BrightData.DataTable.BrightDataTable,System.String,BrightData.IColumnTransformationParam[])">
             <summary>
             
             </summary>
@@ -1720,14 +1692,14 @@
             <param name="conversionParams">Column normalization parameters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnInfo(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnInfo(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns column information
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable2.BrightDataTable,BrightData.NormalizationType)">
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable.BrightDataTable,BrightData.NormalizationType)">
             <summary>
             Normalizes the data in all columns of the table
             </summary>
@@ -1735,7 +1707,7 @@
             <param name="type">Normalization type</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable2.BrightDataTable,System.String,BrightData.NormalizationType)">
+        <member name="M:BrightData.ExtensionMethods.Normalize(BrightData.DataTable.BrightDataTable,System.String,BrightData.NormalizationType)">
             <summary>
             Normalizes the data in all columns of the table
             </summary>
@@ -1744,7 +1716,7 @@
             <param name="type">Normalization type</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetTableSignature(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetTableSignature(BrightData.DataTable.BrightDataTable)">
             <summary>
             Gets the table signature based on column types
             </summary>
@@ -2091,7 +2063,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateIdentityMatrix(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateIdentityMatrix(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32)">
             <summary>
             Creates an identity matrix (each diagonal element is 1, each other element is 0)
             </summary>
@@ -2099,7 +2071,7 @@
             <param name="size">Width and height of the new matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateDiagonalMatrix(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Single[])">
+        <member name="M:BrightData.ExtensionMethods.CreateDiagonalMatrix(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single[])">
             <summary>
             Creates a diagonal matrix
             </summary>
@@ -2230,14 +2202,14 @@
             <returns></returns>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetTypeSpecification(BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.GetTypeSpecification(BrightData.DataTable.BrightDataTable)">
             <summary>
             Creates a type specification for a data table
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.FindNonConformingRows(BrightData.IDataTypeSpecification,BrightData.DataTable2.BrightDataTable)">
+        <member name="M:BrightData.ExtensionMethods.FindNonConformingRows(BrightData.IDataTypeSpecification,BrightData.DataTable.BrightDataTable)">
             <summary>
             Finds the row indices of any row that does not conform to the type specification
             </summary>
@@ -2648,7 +2620,7 @@
             <param name="other">Index list to compare to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IndexList.AsDense(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.IndexList.AsDense(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>
@@ -3642,6 +3614,51 @@
             Column classifications
             </summary>
         </member>
+        <member name="F:BrightData.ColumnClass.Unknown">
+            <summary>
+            Unknown category
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Categorical">
+            <summary>
+            Forms a category - a set of possible values
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Numeric">
+            <summary>
+            Numbers (float, int etc)
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Decimal">
+            <summary>
+            Floating point numbers (float, double, decimal)
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Structable">
+            <summary>
+            Struct (blittable)
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Tensor">
+            <summary>
+            Tensor (vector, matrix etc)
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.IndexBased">
+            <summary>
+            Has an index (index list, weighted index list)
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.DateTime">
+            <summary>
+            Date and time
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnClass.Integer">
+            <summary>
+            Whole number
+            </summary>
+        </member>
         <member name="T:BrightData.ISingleTypeTableSegment">
             <summary>
             A segment (series of values) in a table of which each element has the same type
@@ -4319,44 +4336,11 @@
             Square Euclidean
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlegbra2.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlegbra2.Matrix2`1.ToString">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.ToString">
             <inheritdoc />
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.DisposableLayers">
-            <summary>
-            Collects allocations within a "layer" that can all be released at once
-            </summary>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.MemoryLayer">
-            <summary>
-            A section of memory blocks that will be released when the layer is disposed
-            </summary>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.ReferenceCountedBlock`1">
-            <summary>
-            Reference counted memory block
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.TensorPool">
-            <summary>
-            Wraps memory owner array pool
-            </summary>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.TensorSegment`1">
-            <summary>
-            "Pointer" to a tensor block that manages reference counting
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.Memory.TensorSegmentWrapper`1">
-            <summary>
-            Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
-            </summary>
-            <typeparam name="T"></typeparam>
         </member>
         <member name="T:BrightData.MetaData">
             <inheritdoc />
@@ -4743,7 +4727,7 @@
             </summary>
             <param name="other">Other list to compare</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsDense(BrightData.LinearAlegbra2.LinearAlgebraProvider,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.WeightedIndexList.AsDense(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>

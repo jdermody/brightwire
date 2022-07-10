@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using BrightData;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;

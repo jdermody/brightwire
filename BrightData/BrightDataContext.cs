@@ -2,9 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.Memory;
 
 namespace BrightData
 {
@@ -15,8 +13,6 @@ namespace BrightData
     {
         Lazy<LinearAlgebraProvider>                   _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
-        readonly TensorPool                           _tensorPool;
-        readonly DisposableLayers                     _memoryLayers = new();
         readonly DataEncoder                          _dataReader;
 
         /// <summary>
@@ -30,10 +26,7 @@ namespace BrightData
                 ? new Random(randomSeed.Value) 
                 : new Random()
             ;
-            _tensorPool = new TensorPool();
             _dataReader = new DataEncoder(this);
-
-            _memoryLayers.Push();
             if (lap is not null)
                 _lap = new(lap);
             else
@@ -43,20 +36,12 @@ namespace BrightData
         /// <inheritdoc />
         public void Dispose()
         {
-            _memoryLayers.Pop();
-            _tensorPool.Dispose();
             if(_lap.IsValueCreated)
                 _lap.Value.Dispose();
         }
 
         /// <inheritdoc />
         public Random Random { get; private set; }
-
-        /// <inheritdoc />
-        public ITensorPool TensorPool => _tensorPool;
-
-        /// <inheritdoc />
-        public IDisposableLayers MemoryLayer => _memoryLayers;
 
         /// <inheritdoc />
         public IDataReader DataReader => _dataReader;

@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -18,6 +17,11 @@ namespace BrightData
         /// Enumerates the indices
         /// </summary>
         IEnumerable<uint> Indices { get; }
+    }
+
+    public interface IHaveSpan
+    {
+        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
     }
 
     /// <summary>
@@ -1219,8 +1223,8 @@ namespace BrightData
 
     public interface IMatrixSegments
     {
-        TensorSegmentWrapper2 Row(uint index);
-        TensorSegmentWrapper2 Column(uint index);
+        TensorSegmentWrapper Row(uint index);
+        TensorSegmentWrapper Column(uint index);
     }
 
     public interface ITensor3D : ITensor2<ITensor3D>, ITensor3DInfo

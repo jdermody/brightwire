@@ -17,10 +17,19 @@ namespace BrightData.Helper
             BrightDataType.SByte
         };
         static readonly HashSet<BrightDataType> ContinuousType = new(NumericType) {
-            BrightDataType.Date
+            BrightDataType.Date,
+            BrightDataType.DateOnly,
+            BrightDataType.TimeOnly
         };
         static readonly HashSet<BrightDataType> BlittableType = new(ContinuousType) {
-            BrightDataType.Boolean
+            BrightDataType.Boolean,
+            BrightDataType.BinaryData,
+            BrightDataType.IndexList,
+            BrightDataType.Matrix,
+            BrightDataType.Tensor3D,
+            BrightDataType.Tensor4D,
+            BrightDataType.WeightedIndexList,
+            BrightDataType.Vector
         };
         static readonly HashSet<BrightDataType> CategoricalType = new() {
             BrightDataType.Boolean,
@@ -89,7 +98,7 @@ namespace BrightData.Helper
             if (type.IsIndexedList())
                 ret |= ColumnClass.IndexBased;
             if (type.IsContinuous())
-                ret |= ColumnClass.Continuous;
+                ret |= ColumnClass.DateTime;
             if (type.IsInteger())
                 ret |= ColumnClass.Integer;
             return ret;

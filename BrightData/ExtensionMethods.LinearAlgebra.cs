@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
-using BrightData.LinearAlegbra2.TensorInfo;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.Memory;
-using BrightData.Serialisation;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+using BrightData.LinearAlgebra.TensorInfo;
 
 namespace BrightData
 {

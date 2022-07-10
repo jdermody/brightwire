@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using System.Numerics;
 using BrightData;
-using BrightData.DataTable2;
-using BrightData.DataTable2.TensorData;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {

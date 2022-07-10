@@ -1,6 +1,5 @@
 ﻿using System;
 using BrightData;
-using BrightData.DataTable2;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
@@ -8,6 +7,7 @@ using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Node.Layer;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
+using BrightData.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;

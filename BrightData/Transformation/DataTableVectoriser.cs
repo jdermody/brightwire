@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Converter;
-using BrightData.DataTable2;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.Transformation
 {

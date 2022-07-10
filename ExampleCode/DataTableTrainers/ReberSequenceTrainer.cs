@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using MathNet.Numerics.Distributions;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {

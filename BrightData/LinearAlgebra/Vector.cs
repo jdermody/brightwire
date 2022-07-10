@@ -1,112 +1,96 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace BrightData.LinearAlgebra
 {
-    /// <summary>
-    /// Generic vector
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class Vector<T> : TensorBase<T, Vector<T>>
-        where T: struct
+    public class Vector<LAP> : TensorBase<IVector, LAP>, IVector
+        where LAP: LinearAlgebraProvider
     {
-        internal Vector(ITensorSegment<T> segment) : base(segment, new[] { segment.Size }) { }
-        internal Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
-
-        /// <summary>
-        /// Number of elements in the vector
-        /// </summary>
-        public new uint Size => Shape[0];
-
-        /// <summary>
-        /// Creates a vector from a tensor segment
-        /// </summary>
-        /// <param name="segment">Tensor segment that will be used</param>
-        protected override Vector<T> Create(ITensorSegment<T> segment) => new(segment);
-
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="index">Index to retrieve</param>
-        /// <returns></returns>
-        public T this[int index]
+        public Vector(ITensorSegment2 data, LAP lap) : base(data, lap)
         {
-            get => _segment[(uint)index];
-            set => _segment[(uint)index] = value;
         }
 
-        /// <summary>
-        /// Returns the value at the specified index
-        /// </summary>
-        /// <param name="index">Index to retrieve</param>
-        public T this[uint index]
+        public uint Size => Segment.Size;
+        public sealed override uint TotalSize
         {
-            get => _segment[index];
-            set => _segment[index] = value;
+            get => Segment.Size;
+            protected set => throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// The values in the vector
-        /// </summary>
-        public IEnumerable<T> Values => _segment.Values;
+        public sealed override uint[] Shape
+        {
+            get => new[] { Size };
+            protected set
+            {
+                if (value.Length != 1 && value[0] != Size)
+                    throw new ArgumentException("Unexpected shape");
+            }
+        }
 
-        /// <inheritdoc />
+        public float this[int index]
+        {
+            get => Segment[index];
+            set => Segment[index] = value;
+        }
+        public float this[uint index]
+        {
+            get => Segment[index];
+            set => Segment[index] = value;
+        }
+
+        public float[] ToArray() => Segment.ToNewArray();
+        IVector IVectorInfo.Create(LinearAlgebraProvider lap) => lap.CreateVector(ToArray());
+
+        public float this[long index]
+        {
+            get => Segment[index];
+            set => Segment[index] = value;
+        }
+        public float this[ulong index]
+        {
+            get => Segment[index];
+            set => Segment[index] = value;
+        }
+
         public override string ToString()
         {
-            var preview = String.Join("|", _segment.Values.Take(8));
-            if (Size > 8)
+            var preview = String.Join("|", Segment.Values.Take(Consts.PreviewSize));
+            if (Size > Consts.PreviewSize)
                 preview += "|...";
             return $"Vector ({Size}): {preview}";
         }
 
-        /// <summary>
-        /// Copies from an array into this vector
-        /// </summary>
-        /// <param name="array">Array to copy from</param>
-        public void CopyFrom(T[] array) => _segment.Initialize(array);
+        public override IVector Create(ITensorSegment2 segment) => new Vector<LAP>(segment, _lap);
 
-        /// <summary>
-        /// Applies a mapping function to each value within the vector - creating a new vector as a result
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        /// <returns></returns>
-        public Vector<T> Map(Func<T, T> mutator)
+        public IVector MapIndexed(Func<uint, float, float> mutator)
         {
-            var ret = MapParallel((_, v) => mutator(v));
-            return new Vector<T>(ret);
+            var ret = _lap.MapParallel(Segment, mutator);
+            return Create(ret);
         }
 
-        /// <summary>
-        /// Applies an indexed mapping function to each value within the vector - creating a new vector as a result
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        /// <returns></returns>
-        public Vector<T> MapIndexed(Func<uint, T, T> mutator)
+        public void MapIndexedInPlace(Func<uint, float, float> mutator)
         {
-            var ret = MapParallel(mutator);
-            return new Vector<T>(ret);
+            var ret = _lap.MapParallel(Segment, mutator);
+            try {
+                ret.CopyTo(Segment);
+            }
+            finally {
+                ret.Release();
+            }
         }
+    }
 
-        /// <summary>
-        /// Applies a mapping function to each value within the vector
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        public void MapInPlace(Func<T, T> mutator)
+    public class Vector2 : Vector<LinearAlgebraProvider>
+    {
+        public Vector2(ITensorSegment2 data, LinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
-            using var ret = MapParallel((_, v) => mutator(v));
-            ret.CopyTo(_segment);
         }
+    }
 
-        /// <summary>
-        /// Applies an indexed mapping function to each value within the matrix
-        /// </summary>
-        /// <param name="mutator">Mapping function</param>
-        public void MapIndexedInPlace(Func<uint, T, T> mutator)
+    public class ArrayBasedVector : Vector<ArrayBasedLinearAlgebraProvider>
+    {
+        public ArrayBasedVector(ITensorSegment2 data, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
-            using var ret = MapParallel(mutator);
-            ret.CopyTo(_segment);
         }
     }
 }

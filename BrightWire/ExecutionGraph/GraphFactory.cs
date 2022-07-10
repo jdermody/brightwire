@@ -17,14 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable2;
 using BrightData.Helper;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Output;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {

@@ -2,9 +2,8 @@
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
-using BrightData.DataTable2;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {

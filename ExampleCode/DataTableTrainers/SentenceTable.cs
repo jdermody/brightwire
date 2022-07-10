@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.DataTable2;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {

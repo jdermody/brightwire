@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.LinearAlegbra2;
 using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -35,11 +34,6 @@ namespace BrightData
         /// Square Euclidean
         /// </summary>
         SquaredEuclidean
-    }
-
-    public interface IHaveSpan
-    {
-        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
     }
 
     public interface IHaveTensorSegment
