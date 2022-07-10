@@ -7,7 +7,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-	public class DataSourceTests : NumericsBase
+	public class DataSourceTests : CpuBase
 	{
         readonly GraphFactory _factory;
 

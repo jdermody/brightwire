@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Action
 
         public string Serialise() => _id;
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
+        public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
         {
             if(_contextName != null)
                 context.SetData(_contextName, "hidden-forward", input);

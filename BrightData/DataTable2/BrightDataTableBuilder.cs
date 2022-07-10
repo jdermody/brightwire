@@ -94,28 +94,28 @@ namespace BrightData.DataTable2
             );
         }
 
-        public IHybridBufferWithMetaData<IVector> AddFixedSizeVectorColumn(uint size, string name)
+        public IHybridBufferWithMetaData<IVectorInfo> AddFixedSizeVectorColumn(uint size, string name)
         {
             // TODO: add constraint
-            return AddColumn<IVector>(name);
+            return AddColumn<IVectorInfo>(name);
         }
 
-        public IHybridBufferWithMetaData<IMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<IMatrixInfo> AddFixedSizeMatrixColumn(uint rows, uint columns, string name)
         {
             // TODO: add constraint
-            return AddColumn<IMatrix>(name);
+            return AddColumn<IMatrixInfo>(name);
         }
 
-        public IHybridBufferWithMetaData<ITensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<ITensor3DInfo> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string name)
         {
             // TODO: add constraint
-            return AddColumn<ITensor3D>(name);
+            return AddColumn<ITensor3DInfo>(name);
         }
 
-        public IHybridBufferWithMetaData<ITensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string name)
+        public IHybridBufferWithMetaData<ITensor4DInfo> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string name)
         {
             // TODO: add constraint
-            return AddColumn<ITensor4D>(name);
+            return AddColumn<ITensor4DInfo>(name);
         }
     }
 }

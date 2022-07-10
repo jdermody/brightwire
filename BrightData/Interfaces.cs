@@ -904,16 +904,6 @@ namespace BrightData
     {
     }
 
-    public interface ICanEnumerateOrRandomlyAccess : ICanEnumerateDisposable
-    {
-        object Get(uint index);
-    }
-
-    public interface ICanEnumerateOrRandomlyAccess<out T> : ICanEnumerateDisposable<T>, ICanEnumerateOrRandomlyAccess where T : notnull
-    {
-        T Get(uint index);
-    }
-
     /// <summary>
     /// Indicates that the type can convert string to string indices
     /// </summary>
@@ -1118,30 +1108,15 @@ namespace BrightData
         ITensor2 Clone();
         uint TotalSize { get; }
         uint[] Shape { get; }
-    }
-
-    public interface ITensor2<out T> : ITensor2
-        where T: ITensor2
-    {
-        new T Clone();
-        T Add(ITensor2 tensor);
-        T Add(ITensor2 tensor, float coefficient1, float coefficient2);
-        T Add(float scalar);
         void AddInPlace(ITensor2 tensor);
         void AddInPlace(ITensor2 tensor, float coefficient1, float coefficient2);
         void AddInPlace(float scalar);
         void MultiplyInPlace(float scalar);
-        T Multiply(float scalar);
-        T Subtract(ITensor2 tensor);
-        T Subtract(ITensor2 tensor, float coefficient1, float coefficient2);
         void SubtractInPlace(ITensor2 tensor);
         void SubtractInPlace(ITensor2 tensor, float coefficient1, float coefficient2);
-        T PointwiseMultiply(ITensor2 tensor);
         void PointwiseMultiplyInPlace(ITensor2 tensor);
-        T PointwiseDivide(ITensor2 tensor);
         void PointwiseDivideInPlace(ITensor2 tensor);
         float DotProduct(ITensor2 tensor);
-        T Sqrt();
         uint? Search(float value);
         void ConstrainInPlace(float? minValue, float? maxValue);
         float Average();
@@ -1153,18 +1128,37 @@ namespace BrightData
         float GetMin();
         float GetMax();
         bool IsEntirelyFinite();
-        T Reverse();
-        IEnumerable<T> Split(uint blockCount);
         float CosineDistance(ITensor2 other);
         float EuclideanDistance(ITensor2 other);
         float MeanSquaredDistance(ITensor2 other);
         float SquaredEuclideanDistance(ITensor2 other);
         float ManhattanDistance(ITensor2 other);
+        float StdDev(float? mean);
+        IMatrix SoftmaxDerivative();
+        void RoundInPlace(float lower, float upper, float? mid);
+        void MapInPlace(Func<float, float> mutator);
+        void L1Regularisation(float coefficient);
+    }
+
+    public interface ITensor2<out T> : ITensor2
+        where T: ITensor2
+    {
+        new T Clone();
+        T Add(ITensor2 tensor);
+        T Add(ITensor2 tensor, float coefficient1, float coefficient2);
+        T Add(float scalar);
+        T Multiply(float scalar);
+        T Subtract(ITensor2 tensor);
+        T Subtract(ITensor2 tensor, float coefficient1, float coefficient2);
+        T PointwiseMultiply(ITensor2 tensor);
+        T PointwiseDivide(ITensor2 tensor);
+        T Sqrt();
+        T Reverse();
+        IEnumerable<T> Split(uint blockCount);
         T Abs();
         T Log();
         T Exp();
         T Squared();
-        float StdDev(float? mean);
         T Sigmoid();
         T SigmoidDerivative();
         T Tanh();
@@ -1174,13 +1168,9 @@ namespace BrightData
         T LeakyRelu();
         T LeakyReluDerivative();
         T Softmax();
-        IMatrix SoftmaxDerivative();
         T Pow(float power);
-        void RoundInPlace(float lower, float upper, float? mid);
         T CherryPick(uint[] indices);
         T Map(Func<float, float> mutator);
-        void MapInPlace(Func<float, float> mutator);
-        void L1Regularisation(float coefficient);
     }
 
     public interface IVector : ITensor2<IVector>, IVectorInfo
@@ -1301,11 +1291,23 @@ namespace BrightData
         IReadOnlyEnumerator<T> GetEnumerator();
     }
 
-    public interface ICanRandomlyAccessData<T> : IDisposable where T: unmanaged
+    public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable where T: unmanaged
+    {
+        void Get(int index, out T value);
+        void Get(uint index, out T value);
+        ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
+    }
+
+    public interface ICanRandomlyAccessData : IDisposable
+    {
+        object this[int index] { get; }
+        object this[uint index] { get; }
+    }
+
+    public interface ICanRandomlyAccessData<out T> : ICanRandomlyAccessData
     {
         T this[int index] { get; }
         T this[uint index] { get; }
-        ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
     }
 
     public interface IHaveMutableReference<T> where T : unmanaged
@@ -1316,14 +1318,14 @@ namespace BrightData
     public interface IReadOnlyEnumerator<T> : IDisposable where T : unmanaged
     {
         bool MoveNext();
-        void Seek(uint index);
+        void Reset();
         ref readonly T Current { get; }
     }
 
     public interface IReadOnlyBuffer : IDisposable
     {
         ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged;
-        ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged;
+        ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged;
     }
 
     public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull

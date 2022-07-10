@@ -33,6 +33,11 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public bool DeferUpdates { get; set; }
+        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor2 error)
+        {
+            throw new NotImplementedException();
+        }
+
         public void ApplyUpdates()
         {
             throw new NotImplementedException();

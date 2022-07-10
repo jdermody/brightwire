@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using BrightData.LinearAlegbra2;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
@@ -8,11 +9,11 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class MatrixData : IMatrixInfo
     {
-        ICanRandomlyAccessData<float> _data;
+        ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment2? _segment;
         uint _startIndex;
 
-        public MatrixData(ICanRandomlyAccessData<float> data, uint rowCount, uint columnCount, uint startIndex)
+        public MatrixData(ICanRandomlyAccessUnmanagedData<float> data, uint rowCount, uint columnCount, uint startIndex)
         {
             _data = data;
             _startIndex = startIndex;
@@ -23,8 +24,23 @@ namespace BrightData.DataTable2.TensorData
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
 
-        public float this[int rowY, int columnX] => _data[rowY * (int)ColumnCount + columnX];
-        public float this[uint rowY, uint columnX] => _data[rowY * ColumnCount + columnX];
+        public float this[int rowY, int columnX]
+        {
+            get
+            {
+                _data.Get((int)(_startIndex + rowY * ColumnCount + columnX), out var ret);
+                return ret;
+            }
+        }
+
+        public float this[uint rowY, uint columnX]
+        {
+            get
+            {
+                _data.Get(_startIndex + rowY * ColumnCount + columnX, out var ret);
+                return ret;
+            }
+        }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
@@ -41,8 +57,8 @@ namespace BrightData.DataTable2.TensorData
             return lap.CreateMatrix(RowCount, ColumnCount, segment);
         }
 
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, rowIndex, RowCount, ColumnCount);
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, columnIndex * RowCount, 1, RowCount);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
         public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)
@@ -64,5 +80,15 @@ namespace BrightData.DataTable2.TensorData
         }
 
         public uint Size => ColumnCount * RowCount;
+        public override string ToString()
+        {
+            var preview = String.Join("|", Math.Min(Consts.PreviewSize, Size).AsRange().Select(i => {
+                _data.Get(_startIndex + i, out var ret);
+                return ret;
+            }));
+            if (Size > Consts.PreviewSize)
+                preview += "|...";
+            return $"Matrix Data (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
     }
 }

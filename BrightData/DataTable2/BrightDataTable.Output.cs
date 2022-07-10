@@ -54,7 +54,7 @@ namespace BrightData.DataTable2
                 data.GetEnumerator(),
                 null,
                 buffers,
-                RowCount,
+                rowCount,
                 tempStream,
                 stream,
                 TableMetaData
@@ -65,13 +65,14 @@ namespace BrightData.DataTable2
         {
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
+            var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;
 
             return new WriteRowsOperation(
                 Context,
                 GetRows(rowIndices).GetEnumerator(),
                 null,
                 buffers,
-                RowCount,
+                rowCount,
                 tempStream,
                 stream,
                 TableMetaData
@@ -82,13 +83,14 @@ namespace BrightData.DataTable2
         {
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
+            var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;
 
             return new WriteRowsOperation(
                 Context,
                 GetRows(rowIndices).GetEnumerator(),
                 predicate,
                 buffers,
-                RowCount,
+                rowCount,
                 tempStream,
                 stream,
                 TableMetaData

@@ -51,23 +51,25 @@ namespace BrightData.DataTable2
             public uint DataTypeSize;
         }
 
-        readonly IReadOnlyBuffer                                      _buffer;
-        readonly uint                                                 _bufferSize;
-        readonly Header                                               _header;
-        readonly Column[]                                             _columns;
-        readonly Lazy<MetaData[]>                                     _metaData;
-        readonly Lazy<MetaData[]>                                     _columnMetaData;
-        readonly Lazy<string[]>                                       _stringTable;
-        readonly Lazy<ICanRandomlyAccessData<float>>                  _tensors;
-        readonly Lazy<ICanRandomlyAccessData<byte>>                   _binaryData;
-        readonly Lazy<ICanRandomlyAccessData<uint>>                   _indices;
-        readonly Lazy<ICanRandomlyAccessData<WeightedIndexList.Item>> _weightedIndices;
-        readonly uint                                                 _rowSize;
-        readonly long                                                 _dataOffset;
-        readonly MethodInfo                                           _getReader, _readNopColumn;
-        readonly uint[]                                               _columnOffset;
-        readonly BrightDataType[]                                     _columnTypes;
-        readonly Stream                                               _stream;
+        readonly IReadOnlyBuffer                                               _buffer;
+        readonly uint                                                          _bufferSize;
+        readonly Header                                                        _header;
+        readonly Column[]                                                      _columns;
+        readonly Lazy<MetaData[]>                                              _metaData;
+        readonly Lazy<MetaData[]>                                              _columnMetaData;
+        readonly Lazy<string[]>                                                _stringTable;
+        readonly Lazy<ICanRandomlyAccessUnmanagedData<float>>                  _tensors;
+        readonly Lazy<ICanRandomlyAccessUnmanagedData<byte>>                   _binaryData;
+        readonly Lazy<ICanRandomlyAccessUnmanagedData<uint>>                   _indices;
+        readonly Lazy<ICanRandomlyAccessUnmanagedData<WeightedIndexList.Item>> _weightedIndices;
+        readonly uint                                                          _rowSize;
+        readonly long                                                          _dataOffset;
+        readonly MethodInfo                                                    _getReader, _getConverter, _getRandomAccessColumnReader;
+        readonly uint[]                                                        _columnOffset;
+        readonly BrightDataType[]                                              _columnTypes;
+        readonly Stream                                                        _stream;
+        readonly Lazy<object[]>                                                _columnConverters;
+        readonly Lazy<ICanRandomlyAccessData[]>                                _columnReaders;
 
         public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = 32768)
         {
@@ -121,7 +123,7 @@ namespace BrightData.DataTable2
                 }
                 return ret;
             }
-            unsafe ICanRandomlyAccessData<T> GetBlockAccessor<T>(uint offset, uint count) where T: unmanaged => offset == 0 
+            unsafe ICanRandomlyAccessUnmanagedData<T> GetBlockAccessor<T>(uint offset, uint count) where T: unmanaged => offset == 0 
                 ? new EmptyBlock<T>() 
                 : _buffer.GetBlock<T>(offset, count * sizeof(T));
             _stringTable     = new(() => ReadStringArray(_header.StringOffset, _header.StringCount));
@@ -133,8 +135,10 @@ namespace BrightData.DataTable2
             _columnMetaData  = new(() => _metaData.Value.Skip(1).ToArray());
 
             // resolve generic methods
-            var genericMethods = GetType().GetGenericMethods();
-            _getReader = genericMethods[nameof(GetReader)];
+            var genericMethods           = GetType().GetGenericMethods();
+            _getReader                   = genericMethods[nameof(GetReader)];
+            _getConverter                = genericMethods[nameof(GetConverter)];
+            _getRandomAccessColumnReader = genericMethods[nameof(GetRandomAccessColumnReader)];
 
             // determine column offsets
             _columnOffset = new uint[numColumns];
@@ -144,7 +148,37 @@ namespace BrightData.DataTable2
                 _columnOffset[i] = _columnOffset[i-1] + previousColumn.DataTypeSize * numRows;
             }
 
+            // get column types
             ColumnTypes = _columns.Select(c => c.DataType).ToArray();
+
+            // create column converters (lazy)
+            _columnConverters = new(() => {
+                var ret = new object[_columns.Length];
+                for (uint ci = 0, len = (uint)_columns.Length; ci < len; ci++) {
+                    ref readonly var column = ref _columns[ci];
+                    var dataType = column.DataType.GetDataType();
+                    var (columnDataType, _) = column.DataType.GetColumnType();
+                    ret[ci] = _getConverter.MakeGenericMethod(columnDataType, dataType).Invoke(this, null)!;
+                }
+                return ret;
+            });
+
+            // create column readers (lazy)
+            _columnReaders = new(() => {
+                var ret = new ICanRandomlyAccessData[_columns.Length];
+                var converters = _columnConverters.Value;
+                for (uint ci = 0, len = (uint)_columns.Length; ci < len; ci++) {
+                    ref readonly var column = ref _columns[ci];
+                    var dataType = column.DataType.GetDataType();
+                    var offset = _columnOffset[ci];
+                    var (columnDataType, _) = column.DataType.GetColumnType();
+                    var sizeInBytes = _header.RowCount * column.DataTypeSize;
+                    ret[ci] = (ICanRandomlyAccessData)_getRandomAccessColumnReader.MakeGenericMethod(columnDataType, dataType).Invoke(this, new [] {
+                        offset, sizeInBytes, converters[ci]
+                    })!;
+                }
+                return ret;
+            });
         }
 
         /// <inheritdoc />
@@ -156,20 +190,8 @@ namespace BrightData.DataTable2
 
         public BrightDataContext Context { get; }
         public MetaData TableMetaData => _metaData.Value[0];
-        public BrightDataType[] ColumnTypes { get; }
-        public MetaData GetColumnMetaData(uint columnIndex) => _metaData.Value[columnIndex+1];
-        public IEnumerable<uint> ColumnIndices => _header.ColumnCount.AsRange();
-        public ICanEnumerateDisposable ReadColumn(uint columnIndex) => GetColumnReader(columnIndex, _header.RowCount);
-        public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
         public uint ColumnCount => _header.ColumnCount;
         public uint RowCount => _header.RowCount;
-        public MetaData[] ColumnMetaData => _columnMetaData.Value;
-
-        public T Get<T>(uint rowIndex, uint columnIndex) where T : notnull
-        {
-            using var reader = GetColumnReader<T>(columnIndex, 1, size => size * rowIndex);
-            return reader.EnumerateTyped().First();
-        }
 
         public MetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {

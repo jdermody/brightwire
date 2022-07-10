@@ -7,11 +7,11 @@ namespace BrightData.OpenBlas
     {
         public OpenBlasLinearAlgebraProvider(BrightDataContext context) : base(context)
         {
-            int num_threads = 2;
+            var num_threads = 2;
             BLAS.OpenblasSetNumThreads(ref num_threads);
         }
 
-        public override string Name => "openblas";
+        public override string Name => "open blas";
         public override Type VectorType { get; } = typeof(OpenBlasVector);
         public override Type MatrixType { get; } = typeof(OpenBlasMatrix);
         public override IVector CreateVector(ITensorSegment2 data) => new OpenBlasVector(data, this);

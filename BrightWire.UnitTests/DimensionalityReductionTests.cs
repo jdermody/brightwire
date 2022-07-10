@@ -6,7 +6,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class DimensionalityReductionTests : NumericsBase
+    public class DimensionalityReductionTests : CpuBase
     {
         [Fact]
         public void TestRandomProjection()

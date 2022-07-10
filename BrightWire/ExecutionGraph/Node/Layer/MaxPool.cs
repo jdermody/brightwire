@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_yStride = yStride;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _yStride = yStride;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);

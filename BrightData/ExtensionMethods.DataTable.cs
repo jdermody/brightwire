@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1328,6 +1329,16 @@ namespace BrightData
         public static T[] CompleteInParallel<T>(this IReadOnlyList<IOperation<T>> operations)
         {
             var ret = new T[operations.Count];
+            #if DEBUG
+            if (Debugger.IsAttached) {
+                var index = 0;
+                foreach(var op in operations) using (op) {
+                    ret[index++] = op.Complete(null, CancellationToken.None);
+                }
+
+                return ret;
+            }
+            #endif
             Parallel.ForEach(operations, (op, _, i) => {
                 using(op)
                     ret[i] = op.Complete(null, CancellationToken.None);

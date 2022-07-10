@@ -22,6 +22,7 @@ namespace ExampleCode
             using var context = new BrightDataContext(null, RandomSeed);
             var useCuda = false;
 
+            context.UseMKL();
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
             //context.UseMKL();
 
@@ -37,8 +38,8 @@ namespace ExampleCode
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
-            IntegerAddition(context);
-            //ReberPrediction(context);
+            //IntegerAddition(context);
+            ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
             //SequenceToSequence(context, useCuda);
@@ -80,19 +81,19 @@ namespace ExampleCode
         static void Xor(BrightDataContext context)
         {
             Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(4, 40, 0.5f, 4);
+            context.Xor().TrainSigmoidNeuralNetwork(4, 100, 0.5f, 4, 10);
         }
 
         static void IrisClassification(BrightDataContext context)
         {
             Start(context);
             var iris = context.Iris();
-            iris.TrainNaiveBayes();
-            iris.TrainDecisionTree();
-            iris.TrainRandomForest(500, 7);
-            iris.TrainKNearestNeighbours(10);
+            //iris.TrainNaiveBayes();
+            //iris.TrainDecisionTree();
+            //iris.TrainRandomForest(500, 7);
+            //iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(32, 500, 0.1f, 16, 50);
+            iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
 
         static void IrisClustering(BrightDataContext context)
@@ -137,7 +138,7 @@ namespace ExampleCode
         static void MnistFeedForward(BrightDataContext context)
         {
             Start(context);
-            context.Mnist()/*.TrainFeedForwardNeuralNetwork()*/;
+            context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
         static void MnistConvolutional(BrightDataContext context, bool useCuda)

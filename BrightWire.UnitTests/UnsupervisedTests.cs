@@ -6,7 +6,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class UnsupervisedTests : NumericsBase
+    public class UnsupervisedTests : CpuBase
     {
         [Fact]
         public void TestKMeans()

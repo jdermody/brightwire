@@ -11,11 +11,20 @@ namespace BrightData.DataTable2
     public partial class BrightDataTable
     {
         public IEnumerable<uint> AllRowIndices => _header.RowCount.AsRange();
-
         public IEnumerable<uint> AllOrSpecifiedRowIndices(uint[]? indices) => (indices is null || indices.Length == 0)
             ? AllRowIndices
             : indices
         ;
+
+        RandomAccessColumnReader<CT, T> GetRandomAccessColumnReader<CT, T>(uint offset, uint sizeInBytes, IConvertStructsToObjects<CT, T> converter)
+            where CT : unmanaged
+            where T : notnull
+        {
+            var block = _buffer.GetBlock<CT>(offset, sizeInBytes);
+            return new RandomAccessColumnReader<CT, T>(block, converter);
+        }
+
+        public T Get<T>(uint rowIndex, uint columnIndex) where T : notnull => (T)_columnReaders.Value[columnIndex][rowIndex];
 
         public IEnumerable<(uint RowIndex, object[] Data)> GetAllRowData(bool reuseArrayForEachIteration = true, params uint[] rowIndices)
         {
@@ -55,72 +64,14 @@ namespace BrightData.DataTable2
         }
 
         public BrightDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
-
         public IEnumerable<BrightDataTableRow> GetRows(params uint[] rowIndices)
         {
-            var columnCount = _header.ColumnCount;
-            var readers = GetColumnReaders(ColumnIndices);
-
-            try {
-                foreach (var ri in AllOrSpecifiedRowIndices(rowIndices)) {
-                    var ret = new object[columnCount];
-                    for (uint i = 0; i < columnCount; i++)
-                        ret[i] = readers[i].Get(ri);
-                    yield return new BrightDataTableRow(this, ret, ri);
-                }
-            }
-            finally {
-                foreach(var item in readers)
-                    item.Dispose();
-            }
-        }
-
-        public IEnumerable<BrightDataTableRow> GetSparseRows(params uint[] rowIndices)
-        {
-            var columnCount = _header.ColumnCount;
-            var readers = new ICanEnumerateDisposable[columnCount];
-            var enumerators = new IEnumerator<object>[columnCount];
-
-            foreach (var (first, last) in AllOrSpecifiedRowIndices(rowIndices).FindDistinctContiguousRanges()) {
-                try {
-                    var count = last - first + 1;
-                    for (uint i = 0; i < columnCount; i++) {
-                        var reader = readers[i] = GetColumnReader(i, count, size => size * first);
-                        enumerators[i] = reader.Enumerate().GetEnumerator();
-                    }
-
-                    for (uint j = 0; j < count; j++) {
-                        var ret = new object[columnCount];
-                        for (uint i = 0; i < columnCount; i++) {
-                            var enumerator = enumerators[i];
-                            enumerator.MoveNext();
-                            ret[i] = enumerator.Current;
-                        }
-                        yield return new BrightDataTableRow(this, ret, first + j);
-                    }
-                }
-                finally {
-                    enumerators.DisposeAll();
-                    readers.DisposeAll();
-                }
+            var readers = _columnReaders.Value;
+            foreach (var ri in AllOrSpecifiedRowIndices(rowIndices)) {
+                yield return new BrightDataTableRow(this, readers, ri);
             }
         }
 
         public IEnumerable<BrightDataTableRow> AllRows => GetRows();
-
-        //public object[] GetRowData(uint rowIndex)
-        //{
-        //    var columnCount = _header.ColumnCount;
-        //    var readers = new ICanEnumerateDisposable[columnCount];
-        //    try {
-        //        for (uint i = 0; i < columnCount; i++)
-        //            readers[i] = GetColumnReader(i, 1, size => size * rowIndex);
-        //        return readers.Select(r => r.Enumerate().First()).ToArray();
-        //    }
-        //    finally {
-        //        foreach(var item in readers)
-        //            item.Dispose();
-        //    }
-        //}
     }
 }

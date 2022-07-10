@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         protected BinaryGateBase(string? name) : base(name) { }
 
         /// <inheritdoc />
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             IGraphData next;
             Func<IBackpropagate>? backProp;
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, next, backProp);
         }
 
-        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete(IGraphData signal, IGraphSequenceContext context)
+        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete(IGraphData signal, IGraphContext context)
         {
             if (_primary != null && _secondary != null && _primarySource != null && _secondarySource != null) {
                 var (next, backProp) = Activate(context, _primary, _secondary, _primarySource, _secondarySource);
@@ -59,6 +59,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="secondary">Secondary signal</param>
         /// <param name="primarySource">Primary source node</param>
         /// <param name="secondarySource">Secondary source node</param>
-        protected abstract (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
+        protected abstract (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
     }
 }

@@ -54,8 +54,8 @@ namespace BrightData.LinearAlegbra2
 
         public override string ToString()
         {
-            var preview = String.Join("|", Segment.Values.Take(8));
-            if (Size > 8)
+            var preview = String.Join("|", Segment.Values.Take(Consts.PreviewSize));
+            if (Size > Consts.PreviewSize)
                 preview += "|...";
             return $"Vector ({Size}): {preview}";
         }

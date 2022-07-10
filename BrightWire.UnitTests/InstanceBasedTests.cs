@@ -6,7 +6,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class InstanceBasedTests : NumericsBase
+    public class InstanceBasedTests : CpuBase
     {
         [Fact]
         public void Knn()

@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _backward = backward;
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
 
         Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
-        Dictionary<uint, IGraphSequenceContext> _contextTable = new();
+        Dictionary<uint, IGraphContext> _contextTable = new();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
@@ -63,10 +63,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput = new Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
-            _contextTable = new Dictionary<uint, IGraphSequenceContext>();
+            _contextTable = new Dictionary<uint, IGraphContext>();
         }
 
-        void Continue(IGraphSequenceContext context, CancellationToken ct)
+        void Continue(IGraphContext context, CancellationToken ct)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 wire.SendTo.Forward(ct, next, context, wire.Channel, this);
         }
 
-        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

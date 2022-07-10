@@ -8,11 +8,11 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class Tensor3DData : ITensor3DInfo
     {
-        ICanRandomlyAccessData<float> _data;
+        ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment2? _segment;
         uint _startIndex;
 
-        public Tensor3DData(ICanRandomlyAccessData<float> data, uint startIndex, uint depth, uint rowCount, uint columnCount)
+        public Tensor3DData(ICanRandomlyAccessUnmanagedData<float> data, uint depth, uint rowCount, uint columnCount, uint startIndex)
         {
             _data = data;
             _startIndex = startIndex;
@@ -26,8 +26,23 @@ namespace BrightData.DataTable2.TensorData
         public uint ColumnCount { get; private set; }
         public uint MatrixSize => RowCount * ColumnCount;
 
-        public float this[int depth, int rowY, int columnX] => _data[depth * (int)MatrixSize + rowY * (int)ColumnCount + columnX];
-        public float this[uint depth, uint rowY, uint columnX] => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
+        public float this[int depth, int rowY, int columnX]
+        {
+            get
+            {
+                _data.Get((int)(_startIndex + depth * MatrixSize + rowY * (int)ColumnCount + columnX), out var ret);
+                return ret;
+            }
+        }
+
+        public float this[uint depth, uint rowY, uint columnX]
+        {
+            get
+            {
+                _data.Get(_startIndex + depth * MatrixSize + rowY * ColumnCount + columnX, out var ret);
+                return ret;
+            }
+        }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {

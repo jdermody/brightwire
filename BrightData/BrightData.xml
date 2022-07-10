@@ -532,6 +532,16 @@
             Number of rows to process before notifying about progress
             </summary>
         </member>
+        <member name="F:BrightData.Consts.MinimumTensorSizeForParallel">
+            <summary>
+            Minimum size of a tensor to use parallel processing
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.MinimumTensorSizeForVectorised">
+            <summary>
+            Minimum size of a tensor to use SIMD processing
+            </summary>
+        </member>
         <member name="F:BrightData.Consts.SimpleMetaData">
             <summary>
             Standard metadata
@@ -623,7 +633,7 @@
             Row index
             </summary>
         </member>
-        <member name="M:BrightData.DataTable2.ColumnReader`2.EnumerateTyped">
+        <member name="M:BrightData.DataTable2.SequentialColumnReader`2.EnumerateTyped">
             <inheritdoc />
         </member>
         <member name="T:BrightData.DataTable.Column`1">
@@ -1916,7 +1926,7 @@
             </summary>
             <returns>Newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,System.Single})">
             <summary>
             Creates a vector
             </summary>
@@ -1926,7 +1936,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.BrightDataContext,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.UInt32,System.Single)">
             <summary>
             Creates a vector
             </summary>
@@ -1936,7 +1946,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.BrightDataContext,System.Single[])">
+        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.Single[])">
             <summary>
             Creates a vector
             </summary>
@@ -1945,7 +1955,7 @@
             <param name="initialData">Initial data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a vector from a binary reader
             </summary>
@@ -1954,7 +1964,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
             <summary>
             Creates a matrix
             </summary>
@@ -1965,7 +1975,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Single)">
             <summary>
             Creates a matrix
             </summary>
@@ -1976,17 +1986,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.ITensorSegment2)">
-            <summary>
-            Creates a matrix from a segment
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="rows">Number of rows</param>
-            <param name="columns">Number of columns</param>
-            <param name="segment">Segment</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a matrix from a binary reader
             </summary>
@@ -1995,7 +1995,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.BrightDataContext,BrightData.IVector[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,BrightData.IVectorInfo[])">
             <summary>
             Creates a matrix from vectors (each will become a row)
             </summary>
@@ -2004,7 +2004,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.BrightDataContext,System.Single[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,System.Single[][])">
             <summary>
             Creates a matrix from rows (each will become a row)
             </summary>
@@ -2013,7 +2013,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.BrightDataContext,BrightData.IVector[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,BrightData.IVectorInfo[])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -2022,7 +2022,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.BrightDataContext,System.Single[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,System.Single[][])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -2042,7 +2042,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,BrightData.IMatrix[])">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,BrightData.IMatrixInfo[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -2130,7 +2130,7 @@
             <param name="tensor"></param>
             <param name="initializer">Callback for each element</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment2,BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment2)">
             <summary>
             Converts the tensor segment to a sparse format (only non zero entries are preserved)
             </summary>
@@ -2211,20 +2211,11 @@
             <param name="dimensions">Number of dimensions to reduce to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IMatrix},System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.Average``1(System.Collections.Generic.IEnumerable{``0},System.Boolean)">
             <summary>
-            Calculates an average matrix from a collection of matrices
+            Calculates an average from a collection of tensors
             </summary>
-            <param name="matrices">Matrices to average</param>
-            <param name="dispose">True to dispose each of the input matrices</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Average(System.Collections.Generic.IEnumerable{BrightData.IVector},System.Boolean)">
-            <summary>
-            Calculates an average vector from a collection of vectors
-            </summary>
-            <param name="vectors">Vectors to average</param>
+            <param name="tensors">Tensors to average</param>
             <param name="dispose">True to dispose each of the input vectors</param>
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>

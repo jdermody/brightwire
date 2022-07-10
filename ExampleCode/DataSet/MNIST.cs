@@ -26,7 +26,7 @@ namespace ExampleCode.DataSet
 
         public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
-            uint numIterations = 1,
+            uint numIterations = 10,
             float trainingRate = 0.1f,
             uint batchSize = 128
         )

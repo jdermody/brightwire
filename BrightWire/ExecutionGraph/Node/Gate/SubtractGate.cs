@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _secondarySource = secondarySource;
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var negative = es.Clone();
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public SubtractGate(string? name = null) : base(name) { }
 
-        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
         {
             var output = primary.Subtract(secondary);
             return (output, () => new Backpropagation(this, primarySource, secondarySource));

@@ -8,11 +8,11 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class Tensor4DData : ITensor4DInfo
     {
-        ICanRandomlyAccessData<float> _data;
+        ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment2? _segment;
         uint _startIndex;
 
-        public Tensor4DData(ICanRandomlyAccessData<float> data, uint startIndex, uint count, uint depth, uint rowCount, uint columnCount)
+        public Tensor4DData(ICanRandomlyAccessUnmanagedData<float> data, uint count, uint depth, uint rowCount, uint columnCount, uint startIndex)
         {
             _data = data;
             _startIndex = startIndex;
@@ -29,8 +29,23 @@ namespace BrightData.DataTable2.TensorData
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
 
-        public float this[int count, int depth, int rowY, int columnX] => _data[count * (int)TensorSize + depth * (int)MatrixSize + rowY * (int)ColumnCount + columnX];
-        public float this[uint count, uint depth, uint rowY, uint columnX] => _data[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+        public float this[int count, int depth, int rowY, int columnX]
+        {
+            get
+            {
+                _data.Get((int)(_startIndex + count * TensorSize + depth * (int)MatrixSize + rowY * (int)ColumnCount + columnX), out var ret);
+                return ret;
+            }
+        }
+
+        public float this[uint count, uint depth, uint rowY, uint columnX]
+        {
+            get
+            {
+                _data.Get(_startIndex + count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX, out var ret);
+                return ret;
+            }
+        }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {

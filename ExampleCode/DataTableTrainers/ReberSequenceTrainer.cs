@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 32);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 40;
@@ -45,8 +45,8 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(10, 0.1f);
-            engine.LearningContext.ScheduleLearningRate(20, 0.03f);
+            engine.LearningContext.ScheduleLearningRate(10, 0.01f);
+            engine.LearningContext.ScheduleLearningRate(20, 0.003f);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
@@ -98,10 +98,11 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
+            var learningRate = 0.3f;
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 50;
+            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 30;
             graph.Connect(engine)
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -109,8 +110,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(15, 0.1f);
-            engine.LearningContext.ScheduleLearningRate(30, 0.03f);
+            engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }

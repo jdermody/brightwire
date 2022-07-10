@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Action
             return "";
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
+        public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
         {
             context.Data = input;
             if (context.LearningContext != null) {

@@ -165,8 +165,8 @@ namespace BrightData.LinearAlegbra2
         /// <inheritdoc />
         public override string ToString()
         {
-            var preview = String.Join("|", Segment.Values.Take(8));
-            if (TotalSize > 8)
+            var preview = String.Join("|", Segment.Values.Take(Consts.PreviewSize));
+            if (TotalSize > Consts.PreviewSize)
                 preview += "|...";
             return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }

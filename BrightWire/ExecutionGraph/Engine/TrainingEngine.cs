@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Engine
             Start = _start = new InputFeeder(0, "engine-input-feeder");
         }
 
-        public IGraphSequenceContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
+        public IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
         {
             return new TrainingGraphSequenceContext(learningContext, executionContext, sequence);
         }
@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Engine
             var provider = new MiniBatchProvider(dataSource, null);
             using var executionContext = new GraphExecutionContext(_factory.Context, LinearAlgebraProvider, this);
             // ReSharper disable once AccessToDisposedClosure
-            executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
+            executionContext.Add(provider.GetMiniBatches(batchSize));
             float operationCount = executionContext.RemainingOperationCount;
             var ct = _factory.Context.CancellationToken;
             var index = 0f;
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null && !ct.IsCancellationRequested) {
                 LinearAlgebraProvider.PushScope();
-                foreach (var context in operation.Execute()) {
+                foreach (var context in Execute(executionContext, operation)) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
@@ -71,9 +71,9 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PopScope();
         }
 
-        IEnumerable<IGraphSequenceContext> Execute(GraphExecutionContext executionContext, IMiniBatch batch)
+        IEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation)
         {
-            return Train(executionContext, null, batch);
+            return Train(executionContext, null, operation);
         }
 
         public NodeBase Start { get; private set; }
@@ -82,8 +82,9 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             LinearAlgebraProvider.PushScope();
             LearningContext.StartEpoch();
-            var provider = new MiniBatchProvider(DataSource, LinearAlgebraProvider.Context.Random);
-            executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => Train(executionContext, LearningContext, batch)));
+
+            var provider = new MiniBatchProvider(DataSource, Context.Random);
+            executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize));
 
             IGraphOperation? operation;
             float operationCount = executionContext.RemainingOperationCount;
@@ -91,7 +92,7 @@ namespace BrightWire.ExecutionGraph.Engine
             var ct = _factory.Context.CancellationToken;
             while ((operation = executionContext.GetNextOperation()) != null && !ct.IsCancellationRequested) {
                 LinearAlgebraProvider.PushScope();
-                var contextList = operation.Execute().ToList();
+                var contextList = Train(executionContext, LearningContext, operation).ToList();
                 LearningContext.ApplyUpdates();
                 foreach (var context in contextList)
                     context.Dispose();
@@ -107,18 +108,19 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PopScope();
         }
 
-        IEnumerable<IGraphSequenceContext> Train(GraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
+        IEnumerable<IGraphContext> Train(GraphExecutionContext executionContext, ILearningContext? learningContext, IGraphOperation operation)
         {
+            var batch = operation.GetMiniBatch();
             if (batch.IsSequential) {
                 IMiniBatchSequence? curr;
-                var contextTable = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
+                var contextTable = new Dictionary<IMiniBatchSequence, IGraphContext>();
                 var ct = _factory.Context.CancellationToken;
                 while ((curr = batch.GetNextSequence()) != null && !ct.IsCancellationRequested) {
                     var context = Train(executionContext, learningContext, curr);
                     contextTable.Add(context.BatchSequence, context);
                 }
 
-                var additionalResults = new List<IGraphSequenceContext>();
+                var additionalResults = new List<IGraphContext>();
                 if (executionContext.HasContinuations)
                     additionalResults.AddRange(Continue(batch, executionContext, sequence => contextTable[sequence], learningContext));
 
@@ -132,11 +134,11 @@ namespace BrightWire.ExecutionGraph.Engine
                 yield return Train(executionContext, learningContext, batch.CurrentSequence);
         }
 
-        IEnumerable<IGraphSequenceContext> Continue(IMiniBatch batch, GraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext, ILearningContext? learningContext)
+        IEnumerable<IGraphContext> Continue(IMiniBatch batch, GraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphContext> lookupContext, ILearningContext? learningContext)
         {
             var ct = _factory.Context.CancellationToken;
             while (executionContext.HasContinuations && !ct.IsCancellationRequested) {
-                var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
+                var additionalContext = new List<(IGraphContext Context, Action<IGraphContext[]> OnEnd)>();
                 foreach (var item in executionContext.ExecuteAdditionalMiniBatch(learningContext))
                     additionalContext.Add(item);
 
@@ -160,7 +162,7 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
 
-        IGraphSequenceContext Train(GraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
+        IGraphContext Train(GraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
         {
             var context = Create(executionContext, sequence, learningContext);
             Start.Forward(_factory.Context.CancellationToken, GraphData.Null, context);

@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        public IEnumerable<IGraphData> Backpropagate(IGraphSequenceContext context, IGraphData? delta, ExecutionNode fromNode)
+        public IEnumerable<IGraphData> Backpropagate(IGraphContext context, IGraphData? delta, ExecutionNode fromNode)
         {
             var input = _inputError.Value;
             input.Add(fromNode, delta);

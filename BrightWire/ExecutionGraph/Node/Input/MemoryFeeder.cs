@@ -19,13 +19,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
                 using var columnSums = es.ColumnSums();
                 using var initialDelta = columnSums.Multiply(1f / es.RowCount);
+                var learningRate = context.LearningContext!.LearningRate;
                 for (uint j = 0; j < _source.Data.Length; j++) {
-                    _source.Data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
+                    _source.Data[j] += initialDelta[j] * learningRate;
                 }
                 #if DEBUG
                 foreach(var item in _source.Data)
@@ -55,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public bool LoadNextFromMemory { get; set; } = false;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             IMatrix memory;
             if (!LoadNextFromMemory && context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {

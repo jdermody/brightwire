@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     class SequenceToSequenceGate : NodeBase
     {
         string _encoderName, _decoderName;
-        ConcurrentStack<IGraphSequenceContext>? _encoderContext;
+        ConcurrentStack<IGraphContext>? _encoderContext;
 
         public SequenceToSequenceGate(string encoderName, string decoderName, string? name, string? id = null) : base(name, id)
         {
@@ -20,9 +20,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _decoderName = decoderName;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            _encoderContext ??= new ConcurrentStack<IGraphSequenceContext>();
+            _encoderContext ??= new ConcurrentStack<IGraphContext>();
             _encoderContext.Push(context);
 
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd) {
@@ -46,13 +46,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, GraphData.Null, null);
         }
 
-        void OnStartEncoder(IGraphSequenceContext context, IGraphData data, CancellationToken ct)
+        void OnStartEncoder(IGraphContext context, IGraphData data, CancellationToken ct)
         {
             foreach (var wire in Output)
                 wire.SendTo.Forward(ct, data, context, wire.Channel);
         }
 
-        void OnEndDecoder(IGraphSequenceContext[] context)
+        void OnEndDecoder(IGraphContext[] context)
         {
             var firstContext = context.FirstOrDefault();
             var learningContext = firstContext?.LearningContext;

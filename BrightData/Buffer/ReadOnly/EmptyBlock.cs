@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace BrightData.Buffer.ReadOnly
 {
-    public class EmptyBlock<T> : ICanRandomlyAccessData<T> where T : unmanaged
+    public class EmptyBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged
     {
         public void Dispose()
         {
             // nop
         }
 
-        public T this[int index] => default;
-        public T this[uint index] => default;
+        public void Get(int index, out T value) => value = default;
+        public void Get(uint index, out T value) => value = default;
         public ReadOnlySpan<T> GetSpan(uint startIndex, uint count) => new(null);
     }
 }

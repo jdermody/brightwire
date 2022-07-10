@@ -17,16 +17,18 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
         readonly bool _sequenceLengthsAreVaried = false;
+        readonly uint _featureColumnIndex;
 
 	    public SequentialDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+            _featureColumnIndex = _featureColumnIndices.Single();
+
             if (dataTable.TableMetaData.Get("Seq2Seq", false))
                 sequenceLengthsAreVaried = true;
             _featureColumns = featureColumns;
-
             _rowDepth = new uint[dataTable.RowCount];
 
             // find the number of sequences of each row
@@ -51,7 +53,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(IMatrixInfo Input, IMatrixInfo? Output)> GetRows(uint[] rows)
         {
-            return _dataTable.GetRows(rows).Select(row => ((IMatrixInfo)row[_featureColumnIndices[0]], (IMatrixInfo?)row[_targetColumnIndex]));
+            foreach (var row in _dataTable.GetRows(rows)) {
+                var input = (IMatrixInfo)row[_featureColumnIndex];
+                var output = (IMatrixInfo?)row[_targetColumnIndex];
+                yield return (input, output);
+            }
         }
 
         public override IDataSource CloneWith(BrightDataTable dataTable)

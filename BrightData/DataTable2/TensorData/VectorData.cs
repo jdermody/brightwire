@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using BrightData.LinearAlegbra2;
 using BrightData.Serialisation;
 using Microsoft.Toolkit.HighPerformance;
@@ -9,12 +10,12 @@ namespace BrightData.DataTable2.TensorData
 {
     internal class VectorData : IVectorInfo
     {
-        ICanRandomlyAccessData<float> _data;
+        ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment2? _segment;
         uint _startIndex;
         uint _stride;
 
-        internal VectorData(ICanRandomlyAccessData<float> data, uint startIndex, uint stride, uint size)
+        internal VectorData(ICanRandomlyAccessUnmanagedData<float> data, uint startIndex, uint stride, uint size)
         {
             _data = data;
             _startIndex = startIndex;
@@ -47,8 +48,23 @@ namespace BrightData.DataTable2.TensorData
         }
 
         public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
-        public float this[int index] => _data[(int)(_startIndex + index * _stride)];
-        public float this[uint index] => _data[_startIndex + index * _stride];
+
+        public float this[int index]
+        {
+            get
+            {
+                _data.Get((int)(_startIndex + index * _stride), out var ret);
+                return ret;
+            }
+        }
+        public float this[uint index]
+        {
+            get
+            {
+                _data.Get(_startIndex + index * _stride, out var ret);
+                return ret;
+            }
+        }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
@@ -64,6 +80,13 @@ namespace BrightData.DataTable2.TensorData
             writer.Write(1);
             writer.Write(Size);
             writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
+        }
+        public override string ToString()
+        {
+            var preview = String.Join("|", Math.Min(Consts.PreviewSize, Size).AsRange().Select(i => this[i]));
+            if (Size > Consts.PreviewSize)
+                preview += "|...";
+            return $"Vector Data ({Size}): {preview}";
         }
     }
 }

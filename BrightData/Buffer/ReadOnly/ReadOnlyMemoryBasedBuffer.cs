@@ -52,7 +52,7 @@ namespace BrightData.Buffer.ReadOnly
             }
 
             public bool MoveNext() => ++_index < _length;
-            public void Seek(uint index) => _index = (int)index - 1;
+            public void Reset() => _index = -1;
             public ref readonly T Current => ref *(_ptr + _index);
             ref T IHaveMutableReference<T>.Current => ref *(_ptr + _index);
 
@@ -96,7 +96,7 @@ namespace BrightData.Buffer.ReadOnly
             public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceEnumerator<T>(Pointer, Length);
         }
 
-        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T : unmanaged
+        class RandomAccessBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged
         {
             readonly T* _memory;
 
@@ -110,8 +110,9 @@ namespace BrightData.Buffer.ReadOnly
                 // nop
             }
 
-            public T this[int index] => *(_memory + index);
-            public T this[uint index] => *(_memory + index);
+            public void Get(int index, out T value) => value = *(_memory + index);
+            public void Get(uint index, out T value) => value = *(_memory + index);
+
             public ReadOnlySpan<T> GetSpan(uint startIndex, uint count) => new(_memory + startIndex, (int)count);
         }
         readonly MemoryHandle _memory;
@@ -133,7 +134,7 @@ namespace BrightData.Buffer.ReadOnly
             return new IterableBlock<T>((T*)(ptr + offset), (int)(sizeInBytes / Unsafe.SizeOf<T>()));
         }
 
-        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
+        public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;
             return new RandomAccessBlock<T>((T*)(ptr + offset));

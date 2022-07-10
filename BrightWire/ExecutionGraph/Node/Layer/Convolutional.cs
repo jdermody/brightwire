@@ -28,12 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_inputDepth = inputDepth;
 			}
 
-			void UpdateBias(IVector delta, ILearningContext context)
-			{
-				_source._bias.AddInPlace(delta, 1f, context.BatchLearningRate);
-			}
-
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
                 var padding = _source._padding;
@@ -44,8 +39,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var biasUpdate = tensor.ColumnSums();
 
                     var learningContext = context.LearningContext!;
-                    learningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, learningContext));
-                    learningContext.StoreUpdate(_source, biasUpdate, bu => UpdateBias(bu, learningContext));
+                    learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
+                    learningContext.AddError(ErrorType.Bias, _source, biasUpdate);
                 }
 
                 if (_source._shouldBackpropagate) {
@@ -112,12 +107,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-		public void Update(IMatrix delta, ILearningContext context)
-		{
-			_updater!.Update(_filter, delta, context);
-		}
+        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        {
+            if(type == ErrorType.Bias)
+                _bias.AddInPlace(delta, 1f, context.LearningRate);
+			else if (type == ErrorType.Weight)
+                _updater!.Update(_filter, (IMatrix)delta, context);
+            else
+                throw new NotImplementedException();
+        }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
 

@@ -29,7 +29,7 @@ namespace BrightData.Buffer.ReadOnly
                 _iterableCount         = iterableCount;
                 _sizeOfT               = Unsafe.SizeOf<T>();
                 _buffer                = MemoryOwner<T>.Allocate((int)Math.Min(_iterableCount, bufferSize));
-                _bufferSize            = 0;
+                ReadIntoBuffer();
             }
 
             public void Dispose()
@@ -57,15 +57,11 @@ namespace BrightData.Buffer.ReadOnly
 
                 return false;
             }
-            public void Seek(uint index)
+            public void Reset()
             {
-                if(index > _iterableCount)
-                    throw new ArgumentOutOfRangeException(nameof(index));
-
-                _index = (int)index - 1;
+                _index = -1;
                 _bufferIndex = -1;
-                _bufferSize = 0;
-                _stream.Seek(_initialStreamPosition + index * _sizeOfT, SeekOrigin.Begin);
+                _stream.Seek(_initialStreamPosition, SeekOrigin.Begin);
             }
             public ref readonly T Current => ref _buffer.Span[_bufferIndex];
             ref T IHaveMutableReference<T>.Current => ref _buffer.Span[_bufferIndex];
@@ -89,7 +85,7 @@ namespace BrightData.Buffer.ReadOnly
             public IEnumerable<T> Enumerate() => _stream.Enumerate<T>((uint)(_stream.Length / _sizeOfT));
             public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceStructFromStreamReader<T>(_stream, _stream.Length / _sizeOfT);
         }
-        class RandomAccessBlock<T> : ICanRandomlyAccessData<T> where T : unmanaged
+        class RandomAccessBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged
         {
             readonly MemoryMappedViewAccessor _accessor;
             readonly int _sizeOfT;
@@ -104,15 +100,8 @@ namespace BrightData.Buffer.ReadOnly
             {
                 _accessor.Dispose();
             }
-
-            public T this[int index] => Get((uint)index);
-            public T this[uint index] => Get(index);
-
-            T Get(uint index)
-            {
-                _accessor.Read(index * _sizeOfT, out T ret);
-                return ret;
-            }
+            public void Get(int index, out T value) => _accessor.Read(index * _sizeOfT, out value);
+            public void Get(uint index, out T value) => _accessor.Read(index * _sizeOfT, out value);
 
             public ReadOnlySpan<T> GetSpan(uint startIndex, uint count)
             {
@@ -143,7 +132,7 @@ namespace BrightData.Buffer.ReadOnly
             return new IterableBlock<T>(viewStream);
         }
 
-        public ICanRandomlyAccessData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
+        public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewAccessor = _file.CreateViewAccessor(offset, sizeInBytes, MemoryMappedFileAccess.Read);
             return new RandomAccessBlock<T>(viewAccessor);

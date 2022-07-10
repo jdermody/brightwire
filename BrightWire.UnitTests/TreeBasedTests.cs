@@ -7,7 +7,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class TreeBasedTests : NumericsBase
+    public class TreeBasedTests : CpuBase
     {
         [Fact]
         public void TestDecisionTree()

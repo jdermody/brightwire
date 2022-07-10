@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Action
             _max = max;
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
+        public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
         {
             var matrix = input.GetMatrix();
             matrix.ConstrainInPlace(_min, _max);

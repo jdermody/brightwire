@@ -141,8 +141,6 @@ namespace BrightWire.ExecutionGraph
             uint batchSize = 128
         )
 		{
-			//var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, this);
-			//return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
             var ret = new TrainingEngine(this, dataSource, errorMetric);
             var learningContext = ret.LearningContext;
             learningContext.LearningRate = learningRate;

@@ -30,6 +30,18 @@
         /// </summary>
         public const uint RowProcessingNotificationCadence = 1000;
 
+        public const int PreviewSize = 16;
+
+        /// <summary>
+        /// Minimum size of a tensor to use parallel processing
+        /// </summary>
+        public const int MinimumTensorSizeForParallel = 8192;
+
+        /// <summary>
+        /// Minimum size of a tensor to use SIMD processing
+        /// </summary>
+        public const int MinimumTensorSizeForVectorised = 256;
+
 #pragma warning disable 1591
         public const string ColumnIndex                   = "ColumnIndex";
         public const string Name                          = "Name";

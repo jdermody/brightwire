@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _rows = rows;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public SoftMax(string? name = null) : base(name) { }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var lap = context.GetLinearAlgebraProvider();
             var input = signal.GetMatrix();

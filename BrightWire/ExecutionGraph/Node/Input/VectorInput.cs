@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -21,11 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, columnSums, err => {
-                    var delta = err.Segment.GetLocalOrNewArray();
-                    for (uint j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += delta[j] * learningContext.BatchLearningRate;
-                });
+                learningContext.AddError(ErrorType.Default, _source, columnSums);
                 return errorSignal;
             }
         }
@@ -41,7 +37,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        {
+            var array = delta.Segment.GetLocalOrNewArray();
+            for (uint j = 0; j < _data.Length; j++)
+                _data[j] += array[j] * context.LearningRate;
+        }
+
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var data = context.GetLinearAlgebraProvider().CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (_, y) => _data[y]);
             return (this, data.AsGraphData(), () => new Backpropagation(this));

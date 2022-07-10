@@ -98,39 +98,39 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// <param name="data">List of input/output matrix tuples</param>
         protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IMatrixInfo Input, IMatrixInfo? Output)[] data)
         {
-            List<ITensorSegment2>? temp;
-            var inputData = new List<List<IVectorInfo>>();
-            var outputData = new List<List<IVectorInfo>>();
+            List<IVectorInfo>? temp;
+            var inputData = new Dictionary<uint, List<IVectorInfo>>();
+            var outputData = new Dictionary<uint, List<IVectorInfo>>();
             var lap = _dataTable.Context.LinearAlgebraProvider2;
 
             foreach (var (input, output) in data) {
-                var inputList = new List<IVectorInfo>();
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
-                    inputList.Add(input.GetRow(i));
+                    if (!inputData.TryGetValue(i, out temp))
+                        inputData.Add(i, temp = new List<IVectorInfo>());
+                    temp.Add(input.GetRow(i));
+
                     if (output != null) {
-                        var outputList = new List<IVectorInfo>();
-                        outputList.Add(output.GetRow(i));
-                        outputData.Add(outputList);
+                        if (!outputData.TryGetValue(i, out temp))
+                            outputData.Add(i, temp = new List<IVectorInfo>());
+                        temp.Add(output.GetRow(i));
                     }
                 }
-                inputData.Add(inputList);
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var index = 0;
-            foreach (var item in inputData) {
-                var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item));
+            foreach (var item in inputData.OrderBy(kv => kv.Key)) {
+                var span = CollectionsMarshal.AsSpan(item.Value);
+                var input = lap.CreateMatrixFromRows(span);
                 IGraphData? output = null;
-                if (outputData.Any())
-                    output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputData[index])).AsGraphData();
-                var type = (index == 0)
+                if (outputData.TryGetValue(item.Key, out var outputList))
+                    output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputList)).AsGraphData();
+                var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
-                    : index == (inputData.Count - 1)
+                    : item.Key == (inputData.Count - 1)
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
                 miniBatch.Add(type, input.AsGraphData(), output);
-                ++index;
             }
             return miniBatch;
         }

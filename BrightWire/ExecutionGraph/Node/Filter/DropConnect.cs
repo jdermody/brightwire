@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filteredWeights = filteredWeights;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -35,8 +35,8 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
+                learningContext.AddError(ErrorType.Bias, _source, es);
+                learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
                 var lap = context.GetLinearAlgebraProvider();

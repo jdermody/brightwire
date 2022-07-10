@@ -12,13 +12,13 @@ namespace BrightData.DataTable2
         where CT : unmanaged
         where T: notnull
     {
-        readonly ColumnReader<CT, T> _reader;
+        readonly SequentialColumnReader<CT, T> _reader;
 
         public ColumnSegment(
             BrightDataContext context,
             BrightDataType dataType,
             uint size,
-            ColumnReader<CT, T> reader, 
+            SequentialColumnReader<CT, T> reader, 
             IMetaData metaData)
         {
             _reader = reader;

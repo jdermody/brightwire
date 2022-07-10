@@ -53,5 +53,12 @@ namespace BrightData.LinearAlegbra2.TensorInfo
         public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper2(_segment, columnIndex * RowCount, 1, RowCount));
         public uint Size => RowCount * ColumnCount;
         public ITensorSegment2 Segment => _segment;
+        public override string ToString()
+        {
+            var preview = String.Join("|", _segment.Values.Take(Consts.PreviewSize));
+            if (Size > Consts.PreviewSize)
+                preview += "|...";
+            return $"Matrix Info (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
     }
 }

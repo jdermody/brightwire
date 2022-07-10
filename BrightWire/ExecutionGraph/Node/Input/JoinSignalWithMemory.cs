@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _memorySize = memorySize;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var matrix = errorSignal.GetMatrix();
                 var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _memorySize);
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _slotName = slotName;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
             var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));

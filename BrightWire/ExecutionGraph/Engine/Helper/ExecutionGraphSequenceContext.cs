@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Execution engine context
     /// </summary>
-    internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
+    internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphContext
     {
         public ExecutionGraphSequenceContext(GraphExecutionContext executionContext, IMiniBatchSequence miniBatch) : base(miniBatch)
         {

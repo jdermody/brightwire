@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override List<WireToNode> Output => _output.Output;
         public NodeBase Memory => _memory;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {

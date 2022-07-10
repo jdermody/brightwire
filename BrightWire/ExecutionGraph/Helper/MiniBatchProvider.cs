@@ -10,24 +10,21 @@ namespace BrightWire.ExecutionGraph.Helper
     /// </summary>
     internal class MiniBatchProvider
     {
-        class MiniBatchOperation : IGraphOperation
+        public class Operation : IGraphOperation
         {
             readonly uint[] _rows;
             readonly MiniBatchProvider _provider;
-            readonly Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> _handler;
 
-            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
+            public Operation(uint[] rows, MiniBatchProvider provider)
             {
                 _rows = rows;
-                _handler = handler;
                 _provider = provider;
             }
 
-            public IEnumerable<IGraphSequenceContext> Execute()
+            public IMiniBatch GetMiniBatch()
             {
                 var dataSource = _provider._dataSource;
-                var miniBatch = dataSource.Get(_rows);
-                return _handler(miniBatch);
+                return dataSource.Get(_rows);
             }
         }
         readonly IDataSource _dataSource;
@@ -39,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _random = random;
         }
 
-        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
+        public IEnumerable<Operation> GetMiniBatches(uint batchSize)
         {
             var buckets = _dataSource.GetSequentialBatches();
             if (_random != null)
@@ -52,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 for (uint j = 0; j < bucket.Length; j += batchSize) {
                     var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
                     var rows = iterationOrder.Skip((int)j).Take((int)maxRows).Select(i => bucket[i]).ToArray();
-                    yield return new MiniBatchOperation(rows, this, handler);
+                    yield return new Operation(rows, this);
                 }
             }
         }

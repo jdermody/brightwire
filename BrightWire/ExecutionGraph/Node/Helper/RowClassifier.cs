@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 return GraphData.Null;
             }
@@ -60,7 +60,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public uint OutputSize => _indexer.OutputSize;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var rows = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows);
             var resultList = rows

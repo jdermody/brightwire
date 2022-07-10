@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _ancestors = ancestors;
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 IMatrix split, residual = errorSignal.GetMatrix();
                 var index = parents.Length-1;
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             data.Reverse();
             var curr = data.First().Data;

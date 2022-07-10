@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _weights = weights;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var (left, right) = errorSignal.GetMatrix().SplitAtColumn(_position);
 
@@ -45,8 +45,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     collapsed.MultiplyInPlace(1f / feedForwardError.ColumnCount);
                     var weightUpdate = collapsed.Reshape(null, 1);
 
-                    learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
-                    learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
+                    learningContext.AddError(ErrorType.Bias, _source, feedForwardError);
+                    learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
                 }
 
                 return left.AsGraphData();
@@ -60,7 +60,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _layer = layer;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
+
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var currentIndex = context.BatchSequence.SequenceIndex;
 

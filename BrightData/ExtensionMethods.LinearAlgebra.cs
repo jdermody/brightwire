@@ -103,7 +103,7 @@ namespace BrightData
         {
             var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(MatrixInfo));
             ret.Initialize(context, reader);
-            return (IMatrix)ret;
+            return (IMatrixInfo)ret;
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static IMatrixInfo CreateMatrixInfoFromRows(this BrightDataContext context, params float[][] rows)
+        public static IMatrixInfo CreateMatrixInfoFromRows(this BrightDataContext _, params float[][] rows)
         {
             var columns = (uint)rows[0].Length;
             var ret = new MatrixInfo((uint)rows.Length, columns);
@@ -151,7 +151,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext context, params IVectorInfo[] columns)
+        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext _, params IVectorInfo[] columns)
         {
             var rows = columns[0].Size;
             var ret = new MatrixInfo(rows, (uint)columns.Length);
@@ -170,7 +170,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext context, params float[][] columns)
+        public static IMatrixInfo CreateMatrixInfoFromColumns(this BrightDataContext _, params float[][] columns)
         {
             var rows = (uint)columns[0].Length;
             var ret = new MatrixInfo(rows, (uint)columns.Length);
@@ -547,24 +547,13 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Calculates an average matrix from a collection of matrices
+        /// Calculates an average from a collection of tensors
         /// </summary>
-        /// <param name="matrices">Matrices to average</param>
-        /// <param name="dispose">True to dispose each of the input matrices</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static IMatrix Average(this IEnumerable<IMatrix> matrices, bool dispose) => Average<IMatrix>(matrices, dispose);
-
-        /// <summary>
-        /// Calculates an average vector from a collection of vectors
-        /// </summary>
-        /// <param name="vectors">Vectors to average</param>
+        /// <param name="tensors">Tensors to average</param>
         /// <param name="dispose">True to dispose each of the input vectors</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IVector Average(this IEnumerable<IVector> vectors, bool dispose) => Average<IVector>(vectors, dispose);
-
-        static T Average<T>(this IEnumerable<T> tensors, bool dispose)
+        public static T Average<T>(this IEnumerable<T> tensors, bool dispose)
             where T: ITensor2
         {
             if(tensors == null)

@@ -10,12 +10,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 {
     internal class NodeWrapper : NodeBase
     {
-        class ContextProxy : IGraphSequenceContext
+        class ContextProxy : IGraphContext
         {
-            readonly IGraphSequenceContext _context;
+            readonly IGraphContext _context;
             readonly NodeBase _wrapper;
 
-            public ContextProxy(IGraphSequenceContext context, NodeBase wrapper)
+            public ContextProxy(IGraphContext context, NodeBase wrapper)
             {
                 _context = context;
                 _wrapper = wrapper;
@@ -68,7 +68,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = node.Id;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             return _node.ForwardSingleStep(signal, channel, context, source);
         }

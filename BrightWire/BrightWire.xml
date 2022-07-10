@@ -1258,7 +1258,7 @@
             </summary>
             <param name="isDisposing"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.ErrorTo(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.ErrorTo(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Sends the error to each of the parents
             </summary>
@@ -1267,7 +1267,7 @@
             <param name="parents"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Backpropagates the error
             </summary>
@@ -1304,10 +1304,10 @@
             </summary>
             <param name="name"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IMatrix,BrightData.IMatrix,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphContext,BrightData.IMatrix,BrightData.IMatrix,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             When both the primary and secondary inputs have arrived
             </summary>
@@ -1378,10 +1378,10 @@
             <param name="name">The name of the node (optional)</param>
             <param name="incoming">The list of incoming wires</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
             <summary>
             Called when all registered inputs have arrived
             </summary>
@@ -1586,7 +1586,7 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(System.Threading.CancellationToken,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(System.Threading.CancellationToken,BrightWire.IGraphData,BrightWire.IGraphContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the graph
             </summary>
@@ -1596,7 +1596,7 @@
             <param name="channel"></param>
             <param name="prev"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes a single forward step
             </summary>
@@ -1770,7 +1770,7 @@
             </summary>
             <param name="source">The node that generated the forward signal</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphSequenceContext)">
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphContext)">
             <summary>
             Backpropagates the error
             </summary>
@@ -1778,7 +1778,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
@@ -2596,7 +2596,7 @@
             An action to perform when a signal reaches a node
             </summary>
         </member>
-        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the action
             </summary>
@@ -2648,32 +2648,32 @@
             <param name="factory">Graph factory</param>
             <param name="reader">Binary reader that holds the node's state</param>
         </member>
-        <member name="T:BrightWire.IGraphSequenceContext">
+        <member name="T:BrightWire.IGraphContext">
             <summary>
-            Represents a single pass through the graph, from a single mini batch sequence
+            Represents a single pass through the graph
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Data">
+        <member name="P:BrightWire.IGraphContext.Data">
             <summary>
             Current signal
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.ExecutionContext">
+        <member name="P:BrightWire.IGraphContext.ExecutionContext">
             <summary>
             Current execution context
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.LearningContext">
+        <member name="P:BrightWire.IGraphContext.LearningContext">
             <summary>
             Current learning context (optional)
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.BatchSequence">
+        <member name="P:BrightWire.IGraphContext.BatchSequence">
             <summary>
             Current mini batch sequence
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.AddForwardHistory(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate},BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.IGraphContext.AddForwardHistory(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate},BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Records forward node execution
             </summary>
@@ -2682,46 +2682,46 @@
             <param name="callback">Optional callback to add backpropagation</param>
             <param name="prev">Ancestors that fed input into the node</param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.Backpropagate(BrightWire.IGraphData)">
+        <member name="M:BrightWire.IGraphContext.Backpropagate(BrightWire.IGraphData)">
             <summary>
             Backpropagates the signal
             </summary>
             <param name="delta">Error signal</param>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.ErrorSignal">
+        <member name="P:BrightWire.IGraphContext.ErrorSignal">
             <summary>
             Final error signal
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.SetOutput(BrightWire.IGraphData,System.Int32)">
+        <member name="M:BrightWire.IGraphContext.SetOutput(BrightWire.IGraphData,System.Int32)">
             <summary>
             Saves the data as an output of the graph
             </summary>
             <param name="data">Segment to save</param>
             <param name="channel">Channel to save against (optional)</param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.GetOutput(System.Int32)">
+        <member name="M:BrightWire.IGraphContext.GetOutput(System.Int32)">
             <summary>
             Returns a saved output
             </summary>
             <param name="channel">Output channel (optional)</param>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Output">
+        <member name="P:BrightWire.IGraphContext.Output">
             <summary>
             Returns all stored output
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Results">
+        <member name="P:BrightWire.IGraphContext.Results">
             <summary>
             Execution results
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.ClearForBackpropagation">
+        <member name="M:BrightWire.IGraphContext.ClearForBackpropagation">
             <summary>
             Resets the context for another run of backpropagation
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.SetData(System.String,System.String,BrightWire.IGraphData)">
+        <member name="M:BrightWire.IGraphContext.SetData(System.String,System.String,BrightWire.IGraphData)">
             <summary>
             Stores sequence specific data
             </summary>
@@ -2729,7 +2729,7 @@
             <param name="type">Data type</param>
             <param name="data"></param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.GetData(System.String)">
+        <member name="M:BrightWire.IGraphContext.GetData(System.String)">
             <summary>
             Retrieves sequence specific data
             </summary>
@@ -2755,7 +2755,7 @@
             Backpropagation handler
             </summary>
         </member>
-        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Backpropagate
             </summary>
@@ -2957,9 +2957,9 @@
             A pending graph operation (mini batch)
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphOperation.Execute">
+        <member name="M:BrightWire.IGraphOperation.GetMiniBatch">
             <summary>
-            Executes the operation
+            Creates the mini batch
             </summary>
         </member>
         <member name="T:BrightWire.IGraphEngine">
@@ -3213,7 +3213,7 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphSequenceContext,BrightData.IMatrix,BrightData.IMatrix)">
+        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphContext,BrightData.IMatrix,BrightData.IMatrix)">
             <summary>
             Calculates the gradient of the error function
             </summary>
@@ -3310,11 +3310,6 @@
             The current learning/training rate
             </summary>
         </member>
-        <member name="P:BrightWire.ILearningContext.BatchLearningRate">
-            <summary>
-            The learning rate adjusted with the current batch size
-            </summary>
-        </member>
         <member name="P:BrightWire.ILearningContext.BatchSize">
             <summary>
             The current mini batch size
@@ -3325,15 +3320,7 @@
             The total number of rows per epoch
             </summary>
         </member>
-        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IMatrix,System.Action{BrightData.IMatrix})">
-            <summary>
-            Stores an update to the model parameters
-            </summary>
-            <param name="fromNode">The node that is affected by this update</param>
-            <param name="update">The matrix update</param>
-            <param name="updater">Callback to execute the update</param>
-        </member>
-        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IVector,System.Action{BrightData.IVector})">
+        <member name="M:BrightWire.ILearningContext.AddError(BrightWire.ErrorType,BrightWire.ExecutionGraph.Node.NodeBase,BrightData.ITensor2)">
             <summary>
             Stores an update to the model parameters
             </summary>

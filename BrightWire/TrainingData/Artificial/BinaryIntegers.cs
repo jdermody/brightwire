@@ -53,7 +53,10 @@ namespace BrightWire.TrainingData.Artificial
                     inputList[j] = context.CreateVectorInfo(a2[j], b2[j]);
                     outputList[j] = context.CreateVectorInfo(r2[j]);
                 }
-                builder.AddRow(context.CreateMatrixInfoFromRows(inputList), context.CreateMatrixInfoFromRows(outputList));
+
+                var input = context.CreateMatrixInfoFromRows(inputList);
+                var output = context.CreateMatrixInfoFromRows(outputList);
+                builder.AddRow(input, output);
             }
             return builder.BuildInMemory();
         }

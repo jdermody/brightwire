@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Helper
             public MiniBatchSequenceType Type { get; }
             public IGraphData? Input { get; }
             public IGraphData? Target { get; }
-            public IGraphSequenceContext? GraphContext { get; set; }
+            public IGraphContext? GraphContext { get; set; }
 
             public Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
             {

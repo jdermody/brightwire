@@ -9,7 +9,7 @@ using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
 {
-    internal class TestingContext : IGraphSequenceContext
+    internal class TestingContext : IGraphContext
     {
         public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new();
 

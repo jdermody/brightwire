@@ -28,11 +28,10 @@ namespace BrightWire
         public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new GraphExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
-            var userNotifications = engine.LinearAlgebraProvider.Context.UserNotifications;
-            // ReSharper disable once AccessToModifiedClosure
+            var userNotifications = engine.Context.UserNotifications;
 
-            //var testId = Guid.NewGuid().ToString("n");
-            //engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            var testId = Guid.NewGuid().ToString("n");
+            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
 
             var count = 0;
             GraphModel? ret = null;
@@ -189,7 +188,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="miniBatch"></param>
         /// <returns></returns>
-        public static IEnumerable<IGraphSequenceContext> GetGraphContexts(this IMiniBatch miniBatch)
+        public static IEnumerable<IGraphContext> GetGraphContexts(this IMiniBatch miniBatch)
         {
             for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {
                 var context = miniBatch.GetSequenceAtIndex(i).GraphContext;
@@ -198,6 +197,6 @@ namespace BrightWire
             }
         }
 
-        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphSequenceContext context) => context.ExecutionContext.LinearAlgebraProvider;
+        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

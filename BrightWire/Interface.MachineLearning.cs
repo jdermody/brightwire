@@ -43,7 +43,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput);
+		IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -141,7 +141,7 @@ namespace BrightWire
 		/// <summary>
 		/// The learning rate adjusted with the current batch size
 		/// </summary>
-		float BatchLearningRate { get; }
+		//float BatchLearningRate { get; }
 
 		/// <summary>
 		/// The current mini batch size
@@ -159,7 +159,7 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
 		/// <param name="update">The matrix update</param>
 		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater);
+		//void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater);
 
         /// <summary>
         /// Stores an update to the model parameters
@@ -167,7 +167,9 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
         /// <param name="update">The vector update</param>
         /// <param name="updater">Callback to execute the update</param>
-        void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater);
+        //void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater);
+
+        void AddError(ErrorType errorType, NodeBase fromNode, ITensor2 error);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -580,4 +582,11 @@ namespace BrightWire
         /// <returns></returns>
         IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(BrightDataTable table);
 	}
+
+    public enum ErrorType
+    {
+		Default = 0,
+		Bias,
+		Weight
+    }
 }

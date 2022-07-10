@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input = input;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -31,8 +31,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source._layer.UpdateWeights(err, learningContext));
+                learningContext.AddError(ErrorType.Bias, _source, es);
+                learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
@@ -48,13 +48,25 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInit.CreateBias(layer.InputSize);
         }
 
+        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        {
+            if (type == ErrorType.Bias)
+                UpdateBias((IMatrix)delta, context);
+            else if (type == ErrorType.Weight)
+                _layer.UpdateWeights((IMatrix)delta, context);
+            else {
+                throw new NotImplementedException();
+            }
+        }
+
         public void UpdateBias(IMatrix delta, ILearningContext context)
         {
             using var columnSums = delta.ColumnSums();
-            _bias.AddInPlace(columnSums, 1f / columnSums.Size, context.BatchLearningRate);
+            columnSums.MultiplyInPlace(1f / columnSums.Size);
+            _bias.AddInPlace(columnSums, 1f, context.LearningRate);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
 

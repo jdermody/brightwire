@@ -80,7 +80,7 @@ namespace BrightData.UnitTests
             using var block = buffer.GetBlock<uint>(0, UINT_BUFFER_SIZE);
 
             for (var i = 0; i < SIZE; i++) {
-                var val = block[i];
+                block.Get(i, out var val);
                 val.Should().Be(TestData[i]);
             }
         }
@@ -102,7 +102,7 @@ namespace BrightData.UnitTests
             using var block = buffer.GetBlock<uint>(0, UINT_BUFFER_SIZE);
 
             for (var i = 0; i < SIZE; i++) {
-                var val = block[i];
+                block.Get(i, out var val);
                 val.Should().Be(TestData[i]);
             }
         }

@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 	            _sqrtOutput = output;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
                 using var oneHalf = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (i, j) => 0.5f);
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             var output = input.Sqrt();

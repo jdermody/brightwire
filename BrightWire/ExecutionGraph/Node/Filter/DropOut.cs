@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filter = filter;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);
@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
                 // drop out random neurons during training

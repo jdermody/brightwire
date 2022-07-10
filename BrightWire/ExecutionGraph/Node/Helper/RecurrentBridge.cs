@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var hiddenBackward = context.GetData("hidden-backward").Single(d => d.Name == _source._toName);
 
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _toName = toName;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             // connect the hidden states
             var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _fromName);

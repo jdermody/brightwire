@@ -113,15 +113,24 @@ namespace BrightData.UnitTests
             var matrixBuilder = builder.AddColumn<IMatrixInfo>("matrix");
             using var firstMatrix = _context.LinearAlgebraProvider2.CreateMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
+            var secondMatrix = _context.CreateMatrixInfo(5, 5, (i, j) => (i + j) + 1);
+            matrixBuilder.Add(secondMatrix);
 
             using var stream = new MemoryStream();
             builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
+            var column = dataTable.GetColumn(0);
+            var columnItems = column.EnumerateTyped<IMatrixInfo>().ToList();
+            columnItems.Last().Should().BeEquivalentTo(secondMatrix);
+
             using var fromTable = dataTable.Get<IMatrixInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
             fromTable.Should().BeEquivalentTo(firstMatrix);
-            fromTable.Segment.Should().BeEquivalentTo(firstMatrix.Segment);
+            var fromTable2 = dataTable.Get<IMatrixInfo>(1, 0);
+            fromTable2.Should().BeEquivalentTo(secondMatrix);
+
+            dataTable.GetRow(1)[0].Should().BeEquivalentTo(secondMatrix);
         }
 
         [Fact]

@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
 
         /// <inheritdoc />
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             IGraphData next = GraphData.Null;
             Func<IBackpropagate>? backProp = null;
@@ -116,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data);
+        protected abstract (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data);
 
         /// <inheritdoc />
 	    protected override (string Description, byte[] Data) GetInfo()

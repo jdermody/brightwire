@@ -58,7 +58,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Get<IVector>(i, 0)),
+                    Input: GetStringIndices(Test.Get<IVectorInfo>(i, 0)),
                     Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                 ))
             ;
@@ -69,10 +69,9 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        static uint[] GetStringIndices(IVector vector)
+        static uint[] GetStringIndices(IVectorInfo vector)
         {
-            using (vector)
-                return GetStringIndices(vector.Segment.GetLocalOrNewArray());
+            return GetStringIndices(vector.Segment.GetLocalOrNewArray());
         }
 
         static uint[] GetStringIndices(float[] vector) => vector

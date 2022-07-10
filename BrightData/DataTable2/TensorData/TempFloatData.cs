@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightData.DataTable2.TensorData
 {
-    internal class TempFloatData : ICanRandomlyAccessData<float>
+    internal class TempFloatData : ICanRandomlyAccessUnmanagedData<float>
     {
         readonly float[] _data;
 
@@ -21,8 +21,10 @@ namespace BrightData.DataTable2.TensorData
             // nop
         }
 
-        public float this[int index] => _data[index];
-        public float this[uint index] => _data[index];
+        public void Get(int index, out float value) => value = _data[index];
+        public void Get(uint index, out float value) => value = _data[index];
+
         public ReadOnlySpan<float> GetSpan(uint startIndex, uint count) => _data.AsSpan((int)startIndex, (int)count);
+        public override string ToString() => _data.ToString()!;
     }
 }

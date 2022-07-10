@@ -7,7 +7,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class LinearTests : NumericsBase
+    public class LinearTests : CpuBase
     {
         //[Fact]
         //public void TestRegression()

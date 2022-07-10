@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _shape = shape;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var matrix = errorSignal.GetMatrix();
                 return _shape.ReplaceWith(matrix.Transpose());
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var output = signal.GetMatrix().Transpose();
             return (this, output.AsGraphData(), () => new Backpropagation(this, signal));

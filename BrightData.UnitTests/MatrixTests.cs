@@ -251,7 +251,6 @@ namespace BrightData.UnitTests
             var index = 1;
             using var a = _cpu.CreateMatrix(rows, columns, (j, k) => index++);
             using var cpu = a.Transpose();
-
             using var gpu = Apply(_cuda, a, a => a.Transpose());
             using var mkl = Apply(_cuda, a, a => a.Transpose());
             AssertSame(cpu, gpu, mkl);

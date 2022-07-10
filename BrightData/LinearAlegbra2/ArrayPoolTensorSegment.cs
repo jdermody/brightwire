@@ -63,7 +63,14 @@ namespace BrightData.LinearAlegbra2
             set => _array[index] = value;
         }
 
-        public IEnumerable<float> Values => _array.Take((int)Size);
+        public IEnumerable<float> Values
+        {
+            get
+            {
+                for (int i = 0, len = (int)Size; i < len; i++)
+                    yield return _array[i];
+            }
+        }
         public float[] GetArrayForLocalUseOnly() => _array;
         public float[] ToNewArray() => _data.Span.ToArray();
         public void CopyFrom(ReadOnlySpan<float> span) => span.CopyTo(_data.Span);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -52,5 +53,12 @@ namespace BrightData.LinearAlegbra2.TensorInfo
         public float[] ToArray() => _data;
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data);
         public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public override string ToString()
+        {
+            var preview = String.Join("|", _data.Take(Consts.PreviewSize));
+            if (Size > Consts.PreviewSize)
+                preview += "|...";
+            return $"Vector Info ({Size}): {preview}";
+        }
     }
 }

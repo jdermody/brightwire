@@ -9,7 +9,7 @@ using Xunit;
 
 namespace BrightData.UnitTests
 {
-    public class DataTableTests : NumericsBase
+    public class DataTableTests : CpuBase
     {
         [Fact]
         public void TestColumnTypes()

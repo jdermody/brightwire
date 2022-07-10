@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -64,5 +65,12 @@ namespace BrightData.LinearAlegbra2.TensorInfo
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, Segment);
         public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(new TensorSegmentWrapper2(Segment, rowIndex, RowCount, ColumnCount));
         public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper2(Segment, columnIndex * RowCount, 1, RowCount));
+        public override string ToString()
+        {
+            var preview = String.Join("|", _data.Take(Consts.PreviewSize));
+            if (Size > Consts.PreviewSize)
+                preview += "|...";
+            return $"Matrix Info (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
     }
 }

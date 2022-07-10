@@ -11,23 +11,23 @@ namespace BrightData.DataTable2
     public class BrightDataTableRow : IDataTableSegment
     {
         readonly BrightDataTable _dataTable;
-        readonly object[] _data;
+        readonly ICanRandomlyAccessData[] _data;
 
-        public BrightDataTableRow(BrightDataTable dataTable, object[] data, uint rowIndex)
+        public BrightDataTableRow(BrightDataTable dataTable, ICanRandomlyAccessData[] data, uint rowIndex)
         {
             _data = data;
             RowIndex = rowIndex;
             _dataTable = dataTable;
         }
 
-        public object this[uint index] => _data[index];
+        public object this[uint index] => _data[index][RowIndex];
         public BrightDataType[] Types => _dataTable.ColumnTypes;
         public uint Size => (uint)_data.Length;
-        public IEnumerable<object> Data => _data;
+        public IEnumerable<object> Data => _data.Select(x => x[RowIndex]);
 
         public override string ToString()
         {
-            return string.Join(",", Types.Zip(_data, (t, d) => $"{Format(d, t)} [{t}]"));
+            return string.Join(",", Types.Zip(Data, (t, d) => $"{Format(d, t)} [{t}]"));
         }
 
         static string Format(object obj, BrightDataType type)
@@ -45,7 +45,7 @@ namespace BrightData.DataTable2
         /// <returns></returns>
         public T Get<T>(uint index) where T : notnull
         {
-            return _dataTable.ConvertObjectTo<T>(index, _data[index]);
+            return _dataTable.ConvertObjectTo<T>(index, this[index]);
         }
 
         /// <summary>

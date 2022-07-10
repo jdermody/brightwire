@@ -8,7 +8,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class NaiveBayesTests : NumericsBase
+    public class NaiveBayesTests : CpuBase
     {
         [Fact]
         public void TestNaiveBayes()

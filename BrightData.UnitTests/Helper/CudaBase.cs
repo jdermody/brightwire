@@ -4,7 +4,7 @@ using BrightData.Cuda;
 
 namespace BrightData.UnitTests.Helper
 {
-    public class CudaBase : NumericsBase
+    public class CudaBase : CpuBase
     {
         readonly CudaProvider                        _cudaProvider;
         protected readonly CudaLinearAlgebraProvider _cuda;

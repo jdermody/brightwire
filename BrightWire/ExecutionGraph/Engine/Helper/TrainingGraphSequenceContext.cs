@@ -11,7 +11,7 @@ using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
+    class TrainingGraphSequenceContext : SequenceContextBase, IGraphContext
     {
         readonly List<ExecutionHistory> _forward = new();
         readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();

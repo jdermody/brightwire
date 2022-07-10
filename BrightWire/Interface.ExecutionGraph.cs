@@ -80,7 +80,7 @@ namespace BrightWire
         /// <param name="context">Graph context</param>
         /// <param name="node"></param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node);
+        IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node);
 
         /// <summary>
         /// Serialises the action to a string
@@ -129,9 +129,9 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Represents a single pass through the graph, from a single mini batch sequence
+    /// Represents a single pass through the graph
     /// </summary>
-    public interface IGraphSequenceContext : IDisposable
+    public interface IGraphContext : IDisposable
     {
         /// <summary>
         /// Current signal
@@ -304,7 +304,7 @@ namespace BrightWire
         /// <param name="sequence">Mini batch sequence</param>
         /// <param name="learningContext">Learning context (null if executing without training)</param>
         /// <returns></returns>
-        IGraphSequenceContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
+        IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents"></param>
-        IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
+        IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents);
     }
 
     /// <summary>
@@ -443,7 +443,7 @@ namespace BrightWire
         /// <summary>
         /// Graph sequence context that has been executed for this sequence
         /// </summary>
-        IGraphSequenceContext? GraphContext { get; set; }
+        IGraphContext? GraphContext { get; set; }
     }
 
     /// <summary>
@@ -521,9 +521,9 @@ namespace BrightWire
     public interface IGraphOperation
     {
         /// <summary>
-        /// Executes the operation
+        /// Creates the mini batch
         /// </summary>
-        IEnumerable<IGraphSequenceContext> Execute();
+        IMiniBatch GetMiniBatch();
     }
 
     /// <summary>

@@ -52,7 +52,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             return _start.ForwardSingleStep(signal, channel, context, source);
         }

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class SerializationTests : NumericsBase
+    public class SerializationTests : CpuBase
     {
         public class CustomErrorMetric : IErrorMetric
         {
@@ -19,7 +19,7 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IMatrix CalculateGradient(IGraphSequenceContext context, IMatrix output, IMatrix targetOutput)
+            public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
