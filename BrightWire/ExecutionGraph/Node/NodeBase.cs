@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context">Context</param>
         /// <param name="channel"></param>
         /// <param name="prev"></param>
-        public void Forward(CancellationToken ct, IGraphData signal, IGraphContext context, uint channel = 0, NodeBase? prev = null)
+        public void Forward(IGraphData signal, IGraphContext context, uint channel = 0, NodeBase? prev = null)
         {
             // execute the node
             var (from, output, backProp) = ForwardSingleStep(signal, channel, context, prev);
@@ -103,9 +103,7 @@ namespace BrightWire.ExecutionGraph.Node
             // send output to connected nodes
             if (output.HasValue || this is FlowThrough) {
                 foreach (var wire in from.Output) {
-                    if (ct.IsCancellationRequested)
-                        break;
-                    wire.SendTo.Forward(ct, output, context, wire.Channel, from);
+                    wire.SendTo.Forward(output, context, wire.Channel, from);
                 }
             }
         }

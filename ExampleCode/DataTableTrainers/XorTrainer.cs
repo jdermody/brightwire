@@ -13,7 +13,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public ExecutionGraphModel? TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
+        public ExecutionGraphModel? Train(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var targetColumnIndex = Table.Value.GetTargetColumnOrThrow();
 

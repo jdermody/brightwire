@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 using MKLNET;
@@ -333,5 +334,16 @@ namespace BrightData.MKL
         {
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2 * -1, y, yo, ys, coefficient1, x, xo, xs));
         }
+
+        //public override ITensorSegment2 Softmax(ITensorSegment2 tensor)
+        //{
+        //    var max = GetMax(tensor);
+        //    using var diff = Add(tensor, max * -1);
+        //    var softmax = Apply(diff, Vml.Exp);
+        //    var sum = softmax.Sum();
+        //    if (FloatMath.IsNotZero(sum))
+        //        softmax.MultiplyInPlace(1f / sum);
+        //    return softmax;
+        //}
     }
 }

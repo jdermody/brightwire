@@ -313,7 +313,8 @@ namespace BrightData
             bool hasHeader,
             char delimiter = ',',
             int maxRows = int.MaxValue,
-            ushort maxDistinct = 1024
+            ushort maxDistinct = 1024,
+            CancellationToken ct = default
         )
         {
             var userNotification = context.UserNotifications;
@@ -338,8 +339,7 @@ namespace BrightData
                 };
             }
 
-            var ct = context.CancellationToken;
-            foreach (var row in parser.Parse().Take(maxRows)) {
+            foreach (var row in parser.Parse(ct).Take(maxRows)) {
                 if (ct.IsCancellationRequested)
                     break;
                 var cols = row.Count;
@@ -389,7 +389,8 @@ namespace BrightData
             string? fileOutputPath = null,
             int maxRows = int.MaxValue,
             uint inMemoryRowCount = 32768,
-            ushort maxDistinct = 1024)
+            ushort maxDistinct = 1024,
+            CancellationToken ct = default)
         {
             var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
@@ -416,8 +417,7 @@ namespace BrightData
                 };
             }
 
-            var ct = context.CancellationToken;
-            foreach (var row in parser.Parse().Take(maxRows)) {
+            foreach (var row in parser.Parse(ct).Take(maxRows)) {
                 if (ct.IsCancellationRequested)
                     break;
 
@@ -576,7 +576,14 @@ namespace BrightData
         /// <param name="bufferSize">In memory cache size</param>
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IHybridBufferWithMetaData GetHybridBufferWithMetaData(this BrightDataType type, IMetaData metaData, BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static IHybridBufferWithMetaData GetHybridBufferWithMetaData(
+            this BrightDataType type, 
+            IMetaData metaData, 
+            BrightDataContext context, 
+            IProvideTempStreams tempStream, 
+            uint bufferSize = Consts.DefaultInMemoryBufferSize, 
+            ushort maxDistinct = Consts.DefaultMaxDistinctCount
+            )
         {
             var columnType = GetDataType(type);
 

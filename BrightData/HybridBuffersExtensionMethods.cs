@@ -1,7 +1,8 @@
 ﻿using System;
+using BrightData.Buffer.Hybrid;
 using BrightData.Helper;
 
-namespace BrightData.Buffer.Hybrid
+namespace BrightData
 {
     /// <summary>
     /// Static methods to create hybrid buffers

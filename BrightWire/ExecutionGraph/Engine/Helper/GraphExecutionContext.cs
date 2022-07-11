@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class AdditionalBatch
         {
-            public AdditionalBatch(IMiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData, CancellationToken> start, Action<IGraphContext[]> end)
+            public AdditionalBatch(IMiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
             {
                 Batch = batch;
                 Data = data;
@@ -25,21 +25,19 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             public IMiniBatch Batch { get; set; } 
             public IGraphData Data { get; set; } 
-            public Action<IGraphContext, IGraphData, CancellationToken> Start { get; set; }  
+            public Action<IGraphContext, IGraphData> Start { get; set; }  
             public Action<IGraphContext[]> End { get; set; }  
         }
-        readonly BrightDataContext _context;
         readonly ICreateGraphContext _createGraphContext;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new();
-        readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphContext, CancellationToken>> _continuationTable = new();
+        readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphContext>> _continuationTable = new();
         readonly ConcurrentStack<AdditionalBatch> _additionalBatches = new();
 
-	    public GraphExecutionContext(BrightDataContext context, LinearAlgebraProvider lap, ICreateGraphContext createGraphContext)
+	    public GraphExecutionContext(IGraphEngine graphEngine)
         {
-            _context = context;
-            _createGraphContext = createGraphContext;
-            LinearAlgebraProvider = lap;
+            _createGraphContext = graphEngine;
+            LinearAlgebraProvider = graphEngine.LinearAlgebraProvider;
         }
 
         public void Dispose()
@@ -56,8 +54,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             foreach (var item in operations)
                 _operationList.Enqueue(item);
         }
-        public void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphContext, CancellationToken> callback) => _continuationTable[sequence] = callback;
-        public void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphContext, IGraphData, CancellationToken> start, Action<IGraphContext[]> end) => _additionalBatches.Push(new(miniBatch, data, start, end));
+        public void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphContext> callback) => _continuationTable[sequence] = callback;
+        public void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end) => _additionalBatches.Push(new(miniBatch, data, start, end));
 
         public int RemainingOperationCount => _operationList.Count;
         public bool HasContinuations => _continuationTable.Any() || _additionalBatches.Any();
@@ -65,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void Continue(IGraphContext context)
         {
             if(_continuationTable.TryRemove(context.BatchSequence, out var callback))
-                callback(context, _context.CancellationToken);
+                callback(context);
         }
 
         public IEnumerable<(IGraphContext Context, Action<IGraphContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext)
@@ -87,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     else
                         state = item.Data;
 
-                    item.Start(context, state, _context.CancellationToken);
+                    item.Start(context, state);
                     yield return (context, item.End);
                     prev = sequence;
                 }

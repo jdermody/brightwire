@@ -540,8 +540,7 @@ namespace BrightData.UnitTests
             using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
-            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean);
-
+            using var cpu = TestMultiDistance(_cpu, a, b, c , DistanceMetric.Euclidean);
             using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
             using var mkl = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Euclidean);
             AssertSame(cpu, gpu, mkl);
@@ -555,7 +554,7 @@ namespace BrightData.UnitTests
             using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
-            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan);
+            using var cpu = TestMultiDistance(_cpu, a, b, c , DistanceMetric.Manhattan);
             using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Manhattan);
             using var mkl = TestMultiDistance(_mkl, a, b, c, DistanceMetric.Manhattan);
             AssertSame(cpu, gpu, mkl);        }
@@ -568,10 +567,10 @@ namespace BrightData.UnitTests
             using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var b = _cpu.CreateVector(5000, _ => distribution.Sample());
             using var c = _cpu.CreateVector(5000, _ => distribution.Sample());
-            using var cpu = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine);
+            using var cpu = TestMultiDistance(_cpu, a, b, c, DistanceMetric.Cosine);
             using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Cosine);
             using var mkl = TestMultiDistance(_mkl, a, b, c, DistanceMetric.Cosine);
-            AssertSame(cpu, gpu, mkl);
+            AssertSameWithMaxDifference(16, cpu, gpu, mkl);
         }
 
         //[Fact]

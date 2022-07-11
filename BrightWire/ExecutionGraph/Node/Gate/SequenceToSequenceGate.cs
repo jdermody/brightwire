@@ -46,10 +46,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, GraphData.Null, null);
         }
 
-        void OnStartEncoder(IGraphContext context, IGraphData data, CancellationToken ct)
+        void OnStartEncoder(IGraphContext context, IGraphData data)
         {
             foreach (var wire in Output)
-                wire.SendTo.Forward(ct, data, context, wire.Channel);
+                wire.SendTo.Forward(data, context, wire.Channel);
         }
 
         void OnEndDecoder(IGraphContext[] context)

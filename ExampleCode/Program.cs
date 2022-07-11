@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
+using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
@@ -22,9 +23,8 @@ namespace ExampleCode
             using var context = new BrightDataContext(null, RandomSeed);
             var useCuda = false;
 
-            //context.UseMKL();
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            //context.UseMKL();
+            context.UseMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
             //useCuda = true;
@@ -32,7 +32,7 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            PerformanceTest.Run(context.LinearAlgebraProvider2, new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
             //Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
@@ -49,7 +49,7 @@ namespace ExampleCode
             //PredictBicyclesWithNeuralNetwork(context);
             //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
-            //MnistFeedForward(context);
+            MnistFeedForward(context);
             //MnistConvolutional(context, useCuda);
             //TrainIncomePrediction(context);
             //SentimentClassification(context, useCuda);
@@ -81,7 +81,7 @@ namespace ExampleCode
         static void Xor(BrightDataContext context)
         {
             Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(4, 100, 0.5f, 4, 10);
+            context.Xor().Train(4, 80, 0.5f, 4);
         }
 
         static void IrisClassification(BrightDataContext context)

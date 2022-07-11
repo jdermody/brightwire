@@ -378,9 +378,6 @@
         <member name="P:BrightData.BrightDataContext.UserNotifications">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.BrightDataContext.CancellationToken">
-            <inheritdoc />
-        </member>
         <member name="T:BrightData.Buffer.EncodedStream.EncodedStreamReader">
             <summary>
             Reads from potentially encoded storage
@@ -435,60 +432,6 @@
         <member name="M:BrightData.Buffer.Hybrid.HybridBufferSegment`1.CopyTo(System.IO.Stream)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods">
-            <summary>
-            Static methods to create hybrid buffers
-            </summary>
-        </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store structs
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="tempStream"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store structs
-            </summary>
-            <param name="tempStream"></param>
-            <param name="type"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store strings
-            </summary>
-            <param name="tempStream"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.UInt32)">
-            <summary>
-            Creates a buffer to store objects
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="tempStream"></param>
-            <param name="context"></param>
-            <param name="bufferSize"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Buffer.Hybrid.HybridBuffersExtensionMethods.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.Type,System.UInt32)">
-            <summary>
-            Creates a buffer to store objects
-            </summary>
-            <param name="tempStream"></param>
-            <param name="context"></param>
-            <param name="type"></param>
-            <param name="bufferSize"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.Buffer.InMemory.InMemorySegment`1.Dispose">
             <inheritdoc />
         </member>
@@ -526,14 +469,14 @@
             Number of rows to process before notifying about progress
             </summary>
         </member>
-        <member name="F:BrightData.Consts.MinimumTensorSizeForParallel">
+        <member name="F:BrightData.Consts.MinimumSizeForParallel">
             <summary>
-            Minimum size of a tensor to use parallel processing
+            Minimum size to use parallel processing
             </summary>
         </member>
-        <member name="F:BrightData.Consts.MinimumTensorSizeForVectorised">
+        <member name="F:BrightData.Consts.MinimumSizeForVectorised">
             <summary>
-            Minimum size of a tensor to use SIMD processing
+            Minimum size to use SIMD processing
             </summary>
         </member>
         <member name="F:BrightData.Consts.SimpleMetaData">
@@ -1304,7 +1247,7 @@
             <param name="maxDistinctCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsvIntoMemory(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Int32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsvIntoMemory(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Int32,System.UInt16,System.Threading.CancellationToken)">
             <summary>
             Parse CSV in memory without writing to disk (for small data sets)
             </summary>
@@ -1317,7 +1260,7 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.BrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Int32,System.UInt32,System.UInt16,System.Threading.CancellationToken)">
             <summary>
             Parse CSV into a column oriented data table using hybrid buffers
             </summary>
@@ -2559,6 +2502,60 @@
             </summary>
             <param name="uniqueId">Unique identifier</param>
             <returns>True if the stream has been created</returns>
+        </member>
+        <member name="T:BrightData.HybridBuffersExtensionMethods">
+            <summary>
+            Static methods to create hybrid buffers
+            </summary>
+        </member>
+        <member name="M:BrightData.HybridBuffersExtensionMethods.CreateHybridStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.HybridBuffersExtensionMethods.CreateHybridStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <param name="tempStream"></param>
+            <param name="type"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.HybridBuffersExtensionMethods.CreateHybridStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store strings
+            </summary>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.HybridBuffersExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.UInt32)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tempStream"></param>
+            <param name="context"></param>
+            <param name="bufferSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.HybridBuffersExtensionMethods.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.Type,System.UInt32)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <param name="tempStream"></param>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="bufferSize"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.IndexList">
             <summary>

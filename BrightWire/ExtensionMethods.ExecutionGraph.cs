@@ -28,7 +28,7 @@ namespace BrightWire
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new GraphExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
+            var executionContext = new GraphExecutionContext(engine);
             var userNotifications = engine.Context.UserNotifications;
 
             var testId = Guid.NewGuid().ToString("n");

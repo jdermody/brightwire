@@ -431,29 +431,55 @@ namespace BrightData.LinearAlgebra
                     var matrixPtr2 = matrixPtr;
                     var otherPtr2 = otherPtr;
                     var retPtr2 = retPtr;
-                    //for (int ind = 0; ind < rowCount * columnCount; ind++) {
-                    Parallel.For(0, rowCount * columnCount, ind => {
-                        var i = (uint)(ind % rowCount);
-                        var j = (uint)(ind / rowCount);
+                    var totalSize = rowCount * columnCount;
+                    if (totalSize >= Consts.MinimumSizeForParallel) {
+                        Parallel.For(0, totalSize, ind => {
+                            var i = (uint)(ind % rowCount);
+                            var j = (uint)(ind / rowCount);
 
-                        var xPtr = &matrixPtr2[i * lda];
-                        var xSpan = new ReadOnlySpan<float>(xPtr, lda);
-                        var xVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(xSpan);
+                            var xPtr = &matrixPtr2[i * lda];
+                            var xSpan = new ReadOnlySpan<float>(xPtr, lda);
+                            var xVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(xSpan);
 
-                        var yPtr = &otherPtr2[j * ldb];
-                        var ySpan = new ReadOnlySpan<float>(yPtr, ldb);
-                        var yVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(ySpan);
+                            var yPtr = &otherPtr2[j * ldb];
+                            var ySpan = new ReadOnlySpan<float>(yPtr, ldb);
+                            var yVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(ySpan);
 
-                        var sum = 0f;
-                        for (var z = 0; z < numVectors; z++) {
-                            var temp = Vector.Multiply(xVectors[z], yVectors[z]);
-                            sum += Vector.Sum(temp);
+                            var sum = 0f;
+                            for (var z = 0; z < numVectors; z++) {
+                                var temp = Vector.Multiply(xVectors[z], yVectors[z]);
+                                sum += Vector.Sum(temp);
+                            }
+
+                            for (var z = ceiling; z < size; z++)
+                                sum += xSpan[z] * ySpan[z];
+                            retPtr2[j * rowCount + i] = sum;
+                        });
+                    }
+                    else {
+                        for (uint ind = 0; ind < totalSize; ind++) {
+                            var i = ind % rowCount;
+                            var j = ind / rowCount;
+
+                            var xPtr = &matrixPtr2[i * lda];
+                            var xSpan = new ReadOnlySpan<float>(xPtr, lda);
+                            var xVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(xSpan);
+
+                            var yPtr = &otherPtr2[j * ldb];
+                            var ySpan = new ReadOnlySpan<float>(yPtr, ldb);
+                            var yVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(ySpan);
+
+                            var sum = 0f;
+                            for (var z = 0; z < numVectors; z++) {
+                                var temp = Vector.Multiply(xVectors[z], yVectors[z]);
+                                sum += Vector.Sum(temp);
+                            }
+
+                            for (var z = ceiling; z < size; z++)
+                                sum += xSpan[z] * ySpan[z];
+                            retPtr2[j * rowCount + i] = sum;
                         }
-
-                        for (var z = ceiling; z < size; z++)
-                            sum += xSpan[z] * ySpan[z];
-                        retPtr2[j * rowCount + i] = sum;
-                    });
+                    }
                 }
             }
             finally {
@@ -601,30 +627,41 @@ namespace BrightData.LinearAlgebra
 
         public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<float, float> mapper)
         {
-            var ret = CreateSegment(segment.Size);
-            // ReSharper disable once AccessToDisposedClosure
-            Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
+            var size = segment.Size;
+            var ret = CreateSegment(size);
+
+            if (size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    ret[i] = mapper(segment[i]);
+            }
             return ret;
         }
 
         public void MapParallelInPlace(ITensorSegment2 segment, Func<float, float> mapper)
         {
-            var ret = CreateSegment(segment.Size);
-            try {
-                // ReSharper disable once AccessToDisposedClosure
-                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
-                ret.CopyTo(segment);
-            }
-            finally {
-                ret.Release();
+            var size = segment.Size;
+
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)segment.Size, i => segment[i] = mapper(segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    segment[i] = mapper(segment[i]);
             }
         }
 
         public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<uint, float, float> mapper)
         {
-            var ret = CreateSegment(segment.Size);
-            // ReSharper disable once AccessToDisposedClosure
-            Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
+            var size = segment.Size;
+            var ret = CreateSegment(size);
+            
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)size, i => ret[i] = mapper((uint)i, segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    ret[i] = mapper(i, segment[i]);
+            }
             return ret;
         }
 
@@ -632,7 +669,6 @@ namespace BrightData.LinearAlgebra
         {
             var ret = CreateSegment(segment.Size);
             try {
-                // ReSharper disable once AccessToDisposedClosure
                 Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
                 ret.CopyTo(segment);
             }
@@ -671,12 +707,12 @@ namespace BrightData.LinearAlgebra
                 MapParallelInPlace(segment, v => v / norm);
         }
 
-        public ITensorSegment2 Batch(ITensorSegment2 segment, ITensorSegment2[] others, Func<ITensorSegment2, ITensorSegment2, float> getValue)
-        {
-            var ret = CreateSegment((uint)others.Length);
-            Parallel.ForEach(others, (vec, _, ind) => ret[ind] = getValue(segment, vec));
-            return ret;
-        }
+        //public ITensorSegment2 Batch(ITensorSegment2 segment, ITensorSegment2[] others, Func<ITensorSegment2, ITensorSegment2, float> getValue)
+        //{
+        //    var ret = CreateSegment((uint)others.Length);
+        //    Parallel.ForEach(others, (vec, _, ind) => ret[ind] = getValue(segment, vec));
+        //    return ret;
+        //}
 
         public virtual void L1Regularisation(ITensorSegment2 segment, float coefficient) => segment.L1Regularisation(coefficient);
 
@@ -1051,13 +1087,22 @@ namespace BrightData.LinearAlgebra
             var rows = (uint)compareTo.Count;
             var columns = (uint)vectors.Length;
             var ret = CreateMatrix(rows, columns);
+            var totalSize = rows * columns;
 
-            Parallel.For(0, rows * columns, ind => {
-                var i = (uint) (ind % rows);
-                var j = (uint) (ind / rows);
-                var distance = compareTo[(int)i].FindDistance(vectors[(int)j], distanceMetric);;
-                ret[i, j] = distance;
-            });
+            if (totalSize >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, rows * columns, ind => {
+                    var i = (uint)(ind % rows);
+                    var j = (uint)(ind / rows);
+                    ret[i, j] = compareTo[(int)i].FindDistance(vectors[j], distanceMetric);
+                });
+            }
+            else {
+                for (uint i = 0; i < rows; i++) {
+                    for (uint j = 0; j < columns; j++) {
+                        ret[i, j] = compareTo[(int)i].FindDistance(vectors[j], distanceMetric);
+                    }
+                }
+            }
 
             return ret;
         }

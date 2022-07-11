@@ -108,13 +108,12 @@ namespace BrightData.LinearAlgebra
         {
             var ret = MemoryOwner<float>.Allocate((int)TotalSize);
             var array = ret.DangerousGetArray();
-            Parallel.For(0, RowCount, ind => {
-                var i = (uint) ind;
+            for(uint i = 0; i < RowCount; i++) {
                 using var row = Row(i);
                 var offset = i * ColumnCount;
                 for (uint j = 0; j < ColumnCount; j++)
                     array[(int)(offset + j)] = row[j];
-            });
+            }
             return ret;
         }
 

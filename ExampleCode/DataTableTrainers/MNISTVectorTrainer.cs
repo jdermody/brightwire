@@ -15,10 +15,10 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public ExecutionGraphModel? TrainingFeedForwardNeuralNetwork(
-            uint hiddenLayerSize = 1024, 
-            uint numIterations = 20, 
-            float trainingRate = 0.1f,
-            uint batchSize = 128
+            uint hiddenLayerSize, 
+            uint numIterations, 
+            float trainingRate,
+            uint batchSize
         ) {
             var graph = Training.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
             graph.Connect(engine)
                 .AddFeedForward(outputSize: hiddenLayerSize)
                 .Add(graph.LeakyReluActivation())
-                .AddDropOut(dropOutPercentage: 0.5f)
+                //.AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize: trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagation()

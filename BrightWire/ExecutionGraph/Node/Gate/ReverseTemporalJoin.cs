@@ -66,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _contextTable = new Dictionary<uint, IGraphContext>();
         }
 
-        void Continue(IGraphContext context, CancellationToken ct)
+        void Continue(IGraphContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             var next = data.ConcatRows(floatMatrix).AsGraphData();
             context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize, forwardParent, reverseParent));
             foreach(var wire in Output)
-                wire.SendTo.Forward(ct, next, context, wire.Channel, this);
+                wire.SendTo.Forward(next, context, wire.Channel, this);
         }
 
         protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)

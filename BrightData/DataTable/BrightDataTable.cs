@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using BrightData.Buffer.ReadOnly;
 using BrightData.DataTable.Operations;
 using BrightData.Helper;
@@ -193,7 +194,7 @@ namespace BrightData.DataTable
             var ret = GetColumnMetaData(columnIndex);
             if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
                 using var operation = CreateColumnAnalyser(columnIndex, writeCount, maxDistinctCount);
-                operation.Complete(null, Context.CancellationToken);
+                operation.Complete(null, CancellationToken.None);
             }
 
             return ret;

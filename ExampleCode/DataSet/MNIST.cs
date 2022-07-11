@@ -27,7 +27,7 @@ namespace ExampleCode.DataSet
         public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 10,
-            float trainingRate = 0.1f,
+            float trainingRate = 0.003f,
             uint batchSize = 128
         )
         {
@@ -102,12 +102,9 @@ namespace ExampleCode.DataSet
             /// </summary>
             public (IVectorInfo Data, IVectorInfo Label) AsFloatArray(BrightDataContext context)
             {
-                var label = new float[10];
-                label[Label] = 1;
-
                 return (
-                    context.CreateVectorInfo(Data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
-                    context.CreateVectorInfo(label)
+                    context.CreateVectorInfo(Data.Length, i => Data[i] / 255f),
+                    context.CreateVectorInfo(10, i => i == Label ? 1f : 0f)
                 );
             }
 

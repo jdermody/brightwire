@@ -33,10 +33,8 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _cache.AddInPlace(delta, _decayRate, 1 - _decayRate);
             _cache2.AddInPlace(deltaSquared, _decayRate2, 1 - _decayRate2);
 
-            using var mb = _cache.Clone();
-            using var vb = _cache2.Clone();
-            mb.MultiplyInPlace(1f / (1f - Convert.ToSingle(Math.Pow(_decayRate, t))));
-            vb.MultiplyInPlace(1f / (1f - Convert.ToSingle(Math.Pow(_decayRate2, t))));
+            using var mb = _cache.Multiply(1f / (1f - MathF.Pow(_decayRate, t)));
+            using var vb = _cache2.Multiply(1f / (1f - MathF.Pow(_decayRate2, t)));
             using var vbSqrt = vb.Sqrt();
             using var delta2 = mb.PointwiseDivide(vbSqrt);
             _updater.Update(source, delta2, context);

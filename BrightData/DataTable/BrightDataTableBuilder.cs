@@ -14,8 +14,8 @@ namespace BrightData.DataTable
 
         public BrightDataTableBuilder(
             BrightDataContext context, 
-            uint inMemoryBufferSize = 32768 * 1024, 
-            ushort maxUniqueItemCount = 32768)
+            uint inMemoryBufferSize = Consts.DefaultInMemoryBufferSize, 
+            ushort maxUniqueItemCount = Consts.DefaultMaxDistinctCount)
         {
             Context            = context;
             _inMemoryBufferSize = inMemoryBufferSize;
@@ -79,8 +79,8 @@ namespace BrightData.DataTable
 
         public void AddRow(params object[] items)
         {
-            foreach (var (buffer, value) in _columns.Zip(items))
-                buffer.AddObject(value);
+            for(int i = 0, len = items.Length; i < len; i++)
+                _columns[i].AddObject(items[i]);
         }
 
         public void WriteTo(Stream stream)

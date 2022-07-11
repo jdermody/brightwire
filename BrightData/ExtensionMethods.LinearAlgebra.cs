@@ -22,6 +22,7 @@ namespace BrightData
             ? new VectorInfo(size, initializer)
             : new VectorInfo(size)
         ;
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateVectorInfo(context, (uint)size, initializer);
 
         /// <summary>
         /// Creates a vector
@@ -35,6 +36,7 @@ namespace BrightData
             ? new VectorInfo(size)
             : new VectorInfo(size, _ => initialValue)
         ;
+        public static IVectorInfo CreateVectorInfo(this BrightDataContext context, int size, float initialValue = 0f) => CreateVectorInfo(context, (uint)size, initialValue);
 
         /// <summary>
         /// Creates a vector

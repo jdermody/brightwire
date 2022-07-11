@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using Xunit;
 using FluentAssertions;
-using BrightData.Buffer.Hybrid;
 
 namespace BrightData.UnitTests
 {

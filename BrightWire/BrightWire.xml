@@ -1586,7 +1586,7 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(System.Threading.CancellationToken,BrightWire.IGraphData,BrightWire.IGraphContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(BrightWire.IGraphData,BrightWire.IGraphContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the graph
             </summary>
@@ -3036,7 +3036,7 @@
             A graph engine that can train the graph from training data
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphTrainingEngine.Train(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.Action{System.Single})">
+        <member name="M:BrightWire.IGraphTrainingEngine.Train(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.Action{System.Single},System.Threading.CancellationToken)">
             <summary>
             Executes a training epoch on the graph
             </summary>

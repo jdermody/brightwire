@@ -33,14 +33,17 @@
         public const int PreviewSize = 16;
 
         /// <summary>
-        /// Minimum size of a tensor to use parallel processing
+        /// Minimum size to use parallel processing
         /// </summary>
-        public const int MinimumTensorSizeForParallel = 8192;
+        public const int MinimumSizeForParallel = 8192;
 
         /// <summary>
-        /// Minimum size of a tensor to use SIMD processing
+        /// Minimum size to use SIMD processing
         /// </summary>
-        public const int MinimumTensorSizeForVectorised = 256;
+        public const int MinimumSizeForVectorised = 64;
+
+        public const int DefaultInMemoryBufferSize = 32768 * 32768;
+        public const ushort DefaultMaxDistinctCount = 32768;
 
 #pragma warning disable 1591
         public const string ColumnIndex                   = "ColumnIndex";

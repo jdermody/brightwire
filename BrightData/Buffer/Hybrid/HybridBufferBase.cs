@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace BrightData.Buffer.Hybrid
 {
@@ -15,17 +16,15 @@ namespace BrightData.Buffer.Hybrid
         readonly uint _maxCount;
         readonly IProvideTempStreams _tempStream;
         readonly string _id;
-        protected readonly T[] _tempBuffer;
+        protected readonly List<T> _tempBuffer;
         readonly ushort _maxDistinct = 0;
-
-        int _index = 0;
 
         protected HybridBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
         {
             _id = Guid.NewGuid().ToString("n");
             _tempStream = tempStream;
             _maxCount = maxCount;
-            _tempBuffer = new T[maxCount];
+            _tempBuffer = new();
 
             if (maxDistinct > 0) {
                 DistinctItems = new Dictionary<T, uint>();
@@ -35,20 +34,20 @@ namespace BrightData.Buffer.Hybrid
 
         public void Add(T item)
         {
-            if (_index == _maxCount) {
+            if (_tempBuffer.Count == _maxCount) {
                 var stream = _tempStream.Get(_id);
                 stream.Seek(0, SeekOrigin.End);
                 WriteTo(GetTempBuffer(), stream);
-                _index = 0;
+                _tempBuffer.Clear();
             }
 
-            _tempBuffer[_index++] = item;
+            _tempBuffer.Add(item);
             if (DistinctItems?.TryAdd(item, Size) == true && DistinctItems.Count > _maxDistinct)
                 DistinctItems = null;
             ++Size;
         }
 
-        protected Span<T> GetTempBuffer() => ((Span<T>)_tempBuffer)[.._index];
+        protected ReadOnlySpan<T> GetTempBuffer() => CollectionsMarshal.AsSpan(_tempBuffer);//((Span<T>)_tempBuffer)[.._index];
 
         public IEnumerable<T> EnumerateTyped()
         {
@@ -65,8 +64,8 @@ namespace BrightData.Buffer.Hybrid
             }
 
             // then from the buffer
-            for (uint i = 0; i < _index; i++)
-                yield return _tempBuffer[i];
+            foreach(var item in _tempBuffer)
+                yield return item;
         }
 
         public void CopyTo(Stream stream) => EncodedStreamWriter.CopyTo(this, stream);

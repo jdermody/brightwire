@@ -21,8 +21,8 @@ namespace BrightData.DataTable
             BrightDataContext context,
             IProvideTempStreams tempStreams,
             Stream stream, 
-            uint inMemoryBufferSize = 32768 * 1024, 
-            ushort maxUniqueItemCount = 32768
+            uint inMemoryBufferSize = Consts.DefaultInMemoryBufferSize, 
+            ushort maxUniqueItemCount = Consts.DefaultMaxDistinctCount
         ) {
             _context            = context;
             _tempStreams        = tempStreams;
@@ -52,7 +52,7 @@ namespace BrightData.DataTable
             var weightedIndexWriter = new Lazy<IHybridBuffer<WeightedIndexList.Item>>(() => _context.CreateHybridStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
 
             // write the header
-            var headers = new DataTable.BrightDataTable.Header[1];
+            var headers = new BrightDataTable.Header[1];
             _stream.Write(MemoryMarshal.AsBytes<DataTable.BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
             header.Version = 1;
@@ -66,7 +66,7 @@ namespace BrightData.DataTable
             tableMetaData.WriteTo(metaDataWriter);
 
             // prepare the columns and continue writing meta data
-            var columns = new DataTable.BrightDataTable.Column[columnSegments.Length];
+            var columns = new BrightDataTable.Column[columnSegments.Length];
             var index = 0;
             foreach (var columnSegment in columnSegments) {
                 ref var c = ref columns[index++];
@@ -76,7 +76,7 @@ namespace BrightData.DataTable
             }
 
             // write the headers
-            _stream.Write(MemoryMarshal.AsBytes<DataTable.BrightDataTable.Column>(columns));
+            _stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Column>(columns));
             header.DataOffset = (uint)_stream.Position;
 
             // write the data (column oriented)

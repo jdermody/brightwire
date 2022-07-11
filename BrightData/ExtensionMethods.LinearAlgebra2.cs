@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -56,7 +57,7 @@ namespace BrightData
         //    return ret[..(int)segment.Size];
         //}
 
-        static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
         internal static readonly int NumericsVectorSize = System.Numerics.Vector<float>.Count;
 
         public static ITensorSegment2 ZipParallel(this ITensorSegment2 segment, ITensorSegment2 other, Func<float, float, float> func)
@@ -67,8 +68,8 @@ namespace BrightData
 
             var ret = Allocate(size);
             var array = ret.DangerousGetArray();
-            if (segment.Size >= Consts.MinimumTensorSizeForParallel)
-                Parallel.ForEach(segment.Values, (v, _, i) => array[(int)i] = func(v, other[i]));
+            if (segment.Size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => array[(int)i] = func(segment[i], other[i]));
             else {
                 for (uint i = 0; i < size; i++)
                     array[(int)i] = func(segment[i], other[i]);
@@ -90,7 +91,7 @@ namespace BrightData
 
             var ret = Allocate(size);
             var resultPtr = ret.Span;
-            if (size >= Consts.MinimumTensorSizeForVectorised) {
+            if (size >= Consts.MinimumSizeForVectorised) {
                 // get pointers to the segments
                 SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLefTempUsed);
@@ -127,8 +128,8 @@ namespace BrightData
             var ret = Allocate(size);
             var array = ret.DangerousGetArray();
 
-            if (segment.Size >= Consts.MinimumTensorSizeForParallel)
-                Parallel.ForEach(segment.Values, (v, _, i) => array[(int)i] = transfomer(v));
+            if (size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => array[(int)i] = transfomer(segment[i]));
             else {
                 for (uint i = 0; i < size; i++)
                     array[(int)i] = transfomer(segment[i]);
@@ -145,7 +146,7 @@ namespace BrightData
             var ret = Allocate(segment.Size);
             var resultPtr = ret.Span;
 
-            if (size >= Consts.MinimumTensorSizeForVectorised) {
+            if (size >= Consts.MinimumSizeForVectorised) {
                 var leftTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
 
@@ -179,8 +180,8 @@ namespace BrightData
             var ret = Allocate(size);
             var array = ret.DangerousGetArray();
 
-            if(size >= Consts.MinimumTensorSizeForParallel)
-                Parallel.ForEach(segment.Values, (_, _, i) => array[(int)i] = transfomer((uint)i));
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => array[(int)i] = transfomer((uint)i));
             else {
                 for (uint i = 0; i < size; i++)
                     array[(int)i] = transfomer(i);
@@ -194,8 +195,8 @@ namespace BrightData
             if (size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            if(size >= Consts.MinimumTensorSizeForParallel)
-                Parallel.ForEach(segment.Values, (v, _, i) => segment[i] = func(v, other[(int)i]));
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => segment[i] = func(segment[i], other[i]));
             else {
                 for (uint i = 0; i < size; i++)
                     segment[i] = func(segment[i], other[i]);
@@ -214,7 +215,7 @@ namespace BrightData
 
             using var ret = SpanOwner<float>.Allocate((int)segment.Size);
             var resultPtr = ret.Span;
-            if (size >= Consts.MinimumTensorSizeForVectorised) {
+            if (size >= Consts.MinimumSizeForVectorised) {
                 // get pointers to the segments
                 SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
@@ -222,8 +223,6 @@ namespace BrightData
                 try {
                     var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
                     var rightVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(rightPtr);
-
-                    
                     var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
                     var numVectors = (int)size / NumericsVectorSize;
                     var ceiling = numVectors * NumericsVectorSize;
@@ -250,8 +249,8 @@ namespace BrightData
         public static void MutateInPlace(this ITensorSegment2 segment, Func<float, float> mutator)
         {
             var size = segment.Size;
-            if(size >= Consts.MinimumTensorSizeForParallel)
-                Parallel.ForEach(segment.Values, (v, _, i) => segment[i] = mutator(v));
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => segment[i] = mutator(segment[i]));
             else {
                 for (uint i = 0; i < size; i++)
                     segment[i] = mutator(segment[i]);
@@ -269,7 +268,7 @@ namespace BrightData
             using var ret = SpanOwner<float>.Allocate((int)segment.Size);
             var resultPtr = ret.Span;
 
-            if (size >= Consts.MinimumTensorSizeForVectorised) {
+            if (size >= Consts.MinimumSizeForVectorised) {
                 try {
                     var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
                     var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
@@ -299,7 +298,7 @@ namespace BrightData
             var result = 0f;
             var size = span.Length;
 
-            if (size >= Consts.MinimumTensorSizeForVectorised && Sse3.IsSupported) {
+            if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
                 fixed (float* pSource = &MemoryMarshal.GetReference(span)) {
                     var vResult = Vector128<float>.Zero;
 
@@ -329,7 +328,7 @@ namespace BrightData
 
         public static float Sum(this ITensorSegment2 segment)
         {
-            if (segment.Size >= Consts.MinimumTensorSizeForVectorised && Sse3.IsSupported) {
+            if (segment.Size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
                 var temp = SpanOwner<float>.Empty;
                 var span = segment.GetSpan(ref temp, out var wasTempUsed);
                 try {
@@ -473,7 +472,14 @@ namespace BrightData
             }
         }
 
-        public static ITensorSegment2 Sqrt(this ITensorSegment2 tensor) => TransformParallel(tensor, x => FloatMath.Sqrt(x));
+        public static ITensorSegment2 Sqrt(this ITensorSegment2 tensor, float adjustment = FloatMath.AlmostZero)
+        {
+            System.Numerics.Vector<float> adjustmentVector = new(adjustment);
+            return TransformVectorised(tensor, 
+                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = Vector.SquareRoot(a + adjustmentVector), 
+                x => MathF.Sqrt(x + adjustment)
+            );
+        }
 
         public static uint? Search(this ITensorSegment2 segment, float value)
         {
@@ -625,7 +631,10 @@ namespace BrightData
             }
         }
 
-        public static ITensorSegment2 Abs(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Abs);
+        public static ITensorSegment2 Abs(this ITensorSegment2 tensor) => TransformVectorised(tensor, 
+            (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = Vector.Abs(a),
+            MathF.Abs
+        );
         public static ITensorSegment2 Log(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Log);
         public static ITensorSegment2 Exp(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Exp);
         public static ITensorSegment2 Squared(this ITensorSegment2 tensor) => TransformVectorised(
@@ -656,18 +665,18 @@ namespace BrightData
             }
         }
 
-        static float Sigmoid(float val) => FloatMath.Constrain(1.0f / (1.0f + MathF.Exp(-1.0f * val)));
-        static float SigmoidDerivative(float val)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Sigmoid(float val) => 1.0f / (1.0f + MathF.Exp(-1.0f * val));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float SigmoidDerivative(float val)
         {
             var sigmoid = Sigmoid(val);
-            return FloatMath.Constrain(sigmoid * (1.0f - sigmoid));
+            return sigmoid * (1.0f - sigmoid);
         }
-        static float Tanh(float val) => MathF.Tanh(val);
-        static float TanhDerivative(float val) => 1.0f - MathF.Pow(Tanh(val), 2);
-        static float Relu(float val) => (val <= 0) ? 0 : FloatMath.Constrain(val);
-        static float ReluDerivative(float val) => (val <= 0) ? 0f : 1;
-        static float LeakyRelu(float val) => (val <= 0) ? 0.01f * val : FloatMath.Constrain(val);
-        static float LeakyReluDerivative(float val) => (val <= 0) ? 0.01f : 1;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Tanh(float val) => MathF.Tanh(val);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float TanhDerivative(float val) => 1.0f - MathF.Pow(Tanh(val), 2);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Relu(float val) => (val <= 0) ? 0 : val;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float ReluDerivative(float val) => (val <= 0) ? 0f : 1;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyRelu(float val) => (val <= 0) ? 0.01f * val : val;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyReluDerivative(float val) => (val <= 0) ? 0.01f : 1;
 
         public static ITensorSegment2 Sigmoid(this ITensorSegment2 segment) => TransformParallel(segment, Sigmoid);
         public static ITensorSegment2 SigmoidDerivative(this ITensorSegment2 segment) => TransformParallel(segment, SigmoidDerivative);
@@ -714,7 +723,13 @@ namespace BrightData
 
         public static void Analyse(ITensorSegment2 segment, Action<float, uint> analyser)
         {
-            Parallel.ForEach(segment.Values, (v, _, i) => { analyser(v, (uint)i); });
+            var size = segment.Size;
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, size, i => analyser(segment[i], (uint)i));
+            else {
+                for (uint i = 0; i < size; i++)
+                    analyser(segment[i], i);
+            }
         }
 
         //public static void FeatureScaleNormalization(this ITensorSegment2 segment)
@@ -789,10 +804,17 @@ namespace BrightData
             var size = (uint)vectors.Count;
             var lap = compareTo.LinearAlgebraProvider;
             var ret = lap.CreateVector(size);
-            Parallel.For(0, size, ind => {
-                lap.BindThread();
-                ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric);
-            });
+            if (size >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, size, ind => {
+                    lap.BindThread();
+                    ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric);
+                });
+            }
+            else {
+                for(var i = 0; i < size; i++)
+                    ret[i] = FindDistance(compareTo, vectors[i], distanceMetric);
+            }
+
             return ret;
         }
 

@@ -30,7 +30,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
         }
 
-        
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
         public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
