@@ -130,6 +130,11 @@ namespace BrightData.Cuda
             throw new NotImplementedException();
         }
 
+        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
+        {
+            throw new NotImplementedException();
+        }
+
         public override string ToString()
         {
             return $"{SegmentType} ({Size})";

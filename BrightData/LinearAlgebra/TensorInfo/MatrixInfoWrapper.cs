@@ -48,6 +48,8 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, _segment);
         public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(_segment, rowIndex, RowCount, ColumnCount));
         public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(_segment, columnIndex * RowCount, 1, RowCount));
+        public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
+        public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
         public uint Size => RowCount * ColumnCount;
         public ITensorSegment2 Segment => _segment;
         public override string ToString()

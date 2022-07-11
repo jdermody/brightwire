@@ -252,7 +252,7 @@ namespace BrightData.UnitTests
             using var a = _cpu.CreateMatrix(rows, columns, (j, k) => index++);
             using var cpu = a.Transpose();
             using var gpu = Apply(_cuda, a, a => a.Transpose());
-            using var mkl = Apply(_cuda, a, a => a.Transpose());
+            using var mkl = Apply(_mkl, a, a => a.Transpose());
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -394,7 +394,7 @@ namespace BrightData.UnitTests
             using var cpu = a.PointwiseDivide(b);
             using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseDivide(b));
             using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseDivide(b));
-            AssertSame(cpu, gpu, mkl);
+            AssertSameWithMaxDifference(12, cpu, gpu, mkl);
         }
 
         [Fact]
@@ -847,7 +847,7 @@ namespace BrightData.UnitTests
             using var cpu = a.Pow(OPERAND);
             using var gpu = Apply(_cuda, a, a => a.Pow(OPERAND));
             using var mkl = Apply(_mkl, a, a => a.Pow(OPERAND));
-            AssertSame(cpu, gpu, mkl);
+            AssertSameWithMaxDifference(12, cpu, gpu, mkl);
         }
 
         //[Fact]

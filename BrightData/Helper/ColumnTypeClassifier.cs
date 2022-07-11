@@ -25,11 +25,7 @@ namespace BrightData.Helper
             BrightDataType.Boolean,
             BrightDataType.BinaryData,
             BrightDataType.IndexList,
-            BrightDataType.Matrix,
-            BrightDataType.Tensor3D,
-            BrightDataType.Tensor4D,
             BrightDataType.WeightedIndexList,
-            BrightDataType.Vector
         };
         static readonly HashSet<BrightDataType> CategoricalType = new() {
             BrightDataType.Boolean,

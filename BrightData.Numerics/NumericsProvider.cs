@@ -22,7 +22,7 @@ namespace BrightData.Numerics
         }
 
         /// <inheritdoc />
-        public void Dispose()
+        public override void Dispose()
         {
             // nop
         }

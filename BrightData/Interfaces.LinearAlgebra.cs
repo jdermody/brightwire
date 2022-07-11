@@ -57,6 +57,8 @@ namespace BrightData
         IMatrix Create(LinearAlgebraProvider lap);
         IVectorInfo GetRow(uint rowIndex);
         IVectorInfo GetColumn(uint columnIndex);
+        IVectorInfo[] AllRows();
+        IVectorInfo[] AllColumns();
     }
 
     public interface ITensor3DInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment

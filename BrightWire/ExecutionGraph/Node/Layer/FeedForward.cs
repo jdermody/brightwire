@@ -79,8 +79,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public void UpdateWeights(IMatrix delta, ILearningContext context)
         {
             _updater.Update(Weight, delta, context);
-            if(!Weight.IsEntirelyFinite())
-                Debugger.Break();
+            //if(!Weight.IsEntirelyFinite())
+            //    Debugger.Break();
         }
 
         public void UpdateBias(IMatrix delta, ILearningContext context)
@@ -103,8 +103,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var input = signal.GetMatrix();
             var output = FeedForwardInternal(input, Weight);
-            if(!output.IsEntirelyFinite())
-                Debugger.Break();
+            //if(!output.IsEntirelyFinite())
+            //    Debugger.Break();
 
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input));
         }

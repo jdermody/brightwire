@@ -62,13 +62,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _nodeError.Add(new NodeError(fromNode, errorType, error));
         }
 
-        //public void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater)
-        //{
-        //    if (!_updatesDisabled.Contains(fromNode)) {
-        //        _layerVectorUpdate.Add((fromNode, update, updater));
-        //    }
-        //}
-
         public void ApplyUpdates()
         {
             if(_deferredBackpropagation.Any())
@@ -90,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void StartEpoch()
         {
             BeforeEpochStarts?.Invoke(this);
-            if (_learningRateSchedule.TryGetValue(++CurrentEpoch, out float newLearningRate)) {
+            if (_learningRateSchedule.TryGetValue(++CurrentEpoch, out var newLearningRate)) {
                 LearningRate = newLearningRate;
                 GraphFactory.Context.UserNotifications?.OnMessage($"Learning rate changed to {newLearningRate}");
             }

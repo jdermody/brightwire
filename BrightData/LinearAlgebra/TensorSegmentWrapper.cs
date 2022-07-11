@@ -114,6 +114,12 @@ namespace BrightData.LinearAlgebra
             throw new NotImplementedException();
         }
 
+        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
+        {
+            var (array, offset, stride) = _segment.GetUnderlyingArray();
+            return (array, offset + _offset, stride * _stride);
+        }
+
         public override string ToString()
         {
             var preview = String.Join("|", Values.Take(8));

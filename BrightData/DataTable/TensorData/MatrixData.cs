@@ -59,6 +59,9 @@ namespace BrightData.DataTable.TensorData
 
         public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
         public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
+        public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
+        public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
+
         public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)

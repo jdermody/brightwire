@@ -94,6 +94,7 @@ namespace BrightData.LinearAlgebra
         }
 
         public ReadOnlySpan<float> GetSpan() => new(_data);
+        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
 
         public override string ToString()
         {

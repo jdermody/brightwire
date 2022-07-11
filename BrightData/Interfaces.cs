@@ -1287,6 +1287,7 @@ namespace BrightData
         void Clear();
         ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
         ReadOnlySpan<float> GetSpan();
+        (float[] Array, uint Offset, uint Stride) GetUnderlyingArray();
     }
 
     public interface ICanIterateData<T> : IDisposable where T: unmanaged
