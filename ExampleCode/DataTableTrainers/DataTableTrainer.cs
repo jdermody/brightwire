@@ -98,7 +98,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider2, k));
+                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
             return ret;
         }
 

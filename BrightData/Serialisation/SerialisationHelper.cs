@@ -151,13 +151,13 @@ namespace BrightData.Serialisation
         {
             T ret;
             if(typeof(T) == typeof(IVector))
-                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider2.VectorType);
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.VectorType);
             else if(typeof(T) == typeof(IMatrix))
-                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider2.MatrixType);
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.MatrixType);
             else if(typeof(T) == typeof(ITensor3D))
-                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider2.Tensor3DType);
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor3DType);
             else if(typeof(T) == typeof(ITensor4D))
-                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider2.Tensor4DType);
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor4DType);
             else
                 ret = GenericActivator.CreateUninitialized<T>();
             ret.Initialize(context, reader);

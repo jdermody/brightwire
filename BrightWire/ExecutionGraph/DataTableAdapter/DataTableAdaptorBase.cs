@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// <param name="data">Array of input/output pairs</param>
         protected IMiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider2;
+            var lap = _dataTable.Context.LinearAlgebraProvider;
             var input = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
             var output = OutputSize > 0 
                 ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Output[y]).AsGraphData()
@@ -101,7 +101,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             List<IVectorInfo>? temp;
             var inputData = new Dictionary<uint, List<IVectorInfo>>();
             var outputData = new Dictionary<uint, List<IVectorInfo>>();
-            var lap = _dataTable.Context.LinearAlgebraProvider2;
+            var lap = _dataTable.Context.LinearAlgebraProvider;
 
             foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {

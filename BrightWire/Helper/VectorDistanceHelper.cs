@@ -22,7 +22,7 @@ namespace BrightWire.Helper
 		/// <param name="distanceMetric">Distance metric for comparison</param>
 	    public VectorDistanceHelper(IVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
-			_lap = data[0].Context.LinearAlgebraProvider2;
+			_lap = data[0].Context.LinearAlgebraProvider;
 		    Metric = distanceMetric;
 		    _data = data;
 	    }

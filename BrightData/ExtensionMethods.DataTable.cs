@@ -767,18 +767,18 @@ namespace BrightData
                     var vectorSegment = (IDataTableSegment<IVector>)dataTable.GetColumn(columnIndices[0]);
                     foreach (var row in vectorSegment.EnumerateTyped())
                         rows[index++] = row;
-                    return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(rows);
+                    return dataTable.Context.LinearAlgebraProvider.CreateMatrixFromRowsAndThenDisposeInput(rows);
                 }
 
                 if (columnType.IsNumeric()) {
-                    var ret = dataTable.Context.LinearAlgebraProvider2.CreateMatrix(dataTable.RowCount, 1);
+                    var ret = dataTable.Context.LinearAlgebraProvider.CreateMatrix(dataTable.RowCount, 1);
                     dataTable.GetColumn(columnIndices[0]).CopyTo(ret.Segment);
                     return ret;
                 }
             }
 
             var vectoriser = new DataTableVectoriser(dataTable, false, columnIndices);
-            return dataTable.Context.LinearAlgebraProvider2.CreateMatrixFromRowsAndThenDisposeInput(vectoriser.Enumerate().ToArray());
+            return dataTable.Context.LinearAlgebraProvider.CreateMatrixFromRowsAndThenDisposeInput(vectoriser.Enumerate().ToArray());
         }
 
         /// <summary>
@@ -824,7 +824,7 @@ namespace BrightData
 
             // vectorise each row
             var context = dataTable.Context;
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             foreach(var (_, row) in dataTable.GetAllRowData()) {
                 var input = lap.CreateVector(inputVectoriser.Vectorise(row));
                 if (outputVectoriser != null)
@@ -924,7 +924,7 @@ namespace BrightData
         public static IReadOnlyList<(string Classification, IVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             IVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];

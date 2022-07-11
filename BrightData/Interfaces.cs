@@ -333,7 +333,7 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider2 { set; }
+        LinearAlgebraProvider LinearAlgebraProvider { set; }
     }
 
     /// <summary>
@@ -344,7 +344,7 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider2 { get; }
+        LinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
     /// <summary>
@@ -1199,7 +1199,6 @@ namespace BrightData
         IVectorInfo GetColumn(uint index);
         IVectorInfo[] AllRows();
         IVectorInfo[] AllColumns();
-        MemoryOwner<float> ToRowMajor();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
         IMatrix TransposeAndMultiply(IMatrix other);

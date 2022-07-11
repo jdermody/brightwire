@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Node;
 
@@ -44,8 +45,9 @@ namespace BrightWire.ExecutionGraph.Activation
             var lap = context.GetLinearAlgebraProvider();
             var input = signal.GetMatrix();
             var rowList = new IVector[input.RowCount];
+            using var transposed = input.Transpose();
             for (uint i = 0; i < input.RowCount; i++) {
-                using var row = input.GetRow(i).Create(lap);
+                using var row = transposed.GetColumn(i).Create(lap);
                 rowList[i] = row.Softmax();
             }
             var output = lap.CreateMatrixFromRows(rowList);

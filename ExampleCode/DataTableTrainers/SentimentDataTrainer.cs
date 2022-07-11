@@ -170,7 +170,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var builder = context.BuildTable();
             var addColumns = true;
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.AsDense(lap, maxIndex);
@@ -201,7 +201,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var builder = context.BuildTable();
             var addColumns = true;
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.AsDense(lap, maxIndex);

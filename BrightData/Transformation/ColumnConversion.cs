@@ -242,7 +242,7 @@ namespace BrightData.Transformation
             if (_converter != null)
                 return _converter;
 
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             switch (_toType) {
                 case ColumnConversionType.Unchanged:
                     return null;

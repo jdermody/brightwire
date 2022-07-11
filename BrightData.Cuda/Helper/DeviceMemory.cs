@@ -130,12 +130,12 @@ namespace BrightData.Cuda.Helper
                     item.Release();
             }
         }
-        readonly int _maxSize;
+        readonly ulong _maxSize;
         readonly ConcurrentStack<Layer> _layer = new();
         readonly ConcurrentDictionary<uint, ThreadSafeHashSet<Block>> _cache = new();
         int _index = 0;
 
-        public DeviceMemory(int maxSize)
+        public DeviceMemory(ulong maxSize)
         {
             _maxSize = maxSize;
             PushLayer();
@@ -187,7 +187,7 @@ namespace BrightData.Cuda.Helper
                 temp.Add(item);
 
                 // check if we need to delete old items
-                while (_cache.Sum(kv => kv.Key * kv.Value.Count) > _maxSize) {
+                while ((ulong)_cache.Sum(kv => kv.Key * kv.Value.Count) > _maxSize) {
                     Block? oldestItem = null;
                     foreach(var block in _cache) {
                         block.Value.ForEach(b => {

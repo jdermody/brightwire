@@ -346,10 +346,7 @@
         <member name="P:BrightData.BrightDataContext.Random">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.BrightDataContext.DataReader">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider2">
+        <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
             </summary>
@@ -2904,7 +2901,7 @@
             Indicates that the type can set a linear algebra provider
             </summary>
         </member>
-        <member name="P:BrightData.ISetLinearAlgebraProvider.LinearAlgebraProvider2">
+        <member name="P:BrightData.ISetLinearAlgebraProvider.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
             </summary>
@@ -2914,7 +2911,7 @@
             Gives access to a linear algebra provider
             </summary>
         </member>
-        <member name="P:BrightData.IHaveLinearAlgebraProvider.LinearAlgebraProvider2">
+        <member name="P:BrightData.IHaveLinearAlgebraProvider.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
             </summary>

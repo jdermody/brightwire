@@ -13,7 +13,6 @@ namespace BrightData
     {
         Lazy<LinearAlgebraProvider>                   _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
-        readonly DataEncoder                          _dataReader;
 
         /// <summary>
         /// Constructor
@@ -26,11 +25,12 @@ namespace BrightData
                 ? new Random(randomSeed.Value) 
                 : new Random()
             ;
-            _dataReader = new DataEncoder(this);
             if (lap is not null)
                 _lap = new(lap);
             else
                 _lap = new(() => new LinearAlgebraProvider(this));
+
+            Set(Consts.DateTimeCreated, DateTime.Now);
         }
 
         /// <inheritdoc />
@@ -43,13 +43,10 @@ namespace BrightData
         /// <inheritdoc />
         public Random Random { get; private set; }
 
-        /// <inheritdoc />
-        public IDataReader DataReader => _dataReader;
-
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        public LinearAlgebraProvider LinearAlgebraProvider2
+        public LinearAlgebraProvider LinearAlgebraProvider
         {
             get => _lap.Value;
             set

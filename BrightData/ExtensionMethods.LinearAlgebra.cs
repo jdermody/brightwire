@@ -189,7 +189,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor3D(depth, rows, columns);
+        public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider.CreateTensor3D(depth, rows, columns);
 
         /// <summary>
         /// Creates a 3D tensor from matrices
@@ -236,7 +236,7 @@ namespace BrightData
         /// <returns></returns>
         public static ITensor3DInfo CreateTensor3D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.Tensor3DType);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider.Tensor3DType);
             ret.Initialize(context, reader);
             return (ITensor3D)ret;
         }
@@ -251,7 +251,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, uint count, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider2.CreateTensor4D(count, depth, rows, columns);
+        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, uint count, uint depth, uint rows, uint columns) => context.LinearAlgebraProvider.CreateTensor4D(count, depth, rows, columns);
 
         /// <summary>
         /// Creates a 4D tensor from a binary reader
@@ -262,7 +262,7 @@ namespace BrightData
         /// <returns></returns>
         public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider2.Tensor4DType);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(context.LinearAlgebraProvider.Tensor4DType);
             ret.Initialize(context, reader);
             return (ITensor4D)ret;
         }
@@ -275,7 +275,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, params ITensor3D[] tensors) => context.LinearAlgebraProvider2.CreateTensor4D(tensors);
+        public static ITensor4DInfo CreateTensor4D(this BrightDataContext context, params ITensor3D[] tensors) => context.LinearAlgebraProvider.CreateTensor4D(tensors);
 
         /// <summary>
         /// Creates an identity matrix (each diagonal element is 1, each other element is 0)
@@ -388,7 +388,7 @@ namespace BrightData
         /// <returns></returns>
         public static IVectorInfo ReadVectorFrom(this BrightDataContext context, BinaryReader reader)
         {
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();

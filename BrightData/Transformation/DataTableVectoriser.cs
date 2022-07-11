@@ -375,7 +375,7 @@ namespace BrightData.Transformation
                     foreach (var value in column.GetNext())
                         ret[index++] = value;
                 }
-                var input = Context.LinearAlgebraProvider2.CreateVector(ret);
+                var input = Context.LinearAlgebraProvider.CreateVector(ret);
                 yield return input;
             }
         }

@@ -71,7 +71,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this BrightDataTable dataTable)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider2;
+            var lap = dataTable.Context.LinearAlgebraProvider;
             return dataTable.GetVectorisedFeatures()
                 .Select((r, i) => (Vector: r.Numeric, RowIndex: (uint) i, r.Label));
         }
@@ -115,7 +115,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this BrightDataTable dataTable, uint k, uint maxIterations = 1000)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider2;
+            var lap = dataTable.Context.LinearAlgebraProvider;
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
             return data.Keys.Nnmf(lap, k, maxIterations)
@@ -134,7 +134,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this BrightDataContext context) => new(context.LinearAlgebraProvider2);
+        public static GraphFactory CreateGraphFactory(this BrightDataContext context) => new(context.LinearAlgebraProvider);
 
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace BrightWire
         /// <returns></returns>
         public static BrightDataTable CreateSequentialWindow(this BrightDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider2;
+            var lap = dataTable.Context.LinearAlgebraProvider;
             var builder = new BrightDataTableBuilder(dataTable.Context);
             var hasAddedColumns = false;
             var context = dataTable.Context;

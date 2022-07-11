@@ -78,7 +78,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void WriteTo(BinaryWriter writer)
         {
-            using var temp = _context.LinearAlgebraProvider2.CreateVector(Data);
+            using var temp = _context.LinearAlgebraProvider.CreateVector(Data);
             temp.WriteTo(writer);
         }
 

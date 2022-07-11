@@ -36,7 +36,7 @@ namespace BrightWire.UnitTests
 
         static (GraphFactory, IDataSource) MakeGraphAndData(BrightDataContext context)
         {
-            var graph = new GraphFactory(context.LinearAlgebraProvider2);
+            var graph = new GraphFactory(context.LinearAlgebraProvider);
             var data = graph.CreateDataSource(And.Get(context));
             return (graph, data);
         }

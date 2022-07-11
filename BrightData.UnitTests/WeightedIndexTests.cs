@@ -123,7 +123,7 @@ namespace BrightData.UnitTests
         public void AsDense()
         {
             var first = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
-            var vector = first.AsDense(_context.LinearAlgebraProvider2);
+            var vector = first.AsDense(_context.LinearAlgebraProvider);
             vector[0].Should().Be(1f);
             vector[1].Should().Be(2f);
             vector[2].Should().Be(3f);

@@ -51,7 +51,7 @@ namespace BrightData.LinearAlgebra
             var size = shape.Aggregate(1, (p, c) => p * (int)c);
             var data = reader.ReadBytes(size * sizeof(float));
 
-            _lap = (LAP)context.LinearAlgebraProvider2;
+            _lap = (LAP)context.LinearAlgebraProvider;
             _lap.AddToScope(this);
 
             Segment = _lap.CreateSegment((uint)size);

@@ -28,22 +28,6 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void RowMajor()
-        {
-            using var matrix = _cpu.CreateMatrix(2, 2);
-            matrix[0, 0] = 1;
-            matrix[1, 0] = 2;
-            matrix[0, 1] = 3;
-            matrix[1, 1] = 4;
-            var array = matrix.Segment.ToNewArray();
-            array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
-
-            using var buffer = matrix.ToRowMajor();
-            var array2 = buffer.Span.ToArray();
-            array2.Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
-        }
-
-        [Fact]
         public void SimpleTranspose()
         {
             using var matrix = _cpu.CreateMatrix(2, 2);

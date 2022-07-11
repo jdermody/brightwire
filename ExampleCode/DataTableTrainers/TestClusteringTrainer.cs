@@ -73,7 +73,7 @@ namespace ExampleCode.DataTableTrainers
         public TestClusteringTrainer(BrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
         {
             _context = context;
-            var lap = context.LinearAlgebraProvider2;
+            var lap = context.LinearAlgebraProvider;
             (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
             _vectors = data.Select(d => d.Data.AsDense(lap, _stringTable.Size + 1)).ToArray();
             foreach(var (first, second) in _vectors.Zip(documents))
@@ -94,13 +94,13 @@ namespace ExampleCode.DataTableTrainers
         {
             Console.Write("NNMF  clustering...");
             var outputPath = GetOutputPath("nnmf");
-            WriteClusters(outputPath, _vectors.Nnmf(_context.LinearAlgebraProvider2, _groupCount), _documentTable);
+            WriteClusters(outputPath, _vectors.Nnmf(_context.LinearAlgebraProvider, _groupCount), _documentTable);
             Console.WriteLine($"written to {outputPath}");
         }
 
         public void RandomProjection()
         {
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             // create a term/document matrix with terms as columns and documents as rows
             var matrix = lap.CreateMatrixFromRows(_vectors);
 
@@ -123,7 +123,7 @@ namespace ExampleCode.DataTableTrainers
             Console.Write("Building latent term/document space...");
             var outputPath = GetOutputPath("latent-kmeans");
 
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             // create a term/document matrix with terms as columns and documents as rows
             var matrix = lap.CreateMatrixFromRows(_vectors);
             var kIndices = k.AsRange().ToList();

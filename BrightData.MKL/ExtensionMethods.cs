@@ -9,10 +9,10 @@ namespace BrightData.MKL
 {
     public static class ExtensionMethods
     {
-        public static LinearAlgebraProvider UseMKL(this BrightDataContext context)
+        public static MklLinearAlgebraProvider UseMKL(this BrightDataContext context)
         {
             var ret = new MklLinearAlgebraProvider(context);;
-            ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider2 = ret;
+            ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
             return ret;
         }
     }

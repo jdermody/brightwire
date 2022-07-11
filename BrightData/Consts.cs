@@ -88,7 +88,8 @@
         public const string Source                        = "Source";
         public const string FilePath                      = "FilePath";
         public const string BaseTempPath                  = "BaseTempPath";
-        public const string ArrayBased                    = "array based";
+        public const string ArrayBased                    = "ArrayBased";
+        public const string DateTimeCreated               = "DateTimeCreated";
 #pragma warning restore 1591
 
         /// <summary>

@@ -89,9 +89,9 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var vectorBuilder = builder.AddColumn<IVectorInfo>("vector");
-            using var firstVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 1);
+            using var firstVector = _context.LinearAlgebraProvider.CreateVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
-            using var secondVector = _context.LinearAlgebraProvider2.CreateVector(5, i => i + 2);
+            using var secondVector = _context.LinearAlgebraProvider.CreateVector(5, i => i + 2);
             vectorBuilder.Add(secondVector);
 
             using var stream = new MemoryStream();
@@ -99,9 +99,9 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<IVectorInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
+            using var fromTable = dataTable.Get<IVectorInfo>(0, 0).Create(_context.LinearAlgebraProvider);
             fromTable.Should().BeEquivalentTo(firstVector);
-            using var fromTable2 = dataTable.Get<IVectorInfo>(1, 0).Create(_context.LinearAlgebraProvider2);
+            using var fromTable2 = dataTable.Get<IVectorInfo>(1, 0).Create(_context.LinearAlgebraProvider);
             fromTable2.Should().BeEquivalentTo(secondVector);
         }
 
@@ -110,7 +110,7 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var matrixBuilder = builder.AddColumn<IMatrixInfo>("matrix");
-            using var firstMatrix = _context.LinearAlgebraProvider2.CreateMatrix(5, 5, (i, j) => i + j);
+            using var firstMatrix = _context.LinearAlgebraProvider.CreateMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
             var secondMatrix = _context.CreateMatrixInfo(5, 5, (i, j) => (i + j) + 1);
             matrixBuilder.Add(secondMatrix);
@@ -124,7 +124,7 @@ namespace BrightData.UnitTests
             var columnItems = column.EnumerateTyped<IMatrixInfo>().ToList();
             columnItems.Last().Should().BeEquivalentTo(secondMatrix);
 
-            using var fromTable = dataTable.Get<IMatrixInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
+            using var fromTable = dataTable.Get<IMatrixInfo>(0, 0).Create(_context.LinearAlgebraProvider);
             fromTable.Should().BeEquivalentTo(firstMatrix);
             var fromTable2 = dataTable.Get<IMatrixInfo>(1, 0);
             fromTable2.Should().BeEquivalentTo(secondMatrix);
@@ -137,7 +137,7 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor3DInfo>("tensor");
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             using var firstTensor = lap.CreateTensor3DAndThenDisposeInput(
                 lap.CreateMatrix(5, 5, (i, j) => i + j),
                 lap.CreateMatrix(5, 5, (i, j) => i + j)
@@ -149,7 +149,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<ITensor3DInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
+            using var fromTable = dataTable.Get<ITensor3DInfo>(0, 0).Create(_context.LinearAlgebraProvider);
             fromTable.Should().BeEquivalentTo(firstTensor);
             fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
         }
@@ -159,7 +159,7 @@ namespace BrightData.UnitTests
         {
             using var builder = new BrightDataTableBuilder(_context);
             var tensorBuilder = builder.AddColumn<ITensor4DInfo>("tensor");
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             using var firstTensor = lap.CreateTensor4DAndThenDisposeInput(
                 lap.CreateTensor3DAndThenDisposeInput(
                     lap.CreateMatrix(5, 5, (i, j) => i + j),
@@ -177,7 +177,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = new BrightDataTable(_context, stream);
 
-            using var fromTable = dataTable.Get<ITensor4DInfo>(0, 0).Create(_context.LinearAlgebraProvider2);
+            using var fromTable = dataTable.Get<ITensor4DInfo>(0, 0).Create(_context.LinearAlgebraProvider);
             fromTable.Should().BeEquivalentTo(firstTensor);
             fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
         }

@@ -97,7 +97,7 @@ namespace BrightData.Transformation
         static IVector ToVector(BrightDataContext context, object[] values)
         {
             var data = values.Select(Convert.ToSingle).ToArray();
-            return context.LinearAlgebraProvider2.CreateVector(data);
+            return context.LinearAlgebraProvider.CreateVector(data);
         }
 
         static string ToString(object[] vals) => String.Join('|', vals.Select(Convert.ToString));

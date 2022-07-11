@@ -19,7 +19,7 @@ namespace BrightData.Cuda
 
         public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : base(context)
         {
-            _cuda = cuda ?? context.CreateCudaProvider();
+            _cuda = cuda ?? ExtensionMethods.CreateCudaProvider(context);
         }
 
         public override void Dispose()
@@ -29,8 +29,8 @@ namespace BrightData.Cuda
         }
 
         public override string Name => "cuda";
-        public override Type VectorType { get; } = typeof(CudaVector2);
-        public override Type MatrixType { get; } = typeof(CudaMatrix2);
+        public override Type VectorType { get; } = typeof(CudaVector);
+        public override Type MatrixType { get; } = typeof(CudaMatrix);
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
@@ -45,8 +45,8 @@ namespace BrightData.Cuda
             deviceMemory.CopyToDevice(ptr);
             return new CudaTensorSegment(deviceMemory);
         }
-        public override IVector CreateVector(ITensorSegment2 data) => new CudaVector2(OptionallyCopyToDevice(data), this);
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix2(OptionallyCopyToDevice(data), rowCount, columnCount, this);
+        public override IVector CreateVector(ITensorSegment2 data) => new CudaVector(OptionallyCopyToDevice(data), this);
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
 
 
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
@@ -54,10 +54,11 @@ namespace BrightData.Cuda
             var size = rowCount * columnCount;
             using var buffer = SpanOwner<float>.Allocate((int)size);
             var ptr = buffer.Span;
-            for (uint i = 0; i < columnCount; i++) {
-                for (uint j = 0; j < rowCount; j++)
-                    ptr[(int)(j * columnCount + i)] = initializer(j, i);
+            for (uint i = 0; i < rowCount; i++) {
+                for (uint j = 0; j < columnCount; j++)
+                    ptr[(int)(j * rowCount + i)] = initializer(i, j);
             }
+
             var deviceMemory = _cuda.Memory.GetMemory(size);
             deviceMemory.CopyToDevice(ptr);
             return CreateMatrix(rowCount, columnCount, new CudaTensorSegment(deviceMemory));
@@ -90,7 +91,7 @@ namespace BrightData.Cuda
                 return new CudaTensorSegment(deviceMemory);
             }
             finally {
-                if(wasTempUsed)
+                if (wasTempUsed)
                     temp.Dispose();
             }
         }
@@ -98,9 +99,9 @@ namespace BrightData.Cuda
         public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2)
         {
             return _cuda.Blas.Dot(
-                GetDeviceVariable(tensor), 
-                1, 
-                GetDeviceVariable(tensor2), 
+                GetDeviceVariable(tensor),
+                1,
+                GetDeviceVariable(tensor2),
                 1
             );
         }
@@ -525,20 +526,20 @@ namespace BrightData.Cuda
                     using var devInfo = new CudaDeviceVariable<int>(1);
                     a.CopyToDevice(GetDeviceMemoryPtr(matrix.Segment));
                     solver.Gesvd(
-                        'A', 
-                        'A', 
-                        (int)rows, 
-                        (int)columns, 
-                        a.DeviceVariable, 
-                        (int)rows, 
-                        s.DeviceVariable, 
-                        u.DeviceVariable, 
-                        (int)rows, 
-                        vt.DeviceVariable, 
-                        (int)columns, 
-                        buffer.DeviceVariable, 
-                        bufferSize, 
-                        rwork.DeviceVariable, 
+                        'A',
+                        'A',
+                        (int)rows,
+                        (int)columns,
+                        a.DeviceVariable,
+                        (int)rows,
+                        s.DeviceVariable,
+                        u.DeviceVariable,
+                        (int)rows,
+                        vt.DeviceVariable,
+                        (int)columns,
+                        buffer.DeviceVariable,
+                        bufferSize,
+                        rwork.DeviceVariable,
                         devInfo
                     );
                     return (
@@ -546,12 +547,14 @@ namespace BrightData.Cuda
                         CreateVector(new CudaTensorSegment(s)),
                         CreateMatrix(columns, columns, new CudaTensorSegment(vt))
                     );
-                }finally {
+                }
+                finally {
                     buffer.Release();
                     rwork.Release();
                     a.Release();
                 }
-            }catch {
+            }
+            catch {
                 s.Release();
                 u.Release();
                 vt.Release();
@@ -668,7 +671,7 @@ namespace BrightData.Cuda
             var rows = vectorColumns[0].Size;
 
             var devicePointers = new CUdeviceptr[vectorColumns.Length];
-            for(var i = 0; i < vectorColumns.Length; i++) {
+            for (var i = 0; i < vectorColumns.Length; i++) {
                 var deviceMemory = GetDeviceMemoryPtr(vectorColumns[i]);
                 devicePointers[i] = deviceMemory.DevicePointer;
             }
@@ -687,7 +690,7 @@ namespace BrightData.Cuda
             var columns = vectorRows[0].Size;
 
             var devicePointers = new CUdeviceptr[vectorRows.Length];
-            for(var i = 0; i < vectorRows.Length; i++) {
+            for (var i = 0; i < vectorRows.Length; i++) {
                 var deviceMemory = GetDeviceMemoryPtr(vectorRows[i]);
                 devicePointers[i] = deviceMemory.DevicePointer;
             }
@@ -729,7 +732,7 @@ namespace BrightData.Cuda
 
         public IMatrix CreateMatrix(uint rows, uint columns)
         {
-            return new CudaMatrix2(CreateSegment(rows * columns), rows, columns, this);
+            return new CudaMatrix(CreateSegment(rows * columns), rows, columns, this);
         }
 
         public override IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
@@ -758,12 +761,12 @@ namespace BrightData.Cuda
                         size
                     );
                     using var ones = CreateMatrix(rows, columns, (i, j) => 1f);
-                    using var vectorMagnitude = new CudaMatrix2(new CudaTensorSegment(aa), rows, columns, this);
+                    using var vectorMagnitude = new CudaMatrix(new CudaTensorSegment(aa), rows, columns, this);
                     using var vectorSqrt = vectorMagnitude.Sqrt();
-                    using var compareToMagnitude = new CudaMatrix2(new CudaTensorSegment(bb), rows, columns, this);
+                    using var compareToMagnitude = new CudaMatrix(new CudaTensorSegment(bb), rows, columns, this);
                     using var compareToSqrt = compareToMagnitude.Sqrt();
                     using var norms = vectorSqrt.PointwiseMultiply(compareToSqrt);
-                    using var result = new CudaMatrix2(new CudaTensorSegment(ret), rows, columns, this);
+                    using var result = new CudaMatrix(new CudaTensorSegment(ret), rows, columns, this);
                     using var distance = result.PointwiseDivide(norms);
                     return ones.Subtract(distance);
                 }
@@ -779,7 +782,7 @@ namespace BrightData.Cuda
                 );
             }
 
-            IMatrix matrix = new CudaMatrix2(new CudaTensorSegment(ret), rows, columns, this);
+            IMatrix matrix = new CudaMatrix(new CudaTensorSegment(ret), rows, columns, this);
             if (distanceMetric == DistanceMetric.Euclidean) {
                 var sqrt = matrix.Sqrt();
                 matrix.Dispose();

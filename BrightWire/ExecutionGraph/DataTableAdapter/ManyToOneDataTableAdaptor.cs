@@ -63,7 +63,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider2;
+            var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
                 .Select(r => ((IMatrixInfo)r[_featureColumnIndices[0]], (IVectorInfo)r[_targetColumnIndex]))
                 .ToList()

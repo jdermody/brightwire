@@ -13,6 +13,7 @@ using ManagedCuda.CudaBlas;
 using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
 using Microsoft.Toolkit.HighPerformance.Buffers;
+using Math = ManagedCuda.CudaBlas.Math;
 
 namespace BrightData.Cuda
 {
@@ -92,7 +93,7 @@ namespace BrightData.Cuda
 		}
 
 		readonly CudaContext _cuda;
-		readonly CudaBlas _blas;
+		readonly Lazy<CudaBlas> _blas;
 		readonly Lazy<CudaSolveDense> _solver = new();
 		readonly KernelModule _kernel;
 
@@ -156,7 +157,7 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
 
-		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint memoryCacheSize)
+		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint? memoryCacheSize)
         {
             _context = context;
             _cuda = new CudaContext();
@@ -176,10 +177,17 @@ namespace BrightData.Cuda
                     throw new Exception($"No default kernel was found in {cudaDirectory}");
             }
 
-            Memory = new DeviceMemory((int)memoryCacheSize);
+			// use most available CUDA memory for the cache by default
+            var cacheSize = memoryCacheSize ?? 512 * 1048576;//((ulong)_cuda.GetTotalDeviceMemorySize() * 5 / 6);
+            Memory = new DeviceMemory(cacheSize);
+
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
-			_blas = new CudaBlas(AtomicsMode.Allowed);
-			_cuda.SetCurrent();
+            _blas = new(() => {
+                var ret = new CudaBlas(AtomicsMode.Allowed);
+                //ret.MathMode = Math.TF32TensorOpMath;
+                return ret;
+            });
+            _cuda.SetCurrent();
 
             _pointwiseMultiply      = _kernel.LoadFunction("PointwiseMultiply");
 			_addInPlace             = _kernel.LoadFunction("AddInPlace");
@@ -241,7 +249,10 @@ namespace BrightData.Cuda
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !_disposed) {
-				_blas.Dispose();
+				if(_blas.IsValueCreated)
+				    _blas.Value.Dispose();
+				if(_solver.IsValueCreated)
+					_solver.Value.Dispose();
 				_cuda.Dispose();
 				Memory.Dispose();
                 _disposed = true;
@@ -257,9 +268,8 @@ namespace BrightData.Cuda
         public string Name { get; } = "Cuda";
         BrightDataContext IHaveDataContext.Context => _context;
         public BrightDataContext DataContext => _context;
-        public bool IsGpu => true;
-		internal CudaContext Context => _cuda;
-		public CudaBlas Blas => _blas;
+        internal CudaContext Context => _cuda;
+		public CudaBlas Blas => _blas.Value;
 		public CudaSolveDense Solver => _solver.Value;
 		public long TotalMemory => _cuda.GetTotalDeviceMemorySize();
 		public long FreeMemory => _cuda.GetFreeDeviceMemorySize();
@@ -338,7 +348,7 @@ namespace BrightData.Cuda
 			var ret = Allocate(size);
 			try {
 				Invoke(_isFinite, size, a.DevicePointer, ret.DevicePointer, size);
-				var sum = _blas.AbsoluteSum(ret.DeviceVariable, 1);
+				var sum = _blas.Value.AbsoluteSum(ret.DeviceVariable, 1);
 				return FloatMath.IsZero(sum);
 			}
 			finally {

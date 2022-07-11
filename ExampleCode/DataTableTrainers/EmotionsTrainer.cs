@@ -171,7 +171,7 @@ namespace ExampleCode.DataTableTrainers
                 //);
 
                 // train and evaluate k nearest neighbours
-                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider2, 10);
+                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)

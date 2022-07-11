@@ -71,7 +71,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var lap = _dataTable.Context.LinearAlgebraProvider2;
+            var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
                 var inputData = new Dictionary<uint, List<IVectorInfo>>();
                 var outputData = new Dictionary<uint, List<IVectorInfo>>();

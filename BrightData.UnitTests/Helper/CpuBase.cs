@@ -10,7 +10,7 @@ namespace BrightData.UnitTests.Helper
 
         public CpuBase()
         {
-            _cpu = _context.LinearAlgebraProvider2;
+            _cpu = _context.LinearAlgebraProvider;
             _mkl = new MklLinearAlgebraProvider(_context);
         }
 

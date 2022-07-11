@@ -21,41 +21,41 @@ namespace ExampleCode
         static void Main()
         {
             using var context = new BrightDataContext(null, RandomSeed);
-            var useCuda = false;
+            bool useCuda = false, useMkl = false;
 
-            // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            context.UseMKL();
+            // IMPORTANT: uncomment below if you have an Intel CPU
+            useMkl = true;
 
-            // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            //useCuda = true;
+            // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
+            useCuda = true;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
             //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //Xor(context);
-            //IrisClassification(context);
-            //IrisClustering(context);
-            //MarkovChains(context);
-            //TextClustering(context);
-            //IntegerAddition(context);
-            //ReberPrediction(context);
-            //OneToMany(context, useCuda);
-            //ManyToOne(context, useCuda);
-            //SequenceToSequence(context, useCuda);
-            //StockData(context, useCuda);
-            //SimpleLinearTest(context);
-            //PredictBicyclesWithLinearModel(context);
-            //PredictBicyclesWithNeuralNetwork(context);
-            //MultiLabelSingleClassifier(context);
-            //MultiLabelMultiClassifiers(context);
-            MnistFeedForward(context);
-            //MnistConvolutional(context, useCuda);
-            //TrainIncomePrediction(context);
-            //SentimentClassification(context, useCuda);
+            //Xor(context, useMkl);
+            //IrisClassification(context, useMkl);
+            //IrisClustering(context, useMkl);
+            //MarkovChains(context), useMkl;
+            //TextClustering(context, useMkl);
+            //IntegerAddition(context, useMkl);
+            //ReberPrediction(context, useMkl);
+            //OneToMany(context, useMkl);
+            //ManyToOne(context, useMkl, useCuda);
+            //SequenceToSequence(context, useMkl, useCuda);
+            //StockData(context, useMkl, useCuda);
+            //SimpleLinearTest(context, useMkl);
+            //PredictBicyclesWithLinearModel(context, useMkl);
+            //PredictBicyclesWithNeuralNetwork(context, useMkl);
+            //MultiLabelSingleClassifier(context, useMkl);
+            //MultiLabelMultiClassifiers(context, useMkl);
+            MnistFeedForward(context, useMkl);
+            //MnistConvolutional(context, useMkl, useCuda);
+            //TrainIncomePrediction(context, useMkl);
+            //SentimentClassification(context, useMkl, useCuda);
         }
 
-        static void Start(BrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
+        static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
         {
             context.ResetRandom(RandomSeed);
 
@@ -63,11 +63,14 @@ namespace ExampleCode
             Console.WriteLine("*");
             Console.WriteLine($"* {title}");
             if (useCuda) {
-                context.CreateCudaProvider();
-                Console.WriteLine("* (CUDA)");
+                context.UseCuda();
+                Console.WriteLine("* (GPU - CUDA)");
+            }else if (useMkl) {
+                context.UseMKL();
+                Console.WriteLine("* (CPU - MKL)");
             }
             else {
-                Console.WriteLine("* (Standard)");
+                Console.WriteLine("* (CPU)");
             }
             Console.WriteLine("*");
             Console.WriteLine("*********************************************");
@@ -78,15 +81,15 @@ namespace ExampleCode
             Console.WriteLine("---------------------------------------------");
         }
 
-        static void Xor(BrightDataContext context)
+        static void Xor(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Xor().Train(4, 80, 0.5f, 4);
         }
 
-        static void IrisClassification(BrightDataContext context)
+        static void IrisClassification(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var iris = context.Iris();
             //iris.TrainNaiveBayes();
             //iris.TrainDecisionTree();
@@ -96,9 +99,9 @@ namespace ExampleCode
             iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
 
-        static void IrisClustering(BrightDataContext context)
+        static void IrisClustering(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var iris = context.Iris();
 
             // select only the first three columns (ignore the training label)
@@ -129,27 +132,27 @@ namespace ExampleCode
             WriteSeparator();
         }
 
-        static void MarkovChains(BrightDataContext context)
+        static void MarkovChains(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MnistFeedForward(BrightDataContext context)
+        static void MnistFeedForward(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl, true);
             context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
-        static void MnistConvolutional(BrightDataContext context, bool useCuda)
+        static void MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(BrightDataContext context, bool useCuda)
+        static void SentimentClassification(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
@@ -163,9 +166,9 @@ namespace ExampleCode
             sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
-        static void TextClustering(BrightDataContext context)
+        static void TextClustering(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var textClustering = context.TextClustering();
             textClustering.KMeans();
             textClustering.Nnmf();
@@ -173,37 +176,37 @@ namespace ExampleCode
             //textClustering.LatentSemanticAnalysis();
         }
 
-        static void IntegerAddition(BrightDataContext context)
+        static void IntegerAddition(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.IntegerAddition().TrainRecurrentNeuralNetwork();
         }
 
-        static void ReberPrediction(BrightDataContext context)
+        static void ReberPrediction(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var reber = context.ReberSequencePrediction();
             var engine = reber.TrainLstm();
             reber.GenerateSequences(engine);
         }
 
-        static void OneToMany(BrightDataContext context, bool useCuda)
+        static void OneToMany(BrightDataContext context, bool useMkl)
         {
-            Start(context, useCuda);
+            Start(context, useMkl);
             var sequences = context.OneToMany();
             sequences.TrainOneToMany();
         }
 
-        static void ManyToOne(BrightDataContext context, bool useCuda)
+        static void ManyToOne(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             var sequences = context.ManyToOne();
             sequences.TrainManyToOne();
         }
 
-        static void SequenceToSequence(BrightDataContext context, bool useCuda)
+        static void SequenceToSequence(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }
@@ -220,34 +223,34 @@ namespace ExampleCode
         //    context.Bicycles().TrainLinearModel();
         //}
 
-        static void PredictBicyclesWithNeuralNetwork(BrightDataContext context)
+        static void PredictBicyclesWithNeuralNetwork(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Bicycles().TrainNeuralNetwork();
         }
 
-        static void MultiLabelSingleClassifier(BrightDataContext context)
+        static void MultiLabelSingleClassifier(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Emotions().TrainNeuralNetwork();
         }
 
-        static void MultiLabelMultiClassifiers(BrightDataContext context)
+        static void MultiLabelMultiClassifiers(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Emotions().TrainMultiClassifiers();
         }
 
-        static void StockData(BrightDataContext context, bool useCuda)
+        static void StockData(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             var stockData = context.StockData().GetSequentialWindow();
             stockData.TrainLstm(256);
         }
 
-        static void TrainIncomePrediction(BrightDataContext context)
+        static void TrainIncomePrediction(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var adult = context.Adult();
             adult.TrainNeuralNetwork();
             //adult.TrainNaiveBayes();

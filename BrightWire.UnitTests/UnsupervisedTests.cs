@@ -11,7 +11,7 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestKMeans()
         {
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
@@ -32,7 +32,7 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestNnmf()
         {
-            var lap = _context.LinearAlgebraProvider2;
+            var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false)
