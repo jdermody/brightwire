@@ -94,9 +94,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 if (Data.HasValue) {
-                    var ret = new ExecutionResult(BatchSequence, Data.GetMatrix());
+                    var ret = new ExecutionResult(BatchSequence, Data.GetMatrix(), ExecutionContext.WantInputInExecutionResults);
                     if (ErrorSignal != null)
-                        ret.Error = ErrorSignal.GetMatrix();
+                        ret.Error = ErrorSignal.GetMatrix().AllRows();
                     yield return ret;
                 }
             }

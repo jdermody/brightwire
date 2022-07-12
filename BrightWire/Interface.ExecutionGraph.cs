@@ -562,8 +562,9 @@ namespace BrightWire
         /// <param name="dataSource">Segment source to process</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+        /// <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null);
+        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
 
         /// <summary>
         /// Executes a single vector on the current graph

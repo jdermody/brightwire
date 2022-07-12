@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
@@ -13,14 +12,19 @@ namespace BrightData.Cuda.Helper
 	    readonly IDeviceMemoryPtr          _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;
         readonly CudaContext               _context;
-	    int                                _refCount = 1;
+        bool _addedReference = false;
 
         public PtrToMemory(CudaContext context, IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
         {
             _context = context;
-            _ptr = new CudaDeviceVariable<float>(ptr, size);
+            _ptr = new CudaDeviceVariable<float>(ptr, false, size);
 	        _rootBlock = rootBlock;
-	        rootBlock.AddRef();
+        }
+
+        public void Dispose()
+        {
+            if(_addedReference)
+                Release();
         }
 
         public CudaDeviceVariable<float> DeviceVariable => _ptr;
@@ -50,17 +54,14 @@ namespace BrightData.Cuda.Helper
         }
 
 	    public int AddRef()
-	    {
-		    return Interlocked.Increment(ref _refCount) + _rootBlock.AddRef();
+        {
+            _addedReference = true;
+		    return _rootBlock.AddRef();
 	    }
 
 	    public int Release()
         {
-	        _rootBlock.Release();
-            var ret = Interlocked.Decrement(ref _refCount);
-			if(ret <= 0)
-				_ptr.Dispose();
-            return ret;
+	        return _rootBlock.Release();
         }
     }
 }

@@ -104,7 +104,7 @@ namespace ExampleCode.DataTableTrainers
             var rowIndex = 0;
             foreach (var item in output) {
                 var sb = new StringBuilder();
-                foreach (var (vector, target) in item.Output.AllRows().Zip(item.Target!.AllRows(), (o, t) => (Output: o, Target: t))) {
+                foreach (var (vector, target) in item.Output.Zip(item.Target!, (o, t) => (Output: o, Target: t))) {
                     var columnIndex = 0;
                     sb.AppendLine($"{rowIndex++}) ");
                     for(var i = 0; i < vector.Size; i++) {

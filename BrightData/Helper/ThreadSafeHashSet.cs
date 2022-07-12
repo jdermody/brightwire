@@ -2,34 +2,34 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace BrightData.Cuda.Helper
+namespace BrightData.Helper
 {
     /// <summary>
     /// A hash set that can be accessed by more than one thread at the same time
     /// </summary>
     /// <typeparam name="T">The wrapped type</typeparam>
-    internal class ThreadSafeHashSet<T> : IDisposable
+    public sealed class ThreadSafeHashSet<T> : IDisposable
     {
         readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         readonly HashSet<T> _hashSet = new();
 
         ~ThreadSafeHashSet()
         {
-            Dispose(false);
+            DisposeInternal();
         }
         public void Dispose()
         {
-            Dispose(true);
+            DisposeInternal();
             GC.SuppressFinalize(this);
         }
-        protected virtual void Dispose(bool disposing)
+        void DisposeInternal()
         {
-            if (disposing)
-            {
-	            _lock.Dispose();
-            }
+            _hashSet.Clear();
+            _lock.Dispose();
         }
 
         public bool Add(T item)
@@ -39,7 +39,8 @@ namespace BrightData.Cuda.Helper
                 return _hashSet.Add(item);
             }
             finally {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsWriteLockHeld) 
+                    _lock.ExitWriteLock();
             }
         }
 
@@ -50,7 +51,8 @@ namespace BrightData.Cuda.Helper
                 _hashSet.Clear();
             }
             finally {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsWriteLockHeld) 
+                    _lock.ExitWriteLock();
             }
         }
 
@@ -61,7 +63,8 @@ namespace BrightData.Cuda.Helper
                 return _hashSet.Contains(item);
             }
             finally {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
+                if (_lock.IsReadLockHeld) 
+                    _lock.ExitReadLock();
             }
         }
 
@@ -72,7 +75,8 @@ namespace BrightData.Cuda.Helper
                 return _hashSet.Remove(item);
             }
             finally {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsWriteLockHeld) 
+                    _lock.ExitWriteLock();
             }
         }
 
@@ -85,7 +89,8 @@ namespace BrightData.Cuda.Helper
                     return _hashSet.Count;
                 }
                 finally {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
+                    if (_lock.IsReadLockHeld) 
+                        _lock.ExitReadLock();
                 }
             }
         }
@@ -98,7 +103,8 @@ namespace BrightData.Cuda.Helper
                     callback(item);
             }
             finally {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
+                if (_lock.IsReadLockHeld) 
+                    _lock.ExitReadLock();
             }
         }
 
@@ -115,7 +121,8 @@ namespace BrightData.Cuda.Helper
                 return false;
             }
             finally {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsWriteLockHeld) 
+                    _lock.ExitWriteLock();
             }
         }
     }

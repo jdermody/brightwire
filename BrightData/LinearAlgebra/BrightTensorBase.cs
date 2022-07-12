@@ -26,8 +26,8 @@ namespace BrightData.LinearAlgebra
 
         public void Dispose()
         {
-            if(_lap.RemoveFromScope(this))
-                Segment.Release();
+            _lap.RemoveFromScope(this);
+            Segment.Release();
         }
 
         public void WriteTo(BinaryWriter writer)

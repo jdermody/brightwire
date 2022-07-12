@@ -25,7 +25,7 @@ namespace ExampleCode
             bool useCuda = false, useMkl = false;
 
             // IMPORTANT: uncomment below if you have an Intel CPU
-            //useMkl = true;
+            useMkl = true;
 
             // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
             useCuda = true;

@@ -28,7 +28,7 @@ namespace BrightData.Cuda
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    public interface IDeviceMemoryPtr
+    public interface IDeviceMemoryPtr : IDisposable
     {
         int AddRef();
         int Release();

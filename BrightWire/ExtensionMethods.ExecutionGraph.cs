@@ -146,7 +146,7 @@ namespace BrightWire
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
-                var outputRows = result.Output.AllRows();
+                var outputRows = result.Output;
 			    for (var i = 0; i < outputRows.Length; i++) {
 				    var rowIndex = rows[i];
 				    ret.Add((rowIndex, sequenceIndex), outputRows[i].ToArray());

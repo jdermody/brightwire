@@ -62,7 +62,7 @@ namespace BrightWire.UnitTests
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
             static bool Handle(IVectorInfo value) => value[0] > 0.5f;
-            var zippedResults = results!.Output.AllRows().Zip(results.Target.AllRows(), (result, target) => Handle(result) == Handle(target));
+            var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }
 

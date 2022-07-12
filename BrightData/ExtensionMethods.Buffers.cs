@@ -77,22 +77,14 @@ namespace BrightData
             var stream = reader.BaseStream;
             var type = (HybridBufferType)reader.ReadByte();
 
-            if (type == HybridBufferType.EncodedString)
-                return (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize);
-
-            if (type == HybridBufferType.EncodedStruct)
-                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
-
-            if (type == HybridBufferType.Object)
-                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
-
-            if (type == HybridBufferType.String)
-                return (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize);
-
-            if (type == HybridBufferType.Struct)
-                return GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
-
-            throw new NotImplementedException();
+            return type switch {
+                HybridBufferType.EncodedString => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize),
+                HybridBufferType.EncodedStruct => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
+                HybridBufferType.Object => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize),
+                HybridBufferType.String => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize),
+                HybridBufferType.Struct => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
+                _ => throw new NotImplementedException()
+            };
         }
 
         public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment segment)

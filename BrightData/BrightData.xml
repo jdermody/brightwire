@@ -1288,7 +1288,7 @@
             <param name="filePath">File path on disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment2)">
+        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment)">
             <summary>
             Copies a data table segment to a tensor segment
             </summary>
@@ -1297,7 +1297,7 @@
             <param name="vector">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment2)">
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment)">
             <summary>
             Copies a data table segment to tensor segment
             </summary>
@@ -2042,7 +2042,7 @@
             <param name="tensor"></param>
             <param name="initializer">Callback for each element</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment2)">
+        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment)">
             <summary>
             Converts the tensor segment to a sparse format (only non zero entries are preserved)
             </summary>
@@ -2499,6 +2499,12 @@
             </summary>
             <param name="uniqueId">Unique identifier</param>
             <returns>True if the stream has been created</returns>
+        </member>
+        <member name="T:BrightData.Helper.ThreadSafeHashSet`1">
+            <summary>
+            A hash set that can be accessed by more than one thread at the same time
+            </summary>
+            <typeparam name="T">The wrapped type</typeparam>
         </member>
         <member name="T:BrightData.HybridBuffersExtensionMethods">
             <summary>
@@ -4333,7 +4339,7 @@
         <member name="M:BrightData.LinearAlgebra.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Matrix`1.ToString">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.ToString">
             <inheritdoc />
         </member>
         <member name="T:BrightData.MetaData">

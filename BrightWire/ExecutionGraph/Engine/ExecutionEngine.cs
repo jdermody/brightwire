@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
     internal class ExecutionEngine : IGraphExecutionEngine
 	{
-        public ExecutionEngine( LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
+        public ExecutionEngine(LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
         {
             LinearAlgebraProvider = lap;
 			Graph = graph;
@@ -104,12 +104,12 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public GraphExecutionContext CreateExecutionContext() => new(this);
 
-        public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
+        public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = dataSource;
             var provider = new MiniBatchProvider(dataSource, null);
-            using var executionContext = new GraphExecutionContext(this);
+            using var executionContext = new GraphExecutionContext(this, wantInputInExecutionResults);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(batchSize));
             float operationCount = executionContext.RemainingOperationCount;

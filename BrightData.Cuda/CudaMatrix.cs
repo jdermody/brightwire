@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.LinearAlgebra;
+﻿using BrightData.LinearAlgebra;
 
 namespace BrightData.Cuda
 {
@@ -33,25 +28,15 @@ namespace BrightData.Cuda
 
         public override IVector GetColumnVector(uint index)
         {
-            //var segment = _lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
-            //return _lap.CreateVector(segment);
-            return base.GetColumnVector(index);
+            var segment = (CudaTensorSegment)Segment;
+            var ptr = _lap.Provider.Offset(segment.DeviceMemory, index * RowCount, RowCount);
+            return _lap.CreateVector(new CudaTensorSegment(ptr));
         }
 
         public override IVector GetRowVector(uint index)
         {
             var segment = _lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
             return _lap.CreateVector(segment);
-        }
-
-        public override IVectorInfo GetColumn(uint columnIndex)
-        {
-            return base.GetColumn(columnIndex);
-        }
-
-        public override IVectorInfo GetRow(uint rowIndex)
-        {
-            return base.GetRow(rowIndex);
         }
     }
 }

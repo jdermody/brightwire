@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace BrightData.LinearAlgebra
 {
     public class LinearAlgebraProvider : IDisposable
     {
-        readonly Stack<HashSet<IDisposable>> _scope = new();
+        readonly ConcurrentStack<ThreadSafeHashSet<IDisposable>> _scope = new();
 
         public LinearAlgebraProvider(
             BrightDataContext context
@@ -22,13 +23,23 @@ namespace BrightData.LinearAlgebra
             PushScope();
         }
 
+        ~LinearAlgebraProvider()
+        {
+            InternalDispose();
+        }
         public virtual void Dispose()
         {
             GC.SuppressFinalize(this);
-            foreach (var set in _scope) {
-                foreach(var item in set)
-                    item.Dispose();
+            InternalDispose();
+        }
+
+        void InternalDispose()
+        {
+            foreach (var set in _scope) using(set) {
+                // TODO: trace unallocated blocks
+                //set.ForEach(x => x.Dispose());
             }
+            _scope.Clear();
         }
 
         public BrightDataContext Context { get; }
@@ -43,9 +54,9 @@ namespace BrightData.LinearAlgebra
         public void PushScope() => _scope.Push(new());
         public void PopScope()
         {
-            var popped = _scope.Pop();
-            foreach(var item in popped)
-                item.Dispose();
+            if (_scope.TryPop(out var set)) using(set) {
+                set.ForEach(x => x.Dispose());
+            }
         }
         internal bool AddToScope(IDisposable obj) => _scope.First().Add(obj);
         internal bool RemoveFromScope(IDisposable obj) => _scope.First().Remove(obj);
@@ -639,7 +650,7 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public void MapParallelInPlace(ITensorSegment segment, Func<float, float> mapper)
+        public static void MapParallelInPlace(ITensorSegment segment, Func<float, float> mapper)
         {
             var size = segment.Size;
 

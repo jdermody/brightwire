@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 if (Data.HasValue)
-                    yield return  new ExecutionResult(BatchSequence, Data.GetMatrix());
+                    yield return new ExecutionResult(BatchSequence, Data.GetMatrix(), ExecutionContext.WantInputInExecutionResults);
             }
         }
 

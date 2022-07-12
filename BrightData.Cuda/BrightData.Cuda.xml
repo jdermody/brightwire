@@ -22,7 +22,7 @@
             <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
             <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
         </member>
-        <member name="T:BrightData.Cuda.Helper.DeviceMemory">
+        <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlock">
             <summary>
             Maintains a cache of available device memory
             </summary>
@@ -31,12 +31,6 @@
             <summary>
             A pointer to a block of device memory (the block is owned by another pointer)
             </summary>
-        </member>
-        <member name="T:BrightData.Cuda.Helper.ThreadSafeHashSet`1">
-            <summary>
-            A hash set that can be accessed by more than one thread at the same time
-            </summary>
-            <typeparam name="T">The wrapped type</typeparam>
         </member>
         <member name="T:BrightData.Cuda.IGpuLinearAlgebraProvider">
             <summary>

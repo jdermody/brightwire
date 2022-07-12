@@ -34,8 +34,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphContext>> _continuationTable = new();
         readonly ConcurrentStack<AdditionalBatch> _additionalBatches = new();
 
-	    public GraphExecutionContext(IGraphEngine graphEngine)
+	    public GraphExecutionContext(IGraphEngine graphEngine, bool wantInputInExecutionResults = false)
         {
+            WantInputInExecutionResults = wantInputInExecutionResults;
             _createGraphContext = graphEngine;
             LinearAlgebraProvider = graphEngine.LinearAlgebraProvider;
         }
@@ -59,6 +60,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public int RemainingOperationCount => _operationList.Count;
         public bool HasContinuations => _continuationTable.Any() || _additionalBatches.Any();
+        public bool WantInputInExecutionResults { get; }
 
         public void Continue(IGraphContext context)
         {

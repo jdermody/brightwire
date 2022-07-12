@@ -2992,13 +2992,14 @@
             Graph engine that is optimised for inference
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Boolean)">
             <summary>
             Executes a data source on the current graph
             </summary>
             <param name="dataSource">Segment source to process</param>
             <param name="batchSize">Initial size of each mini batch</param>
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+            <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[])">
@@ -4310,7 +4311,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.IMatrix)">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.IMatrix,System.Boolean)">
             <summary>
             Constructor
             </summary>

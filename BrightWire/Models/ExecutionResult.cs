@@ -9,57 +9,44 @@ namespace BrightWire.Models
 	/// <summary>
 	/// The output from a mini batch
 	/// </summary>
-	public class ExecutionResult : IDisposable
+	public class ExecutionResult
 	{
 		readonly IMiniBatchSequence _miniBatch;
-        readonly IMatrix _output;
-        readonly IMatrix? _target, _input;
 
-		/// <summary>
+        /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, IMatrix output)
+        public ExecutionResult(IMiniBatchSequence miniBatch, IMatrix output, bool wantInputInExecutionResults)
         {
             _miniBatch = miniBatch;
 
-            _output = output;
-            _output.Segment.AddRef();
-
-            _target = _miniBatch.Target?.GetMatrix();
-            _target?.Segment.AddRef();
-
-            _input = _miniBatch.Input?.GetMatrix();
-            _input?.Segment.AddRef();
-        }
-
-        public void Dispose()
-        {
-            _output.Segment.Release();
-            _target?.Segment.Release();
-            _input?.Segment.Release();
+            Output = output.AllRows();
+            Target = _miniBatch.Target?.GetMatrix().AllRows();
+			if(wantInputInExecutionResults)
+                Input = _miniBatch.Input?.GetMatrix().AllRows();
         }
 
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IMatrix Output { get; }
+		public IVectorInfo[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IMatrix? Target { get; }
+		public IVectorInfo[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IMatrix? Input { get; }
+		public IVectorInfo[]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public IMatrix? Error { get; set; } = null;
+        public IVectorInfo[]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch
@@ -71,6 +58,6 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="errorMetric">The error metric to calculate with</param>
 		/// <returns></returns>
-		public float CalculateError(IErrorMetric errorMetric) => Output.AllRows().Zip(Target!.AllRows(), errorMetric.Compute).Average();
+		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target!, errorMetric.Compute).Average();
     }
 }
