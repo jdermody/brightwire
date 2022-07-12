@@ -3,10 +3,10 @@ using System.Linq;
 
 namespace BrightData.LinearAlgebra
 {
-    public class Vector<LAP> : TensorBase<IVector, LAP>, IVector
+    public class BrightVector<LAP> : BrightTensorBase<IVector, LAP>, IVector
         where LAP: LinearAlgebraProvider
     {
-        public Vector(ITensorSegment2 data, LAP lap) : base(data, lap)
+        public BrightVector(ITensorSegment data, LAP lap) : base(data, lap)
         {
         }
 
@@ -60,7 +60,7 @@ namespace BrightData.LinearAlgebra
             return $"Vector ({Size}): {preview}";
         }
 
-        public override IVector Create(ITensorSegment2 segment) => new Vector<LAP>(segment, _lap);
+        public override IVector Create(ITensorSegment segment) => _lap.CreateVector(segment);
 
         public IVector MapIndexed(Func<uint, float, float> mutator)
         {
@@ -80,16 +80,9 @@ namespace BrightData.LinearAlgebra
         }
     }
 
-    public class Vector2 : Vector<LinearAlgebraProvider>
+    public class BrightVector : BrightVector<LinearAlgebraProvider>
     {
-        public Vector2(ITensorSegment2 data, LinearAlgebraProvider computationUnit) : base(data, computationUnit)
-        {
-        }
-    }
-
-    public class ArrayBasedVector : Vector<ArrayBasedLinearAlgebraProvider>
-    {
-        public ArrayBasedVector(ITensorSegment2 data, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, computationUnit)
+        public BrightVector(ITensorSegment data, LinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
     }

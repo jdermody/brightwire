@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 var rowList = new IVector[matrix.RowCount];
                 for (uint i = 0; i < matrix.RowCount; i++) {
                     using var derivative = _rows[(int)i].SoftmaxDerivative();
-                    using var row = matrix.GetRow(i).Create(lap);
+                    using var row = matrix.GetRowVector(i);
                     var sm = derivative.Multiply(row);
                     rowList[i] = sm.Reshape();
                 }

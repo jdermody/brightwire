@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -1103,7 +1102,7 @@ namespace BrightData
     {
         BrightDataContext Context { get; }
         LinearAlgebraProvider LinearAlgebraProvider { get; }
-        ITensorSegment2 Segment { get; }
+        ITensorSegment Segment { get; }
         IVector Reshape();
         IMatrix Reshape(uint? rows, uint? columns);
         ITensor3D Reshape(uint? depth, uint? rows, uint? columns);
@@ -1197,6 +1196,8 @@ namespace BrightData
         ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
         IVectorInfo GetRow(uint index);
         IVectorInfo GetColumn(uint index);
+        IVector GetRowVector(uint index);
+        IVector GetColumnVector(uint index);
         IVectorInfo[] AllRows();
         IVectorInfo[] AllColumns();
         IMatrix Transpose();
@@ -1216,14 +1217,14 @@ namespace BrightData
         (IMatrix U, IVector S, IMatrix VT) Svd();
         IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
         IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
-        void AddToEachRow(ITensorSegment2 segment);
-        void AddToEachColumn(ITensorSegment2 segment);
+        void AddToEachRow(ITensorSegment segment);
+        void AddToEachColumn(ITensorSegment segment);
     }
 
     public interface IMatrixSegments
     {
-        TensorSegmentWrapper Row(uint index);
-        TensorSegmentWrapper Column(uint index);
+        TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
+        TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
     }
 
     public interface ITensor3D : ITensor2<ITensor3D>, ITensor3DInfo
@@ -1268,7 +1269,7 @@ namespace BrightData
         bool IsValid { get; }
     }
 
-    public interface ITensorSegment2 : ICountReferences, IDisposable
+    public interface ITensorSegment : ICountReferences, IDisposable
     {
         uint Size { get; }
         string SegmentType { get; }
@@ -1280,7 +1281,7 @@ namespace BrightData
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
         void CopyFrom(ReadOnlySpan<float> span);
-        void CopyTo(ITensorSegment2 segment);
+        void CopyTo(ITensorSegment segment);
         void CopyTo(Span<float> destination);
         unsafe void CopyTo(float* destination, int offset, int stride, int count);
         void Clear();

@@ -167,11 +167,11 @@ namespace BrightWire.ExecutionGraph.Engine
         public bool Test(IDataSource testDataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
         {
             static string Write(string name, float score, bool isPercentage)
-		{
-			if (isPercentage)
-				return $"{name}score: {score:P}";
-			return $"{name}error: {score:N4}";
-		}
+		    {
+			    if (isPercentage)
+				    return $"{name}score: {score:P}";
+			    return $"{name}error: {score:N4}";
+		    }
             var testResults = Execute(testDataSource, batchSize, batchCompleteCallback)
                 .Where(b => b.Target != null)
                 .ToList();

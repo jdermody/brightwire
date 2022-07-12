@@ -115,7 +115,7 @@ namespace ExampleCode.DataTableTrainers
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
-        public void GenerateSequences(IGraphExecutionEngine engine)
+        public static void GenerateSequences(IGraphExecutionEngine engine)
         {
             Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
 
@@ -132,7 +132,7 @@ namespace ExampleCode.DataTableTrainers
                 if (result != null) {
                     var sb = new StringBuilder();
                     for (var i = 0; i < 32; i++) {
-                        var next = result!.Output[0]
+                        var next = result!.Output.GetRow(0).ToArray()
                             .Select((v, j) => ((double) v, j))
                             .Where(d => d.Item1 >= 0.1f)
                             .ToList();

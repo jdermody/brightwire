@@ -32,7 +32,9 @@ namespace BrightWire
             var userNotifications = engine.Context.UserNotifications;
 
             var testId = Guid.NewGuid().ToString("n");
+            userNotifications?.OnStartOperation(testId);
             engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            userNotifications?.OnCompleteOperation(testId, false);
 
             var count = 0;
             GraphModel? ret = null;
@@ -144,9 +146,10 @@ namespace BrightWire
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
-			    for (var i = 0; i < result.Output.Length; i++) {
+                var outputRows = result.Output.AllRows();
+			    for (var i = 0; i < outputRows.Length; i++) {
 				    var rowIndex = rows[i];
-				    ret.Add((rowIndex, sequenceIndex), result.Output[i]);
+				    ret.Add((rowIndex, sequenceIndex), outputRows[i].ToArray());
 			    }
 		    }
 		    return ret.GroupBy(d => d.Key.RowIndex)

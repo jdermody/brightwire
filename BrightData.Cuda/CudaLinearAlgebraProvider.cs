@@ -34,8 +34,8 @@ namespace BrightData.Cuda
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
-        public override ITensorSegment2 CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size, true));
-        public override ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
+        public override ITensorSegment CreateSegment(uint size) => new CudaTensorSegment(_cuda.Allocate(size, true));
+        public override ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             using var buffer = SpanOwner<float>.Allocate((int)size);
             var ptr = buffer.Span;
@@ -45,8 +45,8 @@ namespace BrightData.Cuda
             deviceMemory.CopyToDevice(ptr);
             return new CudaTensorSegment(deviceMemory);
         }
-        public override IVector CreateVector(ITensorSegment2 data) => new CudaVector(OptionallyCopyToDevice(data), this);
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
+        public override IVector CreateVector(ITensorSegment data) => new CudaVector(OptionallyCopyToDevice(data), this);
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
 
 
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
@@ -64,7 +64,7 @@ namespace BrightData.Cuda
             return CreateMatrix(rowCount, columnCount, new CudaTensorSegment(deviceMemory));
         }
 
-        public override ITensorSegment2 Clone(ITensorSegment2 segment)
+        public override ITensorSegment Clone(ITensorSegment segment)
         {
             if (CudaTensorSegment.IsCuda(segment)) {
                 var ret = (CudaTensorSegment)CreateSegment(segment.Size);
@@ -74,14 +74,21 @@ namespace BrightData.Cuda
             return CopyToDevice(segment);
         }
 
-        ITensorSegment2 OptionallyCopyToDevice(ITensorSegment2 segment)
+        ITensorSegment OptionallyCopyToDevice(ITensorSegment segment)
         {
             if (CudaTensorSegment.IsCuda(segment))
                 return segment;
+            while (segment is TensorSegmentWrapper { Stride: 1 } wrapper) {
+                segment = wrapper.UnderlyingSegment;
+                if (segment is CudaTensorSegment cudaTensor) {
+                    var offsetBlock = _cuda.Offset(cudaTensor.DeviceMemory, wrapper.Offset, wrapper.Size);
+                    return new CudaTensorSegment(offsetBlock);
+                }
+            }
             return CopyToDevice(segment);
         }
 
-        ITensorSegment2 CopyToDevice(ITensorSegment2 segment)
+        ITensorSegment CopyToDevice(ITensorSegment segment)
         {
             var deviceMemory = _cuda.Memory.GetMemory(segment.Size);
             var temp = SpanOwner<float>.Empty;
@@ -96,7 +103,7 @@ namespace BrightData.Cuda
             }
         }
 
-        public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2)
+        public override float DotProduct(ITensorSegment tensor, ITensorSegment tensor2)
         {
             return _cuda.Blas.Dot(
                 GetDeviceVariable(tensor),
@@ -106,7 +113,7 @@ namespace BrightData.Cuda
             );
         }
 
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, float scalar)
+        public override ITensorSegment Add(ITensorSegment tensor, float scalar)
         {
             // TODO: create new cuda method?
             using var buffer = SpanOwner<float>.Allocate((int)tensor.Size);
@@ -118,7 +125,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2)
+        public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2)
         {
             var size = GetSize(tensor, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size);
@@ -127,19 +134,19 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override void AddInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void AddInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             _cuda.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
-        public override void AddInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2)
+        public override void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             _cuda.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2, float coefficient1, float coefficient2)
+        public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size);
@@ -148,7 +155,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override void AddInPlace(ITensorSegment2 target, float scalar)
+        public override void AddInPlace(ITensorSegment target, float scalar)
         {
             // TODO: create new cuda method?
             using var buffer = SpanOwner<float>.Allocate((int)target.Size);
@@ -159,44 +166,44 @@ namespace BrightData.Cuda
             _cuda.AddInPlace(GetDeviceMemoryPtr(target), ret.DeviceMemory, target.Size, 1f, 1f);
         }
 
-        public override void ConstrainInPlace(ITensorSegment2 segment, float? minValue, float? maxValue)
+        public override void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue)
         {
             var ptr = GetDeviceMemoryPtr(segment);
             _cuda.Constrain(ptr, segment.Size, minValue ?? float.MinValue, maxValue ?? float.MaxValue);
         }
 
-        public override float CosineDistance(ITensorSegment2 tensor, ITensorSegment2 other)
+        public override float CosineDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return _cuda.CosineDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
-        public override ITensorSegment2 LeakyReluDerivative(ITensorSegment2 tensor)
+        public override ITensorSegment LeakyReluDerivative(ITensorSegment tensor)
         {
             var ret = _cuda.LeakyReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size);
             return new CudaTensorSegment(ret);
         }
 
-        public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2)
+        public override ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = new CudaTensorSegment(_cuda.PointwiseMultiply(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor2), size));
             return ret;
         }
 
-        public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void SubtractInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             _cuda.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
-        public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2)
+        public override void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             _cuda.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
-        public override ITensorSegment2 Multiply(ITensorSegment2 target, float scalar)
+        public override ITensorSegment Multiply(ITensorSegment target, float scalar)
         {
             var ret = (CudaTensorSegment)CreateSegment(target.Size);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(target));
@@ -204,9 +211,9 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override float L2Norm(ITensorSegment2 segment) => _cuda.Blas.Norm2(GetDeviceVariable(segment), 1);
+        public override float L2Norm(ITensorSegment segment) => _cuda.Blas.Norm2(GetDeviceVariable(segment), 1);
 
-        public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2)
+        public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size);
@@ -215,14 +222,14 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2)
+        public override ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = _cuda.PointwiseDivide(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor2), size);
             return new CudaTensorSegment(ret);
         }
 
-        public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2)
+        public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size);
@@ -231,7 +238,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override float L1Norm(ITensorSegment2 segment)
+        public override float L1Norm(ITensorSegment segment)
         {
             var abs = Abs(segment);
             try {
@@ -242,32 +249,34 @@ namespace BrightData.Cuda
             }
         }
 
-        public override (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment2 segment)
+        public override (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment segment)
         {
+            //var buffer = MemoryOwner<float>.Allocate((int)ptr.Size);
+            //using var temp = new ArrayPoolTensorSegment(buffer);
+            //ptr.CopyToHost(buffer.DangerousGetArray());
+            //return segment.GetMinAndMaxValues();
+
+            // TODO: fix absolute values regarding indices
             var ptr = GetDeviceMemoryPtr(segment);
-            var buffer = MemoryOwner<float>.Allocate((int)ptr.Size);
-            using var temp = new ArrayPoolTensorSegment(buffer);
-            ptr.CopyToHost(buffer.DangerousGetArray());
-            return segment.GetMinAndMaxValues();
-            //var (min, max) = _cuda.FindMinAndMax(ptr, segment.Size);
-            //var maxIndex = (uint)_cuda.Blas.Max(ptr.DeviceVariable, 1) - 1;
-            //var minIndex = (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
-            //return (min, max, minIndex, maxIndex);
+            var (min, max) = _cuda.FindMinAndMax(ptr, segment.Size);
+            var maxIndex = (uint)_cuda.Blas.Max(ptr.DeviceVariable, 1) - 1;
+            var minIndex = (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
+            return (min, max, minIndex, maxIndex);
         }
-        //public override float GetMin(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
-        //public override float GetMax(ITensorSegment2 segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
+        public override float GetMin(ITensorSegment segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
+        public override float GetMax(ITensorSegment segment) => _cuda.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
         //public override uint GetMinIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
         //public override uint GetMaxIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Max(GetDeviceVariable(segment), 1) - 1;
 
-        public override bool IsEntirelyFinite(ITensorSegment2 segment) => _cuda.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
+        public override bool IsEntirelyFinite(ITensorSegment segment) => _cuda.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
 
-        public override ITensorSegment2 Reverse(ITensorSegment2 segment)
+        public override ITensorSegment Reverse(ITensorSegment segment)
         {
             var ret = _cuda.Reverse(GetDeviceMemoryPtr(segment), segment.Size);
             return new CudaTensorSegment(ret);
         }
 
-        public override float MeanSquaredDistance(ITensorSegment2 tensor, ITensorSegment2 other)
+        public override float MeanSquaredDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             var temp = Subtract(tensor, other);
@@ -280,7 +289,7 @@ namespace BrightData.Cuda
             }
         }
 
-        public override float SquaredEuclideanDistance(ITensorSegment2 tensor, ITensorSegment2 other)
+        public override float SquaredEuclideanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var temp = Subtract(tensor, other);
             try {
@@ -292,37 +301,37 @@ namespace BrightData.Cuda
             }
         }
 
-        public override float EuclideanDistance(ITensorSegment2 tensor, ITensorSegment2 other)
+        public override float EuclideanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return _cuda.EuclideanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
-        public override float ManhattanDistance(ITensorSegment2 tensor, ITensorSegment2 other)
+        public override float ManhattanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return _cuda.ManhattanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
-        public override float Average(ITensorSegment2 segment) => _cuda.SumValues(GetDeviceMemoryPtr(segment), segment.Size) / segment.Size;
-        public override ITensorSegment2 Abs(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.Abs(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 Log(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.Log(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 Squared(ITensorSegment2 tensor) => PointwiseMultiply(tensor, tensor);
-        public override ITensorSegment2 Sigmoid(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.Sigmoid(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 SigmoidDerivative(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.SigmoidDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 Tanh(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.TanH(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 TanhDerivative(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.TanHDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override float Average(ITensorSegment segment) => _cuda.SumValues(GetDeviceMemoryPtr(segment), segment.Size) / segment.Size;
+        public override ITensorSegment Abs(ITensorSegment tensor) => new CudaTensorSegment(_cuda.Abs(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment Log(ITensorSegment tensor) => new CudaTensorSegment(_cuda.Log(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment Squared(ITensorSegment tensor) => PointwiseMultiply(tensor, tensor);
+        public override ITensorSegment Sigmoid(ITensorSegment tensor) => new CudaTensorSegment(_cuda.Sigmoid(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment SigmoidDerivative(ITensorSegment tensor) => new CudaTensorSegment(_cuda.SigmoidDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment Tanh(ITensorSegment tensor) => new CudaTensorSegment(_cuda.TanH(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment TanhDerivative(ITensorSegment tensor) => new CudaTensorSegment(_cuda.TanHDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
 
-        public override ITensorSegment2 Exp(ITensorSegment2 tensor)
+        public override ITensorSegment Exp(ITensorSegment tensor)
         {
             return base.Exp(tensor);
         }
 
-        public override ITensorSegment2 Relu(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.Relu(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 ReluDerivative(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
-        public override ITensorSegment2 LeakyRelu(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment Relu(ITensorSegment tensor) => new CudaTensorSegment(_cuda.Relu(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment ReluDerivative(ITensorSegment tensor) => new CudaTensorSegment(_cuda.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override ITensorSegment LeakyRelu(ITensorSegment tensor) => new CudaTensorSegment(_cuda.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
 
-        public override ITensorSegment2 Softmax(ITensorSegment2 tensor)
+        public override ITensorSegment Softmax(ITensorSegment tensor)
         {
             var max = GetMax(tensor);
 
@@ -333,15 +342,15 @@ namespace BrightData.Cuda
             return new CudaTensorSegment(softmax);
         }
 
-        public override IMatrix SoftmaxDerivative(ITensorSegment2 tensor)
+        public override IMatrix SoftmaxDerivative(ITensorSegment tensor)
         {
             var ret = _cuda.VectorSoftmaxDerivative(GetDeviceMemoryPtr(tensor), tensor.Size);
             return CreateMatrix(tensor.Size, tensor.Size, new CudaTensorSegment(ret));
         }
 
-        public override ITensorSegment2 Pow(ITensorSegment2 tensor, float power) => new CudaTensorSegment(_cuda.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
-        public override ITensorSegment2 Sqrt(ITensorSegment2 tensor) => new CudaTensorSegment(_cuda.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, 1e-8f));
-        public override void PointwiseDivideInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override ITensorSegment Pow(ITensorSegment tensor, float power) => new CudaTensorSegment(_cuda.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
+        public override ITensorSegment Sqrt(ITensorSegment tensor) => new CudaTensorSegment(_cuda.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, 1e-8f));
+        public override void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             var ptr = GetDeviceMemoryPtr(target);
@@ -350,12 +359,12 @@ namespace BrightData.Cuda
             temp.Release();
         }
 
-        public override void RoundInPlace(ITensorSegment2 tensor, float lower, float upper, float? mid)
+        public override void RoundInPlace(ITensorSegment tensor, float lower, float upper, float? mid)
         {
             _cuda.RoundInPlace(GetDeviceMemoryPtr(tensor), tensor.Size, lower, upper, mid ?? lower + (upper - lower) / 2);
         }
 
-        public override void PointwiseMultiplyInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             var ptr = GetDeviceMemoryPtr(target);
@@ -364,12 +373,12 @@ namespace BrightData.Cuda
             temp.Release();
         }
 
-        public override void MultiplyInPlace(ITensorSegment2 target, float scalar)
+        public override void MultiplyInPlace(ITensorSegment target, float scalar)
         {
             _cuda.Blas.Scale(scalar, GetDeviceVariable(target), 1);
         }
 
-        public override IEnumerable<ITensorSegment2> Split(ITensorSegment2 segment, uint blockCount)
+        public override IEnumerable<ITensorSegment> Split(ITensorSegment segment, uint blockCount)
         {
             var blockSize = segment.Size / blockCount;
             var ptr = GetDeviceMemoryPtr(segment);
@@ -380,12 +389,12 @@ namespace BrightData.Cuda
             });
         }
 
-        public override float StdDev(ITensorSegment2 tensor, float? mean)
+        public override float StdDev(ITensorSegment tensor, float? mean)
         {
             return _cuda.FindStdDev(GetDeviceMemoryPtr(tensor), tensor.Size, mean ?? Average(tensor));
         }
 
-        public override uint? Search(ITensorSegment2 segment, float value)
+        public override uint? Search(ITensorSegment segment, float value)
         {
             return base.Search(segment, value);
         }
@@ -562,20 +571,20 @@ namespace BrightData.Cuda
             }
         }
 
-        public override ITensorSegment2 CherryPickIndices(ITensorSegment2 tensor, uint[] indices)
+        public override ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices)
         {
             var data = _cuda.VectorCopy(GetDeviceMemoryPtr(tensor), indices);
             return new CudaTensorSegment(data);
         }
 
-        public override void EuclideanNormalization(ITensorSegment2 segment)
+        public override void EuclideanNormalization(ITensorSegment segment)
         {
             var norm = L2Norm(segment);
             if (FloatMath.IsNotZero(norm))
                 Multiply(segment, 1f / norm);
         }
 
-        public override void FeatureScaleNormalization(ITensorSegment2 segment)
+        public override void FeatureScaleNormalization(ITensorSegment segment)
         {
             var ptr = GetDeviceMemoryPtr(segment);
             var (min, max) = _cuda.FindMinAndMax(ptr, segment.Size);
@@ -584,14 +593,14 @@ namespace BrightData.Cuda
                 _cuda.Normalise(ptr, segment.Size, min, range);
         }
 
-        public override void ManhattanNormalization(ITensorSegment2 segment)
+        public override void ManhattanNormalization(ITensorSegment segment)
         {
             var norm = L1Norm(segment);
             if (FloatMath.IsNotZero(norm))
                 Multiply(segment, 1f / norm);
         }
 
-        public override void StandardNormalization(ITensorSegment2 segment)
+        public override void StandardNormalization(ITensorSegment segment)
         {
             var mean = Average(segment);
             var stdDev = StdDev(segment, mean);
@@ -665,7 +674,7 @@ namespace BrightData.Cuda
             return CreateMatrix((uint)indices.Count, matrix.ColumnCount, new CudaTensorSegment(ret));
         }
 
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment2> vectorColumns)
+        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
         {
             var columns = (uint)vectorColumns.Length;
             var rows = vectorColumns[0].Size;
@@ -684,7 +693,7 @@ namespace BrightData.Cuda
             return CreateMatrix(rows, columns, ret);
         }
 
-        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment2> vectorRows)
+        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> vectorRows)
         {
             var rows = (uint)vectorRows.Length;
             var columns = vectorRows[0].Size;
@@ -703,23 +712,23 @@ namespace BrightData.Cuda
             return CreateMatrix(rows, columns, ret);
         }
 
-        public override void L1Regularisation(ITensorSegment2 segment, float coefficient)
+        public override void L1Regularisation(ITensorSegment segment, float coefficient)
         {
             _cuda.L1Regularisation(GetDeviceMemoryPtr(segment), segment.Size, coefficient);
         }
 
-        public override void AddToEachColumn(IMatrix matrix, ITensorSegment2 segment)
+        public override void AddToEachColumn(IMatrix matrix, ITensorSegment segment)
         {
             _cuda.AddToEachColumn(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
-        public override void AddToEachRow(IMatrix matrix, ITensorSegment2 segment)
+        public override void AddToEachRow(IMatrix matrix, ITensorSegment segment)
         {
             _cuda.AddToEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
-        static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment2 segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
-        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment2 segment)
+        static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
+        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment segment)
         {
             if (segment is CudaTensorSegment cudaSegment) {
                 if (!segment.IsValid)
@@ -795,6 +804,14 @@ namespace BrightData.Cuda
         public override void BindThread()
         {
             _cuda.BindThread();
+        }
+
+        internal CudaTensorSegment GetNonContinuousSegment(ITensorSegment segment, uint offset, uint stride, uint size)
+        {
+            var ptr = GetDeviceMemoryPtr(segment);
+            var ret = _cuda.Allocate(size);
+            CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, (int)size, ptr.DevicePointer + offset, (int)stride, ret.DevicePointer, 1);
+            return new(ret);
         }
     }
 }

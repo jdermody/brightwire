@@ -41,7 +41,7 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public float this[uint index] => _segment[index];
         public float[] ToArray() => _segment.ToNewArray();
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_segment);
-        public ITensorSegment2 Segment => _segment;
+        public ITensorSegment Segment => _segment;
         public override string ToString()
         {
             var preview = String.Join("|", _segment.Values.Take(Consts.PreviewSize));

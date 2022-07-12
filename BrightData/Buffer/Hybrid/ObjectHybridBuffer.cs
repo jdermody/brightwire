@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using BrightData.Helper;
 using BrightData.Serialisation;
 
 namespace BrightData.Buffer.Hybrid

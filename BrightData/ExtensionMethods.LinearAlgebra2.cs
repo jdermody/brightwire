@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-using System.Text;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.TensorInfo;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
     public static partial class ExtensionMethods
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment2 segment) => segment.GetArrayForLocalUseOnly() ?? segment.ToNewArray();
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
-        internal static readonly int NumericsVectorSize = System.Numerics.Vector<float>.Count;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 ZipParallel(this ITensorSegment2 segment, ITensorSegment2 other, Func<float, float, float> func)
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment ZipParallel(this ITensorSegment segment, ITensorSegment other, Func<float, float, float> func)
         {
             var size = segment.Size;
             if (size != other.Size)
@@ -39,36 +34,23 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
 
-        public delegate void ComputeVectorisedTwo(in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r);
-        public delegate void ComputeVectorisedOne(in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 ZipVectorised(
-            this ITensorSegment2 segment, 
-            ITensorSegment2 other, 
-            ComputeVectorisedTwo func1,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment ZipVectorised(
+            this ITensorSegment segment, 
+            ITensorSegment other, 
+            SpanExtensions.ComputeVectorisedTwo func1,
             Func<float, float, float> func2)
         {
             var size = segment.Size;
             if (size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = Allocate(size);
-            var resultPtr = ret.Span;
+            MemoryOwner<float> ret;
             if (size >= Consts.MinimumSizeForVectorised) {
-                // get pointers to the segments
                 SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLefTempUsed);
                 var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
                 try {
-                    var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
-                    var rightVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(rightPtr);
-                    var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
-                    var numVectors = (int)size / NumericsVectorSize;
-                    var ceiling = numVectors * NumericsVectorSize;
-
-                    for (var i = 0; i < numVectors; i++)
-                        func1(leftVec[i], rightVec[i], out resultVec[i]);
-                    for (var i = ceiling; i < size; i++)
-                        resultPtr[i] = func2(leftPtr[i], rightPtr[i]);
+                    ret = leftPtr.ZipVectorised(rightPtr, func1, func2);
                 }
                 finally {
                     if (wasLefTempUsed)
@@ -78,13 +60,15 @@ namespace BrightData
                 }
             }
             else {
+                ret = Allocate(size);
+                var retPtr = ret.Span;
                 for (var i = 0; i < size; i++)
-                    resultPtr[i] = func2(segment[i], other[i]);
+                    retPtr[i] = func2(segment[i], other[i]);
             }
             return new ArrayPoolTensorSegment(ret);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 TransformParallel(this ITensorSegment2 segment, Func<float, float> transfomer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformParallel(this ITensorSegment segment, Func<float, float> transfomer)
         {
             var size = segment.Size;
             var ret = Allocate(size);
@@ -99,29 +83,19 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 TransformVectorised(
-            this ITensorSegment2 segment, 
-            ComputeVectorisedOne transfomer1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformVectorised(
+            this ITensorSegment segment, 
+            SpanExtensions.ComputeVectorisedOne transfomer1, 
             Func<float, float> transfomer2)
         {
             var size = segment.Size;
-            var ret = Allocate(segment.Size);
-            var resultPtr = ret.Span;
+            MemoryOwner<float> ret;
 
             if (size >= Consts.MinimumSizeForVectorised) {
                 var leftTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
-
                 try {
-                    var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
-                    var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
-                    var numVectors = (int)size / NumericsVectorSize;
-                    var ceiling = numVectors * NumericsVectorSize;
-
-                    for (var i = 0; i < numVectors; i++)
-                        transfomer1(leftVec[i], out resultVec[i]);
-                    for (var i = ceiling; i < size; i++)
-                        resultPtr[i] = transfomer2(leftPtr[i]);
+                    ret = leftPtr.TransformVectorised(transfomer1, transfomer2);
                 }
                 finally {
                     if (wasLeftTempUsed)
@@ -129,14 +103,15 @@ namespace BrightData
                 }
             }
             else {
+                ret = Allocate(segment.Size);
+                var resultPtr = ret.Span;
                 for (var i = 0; i < size; i++)
                     resultPtr[i] = transfomer2(segment[i]);
             }
-
             return new ArrayPoolTensorSegment(ret);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 TransformParallelIndexed(this ITensorSegment2 segment, Func<uint, float> transfomer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformParallelIndexed(this ITensorSegment segment, Func<uint, float> transfomer)
         {
             var size = segment.Size;
             var ret = Allocate(size);
@@ -151,7 +126,7 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void Mutate(this ITensorSegment2 segment, ITensorSegment2 other, Func<float, float, float> func)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void Mutate(this ITensorSegment segment, ITensorSegment other, Func<float, float, float> func)
         {
             var size = segment.Size;
             if (size != other.Size)
@@ -165,34 +140,26 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateVectorised(
-            this ITensorSegment2 segment, 
-            ITensorSegment2 other, 
-            ComputeVectorisedTwo func1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateVectorised(
+            this ITensorSegment segment, 
+            ITensorSegment other, 
+            SpanExtensions.ComputeVectorisedTwo func1, 
             Func<float, float, float> func2)
         {
             var size = segment.Size;
             if (size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            using var ret = SpanOwner<float>.Allocate((int)segment.Size);
-            var resultPtr = ret.Span;
             if (size >= Consts.MinimumSizeForVectorised) {
                 // get pointers to the segments
                 SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
                 var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
                 try {
-                    var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
-                    var rightVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(rightPtr);
-                    var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
-                    var numVectors = (int)size / NumericsVectorSize;
-                    var ceiling = numVectors * NumericsVectorSize;
-
-                    for (var i = 0; i < numVectors; i++)
-                        func1(leftVec[i], rightVec[i], out resultVec[i]);
-                    for (var i = ceiling; i < size; i++)
-                        resultPtr[i] = func2(leftPtr[i], rightPtr[i]);
+                    fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
+                        var leftMutablePtr = new Span<float>(fp, (int)size);
+                        leftMutablePtr.MutateVectorised(rightPtr, func1, func2);
+                    }
                 }
                 finally {
                     if (wasLeftTempUsed)
@@ -203,12 +170,11 @@ namespace BrightData
             }
             else {
                 for (var i = 0; i < size; i++)
-                    resultPtr[i] = func2(segment[i], other[i]);
+                    segment[i] = func2(segment[i], other[i]);
             }
-            segment.CopyFrom(resultPtr);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlace(this ITensorSegment2 segment, Func<float, float> mutator)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlace(this ITensorSegment segment, Func<float, float> mutator)
         {
             var size = segment.Size;
             if(size >= Consts.MinimumSizeForParallel)
@@ -219,28 +185,20 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlaceVectorised(
-            this ITensorSegment2 segment, 
-            ComputeVectorisedOne mutator1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlaceVectorised(
+            this ITensorSegment segment, 
+            SpanExtensions.ComputeVectorisedOne mutator1, 
             Func<float, float> mutator2)
         {
             var size = segment.Size;
-            var leftTemp = SpanOwner<float>.Empty;
-            var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
-            using var ret = SpanOwner<float>.Allocate((int)segment.Size);
-            var resultPtr = ret.Span;
-
             if (size >= Consts.MinimumSizeForVectorised) {
+                var leftTemp = SpanOwner<float>.Empty;
+                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
                 try {
-                    var leftVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(leftPtr);
-                    var resultVec = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(resultPtr);
-                    var numVectors = (int)size / NumericsVectorSize;
-                    var ceiling = numVectors * NumericsVectorSize;
-
-                    for (var i = 0; i < numVectors; i++)
-                        mutator1(leftVec[i], out resultVec[i]);
-                    for (var i = ceiling; i < size; i++)
-                        resultPtr[i] = mutator2(leftPtr[i]);
+                    fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
+                        var leftMutablePtr = new Span<float>(fp, (int)size);
+                        leftMutablePtr.MutateInPlaceVectorised(mutator1, mutator2);
+                    }
                 }
                 finally {
                     if (wasLeftTempUsed)
@@ -249,48 +207,14 @@ namespace BrightData
             }
             else {
                 for (var i = 0; i < size; i++)
-                    resultPtr[i] = mutator2(leftPtr[i]);
+                    segment[i] = mutator2(segment[i]);
             }
-            segment.CopyFrom(resultPtr);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float Sum(this Span<float> span) => Sum((ReadOnlySpan<float>)span);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe float Sum(this ReadOnlySpan<float> span)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float Sum(this ITensorSegment segment)
         {
-            var result = 0f;
-            var size = span.Length;
-
+            var size = segment.Size;
             if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
-                fixed (float* pSource = &MemoryMarshal.GetReference(span)) {
-                    var vResult = Vector128<float>.Zero;
-
-                    var i = 0;
-                    var lastBlockIndex = size - (size % 4);
-                    while (i < lastBlockIndex) {
-                        vResult = Sse.Add(vResult, Sse.LoadVector128(pSource + i));
-                        i += 4;
-                    }
-
-                    vResult = Sse3.HorizontalAdd(vResult, vResult);
-                    vResult = Sse3.HorizontalAdd(vResult, vResult);
-                    result = vResult.ToScalar();
-
-                    while (i < size) {
-                        result += pSource[i];
-                        i++;
-                    }
-                }
-            }
-            else {
-                foreach (var item in span)
-                    result += item;
-            }
-            return result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float Sum(this ITensorSegment2 segment)
-        {
-            if (segment.Size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
                 var temp = SpanOwner<float>.Empty;
                 var span = segment.GetSpan(ref temp, out var wasTempUsed);
                 try {
@@ -302,143 +226,166 @@ namespace BrightData
                 }
             }
 
-            return segment.Values.Sum();
+            var ret = 0f;
+            for (uint i = 0; i < size; i++)
+                ret += segment[i];
+            return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Add(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Add(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a + b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b, 
             (a, b) => a + b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Add(this ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => ZipVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Add(this ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 + b * coefficient2,
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 + b * coefficient2,
             (a, b) => a * coefficient1 + b * coefficient2
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Add(this ITensorSegment2 tensor, float scalar)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Add(this ITensorSegment tensor, float scalar)
         {
-            var scalarVector = new System.Numerics.Vector<float>(scalar);
+            var scalarVector = new Vector<float>(scalar);
             return TransformVectorised(
                 tensor, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a + scalarVector, 
+                (in Vector<float> a, out Vector<float> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a + b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b, 
             (a, b) => a + b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = (a * coefficient1) + (b * coefficient2), 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = (a * coefficient1) + (b * coefficient2), 
             (a,b) => (a * coefficient1) + (b * coefficient2)
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment2 target, float scalar)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this ITensorSegment target, float scalar)
         {
-            var scalarVector = new System.Numerics.Vector<float>(scalar);
+            var scalarVector = new Vector<float>(scalar);
             MutateInPlaceVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a + scalarVector, 
+                (in Vector<float> a, out Vector<float> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MultiplyInPlace(this ITensorSegment2 target, float scalar)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MultiplyInPlace(this ITensorSegment target, float scalar)
         {
-            var scalarVector = new System.Numerics.Vector<float>(scalar);
+            var scalarVector = new Vector<float>(scalar);
             MutateInPlaceVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * scalarVector, 
+                (in Vector<float> a, out Vector<float> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Multiply(this ITensorSegment2 target, float scalar)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Multiply(this ITensorSegment target, float scalar)
         {
-            var scalarVector = new System.Numerics.Vector<float>(scalar);
+            var scalarVector = new Vector<float>(scalar);
             return TransformVectorised(
                 target, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * scalarVector, 
+                (in Vector<float> a, out Vector<float> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         } 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Subtract(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Subtract(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a - b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b, 
             (a, b) => a - b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Subtract(this ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => ZipVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Subtract(this ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a - b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b, 
             (a, b) => a - b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
-        public static ITensorSegment2 PointwiseMultiply(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
+        public static ITensorSegment PointwiseMultiply(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b, 
             (a, b) => a * b
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseMultiplyInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseMultiplyInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a * b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b, 
             (a, b) => a * b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 PointwiseDivide(this ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ZipVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment PointwiseDivide(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorised(
             tensor1, 
             tensor2, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a / b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b, 
             (a, b) => a / b
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseDivideInPlace(this ITensorSegment2 target, ITensorSegment2 other) => MutateVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseDivideInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorised(
             target, 
             other, 
-            (in System.Numerics.Vector<float> a, in System.Numerics.Vector<float> b, out System.Numerics.Vector<float> r) => r = a / b, 
+            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b, 
             (a, b) => a / b
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float DotProduct(this ITensorSegment2 segment, ITensorSegment2 other)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float DotProduct(this ITensorSegment segment, ITensorSegment other)
         {
-            using var product = PointwiseMultiply(segment, other);
-            return Sum(product);
+            var size = segment.Size;
+            if(size <= other.Size)
+                throw new ArgumentException("Segments were different sizes");
+            if (size >= Consts.MinimumSizeForVectorised) {
+                SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
+                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLefTempUsed);
+                var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
+                try {
+                    return leftPtr.DotProduct(rightPtr);
+                }
+                finally {
+                    if(wasLefTempUsed)
+                        leftTemp.Dispose();
+                    if(wasRightTempUsed)
+                        rightTemp.Dispose();
+                }
+            }
+
+            var ret = 0f;
+            for (uint i = 0; i < size; i++)
+                ret += segment[i] * other[i];
+            return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Sqrt(this ITensorSegment2 tensor, float adjustment = FloatMath.AlmostZero)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Sqrt(this ITensorSegment tensor, float adjustment = FloatMath.AlmostZero)
         {
-            System.Numerics.Vector<float> adjustmentVector = new(adjustment);
+            Vector<float> adjustmentVector = new(adjustment);
             return TransformVectorised(tensor, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = Vector.SquareRoot(a + adjustmentVector), 
+                (in Vector<float> a, out Vector<float> r) => r = Vector.SquareRoot(a + adjustmentVector), 
                 x => MathF.Sqrt(x + adjustment)
             );
         }
 
-        public static uint? Search(this ITensorSegment2 segment, float value)
+        public static uint? Search(this ITensorSegment segment, float value)
         {
             uint? ret = null;
             Analyse(segment, (v, index) => {
@@ -448,7 +395,7 @@ namespace BrightData
             return ret;
         }
 
-        public static void ConstrainInPlace(this ITensorSegment2 segment, float? minValue, float? maxValue)
+        public static void ConstrainInPlace(this ITensorSegment segment, float? minValue, float? maxValue)
         {
             MutateInPlace(segment, value => {
                 if (minValue.HasValue && value.CompareTo(minValue.Value) < 0)
@@ -459,9 +406,9 @@ namespace BrightData
             });
         }
 
-        public static float Average(this ITensorSegment2 segment) => Sum(segment) / segment.Size;
+        public static float Average(this ITensorSegment segment) => Sum(segment) / segment.Size;
 
-        public static float L1Norm(this ITensorSegment2 segment)
+        public static float L1Norm(this ITensorSegment segment)
         {
             var abs = Abs(segment);
             try {
@@ -472,7 +419,7 @@ namespace BrightData
             }
         }
 
-        public static float L2Norm(this ITensorSegment2 segment)
+        public static float L2Norm(this ITensorSegment segment)
         {
             var squared = Squared(segment);
             try {
@@ -483,7 +430,7 @@ namespace BrightData
             }
         }
 
-        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this ITensorSegment2 segment)
+        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this ITensorSegment segment)
         {
             var min = float.MaxValue;
             var max = float.MinValue;
@@ -508,21 +455,21 @@ namespace BrightData
             return (min, max, minIndex, maxIndex);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static bool IsEntirelyFinite(this ITensorSegment2 segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static bool IsEntirelyFinite(this ITensorSegment segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 
-        public static ITensorSegment2 Reverse(this ITensorSegment2 segment)
+        public static ITensorSegment Reverse(this ITensorSegment segment)
         {
             var len = segment.Size - 1;
             return TransformParallelIndexed(segment, i => segment[len - i]);
         }
 
-        public static IEnumerable<ITensorSegment2> Split(this ITensorSegment2 segment, uint blockCount)
+        public static IEnumerable<ITensorSegment> Split(this ITensorSegment segment, uint blockCount)
         {
             for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
                 yield return new TensorSegmentWrapper(segment, i, 1, blockSize);
         }
 
-        public static float CosineDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
+        public static float CosineDistance(this ITensorSegment tensor, ITensorSegment other)
         {
             var ab = DotProduct(tensor, other);
             var aa = DotProduct(tensor, tensor);
@@ -530,7 +477,7 @@ namespace BrightData
             return 1f - ab / (FloatMath.Sqrt(aa) * FloatMath.Sqrt(bb));
         }
 
-        public static float EuclideanDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
+        public static float EuclideanDistance(this ITensorSegment tensor, ITensorSegment other)
         {
             var distance = Subtract(tensor, other);
             try {
@@ -547,7 +494,7 @@ namespace BrightData
             }
         }
 
-        public static float MeanSquaredDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
+        public static float MeanSquaredDistance(this ITensorSegment tensor, ITensorSegment other)
         {
             var diff = Subtract(tensor, other);
             try {
@@ -559,7 +506,7 @@ namespace BrightData
             }
         }
 
-        public static float SquaredEuclideanDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
+        public static float SquaredEuclideanDistance(this ITensorSegment tensor, ITensorSegment other)
         {
             var diff = Subtract(tensor, other);
             try {
@@ -571,7 +518,7 @@ namespace BrightData
             }
         }
 
-        public static float ManhattanDistance(this ITensorSegment2 tensor, ITensorSegment2 other)
+        public static float ManhattanDistance(this ITensorSegment tensor, ITensorSegment other)
         {
             var distance = Subtract(tensor, other);
             try {
@@ -588,26 +535,26 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Abs(this ITensorSegment2 tensor) => TransformVectorised(tensor, 
-            (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = Vector.Abs(a),
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Abs(this ITensorSegment tensor) => TransformVectorised(tensor, 
+            (in Vector<float> a, out Vector<float> r) => r = Vector.Abs(a),
             MathF.Abs
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Log(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Log);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Exp(this ITensorSegment2 tensor) => TransformParallel(tensor, MathF.Exp);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Pow(this ITensorSegment2 segment, float power) => TransformParallel(segment, v => FloatMath.Pow(v, power));
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Squared(this ITensorSegment2 tensor) => TransformVectorised(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Log(this ITensorSegment tensor) => TransformParallel(tensor, MathF.Log);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Exp(this ITensorSegment tensor) => TransformParallel(tensor, MathF.Exp);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Pow(this ITensorSegment segment, float power) => TransformParallel(segment, v => FloatMath.Pow(v, power));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Squared(this ITensorSegment tensor) => TransformVectorised(
             tensor, 
-            (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => r = a * a, 
+            (in Vector<float> a, out Vector<float> r) => r = a * a, 
             a => a * a
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float StdDev(this ITensorSegment2 segment, float? mean)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float StdDev(this ITensorSegment segment, float? mean)
         {
             var avg = mean ?? Average(segment);
-            var avgVector = new System.Numerics.Vector<float>(avg);
+            var avgVector = new Vector<float>(avg);
             var result = TransformVectorised(
                 segment, 
-                (in System.Numerics.Vector<float> a, out System.Numerics.Vector<float> r) => {
+                (in Vector<float> a, out Vector<float> r) => {
                     var s = a - avgVector;
                     r = s * s;
                 }, a => {
@@ -636,16 +583,16 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyRelu(float val) => (val <= 0) ? 0.01f * val : val;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyReluDerivative(float val) => (val <= 0) ? 0.01f : 1;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Sigmoid(this ITensorSegment2 segment) => TransformParallel(segment, Sigmoid);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 SigmoidDerivative(this ITensorSegment2 segment) => TransformParallel(segment, SigmoidDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Tanh(this ITensorSegment2 segment) => TransformParallel(segment, Tanh);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 TanhDerivative(this ITensorSegment2 segment) => TransformParallel(segment, TanhDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Relu(this ITensorSegment2 segment) => TransformParallel(segment, Relu);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 ReluDerivative(this ITensorSegment2 segment) => TransformParallel(segment, ReluDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 LeakyRelu(this ITensorSegment2 segment) => TransformParallel(segment, LeakyRelu);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 LeakyReluDerivative(this ITensorSegment2 segment) => TransformParallel(segment, LeakyReluDerivative);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Sigmoid(this ITensorSegment segment) => TransformParallel(segment, Sigmoid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment SigmoidDerivative(this ITensorSegment segment) => TransformParallel(segment, SigmoidDerivative);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Tanh(this ITensorSegment segment) => TransformParallel(segment, Tanh);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TanhDerivative(this ITensorSegment segment) => TransformParallel(segment, TanhDerivative);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Relu(this ITensorSegment segment) => TransformParallel(segment, Relu);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment ReluDerivative(this ITensorSegment segment) => TransformParallel(segment, ReluDerivative);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment LeakyRelu(this ITensorSegment segment) => TransformParallel(segment, LeakyRelu);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment LeakyReluDerivative(this ITensorSegment segment) => TransformParallel(segment, LeakyReluDerivative);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment2 Softmax(this ITensorSegment2 segment)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment Softmax(this ITensorSegment segment)
         {
             var (_, max, _, _) = GetMinAndMaxValues(segment);
             var softmax = segment.TransformParallel(v => MathF.Exp(v - max));
@@ -655,7 +602,7 @@ namespace BrightData
             return softmax;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static IMatrix SoftmaxDerivative(this ITensorSegment2 segment, LinearAlgebraProvider lap)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static IMatrix SoftmaxDerivative(this ITensorSegment segment, LinearAlgebraProvider lap)
         {
             return lap.CreateMatrix(segment.Size, segment.Size, (x, y) => x == y
                 ? segment[x] * (1 - segment[x])
@@ -663,7 +610,7 @@ namespace BrightData
             );
         }
 
-        public static ITensorSegment2 CherryPickIndices(this ITensorSegment2 segment, uint[] arrayIndices)
+        public static ITensorSegment CherryPickIndices(this ITensorSegment segment, uint[] arrayIndices)
         {
             var ret = MemoryOwner<float>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;
@@ -672,13 +619,13 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
         
-        public static void RoundInPlace(this ITensorSegment2 segment, float lower, float upper, float? mid)
+        public static void RoundInPlace(this ITensorSegment segment, float lower, float upper, float? mid)
         {
             var compareTo = mid ?? lower + (upper - lower) / 2;
             MutateInPlace(segment, v => v >= compareTo ? upper : lower);
         }
 
-        public static void Analyse(ITensorSegment2 segment, Action<float, uint> analyser)
+        public static void Analyse(ITensorSegment segment, Action<float, uint> analyser)
         {
             var size = segment.Size;
             if(size >= Consts.MinimumSizeForParallel)
@@ -689,7 +636,7 @@ namespace BrightData
             }
         }
 
-        public static void L1Regularisation(this ITensorSegment2 segment, float coefficient)
+        public static void L1Regularisation(this ITensorSegment segment, float coefficient)
         {
             for (uint i = 0, len = segment.Size; i < len; i++) {
                 var val = segment[i];
@@ -725,19 +672,19 @@ namespace BrightData
             return ret;
         }
 
-        public static void Set(this ITensorSegment2 segment, Func<uint, float> getValue)
+        public static void Set(this ITensorSegment segment, Func<uint, float> getValue)
         {
             for (uint i = 0, len = segment.Size; i < len; i++)
                 segment[i] = getValue(i);
         }
 
-        public static void Set(this ITensorSegment2 segment, float value)
+        public static void Set(this ITensorSegment segment, float value)
         {
             for (uint i = 0, len = segment.Size; i < len; i++)
                 segment[i] = value;
         }
 
-        public static void SetToRandom(this ITensorSegment2 segment, Random random)
+        public static void SetToRandom(this ITensorSegment segment, Random random)
         {
             for (uint i = 0, len = segment.Size; i < len; i++)
                 segment[i] = System.Convert.ToSingle(random.NextDouble());
@@ -751,10 +698,12 @@ namespace BrightData
             );
         }
 
-        public static IVector ToVector(this ITensorSegment2 segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
-        public static IMatrix ToMatrix(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
-        public static ITensor3D ToTensor3D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
-        public static ITensor4D ToTensor4D(this ITensorSegment2 segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
+        public static IVectorInfo ToVectorInfo(this ITensorSegment segment) => new VectorInfo(segment);
+
+        public static IVector ToVector(this ITensorSegment segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
+        public static IMatrix ToMatrix(this ITensorSegment segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
+        public static ITensor3D ToTensor3D(this ITensorSegment segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
+        public static ITensor4D ToTensor4D(this ITensorSegment segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void CopyTo(this ITensor2 tensor, ITensor2 other) => tensor.Segment.CopyTo(other.Segment);
 

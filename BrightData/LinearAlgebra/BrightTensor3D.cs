@@ -2,10 +2,10 @@
 
 namespace BrightData.LinearAlgebra
 {
-    public class Tensor3D<LAP> : TensorBase<ITensor3D, LAP>, ITensor3D
+    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D
         where LAP: LinearAlgebraProvider
     {
-        public Tensor3D(ITensorSegment2 data, uint depth, uint rowCount, uint columnCount, LAP lap) : base(data, lap)
+        public BrightTensor3D(ITensorSegment data, uint depth, uint rowCount, uint columnCount, LAP lap) : base(data, lap)
         {
             Depth = depth;
             RowCount = rowCount;
@@ -14,7 +14,7 @@ namespace BrightData.LinearAlgebra
             TotalSize = MatrixSize * depth;
         }
 
-        public override ITensor3D Create(ITensorSegment2 segment) => new Tensor3D<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
+        public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
         ITensor3D ITensor3DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
 
         public uint Depth { get; private set; }
@@ -70,16 +70,9 @@ namespace BrightData.LinearAlgebra
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }
 
-    public class Tensor3D2 : Tensor3D<LinearAlgebraProvider>
+    public class BrightTensor3D2 : BrightTensor3D<LinearAlgebraProvider>
     {
-        public Tensor3D2(ITensorSegment2 data, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, depth, rows, columns, computationUnit)
-        {
-        }
-    }
-
-    public class ArrayBasedTensor3D : Tensor3D<ArrayBasedLinearAlgebraProvider>
-    {
-        public ArrayBasedTensor3D(ITensorSegment2 data, uint depth, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, depth, rows, columns, computationUnit)
+        public BrightTensor3D2(ITensorSegment data, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, depth, rows, columns, computationUnit)
         {
         }
     }

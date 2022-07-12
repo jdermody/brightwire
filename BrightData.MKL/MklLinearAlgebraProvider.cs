@@ -24,17 +24,17 @@ namespace BrightData.MKL
         //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
         //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
 
-        public override IVector CreateVector(ITensorSegment2 data) => new MklVector(data, this);
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new MklMatrix(data, rowCount, columnCount, this);
+        public override IVector CreateVector(ITensorSegment data) => new MklVector(data, this);
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new MklMatrix(data, rowCount, columnCount, this);
 
-        ITensorSegment2 Apply(ITensorSegment2 tensor, ITensorSegment2 tensor2, Action<int, float[], float[], float[]> mkl)
+        ITensorSegment Apply(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], float[], float[]> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var result = CreateSegment(size);
             mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetArrayForLocalUseOnly()!);
             return result;
         }
-        ITensorSegment2 ApplyUnderlying(ITensorSegment2 tensor, ITensorSegment2 tensor2, Action<int, float[], int, int, float[], int, int, float[], int, int> mkl)
+        ITensorSegment ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], int, int, float[], int, int, float[], int, int> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
@@ -44,20 +44,20 @@ namespace BrightData.MKL
             return result;
         }
 
-        ITensorSegment2 ApplyWithNewSize(ITensorSegment2 tensor, ITensorSegment2 tensor2, uint resultSize, Action<float[], float[], float[]> mkl)
+        ITensorSegment ApplyWithNewSize(ITensorSegment tensor, ITensorSegment tensor2, uint resultSize, Action<float[], float[], float[]> mkl)
         {
             var result = CreateSegment(resultSize);
             mkl(tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetArrayForLocalUseOnly()!);
             return result;
         }
 
-        ITensorSegment2 Apply(ITensorSegment2 tensor, Action<int, float[], float[]> mkl)
+        ITensorSegment Apply(ITensorSegment tensor, Action<int, float[], float[]> mkl)
         {
             var result = CreateSegment(tensor.Size);
             mkl((int)tensor.Size, tensor.GetLocalOrNewArray(), result.GetArrayForLocalUseOnly()!);
             return result;
         }
-        ITensorSegment2 ApplyUnderlying(ITensorSegment2 tensor, Action<int, float[], int, int, float[], int, int> mkl)
+        ITensorSegment ApplyUnderlying(ITensorSegment tensor, Action<int, float[], int, int, float[], int, int> mkl)
         {
             var result = CreateSegment(tensor.Size);
             var underlying = tensor.GetUnderlyingArray();
@@ -65,22 +65,22 @@ namespace BrightData.MKL
             return result;
         }
 
-        float Apply(ITensorSegment2 tensor, Func<int, float[], float> mkl)
+        float Apply(ITensorSegment tensor, Func<int, float[], float> mkl)
         {
             return mkl((int)tensor.Size, tensor.GetLocalOrNewArray());
         }
-        float ApplyUnderlying(ITensorSegment2 tensor, Func<int, float[], int, int, float> mkl)
+        float ApplyUnderlying(ITensorSegment tensor, Func<int, float[], int, int, float> mkl)
         {
             var underlying = tensor.GetUnderlyingArray();
             return mkl((int)tensor.Size, underlying.Array, (int)underlying.Offset, (int)underlying.Stride);
         }
 
-        float Apply(ITensorSegment2 tensor, ITensorSegment2 tensor2, Func<int, float[], float[], float> mkl)
+        float Apply(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], float[], float> mkl)
         {
             var size = GetSize(tensor, tensor2);
             return mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
         }
-        float ApplyUnderlying(ITensorSegment2 tensor, ITensorSegment2 tensor2, Func<int, float[], int, int, float[], int, int, float> mkl)
+        float ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], int, int, float[], int, int, float> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
@@ -88,12 +88,12 @@ namespace BrightData.MKL
             return mkl((int)size, underlying.Array, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array, (int)underlying2.Offset, (int)underlying2.Stride);
         }
 
-        void Apply(ITensorSegment2 tensor, ITensorSegment2 tensor2, Action<int, float[], float[]> mkl)
+        void Apply(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], float[]> mkl)
         {
             var size = GetSize(tensor, tensor2);
             mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
         }
-        void ApplyUnderlying(ITensorSegment2 tensor, ITensorSegment2 tensor2, Action<int, float[], int, int, float[], int, int> mkl)
+        void ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], int, int, float[], int, int> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
@@ -101,31 +101,31 @@ namespace BrightData.MKL
             mkl((int)size, underlying.Array, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array, (int)underlying2.Offset, (int)underlying2.Stride);
         }
 
-        void ApplyUnderlying(ITensorSegment2 tensor, Action<int, float[], int, int> mkl)
+        void ApplyUnderlying(ITensorSegment tensor, Action<int, float[], int, int> mkl)
         {
             var underlying = tensor.GetUnderlyingArray();
             mkl((int)tensor.Size, underlying.Array, (int)underlying.Offset, (int)underlying.Stride);
         }
 
-        ITensorSegment2 Clone(ITensorSegment2 tensor, float coefficient)
+        ITensorSegment Clone(ITensorSegment tensor, float coefficient)
         {
             var result = CreateSegment(tensor.Size);
             tensor.CopyTo(result);
             Blas.scal((int)tensor.Size, coefficient, result.GetArrayForLocalUseOnly()!, 0, 1);
             return result;
         }
-        public override float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2) => ApplyUnderlying(tensor, tensor2, Blas.dot);
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2) => ApplyUnderlying(tensor, tensor2, Vml.Add);
-        public override ITensorSegment2 Abs(ITensorSegment2 tensor) => ApplyUnderlying(tensor, Vml.Abs);
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2, float coefficient1, float coefficient2)
+        public override float DotProduct(ITensorSegment tensor, ITensorSegment tensor2) => ApplyUnderlying(tensor, tensor2, Blas.dot);
+        public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => ApplyUnderlying(tensor, tensor2, Vml.Add);
+        public override ITensorSegment Abs(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Abs);
+        public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor);
             AddInPlace(ret, tensor2, coefficient1, coefficient2);
             return ret;
         }
 
-        public override ITensorSegment2 Multiply(ITensorSegment2 target, float scalar) => Clone(target, scalar);
-        public override void MultiplyInPlace(ITensorSegment2 target, float scalar) => ApplyUnderlying(target, (n, a, o, s) => Blas.scal(n, scalar, a, o, s));
+        public override ITensorSegment Multiply(ITensorSegment target, float scalar) => Clone(target, scalar);
+        public override void MultiplyInPlace(ITensorSegment target, float scalar) => ApplyUnderlying(target, (n, a, o, s) => Blas.scal(n, scalar, a, o, s));
         public override IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
             int rowsA = (int)matrix.RowCount, 
@@ -263,74 +263,74 @@ namespace BrightData.MKL
             );
         }
 
-        public override float L1Norm(ITensorSegment2 segment) => ApplyUnderlying(segment, Blas.asum);
-        public override float L2Norm(ITensorSegment2 segment) => ApplyUnderlying(segment, Blas.nrm2);
-        public override ITensorSegment2 Exp(ITensorSegment2 tensor) => ApplyUnderlying(tensor, Vml.Exp);
-        public override ITensorSegment2 Tanh(ITensorSegment2 tensor) => ApplyUnderlying(tensor, Vml.Tanh);
-        public override ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Mul);
-        public override ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Div);
+        public override float L1Norm(ITensorSegment segment) => ApplyUnderlying(segment, Blas.asum);
+        public override float L2Norm(ITensorSegment segment) => ApplyUnderlying(segment, Blas.nrm2);
+        public override ITensorSegment Exp(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Exp);
+        public override ITensorSegment Tanh(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Tanh);
+        public override ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Mul);
+        public override ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Div);
 
-        public override ITensorSegment2 Sqrt(ITensorSegment2 tensor)
+        public override ITensorSegment Sqrt(ITensorSegment tensor)
         {
             // need to adjust zeros
             return base.Sqrt(tensor);
         }
 
-        public override ITensorSegment2 Log(ITensorSegment2 tensor)
+        public override ITensorSegment Log(ITensorSegment tensor)
         {
             // need to change all to Ln
             return base.Log(tensor);
         }
-        public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Sub);
-        public override ITensorSegment2 Squared(ITensorSegment2 tensor) => ApplyUnderlying(tensor, Vml.Sqr);
+        public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Sub);
+        public override ITensorSegment Squared(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Sqr);
 
-        public override ITensorSegment2 Add(ITensorSegment2 tensor, float scalar) => Apply(tensor, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
+        public override ITensorSegment Add(ITensorSegment tensor, float scalar) => Apply(tensor, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
 
-        public override void AddInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void AddInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var ret = ApplyUnderlying(target, other, Vml.Add);
             ret.CopyTo(target);
         }
 
-        public override void AddInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2)
+        public override void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2, y, yo, ys, coefficient1, x, xo, xs));
         }
 
-        public override void AddInPlace(ITensorSegment2 target, float scalar)
+        public override void AddInPlace(ITensorSegment target, float scalar)
         {
             using var ret = Apply(target, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
             ret.CopyTo(target);
         }
 
-        public override void PointwiseDivideInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = PointwiseDivide(target, other);
             temp.CopyTo(target);
         }
 
-        public override void PointwiseMultiplyInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = PointwiseMultiply(target, other);
             temp.CopyTo(target);
         }
 
-        public override ITensorSegment2 Pow(ITensorSegment2 tensor, float power) => ApplyUnderlying(tensor, (n, x, xo, xs, r, ro, rs) => Vml.Powx(n, x, xo, xs, power, r, ro, rs));
+        public override ITensorSegment Pow(ITensorSegment tensor, float power) => ApplyUnderlying(tensor, (n, x, xo, xs, r, ro, rs) => Vml.Powx(n, x, xo, xs, power, r, ro, rs));
 
-        public override ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2)
+        public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor1);
             SubtractInPlace(ret, tensor2, coefficient1, coefficient2);
             return ret;
         }
 
-        public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other)
+        public override void SubtractInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = Subtract(target, other);
             temp.CopyTo(target);
         }
 
-        public override void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2)
+        public override void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2 * -1, y, yo, ys, coefficient1, x, xo, xs));
         }

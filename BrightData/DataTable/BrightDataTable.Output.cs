@@ -20,7 +20,7 @@ namespace BrightData.DataTable
         }
         void WriteTo(ISingleTypeTableSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
 
-        public void ConcatenateColumns(DataTable.BrightDataTable[] tables, Stream stream)
+        public void ConcatenateColumns(BrightDataTable[] tables, Stream stream)
         {
             if (tables.Any(t => t.RowCount != RowCount))
                 throw new ArgumentException("Row count across tables must agree");
@@ -29,7 +29,7 @@ namespace BrightData.DataTable
             WriteTo(columns, stream);
         }
 
-        public IOperation<Stream?> ConcatenateRows(DataTable.BrightDataTable[] tables, Stream stream)
+        public IOperation<Stream?> ConcatenateRows(BrightDataTable[] tables, Stream stream)
         {
             var rowCount = RowCount;
             var data = AllRows;

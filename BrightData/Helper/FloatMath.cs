@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper

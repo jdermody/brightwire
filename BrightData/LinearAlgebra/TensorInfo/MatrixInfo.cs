@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.TensorInfo
     internal class MatrixInfo : IMatrixInfo
     {
         float[] _data;
-        ITensorSegment2? _segment;
+        ITensorSegment? _segment;
 
         public MatrixInfo(float[] data, uint rows, uint columns)
         {
@@ -32,7 +32,7 @@ namespace BrightData.LinearAlgebra.TensorInfo
             }
         }
 
-        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data);
 
         public void WriteTo(BinaryWriter writer)
         {

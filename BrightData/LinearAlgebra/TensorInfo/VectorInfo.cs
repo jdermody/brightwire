@@ -8,12 +8,16 @@ namespace BrightData.LinearAlgebra.TensorInfo
 {
     internal class VectorInfo : IVectorInfo
     {
-        float[] _data;
-        ITensorSegment2? _segment;
+        float[]? _data = null;
+        ITensorSegment? _segment = null;
 
         public VectorInfo(float[] data)
         {
             _data = data;
+        }
+        public VectorInfo(ITensorSegment? segment)
+        {
+            _segment = segment;
         }
         public VectorInfo(uint size)
         {
@@ -30,7 +34,7 @@ namespace BrightData.LinearAlgebra.TensorInfo
         {
             writer.Write(1);
             writer.Write(Size);
-            writer.Write(_data.AsSpan().AsBytes());
+            writer.Write((_data ?? _segment!.ToNewArray()).AsSpan().AsBytes());
         }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
@@ -39,26 +43,33 @@ namespace BrightData.LinearAlgebra.TensorInfo
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
             _data = reader.BaseStream.ReadArray<float>(size);
+            _segment = null;
         }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
-            wasTempUsed = false;
-            return _data.AsSpan();
+            if (_data is not null) {
+                wasTempUsed = false;
+                return _data.AsSpan();
+            }
+            return _segment!.GetSpan(ref temp, out wasTempUsed);
         }
 
-        public uint Size => (uint)_data.Length;
-        public float this[int index] => _data[index];
-        public float this[uint index] => _data[index];
-        public float[] ToArray() => _data;
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data);
-        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public uint Size => (uint?)_data?.Length ?? _segment!.Size;
+        public float this[int index] => _data is null ? _segment![index] : _data[index];
+        public float this[uint index] => _data is null ? _segment![index] : _data[index];
+        public float[] ToArray() => _data ?? _segment!.ToNewArray();
+        public IVector Create(LinearAlgebraProvider lap) => _data is null ? lap.CreateVector(_segment!) : lap.CreateVector(_data);
+        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data!);
         public override string ToString()
         {
-            var preview = String.Join("|", _data.Take(Consts.PreviewSize));
-            if (Size > Consts.PreviewSize)
-                preview += "|...";
-            return $"Vector Info ({Size}): {preview}";
+            if (_data is not null) {
+                var preview = String.Join("|", _data.Take(Consts.PreviewSize));
+                if (Size > Consts.PreviewSize)
+                    preview += "|...";
+                return $"Vector Info ({Size}): {preview}";
+            } 
+            return $"Vector Info ({_segment})";
         }
     }
 }

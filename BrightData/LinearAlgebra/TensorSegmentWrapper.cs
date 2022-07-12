@@ -5,16 +5,13 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public class TensorSegmentWrapper : ITensorSegment2
+    public class TensorSegmentWrapper : ITensorSegment
     {
-        readonly ITensorSegment2 _segment;
-        readonly uint _offset, _stride;
-
-        public TensorSegmentWrapper(ITensorSegment2 segment, uint offset, uint stride, uint length)
+        public TensorSegmentWrapper(ITensorSegment segment, uint offset, uint stride, uint length)
         {
-            _segment = segment;
-            _offset = offset;
-            _stride = stride;
+            UnderlyingSegment = segment;
+            Offset = offset;
+            Stride = stride;
             Size = length;
         }
 
@@ -23,35 +20,38 @@ namespace BrightData.LinearAlgebra
             // nop - calling dispose here implies that no reference was made of the underlying segment
         }
 
-        public int AddRef() => _segment.AddRef();
-        public int Release() => _segment.Release();
+        public int AddRef() => UnderlyingSegment.AddRef();
+        public int Release() => UnderlyingSegment.Release();
 
-        public bool IsValid => _segment.IsValid;
+        public bool IsValid => UnderlyingSegment.IsValid;
         public uint Size { get; }
         public string SegmentType => "segment wrapper";
+        public ITensorSegment UnderlyingSegment { get; }
+        public uint Offset { get; }
+        public uint Stride { get; }
 
         public float this[int index]
         {
-            get => _segment[_offset + index * _stride];
-            set => _segment[_offset + index * _stride] = value;
+            get => UnderlyingSegment[Offset + index * Stride];
+            set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         public float this[uint index]
         {
-            get => _segment[_offset + index * _stride];
-            set => _segment[_offset + index * _stride] = value;
+            get => UnderlyingSegment[Offset + index * Stride];
+            set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         public float this[long index]
         {
-            get => _segment[_offset + index * _stride];
-            set => _segment[_offset + index * _stride] = value;
+            get => UnderlyingSegment[Offset + index * Stride];
+            set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         public float this[ulong index]
         {
-            get => _segment[_offset + index * _stride];
-            set => _segment[_offset + index * _stride] = value;
+            get => UnderlyingSegment[Offset + index * Stride];
+            set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         public IEnumerable<float> Values
@@ -71,7 +71,7 @@ namespace BrightData.LinearAlgebra
                 this[index++] = val;
         }
 
-        public void CopyTo(ITensorSegment2 segment)
+        public void CopyTo(ITensorSegment segment)
         {
             using var tempBuffer = SpanOwner<float>.Allocate((int)Size);
             var span = tempBuffer.Span;
@@ -99,8 +99,8 @@ namespace BrightData.LinearAlgebra
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
-            if (_stride == 1)
-                return _segment.GetSpan(ref temp, out wasTempUsed).Slice((int)_offset, (int)Size);
+            if (Stride == 1)
+                return UnderlyingSegment.GetSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
 
             temp = SpanOwner<float>.Allocate((int)Size);
             var span = temp.Span;
@@ -116,8 +116,8 @@ namespace BrightData.LinearAlgebra
 
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
         {
-            var (array, offset, stride) = _segment.GetUnderlyingArray();
-            return (array, offset + _offset, stride * _stride);
+            var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
+            return (array, offset + Offset, stride * Stride);
         }
 
         public override string ToString()
@@ -125,7 +125,7 @@ namespace BrightData.LinearAlgebra
             var preview = String.Join("|", Values.Take(8));
             if (Size > 8)
                 preview += "|...";
-            return $"{SegmentType} [{_offset}, {_stride}] ({Size}): {preview}";
+            return $"{SegmentType} [{Offset}, {Stride}] ({Size}): {preview}";
         }
     }
 }

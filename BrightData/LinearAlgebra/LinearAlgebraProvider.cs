@@ -34,10 +34,10 @@ namespace BrightData.LinearAlgebra
         public BrightDataContext Context { get; }
         public virtual string Name => "default";
 
-        public virtual Type VectorType { get; } = typeof(Vector2);
-        public virtual Type MatrixType { get; } = typeof(Matrix2);
-        public virtual Type Tensor3DType { get; } = typeof(Tensor3D2);
-        public virtual Type Tensor4DType { get; } = typeof(Tensor4D2);
+        public virtual Type VectorType { get; } = typeof(BrightVector);
+        public virtual Type MatrixType { get; } = typeof(BrightMatrix);
+        public virtual Type Tensor3DType { get; } = typeof(BrightTensor3D2);
+        public virtual Type Tensor4DType { get; } = typeof(BrightTensor4D);
 
         // scope
         public void PushScope() => _scope.Push(new());
@@ -51,8 +51,8 @@ namespace BrightData.LinearAlgebra
         internal bool RemoveFromScope(IDisposable obj) => _scope.First().Remove(obj);
 
         // segment creation
-        public virtual ITensorSegment2 CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
-        public virtual ITensorSegment2 CreateSegment(uint size, Func<uint, float> initializer)
+        public virtual ITensorSegment CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
+        public virtual ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             var ret = MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear);
             var ptr = ret.Span;
@@ -60,7 +60,7 @@ namespace BrightData.LinearAlgebra
                 ptr[i] = initializer((uint)i);
             return new ArrayPoolTensorSegment(ret);
         }
-        public virtual ITensorSegment2 Clone(ITensorSegment2 segment)
+        public virtual ITensorSegment Clone(ITensorSegment segment)
         {
             var ret = CreateSegment(segment.Size);
             segment.CopyTo(ret);
@@ -68,7 +68,7 @@ namespace BrightData.LinearAlgebra
         }
 
         // vector creation
-        public virtual IVector CreateVector(ITensorSegment2 data) => new Vector2(data, this);
+        public virtual IVector CreateVector(ITensorSegment data) => new BrightVector(data, this);
         public IVector CreateVector(uint size) => CreateVector(CreateSegment(size));
         public IVector CreateVector(params float[] data) => CreateVector((uint)data.Length, i => data[i]);
         public IVector CreateVector(uint size, float value) => CreateVector(size, i => value);
@@ -83,7 +83,7 @@ namespace BrightData.LinearAlgebra
         public IVector CreateVector(IVectorInfo vector) => vector.Create(this);
 
         // matrix creation
-        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment2 data) => new Matrix2(data, rowCount, columnCount, this);
+        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new BrightMatrix(data, rowCount, columnCount, this);
         public IMatrix CreateMatrix(uint rowCount, uint columnCount) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount));
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
@@ -108,8 +108,8 @@ namespace BrightData.LinearAlgebra
                     row.Dispose();
             }
         }
-        public IMatrix CreateMatrixFromRows(params ITensorSegment2[] rows) => CreateMatrixFromRows(rows.AsSpan());
-        public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment2> rows)
+        public IMatrix CreateMatrixFromRows(params ITensorSegment[] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> rows)
         {
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns);
@@ -144,8 +144,8 @@ namespace BrightData.LinearAlgebra
                     column.Dispose();
             }
         }
-        public IMatrix CreateMatrixFromColumns(params ITensorSegment2[] columns) => CreateMatrixFromColumns(columns.AsSpan());
-        public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment2> columns)
+        public IMatrix CreateMatrixFromColumns(params ITensorSegment[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> columns)
         {
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length);
@@ -169,7 +169,7 @@ namespace BrightData.LinearAlgebra
         }
 
         // 3D tensor creation
-        public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor3D2(data, depth, rowCount, columnCount, this);
+        public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor3D2(data, depth, rowCount, columnCount, this);
         public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount));
         public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
         public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
@@ -223,7 +223,7 @@ namespace BrightData.LinearAlgebra
         }
 
         // 4D tensor creation
-        public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment2 data) => new Tensor4D2(data, count, depth, rowCount, columnCount, this);
+        public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor4D(data, count, depth, rowCount, columnCount, this);
         public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount));
         public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
         public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
@@ -275,67 +275,67 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        protected static uint GetSize(ITensorSegment2 tensor, ITensorSegment2 tensor2)
+        protected static uint GetSize(ITensorSegment tensor, ITensorSegment tensor2)
         {
             if (tensor.Size != tensor2.Size)
                 throw new Exception("Expected tensors to have same size");
             return tensor.Size;
         }
 
-        public virtual ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2) => tensor.Add(tensor2);
-        public virtual ITensorSegment2 Add(ITensorSegment2 tensor, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
-        public virtual ITensorSegment2 Add(ITensorSegment2 tensor, float scalar) => tensor.Add(scalar);
-        public virtual void AddInPlace(ITensorSegment2 target, ITensorSegment2 other) => target.AddInPlace(other);
-        public virtual void AddInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => target.AddInPlace(other, coefficient1, coefficient2);
-        public virtual void AddInPlace(ITensorSegment2 target, float scalar) => target.AddInPlace(scalar);
-        public virtual void MultiplyInPlace(ITensorSegment2 target, float scalar) => target.MultiplyInPlace(scalar);
-        public virtual ITensorSegment2 Multiply(ITensorSegment2 target, float scalar) => target.Multiply(scalar);
-        public virtual ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => tensor1.Subtract(tensor2);
-        public virtual ITensorSegment2 Subtract(ITensorSegment2 tensor1, ITensorSegment2 tensor2, float coefficient1, float coefficient2) => tensor1.Subtract(tensor2, coefficient1, coefficient2);
-        public virtual void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other) => target.SubtractInPlace(other);
-        public virtual void SubtractInPlace(ITensorSegment2 target, ITensorSegment2 other, float coefficient1, float coefficient2) => target.SubtractInPlace(other, coefficient1, coefficient2);
-        public virtual ITensorSegment2 PointwiseMultiply(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => tensor1.PointwiseMultiply(tensor2);
-        public virtual void PointwiseMultiplyInPlace(ITensorSegment2 target, ITensorSegment2 other) => target.PointwiseMultiplyInPlace(other);
-        public virtual ITensorSegment2 PointwiseDivide(ITensorSegment2 tensor1, ITensorSegment2 tensor2) => tensor1.PointwiseDivide(tensor2);
-        public virtual void PointwiseDivideInPlace(ITensorSegment2 target, ITensorSegment2 other) => target.PointwiseDivideInPlace(other);
-        public virtual float DotProduct(ITensorSegment2 tensor, ITensorSegment2 tensor2) => tensor.DotProduct(tensor2);
-        public virtual ITensorSegment2 Sqrt(ITensorSegment2 tensor) => tensor.Sqrt();
-        public virtual uint? Search(ITensorSegment2 segment, float value) => segment.Search(value);
-        public virtual void ConstrainInPlace(ITensorSegment2 segment, float? minValue, float? maxValue) => segment.ConstrainInPlace(minValue, maxValue);
-        public virtual float Average(ITensorSegment2 segment) => segment.Average();
-        public virtual float L1Norm(ITensorSegment2 segment) => segment.L1Norm();
-        public virtual float L2Norm(ITensorSegment2 segment) => segment.L2Norm();
-        public virtual (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment2 segment) => segment.GetMinAndMaxValues();
-        public virtual uint GetMinIndex(ITensorSegment2 segment) => GetMinAndMaxValues(segment).MinIndex;
-        public virtual uint GetMaxIndex(ITensorSegment2 segment) => GetMinAndMaxValues(segment).MaxIndex;
-        public virtual float GetMin(ITensorSegment2 segment) => GetMinAndMaxValues(segment).Min;
-        public virtual float GetMax(ITensorSegment2 segment) => GetMinAndMaxValues(segment).Max;
-        public virtual bool IsEntirelyFinite(ITensorSegment2 segment) => segment.IsEntirelyFinite();
-        public virtual ITensorSegment2 Reverse(ITensorSegment2 segment) => segment.Reverse();
-        public virtual IEnumerable<ITensorSegment2> Split(ITensorSegment2 segment, uint blockCount) => segment.Split(blockCount);
-        public virtual float CosineDistance(ITensorSegment2 tensor, ITensorSegment2 other) => tensor.CosineDistance(other);
-        public virtual float EuclideanDistance(ITensorSegment2 tensor, ITensorSegment2 other) => tensor.EuclideanDistance(other);
-        public virtual float MeanSquaredDistance(ITensorSegment2 tensor, ITensorSegment2 other) => tensor.MeanSquaredDistance(other);
-        public virtual float SquaredEuclideanDistance(ITensorSegment2 tensor, ITensorSegment2 other) => tensor.SquaredEuclideanDistance(other);
-        public virtual float ManhattanDistance(ITensorSegment2 tensor, ITensorSegment2 other) => tensor.ManhattanDistance(other);
-        public virtual ITensorSegment2 Abs(ITensorSegment2 tensor) => tensor.Abs();
-        public virtual ITensorSegment2 Log(ITensorSegment2 tensor) => tensor.Log();
-        public virtual ITensorSegment2 Exp(ITensorSegment2 tensor) => tensor.Exp();
-        public virtual ITensorSegment2 Squared(ITensorSegment2 tensor) => tensor.Squared();
-        public virtual float StdDev(ITensorSegment2 tensor, float? mean) => tensor.StdDev(mean);
-        public virtual ITensorSegment2 Sigmoid(ITensorSegment2 tensor) => tensor.Sigmoid();
-        public virtual ITensorSegment2 SigmoidDerivative(ITensorSegment2 tensor) => tensor.SigmoidDerivative();
-        public virtual ITensorSegment2 Tanh(ITensorSegment2 tensor) => tensor.Tanh();
-        public virtual ITensorSegment2 TanhDerivative(ITensorSegment2 tensor) => tensor.TanhDerivative();
-        public virtual ITensorSegment2 Relu(ITensorSegment2 tensor) => tensor.Relu();
-        public virtual ITensorSegment2 ReluDerivative(ITensorSegment2 tensor) => tensor.ReluDerivative();
-        public virtual ITensorSegment2 LeakyRelu(ITensorSegment2 tensor) => tensor.LeakyRelu();
-        public virtual ITensorSegment2 LeakyReluDerivative(ITensorSegment2 tensor) => tensor.LeakyReluDerivative();
-        public virtual ITensorSegment2 Softmax(ITensorSegment2 tensor) => tensor.Softmax();
-        public virtual IMatrix SoftmaxDerivative(ITensorSegment2 tensor) => tensor.SoftmaxDerivative(this);
-        public virtual ITensorSegment2 Pow(ITensorSegment2 tensor, float power) => tensor.Pow(power);
-        public virtual void RoundInPlace(ITensorSegment2 tensor, float lower, float upper, float? mid) => tensor.RoundInPlace(lower, upper, mid);
-        public virtual ITensorSegment2 CherryPickIndices(ITensorSegment2 tensor, uint[] indices) => tensor.CherryPickIndices(indices);
+        public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => tensor.Add(tensor2);
+        public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
+        public virtual ITensorSegment Add(ITensorSegment tensor, float scalar) => tensor.Add(scalar);
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other) => target.AddInPlace(other);
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.AddInPlace(other, coefficient1, coefficient2);
+        public virtual void AddInPlace(ITensorSegment target, float scalar) => target.AddInPlace(scalar);
+        public virtual void MultiplyInPlace(ITensorSegment target, float scalar) => target.MultiplyInPlace(scalar);
+        public virtual ITensorSegment Multiply(ITensorSegment target, float scalar) => target.Multiply(scalar);
+        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.Subtract(tensor2);
+        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.Subtract(tensor2, coefficient1, coefficient2);
+        public virtual void SubtractInPlace(ITensorSegment target, ITensorSegment other) => target.SubtractInPlace(other);
+        public virtual void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.SubtractInPlace(other, coefficient1, coefficient2);
+        public virtual ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseMultiply(tensor2);
+        public virtual void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other) => target.PointwiseMultiplyInPlace(other);
+        public virtual ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseDivide(tensor2);
+        public virtual void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other) => target.PointwiseDivideInPlace(other);
+        public virtual float DotProduct(ITensorSegment tensor, ITensorSegment tensor2) => tensor.DotProduct(tensor2);
+        public virtual ITensorSegment Sqrt(ITensorSegment tensor) => tensor.Sqrt();
+        public virtual uint? Search(ITensorSegment segment, float value) => segment.Search(value);
+        public virtual void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue) => segment.ConstrainInPlace(minValue, maxValue);
+        public virtual float Average(ITensorSegment segment) => segment.Average();
+        public virtual float L1Norm(ITensorSegment segment) => segment.L1Norm();
+        public virtual float L2Norm(ITensorSegment segment) => segment.L2Norm();
+        public virtual (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment segment) => segment.GetMinAndMaxValues();
+        public virtual uint GetMinIndex(ITensorSegment segment) => GetMinAndMaxValues(segment).MinIndex;
+        public virtual uint GetMaxIndex(ITensorSegment segment) => GetMinAndMaxValues(segment).MaxIndex;
+        public virtual float GetMin(ITensorSegment segment) => GetMinAndMaxValues(segment).Min;
+        public virtual float GetMax(ITensorSegment segment) => GetMinAndMaxValues(segment).Max;
+        public virtual bool IsEntirelyFinite(ITensorSegment segment) => segment.IsEntirelyFinite();
+        public virtual ITensorSegment Reverse(ITensorSegment segment) => segment.Reverse();
+        public virtual IEnumerable<ITensorSegment> Split(ITensorSegment segment, uint blockCount) => segment.Split(blockCount);
+        public virtual float CosineDistance(ITensorSegment tensor, ITensorSegment other) => tensor.CosineDistance(other);
+        public virtual float EuclideanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.EuclideanDistance(other);
+        public virtual float MeanSquaredDistance(ITensorSegment tensor, ITensorSegment other) => tensor.MeanSquaredDistance(other);
+        public virtual float SquaredEuclideanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.SquaredEuclideanDistance(other);
+        public virtual float ManhattanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.ManhattanDistance(other);
+        public virtual ITensorSegment Abs(ITensorSegment tensor) => tensor.Abs();
+        public virtual ITensorSegment Log(ITensorSegment tensor) => tensor.Log();
+        public virtual ITensorSegment Exp(ITensorSegment tensor) => tensor.Exp();
+        public virtual ITensorSegment Squared(ITensorSegment tensor) => tensor.Squared();
+        public virtual float StdDev(ITensorSegment tensor, float? mean) => tensor.StdDev(mean);
+        public virtual ITensorSegment Sigmoid(ITensorSegment tensor) => tensor.Sigmoid();
+        public virtual ITensorSegment SigmoidDerivative(ITensorSegment tensor) => tensor.SigmoidDerivative();
+        public virtual ITensorSegment Tanh(ITensorSegment tensor) => tensor.Tanh();
+        public virtual ITensorSegment TanhDerivative(ITensorSegment tensor) => tensor.TanhDerivative();
+        public virtual ITensorSegment Relu(ITensorSegment tensor) => tensor.Relu();
+        public virtual ITensorSegment ReluDerivative(ITensorSegment tensor) => tensor.ReluDerivative();
+        public virtual ITensorSegment LeakyRelu(ITensorSegment tensor) => tensor.LeakyRelu();
+        public virtual ITensorSegment LeakyReluDerivative(ITensorSegment tensor) => tensor.LeakyReluDerivative();
+        public virtual ITensorSegment Softmax(ITensorSegment tensor) => tensor.Softmax();
+        public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor) => tensor.SoftmaxDerivative(this);
+        public virtual ITensorSegment Pow(ITensorSegment tensor, float power) => tensor.Pow(power);
+        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper, float? mid) => tensor.RoundInPlace(lower, upper, mid);
+        public virtual ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices) => tensor.CherryPickIndices(indices);
 
         public virtual unsafe IMatrix Transpose(IMatrix matrix)
         {
@@ -410,7 +410,7 @@ namespace BrightData.LinearAlgebra
         unsafe IMatrix MultiplyWithThisTransposed(IMatrix transposedThis, IMatrix other)
         {
             var size = (int)other.RowCount;
-            var vectorSize = ExtensionMethods.NumericsVectorSize;
+            var vectorSize = SpanExtensions.NumericsVectorSize;
             var numVectors = size / vectorSize;
             var ceiling = numVectors * vectorSize;
 
@@ -439,11 +439,11 @@ namespace BrightData.LinearAlgebra
 
                             var xPtr = &matrixPtr2[i * lda];
                             var xSpan = new ReadOnlySpan<float>(xPtr, lda);
-                            var xVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(xSpan);
+                            var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
 
                             var yPtr = &otherPtr2[j * ldb];
                             var ySpan = new ReadOnlySpan<float>(yPtr, ldb);
-                            var yVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(ySpan);
+                            var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
 
                             var sum = 0f;
                             for (var z = 0; z < numVectors; z++) {
@@ -463,11 +463,11 @@ namespace BrightData.LinearAlgebra
 
                             var xPtr = &matrixPtr2[i * lda];
                             var xSpan = new ReadOnlySpan<float>(xPtr, lda);
-                            var xVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(xSpan);
+                            var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
 
                             var yPtr = &otherPtr2[j * ldb];
                             var ySpan = new ReadOnlySpan<float>(yPtr, ldb);
-                            var yVectors = MemoryMarshal.Cast<float, System.Numerics.Vector<float>>(ySpan);
+                            var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
 
                             var sum = 0f;
                             for (var z = 0; z < numVectors; z++) {
@@ -625,7 +625,7 @@ namespace BrightData.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<float, float> mapper)
+        public ITensorSegment MapParallel(ITensorSegment segment, Func<float, float> mapper)
         {
             var size = segment.Size;
             var ret = CreateSegment(size);
@@ -639,7 +639,7 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public void MapParallelInPlace(ITensorSegment2 segment, Func<float, float> mapper)
+        public void MapParallelInPlace(ITensorSegment segment, Func<float, float> mapper)
         {
             var size = segment.Size;
 
@@ -651,7 +651,7 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        public ITensorSegment2 MapParallel(ITensorSegment2 segment, Func<uint, float, float> mapper)
+        public ITensorSegment MapParallel(ITensorSegment segment, Func<uint, float, float> mapper)
         {
             var size = segment.Size;
             var ret = CreateSegment(size);
@@ -665,7 +665,7 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public void MapParallelInPlace(ITensorSegment2 segment, Func<uint, float, float> mapper)
+        public void MapParallelInPlace(ITensorSegment segment, Func<uint, float, float> mapper)
         {
             var ret = CreateSegment(segment.Size);
             try {
@@ -677,7 +677,7 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        public virtual void FeatureScaleNormalization(ITensorSegment2 segment)
+        public virtual void FeatureScaleNormalization(ITensorSegment segment)
         {
             var (min, max, _, _) = GetMinAndMaxValues(segment);
             var range = max - min;
@@ -685,7 +685,7 @@ namespace BrightData.LinearAlgebra
                 MapParallelInPlace(segment, v => (v - min) / range);
         }
 
-        public virtual void StandardNormalization(ITensorSegment2 segment)
+        public virtual void StandardNormalization(ITensorSegment segment)
         {
             var mean = Average(segment);
             var stdDev = StdDev(segment, mean);
@@ -693,14 +693,14 @@ namespace BrightData.LinearAlgebra
                 MapParallelInPlace(segment, v => (v - mean) / stdDev);
         }
 
-        public virtual void EuclideanNormalization(ITensorSegment2 segment)
+        public virtual void EuclideanNormalization(ITensorSegment segment)
         {
             var norm = L2Norm(segment);
             if (FloatMath.IsNotZero(norm))
                 MapParallelInPlace(segment, v => v / norm);
         }
 
-        public virtual void ManhattanNormalization(ITensorSegment2 segment)
+        public virtual void ManhattanNormalization(ITensorSegment segment)
         {
             var norm = L1Norm(segment);
             if (FloatMath.IsNotZero(norm))
@@ -714,7 +714,7 @@ namespace BrightData.LinearAlgebra
         //    return ret;
         //}
 
-        public virtual void L1Regularisation(ITensorSegment2 segment, float coefficient) => segment.L1Regularisation(coefficient);
+        public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularisation(coefficient);
 
         public virtual (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
         {
@@ -1072,12 +1072,12 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public virtual void AddToEachRow(IMatrix matrix, ITensorSegment2 vector)
+        public virtual void AddToEachRow(IMatrix matrix, ITensorSegment vector)
         {
             matrix.MapIndexedInPlace((_, k, v) => v + vector[k]);
         }
 
-        public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment2 vector)
+        public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment vector)
         {
             matrix.MapIndexedInPlace((j, _, v) => v + vector[j]);
         }
@@ -1107,7 +1107,7 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public ITensor2 CreateTensor(uint[] shape, ITensorSegment2 segment)
+        public ITensor2 CreateTensor(uint[] shape, ITensorSegment segment)
         {
             if (shape.Length == 1) {
                 if (shape[0] != segment.Size)

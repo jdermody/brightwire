@@ -9,7 +9,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment : ITensorSegment2
+    internal class CudaTensorSegment : ITensorSegment
     {
         int _refCount = 0;
         static readonly string CudaSegmentType = "cuda";
@@ -25,7 +25,7 @@ namespace BrightData.Cuda
             Release();
         }
 
-        public static bool IsCuda(ITensorSegment2 segment) => segment.SegmentType == CudaSegmentType;
+        public static bool IsCuda(ITensorSegment segment) => segment.SegmentType == CudaSegmentType;
 
         public int AddRef() => DeviceMemory.AddRef();
         public int Release()
@@ -90,7 +90,7 @@ namespace BrightData.Cuda
             DeviceMemory.CopyToDevice(span);
         }
 
-        public void CopyTo(ITensorSegment2 segment)
+        public void CopyTo(ITensorSegment segment)
         {
             if (segment.SegmentType == CudaSegmentType) {
                 var other = (CudaTensorSegment)segment;

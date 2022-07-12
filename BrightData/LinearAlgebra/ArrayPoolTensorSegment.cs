@@ -6,7 +6,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public class ArrayPoolTensorSegment : ITensorSegment2
+    public class ArrayPoolTensorSegment : ITensorSegment
     {
         readonly MemoryOwner<float> _data;
         readonly float[] _array;
@@ -74,7 +74,7 @@ namespace BrightData.LinearAlgebra
         public float[] GetArrayForLocalUseOnly() => _array;
         public float[] ToNewArray() => _data.Span.ToArray();
         public void CopyFrom(ReadOnlySpan<float> span) => span.CopyTo(_data.Span);
-        public void CopyTo(ITensorSegment2 segment)
+        public void CopyTo(ITensorSegment segment)
         {
             var span = GetSpan();
             var destination = segment.GetArrayForLocalUseOnly();

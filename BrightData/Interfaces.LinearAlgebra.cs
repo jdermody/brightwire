@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using BrightData.LinearAlgebra;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+﻿using BrightData.LinearAlgebra;
 
 namespace BrightData
 {
@@ -38,7 +35,7 @@ namespace BrightData
 
     public interface IHaveTensorSegment
     {
-        ITensorSegment2 Segment { get; }
+        ITensorSegment Segment { get; }
     }
 
     public interface IVectorInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment

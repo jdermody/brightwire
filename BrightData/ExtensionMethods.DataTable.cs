@@ -479,7 +479,7 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment2 vector)
+        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment vector)
             where T : struct
         {
             uint index = 0;
@@ -496,7 +496,7 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment2 vector)
+        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment vector)
         {
             var type = GetDataType(column.SingleType);
             var copySegment = typeof(ExtensionMethods).GetMethod(nameof(CopyToFloatSegment))!.MakeGenericMethod(type);

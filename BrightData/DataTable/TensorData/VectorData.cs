@@ -10,7 +10,7 @@ namespace BrightData.DataTable.TensorData
     internal class VectorData : IVectorInfo
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment2? _segment;
+        ITensorSegment? _segment;
         uint _startIndex;
         uint _stride;
 
@@ -46,7 +46,7 @@ namespace BrightData.DataTable.TensorData
             return lap.CreateVector(segment);
         }
 
-        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public float this[int index]
         {

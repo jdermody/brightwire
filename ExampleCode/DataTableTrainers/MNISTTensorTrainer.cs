@@ -85,7 +85,7 @@ namespace ExampleCode.DataTableTrainers
             var tensor = (ITensor3D) firstRow[0];
             var singleData = graph.CreateDataSource(new[] { tensor });
             var result = executionEngine.Execute(singleData);
-            var prediction = result.Single().Output.Single().MaximumIndex();
+            var prediction = result.Single().Output.GetRow(0).Segment.GetMinAndMaxValues().MaxIndex;
             var expectedPrediction = ((IVector) firstRow[1]).GetMaxIndex();
             Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;

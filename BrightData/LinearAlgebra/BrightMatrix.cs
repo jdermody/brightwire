@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using BrightData.LinearAlgebra.TensorInfo;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public class Matrix<LAP> : TensorBase<IMatrix, LAP>, IMatrix, IMatrixSegments
+    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix, IMatrixSegments
         where LAP: LinearAlgebraProvider
     {
-        public Matrix(ITensorSegment2 data, uint rows, uint columns, LAP lap) : base(data, lap)
+        public BrightMatrix(ITensorSegment data, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             RowCount = rows;
             ColumnCount = columns;
@@ -52,8 +51,8 @@ namespace BrightData.LinearAlgebra
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
-        public TensorSegmentWrapper Row(uint index) => new(Segment, index, RowCount, ColumnCount);
-        public TensorSegmentWrapper Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
+        public TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null) => new(segment ?? Segment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null) => new(segment ?? Segment, index * RowCount, 1, RowCount);
         public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
         {
             temp = SpanOwner<float>.Allocate((int)TotalSize);
@@ -69,19 +68,19 @@ namespace BrightData.LinearAlgebra
             return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
         }
 
-        public override IMatrix Create(ITensorSegment2 segment) => new Matrix<LAP>(segment, RowCount, ColumnCount, _lap);
+        public override IMatrix Create(ITensorSegment segment) => _lap.CreateMatrix(RowCount, ColumnCount, segment);
         IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
+        public virtual IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
+        public virtual IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
 
-        public IVectorInfo[] AllRows()
+        public virtual IVectorInfo[] AllRows()
         {
             var ret = new IVectorInfo[RowCount];
             for (uint i = 0; i < RowCount; i++)
                 ret[i] = GetRow(i);
             return ret;
         }
-        public IVectorInfo[] AllColumns()
+        public virtual IVectorInfo[] AllColumns()
         {
             var ret = new IVectorInfo[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
@@ -89,20 +88,8 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        //public IVector[] RowVectors()
-        //{
-        //    var ret = new IVector[RowCount];
-        //    for (uint i = 0; i < RowCount; i++)
-        //        ret[i] = LinearAlgebraProvider.CreateVector(Row(i));
-        //    return ret;
-        //}
-        //public IVector[] ColumnVectors()
-        //{
-        //    var ret = new IVector[ColumnCount];
-        //    for (uint i = 0; i < ColumnCount; i++)
-        //        ret[i] = LinearAlgebraProvider.CreateVector(Column(i));
-        //    return ret;
-        //}
+        public virtual IVector GetRowVector(uint index) => _lap.CreateVector(Row(index));
+        public virtual IVector GetColumnVector(uint index) => _lap.CreateVector(Column(index));
 
         public MemoryOwner<float> ToRowMajor()
         {
@@ -158,8 +145,8 @@ namespace BrightData.LinearAlgebra
         public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
         public IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => _lap.GetNewMatrixFromRows(this, rowIndices);
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
-        public void AddToEachRow(ITensorSegment2 segment) => _lap.AddToEachRow(this, segment);
-        public void AddToEachColumn(ITensorSegment2 segment) => _lap.AddToEachColumn(this, segment);
+        public void AddToEachRow(ITensorSegment segment) => _lap.AddToEachRow(this, segment);
+        public void AddToEachColumn(ITensorSegment segment) => _lap.AddToEachColumn(this, segment);
 
         /// <inheritdoc />
         public override string ToString()
@@ -171,16 +158,9 @@ namespace BrightData.LinearAlgebra
         }
     }
 
-    public class Matrix2 : Matrix<LinearAlgebraProvider>
+    public class BrightMatrix : BrightMatrix<LinearAlgebraProvider>
     {
-        public Matrix2(ITensorSegment2 data, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
-        {
-        }
-    }
-
-    public class ArrayBasedMatrix : Matrix<ArrayBasedLinearAlgebraProvider>
-    {
-        public ArrayBasedMatrix(ITensorSegment2 data, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
+        public BrightMatrix(ITensorSegment data, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
         }
     }

@@ -7,9 +7,9 @@ using BrightData.LinearAlgebra;
 
 namespace BrightData.Cuda
 {
-    internal class CudaVector : Vector<CudaLinearAlgebraProvider>, IHaveDeviceMemory
+    internal class CudaVector : BrightVector<CudaLinearAlgebraProvider>, IHaveDeviceMemory
     {
-        public CudaVector(ITensorSegment2 data, CudaLinearAlgebraProvider computationUnit) : base(data, computationUnit)
+        public CudaVector(ITensorSegment data, CudaLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
 

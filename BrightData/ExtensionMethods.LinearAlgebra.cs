@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.TensorInfo;
@@ -339,40 +340,11 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Mutates a vector via a callback
-        /// </summary>
-        /// <param name="vector">Vector to mutate</param>
-        /// <param name="mutator">Callback that can mutate each value of the vector</param>
-        /// <returns>New vector</returns>
-        //public static IVector Mutate(this IVector vector, Func<float, float> mutator)
-        //{
-        //    var lap = vector.Context.LinearAlgebraProvider2;
-        //    var segment = lap.CreateSegment(vector.Size);
-        //    segment.Initialize(i => mutator(vector[i]));
-        //    return new Vector<float>(segment);
-        //}
-
-        /// <summary>
-        /// Mutates a vector by combining it with another vector
-        /// </summary>
-        /// <param name="vector">Vector to mutate</param>
-        /// <param name="other">Other vector</param>
-        /// <param name="mutator">Callback that can mutate each value of the vector</param>
-        /// <returns></returns>
-        //public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
-        //{
-        //    var context = vector.Context;
-        //    var segment = context.CreateSegment<float>(vector.Size);
-        //    segment.Initialize(i => mutator(vector[i], other[i]));
-        //    return new Vector<float>(segment);
-        //}
-
-        /// <summary>
         /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static WeightedIndexList ToSparse(this ITensorSegment2 segment)
+        public static WeightedIndexList ToSparse(this ITensorSegment segment)
         {
             return WeightedIndexList.Create(segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
@@ -556,7 +528,7 @@ namespace BrightData
         {
             if(tensors == null)
                 throw new ArgumentException("Null enumerable", nameof(tensors));
-            ITensorSegment2? ret = null;
+            ITensorSegment? ret = null;
             var count = 0;
             LinearAlgebraProvider? lap = null;
             uint[]? shape = null;
@@ -577,5 +549,7 @@ namespace BrightData
             ret.Multiply(1f / count);
             return (T)lap.CreateTensor(shape, ret);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment segment) => segment.GetArrayForLocalUseOnly() ?? segment.ToNewArray();
     }
 }

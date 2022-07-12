@@ -46,14 +46,14 @@ namespace ExampleCode.DataTableTrainers
                     foreach (var item in output) {
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
                             var row = Test.GetRow(index);
-                            var result = item.Output[index];
+                            var result = item.Output.GetRow(index);
                             var input = row.ToArray()
                                 .Select((v, i) => (Val: v, Ind: i))
                                 .Where(d => d.Ind != targetColumnIndex)
                                 .Select(d => d.Val)
                                 .AsCommaSeparated()
                             ;
-                            Console.WriteLine($"{input} = {result.AsCommaSeparated()}");
+                            Console.WriteLine($"{input} = {result.ToArray().AsCommaSeparated()}");
                         }
                     }
                 }

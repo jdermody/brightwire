@@ -53,14 +53,14 @@ namespace ExampleCode.DataTableTrainers
 
                 // group the output
                 var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];
-                for (var i = 0; i < 8; i++) {
+                for (uint i = 0; i < 8; i++) {
                     var input = new float[32][];
                     var target = new float[32][];
                     var output = new float[32][];
-                    for (var j = 0; j < 32; j++) {
-                        input[j] = results[j].Input![i];
-                        target[j] = results[j].Target![i];
-                        output[j] = results[j].Output[i];
+                    for (uint j = 0; j < 32; j++) {
+                        input[j] = results[j].Input!.GetRow(i).ToArray();
+                        target[j] = results[j].Target!.GetRow(i).ToArray();
+                        output[j] = results[j].Output.GetRow(i).ToArray();
                     }
 
                     groupedResults[i] = (input, target, output);

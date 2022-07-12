@@ -5,10 +5,10 @@ namespace BrightData.DataTable
 {
     public class BrightDataTableRow : IDataTableSegment
     {
-        readonly DataTable.BrightDataTable _dataTable;
+        readonly BrightDataTable _dataTable;
         readonly ICanRandomlyAccessData[] _data;
 
-        public BrightDataTableRow(DataTable.BrightDataTable dataTable, ICanRandomlyAccessData[] data, uint rowIndex)
+        public BrightDataTableRow(BrightDataTable dataTable, ICanRandomlyAccessData[] data, uint rowIndex)
         {
             _data = data;
             RowIndex = rowIndex;

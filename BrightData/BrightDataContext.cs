@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 

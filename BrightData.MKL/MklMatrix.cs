@@ -7,12 +7,12 @@ using BrightData.LinearAlgebra;
 
 namespace BrightData.MKL
 {
-    public class MklMatrix : Matrix<MklLinearAlgebraProvider>
+    public class MklMatrix : BrightMatrix<MklLinearAlgebraProvider>
     {
-        public MklMatrix(ITensorSegment2 data, uint rows, uint columns, MklLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
+        public MklMatrix(ITensorSegment data, uint rows, uint columns, MklLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
         }
 
-        public override IMatrix Create(ITensorSegment2 segment) => new MklMatrix(segment, RowCount, ColumnCount, _lap);
+        public override IMatrix Create(ITensorSegment segment) => new MklMatrix(segment, RowCount, ColumnCount, _lap);
     }
 }

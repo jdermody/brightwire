@@ -2,10 +2,10 @@
 
 namespace BrightData.LinearAlgebra
 {
-    public class Tensor4D<LAP> : TensorBase<ITensor4D, LAP>, ITensor4D
+    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D
         where LAP: LinearAlgebraProvider
     {
-        public Tensor4D(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public BrightTensor4D(ITensorSegment data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Count = count;
             Depth = depth;
@@ -16,7 +16,7 @@ namespace BrightData.LinearAlgebra
             TotalSize = TensorSize * Count;
         }
 
-        public override ITensor4D Create(ITensorSegment2 segment) => new Tensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
+        public override ITensor4D Create(ITensorSegment segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
         ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
 
         public uint Count { get; private set; }
@@ -73,16 +73,9 @@ namespace BrightData.LinearAlgebra
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }
 
-    public class Tensor4D2 : Tensor4D<LinearAlgebraProvider>
+    public class BrightTensor4D : BrightTensor4D<LinearAlgebraProvider>
     {
-        public Tensor4D2(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
-        {
-        }
-    }
-
-    public class ArrayBasedTensor4D : Tensor4D<ArrayBasedLinearAlgebraProvider>
-    {
-        public ArrayBasedTensor4D(ITensorSegment2 data, uint count, uint depth, uint rows, uint columns, ArrayBasedLinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
+        public BrightTensor4D(ITensorSegment data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, count, depth, rows, columns, computationUnit)
         {
         }
     }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using BrightData.Converter;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.Transformation

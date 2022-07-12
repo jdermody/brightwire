@@ -256,8 +256,9 @@ namespace ExampleCode.DataTableTrainers
                         word[101] = mc == "positive" ? 1f : 0f;
                     }
 
-                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output.Single()))) {
-                        var label = result.Softmax().MaximumIndex() == 0 ? "positive" : "negative";
+                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output.GetRow(0)))) {
+                        using var softmax = result.Segment.Softmax();
+                        var label = softmax.GetMinAndMaxValues().MaxIndex == 0 ? "positive" : "negative";
                         Console.WriteLine($"{token}: {label}");
                     }
                 }

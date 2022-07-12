@@ -51,7 +51,7 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
         public uint Size => RowCount * ColumnCount;
-        public ITensorSegment2 Segment => _segment;
+        public ITensorSegment Segment => _segment;
         public override string ToString()
         {
             var preview = String.Join("|", _segment.Values.Take(Consts.PreviewSize));

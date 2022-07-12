@@ -9,6 +9,7 @@ using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
+using ExampleCode.DataTableTrainers;
 // ReSharper disable once RedundantUsingDirective
 using MathNet.Numerics;
 
@@ -24,7 +25,7 @@ namespace ExampleCode
             bool useCuda = false, useMkl = false;
 
             // IMPORTANT: uncomment below if you have an Intel CPU
-            useMkl = true;
+            //useMkl = true;
 
             // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
             useCuda = true;
@@ -187,7 +188,7 @@ namespace ExampleCode
             Start(context, useMkl);
             var reber = context.ReberSequencePrediction();
             var engine = reber.TrainLstm();
-            reber.GenerateSequences(engine);
+            ReberSequenceTrainer.GenerateSequences(engine);
         }
 
         static void OneToMany(BrightDataContext context, bool useMkl)

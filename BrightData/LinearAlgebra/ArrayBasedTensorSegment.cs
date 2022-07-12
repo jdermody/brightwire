@@ -5,7 +5,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public class ArrayBasedTensorSegment : ITensorSegment2
+    public class ArrayBasedTensorSegment : ITensorSegment
     {
         readonly float[] _data;
 
@@ -66,7 +66,7 @@ namespace BrightData.LinearAlgebra
             span.CopyTo(_data);
         }
 
-        public void CopyTo(ITensorSegment2 segment)
+        public void CopyTo(ITensorSegment segment)
         {
             segment.CopyFrom(_data);
         }

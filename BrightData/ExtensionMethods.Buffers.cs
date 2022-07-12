@@ -95,7 +95,7 @@ namespace BrightData
             throw new NotImplementedException();
         }
 
-        public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment2 segment)
+        public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment segment)
         {
             for(uint i = 0, len = segment.Size; i < len; i++)
                 buffer.Add(segment[i]);

@@ -10,7 +10,7 @@ namespace BrightData.DataTable.TensorData
     internal class MatrixData : IMatrixInfo
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment2? _segment;
+        ITensorSegment? _segment;
         uint _startIndex;
 
         public MatrixData(ICanRandomlyAccessUnmanagedData<float> data, uint rowCount, uint columnCount, uint startIndex)
@@ -62,7 +62,7 @@ namespace BrightData.DataTable.TensorData
         public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
 
-        public ITensorSegment2 Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)
         {

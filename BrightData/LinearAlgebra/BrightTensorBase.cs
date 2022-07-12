@@ -9,13 +9,13 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public abstract class TensorBase<T, LAP> : ITensor2<T>, IHaveSize
+    public abstract class BrightTensorBase<T, LAP> : ITensor2<T>, IHaveSize
         where T: ITensor2
         where LAP: LinearAlgebraProvider
     {
         protected LAP _lap;
 
-        internal TensorBase(ITensorSegment2 data, LAP lap)
+        internal BrightTensorBase(ITensorSegment data, LAP lap)
         {
             Segment = data;
             Segment.AddRef();
@@ -59,11 +59,11 @@ namespace BrightData.LinearAlgebra
             Segment.AddRef();
         }
 
-        public abstract T Create(ITensorSegment2 segment);
+        public abstract T Create(ITensorSegment segment);
         public abstract uint TotalSize { get; protected set; }
         uint IHaveSize.Size => TotalSize;
         public abstract uint[] Shape { get; protected set; }
-        public ITensorSegment2 Segment { get; private set; }
+        public ITensorSegment Segment { get; private set; }
         public BrightDataContext Context => _lap.Context;
         public LinearAlgebraProvider LinearAlgebraProvider => _lap;
 

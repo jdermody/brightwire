@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using BrightData.DataTable.Operations;
-using BrightData.LinearAlgebra;
 
 namespace BrightData.Transformation
 {

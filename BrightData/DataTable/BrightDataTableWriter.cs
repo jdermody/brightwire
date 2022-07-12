@@ -53,7 +53,7 @@ namespace BrightData.DataTable
 
             // write the header
             var headers = new BrightDataTable.Header[1];
-            _stream.Write(MemoryMarshal.AsBytes<DataTable.BrightDataTable.Header>(headers));
+            _stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             ref var header = ref headers[0];
             header.Version = 1;
             header.Orientation = DataTableOrientation.ColumnOriented;
@@ -152,7 +152,7 @@ namespace BrightData.DataTable
 
             // update the header
             _stream.Seek(0, SeekOrigin.Begin);
-            _stream.Write(MemoryMarshal.AsBytes<DataTable.BrightDataTable.Header>(headers));
+            _stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             _stream.Seek(0, SeekOrigin.End);
         }
 

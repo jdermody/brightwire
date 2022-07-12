@@ -24,9 +24,9 @@ namespace BrightWire.UnitTests
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IVector output, IVector targetOutput)
+            public float Compute(IVectorInfo output, IVectorInfo targetOutput)
             {
-                return output.GetMaxIndex() == targetOutput.GetMaxIndex() ? 1 : 0;
+                return output.Segment.GetMinAndMaxValues().MaxIndex == targetOutput.Segment.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;
@@ -61,8 +61,8 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(float[] value) => value[0] > 0.5f;
-            var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
+            static bool Handle(IVectorInfo value) => value[0] > 0.5f;
+            var zippedResults = results!.Output.AllRows().Zip(results.Target.AllRows(), (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }
 

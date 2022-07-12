@@ -56,7 +56,7 @@ namespace BrightData.DataTable
             return buffer;
         }
 
-        public void CopyColumnsFrom(DataTable.BrightDataTable table, params uint[] columnIndices)
+        public void CopyColumnsFrom(BrightDataTable table, params uint[] columnIndices)
         {
             var columnSet = new HashSet<uint>(table.AllOrSpecifiedColumnIndices(columnIndices));
             var columnTypes = table.ColumnTypes.Zip(table.ColumnMetaData, (t, m) => (Type: t, MetaData: m))

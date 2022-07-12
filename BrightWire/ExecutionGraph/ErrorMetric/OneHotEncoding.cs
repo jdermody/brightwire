@@ -13,10 +13,10 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IVector output, IVector expectedOutput)
+        public float Compute(IVectorInfo output, IVectorInfo expectedOutput)
         {
-            var outputIndex = output.GetMaxIndex();
-            var expectedIndex = expectedOutput.GetMaxIndex();
+            var outputIndex = output.Segment.GetMinAndMaxValues().MaxIndex;
+            var expectedIndex = expectedOutput.Segment.GetMinAndMaxValues().MaxIndex;
             return outputIndex == expectedIndex ? 1f : 0f;
         }
 
