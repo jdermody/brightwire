@@ -15,7 +15,7 @@ namespace BrightData.DataTable.Operations
             _columnIndex = columnIndex;
             _metaData = metaData;
             _reader = reader;
-            _enumerator = _reader.EnumerateTyped().GetEnumerator();
+            _enumerator = _reader.Values.GetEnumerator();
             _analyser = analyser;
         }
 

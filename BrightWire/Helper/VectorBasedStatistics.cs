@@ -6,7 +6,7 @@ namespace BrightWire.Helper
 	/// <summary>
 	/// Calculate vector based statistics
 	/// </summary>
-	internal class VectorBasedStatistics
+	internal class VectorBasedStatistics : IHaveSize
 	{
         public VectorBasedStatistics(LinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
 		{

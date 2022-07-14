@@ -10,12 +10,11 @@ namespace BrightData.Transformation
 {
     internal class DataTableVectoriser : IHaveBrightDataContext, IDataTableVectoriser
     {
-        interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter
+        interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter, IHaveSize
         {
             uint ColumnIndex { get; }
             IEnumerable<float> GetNext();
             IEnumerable<float> Convert(object obj);
-            uint Size { get; }
         }
 
         interface IColumnVectoriser<in T> : IColumnVectoriser where T : notnull
@@ -76,7 +75,7 @@ namespace BrightData.Transformation
             readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<T>)column).Values.GetEnumerator())
             {
             }
 
@@ -92,7 +91,7 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<WeightedIndexList>)column).Values.GetEnumerator()) { }
             public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
@@ -122,7 +121,7 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<IndexList>)column).Values.GetEnumerator()) { }
             public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
@@ -150,7 +149,7 @@ namespace BrightData.Transformation
         }
         class TensorVectoriser : VectoriserBase<ITensor>
         {
-            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<ITensor>)column).EnumerateTyped().GetEnumerator()) {}
+            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<ITensor>)column).Values.GetEnumerator()) {}
             public TensorVectoriser(uint size, ISingleTypeTableSegment column) : this(column)
             {
                 Size = size;
@@ -187,7 +186,7 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
 #pragma warning disable 8618
-            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), column.Enumerate().GetEnumerator()) { }
+            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator()) { }
 #pragma warning restore 8618
             public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column) : this(column)
             {
@@ -246,7 +245,7 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
             public OneHotEncode(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetColumnIndex(), column.Enumerate().GetEnumerator())
+                : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator())
             {
                 Size = 1;
             }

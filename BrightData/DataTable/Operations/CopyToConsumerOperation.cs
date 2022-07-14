@@ -16,7 +16,7 @@ namespace BrightData.DataTable.Operations
         {
             _columnData = columnData;
             _consumer = consumer;
-            _enumerator = columnData.EnumerateTyped().GetEnumerator();
+            _enumerator = columnData.Values.GetEnumerator();
         }
 
         public override void Dispose()

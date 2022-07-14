@@ -12,12 +12,12 @@ namespace BrightData.Cuda.Helper
 	    readonly IDeviceMemoryPtr          _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;
         readonly CudaContext               _context;
-        bool _addedReference = false;
+        bool                               _addedReference = false;
 
         public PtrToMemory(CudaContext context, IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
         {
-            _context = context;
-            _ptr = new CudaDeviceVariable<float>(ptr, false, size);
+            _context   = context;
+            _ptr       = new CudaDeviceVariable<float>(ptr, false, size);
 	        _rootBlock = rootBlock;
         }
 
@@ -63,5 +63,7 @@ namespace BrightData.Cuda.Helper
         {
 	        return _rootBlock.Release();
         }
+
+        public bool IsValid => _rootBlock.IsValid;
     }
 }

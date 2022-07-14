@@ -88,7 +88,7 @@ namespace BrightData.Helper
             if (IsDecimal(type))
                 ret |= ColumnClass.Decimal;
             if (IsBlittable(type))
-                ret |= ColumnClass.Structable;
+                ret |= ColumnClass.Struct;
             if (type.IsTensor())
                 ret |= ColumnClass.Tensor;
             if (type.IsIndexedList())

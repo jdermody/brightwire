@@ -49,28 +49,31 @@ namespace BrightData.Buffer.Hybrid
 
         protected ReadOnlySpan<T> GetTempBuffer() => CollectionsMarshal.AsSpan(_tempBuffer);//((Span<T>)_tempBuffer)[.._index];
 
-        public IEnumerable<T> EnumerateTyped()
+        public IEnumerable<T> Values
         {
-            // read from the stream
-            if (_tempStream.HasStream(_id)) {
-                var stream = _tempStream.Get(_id);
-                stream.Seek(0, SeekOrigin.Begin);
-                var buffer = new T[_maxCount];
-                while (stream.Position < stream.Length) {
-                    var count = ReadTo(stream, _maxCount, buffer);
-                    for (uint i = 0; i < count; i++)
-                        yield return buffer[i];
+            get
+            {
+                // read from the stream
+                if (_tempStream.HasStream(_id)) {
+                    var stream = _tempStream.Get(_id);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    var buffer = new T[_maxCount];
+                    while (stream.Position < stream.Length) {
+                        var count = ReadTo(stream, _maxCount, buffer);
+                        for (uint i = 0; i < count; i++)
+                            yield return buffer[i];
+                    }
                 }
-            }
 
-            // then from the buffer
-            foreach(var item in _tempBuffer)
-                yield return item;
+                // then from the buffer
+                foreach (var item in _tempBuffer)
+                    yield return item;
+            }
         }
 
         public void CopyTo(Stream stream) => EncodedStreamWriter.CopyTo(this, stream);
 
-        public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
+        IEnumerable<object> ICanEnumerate.Values => Values.Select(o => (object)o);
         public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?)DistinctItems?.Count;
         public void AddObject(object obj) => Add((T)obj);

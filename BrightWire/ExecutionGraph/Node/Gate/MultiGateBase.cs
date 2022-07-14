@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <summary>
         /// Information about an incoming signal
         /// </summary>
-        protected class IncomingChannel
+        protected class IncomingChannel : IHaveSize
         {
             /// <summary>
             /// The channel on which the signal was received

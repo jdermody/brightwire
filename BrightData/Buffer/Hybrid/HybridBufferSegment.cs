@@ -38,13 +38,13 @@ namespace BrightData.Buffer.Hybrid
 
         /// <inheritdoc />
         public void CopyTo(Stream stream) => _buffer.CopyTo(stream);
-        public IEnumerable<object> Enumerate() => _buffer.Enumerate();
+        IEnumerable<object> ICanEnumerate.Values => ((ICanEnumerate)_buffer).Values;
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Size;
         public void AddObject(object? obj) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
         public Type DataType { get; } = typeof(T);
         public void Add(T obj) => _buffer.Add(obj);
-        public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
+        public IEnumerable<T> Values => _buffer.Values;
         public Dictionary<T, uint>? DistinctItems => _buffer.DistinctItems;
     }
 }

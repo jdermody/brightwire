@@ -414,21 +414,21 @@ namespace BrightData
         /// Enumerates all items
         /// </summary>
         /// <returns></returns>
-        IEnumerable<object> Enumerate();
+        IEnumerable<object> Values { get; }
     }
 
     /// <summary>
     /// Indicates that the type can enumerate items of this type
     /// </summary>
     /// <typeparam name="T">Type to enumerate</typeparam>
-    public interface ICanEnumerate<out T>
+    public interface ICanEnumerate<out T> : ICanEnumerate
         where T : notnull
     {
         /// <summary>
         /// Enumerates all items
         /// </summary>
         /// <returns></returns>
-        IEnumerable<T> EnumerateTyped();
+        new IEnumerable<T> Values { get; }
     }
 
     public interface ICanEnumerateDisposable<out T> : ICanEnumerate<T>, IDisposable where T : notnull

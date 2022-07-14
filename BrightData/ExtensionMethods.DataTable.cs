@@ -485,7 +485,7 @@ namespace BrightData
             uint index = 0;
             var converter = column.Context.GetFloatConverter<T>();
 
-            foreach (var item in column.EnumerateTyped().Take((int)vector.Size))
+            foreach (var item in column.Values.Take((int)vector.Size))
                 vector[index++] = converter.Convert(item);
             return index;
         }
@@ -614,7 +614,7 @@ namespace BrightData
             using var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
             if (target.HasValue) {
                 using var column = dataTable.GetColumn(target.Value);
-                var targetColumn = column.Enumerate().Select(o => o.ToString());
+                var targetColumn = column.Values.Select(o => o.ToString());
                 return vectoriser.Enumerate().Zip(targetColumn);
             }
             return vectoriser.Enumerate().Select(v => (v, (string?)null));
@@ -728,7 +728,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) where T : notnull => ((IDataTableSegment<T>)segment).EnumerateTyped();
+        public static IDataTableSegment<T> AsDataTableSegment<T>(this ISingleTypeTableSegment segment) where T : notnull => ((IDataTableSegment<T>)segment);
 
         /// <summary>
         /// Reads the segment as a strongly typed array
@@ -736,7 +736,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) where T : notnull => EnumerateTyped<T>(segment).ToArray();
+        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) where T : notnull => AsDataTableSegment<T>(segment).ToArray();
 
         /// <summary>
         /// Converts the data table to feature and target matrices
@@ -765,7 +765,7 @@ namespace BrightData
                     var index = 0;
                     var rows = new IVector[dataTable.RowCount];
                     var vectorSegment = (IDataTableSegment<IVector>)dataTable.GetColumn(columnIndices[0]);
-                    foreach (var row in vectorSegment.EnumerateTyped())
+                    foreach (var row in vectorSegment.Values)
                         rows[index++] = row;
                     return dataTable.Context.LinearAlgebraProvider.CreateMatrixFromRowsAndThenDisposeInput(rows);
                 }
@@ -843,7 +843,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static T[] ToArray<T>(this IDataTableSegment<T> segment) where T : notnull => segment.EnumerateTyped().ToArray();
+        public static T[] ToArray<T>(this IDataTableSegment<T> segment) where T : notnull => segment.Values.ToArray();
 
         /// <summary>
         /// Converts indexed classifications to a data table

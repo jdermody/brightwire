@@ -28,7 +28,7 @@ namespace BrightData.DataTable.Operations
             _groupByColumnIndices = groupByColumnIndices;
             _columnMetaData       = columnMetaData;
             _columns              = columns;
-            _enumerators          = columns.Select(r => r.Enumerate().GetEnumerator()).ToArray();
+            _enumerators          = columns.Select(r => r.Values.GetEnumerator()).ToArray();
             _row                  = new object[columns.Length];
         }
 

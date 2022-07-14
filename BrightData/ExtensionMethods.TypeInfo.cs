@@ -83,7 +83,7 @@ namespace BrightData
         /// <exception cref="ArgumentException"></exception>
         public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, BrightDataTable dataTable)
         {
-            if (typeInfo.UnderlyingType != typeof(IDataTable))
+            if (typeInfo.UnderlyingType != typeof(BrightDataTable))
                 throw new ArgumentException("Expected data table specification");
             if(typeInfo.Children?.Length != dataTable.ColumnCount)
                 throw new ArgumentException("Expected data table and type info column count to match");

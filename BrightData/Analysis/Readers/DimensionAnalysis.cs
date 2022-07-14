@@ -3,7 +3,7 @@
     /// <summary>
     /// Dimension analysis results
     /// </summary>
-    public class DimensionAnalysis
+    public class DimensionAnalysis : IHaveSize
     {
         internal DimensionAnalysis(MetaData metaData)
         {

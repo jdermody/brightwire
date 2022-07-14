@@ -270,7 +270,7 @@ namespace BrightData.Transformation
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     uint index = 0;
-                    foreach (var val in column.Enumerate()) {
+                    foreach (var val in column.Values) {
                         var str = val.ToString();
                         if (double.TryParse(str, out var num)) {
                             if (num < min)
@@ -302,7 +302,7 @@ namespace BrightData.Transformation
                             toType = BrightDataType.Double;
                     }
                 
-                    var enumerable = GetEnumerableNumbers(toType, buffer.EnumerateTyped());
+                    var enumerable = GetEnumerableNumbers(toType, buffer.Values);
                     var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
                     return GenericActivator.Create<IConvertColumn>(converterType, enumerable);
                 }

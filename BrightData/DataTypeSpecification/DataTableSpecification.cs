@@ -3,7 +3,7 @@ using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.DataTypeSpecification
 {
-    class DataTableSpecification : DataTypeSpecificationBase<IDataTable>
+    class DataTableSpecification : DataTypeSpecificationBase<BrightDataTable>
     {
         public DataTableSpecification(BrightDataTable dataTable) : base(
             dataTable.TableMetaData.GetName(), 

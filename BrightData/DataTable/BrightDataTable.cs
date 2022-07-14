@@ -104,7 +104,7 @@ namespace BrightData.DataTable
                 lock (_stream) {
                     _stream.Seek(_header.StringOffset, SeekOrigin.Begin);
                     using var reader2 = new BinaryReader(_stream, Encoding.UTF8, true);
-                    var ret = Context.GetBufferReader<string>(reader2, _bufferSize).EnumerateTyped().ToArray();
+                    var ret = Context.GetBufferReader<string>(reader2, _bufferSize).Values.ToArray();
                     return ret;
                 }
             }
@@ -239,6 +239,26 @@ namespace BrightData.DataTable
                 yield return GenericActivator.Create<IOperation<bool>>(type, columnReader, consumer);
             }
         }
+
+        /// <summary>
+        /// Returns the first row as a string
+        /// </summary>
+        public string FirstRow => RowCount > 0 ? GetRow(0).ToString() : "No data";
+
+        /// <summary>
+        /// Returns the second row as a string
+        /// </summary>
+        public string SecondRow => RowCount > 1 ? GetRow(1).ToString() : "No data";
+
+        /// <summary>
+        /// Returns the third row as a string
+        /// </summary>
+        public string ThirdRow => RowCount > 2 ? GetRow(2).ToString() : "No data";
+
+        /// <summary>
+        /// Returns the last row as a string
+        /// </summary>
+        public string LastRow => RowCount > 0 ? GetRow(RowCount-1).ToString() : "No data";
 
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", _columns.Select((c, i) => $"[{ColumnTypes[i]}]: {GetColumnMetaData((uint)i)}"));

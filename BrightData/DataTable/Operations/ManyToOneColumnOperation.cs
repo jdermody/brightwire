@@ -22,7 +22,7 @@ namespace BrightData.DataTable.Operations
             _input = input;
             _converter = converter;
             _outputBuffer = outputBuffer;
-            _enumerators = input.Select(x => x.Enumerate().GetEnumerator()).ToArray();
+            _enumerators = input.Select(x => x.Values.GetEnumerator()).ToArray();
             _temp = new object[input.Length];
         }
 

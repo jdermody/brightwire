@@ -26,7 +26,7 @@ namespace BrightData.DataTable
             var rowCount = _header.RowCount;
             var columnCount = _header.ColumnCount;
             var readers = GetColumnReaders(ColumnIndices);
-            var enumerators = readers.Select(r => r.Enumerate().GetEnumerator()).ToArray();
+            var enumerators = readers.Select(r => r.Values.GetEnumerator()).ToArray();
             var selectedRowIndices = rowIndices.Length > 0 ? new HashSet<uint>(rowIndices) : null;
             
             try {

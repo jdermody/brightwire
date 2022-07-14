@@ -20,7 +20,7 @@ namespace BrightData.DataTable.Operations
             _input = input;
             _converter = converter;
             _outputBuffer = outputBuffer;
-            _enumerator = _input.EnumerateTyped().GetEnumerator();
+            _enumerator = _input.Values.GetEnumerator();
         }
 
         public override void Dispose()

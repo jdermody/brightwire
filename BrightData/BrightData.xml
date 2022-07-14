@@ -567,7 +567,7 @@
             Row index
             </summary>
         </member>
-        <member name="M:BrightData.DataTable.SequentialColumnReader`2.EnumerateTyped">
+        <member name="P:BrightData.DataTable.SequentialColumnReader`2.Values">
             <inheritdoc />
         </member>
         <member name="T:BrightData.ExtensionMethods">
@@ -2986,7 +2986,7 @@
             Indicates that the type can enumerate items
             </summary>
         </member>
-        <member name="M:BrightData.ICanEnumerate.Enumerate">
+        <member name="P:BrightData.ICanEnumerate.Values">
             <summary>
             Enumerates all items
             </summary>
@@ -2998,7 +2998,7 @@
             </summary>
             <typeparam name="T">Type to enumerate</typeparam>
         </member>
-        <member name="M:BrightData.ICanEnumerate`1.EnumerateTyped">
+        <member name="P:BrightData.ICanEnumerate`1.Values">
             <summary>
             Enumerates all items
             </summary>
@@ -3314,7 +3314,7 @@
             Floating point numbers (float, double, decimal)
             </summary>
         </member>
-        <member name="F:BrightData.ColumnClass.Structable">
+        <member name="F:BrightData.ColumnClass.Struct">
             <summary>
             Struct (blittable)
             </summary>
@@ -3349,25 +3349,9 @@
             The single type of the segment
             </summary>
         </member>
-        <member name="M:BrightData.ISingleTypeTableSegment.Enumerate">
-            <summary>
-            Enumerate each item (casting to object)
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.ISingleTypeTableSegment.Size">
-            <summary>
-            Number of values (size of segment)
-            </summary>
-        </member>
         <member name="T:BrightData.IDataTableSegment">
             <summary>
             A series of values from a data table
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTableSegment.Size">
-            <summary>
-            Number of values (size of segment)
             </summary>
         </member>
         <member name="P:BrightData.IDataTableSegment.Types">
@@ -3387,7 +3371,7 @@
             </summary>
             <typeparam name="T">Data type of values within the segment</typeparam>
         </member>
-        <member name="M:BrightData.IDataTableSegment`1.EnumerateTyped">
+        <member name="P:BrightData.IDataTableSegment`1.Values">
             <summary>
             Enumerates the values
             </summary>

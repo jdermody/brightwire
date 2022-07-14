@@ -41,10 +41,10 @@ namespace BrightData.Buffer.InMemory
             encoder.WriteTo(writer);
         }
 
-        public IEnumerable<object> Enumerate() => _buffer.EnumerateTyped().Cast<object>();
+        IEnumerable<object> ICanEnumerate.Values => _buffer.Values.Cast<object>();
         public uint Size => _buffer.Size;
         public void Add(object? obj) => Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
-        public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
+        public IEnumerable<T> Values => _buffer.Values;
         public BrightDataContext Context { get; }
 
         public void Add(T obj)

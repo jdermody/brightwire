@@ -118,7 +118,7 @@ namespace BrightData.DataTable
                 var data = tensorWriter.Value;
                 header.TensorOffset = (uint)_stream.Position;
                 header.TensorCount = data.Size;
-                data.EnumerateTyped().WriteTo(_stream);
+                data.Values.WriteTo(_stream);
             }
 
             // write the binary data
@@ -126,7 +126,7 @@ namespace BrightData.DataTable
                 var data = byteWriter.Value;
                 header.BinaryDataOffset = (uint)_stream.Position;
                 header.BinaryDataCount = data.Size;
-                data.EnumerateTyped().WriteTo(_stream);
+                data.Values.WriteTo(_stream);
             }
 
             // write the index data
@@ -134,7 +134,7 @@ namespace BrightData.DataTable
                 var data = indexWriter.Value;
                 header.IndexOffset = (uint)_stream.Position;
                 header.IndexCount = data.Size;
-                data.EnumerateTyped().WriteTo(_stream);
+                data.Values.WriteTo(_stream);
             }
 
             // write the weighted index data
@@ -142,7 +142,7 @@ namespace BrightData.DataTable
                 var data = weightedIndexWriter.Value;
                 header.WeightedIndexOffset = (uint)_stream.Position;
                 header.WeightedIndexCount = data.Size;
-                data.EnumerateTyped().WriteTo(_stream);
+                data.Values.WriteTo(_stream);
             }
 
             // write the meta data
@@ -163,7 +163,7 @@ namespace BrightData.DataTable
             using var temp = SpanOwner<CT>.Allocate((int)Math.Min(buffer.Size, _inMemoryBufferSize));
             var ptr = temp.Span;
             var index = 0;
-            foreach (var item in buffer.EnumerateTyped()) {
+            foreach (var item in buffer.Values) {
                 filler(item, ptr, index++);
                 if (index == temp.Length) {
                     _stream.Write(MemoryMarshal.AsBytes(ptr));

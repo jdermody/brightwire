@@ -45,7 +45,7 @@ namespace BrightData.DataTable
         }
 
         /// <inheritdoc />
-        public IEnumerable<T> EnumerateTyped() => this;
+        public IEnumerable<T> Values => this;
 
         public IEnumerator<T> GetEnumerator() => new Enumerator(_enumerator, _converter);
 
@@ -60,10 +60,13 @@ namespace BrightData.DataTable
             _stream.Dispose();
         }
 
-        public IEnumerable<object> Enumerate()
+        IEnumerable<object> ICanEnumerate.Values
         {
-            foreach (var item in EnumerateTyped())
-                yield return item;
+            get
+            {
+                foreach (var item in Values)
+                    yield return item;
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace BrightData.DataTable
             Size = size;
         }
 
-        public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
+        public IEnumerable<T> Values => _reader.Values;
         public MetaData MetaData { get; }
         public void WriteTo(BinaryWriter writer)
         {
@@ -37,10 +37,13 @@ namespace BrightData.DataTable
         }
 
         public BrightDataType SingleType { get; }
-        public IEnumerable<object> Enumerate()
+        IEnumerable<object> ICanEnumerate.Values
         {
-            foreach (var item in EnumerateTyped())
-                yield return item;
+            get
+            {
+                foreach (var item in Values)
+                    yield return item;
+            }
         }
 
         public uint Size { get; }

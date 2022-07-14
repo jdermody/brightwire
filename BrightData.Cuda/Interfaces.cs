@@ -28,13 +28,10 @@ namespace BrightData.Cuda
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    public interface IDeviceMemoryPtr : IDisposable
+    public interface IDeviceMemoryPtr : ICountReferences, IHaveSize, IDisposable
     {
-        int AddRef();
-        int Release();
         CudaDeviceVariable<float> DeviceVariable { get; }
         CUdeviceptr DevicePointer { get; }
-        uint Size { get; }
         void CopyToDevice(float[] source);
         void CopyToDevice(IDeviceMemoryPtr source);
         void CopyToHost(float[] target);

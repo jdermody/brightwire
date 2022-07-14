@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BrightData.Buffer.InMemory
 {
@@ -7,7 +8,8 @@ namespace BrightData.Buffer.InMemory
     {
         readonly List<T> _data = new();
 
-        public IEnumerable<T> EnumerateTyped() => _data;
+        IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+        public IEnumerable<T> Values => _data;
         public void Add(T obj) => _data.Add(obj);
         public void Add(Span<T> data)
         {

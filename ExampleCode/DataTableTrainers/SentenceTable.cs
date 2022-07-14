@@ -57,7 +57,7 @@ namespace ExampleCode.DataTableTrainers
             var context = _sentenceTable.Context;
             var trainer = context.CreateMarkovTrainer3(_empty);
             using var column = _sentenceTable.GetColumn<IndexList>(0);
-            foreach(var sentence in column.EnumerateTyped())
+            foreach(var sentence in column.Values)
                 trainer.Add(sentence.Indices);
 
             var ret = trainer.Build();

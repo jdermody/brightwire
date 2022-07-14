@@ -48,7 +48,8 @@ namespace BrightData.Buffer.EncodedStream
                 _stream = new RepeatableStreamReader(stream);
             }
 
-            public IEnumerable<T> EnumerateTyped() => _stream.GetStream().Enumerate<T>(Size);
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _stream.GetStream().Enumerate<T>(Size);
             public uint Size { get; }
         }
 
@@ -64,11 +65,15 @@ namespace BrightData.Buffer.EncodedStream
                 _stream = new RepeatableStreamReader(stream);
             }
 
-            public IEnumerable<T> EnumerateTyped()
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values
             {
-                var reader = _stream.GetReader();
-                for (uint i = 0; i < Size; i++)
-                    yield return _converter(reader);
+                get
+                {
+                    var reader = _stream.GetReader();
+                    for (uint i = 0; i < Size; i++)
+                        yield return _converter(reader);
+                }
             }
 
             public uint Size { get; }
@@ -87,7 +92,8 @@ namespace BrightData.Buffer.EncodedStream
 #endif
             }
 
-            public IEnumerable<T> EnumerateTyped() => _data;
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _data;
             public uint Size => (uint)_data.Length;
         }
 
@@ -102,7 +108,8 @@ namespace BrightData.Buffer.EncodedStream
                     _data[i] = objectBuilder(reader);
             }
 
-            public IEnumerable<T> EnumerateTyped() => _data;
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _data;
             public uint Size => (uint)_data.Length;
         }
 
@@ -136,12 +143,13 @@ namespace BrightData.Buffer.EncodedStream
                 _reader = GetReader<ushort>(indicesLength, inMemorySize, stream);
 
 #if DEBUG
-                foreach (var item in _reader.EnumerateTyped())
+                foreach (var item in _reader.Values)
                     Debug.Assert(item < _stringTable.Length);
 #endif
             }
 
-            public IEnumerable<string> EnumerateTyped() => _reader.EnumerateTyped().Select(i => _stringTable[i]);
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<string> Values => _reader.Values.Select(i => _stringTable[i]);
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)
             {
@@ -149,7 +157,7 @@ namespace BrightData.Buffer.EncodedStream
                     (uint)_stringTable.Length,
                     _stringTable,
                     _reader.Size,
-                    _reader.EnumerateTyped(),
+                    _reader.Values,
                     writer
                 );
             }
@@ -170,11 +178,12 @@ namespace BrightData.Buffer.EncodedStream
                 _reader = GetReader<ushort>(reader.ReadUInt32(), inMemorySize, stream);
             }
 
-            public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped().Select(i => _table[i]);
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _reader.Values.Select(i => _table[i]);
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)
             {
-                EncodedStreamWriter.StructEncoder<T>.WriteTo(_table, _reader.Size, _reader.EnumerateTyped(), writer);
+                EncodedStreamWriter.StructEncoder<T>.WriteTo(_table, _reader.Size, _reader.Values, writer);
             }
 
             public string[] StringTable => _table.Select(d => d.ToString()!).ToArray();
@@ -194,11 +203,12 @@ namespace BrightData.Buffer.EncodedStream
 
             T Create(BinaryReader reader) => _context.Create<T>(reader);
 
-            public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _reader.Values;
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)
             {
-                EncodedStreamWriter.ObjectWriter<T>.WriteTo(_reader.Size, _reader.EnumerateTyped(), writer);
+                EncodedStreamWriter.ObjectWriter<T>.WriteTo(_reader.Size, _reader.Values, writer);
             }
         }
 
@@ -212,11 +222,12 @@ namespace BrightData.Buffer.EncodedStream
                 _reader = GetReader<T>(reader.ReadUInt32(), inMemorySize, stream);
             }
 
-            public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
+            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            public IEnumerable<T> Values => _reader.Values;
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)
             {
-                EncodedStreamWriter.StructWriter<T>.WriteTo(_reader.Size, _reader.EnumerateTyped(), writer);
+                EncodedStreamWriter.StructWriter<T>.WriteTo(_reader.Size, _reader.Values, writer);
             }
         }
 
@@ -229,11 +240,12 @@ namespace BrightData.Buffer.EncodedStream
                 _reader = GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, r => r.ReadString());
             }
 
-            public IEnumerable<string> EnumerateTyped() => _reader.EnumerateTyped();
+            IEnumerable<object> ICanEnumerate.Values => Values;
+            public IEnumerable<string> Values => _reader.Values;
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)
             {
-                EncodedStreamWriter.StringWriter.WriteTo(_reader.Size, _reader.EnumerateTyped(), writer);
+                EncodedStreamWriter.StringWriter.WriteTo(_reader.Size, _reader.Values, writer);
             }
         }
     }

@@ -15,6 +15,7 @@ namespace BrightData.UnitTests
 
             public void Dispose()
             {
+                GC.SuppressFinalize(this);
                 foreach(var item in _streams)
                     item.Value.Dispose();
                 _streams.Clear();
@@ -108,7 +109,7 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<string>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
+            foreach (var item in bufferReader.Values)
                 item.Should().Be(indexTranslator(index++));
         }
 
@@ -125,7 +126,7 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
+            foreach (var item in bufferReader.Values)
                 item.Should().Be(indexTranslator(index++));
         }
 
@@ -142,7 +143,7 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
+            foreach (var item in bufferReader.Values)
                 item.Should().Be(indexTranslator(index++));
         }
     }

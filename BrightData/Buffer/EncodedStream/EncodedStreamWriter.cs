@@ -64,7 +64,7 @@ namespace BrightData.Buffer.EncodedStream
                 _buffer = buffer;
 
                 // encode the values
-                foreach (var item in buffer.EnumerateTyped()) {
+                foreach (var item in buffer.Values) {
                     if (!_table.ContainsKey(item))
                         _table.Add(item, (ushort)_table.Count);
                 }
@@ -76,7 +76,7 @@ namespace BrightData.Buffer.EncodedStream
                     (uint)_table.Count,
                     _table.OrderBy(kv => kv.Value).Select(kv => kv.Key),
                     _buffer.Size,
-                    _buffer.EnumerateTyped().Select(v => _table[v]),
+                    _buffer.Values.Select(v => _table[v]),
                     writer
                 );
             }
@@ -110,7 +110,7 @@ namespace BrightData.Buffer.EncodedStream
                 _buffer = buffer;
 
                 // encode the values
-                foreach (var item in buffer.EnumerateTyped()) {
+                foreach (var item in buffer.Values) {
                     if (!_table.ContainsKey(item))
                         _table.Add(item, (ushort)_table.Count);
                 }
@@ -122,7 +122,7 @@ namespace BrightData.Buffer.EncodedStream
                 WriteTo(
                     data,
                     _buffer.Size,
-                    _buffer.EnumerateTyped().Select(v => _table[v]),
+                    _buffer.Values.Select(v => _table[v]),
                     writer
                 );
             }
@@ -158,7 +158,7 @@ namespace BrightData.Buffer.EncodedStream
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.Values, writer);
             }
 
             internal static void WriteTo(uint itemsCount, IEnumerable<T> items, BinaryWriter writer)
@@ -186,7 +186,7 @@ namespace BrightData.Buffer.EncodedStream
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.Values, writer);
             }
 
             internal static void WriteTo(uint itemCount, IEnumerable<string> items, BinaryWriter writer)
@@ -215,7 +215,7 @@ namespace BrightData.Buffer.EncodedStream
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.Values, writer);
             }
 
             internal static void WriteTo(uint numItems, IEnumerable<T> items, BinaryWriter writer)

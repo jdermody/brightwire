@@ -253,7 +253,7 @@ namespace BrightData.UnitTests
             var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
             var normalised = table.Normalize(NormalizationType.Euclidean);
 
-            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).EnumerateTyped().Select(d => Math.Pow(d, 2)).Sum());
+            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Values.Select(d => Math.Pow(d, 2)).Sum());
             analysis.L2Norm.Should().Be(l2Norm);
 
             RandomSample(table.RowCount, normalised, (index, row) =>
@@ -273,7 +273,7 @@ namespace BrightData.UnitTests
             var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
             var normalised = table.Normalize(NormalizationType.Manhattan);
 
-            var l1Norm = table.GetColumn<double>(0).EnumerateTyped().Select(Math.Abs).Sum();
+            var l1Norm = table.GetColumn<double>(0).Values.Select(Math.Abs).Sum();
             analysis.L1Norm.Should().Be(l1Norm);
 
             RandomSample(table.RowCount, normalised, (index, row) =>
@@ -364,7 +364,7 @@ namespace BrightData.UnitTests
             table2.ColumnCount.Should().Be(3);
 
             using var column = table2.GetColumn(0).As<IDataTableSegment<double>>();
-            var columnValues = column.EnumerateTyped().ToArray();
+            var columnValues = column.Values.ToArray();
             columnValues[0].Should().Be(1.1);
             columnValues[1].Should().Be(1.5);
         }

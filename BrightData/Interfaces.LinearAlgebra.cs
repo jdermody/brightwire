@@ -58,9 +58,8 @@ namespace BrightData
         SquaredEuclidean
     }
 
-    public interface ITensorSegment : ICountReferences, IDisposable
+    public interface ITensorSegment : ICountReferences, IDisposable, IHaveSize
     {
-        uint Size { get; }
         string SegmentType { get; }
         float this[int index] { get; set; }
         float this[uint index] { get; set; }

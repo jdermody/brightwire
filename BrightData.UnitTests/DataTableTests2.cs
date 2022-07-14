@@ -34,12 +34,12 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             using var stringReader = dataTable.ReadColumn<string>(0);
-            stringReader.EnumerateTyped().Count().Should().Be(2);
-            stringReader.EnumerateTyped().Count().Should().Be(2);
+            stringReader.Values.Count().Should().Be(2);
+            stringReader.Values.Count().Should().Be(2);
 
             using var intReader = dataTable.ReadColumn<int>(1);
-            intReader.EnumerateTyped().Count().Should().Be(2);
-            intReader.EnumerateTyped().Count().Should().Be(2);
+            intReader.Values.Count().Should().Be(2);
+            intReader.Values.Count().Should().Be(2);
 
             var str = dataTable.Get<string>(0, 0);
             var str2 = dataTable.Get<string>(1, 0);
@@ -121,7 +121,7 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             var column = dataTable.GetColumn(0);
-            var columnItems = column.EnumerateTyped<IMatrixInfo>().ToList();
+            var columnItems = column.AsDataTableSegment<IMatrixInfo>().Values.ToList();
             columnItems.Last().Should().BeEquivalentTo(secondMatrix);
 
             using var fromTable = dataTable.Get<IMatrixInfo>(0, 0).Create(_context.LinearAlgebraProvider);
