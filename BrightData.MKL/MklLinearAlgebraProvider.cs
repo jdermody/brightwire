@@ -276,11 +276,7 @@ namespace BrightData.MKL
             return base.Sqrt(tensor);
         }
 
-        public override ITensorSegment Log(ITensorSegment tensor)
-        {
-            // need to change all to Ln
-            return base.Log(tensor);
-        }
+        public override ITensorSegment Log(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Ln);
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, Vml.Sub);
         public override ITensorSegment Squared(ITensorSegment tensor) => ApplyUnderlying(tensor, Vml.Sqr);
 

@@ -19,8 +19,19 @@ namespace BrightData
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(int size) => MemoryOwner<float>.Allocate((int)size);
         
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> ZipParallel(this ReadOnlySpan<float> segment, ReadOnlySpan<float> other, Func<float, float, float> func)
-        {
+        /// <summary>
+        /// Creates a new buffer from applying an operation to each pair of elements from two spans
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="other"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> ZipParallel(
+            this ReadOnlySpan<float> segment, 
+            ReadOnlySpan<float> other, 
+            Func<float, float, float> func
+        ) {
             var size = segment.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");

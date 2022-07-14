@@ -4525,6 +4525,16 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.SpanExtensions.ZipParallel(System.ReadOnlySpan{System.Single},System.ReadOnlySpan{System.Single},System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Creates a new buffer from applying an operation to each pair of elements from two spans
+            </summary>
+            <param name="segment"></param>
+            <param name="other"></param>
+            <param name="func"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
         <member name="T:BrightData.Transformation.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another

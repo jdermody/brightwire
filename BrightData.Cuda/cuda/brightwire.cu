@@ -15,7 +15,7 @@
 #include <vector_functions.h>
 
 #define BLOCKSIZE 16
-#define BLOCKSIZE2 BLOCKSIZE*BLOCKSIZE
+#define N BLOCKSIZE*BLOCKSIZE
 
 typedef unsigned int uint;
 
@@ -183,15 +183,15 @@ extern "C"
 		uint index = blockDim.x * blockX + tidX;
 
 		// read block into shared memory
-		__shared__ float block[BLOCKSIZE2];
+		__shared__ float block[N];
 		block[tidX] = (index < count) ? data[index] : 0;
 		__syncthreads();
 
 		// aggregate per block
 		if (tidX == 0) {
 			float min = FLT_MAX, max = FLT_MIN;
-			uint maxIndex = BLOCKSIZE2;
-			if (count - index < BLOCKSIZE2)
+			uint maxIndex = N;
+			if (count - index < N)
 				maxIndex = count - index;
 			for (uint i = 0; i < maxIndex; i++) {
 				float val = block[i];
@@ -205,31 +205,6 @@ extern "C"
 		}
 	}
 
-	__global__ void FindSum(const float* __restrict data, uint count, float* __restrict sum)
-	{
-		uint tidX = threadIdx.x;
-		uint blockX = blockIdx.x;
-		uint index = blockDim.x * blockX + tidX;
-
-		// read block into shared memory
-		__shared__ float block[BLOCKSIZE2];
-		if (index < count)
-			block[tidX] = data[index];
-		__syncthreads();
-
-		// aggregate per block
-		if (tidX == 0) {
-			float total = 0;
-			uint maxIndex = BLOCKSIZE2;
-			if (count - blockX * BLOCKSIZE2 < BLOCKSIZE2)
-				maxIndex = count - blockX * BLOCKSIZE2;
-			for (uint i = 0; i < maxIndex; i++) {
-				total += block[i];
-			}
-			sum[blockX] = total;
-		}
-	}
-
 	__global__ void FindStdDev(const float* __restrict data, uint count, float mean, float* __restrict stdDev)
 	{
 		uint tidX = threadIdx.x;
@@ -237,7 +212,7 @@ extern "C"
 		uint index = blockDim.x * blockX + tidX;
 
 		// read block into shared memory
-		__shared__ float block[BLOCKSIZE2];
+		__shared__ float block[N];
 		if (index < count)
 			block[tidX] = data[index];
 		__syncthreads();
@@ -245,9 +220,9 @@ extern "C"
 		// aggregate per block
 		if (tidX == 0) {
 			float total = 0;
-			uint maxIndex = BLOCKSIZE2;
-			if (count - blockX * BLOCKSIZE2 < BLOCKSIZE2)
-				maxIndex = count - blockX * BLOCKSIZE2;
+			uint maxIndex = N;
+			if (count - blockX * N < N)
+				maxIndex = count - blockX * N;
 			for (uint i = 0; i < maxIndex; i++) {
                 float val = block[i] - mean;
 				total += val * val;
@@ -898,5 +873,30 @@ extern "C"
 				}
             }
         }
+	}
+
+    __global__ void SumValues(const float* __restrict data, uint count, float* __restrict sum)
+	{
+		uint tidX = threadIdx.x;
+		uint blockX = blockIdx.x;
+		uint index = blockDim.x * blockX + tidX;
+
+		// read block into shared memory
+		__shared__ float block[N];
+		if (index < count)
+			block[tidX] = data[index];
+		__syncthreads();
+
+		// aggregate per block
+		if (tidX == 0) {
+			float total = 0;
+			uint maxIndex = N;
+			if (count - blockX * N < N)
+				maxIndex = count - blockX * N;
+			for (uint i = 0; i < maxIndex; i++) {
+				total += block[i];
+			}
+			sum[blockX] = total;
+		}
 	}
 }

@@ -8,7 +8,10 @@ namespace BrightData.Cuda
         {
         }
 
-        public override IVectorInfo[] AllColumns()
+        public override IVectorInfo[] AllRows() => CopyAllRows();
+        public override IVectorInfo[] AllColumns() => CopyAllColumns();
+
+        public override IVectorInfo[] CopyAllColumns()
         {
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
             var ret = new IVectorInfo[ColumnCount];
@@ -17,7 +20,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override IVectorInfo[] AllRows()
+        public override IVectorInfo[] CopyAllRows()
         {
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
             var ret = new IVectorInfo[RowCount];

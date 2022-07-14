@@ -19,10 +19,10 @@ namespace BrightData.Cuda
     public class CudaProvider : IGpuLinearAlgebraProvider, IHaveDataContext, IDisposable
 	{
         readonly BrightDataContext _context;
-        const int BlockDim = 16;
-		const int BlockDim2 = BlockDim * BlockDim;
-		//const int PTR_SIZE = 8;
-		internal const int FloatSize = sizeof(float);
+        const int BlockSize = 16;
+		const int N = BlockSize * BlockSize;
+        internal const int FloatSize = sizeof(float);
+        internal const int UIntSize = sizeof(uint);
 
 		class KernelExecution
 		{
@@ -116,7 +116,7 @@ namespace BrightData.Cuda
 			_pointwiseDivide,
 			_sqrt,
 			_findMinAndMax,
-			_findSum,
+            _sumValues,
 			_findStdDev,
 			_constrain,
 			_pow,
@@ -167,6 +167,7 @@ namespace BrightData.Cuda
 
                 var info = _cuda.GetDeviceInfo();
                 var kernelName = $"brightwire_{info.ComputeCapability.Major}{info.ComputeCapability.Minor}.ptx";
+                //var kernelName = $"brightwire.ptx";
                 cudaKernelPath = Path.Combine(cudaDirectory, kernelName);
 
 				// try the default kernel
@@ -207,8 +208,8 @@ namespace BrightData.Cuda
 			_pointwiseDivide        = _kernel.LoadFunction("PointwiseDivide");
 			_sqrt                   = _kernel.LoadFunction("Sqrt");
 			_findMinAndMax          = _kernel.LoadFunction("FindMinAndMax");
-			_findSum                = _kernel.LoadFunction("FindSum");
-			_findStdDev             = _kernel.LoadFunction("FindStdDev");
+            _sumValues              = _kernel.LoadFunction("SumValues");
+            _findStdDev             = _kernel.LoadFunction("FindStdDev");
 			_constrain              = _kernel.LoadFunction("Constrain");
 			_pow                    = _kernel.LoadFunction("Pow");
 			_diagonal               = _kernel.LoadFunction("Diagonal");
@@ -245,7 +246,7 @@ namespace BrightData.Cuda
 			_isFinite               = _kernel.LoadFunction("IsFinite");
 			_calculateDistance      = _kernel.LoadFunction("CalculateDistances");
             _roundInPlace           = _kernel.LoadFunction("RoundInPlace");
-		}
+        }
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -309,8 +310,8 @@ namespace BrightData.Cuda
 
         static void InvokeManual(CUstream stream, CUfunction function, uint size, params object[] param)
 		{
-			var gridSize = GetBlockCount((int)size, BlockDim2);
-			var execution = KernelModule.CreateExecution(function, gridSize, BlockDim2);
+			var gridSize = GetBlockCount((int)size, N);
+			var execution = KernelModule.CreateExecution(function, gridSize, N);
 			execution.Run(stream, 0, param);
 		}
 
@@ -502,53 +503,53 @@ namespace BrightData.Cuda
             return ret;
         }
 
-		internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size)
-		{
-			if (size > 0) {
-				var ptr = a;
-				while (size > BlockDim2) {
-					var bufferSize = (size / BlockDim2) + 1;
-					var minBlock = Allocate(bufferSize, true);
-					var maxBlock = Allocate(bufferSize, true);
+        internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size)
+        {
+            if (size > 0) {
+                var ptr = a;
+                while (size >= N) {
+                    var bufferSize = (size / N) + 1;
+                    var minBlock = Allocate(bufferSize, true);
+                    var maxBlock = Allocate(bufferSize, true);
 
-					try {
+                    try {
                         InvokeManual(_defaultStream.Stream, _findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
-						if (ptr != a)
-							ptr.Release();
-						size = bufferSize * 2;
-						ptr = Allocate(size);
-						ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * FloatSize);
-						ptr.DeviceVariable.CopyToDevice(maxBlock.DeviceVariable, 0, bufferSize * FloatSize, bufferSize * FloatSize);
-					}
-					finally {
-						minBlock.Release();
-						maxBlock.Release();
-					}
-				}
-				var data = new float[size];
-				ptr.CopyToHost(data);
-				if (ptr != a)
-					ptr.Release();
-				float min = float.MaxValue, max = float.MinValue;
-				for (var i = 0; i < size; i++) {
-					var val = data[i];
-					if (val > max)
-						max = val;
-					if (val < min)
-						min = val;
-				}
-				return (min, max);
-			}
-			return (0f, 0f);
-		}
+                        if (ptr != a)
+                            ptr.Release();
+                        size = bufferSize * 2;
+                        ptr = Allocate(size);
+                        ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * FloatSize);
+                        ptr.DeviceVariable.CopyToDevice(maxBlock.DeviceVariable, 0, bufferSize * FloatSize, bufferSize * FloatSize);
+                    }
+                    finally {
+                        minBlock.Release();
+                        maxBlock.Release();
+                    }
+                }
+                var data = new float[size];
+                ptr.CopyToHost(data);
+                if (ptr != a)
+                    ptr.Release();
+                float min = float.MaxValue, max = float.MinValue;
+                for (var i = 0; i < size; i++) {
+                    var val = data[i];
+                    if (val > max)
+                        max = val;
+                    if (val < min)
+                        min = val;
+                }
+                return (min, max);
+            }
+            return (0f, 0f);
+        }
 
 		internal float SumValues(IDeviceMemoryPtr a, uint size)
 		{
 			var ptr = a;
-			while (size > BlockDim2) {
-				var bufferSize = (size / BlockDim2) + 1;
+			while (size >= N) {
+				var bufferSize = (size / N) + 1;
 				var sumBlock = Allocate(bufferSize, true);
-                InvokeManual(_defaultStream.Stream, _findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
+                InvokeManual(_defaultStream.Stream, _sumValues, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Release();
 				size = bufferSize;
@@ -566,8 +567,8 @@ namespace BrightData.Cuda
 			var inputSize = size;
 			if (size > 0) {
 				var ptr = a;
-				while (size > BlockDim2) {
-					var bufferSize = (size / BlockDim2) + 1;
+				while (size >= N) {
+					var bufferSize = (size / N) + 1;
 					var sumBlock = Allocate(bufferSize, true);
                     InvokeManual(_defaultStream.Stream, _findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)

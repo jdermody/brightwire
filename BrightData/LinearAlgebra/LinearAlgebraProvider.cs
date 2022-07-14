@@ -1151,5 +1151,7 @@ namespace BrightData.LinearAlgebra
         {
             // nop
         }
+
+        public virtual float Sum(ITensorSegment segment) => segment.Sum();
     }
 }

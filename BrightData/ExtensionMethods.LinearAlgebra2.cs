@@ -353,7 +353,7 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float DotProduct(this ITensorSegment segment, ITensorSegment other)
         {
             var size = segment.Size;
-            if(size <= other.Size)
+            if(size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
             if (size >= Consts.MinimumSizeForVectorised) {
                 SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
@@ -699,6 +699,7 @@ namespace BrightData
         }
 
         public static IVectorInfo ToVectorInfo(this ITensorSegment segment) => new VectorInfo(segment);
+        public static IVectorInfo ToVectorInfo(this float[] segment) => new VectorInfo(segment);
 
         public static IVector ToVector(this ITensorSegment segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
         public static IMatrix ToMatrix(this ITensorSegment segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);

@@ -12,15 +12,15 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightData.Serialisation;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BrightData.UnitTests
 {
-    public class TensorTests2 : IDisposable
+    public class TensorTests2 : UnitTestBase
     {
-        readonly BrightDataContext         _context = new(null, 0);
         readonly LinearAlgebraProvider     _linearAlgebraProvider;
         readonly MklLinearAlgebraProvider  _mklLinearAlgebraProvider;
         readonly CudaProvider              _cudaProvider;
@@ -40,12 +40,13 @@ namespace BrightData.UnitTests
             _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cudaProvider);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _linearAlgebraProvider.Dispose();
             _cudaLinearAlgebraProvider.Dispose();
             _cudaProvider.Dispose();
             _mklLinearAlgebraProvider.Dispose();
+            base.Dispose();
         }
 
         [Fact]
@@ -279,6 +280,29 @@ namespace BrightData.UnitTests
             matrix[1, 0].Should().Be(distance2);
             matrix[0, 1].Should().Be(distance3);
             matrix[1, 1].Should().Be(distance4);
+        }
+
+        [Fact]
+        public void TestMinMax()
+        {
+            using var vector = _linearAlgebraProvider.CreateVector(1025.AsRange().Select(i => (float)(i + 1)).ToArray());
+            var cpu = vector.GetMinAndMaxValues();
+
+            using var cudaVector = _cudaLinearAlgebraProvider.CreateVector(vector);
+            var gpu = cudaVector.GetMinAndMaxValues();
+        }
+
+        [Fact]
+        public void TestSum()
+        {
+            using var vector = _linearAlgebraProvider.CreateVector(1025.AsRange().Select(i => (float)(i + 1)).ToArray());
+            Test(
+                vector, 
+                _mklLinearAlgebraProvider.CreateVector(vector), 
+                _cudaLinearAlgebraProvider.CreateVector(vector), 
+                (a, b) => a.Sum(), 
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+            );
         }
     }
 }

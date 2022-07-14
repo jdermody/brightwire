@@ -814,5 +814,10 @@ namespace BrightData.Cuda
                 throw new CudaBlasException(status);
             return new(ret);
         }
+
+        public override float Sum(ITensorSegment segment)
+        {
+            return Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size);
+        }
     }
 }

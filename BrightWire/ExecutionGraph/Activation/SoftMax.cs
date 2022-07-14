@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Activation
             var rowList = new IVector[input.RowCount];
             using var transposed = input.Transpose();
             for (uint i = 0; i < input.RowCount; i++) {
-                using var row = transposed.GetColumn(i).Create(lap);
+                using var row = transposed.GetColumnVector(i);
                 rowList[i] = row.Softmax();
             }
             var output = lap.CreateMatrixFromRows(rowList);

@@ -46,10 +46,14 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public float this[uint rowY, uint columnX] => _segment[columnX * RowCount + rowY];
 
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, _segment);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(_segment, rowIndex, RowCount, ColumnCount));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(_segment, columnIndex * RowCount, 1, RowCount));
+        public TensorSegmentWrapper Row(uint index) => new(_segment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index) => new(_segment, index * RowCount, 1, RowCount);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
         public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
+        public IVectorInfo[] CopyAllRows() => RowCount.AsRange().Select(i => Row(i).ToNewArray().ToVectorInfo()).ToArray();
+        public IVectorInfo[] CopyAllColumns() => ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToVectorInfo()).ToArray();
         public uint Size => RowCount * ColumnCount;
         public ITensorSegment Segment => _segment;
         public override string ToString()

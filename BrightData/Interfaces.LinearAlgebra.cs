@@ -56,6 +56,8 @@ namespace BrightData
         IVectorInfo GetColumn(uint columnIndex);
         IVectorInfo[] AllRows();
         IVectorInfo[] AllColumns();
+        IVectorInfo[] CopyAllRows();
+        IVectorInfo[] CopyAllColumns();
     }
 
     public interface ITensor3DInfo : ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment

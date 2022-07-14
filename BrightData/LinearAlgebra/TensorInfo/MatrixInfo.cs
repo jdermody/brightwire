@@ -63,10 +63,14 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public float this[int rowY, int columnX] => _data[columnX * RowCount + rowY];
         public float this[uint rowY, uint columnX] => _data[columnX * RowCount + rowY];
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, Segment);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(Segment, rowIndex, RowCount, ColumnCount));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(new TensorSegmentWrapper(Segment, columnIndex * RowCount, 1, RowCount));
+        public TensorSegmentWrapper Row(uint index) => new(Segment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
+        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
+        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
         public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
+        public IVectorInfo[] CopyAllRows() => RowCount.AsRange().Select(i => Row(i).ToNewArray().ToVectorInfo()).ToArray();
+        public IVectorInfo[] CopyAllColumns() => ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToVectorInfo()).ToArray();
         public override string ToString()
         {
             var preview = String.Join("|", _data.Take(Consts.PreviewSize));

@@ -71,6 +71,7 @@ namespace BrightData.DataTable.TensorData
                 throw new Exception("Unexpected array size");
             Size = reader.ReadUInt32();
             _startIndex = 0;
+            _stride = 1;
             _data = new TempFloatData(reader, Size);
         }
 

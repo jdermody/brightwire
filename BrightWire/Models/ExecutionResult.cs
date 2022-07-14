@@ -22,10 +22,10 @@ namespace BrightWire.Models
         {
             _miniBatch = miniBatch;
 
-            Output = output.AllRows();
-            Target = _miniBatch.Target?.GetMatrix().AllRows();
+            Output = output.CopyAllRows();
+            Target = _miniBatch.Target?.GetMatrix().CopyAllRows();
 			if(wantInputInExecutionResults)
-                Input = _miniBatch.Input?.GetMatrix().AllRows();
+                Input = _miniBatch.Input?.GetMatrix().CopyAllRows();
         }
 
         /// <summary>

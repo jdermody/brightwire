@@ -180,5 +180,6 @@ namespace BrightData.LinearAlgebra
         public void RoundInPlace(float lower, float upper, float? mid)                       => _lap.RoundInPlace(Segment, lower, upper, mid);
         public T CherryPick(uint[] indices)                                                  => Create(_lap.CherryPickIndices(Segment, indices));
         public void L1Regularisation(float coefficient)                                      => _lap.L1Regularisation(Segment, coefficient);
+        public float Sum() => _lap.Sum(Segment);
     }
 }

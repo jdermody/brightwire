@@ -1141,6 +1141,7 @@ namespace BrightData
         void RoundInPlace(float lower, float upper, float? mid);
         void MapInPlace(Func<float, float> mutator);
         void L1Regularisation(float coefficient);
+        float Sum();
     }
 
     public interface ITensor2<out T> : ITensor2
@@ -1194,12 +1195,8 @@ namespace BrightData
         float this[ulong rowY, ulong columnX] { get; set; }
         ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp);
         ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
-        IVectorInfo GetRow(uint index);
-        IVectorInfo GetColumn(uint index);
         IVector GetRowVector(uint index);
         IVector GetColumnVector(uint index);
-        IVectorInfo[] AllRows();
-        IVectorInfo[] AllColumns();
         IMatrix Transpose();
         IMatrix Multiply(IMatrix other);
         IMatrix TransposeAndMultiply(IMatrix other);

@@ -466,7 +466,7 @@ namespace BrightData.UnitTests
 
             var gpu = Apply(_cuda, a, a => a.Log());
             var mkl = Apply(_mkl, a, a => a.Log());
-            AssertSameWithMaxDifference(10, cpu, gpu, mkl);
+            AssertSameWithMaxDifference(14, cpu, gpu, mkl);
         }
 
         [Fact]
@@ -570,7 +570,7 @@ namespace BrightData.UnitTests
             using var cpu = TestMultiDistance(_cpu, a, b, c, DistanceMetric.Cosine);
             using var gpu = TestMultiDistance(_cuda, a, b, c, DistanceMetric.Cosine);
             using var mkl = TestMultiDistance(_mkl, a, b, c, DistanceMetric.Cosine);
-            AssertSameWithMaxDifference(16, cpu, gpu, mkl);
+            AssertSameWithMaxDifference(18, cpu, gpu, mkl);
         }
 
         //[Fact]

@@ -87,22 +87,25 @@ namespace BrightData.LinearAlgebra
                 ret[i] = GetColumn(i);
             return ret;
         }
+        public virtual IVectorInfo[] CopyAllRows()
+        {
+            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
+            var ret = new IVectorInfo[RowCount];
+            for (uint i = 0; i < RowCount; i++)
+                ret[i] = Row(i, segment).ToVectorInfo();
+            return ret;
+        }
+        public virtual IVectorInfo[] CopyAllColumns()
+        {
+            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
+            var ret = new IVectorInfo[ColumnCount];
+            for (uint i = 0; i < ColumnCount; i++)
+                ret[i] = Column(i, segment).ToVectorInfo();
+            return ret;
+        }
 
         public virtual IVector GetRowVector(uint index) => _lap.CreateVector(Row(index));
         public virtual IVector GetColumnVector(uint index) => _lap.CreateVector(Column(index));
-
-        public MemoryOwner<float> ToRowMajor()
-        {
-            var ret = MemoryOwner<float>.Allocate((int)TotalSize);
-            var array = ret.DangerousGetArray();
-            for(uint i = 0; i < RowCount; i++) {
-                using var row = Row(i);
-                var offset = i * ColumnCount;
-                for (uint j = 0; j < ColumnCount; j++)
-                    array[(int)(offset + j)] = row[j];
-            }
-            return ret;
-        }
 
         public IMatrix Transpose() => _lap.Transpose(this);
         public IMatrix Multiply(IMatrix other) => _lap.Multiply(this, other);
