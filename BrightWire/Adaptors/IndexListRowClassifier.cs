@@ -3,7 +3,7 @@ using BrightData.DataTable;
 
 namespace BrightWire.Adaptors
 {
-    internal class IndexListRowClassifier : IRowClassifier, IHaveIndexer
+    internal class IndexListRowClassifier : IRowClassifier, IHaveStringIndexer
     {
         public IIndexListClassifier Classifier { get; }
         public uint ColumnIndex { get; }

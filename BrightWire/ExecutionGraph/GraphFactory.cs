@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph
 	/// <summary>
 	/// Creates graph nodes
 	/// </summary>
-	public class GraphFactory
+	public class GraphFactory : IHaveLinearAlgebraProvider
 	{
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor();
 		readonly Stack<IPropertySet> _propertySetStack = new();
@@ -53,9 +53,7 @@ namespace BrightWire.ExecutionGraph
 			};
         }
 
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
+        /// <inheritdoc />
         public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         /// <summary>

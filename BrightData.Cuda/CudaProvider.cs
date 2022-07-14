@@ -16,7 +16,7 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
 	/// </summary>
-    public class CudaProvider : IGpuLinearAlgebraProvider, IHaveDataContext, IDisposable
+    public class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
         readonly BrightDataContext _context;
         const int BlockSize = 16;
@@ -269,7 +269,7 @@ namespace BrightData.Cuda
         }
 
         public string Name { get; } = "Cuda";
-        BrightDataContext IHaveDataContext.Context => _context;
+        BrightDataContext IHaveBrightDataContext.Context => _context;
         public BrightDataContext DataContext => _context;
         internal CudaContext Context => _cuda;
 		public CudaBlas Blas => _blas.Value;

@@ -30,7 +30,7 @@ namespace BrightData.Analysis
         public DateTime? MinDate { get; private set; }
         public DateTime? MaxDate { get; private set; }
 
-        public override void WriteTo(IMetaData metadata)
+        public override void WriteTo(MetaData metadata)
         {
             base.WriteTo(metadata);
             metadata.SetIfNotNull(Consts.MinDate, MinDate);

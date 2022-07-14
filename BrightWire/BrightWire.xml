@@ -285,6 +285,9 @@
             Graph engine execution context
             </summary>
         </member>
+        <member name="P:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.LinearAlgebraProvider">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.LearningContext">
             <summary>
             Graph engine learning context
@@ -380,9 +383,7 @@
             <param name="propertySet">A property set with initialisation data (optional)</param>
         </member>
         <member name="P:BrightWire.ExecutionGraph.GraphFactory.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:BrightWire.ExecutionGraph.GraphFactory.Context">
             <summary>
@@ -2459,6 +2460,9 @@
             Property set implementation
             </summary>
         </member>
+        <member name="P:BrightWire.Helper.PropertySet.LinearAlgebraProvider">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Helper.RandomProjection">
             <summary>
             Implements random projection
@@ -2967,11 +2971,6 @@
             Graph engines drive execution within a graph
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphEngine.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
-        </member>
         <member name="P:BrightWire.IGraphEngine.Graph">
             <summary>
             Serialised version of the current graph and its parameters
@@ -3321,14 +3320,6 @@
             The total number of rows per epoch
             </summary>
         </member>
-        <member name="M:BrightWire.ILearningContext.AddError(BrightWire.ErrorType,BrightWire.ExecutionGraph.Node.NodeBase,BrightData.ITensor2)">
-            <summary>
-            Stores an update to the model parameters
-            </summary>
-            <param name="fromNode">The node that is affected by this update</param>
-            <param name="update">The vector update</param>
-            <param name="updater">Callback to execute the update</param>
-        </member>
         <member name="M:BrightWire.ILearningContext.ApplyUpdates">
             <summary>
             Apply any deferred updates
@@ -3444,11 +3435,6 @@
         <member name="T:BrightWire.IPropertySet">
             <summary>
             The current set of graph initialisation parameters
-            </summary>
-        </member>
-        <member name="P:BrightWire.IPropertySet.LinearAlgebraProvider">
-            <summary>
-            The linear algebra provider to use
             </summary>
         </member>
         <member name="P:BrightWire.IPropertySet.WeightInitialisation">

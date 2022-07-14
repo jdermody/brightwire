@@ -132,7 +132,7 @@ namespace BrightData.Transformation
         //        }
         //    }
 
-        //    public IMetaData MetaData { get; } = new MetaData();
+        //    public MetaData MetaData { get; } = new MetaData();
         //    public uint Index { get; }
         //    public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
 

@@ -6,7 +6,7 @@ using BrightData.Serialisation;
 namespace BrightData.Buffer.Hybrid
 {
     internal class ObjectHybridBuffer<T> : HybridBufferBase<T>
-        where T : ISerializable
+        where T : IAmSerializable
     {
         readonly BrightDataContext _context;
 

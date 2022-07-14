@@ -14,7 +14,7 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public struct WeightedIndexList : IHaveIndices, ISerializable
+    public struct WeightedIndexList : IHaveIndices, IAmSerializable
     {
         /// <summary>
         /// An item within a weighted index list

@@ -706,7 +706,7 @@ namespace BrightData
         public static ITensor3D ToTensor3D(this ITensorSegment segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
         public static ITensor4D ToTensor4D(this ITensorSegment segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void CopyTo(this ITensor2 tensor, ITensor2 other) => tensor.Segment.CopyTo(other.Segment);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void CopyTo(this ITensor tensor, ITensor other) => tensor.Segment.CopyTo(other.Segment);
 
         public static LinearAlgebraProvider UseDefaultLinearAlgebraProvider(this BrightDataContext context)
         {

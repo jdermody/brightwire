@@ -1118,7 +1118,7 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public ITensor2 CreateTensor(uint[] shape, ITensorSegment segment)
+        public ITensor CreateTensor(uint[] shape, ITensorSegment segment)
         {
             if (shape.Length == 1) {
                 if (shape[0] != segment.Size)

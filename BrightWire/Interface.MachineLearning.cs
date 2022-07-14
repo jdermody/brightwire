@@ -138,12 +138,7 @@ namespace BrightWire
 		/// </summary>
 		float LearningRate { get; set; }
 
-		/// <summary>
-		/// The learning rate adjusted with the current batch size
-		/// </summary>
-		//float BatchLearningRate { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The current mini batch size
 		/// </summary>
 		uint BatchSize { get; set; }
@@ -153,23 +148,7 @@ namespace BrightWire
 		/// </summary>
 		uint RowCount { get; }
 
-		/// <summary>
-		/// Stores an update to the model parameters
-		/// </summary>
-        /// <param name="fromNode">The node that is affected by this update</param>
-		/// <param name="update">The matrix update</param>
-		/// <param name="updater">Callback to execute the update</param>
-		//void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater);
-
-        /// <summary>
-        /// Stores an update to the model parameters
-        /// </summary>
-        /// <param name="fromNode">The node that is affected by this update</param>
-        /// <param name="update">The vector update</param>
-        /// <param name="updater">Callback to execute the update</param>
-        //void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater);
-
-        void AddError(ErrorType errorType, NodeBase fromNode, ITensor2 error);
+        void AddError(ErrorType errorType, NodeBase fromNode, ITensor error);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -290,14 +269,9 @@ namespace BrightWire
 	/// <summary>
 	/// The current set of graph initialisation parameters
 	/// </summary>
-	public interface IPropertySet
+	public interface IPropertySet : IHaveLinearAlgebraProvider
 	{
-		/// <summary>
-		/// The linear algebra provider to use
-		/// </summary>
-		LinearAlgebraProvider LinearAlgebraProvider { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The weight initialiser to use
 		/// </summary>
 		IWeightInitialisation? WeightInitialisation { get; set; }

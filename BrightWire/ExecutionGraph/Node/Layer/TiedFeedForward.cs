@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInit.CreateBias(layer.InputSize);
         }
 
-        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
         {
             if (type == ErrorType.Bias)
                 UpdateBias((IMatrix)delta, context);

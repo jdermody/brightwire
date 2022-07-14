@@ -9,12 +9,12 @@ namespace BrightWire.Models.Bayesian
     /// <summary>
     /// A bernoulli naive bayes model
     /// </summary>
-    public class BernoulliNaiveBayes : ISerializable
+    public class BernoulliNaiveBayes : IAmSerializable
     {
         /// <summary>
         /// The probabilities associated with a string index
         /// </summary>
-        public class StringIndexProbability : ISerializable
+        public class StringIndexProbability : IAmSerializable
         {
             /// <summary>
             /// The string index
@@ -41,7 +41,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A classification
         /// </summary>
-        public class Class : ISerializable
+        public class Class : IAmSerializable
         {
             /// <summary>
             /// The classification label

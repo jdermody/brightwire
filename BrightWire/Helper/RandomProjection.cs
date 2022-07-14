@@ -7,7 +7,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Implements random projection
     /// </summary>
-    internal class RandomProjection : IRandomProjection
+    internal class RandomProjection : IRandomProjection, IHaveLinearAlgebraProvider
     {
         public RandomProjection(LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {

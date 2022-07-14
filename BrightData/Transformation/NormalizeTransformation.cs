@@ -15,7 +15,7 @@ namespace BrightData.Transformation
         /// </summary>
         /// <param name="type">Type of normalization</param>
         /// <param name="analysedMetaData">Numeric analysis</param>
-        public NormalizeTransformation(NormalizationType type, IMetaData analysedMetaData)
+        public NormalizeTransformation(NormalizationType type, MetaData analysedMetaData)
         {
             NormalizationType = type;
 
@@ -46,7 +46,7 @@ namespace BrightData.Transformation
             _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
         }
 
-        internal NormalizeTransformation(IMetaData metaData)
+        internal NormalizeTransformation(MetaData metaData)
         {
             NormalizationType = (NormalizationType)metaData.Get<byte>(Consts.NormalizationType, 0);
             Subtract = metaData.Get(Consts.NormalizationP1, 0D);
@@ -57,7 +57,7 @@ namespace BrightData.Transformation
         /// Writes the normalization parameters to a meta data store
         /// </summary>
         /// <param name="metaData"></param>
-        public void WriteTo(IMetaData metaData)
+        public void WriteTo(MetaData metaData)
         {
             metaData.Set(Consts.NormalizationType, (byte)NormalizationType);
             metaData.Set(Consts.NormalizationP1, Subtract);

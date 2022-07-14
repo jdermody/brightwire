@@ -12,7 +12,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public struct IndexList : IHaveIndices, ISerializable
+    public struct IndexList : IHaveIndices, IAmSerializable
     {
         public IndexList(uint[] indices)
         {

@@ -107,7 +107,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
         {
             if(type == ErrorType.Bias)
                 _bias.AddInPlace(delta, 1f, context.LearningRate);

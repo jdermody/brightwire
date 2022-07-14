@@ -71,7 +71,7 @@ namespace BrightData
             return WeightedIndexList.Create(ret);
         }
 
-        static BrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveDataContext => list.Count == 0 
+        static BrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveBrightDataContext => list.Count == 0 
             ? null 
             : list[0].Data.Context
         ;

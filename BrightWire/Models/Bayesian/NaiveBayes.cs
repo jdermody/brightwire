@@ -9,7 +9,7 @@ namespace BrightWire.Models.Bayesian
     /// <summary>
     /// A naive bayes model
     /// </summary>
-    public class NaiveBayes : ISerializable
+    public class NaiveBayes : IAmSerializable
     {
         /// <summary>
         /// The type of data within the column
@@ -30,7 +30,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A column within the naive bayes model
         /// </summary>
-        public class Column : ISerializable
+        public class Column : IAmSerializable
         {
             /// <summary>
             /// Index within the data set
@@ -67,7 +67,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A category and its associated log probability
         /// </summary>
-        public class CategorialProbability : ISerializable
+        public class CategorialProbability : IAmSerializable
         {
             /// <summary>
             /// The category label
@@ -94,7 +94,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A classification and its associated data
         /// </summary>
-        public class ClassSummary : ISerializable
+        public class ClassSummary : IAmSerializable
         {
             /// <summary>
             /// The classification label

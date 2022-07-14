@@ -58,7 +58,7 @@ namespace BrightData
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T? value)
+        public static bool SetIfNotNull<T>(this MetaData metadata, string name, T? value)
             where T : struct, IConvertible
         {
             if (value.HasValue) {
@@ -76,7 +76,7 @@ namespace BrightData
         /// <param name="value"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T? value)
+        public static bool SetIfNotNull<T>(this MetaData metadata, string name, T? value)
             where T : class, IConvertible
         {
             if (value != null) {
@@ -156,49 +156,49 @@ namespace BrightData
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static string GetName(this IMetaData metadata) => metadata.Get(Consts.Name, "");
+        public static string GetName(this MetaData metadata) => metadata.Get(Consts.Name, "");
 
         /// <summary>
         /// Item index
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static uint GetColumnIndex(this IMetaData metadata) => metadata.Get(Consts.ColumnIndex, uint.MaxValue);
+        public static uint GetColumnIndex(this MetaData metadata) => metadata.Get(Consts.ColumnIndex, uint.MaxValue);
 
         /// <summary>
         /// True if the item is numeric
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static bool IsNumeric(this IMetaData metadata) => metadata.Get(Consts.IsNumeric, false);
+        public static bool IsNumeric(this MetaData metadata) => metadata.Get(Consts.IsNumeric, false);
 
         /// <summary>
         /// True if the item is a target
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static bool IsTarget(this IMetaData metadata) => metadata.Get(Consts.IsTarget, false);
+        public static bool IsTarget(this MetaData metadata) => metadata.Get(Consts.IsTarget, false);
 
         /// <summary>
         /// True if the item is categorical
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static bool IsCategorical(this IMetaData metadata) => metadata.Get(Consts.IsCategorical, false);
+        public static bool IsCategorical(this MetaData metadata) => metadata.Get(Consts.IsCategorical, false);
 
         /// <summary>
         /// True if the item is sequential
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static bool IsSequential(this IMetaData metadata) => metadata.Get(Consts.IsSequential, false);
+        public static bool IsSequential(this MetaData metadata) => metadata.Get(Consts.IsSequential, false);
 
         /// <summary>
         /// Writes available meta data to a new meta data store
         /// </summary>
         /// <param name="writer"></param>
         /// <returns></returns>
-        public static IMetaData GetMetaData(this IWriteToMetaData writer)
+        public static MetaData GetMetaData(this IWriteToMetaData writer)
         {
             var ret = new MetaData();
             writer.WriteTo(ret);
@@ -268,7 +268,7 @@ namespace BrightData
         /// <param name="metaData"></param>
         /// <param name="isTarget"></param>
         /// <returns></returns>
-        public static IMetaData SetTarget(this IMetaData metaData, bool isTarget)
+        public static MetaData SetTarget(this MetaData metaData, bool isTarget)
         {
             metaData.Set(Consts.IsTarget, isTarget);
             return metaData;
@@ -280,7 +280,7 @@ namespace BrightData
         /// <param name="metaData"></param>
         /// <param name="isCategorical"></param>
         /// <returns></returns>
-        public static IMetaData SetIsCategorical(this IMetaData metaData, bool isCategorical)
+        public static MetaData SetIsCategorical(this MetaData metaData, bool isCategorical)
         {
             metaData.Set(Consts.IsCategorical, isCategorical);
             return metaData;
@@ -291,7 +291,7 @@ namespace BrightData
         /// </summary>
         /// <param name="metaData"></param>
         /// <param name="name">Name</param>
-        public static IMetaData SetName(this IMetaData metaData, string name)
+        public static MetaData SetName(this MetaData metaData, string name)
         {
             metaData.Set(Consts.Name, name);
             return metaData;
@@ -302,7 +302,7 @@ namespace BrightData
         /// </summary>
         /// <param name="metaData"></param>
         /// <returns>File path</returns>
-        public static string GetFilePath(this IMetaData metaData) => metaData.Get(Consts.FilePath, "");
+        public static string GetFilePath(this MetaData metaData) => metaData.Get(Consts.FilePath, "");
 
         /// <summary>
         /// Groups items and counts each group

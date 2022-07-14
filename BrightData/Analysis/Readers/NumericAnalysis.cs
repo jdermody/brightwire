@@ -7,7 +7,7 @@ namespace BrightData.Analysis.Readers
     /// </summary>
     public class NumericAnalysis
     {
-        internal NumericAnalysis(IMetaData metaData)
+        internal NumericAnalysis(MetaData metaData)
         {
             L1Norm = metaData.Get<double>(Consts.L1Norm);
             L2Norm = metaData.Get<double>(Consts.L2Norm);
@@ -26,7 +26,7 @@ namespace BrightData.Analysis.Readers
             FrequencyRange = Get(Consts.FrequencyRangePrefix, metaData);
         }
 
-        (string Label, double value)[] Get(string prefix, IMetaData metaData)
+        (string Label, double value)[] Get(string prefix, MetaData metaData)
         {
             return metaData.GetStringsWithPrefix(prefix)
                 .Select(k => (Label: k[prefix.Length..], Value: metaData.Get<double>(k)))

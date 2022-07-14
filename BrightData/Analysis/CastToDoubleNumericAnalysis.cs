@@ -23,7 +23,7 @@ namespace BrightData.Analysis
             Add((T)obj);
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             Analysis.WriteTo(metadata);
         }

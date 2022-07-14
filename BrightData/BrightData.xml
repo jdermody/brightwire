@@ -658,56 +658,56 @@
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.MetaData)">
             <summary>
             Gets the date analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalysis(BrightData.MetaData)">
             <summary>
             Gets the dimension analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalysis(BrightData.MetaData)">
             <summary>
             Gets the frequency analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetIndexAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetIndexAnalysis(BrightData.MetaData)">
             <summary>
             Gets the index analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalysis(BrightData.MetaData)">
             <summary>
             Gets the numeric analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetStringAnalysis(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetStringAnalysis(BrightData.MetaData)">
             <summary>
             Gets the string analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.MetaData)">
             <summary>
             Gets the categories that were stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.MetaData)">
             <summary>
             
             </summary>
@@ -729,7 +729,7 @@
             <param name="dates"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{BrightData.ITensor2})">
+        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{BrightData.ITensor})">
             <summary>
             Analyzes tensors in a sequence
             </summary>
@@ -827,7 +827,7 @@
             <param name="code">Type code</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.IMetaData,System.String,System.Nullable{``0})">
+        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.MetaData,System.String,System.Nullable{``0})">
             <summary>
             Sets a value only if the value is not null
             </summary>
@@ -837,7 +837,7 @@
             <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.IMetaData,System.String,``0)">
+        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.MetaData,System.String,``0)">
             <summary>
             Sets a value only if the value is not null
             </summary>
@@ -883,42 +883,42 @@
             <param name="rnd">Random number generator to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.MetaData)">
             <summary>
             Item name
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnIndex(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnIndex(BrightData.MetaData)">
             <summary>
             Item index
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.MetaData)">
             <summary>
             True if the item is numeric
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsTarget(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsTarget(BrightData.MetaData)">
             <summary>
             True if the item is a target
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsCategorical(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsCategorical(BrightData.MetaData)">
             <summary>
             True if the item is categorical
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsSequential(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsSequential(BrightData.MetaData)">
             <summary>
             True if the item is sequential
             </summary>
@@ -978,7 +978,7 @@
             <param name="data">Data to aggregate</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetTarget(BrightData.IMetaData,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.SetTarget(BrightData.MetaData,System.Boolean)">
             <summary>
             Sets this as a target
             </summary>
@@ -986,7 +986,7 @@
             <param name="isTarget"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIsCategorical(BrightData.IMetaData,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.SetIsCategorical(BrightData.MetaData,System.Boolean)">
             <summary>
             Sets this as categorical
             </summary>
@@ -994,14 +994,14 @@
             <param name="isCategorical"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetName(BrightData.IMetaData,System.String)">
+        <member name="M:BrightData.ExtensionMethods.SetName(BrightData.MetaData,System.String)">
             <summary>
             Sets the name
             </summary>
             <param name="metaData"></param>
             <param name="name">Name</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFilePath(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetFilePath(BrightData.MetaData)">
             <summary>
             Returns the file path associated with the meta data (if any)
             </summary>
@@ -1234,7 +1234,7 @@
             <typeparam name="T3"></typeparam>
             <param name="dataTable"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.BrightDataType,BrightData.IMetaData,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.BrightDataType,BrightData.MetaData,System.UInt32,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
@@ -1333,7 +1333,7 @@
             <param name="table"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.IMetaData,BrightData.BrightDataType)">
+        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.MetaData,BrightData.BrightDataType)">
             <summary>
             Sets the column type in a meta data store
             </summary>
@@ -1341,7 +1341,7 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetHybridBufferWithMetaData(BrightData.BrightDataType,BrightData.IMetaData,BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.GetHybridBufferWithMetaData(BrightData.BrightDataType,BrightData.MetaData,BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
             <summary>
             Creates an appendable buffer for a column type
             </summary>
@@ -1360,14 +1360,14 @@
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.MetaData)">
             <summary>
             Gets the column type
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumDistinct(BrightData.IMetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNumDistinct(BrightData.MetaData)">
             <summary>
             Gets the number of distinct items
             </summary>
@@ -1555,7 +1555,7 @@
             <param name="sampleSize">Number of rows to sample</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCustomColumnMutator``2(BrightData.DataTable.BrightDataTable,System.UInt32,System.Func{``0,``1},System.Action{BrightData.IMetaData})">
+        <member name="M:BrightData.ExtensionMethods.CreateCustomColumnMutator``2(BrightData.DataTable.BrightDataTable,System.UInt32,System.Func{``0,``1},System.Action{BrightData.MetaData})">
             <summary>
             Creates a custom column mutator
             </summary>
@@ -2019,14 +2019,14 @@
             <param name="values">Diagonal values</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.InitializeRandomly``1(BrightData.ITensor2)">
+        <member name="M:BrightData.ExtensionMethods.InitializeRandomly``1(BrightData.ITensor)">
             <summary>
             Randomly initialize a tensor
             </summary>
             <param name="tensor"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor2,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor,System.Single)">
             <summary>
             Initialize a tensor to a single value
             </summary>
@@ -2034,7 +2034,7 @@
             <param name="value">Value to initialize each element of the tensor</param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor2,System.Func{System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor,System.Func{System.UInt32,System.Single})">
             <summary>
             Initialize a tensor using a callback
             </summary>
@@ -2198,7 +2198,7 @@
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.BrightDataType,BrightData.IMetaData)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.BrightDataType,BrightData.MetaData)">
             <summary>
             Returns the set of possible column classifications
             </summary>
@@ -2634,6 +2634,16 @@
             <param name="index"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveBrightDataContext">
+            <summary>
+            Indicates that the type has a data context
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveBrightDataContext.Context">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
         <member name="T:BrightData.IHaveIndices">
             <summary>
             Indicates that the type has a list of indices
@@ -2667,116 +2677,9 @@
             <param name="context">Bright data context</param>
             <param name="reader">Reader to read from to initialize</param>
         </member>
-        <member name="T:BrightData.ISerializable">
+        <member name="T:BrightData.IAmSerializable">
             <summary>
             Supports both writing and reading from binary
-            </summary>
-        </member>
-        <member name="T:BrightData.IMetaData">
-            <summary>
-            Unstructured meta data store
-            </summary>
-        </member>
-        <member name="M:BrightData.IMetaData.Get(System.String)">
-            <summary>
-            Returns a value
-            </summary>
-            <param name="name">Name of the value</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.GetNullable``1(System.String)">
-            <summary>
-            Returns a typed nullable value
-            </summary>
-            <param name="name">Name of the value</param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.Get``1(System.String,``0)">
-            <summary>
-            Returns a typed value
-            </summary>
-            <param name="name">Name of the value</param>
-            <param name="valueIfMissing">Value to return if the value has not been set</param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.Get``1(System.String)">
-            <summary>
-            Returns an existing value (throws if not found)
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name">Name of the value</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.Set``1(System.String,``0)">
-            <summary>
-            Sets a named value
-            </summary>
-            <param name="name">Name of the value</param>
-            <param name="value">Value</param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IMetaData.AsXml">
-            <summary>
-            XML representation of the meta data
-            </summary>
-        </member>
-        <member name="M:BrightData.IMetaData.CopyTo(BrightData.IMetaData)">
-            <summary>
-            Copies this to another meta data store
-            </summary>
-            <param name="metadata">Other meta data store</param>
-        </member>
-        <member name="M:BrightData.IMetaData.CopyTo(BrightData.IMetaData,System.String[])">
-            <summary>
-            Copies the specified values to another meta data store
-            </summary>
-            <param name="metadata">Other meta data store</param>
-            <param name="keys">Values to copy</param>
-        </member>
-        <member name="M:BrightData.IMetaData.CopyAllExcept(BrightData.IMetaData,System.String[])">
-            <summary>
-            Copies all except for the specified values to another meta data store
-            </summary>
-            <param name="metadata">Other meta data store</param>
-            <param name="keys">Values NOT to copy (i.e. skip)</param>
-        </member>
-        <member name="M:BrightData.IMetaData.ReadFrom(System.IO.BinaryReader)">
-            <summary>
-            Reads values from a binary reader
-            </summary>
-            <param name="reader"></param>
-        </member>
-        <member name="M:BrightData.IMetaData.GetStringsWithPrefix(System.String)">
-            <summary>
-            Returns all value names with the specified prefix
-            </summary>
-            <param name="prefix">Prefix to query</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.Has(System.String)">
-            <summary>
-            Checks if a value has been set
-            </summary>
-            <param name="key">Name of the value</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMetaData.Remove(System.String)">
-            <summary>
-            Removes a value
-            </summary>
-            <param name="key">Name of the value</param>
-        </member>
-        <member name="P:BrightData.IMetaData.AllKeys">
-            <summary>
-            Returns all keys that have been set
-            </summary>
-        </member>
-        <member name="M:BrightData.IMetaData.Clone">
-            <summary>
-            Creates a clone of the current metadata
             </summary>
         </member>
         <member name="T:BrightData.IHaveMetaData">
@@ -2787,63 +2690,6 @@
         <member name="P:BrightData.IHaveMetaData.MetaData">
             <summary>
             Meta data store
-            </summary>
-        </member>
-        <member name="T:BrightData.IReferenceCountedMemory">
-            <summary>
-            Reference counted memory block
-            </summary>
-        </member>
-        <member name="P:BrightData.IReferenceCountedMemory.Size">
-            <summary>
-            Size of the memory block
-            </summary>
-        </member>
-        <member name="M:BrightData.IReferenceCountedMemory.AddRef">
-            <summary>
-            Adds a reference
-            </summary>
-            <returns>Current number of references</returns>
-        </member>
-        <member name="M:BrightData.IReferenceCountedMemory.Release">
-            <summary>
-            Removes a reference
-            </summary>
-            <returns>Current number of references</returns>
-        </member>
-        <member name="P:BrightData.IReferenceCountedMemory.AllocationIndex">
-            <summary>
-            Returns this block's allocation index
-            </summary>
-        </member>
-        <member name="P:BrightData.IReferenceCountedMemory.IsValid">
-            <summary>
-            Checks if the block is valid
-            </summary>
-        </member>
-        <member name="T:BrightData.ITensor">
-            <summary>
-            Tensor base interface
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensor.Shape">
-            <summary>
-            The shape of the tensor (array of each dimension)
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensor.Size">
-            <summary>
-            Total number of elements in tensor
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensor.Rank">
-            <summary>
-            Size of the Shape array
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensor.IsValid">
-            <summary>
-            True if the underlying memory has been properly scoped
             </summary>
         </member>
         <member name="T:BrightData.IDataReader">
@@ -2867,168 +2713,12 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.ITensorPool">
-            <summary>
-            A memory pool of tensors
-            </summary>
-        </member>
-        <member name="M:BrightData.ITensorPool.Get``1(System.UInt32)">
-            <summary>
-            Returns an existing cached array if available or allocates a new array otherwise
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="size">Size of the tensor to allocate</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.IDisposableLayers">
-            <summary>
-            Collects a list of disposable objects that can all be disposed when the layer is disposed
-            </summary>
-        </member>
-        <member name="M:BrightData.IDisposableLayers.Add(System.IDisposable)">
-            <summary>
-            Adds a new disposable object
-            </summary>
-            <param name="disposable"></param>
-        </member>
-        <member name="M:BrightData.IDisposableLayers.Push">
-            <summary>
-            Creates a new layer to add disposable objects to
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDisposableLayers.Pop">
-            <summary>
-            Disposes all objects in the top layer and removes this layer
-            </summary>
-        </member>
-        <member name="T:BrightData.ISetLinearAlgebraProvider">
-            <summary>
-            Indicates that the type can set a linear algebra provider
-            </summary>
-        </member>
-        <member name="P:BrightData.ISetLinearAlgebraProvider.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
-        </member>
-        <member name="T:BrightData.IHaveLinearAlgebraProvider">
-            <summary>
-            Gives access to a linear algebra provider
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveLinearAlgebraProvider.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
-        </member>
-        <member name="T:BrightData.IHaveDataContext">
-            <summary>
-            Indicates that the type has a data context
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveDataContext.Context">
-            <summary>
-            Bright data context
-            </summary>
-        </member>
-        <member name="T:BrightData.ITensorSegment`1">
-            <summary>
-            Typed indexable data
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:BrightData.ITensorSegment`1.IsContiguous">
-            <summary>
-            True if the data values are contiguous in memory
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensorSegment`1.Item(System.UInt32)">
-            <summary>
-            Returns a value at an index
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.ITensorSegment`1.Item(System.Int64)">
-            <summary>
-            Returns a value at an index
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.Clone">
-            <summary>
-            Clones the data into a new managed block
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.ITensorSegment`1.Values">
-            <summary>
-            All values
-            </summary>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.InitializeFrom(System.IO.Stream)">
-            <summary>
-            Initialize the segment from a stream
-            </summary>
-            <param name="stream"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.Initialize(System.Func{System.UInt32,`0})">
-            <summary>
-            Initialize the segment from a callback
-            </summary>
-            <param name="initializer">Functions that returns values for each indexed value</param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.Initialize(`0)">
-            <summary>
-            Initialize the segment to a single value
-            </summary>
-            <param name="initialValue">Initial value</param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.Initialize(System.Span{`0})">
-            <summary>
-            Initialize from an array
-            </summary>
-            <param name="initialData"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.WriteTo(System.IO.Stream)">
-            <summary>
-            Writes to a stream
-            </summary>
-            <param name="writerBaseStream"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(System.Span{`0},System.UInt32,System.UInt32)">
-            <summary>
-            Copies values from this segment to an existing array
-            </summary>
-            <param name="array"></param>
-            <param name="sourceIndex">Index to start copying from</param>
-            <param name="count">Number of values to copy</param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.CopyTo(BrightData.ITensorSegment{`0})">
-            <summary>
-            Copies all values to another segment
-            </summary>
-            <param name="segment"></param>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.AsNumericsVector(System.Int32)">
-            <summary>
-            Returns part of the segment as a numerics vector
-            </summary>
-        </member>
-        <member name="M:BrightData.ITensorSegment`1.GetArrayForLocalUseOnly">
-            <summary>
-            Returns an array that is only valid in local scope
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.IWriteToMetaData">
             <summary>
             Indicates that the type can write values to meta data
             </summary>
         </member>
-        <member name="M:BrightData.IWriteToMetaData.WriteTo(BrightData.IMetaData)">
+        <member name="M:BrightData.IWriteToMetaData.WriteTo(BrightData.MetaData)">
             <summary>
             Writes values to meta data
             </summary>
@@ -3331,34 +3021,24 @@
             Gets the total number of possible string indices
             </summary>
         </member>
-        <member name="T:BrightData.IHaveIndexer">
+        <member name="T:BrightData.IHaveStringIndexer">
             <summary>
             Indicates that the type has string indexer
             </summary>
         </member>
-        <member name="P:BrightData.IHaveIndexer.Indexer">
+        <member name="P:BrightData.IHaveStringIndexer.Indexer">
             <summary>
             String indexer
             </summary>
         </member>
-        <member name="T:BrightData.ICanComplete">
+        <member name="T:BrightData.IHaveStringTable">
             <summary>
-            Indicates that an operation can be completed
+            Indicates that the type has a string table
             </summary>
         </member>
-        <member name="M:BrightData.ICanComplete.Complete">
+        <member name="P:BrightData.IHaveStringTable.StringTable">
             <summary>
-            Complete the operation
-            </summary>
-        </member>
-        <member name="T:BrightData.IHaveDictionary">
-            <summary>
-            Indicates that the type has a dictionary (string table)
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveDictionary.Dictionary">
-            <summary>
-            Current dictionary (string table)
+            Current string table
             </summary>
         </member>
         <member name="T:BrightData.ICanReadSection">
@@ -4064,7 +3744,7 @@
             Transforms columns
             </summary>
         </member>
-        <member name="M:BrightData.IConvertColumn.Finalise(BrightData.IMetaData)">
+        <member name="M:BrightData.IConvertColumn.Finalise(BrightData.MetaData)">
             <summary>
             Complete the transformation
             </summary>
@@ -4134,7 +3814,7 @@
             Column index
             </summary>
         </member>
-        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Gets a column transformer
             </summary>
@@ -4306,6 +3986,26 @@
             <param name="columns">Source column data</param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveLinearAlgebraProvider">
+            <summary>
+            Gives access to a linear algebra provider
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveLinearAlgebraProvider.LinearAlgebraProvider">
+            <summary>
+            Linear algebra provider
+            </summary>
+        </member>
+        <member name="T:BrightData.ISetLinearAlgebraProvider">
+            <summary>
+            Indicates that the type can set a linear algebra provider
+            </summary>
+        </member>
+        <member name="P:BrightData.ISetLinearAlgebraProvider.LinearAlgebraProvider">
+            <summary>
+            Linear algebra provider
+            </summary>
+        </member>
         <member name="T:BrightData.DistanceMetric">
             <summary>
             Distance metrics
@@ -4343,9 +4043,11 @@
             <inheritdoc />
         </member>
         <member name="T:BrightData.MetaData">
-            <inheritdoc />
+            <summary>
+            Unstructured meta data store
+            </summary>
         </member>
-        <member name="M:BrightData.MetaData.#ctor(BrightData.IMetaData,System.String[])">
+        <member name="M:BrightData.MetaData.#ctor(BrightData.MetaData,System.String[])">
             <summary>
             Constructor
             </summary>
@@ -4353,7 +4055,11 @@
             <param name="keys">Keys to copy (or all if none specified)</param>
         </member>
         <member name="M:BrightData.MetaData.#ctor(BrightData.IHaveMetaData,System.String[])">
-            <inheritdoc />
+            <summary>
+            
+            </summary>
+            <param name="metaData"></param>
+            <param name="keys"></param>
         </member>
         <member name="M:BrightData.MetaData.#ctor(System.IO.BinaryReader)">
             <summary>
@@ -4361,56 +4067,113 @@
             </summary>
             <param name="reader">Reader</param>
         </member>
-        <member name="M:BrightData.MetaData.CopyTo(BrightData.IMetaData)">
-            <inheritdoc />
+        <member name="M:BrightData.MetaData.CopyTo(BrightData.MetaData)">
+            <summary>
+            Copies this to another meta data store
+            </summary>
+            <param name="metadata">Other meta data store</param>
         </member>
-        <member name="M:BrightData.MetaData.CopyTo(BrightData.IMetaData,System.String[])">
-            <inheritdoc />
+        <member name="M:BrightData.MetaData.CopyTo(BrightData.MetaData,System.String[])">
+            <summary>
+            Copies the specified values to another meta data store
+            </summary>
+            <param name="metadata">Other meta data store</param>
+            <param name="keys">Values to copy</param>
         </member>
-        <member name="M:BrightData.MetaData.CopyAllExcept(BrightData.IMetaData,System.String[])">
-            <inheritdoc />
+        <member name="M:BrightData.MetaData.CopyAllExcept(BrightData.MetaData,System.String[])">
+            <summary>
+            Copies all except for the specified values to another meta data store
+            </summary>
+            <param name="metadata">Other meta data store</param>
+            <param name="keys">Values NOT to copy (i.e. skip)</param>
         </member>
         <member name="M:BrightData.MetaData.Get(System.String)">
-            <inheritdoc />
+            <summary>
+            Returns a value
+            </summary>
+            <param name="name">Name of the value</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.GetNullable``1(System.String)">
-            <inheritdoc />
+            <summary>
+            Returns a typed nullable value
+            </summary>
+            <param name="name">Name of the value</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.Get``1(System.String,``0)">
-            <inheritdoc />
+            <summary>
+            Returns a typed value
+            </summary>
+            <param name="name">Name of the value</param>
+            <param name="valueIfMissing">Value to return if the value has not been set</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.Get``1(System.String)">
-            <inheritdoc />
+            <summary>
+            Returns an existing value (throws if not found)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name">Name of the value</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.Set``1(System.String,``0)">
-            <inheritdoc />
+            <summary>
+            Sets a named value
+            </summary>
+            <param name="name">Name of the value</param>
+            <param name="value">Value</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
         </member>
         <member name="P:BrightData.MetaData.AsXml">
-            <inheritdoc />
+            <summary>
+            XML representation of the meta data
+            </summary>
         </member>
         <member name="M:BrightData.MetaData.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.MetaData.ReadFrom(System.IO.BinaryReader)">
-            <inheritdoc />
+            <summary>
+            Reads values from a binary reader
+            </summary>
+            <param name="reader"></param>
         </member>
         <member name="M:BrightData.MetaData.GetStringsWithPrefix(System.String)">
-            <inheritdoc />
+            <summary>
+            Returns all value names with the specified prefix
+            </summary>
+            <param name="prefix">Prefix to query</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.ToString">
             <inheritdoc />
         </member>
         <member name="M:BrightData.MetaData.Has(System.String)">
-            <inheritdoc />
+            <summary>
+            Checks if a value has been set
+            </summary>
+            <param name="key">Name of the value</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.Remove(System.String)">
-            <inheritdoc />
+            <summary>
+            Removes a value
+            </summary>
+            <param name="key">Name of the value</param>
         </member>
         <member name="P:BrightData.MetaData.AllKeys">
-            <inheritdoc />
+            <summary>
+            Returns all keys that have been set
+            </summary>
         </member>
         <member name="M:BrightData.MetaData.Clone">
-            <inheritdoc />
+            <summary>
+            Creates a clone of the current metadata
+            </summary>
         </member>
         <member name="T:BrightData.Serialisation.SerialisationHelper">
             <summary>
@@ -4543,7 +4306,7 @@
         <member name="P:BrightData.Transformation.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Transformation.ColumnNormalization">
@@ -4561,14 +4324,14 @@
             Normalization parameters
             </summary>
         </member>
-        <member name="M:BrightData.Transformation.NormalizeTransformation.#ctor(BrightData.NormalizationType,BrightData.IMetaData)">
+        <member name="M:BrightData.Transformation.NormalizeTransformation.#ctor(BrightData.NormalizationType,BrightData.MetaData)">
             <summary>
             Creates a new set of parameters based on supplied the numeric analysis
             </summary>
             <param name="type">Type of normalization</param>
             <param name="analysedMetaData">Numeric analysis</param>
         </member>
-        <member name="M:BrightData.Transformation.NormalizeTransformation.WriteTo(BrightData.IMetaData)">
+        <member name="M:BrightData.Transformation.NormalizeTransformation.WriteTo(BrightData.MetaData)">
             <summary>
             Writes the normalization parameters to a meta data store
             </summary>

@@ -231,7 +231,7 @@ namespace BrightData
     /// Typed data table segment (all of the same type)
     /// </summary>
     /// <typeparam name="T">Data type of values within the segment</typeparam>
-    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveDataContext
+    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveBrightDataContext
         where T : notnull
     {
         /// <summary>
@@ -244,7 +244,7 @@ namespace BrightData
     /// <summary>
     /// A data table is an immutable collection of data with columns and rows (in which the columns have the same type of data)
     /// </summary>
-    public interface IDataTable : IHaveMetaData, IDisposable, IHaveDataContext
+    public interface IDataTable : IHaveMetaData, IDisposable, IHaveBrightDataContext
     {
         /// <summary>
         /// Number of rows
@@ -304,14 +304,14 @@ namespace BrightData
         /// </summary>
         /// <param name="columnIndices">Column indices</param>
         /// <returns></returns>
-        IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(IEnumerable<uint> columnIndices);
+        IEnumerable<(uint ColumnIndex, MetaData MetaData)> ColumnAnalysis(IEnumerable<uint> columnIndices);
 
         /// <summary>
         /// Returns the metadata for a single column (without analysis)
         /// </summary>
         /// <param name="columnIndex">Column index to retrieve</param>
         /// <returns></returns>
-        IMetaData ColumnMetaData(uint columnIndex);
+        MetaData ColumnMetaData(uint columnIndex);
 
         /// <summary>
         /// Applies a projection function to each row of this data table
@@ -409,7 +409,7 @@ namespace BrightData
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
         /// <param name="maxCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        IMetaData ColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct);
+        MetaData ColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct);
     }
 
     /// <summary>
@@ -600,7 +600,7 @@ namespace BrightData
         /// Complete the transformation
         /// </summary>
         /// <param name="metaData">Meta data store to receive transformation information</param>
-        void Finalise(IMetaData metaData);
+        void Finalise(MetaData metaData);
     }
 
     /// <summary>
@@ -659,7 +659,7 @@ namespace BrightData
         /// <summary>
         /// Encoded dictionary
         /// </summary>
-        IHaveDictionary? Dictionary { get; }
+        IHaveStringTable? Dictionary { get; }
     }
 
     /// <summary>
@@ -685,7 +685,7 @@ namespace BrightData
             BrightDataContext context, 
             BrightDataType fromType, 
             ISingleTypeTableSegment column, 
-            Func<IMetaData> analysedMetaData, 
+            Func<MetaData> analysedMetaData, 
             IProvideTempStreams tempStreams, 
             uint inMemoryRowCount = 32768
         );

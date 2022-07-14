@@ -215,7 +215,7 @@ namespace BrightData.DataTable
             var results = operations.CompleteInParallel();
             return results.EnsureAllCompleted();
         }
-        public IMetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount, maxDistinctCount).Select(d => d.MetaData).ToArray();
+        public MetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount, maxDistinctCount).Select(d => d.MetaData).ToArray();
 
         public void PersistMetaData()
         {

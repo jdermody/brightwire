@@ -8,7 +8,7 @@ using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.Transformation
 {
-    internal class DataTableVectoriser : IHaveDataContext, IDataTableVectoriser
+    internal class DataTableVectoriser : IHaveBrightDataContext, IDataTableVectoriser
     {
         interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter
         {
@@ -148,9 +148,9 @@ namespace BrightData.Transformation
                 writer.Write(_maxSize);
             }
         }
-        class TensorVectoriser : VectoriserBase<ITensor2>
+        class TensorVectoriser : VectoriserBase<ITensor>
         {
-            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<ITensor2>)column).EnumerateTyped().GetEnumerator()) {}
+            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetColumnIndex(), ((IDataTableSegment<ITensor>)column).EnumerateTyped().GetEnumerator()) {}
             public TensorVectoriser(uint size, ISingleTypeTableSegment column) : this(column)
             {
                 Size = size;
@@ -169,7 +169,7 @@ namespace BrightData.Transformation
             public override uint Size { get; }
             public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
-            protected override IEnumerable<float> Vectorize(ITensor2 obj)
+            protected override IEnumerable<float> Vectorize(ITensor obj)
             {
                 return obj.Segment.Values;
             }
@@ -388,7 +388,7 @@ namespace BrightData.Transformation
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, IMetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
+        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, MetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);

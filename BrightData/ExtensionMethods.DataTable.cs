@@ -269,7 +269,7 @@ namespace BrightData
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
         /// <param name="maxDistinctCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
             if (dataType.HasFlag(ColumnClass.Categorical)) {
@@ -560,7 +560,7 @@ namespace BrightData
         /// <param name="metaData"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static IMetaData SetType(this IMetaData metaData, BrightDataType type)
+        public static MetaData SetType(this MetaData metaData, BrightDataType type)
         {
             metaData.Set(Consts.Type, (byte)type);
             return metaData;
@@ -578,7 +578,7 @@ namespace BrightData
         /// <returns></returns>
         public static IHybridBufferWithMetaData GetHybridBufferWithMetaData(
             this BrightDataType type, 
-            IMetaData metaData, 
+            MetaData metaData, 
             BrightDataContext context, 
             IProvideTempStreams tempStream, 
             uint bufferSize = Consts.DefaultInMemoryBufferSize, 
@@ -625,14 +625,14 @@ namespace BrightData
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static BrightDataType GetColumnType(this IMetaData metadata) => metadata.Get(Consts.Type, BrightDataType.Unknown);
+        public static BrightDataType GetColumnType(this MetaData metadata) => metadata.Get(Consts.Type, BrightDataType.Unknown);
 
         /// <summary>
         /// Gets the number of distinct items
         /// </summary>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
+        public static uint GetNumDistinct(this MetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
 
         /// <summary>
         /// Splits a data table into training and test tables (rows are randomly selected for either)
@@ -1047,7 +1047,7 @@ namespace BrightData
         /// <typeparam name="TT"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IColumnTransformationParam CreateCustomColumnMutator<TF, TT>(this BrightDataTable table, uint columnIndex, Func<TF, TT> converter, Action<IMetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
+        public static IColumnTransformationParam CreateCustomColumnMutator<TF, TT>(this BrightDataTable table, uint columnIndex, Func<TF, TT> converter, Action<MetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
         {
             var type = table.ColumnTypes[columnIndex].GetDataType();
             if (type != typeof(TF))
@@ -1414,7 +1414,7 @@ namespace BrightData
         //    this BrightDataContext context, 
         //    uint columnIndex, 
         //    BrightDataType columnType, 
-        //    IMetaData? metaData = null
+        //    MetaData? metaData = null
         //)
         //{
         //    var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());

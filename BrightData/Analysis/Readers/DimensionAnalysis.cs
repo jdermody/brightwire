@@ -5,7 +5,7 @@
     /// </summary>
     public class DimensionAnalysis
     {
-        internal DimensionAnalysis(IMetaData metaData)
+        internal DimensionAnalysis(MetaData metaData)
         {
             XDimension = metaData.GetNullable<uint>(Consts.XDimension);
             YDimension = metaData.GetNullable<uint>(Consts.YDimension);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
-    internal class DimensionAnalyser : IDataAnalyser<ITensor2>
+    internal class DimensionAnalyser : IDataAnalyser<ITensor>
     {
         readonly uint _maxCount;
         readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new();
@@ -17,7 +17,7 @@ namespace BrightData.Analysis
         public uint? YDimension { get; private set; }
         public uint? ZDimension { get; private set; }
 
-        public void Add(ITensor2 obj)
+        public void Add(ITensor obj)
         {
             uint x = 0, y = 0, z = 0;
             if (obj is IVector vector) {
@@ -44,13 +44,13 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj)
         {
-            if (obj is ITensor2 tensor)
+            if (obj is ITensor tensor)
                 Add(tensor);
             else
                 throw new ArgumentException("Expected a tensor", nameof(obj));
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.SetIfNotNull(Consts.XDimension, XDimension);

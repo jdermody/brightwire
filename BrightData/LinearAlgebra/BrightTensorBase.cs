@@ -9,8 +9,8 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public abstract class BrightTensorBase<T, LAP> : ITensor2<T>, IHaveSize
-        where T: ITensor2
+    public abstract class BrightTensorBase<T, LAP> : ITensor<T>, IHaveSize
+        where T: ITensor
         where LAP: LinearAlgebraProvider
     {
         protected LAP _lap;
@@ -122,26 +122,26 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        ITensor2 ITensor2.Clone()                                                            => Create(_lap.Clone(Segment));
+        ITensor ITensor.Clone()                                                            => Create(_lap.Clone(Segment));
         public T Clone()                                                                     => Create(_lap.Clone(Segment));
         public void Clear()                                                                  => Segment.Clear();
-        public T Add(ITensor2 tensor)                                                        => Create(_lap.Add(Segment, tensor.Segment));
-        public T Add(ITensor2 tensor, float coefficient1, float coefficient2)                => Create(_lap.Add(Segment, tensor.Segment, coefficient1, coefficient2));
+        public T Add(ITensor tensor)                                                        => Create(_lap.Add(Segment, tensor.Segment));
+        public T Add(ITensor tensor, float coefficient1, float coefficient2)                => Create(_lap.Add(Segment, tensor.Segment, coefficient1, coefficient2));
         public T Add(float scalar)                                                           => Create(_lap.Add(Segment, scalar));
-        public void AddInPlace(ITensor2 tensor)                                              => _lap.AddInPlace(Segment, tensor.Segment);
-        public void AddInPlace(ITensor2 tensor, float coefficient1, float coefficient2)      => _lap.AddInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
+        public void AddInPlace(ITensor tensor)                                              => _lap.AddInPlace(Segment, tensor.Segment);
+        public void AddInPlace(ITensor tensor, float coefficient1, float coefficient2)      => _lap.AddInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
         public void AddInPlace(float scalar)                                                 => _lap.AddInPlace(Segment, scalar);
         public void MultiplyInPlace(float scalar)                                            => _lap.MultiplyInPlace(Segment, scalar);
         public T Multiply(float scalar)                                                      => Create(_lap.Multiply(Segment, scalar));
-        public T Subtract(ITensor2 tensor)                                                   => Create(_lap.Subtract(Segment, tensor.Segment));
-        public T Subtract(ITensor2 tensor, float coefficient1, float coefficient2)           => Create(_lap.Subtract(Segment, tensor.Segment, coefficient1, coefficient2));
-        public void SubtractInPlace(ITensor2 tensor)                                         => _lap.SubtractInPlace(Segment, tensor.Segment);
-        public void SubtractInPlace(ITensor2 tensor, float coefficient1, float coefficient2) => _lap.SubtractInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
-        public T PointwiseMultiply(ITensor2 tensor)                                          => Create(_lap.PointwiseMultiply(Segment, tensor.Segment));
-        public void PointwiseMultiplyInPlace(ITensor2 tensor)                                => _lap.PointwiseMultiplyInPlace(Segment, tensor.Segment);
-        public T PointwiseDivide(ITensor2 tensor)                                            => Create(_lap.PointwiseDivide(Segment, tensor.Segment));
-        public void PointwiseDivideInPlace(ITensor2 tensor)                                  => _lap.PointwiseDivideInPlace(Segment, tensor.Segment);
-        public float DotProduct(ITensor2 tensor)                                             => _lap.DotProduct(Segment, tensor.Segment);
+        public T Subtract(ITensor tensor)                                                   => Create(_lap.Subtract(Segment, tensor.Segment));
+        public T Subtract(ITensor tensor, float coefficient1, float coefficient2)           => Create(_lap.Subtract(Segment, tensor.Segment, coefficient1, coefficient2));
+        public void SubtractInPlace(ITensor tensor)                                         => _lap.SubtractInPlace(Segment, tensor.Segment);
+        public void SubtractInPlace(ITensor tensor, float coefficient1, float coefficient2) => _lap.SubtractInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
+        public T PointwiseMultiply(ITensor tensor)                                          => Create(_lap.PointwiseMultiply(Segment, tensor.Segment));
+        public void PointwiseMultiplyInPlace(ITensor tensor)                                => _lap.PointwiseMultiplyInPlace(Segment, tensor.Segment);
+        public T PointwiseDivide(ITensor tensor)                                            => Create(_lap.PointwiseDivide(Segment, tensor.Segment));
+        public void PointwiseDivideInPlace(ITensor tensor)                                  => _lap.PointwiseDivideInPlace(Segment, tensor.Segment);
+        public float DotProduct(ITensor tensor)                                             => _lap.DotProduct(Segment, tensor.Segment);
         public T Sqrt()                                                                      => Create(_lap.Sqrt(Segment));
         public uint? Search(float value)                                                     => _lap.Search(Segment, value);
         public void ConstrainInPlace(float? minValue, float? maxValue)                       => _lap.ConstrainInPlace(Segment, minValue, maxValue);
@@ -156,11 +156,11 @@ namespace BrightData.LinearAlgebra
         public bool IsEntirelyFinite()                                                       => _lap.IsEntirelyFinite(Segment);
         public T Reverse()                                                                   => Create(_lap.Reverse(Segment));
         public IEnumerable<T> Split(uint blockCount)                                         => _lap.Split(Segment, blockCount).Select(Create);
-        public float CosineDistance(ITensor2 other)                                          => _lap.CosineDistance(Segment, other.Segment);
-        public float EuclideanDistance(ITensor2 other)                                       => _lap.EuclideanDistance(Segment, other.Segment);
-        public float MeanSquaredDistance(ITensor2 other)                                     => _lap.MeanSquaredDistance(Segment, other.Segment);
-        public float SquaredEuclideanDistance(ITensor2 other)                                => _lap.SquaredEuclideanDistance(Segment, other.Segment);
-        public float ManhattanDistance(ITensor2 other)                                       => _lap.ManhattanDistance(Segment, other.Segment);
+        public float CosineDistance(ITensor other)                                          => _lap.CosineDistance(Segment, other.Segment);
+        public float EuclideanDistance(ITensor other)                                       => _lap.EuclideanDistance(Segment, other.Segment);
+        public float MeanSquaredDistance(ITensor other)                                     => _lap.MeanSquaredDistance(Segment, other.Segment);
+        public float SquaredEuclideanDistance(ITensor other)                                => _lap.SquaredEuclideanDistance(Segment, other.Segment);
+        public float ManhattanDistance(ITensor other)                                       => _lap.ManhattanDistance(Segment, other.Segment);
         public T Abs()                                                                       => Create(_lap.Abs(Segment));
         public T Log()                                                                       => Create(_lap.Log(Segment));
         public T Exp()                                                                       => Create(_lap.Exp(Segment));

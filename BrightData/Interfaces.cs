@@ -8,6 +8,17 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 namespace BrightData
 {
     /// <summary>
+    /// Indicates that the type has a data context
+    /// </summary>
+    public interface IHaveBrightDataContext
+    {
+        /// <summary>
+        /// Bright data context
+        /// </summary>
+        BrightDataContext Context { get; }
+    }
+
+    /// <summary>
     /// Indicates that the type has a list of indices
     /// </summary>
     public interface IHaveIndices
@@ -51,116 +62,8 @@ namespace BrightData
     /// <summary>
     /// Supports both writing and reading from binary
     /// </summary>
-    public interface ISerializable : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public interface IAmSerializable : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
-    }
-
-    /// <summary>
-    /// Unstructured meta data store
-    /// </summary>
-    public interface IMetaData : ICanWriteToBinaryWriter
-    {
-        /// <summary>
-        /// Returns a value
-        /// </summary>
-        /// <param name="name">Name of the value</param>
-        /// <returns></returns>
-        object? Get(string name);
-
-        /// <summary>
-        /// Returns a typed nullable value
-        /// </summary>
-        /// <param name="name">Name of the value</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T? GetNullable<T>(string name) where T : struct;
-
-        /// <summary>
-        /// Returns a typed value
-        /// </summary>
-        /// <param name="name">Name of the value</param>
-        /// <param name="valueIfMissing">Value to return if the value has not been set</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T Get<T>(string name, T valueIfMissing) where T : IConvertible;
-
-        /// <summary>
-        /// Returns an existing value (throws if not found)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">Name of the value</param>
-        /// <returns></returns>
-        T Get<T>(string name) where T : IConvertible;
-
-        /// <summary>
-        /// Sets a named value
-        /// </summary>
-        /// <param name="name">Name of the value</param>
-        /// <param name="value">Value</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T Set<T>(string name, T value) where T : IConvertible;
-
-        /// <summary>
-        /// XML representation of the meta data
-        /// </summary>
-        string AsXml { get; }
-
-        /// <summary>
-        /// Copies this to another meta data store
-        /// </summary>
-        /// <param name="metadata">Other meta data store</param>
-        void CopyTo(IMetaData metadata);
-
-        /// <summary>
-        /// Copies the specified values to another meta data store
-        /// </summary>
-        /// <param name="metadata">Other meta data store</param>
-        /// <param name="keys">Values to copy</param>
-        void CopyTo(IMetaData metadata, params string[] keys);
-
-        /// <summary>
-        /// Copies all except for the specified values to another meta data store
-        /// </summary>
-        /// <param name="metadata">Other meta data store</param>
-        /// <param name="keys">Values NOT to copy (i.e. skip)</param>
-        void CopyAllExcept(IMetaData metadata, params string[] keys);
-
-        /// <summary>
-        /// Reads values from a binary reader
-        /// </summary>
-        /// <param name="reader"></param>
-        void ReadFrom(BinaryReader reader);
-
-        /// <summary>
-        /// Returns all value names with the specified prefix
-        /// </summary>
-        /// <param name="prefix">Prefix to query</param>
-        /// <returns></returns>
-        IEnumerable<string> GetStringsWithPrefix(string prefix);
-
-        /// <summary>
-        /// Checks if a value has been set
-        /// </summary>
-        /// <param name="key">Name of the value</param>
-        /// <returns></returns>
-        bool Has(string key);
-
-        /// <summary>
-        /// Removes a value
-        /// </summary>
-        /// <param name="key">Name of the value</param>
-        void Remove(string key);
-
-        /// <summary>
-        /// Returns all keys that have been set
-        /// </summary>
-        IEnumerable<string> AllKeys { get; }
-
-        /// <summary>
-        /// Creates a clone of the current metadata
-        /// </summary>
-        IMetaData Clone();
     }
 
     /// <summary>
@@ -171,66 +74,7 @@ namespace BrightData
         /// <summary>
         /// Meta data store
         /// </summary>
-        IMetaData MetaData { get; }
-    }
-
-    /// <summary>
-    /// Reference counted memory block
-    /// </summary>
-    public interface IReferenceCountedMemory
-    {
-        /// <summary>
-        /// Size of the memory block
-        /// </summary>
-        uint Size { get; }
-
-        /// <summary>
-        /// Adds a reference
-        /// </summary>
-        /// <returns>Current number of references</returns>
-        int AddRef();
-
-        /// <summary>
-        /// Removes a reference
-        /// </summary>
-        /// <returns>Current number of references</returns>
-        int Release();
-
-        /// <summary>
-        /// Returns this block's allocation index
-        /// </summary>
-        long AllocationIndex { get; }
-
-        /// <summary>
-        /// Checks if the block is valid
-        /// </summary>
-        bool IsValid { get; }
-    }
-
-    /// <summary>
-    /// Tensor base interface
-    /// </summary>
-    public interface ITensor : IDisposable, ISerializable, IHaveDataContext
-    {
-        /// <summary>
-        /// The shape of the tensor (array of each dimension)
-        /// </summary>
-        uint[] Shape { get; }
-
-        /// <summary>
-        /// Total number of elements in tensor
-        /// </summary>
-        uint Size { get; }
-
-        /// <summary>
-        /// Size of the Shape array
-        /// </summary>
-        uint Rank { get; }
-
-        /// <summary>
-        /// True if the underlying memory has been properly scoped
-        /// </summary>
-        bool IsValid { get; }
+        MetaData MetaData { get; }
     }
 
     /// <summary>
@@ -256,314 +100,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// A memory pool of tensors
-    /// </summary>
-    public interface ITensorPool
-    {
-        /// <summary>
-        /// Returns an existing cached array if available or allocates a new array otherwise
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="size">Size of the tensor to allocate</param>
-        /// <returns></returns>
-        MemoryOwner<T> Get<T>(uint size) where T : struct;
-
-        /// <summary>
-        /// Indicates that this array can be reused
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="block"></param>
-        //void Reuse<T>(T[] block) where T : struct;
-
-        /// <summary>
-        /// Maximum size to cache for reusable arrays
-        /// </summary>
-        //long MaxCacheSize { get; }
-
-        /// <summary>
-        /// Current size of cached arrays
-        /// </summary>
-        //long CacheSize { get; }
-
-#if DEBUG
-        /// <summary>
-        /// Register the reference counted memory block for debug and tracing
-        /// </summary>
-        /// <param name="block"></param>
-        /// <param name="size"></param>
-        void Register(IReferenceCountedMemory block, uint size);
-
-        /// <summary>
-        /// Unregister the reference counted memory block for debug and tracing
-        /// </summary>
-        /// <param name="block"></param>
-        void UnRegister(IReferenceCountedMemory block);
-#endif
-    }
-
-    /// <summary>
-    /// Collects a list of disposable objects that can all be disposed when the layer is disposed
-    /// </summary>
-    public interface IDisposableLayers
-    {
-        /// <summary>
-        /// Adds a new disposable object
-        /// </summary>
-        /// <param name="disposable"></param>
-        void Add(IDisposable disposable);
-
-        /// <summary>
-        /// Creates a new layer to add disposable objects to
-        /// </summary>
-        /// <returns></returns>
-        IDisposable Push();
-
-        /// <summary>
-        /// Disposes all objects in the top layer and removes this layer
-        /// </summary>
-        void Pop();
-    }
-
-    /// <summary>
-    /// Indicates that the type can set a linear algebra provider
-    /// </summary>
-    public interface ISetLinearAlgebraProvider
-    {
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { set; }
-    }
-
-    /// <summary>
-    /// Gives access to a linear algebra provider
-    /// </summary>
-    public interface IHaveLinearAlgebraProvider
-    {
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { get; }
-    }
-
-    /// <summary>
-    /// Bright data context
-    /// </summary>
-    //public interface BrightDataContext : IDisposable, IHaveLinearAlgebraProvider
-    //{
-    //    /// <summary>
-    //    /// Random number generator
-    //    /// </summary>
-    //    Random Random { get; }
-
-    //    /// <summary>
-    //    /// Tensor pool
-    //    /// </summary>
-    //    ITensorPool TensorPool { get; }
-
-    //    /// <summary>
-    //    /// Disposable memory layers
-    //    /// </summary>
-    //    IDisposableLayers MemoryLayer { get; }
-
-    //    /// <summary>
-    //    /// Data reader
-    //    /// </summary>
-    //    IDataReader DataReader { get; }
-
-    //    /// <summary>
-    //    /// Creates a new temp stream provider
-    //    /// </summary>
-    //    IProvideTempStreams CreateTempStreamProvider();
-
-    //    LinearAlgebraProvider LinearAlgebraProvider2 { get; }
-
-    //    /// <summary>
-    //    /// Returns transient, context specific meta data
-    //    /// </summary>
-    //    /// <typeparam name="T"></typeparam>
-    //    /// <param name="name">Name of value</param>
-    //    /// <param name="defaultValue">Default value if not already set</param>
-    //    /// <returns></returns>
-    //    T Get<T>(string name, T defaultValue) where T : notnull;
-
-    //    /// <summary>
-    //    /// Returns transient, context specific meta data
-    //    /// </summary>
-    //    /// <typeparam name="T"></typeparam>
-    //    /// <param name="name">Name of value</param>
-    //    /// <param name="defaultValueCreator">Returns a default value if not already set</param>
-    //    /// <returns></returns>
-    //    T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull;
-
-    //    /// <summary>
-    //    /// Returns optional context specific meta data
-    //    /// </summary>
-    //    /// <typeparam name="T"></typeparam>
-    //    /// <param name="name">Name of value</param>
-    //    /// <returns></returns>
-    //    T? Get<T>(string name) where T : class;
-
-    //    /// <summary>
-    //    /// Sets transient, context specific meta data
-    //    /// </summary>
-    //    /// <typeparam name="T"></typeparam>
-    //    /// <param name="name">Name of value</param>
-    //    /// <param name="value">Value</param>
-    //    /// <returns></returns>
-    //    T Set<T>(string name, T value) where T : notnull;
-
-    //    /// <summary>
-    //    /// Sets transient, context specific meta data
-    //    /// </summary>
-    //    /// <typeparam name="T"></typeparam>
-    //    /// <param name="name">Name of value</param>
-    //    /// <param name="valueCreator">Function that will create value to set on demand if not already set</param>
-    //    /// <returns></returns>
-    //    T Set<T>(string name, Func<T> valueCreator) where T : notnull;
-
-    //    /// <summary>
-    //    /// True if random generator has been initialized with a random initial seed
-    //    /// </summary>
-    //    bool IsStochastic { get; }
-
-    //    /// <summary>
-    //    /// Resets the random number generator
-    //    /// </summary>
-    //    /// <param name="seed">Random seed (or null to randomly initialize)</param>
-    //    public void ResetRandom(int? seed);
-
-    //    /// <summary>
-    //    /// Progress notifications for long running operations
-    //    /// </summary>
-    //    public INotifyUser? UserNotifications { get; set; }
-
-    //    /// <summary>
-    //    /// Cancellation token for the current context
-    //    /// </summary>
-    //    CancellationToken CancellationToken { get; }
-    //}
-
-    /// <summary>
-    /// Indicates that the type has a data context
-    /// </summary>
-    public interface IHaveDataContext
-    {
-        /// <summary>
-        /// Bright data context
-        /// </summary>
-        BrightDataContext Context { get; }
-    }
-
-    /// <summary>
-    /// Typed indexable data
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable, IHaveDataContext
-        where T : struct
-    {
-        /// <summary>
-        /// True if the data values are contiguous in memory
-        /// </summary>
-        bool IsContiguous { get; }
-
-        /// <summary>
-        /// Returns a value at an index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        T this[uint index] { get; set; }
-
-        /// <summary>
-        /// Returns a value at an index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        T this[long index] { get; set; }
-
-        /// <summary>
-        /// Clones the data into a new managed block
-        /// </summary>
-        /// <returns></returns>
-        MemoryOwner<T> Clone();
-
-        /// <summary>
-        /// All values
-        /// </summary>
-        IEnumerable<T> Values { get; }
-
-        /// <summary>
-        /// Initialize the segment from a stream
-        /// </summary>
-        /// <param name="stream"></param>
-        void InitializeFrom(Stream stream);
-
-        /// <summary>
-        /// Initialize the segment from a callback
-        /// </summary>
-        /// <param name="initializer">Functions that returns values for each indexed value</param>
-        void Initialize(Func<uint, T> initializer);
-
-        /// <summary>
-        /// Initialize the segment to a single value
-        /// </summary>
-        /// <param name="initialValue">Initial value</param>
-        void Initialize(T initialValue);
-
-        /// <summary>
-        /// Initialize from an array
-        /// </summary>
-        /// <param name="initialData"></param>
-        void Initialize(Span<T> initialData);
-
-        /// <summary>
-        /// Writes to a stream
-        /// </summary>
-        /// <param name="writerBaseStream"></param>
-        void WriteTo(Stream writerBaseStream);
-
-        /// <summary>
-        /// Copies values from this segment to an existing array
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="sourceIndex">Index to start copying from</param>
-        /// <param name="count">Number of values to copy</param>
-        void CopyTo(Span<T> array, uint sourceIndex = 0, uint count = uint.MaxValue);
-
-        /// <summary>
-        /// Copies all values to another segment
-        /// </summary>
-        /// <param name="segment"></param>
-        void CopyTo(ITensorSegment<T> segment);
-
-        /// <summary>
-        /// Returns part of the segment as a numerics vector
-        /// </summary>
-        System.Numerics.Vector<T> AsNumericsVector(int start);
-
-        /// <summary>
-        /// Returns an array that is only valid in local scope
-        /// </summary>
-        /// <returns></returns>
-        T[] GetArrayForLocalUseOnly();
-    }
-
-    //public interface ITensorComputation<T>
-    //    where T : struct
-    //{
-    //    Matrix<T> Transpose(Matrix<T> m);
-    //    Matrix<T> Multiply(Matrix<T> m1, Matrix<T> m2);
-    //    Matrix<T> TransposeAndMultiply(Matrix<T> m1, Matrix<T> m2);
-    //    Matrix<T> TransposeThisAndMultiply(Matrix<T> m1, Matrix<T> m2);
-    //    Vector<T> RowSums(Matrix<T> m);
-    //    Vector<T> ColumnSums(Matrix<T> m);
-    //    void AddToEachRowInPlace(Matrix<T> m, Vector<T> v);
-    //    void AddToEachColumnInPlace(Matrix<T> m, Vector<T> v);
-    //    Matrix<T> ConcatRows(Matrix<T> left, Matrix<T> right);
-    //    Matrix<T> ConcatColumns(Matrix<T> top, Matrix<T> bottom);
-    //}
-
-    /// <summary>
     /// Indicates that the type can write values to meta data
     /// </summary>
     public interface IWriteToMetaData
@@ -572,7 +108,7 @@ namespace BrightData
         /// Writes values to meta data
         /// </summary>
         /// <param name="metadata">Meta data store</param>
-        void WriteTo(IMetaData metadata);
+        void WriteTo(MetaData metadata);
     }
 
     /// <summary>
@@ -928,7 +464,7 @@ namespace BrightData
     /// <summary>
     /// Indicates that the type has string indexer
     /// </summary>
-    public interface IHaveIndexer
+    public interface IHaveStringIndexer
     {
         /// <summary>
         /// String indexer
@@ -937,25 +473,14 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that an operation can be completed
+    /// Indicates that the type has a string table
     /// </summary>
-    public interface ICanComplete
+    public interface IHaveStringTable
     {
         /// <summary>
-        /// Complete the operation
+        /// Current string table
         /// </summary>
-        void Complete();
-    }
-
-    /// <summary>
-    /// Indicates that the type has a dictionary (string table)
-    /// </summary>
-    public interface IHaveDictionary
-    {
-        /// <summary>
-        /// Current dictionary (string table)
-        /// </summary>
-        string[] Dictionary { get; }
+        string[] StringTable { get; }
     }
 
     public interface IStructByReferenceEnumerator<T> : IDisposable where T : struct
@@ -1098,193 +623,11 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
-    public interface ITensor2 : IDisposable, ISerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
-    {
-        BrightDataContext Context { get; }
-        LinearAlgebraProvider LinearAlgebraProvider { get; }
-        ITensorSegment Segment { get; }
-        IVector Reshape();
-        IMatrix Reshape(uint? rows, uint? columns);
-        ITensor3D Reshape(uint? depth, uint? rows, uint? columns);
-        ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns);
-        void Clear();
-        ITensor2 Clone();
-        uint TotalSize { get; }
-        uint[] Shape { get; }
-        void AddInPlace(ITensor2 tensor);
-        void AddInPlace(ITensor2 tensor, float coefficient1, float coefficient2);
-        void AddInPlace(float scalar);
-        void MultiplyInPlace(float scalar);
-        void SubtractInPlace(ITensor2 tensor);
-        void SubtractInPlace(ITensor2 tensor, float coefficient1, float coefficient2);
-        void PointwiseMultiplyInPlace(ITensor2 tensor);
-        void PointwiseDivideInPlace(ITensor2 tensor);
-        float DotProduct(ITensor2 tensor);
-        uint? Search(float value);
-        void ConstrainInPlace(float? minValue, float? maxValue);
-        float Average();
-        float L1Norm();
-        float L2Norm();
-        (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues();
-        uint GetMinIndex();
-        uint GetMaxIndex();
-        float GetMin();
-        float GetMax();
-        bool IsEntirelyFinite();
-        float CosineDistance(ITensor2 other);
-        float EuclideanDistance(ITensor2 other);
-        float MeanSquaredDistance(ITensor2 other);
-        float SquaredEuclideanDistance(ITensor2 other);
-        float ManhattanDistance(ITensor2 other);
-        float StdDev(float? mean);
-        IMatrix SoftmaxDerivative();
-        void RoundInPlace(float lower, float upper, float? mid);
-        void MapInPlace(Func<float, float> mutator);
-        void L1Regularisation(float coefficient);
-        float Sum();
-    }
-
-    public interface ITensor2<out T> : ITensor2
-        where T: ITensor2
-    {
-        new T Clone();
-        T Add(ITensor2 tensor);
-        T Add(ITensor2 tensor, float coefficient1, float coefficient2);
-        T Add(float scalar);
-        T Multiply(float scalar);
-        T Subtract(ITensor2 tensor);
-        T Subtract(ITensor2 tensor, float coefficient1, float coefficient2);
-        T PointwiseMultiply(ITensor2 tensor);
-        T PointwiseDivide(ITensor2 tensor);
-        T Sqrt();
-        T Reverse();
-        IEnumerable<T> Split(uint blockCount);
-        T Abs();
-        T Log();
-        T Exp();
-        T Squared();
-        T Sigmoid();
-        T SigmoidDerivative();
-        T Tanh();
-        T TanhDerivative();
-        T Relu();
-        T ReluDerivative();
-        T LeakyRelu();
-        T LeakyReluDerivative();
-        T Softmax();
-        T Pow(float power);
-        T CherryPick(uint[] indices);
-        T Map(Func<float, float> mutator);
-    }
-
-    public interface IVector : ITensor2<IVector>, IVectorInfo
-    {
-        new float this[int index] { get; set; }
-        new float this[uint index] { get; set; }
-        float this[long index] { get; set; }
-        float this[ulong index] { get; set; }
-        IVector MapIndexed(Func<uint, float, float> mutator);
-        void MapIndexedInPlace(Func<uint, float, float> mutator);
-    }
-
-    public interface IMatrix : ITensor2<IMatrix>, IMatrixInfo
-    {
-        new float this[int rowY, int columnX] { get; set; }
-        new float this[uint rowY, uint columnX] { get; set; }
-        float this[long rowY, long columnX] { get; set; }
-        float this[ulong rowY, ulong columnX] { get; set; }
-        ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp);
-        ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
-        IVector GetRowVector(uint index);
-        IVector GetColumnVector(uint index);
-        IMatrix Transpose();
-        IMatrix Multiply(IMatrix other);
-        IMatrix TransposeAndMultiply(IMatrix other);
-        IMatrix TransposeThisAndMultiply(IMatrix other);
-        IVector GetDiagonal();
-        IVector RowSums();
-        IVector ColumnSums();
-        IMatrix Multiply(IVector vector);
-        (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
-        (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
-        IMatrix ConcatColumns(IMatrix bottom);
-        IMatrix ConcatRows(IMatrix right);
-        IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
-        void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
-        (IMatrix U, IVector S, IMatrix VT) Svd();
-        IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
-        IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
-        void AddToEachRow(ITensorSegment segment);
-        void AddToEachColumn(ITensorSegment segment);
-    }
-
-    public interface IMatrixSegments
-    {
-        TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
-        TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
-    }
-
-    public interface ITensor3D : ITensor2<ITensor3D>, ITensor3DInfo
-    {
-        new float this[int depth, int rowY, int columnX] { get; set; }
-        new float this[uint depth, uint rowY, uint columnX] { get; set; }
-        float this[long depth, long rowY, long columnX] { get; set; }
-        float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
-        IMatrix GetMatrix(uint index);
-        ITensor3D AddPadding(uint padding);
-        ITensor3D RemovePadding(uint padding);
-        IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
-        ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        IMatrix CombineDepthSlices();
-        ITensor3D Multiply(IMatrix matrix);
-        void AddToEachRow(IVector vector);
-        ITensor3D TransposeThisAndMultiply(ITensor4D other);
-    }
-
-    public interface ITensor4D : ITensor2<ITensor4D>, ITensor4DInfo
-    {
-        new float this[int count, int depth, int rowY, int columnX] { get; set; }
-        new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
-        float this[long count, long depth, long rowY, long columnX] { get; set; }
-        float this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
-        ITensor3D GetTensor(uint index);
-        ITensor4D AddPadding(uint padding);
-        ITensor4D RemovePadding(uint padding);
-        (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
-        ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        IVector ColumnSums();
-    }
-
     public interface ICountReferences
     {
         int AddRef();
         int Release();
         bool IsValid { get; }
-    }
-
-    public interface ITensorSegment : ICountReferences, IDisposable
-    {
-        uint Size { get; }
-        string SegmentType { get; }
-        float this[int index] { get; set; }
-        float this[uint index] { get; set; }
-        float this[long index] { get; set; }
-        float this[ulong index] { get; set; }
-        IEnumerable<float> Values { get; }
-        float[]? GetArrayForLocalUseOnly();
-        float[] ToNewArray();
-        void CopyFrom(ReadOnlySpan<float> span);
-        void CopyTo(ITensorSegment segment);
-        void CopyTo(Span<float> destination);
-        unsafe void CopyTo(float* destination, int offset, int stride, int count);
-        void Clear();
-        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
-        ReadOnlySpan<float> GetSpan();
-        (float[] Array, uint Offset, uint Stride) GetUnderlyingArray();
     }
 
     public interface ICanIterateData<T> : IDisposable where T: unmanaged

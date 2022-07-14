@@ -20,7 +20,7 @@
             }
         }
 
-        public override void WriteTo(IMetaData metadata)
+        public override void WriteTo(MetaData metadata)
         {
             base.WriteTo(metadata);
             if(_minLength != uint.MaxValue)

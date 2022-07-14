@@ -12,12 +12,12 @@ namespace BrightWire.Models
     /// <summary>
     /// A serialised execution graph
     /// </summary>
-    public class ExecutionGraphModel : ISerializable
+    public class ExecutionGraphModel : IAmSerializable
     {
         /// <summary>
         /// A node within the graph
         /// </summary>
-        public class Node : ISerializable
+        public class Node : IAmSerializable
         {
             /// <summary>
             /// Default constructor
@@ -77,7 +77,7 @@ namespace BrightWire.Models
         /// <summary>
         /// Wires connect nodes (aka edges)
         /// </summary>
-        public class Wire : ISerializable
+        public class Wire : IAmSerializable
         {
             /// <summary>
             /// The source node id

@@ -29,6 +29,7 @@ namespace BrightWire.Helper
             return ret;
         }
 
+        /// <inheritdoc />
 		public LinearAlgebraProvider LinearAlgebraProvider { get; }
 		public IWeightInitialisation? WeightInitialisation
         {

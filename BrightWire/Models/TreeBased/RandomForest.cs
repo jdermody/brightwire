@@ -9,7 +9,7 @@ namespace BrightWire.Models.TreeBased
     /// <summary>
     /// A random forest model
     /// </summary>
-    public class RandomForest : ISerializable
+    public class RandomForest : IAmSerializable
     {
         /// <summary>
         /// The list of trees in the forest

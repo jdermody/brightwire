@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Graph engine execution context
     /// </summary>
-    public class GraphExecutionContext : IDisposable
+    public class GraphExecutionContext : IHaveLinearAlgebraProvider, IDisposable
     {
         class AdditionalBatch
         {
@@ -48,6 +48,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _memory.Clear();
         }
 
+        /// <inheritdoc />
         public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public void Add(IEnumerable<IGraphOperation> operations)

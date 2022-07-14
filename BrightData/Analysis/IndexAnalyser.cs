@@ -42,7 +42,7 @@ namespace BrightData.Analysis
                 Add(indexed);
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             if (_min != uint.MaxValue)

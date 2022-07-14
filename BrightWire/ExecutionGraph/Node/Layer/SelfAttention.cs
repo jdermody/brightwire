@@ -60,7 +60,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _layer = layer;
         }
 
-        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
+        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

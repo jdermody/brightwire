@@ -41,7 +41,7 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj) => AddString(obj.ToString());
 
-        public virtual void WriteTo(IMetaData metadata)
+        public virtual void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.Total, Total);

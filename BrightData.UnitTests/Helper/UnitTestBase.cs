@@ -43,7 +43,7 @@ namespace BrightData.UnitTests.Helper
                 FloatMath.AreApproximatelyEqual(first, tensors[i], maxDifference).Should().BeTrue();
         }
 
-        protected static void AssertSameAndThenDispose(params ITensor2[] tensors)
+        protected static void AssertSameAndThenDispose(params ITensor[] tensors)
         {
             try {
                 AssertSame(tensors);

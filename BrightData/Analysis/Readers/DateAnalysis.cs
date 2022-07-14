@@ -7,7 +7,7 @@ namespace BrightData.Analysis.Readers
     /// </summary>
     public class DateAnalysis : FrequencyAnalysis
     {
-        internal DateAnalysis(IMetaData metaData) : base(metaData)
+        internal DateAnalysis(MetaData metaData) : base(metaData)
         {
             MinDate = metaData.GetNullable<DateTime>(Consts.MinDate);
             MaxDate = metaData.GetNullable<DateTime>(Consts.MaxDate);

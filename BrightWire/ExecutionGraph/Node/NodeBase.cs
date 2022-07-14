@@ -352,7 +352,7 @@ namespace BrightWire.ExecutionGraph.Node
             _output.Remove(wire);
         }
 
-        public virtual void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        public virtual void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
         {
             throw new NotImplementedException();
         }

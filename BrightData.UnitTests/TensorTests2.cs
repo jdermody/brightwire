@@ -74,7 +74,7 @@ namespace BrightData.UnitTests
         }
 
         void Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)
-            where TT: ITensor2
+            where TT: ITensor
         {
             try {
                 simple.Segment.CopyTo(mkl.Segment);

@@ -587,7 +587,7 @@
 		<summary>Clones the current data table</summary>
 				<param type="System.String" name="filePath" summary="File path to store new table on disk (optional)" />
 			</method>
-	<method type="BrightData.IMetaData" name="ColumnAnalysis">
+	<method type="BrightData.MetaData" name="ColumnAnalysis">
 		<summary>Returns the metadata for a single column after performing analysis on the column</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index to retrieve" />
 				<param type="System.Boolean" name="force" summary="True to force metadata analysis" />
@@ -606,7 +606,7 @@
 		<summary>Gets a column transformer</summary>
 				<param type="BrightData.BrightDataType" name="fromType" summary="Convert from column type" />
 				<param type="BrightData.ISingleTypeTableSegment" name="column" summary="Column to convert" />
-				<param type="System.Func&lt;BrightData.IMetaData&gt;" name="analysedMetaData" summary="Function to produce analysed column meta data if needed" />
+				<param type="System.Func&lt;BrightData.MetaData&gt;" name="analysedMetaData" summary="Function to produce analysed column meta data if needed" />
 				<param type="BrightData.IProvideTempStreams" name="tempStreams" summary="Temp stream provider" />
 				<param type="System.UInt32" name="inMemoryRowCount" summary="Number of rows to cache in memory" />
 			</method>
@@ -807,11 +807,11 @@
 		<summary>Returns a single column from the table</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index to retrieve" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.IMetaData MetaData)&gt;" name="ColumnAnalysis">
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.MetaData MetaData)&gt;" name="ColumnAnalysis">
 		<summary>Returns analysed metadata for the specified columns</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="columnIndices" summary="Column indices" />
 			</method>
-	<method type="BrightData.IMetaData" name="ColumnMetaData">
+	<method type="BrightData.MetaData" name="ColumnMetaData">
 		<summary>Returns the metadata for a single column (without analysis)</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index to retrieve" />
 			</method>
@@ -1750,7 +1750,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	<summary>
 		Indicates that the type has a meta data store
 	</summary>
-		<property type="BrightData.IMetaData" name="MetaData">
+		<property type="BrightData.MetaData" name="MetaData">
 		<summary>Meta data store</summary>
 	</property>
 </interface>
@@ -2144,7 +2144,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 		<summary>The current state of the memory node</summary>
 	</property>
 </interface>
-<interface name="BrightData.IMetaData" base="BrightData.ICanWriteToBinaryWriter">
+<interface name="BrightData.MetaData" base="BrightData.ICanWriteToBinaryWriter">
 	<summary>
 		Unstructured meta data store
 	</summary>
@@ -2175,16 +2175,16 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</property>
 	<method type="System.Void" name="CopyTo">
 		<summary>Copies this to another meta data store</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="Other meta data store" />
+				<param type="BrightData.MetaData" name="metadata" summary="Other meta data store" />
 			</method>
 	<method type="System.Void" name="CopyTo">
 		<summary>Copies the specified values to another meta data store</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="Other meta data store" />
+				<param type="BrightData.MetaData" name="metadata" summary="Other meta data store" />
 				<param type="System.String[]" name="keys" summary="Values to copy" />
 			</method>
 	<method type="System.Void" name="CopyAllExcept">
 		<summary>Copies all except for the specified values to another meta data store</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="Other meta data store" />
+				<param type="BrightData.MetaData" name="metadata" summary="Other meta data store" />
 				<param type="System.String[]" name="keys" summary="Values NOT to copy (i.e. skip)" />
 			</method>
 	<method type="System.Void" name="ReadFrom">
@@ -2206,7 +2206,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	<property type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="AllKeys">
 		<summary>Returns all keys that have been set</summary>
 	</property>
-	<method type="BrightData.IMetaData" name="Clone">
+	<method type="BrightData.MetaData" name="Clone">
 		<summary>Creates a clone of the current metadata</summary>
 			</method>
 </interface>
@@ -2909,7 +2909,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</summary>
 		<method type="System.Void" name="Finalise">
 		<summary>Complete the transformation</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store to receive transformation information" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store to receive transformation information" />
 			</method>
 </interface>
 <interface name="BrightData.ITransformColumn&lt;TF, TT&gt;" base="BrightData.ITransformColumn">
@@ -2966,7 +2966,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</summary>
 		<method type="System.Void" name="WriteTo">
 		<summary>Writes values to meta data</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metadata" summary="Meta data store" />
 			</method>
 </interface>
 
@@ -3338,7 +3338,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="BrightData.ColumnClass" name="GetClass" is-static="true">
 		<summary>Returns the set of possible column classifications</summary>
 				<param type="BrightData.BrightDataType" name="type" summary="Column type to check" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Column metadata" />
+				<param type="BrightData.MetaData" name="metaData" summary="Column metadata" />
 			</method>
 </class>
 <class name="BrightWire.TreeBased.Training.DecisionTreeTrainer.Config" base="" is-static="false" is-abstract="false">
@@ -3447,7 +3447,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="System.Void" name="CustomConverter" is-static="false">
 		<summary></summary>
 				<param type="System.Func&lt;TF, TT&gt;" name="converter" summary="" />
-				<param type="System.Action&lt;BrightData.IMetaData&gt;" name="finalise" summary="" />
+				<param type="System.Action&lt;BrightData.MetaData&gt;" name="finalise" summary="" />
 			</method>
 	<method type="System.Boolean" name="Convert" is-static="false">
 		<summary></summary>
@@ -3463,7 +3463,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	</property>
 	<method type="System.Void" name="Finalise" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 			</method>
 </class>
 <class name="BrightData.Helper.DataEncoder" base="" is-static="false" is-abstract="false">
@@ -3895,35 +3895,35 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.Analysis.Readers.DateAnalysis" name="GetDateAnalysis" is-static="true">
 		<summary>Gets the date analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.DimensionAnalysis" name="GetDimensionAnalysis" is-static="true">
 		<summary>Gets the dimension analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.FrequencyAnalysis" name="GetFrequencyAnalysis" is-static="true">
 		<summary>Gets the frequency analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.IndexAnalysis" name="GetIndexAnalysis" is-static="true">
 		<summary>Gets the index analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.NumericAnalysis" name="GetNumericAnalysis" is-static="true">
 		<summary>Gets the numeric analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.StringAnalysis" name="GetStringAnalysis" is-static="true">
 		<summary>Gets the string analysis that was stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.DictionaryValues" name="GetDictionaryValues" is-static="true">
 		<summary>Gets the categories that were stored in meta data</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Transformation.NormalizeTransformation" name="GetNormalization" is-static="true">
 		<summary></summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Meta data store" />
+				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Analysis.Readers.NumericAnalysis" name="Analyze" is-static="true">
 		<summary>Analyzes numbers in a sequence</summary>
@@ -4006,13 +4006,13 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="System.Boolean" name="SetIfNotNull" is-static="true">
 		<summary>Sets a value only if the value is not null</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 				<param type="System.String" name="name" summary="" />
 				<param type="System.Nullable&lt;T&gt;" name="value" summary="" />
 			</method>
 	<method type="System.Boolean" name="SetIfNotNull" is-static="true">
 		<summary>Sets a value only if the value is not null</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 				<param type="System.String" name="name" summary="" />
 				<param type="T" name="value" summary="" />
 			</method>
@@ -4039,29 +4039,29 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="System.String" name="GetName" is-static="true">
 		<summary>Item name</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.UInt32" name="GetIndex" is-static="true">
 		<summary>Item index</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsNumeric" is-static="true">
 		<summary>True if the item is numeric</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsTarget" is-static="true">
 		<summary>True if the item is a target</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsCategorical" is-static="true">
 		<summary>True if the item is categorical</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsSequential" is-static="true">
 		<summary>True if the item is sequential</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
-	<method type="BrightData.IMetaData" name="GetMetaData" is-static="true">
+	<method type="BrightData.MetaData" name="GetMetaData" is-static="true">
 		<summary>Writes available meta data to a new meta data store</summary>
 				<param type="BrightData.IWriteToMetaData" name="writer" summary="" />
 			</method>
@@ -4092,24 +4092,24 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.AggregationType" name="operation" summary="" />
 				<param type="System.Collections.Generic.List&lt;System.Single&gt;" name="data" summary="Data to aggregate" />
 			</method>
-	<method type="BrightData.IMetaData" name="SetTarget" is-static="true">
+	<method type="BrightData.MetaData" name="SetTarget" is-static="true">
 		<summary>Sets this as a target</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 				<param type="System.Boolean" name="isTarget" summary="" />
 			</method>
-	<method type="BrightData.IMetaData" name="SetIsCategorical" is-static="true">
+	<method type="BrightData.MetaData" name="SetIsCategorical" is-static="true">
 		<summary>Sets this as categorical</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 				<param type="System.Boolean" name="isCategorical" summary="" />
 			</method>
-	<method type="BrightData.IMetaData" name="SetName" is-static="true">
+	<method type="BrightData.MetaData" name="SetName" is-static="true">
 		<summary>Sets the name</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 				<param type="System.String" name="name" summary="Name" />
 			</method>
 	<method type="System.String" name="GetFilePath" is-static="true">
 		<summary>Returns the file path associated with the meta data (if any)</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;(T Item, System.UInt32 Count)&gt;" name="GroupAndCount" is-static="true">
 		<summary>Groups items and counts each group</summary>
@@ -4242,11 +4242,11 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.Action&lt;T0, T1, T2, T3&gt;" name="callback" summary="" />
 			</method>
-	<method type="BrightData.IMetaData[]" name="AllColumnsMetaData" is-static="true">
+	<method type="BrightData.MetaData[]" name="AllColumnsMetaData" is-static="true">
 		<summary>Returns meta data for all columns</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.IMetaData&gt;" name="ColumnMetaData" is-static="true">
+	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.MetaData&gt;" name="ColumnMetaData" is-static="true">
 		<summary>Enumerates metadata for each specified column</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to retrieve" />
@@ -4259,7 +4259,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="BrightData.IDataAnalyser" name="GetColumnAnalyser" is-static="true">
 		<summary>Creates a column analyser</summary>
 				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data" />
+				<param type="BrightData.MetaData" name="metaData" summary="Column meta data" />
 				<param type="System.UInt32" name="writeCount" summary="Maximum size of sequences to write in final meta data" />
 				<param type="System.UInt32" name="maxCount" summary="Maximum number of distinct items to track" />
 			</method>
@@ -4326,14 +4326,14 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Returns the feature (non target) columns of the data table</summary>
 				<param type="BrightData.IDataTable" name="table" summary="" />
 			</method>
-	<method type="BrightData.IMetaData" name="SetType" is-static="true">
+	<method type="BrightData.MetaData" name="SetType" is-static="true">
 		<summary>Sets the column type in a meta data store</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 				<param type="BrightData.BrightDataType" name="type" summary="" />
 			</method>
 	<method type="BrightData.IHybridBuffer" name="GetGrowableSegment" is-static="true">
 		<summary>Creates an appendable buffer for a column type</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 				<param type="BrightData.BrightDataType" name="type" summary="Column type" />
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
@@ -4343,7 +4343,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="BrightData.IColumnOrientedDataTable" name="BuildColumnOrientedTable" is-static="true">
 		<summary>Creates a column oriented data table from a list of segments</summary>
 				<param type="System.Collections.Generic.List&lt;BrightData.ISingleTypeTableSegment&gt;" name="segments" summary="" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Table meta data" />
+				<param type="BrightData.MetaData" name="metaData" summary="Table meta data" />
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rowCount" summary="Number of rows" />
 				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
@@ -4351,7 +4351,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="BrightData.IRowOrientedDataTable" name="BuildRowOrientedTable" is-static="true">
 		<summary>Creates a row oriented data table from a list of segments</summary>
 				<param type="System.Collections.Generic.List&lt;BrightData.ISingleTypeTableSegment&gt;" name="segments" summary="" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Table meta data" />
+				<param type="BrightData.MetaData" name="metaData" summary="Table meta data" />
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="rowCount" summary="Number of rows" />
 				<param type="System.String" name="filePath" summary="File path to save on disk (optional)" />
@@ -4371,11 +4371,11 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 			</method>
 	<method type="BrightData.BrightDataType" name="GetColumnType" is-static="true">
 		<summary>Gets the column type</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.UInt32" name="GetNumDistinct" is-static="true">
 		<summary>Gets the number of distinct items</summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="BrightData.DataTable.Builders.InMemoryTableBuilder" name="BuildTable" is-static="true">
 		<summary>Creates a table builder</summary>
@@ -4394,12 +4394,12 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="System.Int32" name="k" summary="Number of buckets to create" />
 				<param type="System.Boolean" name="shuffle" summary="True to shuffle the table before folding" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.IMetaData MetaData)&gt;" name="ColumnAnalysis" is-static="true">
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 ColumnIndex, BrightData.MetaData MetaData)&gt;" name="ColumnAnalysis" is-static="true">
 		<summary>Returns analysed column meta data</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32[]" name="columnIndices" summary="Column indices" />
 			</method>
-	<method type="BrightData.IMetaData[]" name="AllColumnAnalysis" is-static="true">
+	<method type="BrightData.MetaData[]" name="AllColumnAnalysis" is-static="true">
 		<summary>Returns analysed column meta data for all columns in the data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 			</method>
@@ -4523,7 +4523,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IColumnOrientedDataTable" name="table" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="Column index to convert" />
 				<param type="System.Func&lt;TF, TT&gt;" name="converter" summary="Column converter" />
-				<param type="System.Action&lt;BrightData.IMetaData&gt;" name="columnFinaliser" summary="Called after each row " />
+				<param type="System.Action&lt;BrightData.MetaData&gt;" name="columnFinaliser" summary="Called after each row " />
 			</method>
 	<method type="BrightData.IColumnOrientedDataTable" name="Convert" is-static="true">
 		<summary>Creates a new table with columns that have been converted</summary>
@@ -4577,7 +4577,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="System.String" name="filePath" summary="File path to store new table on disk" />
 				<param type="BrightData.IColumnTransformationParam[]" name="conversionParams" summary="Column conversion parameters" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, BrightData.BrightDataType Type, BrightData.IMetaData MetaData)&gt;" name="GetColumnInfo" is-static="true">
+	<method type="System.Collections.Generic.IEnumerable&lt;(System.UInt32 Index, BrightData.BrightDataType Type, BrightData.MetaData MetaData)&gt;" name="GetColumnInfo" is-static="true">
 		<summary>Returns column information</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 			</method>
@@ -4606,14 +4606,14 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Creates a column info</summary>
 				<param type="System.UInt32" name="columnIndex" summary="Column index" />
 				<param type="BrightData.BrightDataType" name="columnType" summary="Column data type" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data (optional)" />
+				<param type="BrightData.MetaData" name="metaData" summary="Column meta data (optional)" />
 			</method>
 	<method type="(BrightData.ISingleTypeTableSegment Segment, BrightData.IHybridBuffer Buffer)" name="GetSegmentWithHybridBuffer" is-static="true">
 		<summary>Creates a table segment with an associated hybrid buffer</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="Column index" />
 				<param type="BrightData.BrightDataType" name="columnType" summary="Column data type" />
-				<param type="BrightData.IMetaData" name="metaData" summary="Column meta data (optional)" />
+				<param type="BrightData.MetaData" name="metaData" summary="Column meta data (optional)" />
 			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
@@ -6050,7 +6050,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="BrightData.BrightDataContext" name="Context">
 		<summary></summary>
 	</property>
-	<property type="BrightData.IMetaData" name="MetaData">
+	<property type="BrightData.MetaData" name="MetaData">
 		<summary>Table meta data</summary>
 	</property>
 	<method type="System.Void" name="CopyColumnsFrom" is-static="false">
@@ -6058,23 +6058,23 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="BrightData.IDataTable" name="table" summary="Table to copy from" />
 				<param type="System.UInt32[]" name="columnIndices" summary="Column indices to copy" />
 			</method>
-	<method type="BrightData.IMetaData" name="AddColumn" is-static="false">
+	<method type="BrightData.MetaData" name="AddColumn" is-static="false">
 		<summary>Adds a new column</summary>
 				<param type="BrightData.BrightDataType" name="type" summary="Type of the column" />
 				<param type="System.String" name="name" summary="Name of the column" />
 			</method>
-	<method type="BrightData.IMetaData" name="AddFixedSizeVectorColumn" is-static="false">
+	<method type="BrightData.MetaData" name="AddFixedSizeVectorColumn" is-static="false">
 		<summary>Adds a new fixed size vector column</summary>
 				<param type="System.UInt32" name="size" summary="Size of the vector" />
 				<param type="System.String" name="name" summary="Name of the column (optional)" />
 			</method>
-	<method type="BrightData.IMetaData" name="AddFixedSizeMatrixColumn" is-static="false">
+	<method type="BrightData.MetaData" name="AddFixedSizeMatrixColumn" is-static="false">
 		<summary>Adds a new fixed size matrix column</summary>
 				<param type="System.UInt32" name="rows" summary="Row count of each matrix" />
 				<param type="System.UInt32" name="columns" summary="Column count of each matrix" />
 				<param type="System.String" name="name" summary="Name of the column (optional)" />
 			</method>
-	<method type="BrightData.IMetaData" name="AddFixedSize3DTensorColumn" is-static="false">
+	<method type="BrightData.MetaData" name="AddFixedSize3DTensorColumn" is-static="false">
 		<summary>Adds a new fixed size 3D tensor column</summary>
 				<param type="System.UInt32" name="depth" summary="Depth of each 3D tensor" />
 				<param type="System.UInt32" name="rows" summary="Row count of each matrix" />
@@ -6345,7 +6345,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</summary>
 	<method type="System.Void" name="MetaData" is-static="false">
 		<summary>Constructor</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="Existing meta data to copy from" />
+				<param type="BrightData.MetaData" name="metaData" summary="Existing meta data to copy from" />
 				<param type="System.String[]" name="keys" summary="Keys to copy (or all if none specified)" />
 			</method>
 	<method type="System.Void" name="MetaData" is-static="false">
@@ -6359,16 +6359,16 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="CopyTo" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 			</method>
 	<method type="System.Void" name="CopyTo" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 				<param type="System.String[]" name="keysToCopy" summary="" />
 			</method>
 	<method type="System.Void" name="CopyAllExcept" is-static="false">
 		<summary></summary>
-				<param type="BrightData.IMetaData" name="metadata" summary="" />
+				<param type="BrightData.MetaData" name="metadata" summary="" />
 				<param type="System.String[]" name="keys" summary="" />
 			</method>
 	<method type="System.Object" name="Get" is-static="false">
@@ -6422,7 +6422,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="AllKeys">
 		<summary></summary>
 	</property>
-	<method type="BrightData.IMetaData" name="Clone" is-static="false">
+	<method type="BrightData.MetaData" name="Clone" is-static="false">
 		<summary></summary>
 			</method>
 </class>
@@ -6733,11 +6733,11 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="System.Void" name="NormalizeTransformation" is-static="false">
 		<summary>Creates a new set of parameters based on supplied the numeric analysis</summary>
 				<param type="BrightData.NormalizationType" name="type" summary="Type of normalization" />
-				<param type="BrightData.IMetaData" name="analysedMetaData" summary="Numeric analysis" />
+				<param type="BrightData.MetaData" name="analysedMetaData" summary="Numeric analysis" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
 		<summary>Writes the normalization parameters to a meta data store</summary>
-				<param type="BrightData.IMetaData" name="metaData" summary="" />
+				<param type="BrightData.MetaData" name="metaData" summary="" />
 			</method>
 	<property type="BrightData.NormalizationType" name="NormalizationType">
 		<summary>Type of normalization</summary>

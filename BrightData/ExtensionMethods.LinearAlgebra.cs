@@ -305,7 +305,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensor"></param>
         /// <typeparam name="T"></typeparam>
-        public static void InitializeRandomly<T>(this ITensor2 tensor) where T : struct
+        public static void InitializeRandomly<T>(this ITensor tensor) where T : struct
         {
             var segment = tensor.Segment;
             var context = tensor.Context;
@@ -319,7 +319,7 @@ namespace BrightData
         /// <param name="tensor"></param>
         /// <param name="value">Value to initialize each element of the tensor</param>
         /// <typeparam name="T"></typeparam>
-        public static void Initialize(this ITensor2 tensor, float value)
+        public static void Initialize(this ITensor tensor, float value)
         {
             var segment = tensor.Segment;
             for (uint i = 0, len = segment.Size; i < len; i++)
@@ -332,7 +332,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="tensor"></param>
         /// <param name="initializer">Callback for each element</param>
-        public static void Initialize(this ITensor2 tensor, Func<uint, float> initializer)
+        public static void Initialize(this ITensor tensor, Func<uint, float> initializer)
         {
             var segment = tensor.Segment;
             for (uint i = 0, len = segment.Size; i < len; i++)
@@ -524,7 +524,7 @@ namespace BrightData
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         public static T Average<T>(this IEnumerable<T> tensors, bool dispose)
-            where T: ITensor2
+            where T: ITensor
         {
             if(tensors == null)
                 throw new ArgumentException("Null enumerable", nameof(tensors));

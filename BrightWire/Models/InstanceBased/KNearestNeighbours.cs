@@ -10,7 +10,7 @@ namespace BrightWire.Models.InstanceBased
     /// <summary>
     /// K Nearest Neighbour Model
     /// </summary>
-    public class KNearestNeighbours : ISerializable
+    public class KNearestNeighbours : IAmSerializable
     {
         /// <summary>
         /// The list of vectors to match against

@@ -7,7 +7,7 @@ namespace BrightWire.Models
     /// <summary>
     /// A serialised graph
     /// </summary>
-    public class GraphModel : ISerializable
+    public class GraphModel : IAmSerializable
     {
         /// <summary>
         /// Segment contract version number

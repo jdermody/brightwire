@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class NodeError
         {
-            public NodeError(NodeBase node, ErrorType errorType, ITensor2 error)
+            public NodeError(NodeBase node, ErrorType errorType, ITensor error)
             {
                 Node = node;
                 ErrorType = errorType;
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             public NodeBase Node { get; }
             public ErrorType ErrorType { get; }
-            public ITensor2 Error { get; }
+            public ITensor Error { get; }
         }
 
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor2 error)
+        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor error)
         {
             if (!_updatesDisabled.Contains(fromNode))
                 _nodeError.Add(new NodeError(fromNode, errorType, error));

@@ -29,7 +29,7 @@ namespace BrightData.Transformation
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
@@ -50,7 +50,7 @@ namespace BrightData.Transformation
                 return true;
             }
 
-            public virtual void Finalise(IMetaData metaData)
+            public virtual void Finalise(MetaData metaData)
             {
                 // nop
             }
@@ -66,7 +66,7 @@ namespace BrightData.Transformation
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 // nop
             }
@@ -95,7 +95,7 @@ namespace BrightData.Transformation
                 return false;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
             }
@@ -113,7 +113,7 @@ namespace BrightData.Transformation
                 return index;
             }
 
-            public override void Finalise(IMetaData metaData)
+            public override void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
                 metaData.SetType(BrightDataType.Int);
@@ -143,7 +143,7 @@ namespace BrightData.Transformation
 
             public Type From { get; } = typeof(string);
             public Type To { get; } = typeof(IndexList);
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.SetType(BrightDataType.IndexList);
                 metaData.SetIsCategorical(true);
@@ -171,7 +171,7 @@ namespace BrightData.Transformation
 
             public Type From { get; } = typeof(TF);
             public Type To { get; } = typeof(TT);
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
             }
@@ -180,9 +180,9 @@ namespace BrightData.Transformation
         public class CustomConverter<TF, TT> : IConvertColumn<TF, TT> where TF : notnull where TT : notnull
         {
             readonly Func<TF, TT> _converter;
-            readonly Action<IMetaData>? _finalise;
+            readonly Action<MetaData>? _finalise;
 
-            public CustomConverter(Func<TF, TT> converter, Action<IMetaData>? finalise)
+            public CustomConverter(Func<TF, TT> converter, Action<MetaData>? finalise)
             {
                 _converter = converter;
                 _finalise = finalise;
@@ -196,7 +196,7 @@ namespace BrightData.Transformation
 
             public Type From => typeof(TF);
             public Type To => typeof(TT);
-            public void Finalise(IMetaData metaData) => _finalise?.Invoke(metaData);
+            public void Finalise(MetaData metaData) => _finalise?.Invoke(metaData);
         }
 
         readonly ColumnConversionType _toType;
@@ -236,7 +236,7 @@ namespace BrightData.Transformation
         public uint? ColumnIndex { get; }
 
         /// <inheritdoc />
-        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;

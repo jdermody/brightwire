@@ -78,7 +78,7 @@ namespace BrightData.Helper
         /// <param name="type">Column type to check</param>
         /// <param name="metaData">Column metadata</param>
         /// <returns></returns>
-        public static ColumnClass GetClass(BrightDataType type, IMetaData metaData)
+        public static ColumnClass GetClass(BrightDataType type, MetaData metaData)
         {
             var ret = ColumnClass.Unknown;
             if (metaData.IsCategorical() || IsCategorical(type))

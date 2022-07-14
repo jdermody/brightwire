@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _lap = lap;
             _dataTable = dataTable;
             _classifier = classifier;
-            _indexer = (classifier as IHaveIndexer)?.Indexer ?? new DefaultIndexer(dataTable);
+            _indexer = (classifier as IHaveStringIndexer)?.Indexer ?? new DefaultIndexer(dataTable);
         }
 
         public uint OutputSize => _indexer.OutputSize;

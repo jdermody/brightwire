@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-        public override void ApplyError(ErrorType type, ITensor2 delta, ILearningContext context)
+        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
         {
             var array = delta.Segment.GetLocalOrNewArray();
             for (uint j = 0; j < _data.Length; j++)

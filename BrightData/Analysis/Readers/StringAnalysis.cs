@@ -5,7 +5,7 @@
     /// </summary>
     public class StringAnalysis : FrequencyAnalysis
     {
-        internal StringAnalysis(IMetaData metadata) : base(metadata)
+        internal StringAnalysis(MetaData metadata) : base(metadata)
         {
             MinLength = metadata.GetNullable<uint>(Consts.MinLength);
             MaxLength = metadata.GetNullable<uint>(Consts.MaxLength);

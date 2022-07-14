@@ -121,7 +121,7 @@ namespace BrightData.Buffer.EncodedStream
             return new ConvertFromStream<T>(length, stream, objectBuilder);
         }
 
-        public class StringDecoder : ICanEnumerateWithSize<string>, ICanWriteToBinaryWriter, IHaveDictionary
+        public class StringDecoder : ICanEnumerateWithSize<string>, ICanWriteToBinaryWriter, IHaveStringTable
         {
             readonly ICanEnumerateWithSize<ushort> _reader;
             readonly string[] _stringTable;
@@ -154,10 +154,10 @@ namespace BrightData.Buffer.EncodedStream
                 );
             }
 
-            public string[] Dictionary => _stringTable;
+            public string[] StringTable => _stringTable;
         }
 
-        public class StructDecoder<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter, IHaveDictionary
+        public class StructDecoder<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter, IHaveStringTable
             where T : struct
         {
             readonly ICanEnumerateWithSize<ushort> _reader;
@@ -177,7 +177,7 @@ namespace BrightData.Buffer.EncodedStream
                 EncodedStreamWriter.StructEncoder<T>.WriteTo(_table, _reader.Size, _reader.EnumerateTyped(), writer);
             }
 
-            public string[] Dictionary => _table.Select(d => d.ToString()!).ToArray();
+            public string[] StringTable => _table.Select(d => d.ToString()!).ToArray();
         }
 
         public class ObjectReader<T> : ICanEnumerateWithSize<T>, ICanWriteToBinaryWriter

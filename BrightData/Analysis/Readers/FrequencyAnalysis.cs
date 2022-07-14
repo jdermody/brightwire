@@ -7,7 +7,7 @@ namespace BrightData.Analysis.Readers
     /// </summary>
     public class FrequencyAnalysis
     {
-        internal FrequencyAnalysis(IMetaData metaData)
+        internal FrequencyAnalysis(MetaData metaData)
         {
             Total = metaData.Get<ulong>(Consts.Total);
             MostFrequent = metaData.Get(Consts.MostFrequent) as string;

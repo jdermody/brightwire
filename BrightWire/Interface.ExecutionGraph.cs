@@ -528,13 +528,8 @@ namespace BrightWire
     /// <summary>
     /// Graph engines drive execution within a graph
     /// </summary>
-    public interface IGraphEngine : ICreateGraphContext
+    public interface IGraphEngine : ICreateGraphContext, IHaveLinearAlgebraProvider
     {
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { get; }
-
         /// <summary>
         /// Serialised version of the current graph and its parameters
         /// </summary>

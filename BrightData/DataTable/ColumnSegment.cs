@@ -15,7 +15,7 @@ namespace BrightData.DataTable
             BrightDataType dataType,
             uint size,
             SequentialColumnReader<CT, T> reader, 
-            IMetaData metaData)
+            MetaData metaData)
         {
             _reader = reader;
             SingleType = dataType;
@@ -25,7 +25,7 @@ namespace BrightData.DataTable
         }
 
         public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
-        public IMetaData MetaData { get; }
+        public MetaData MetaData { get; }
         public void WriteTo(BinaryWriter writer)
         {
             throw new NotImplementedException();

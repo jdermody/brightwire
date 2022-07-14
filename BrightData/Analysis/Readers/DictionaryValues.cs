@@ -11,7 +11,7 @@ namespace BrightData.Analysis.Readers
     {
         readonly List<string> _table;
 
-        internal DictionaryValues(IMetaData metaData)
+        internal DictionaryValues(MetaData metaData)
         {
             var len = Consts.CategoryPrefix.Length;
             _table = metaData.GetStringsWithPrefix(Consts.CategoryPrefix)

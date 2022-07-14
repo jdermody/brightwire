@@ -11,12 +11,12 @@ namespace BrightWire.Models.TreeBased
     /// <summary>
     /// A decision tree model
     /// </summary>
-    public class DecisionTree : ISerializable
+    public class DecisionTree : IAmSerializable
     {
         /// <summary>
         /// A node in the decision tree
         /// </summary>
-        public class Node : ISerializable
+        public class Node : IAmSerializable
         {
             /// <summary>
             /// The nodes children

@@ -128,7 +128,7 @@ namespace BrightData.Analysis
             }
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.IsNumeric, true);

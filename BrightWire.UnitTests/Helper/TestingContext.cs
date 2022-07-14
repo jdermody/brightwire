@@ -17,7 +17,6 @@ namespace BrightWire.UnitTests.Helper
         public TestingContext(LinearAlgebraProvider lap)
 #pragma warning restore 8618
         {
-            LinearAlgebraProvider = lap;
             LearningContext = new MockLearningContext();
         }
 
@@ -30,7 +29,6 @@ namespace BrightWire.UnitTests.Helper
         public IGraphData Data { get; set; }
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
-        public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public IMiniBatchSequence BatchSequence { get; }
 

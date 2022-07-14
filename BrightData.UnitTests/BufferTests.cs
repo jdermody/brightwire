@@ -82,7 +82,7 @@ namespace BrightData.UnitTests
                 StringBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
         }
 
-        void ObjectTests<T>(BrightDataContext context, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectTests<T>(BrightDataContext context, Func<uint, T> indexTranslator) where T : IAmSerializable
         {
             foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 ObjectBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
@@ -112,7 +112,7 @@ namespace BrightData.UnitTests
                 item.Should().Be(indexTranslator(index++));
         }
 
-        void ObjectBufferReadWriteTest<T>(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort _, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectBufferReadWriteTest<T>(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort _, Func<uint, T> indexTranslator) where T : IAmSerializable
         {
             var buffer = _streamProvider.CreateHybridObjectBuffer<T>(context, bufferSize);
             for (uint i = 0; i < numItems; i++)

@@ -13,7 +13,7 @@ namespace BrightData.Buffer.Hybrid
     {
         readonly IHybridBuffer<T> _buffer;
 
-        public HybridBufferSegment(BrightDataType type, IMetaData metaData, IHybridBuffer<T> buffer)
+        public HybridBufferSegment(BrightDataType type, MetaData metaData, IHybridBuffer<T> buffer)
         {
             _buffer = buffer;
             MetaData = metaData;
@@ -28,7 +28,7 @@ namespace BrightData.Buffer.Hybrid
         }
 
         /// <inheritdoc />
-        public IMetaData MetaData { get; }
+        public MetaData MetaData { get; }
 
         /// <inheritdoc />
         public BrightDataType SingleType { get; }

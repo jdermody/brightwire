@@ -7,7 +7,7 @@ namespace BrightWire.Models
     /// <summary>
     /// Serialises an adaptive data source - that is, a data source that takes the output from a preliminary output graph and sends it to the primary graph
     /// </summary>
-    public class DataSourceModel : ISerializable
+    public class DataSourceModel : IAmSerializable
     {
         /// <summary>
         /// Segment contract version number

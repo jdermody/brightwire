@@ -13,7 +13,7 @@ namespace BrightData.Buffer.InMemory
         readonly HashSet<T> _unique = new();
         bool _isDistinct = true;
 
-        public InMemorySegment(BrightDataContext context, BrightDataType type, IMetaData metaData, ushort maxDistinct)
+        public InMemorySegment(BrightDataContext context, BrightDataType type, MetaData metaData, ushort maxDistinct)
         {
             _maxDistinct = maxDistinct;
             MetaData = metaData;
@@ -29,7 +29,7 @@ namespace BrightData.Buffer.InMemory
         }
 
         /// <inheritdoc />
-        public IMetaData MetaData { get; }
+        public MetaData MetaData { get; }
 
         /// <inheritdoc />
         public BrightDataType SingleType { get; }

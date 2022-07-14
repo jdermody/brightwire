@@ -16,7 +16,6 @@ namespace BrightWire.UnitTests.Helper
 
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }
-        public LinearAlgebraProvider LinearAlgebraProvider { get; set; }
         public uint CurrentEpoch { get; set; }
         public float LearningRate { get; set; }
         public float BatchLearningRate { get; set; }
@@ -33,7 +32,7 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public bool DeferUpdates { get; set; }
-        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor2 error)
+        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor error)
         {
             throw new NotImplementedException();
         }

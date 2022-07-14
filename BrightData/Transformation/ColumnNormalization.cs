@@ -17,7 +17,7 @@ namespace BrightData.Transformation
             readonly NormalizeTransformation _normalize;
             readonly ICanConvert<double, float> _convertToFloat;
 
-            public NormalizeToFloat(NormalizationType type, IMetaData analysedMetaData)
+            public NormalizeToFloat(NormalizationType type, MetaData analysedMetaData)
             {
                 _convertToDouble = StaticConverters.GetConverter<T, double>();
                 _convertToFloat = StaticConverters.GetConverter<double, float>();
@@ -34,7 +34,7 @@ namespace BrightData.Transformation
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
@@ -54,7 +54,7 @@ namespace BrightData.Transformation
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
 
-            public NormalizeToDouble(NormalizationType type, IMetaData analysedMetaData)
+            public NormalizeToDouble(NormalizationType type, MetaData analysedMetaData)
             {
                 _convertToDouble = StaticConverters.GetConverter<T, double>();
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
@@ -68,7 +68,7 @@ namespace BrightData.Transformation
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
@@ -84,7 +84,7 @@ namespace BrightData.Transformation
             public double Subtract => _normalize.Subtract;
         }
 
-        public IConvertColumn GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = _toFloat
