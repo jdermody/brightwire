@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                     rowList[i] = tensor.Reshape();
                 }
                 var errorMatrix = lap.CreateMatrixFromRows(rowList);
-
+                rowList.DisposeAll();
                 return errorSignal.ReplaceWith(errorMatrix.Transpose());
             }
         }
@@ -47,11 +47,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var rowList = new IVector[tensor.Count];
 
             for(uint i = 0; i < tensor.Count; i++) {
-                var row = tensor.GetTensor(i).CombineDepthSlices().Reshape();
-                rowList[i] = row;
+                using var matrix = tensor.GetTensor(i).CombineDepthSlices();
+                rowList[i] = matrix.Reshape();
             }
             var output = context.GetLinearAlgebraProvider().CreateMatrixFromRows(rowList);
-
+            rowList.DisposeAll();
             return (this, output.AsGraphData(), () => new Backpropagation(this, tensor));
         }
     }

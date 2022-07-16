@@ -675,7 +675,7 @@ namespace BrightData
 
     public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
     {
-        T Convert(ref CT item);
+        T Convert(in CT item);
     }
 
     public interface IOperation<out T> : IDisposable

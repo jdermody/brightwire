@@ -52,6 +52,21 @@ namespace BrightData.UnitTests.Helper
                 tensors.DisposeAll();
             }
         }
+        protected static void AssertSameAndThenDispose(params ITensor[][] tensors)
+        {
+            try {
+                var first = tensors[0];
+                var size = first.Length;
+                for (var i = 1; i < tensors.Length; i++) {
+                    for(uint j = 0; j < size; j++)
+                        FloatMath.AreApproximatelyEqual(first[j], tensors[i][j]).Should().BeTrue();
+                }
+            }
+            finally {
+                foreach(var item in tensors)
+                    item.DisposeAll();
+            }
+        }
 
         public virtual void Dispose()
         {

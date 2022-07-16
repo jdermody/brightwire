@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public IMiniBatch Get(uint[] rows)
         {
-            var data = _lap.CreateVector(_data);
+            using var data = _lap.CreateVector(_data);
             return new SingleRowMiniBatch(this, data.Reshape(1, null).AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
         }
 

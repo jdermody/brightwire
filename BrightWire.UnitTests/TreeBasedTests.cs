@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
@@ -14,7 +15,7 @@ namespace BrightWire.UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(false)
+                .ConvertToWeightedIndexList(false).AsSpan()
                 .ConvertToTable(_context)
             ;
             var model = data.TrainDecisionTree();
@@ -29,7 +30,7 @@ namespace BrightWire.UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(false)
+                .ConvertToWeightedIndexList(false).AsSpan()
                 .ConvertToTable(_context);
             var model = data.TrainRandomForest();
             var classifier = model.CreateClassifier();

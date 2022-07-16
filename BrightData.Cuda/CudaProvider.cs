@@ -37,7 +37,7 @@ namespace BrightData.Cuda
 				_thread = thread;
 			}
 
-			public void Run(CUstream stream , uint sharedMemSize, object[] param)
+			public void Run(CudaStream stream ,uint sharedMemSize, object[] param)
 			{
 				var paramList = new IntPtr[param.Length];
 				var handleList = new GCHandle[param.Length];
@@ -52,7 +52,7 @@ namespace BrightData.Cuda
 					_block.x, _block.y, _block.z,
 					_thread.x, _thread.y, _thread.z,
 					sharedMemSize,
-                    stream,
+                    stream.Stream,
 					paramList,
 					null
 				);
@@ -92,7 +92,6 @@ namespace BrightData.Cuda
 		readonly Lazy<CudaBlas> _blas;
 		readonly Lazy<CudaSolveDense> _solver = new();
 		readonly KernelModule _kernel;
-		readonly CudaMemoryPool _cudaMemoryPool;
         readonly CudaStream _defaultStream;
         MemoryPool _memoryPool;
 
@@ -136,6 +135,7 @@ namespace BrightData.Cuda
 			_softmaxVector,
             _multiCosine,
 			_log,
+            _exp,
 			_vectorAdd,
 			_vectorCopyRandom,
 			_copyToMatrixColumns,
@@ -151,7 +151,8 @@ namespace BrightData.Cuda
 			_tensorReverseIm2Col,
 			_isFinite,
 			_calculateDistance,
-			_roundInPlace
+			_roundInPlace,
+			_scale
 		;
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
@@ -180,13 +181,12 @@ namespace BrightData.Cuda
 			// use most available CUDA memory for the cache by default
             var cacheSize = memoryCacheSize ?? 512 * 1048576;//((ulong)_cuda.GetTotalDeviceMemorySize() * 5 / 6);
             _memoryPool = new MemoryPool(cacheSize);
-            _cudaMemoryPool = new CudaMemoryPool(_cuda.Device, true);
             _defaultStream = new CudaStream(CUStreamFlags.Default);
 
             _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new(() => {
                 var ret = new CudaBlas(_defaultStream.Stream, AtomicsMode.Allowed);
-                //ret.MathMode = Math.TF32TensorOpMath;
+                ret.MathMode = ManagedCuda.CudaBlas.Math.TF32TensorOpMath;
                 return ret;
             });
             _cuda.SetCurrent();
@@ -230,6 +230,7 @@ namespace BrightData.Cuda
 			_softmaxVector          = _kernel.LoadFunction("SoftmaxVector");
             _multiCosine            = _kernel.LoadFunction("MultiCosineDistance");
 			_log                    = _kernel.LoadFunction("Log");
+            _exp                    = _kernel.LoadFunction("Exp");
 			_vectorAdd              = _kernel.LoadFunction("VectorAdd");
 			_vectorCopyRandom       = _kernel.LoadFunction("VectorCopyRandom");
 			_copyToMatrixColumns    = _kernel.LoadFunction("CopyToMatrixColumns");
@@ -246,6 +247,7 @@ namespace BrightData.Cuda
 			_isFinite               = _kernel.LoadFunction("IsFinite");
 			_calculateDistance      = _kernel.LoadFunction("CalculateDistances");
             _roundInPlace           = _kernel.LoadFunction("RoundInPlace");
+            _scale                  = _kernel.LoadFunction("Scale");
         }
 
 		protected virtual void Dispose(bool disposing)
@@ -272,14 +274,14 @@ namespace BrightData.Cuda
         BrightDataContext IHaveBrightDataContext.Context => _context;
         public BrightDataContext DataContext => _context;
         internal CudaContext Context => _cuda;
-		public CudaBlas Blas => _blas.Value;
-		public CudaSolveDense Solver => _solver.Value;
+        public CudaBlas Blas => _blas.Value;
+        public CudaSolveDense Solver => _solver.Value;
 		public long TotalMemory => _cuda.GetTotalDeviceMemorySize();
 		public long FreeMemory => _cuda.GetFreeDeviceMemorySize();
 
         static int GetBlockCount(int size, int blockSize)
 		{
-			return ((size / blockSize) + 1);
+			return (size / blockSize) + 1;
 		}
 
 		internal static void CheckForError(CUResult result)
@@ -305,14 +307,14 @@ namespace BrightData.Cuda
 			}
 			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
 			var execution = KernelModule.CreateExecution(function, (int)gridSize, data.BlockSize);
-			execution.Run(_defaultStream.Stream, 0, param);
+			execution.Run(_defaultStream, 0, param);
 		}
 
-        static void InvokeManual(CUstream stream, CUfunction function, uint size, params object[] param)
+        void InvokeManual(CUfunction function, uint size, params object[] param)
 		{
 			var gridSize = GetBlockCount((int)size, N);
 			var execution = KernelModule.CreateExecution(function, gridSize, N);
-			execution.Run(stream, 0, param);
+			execution.Run(_defaultStream, 0, param);
 		}
 
         internal void InvokeMatrix(CUfunction function, uint rows, uint columns, params object[] param)
@@ -326,7 +328,7 @@ namespace BrightData.Cuda
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
 			
-			execution.Run(_defaultStream.Stream, 0, param);
+			execution.Run(_defaultStream, 0, param);
 		}
 
         internal void InvokeTensor(CUfunction function, uint rows, uint columns, uint depth, params object[] param)
@@ -340,7 +342,7 @@ namespace BrightData.Cuda
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
 			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
-			execution.Run(_defaultStream.Stream, 0, param);
+			execution.Run(_defaultStream, 0, param);
 		}
 
 		internal bool IsFinite(IDeviceMemoryPtr a, uint size)
@@ -484,9 +486,16 @@ namespace BrightData.Cuda
 		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
-            InvokeManual(_defaultStream.Stream, _log, size, a.DevicePointer, ret.DevicePointer, size);
+            InvokeManual(_log, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
+
+        internal IDeviceMemoryPtr Exp(IDeviceMemoryPtr a, uint size)
+        {
+            var ret = Allocate(size);
+            InvokeManual(_exp, size, a.DevicePointer, ret.DevicePointer, size);
+            return ret;
+        }
 
 		internal void VectorAdd(IDeviceMemoryPtr a, uint size, float scalar)
 		{
@@ -513,7 +522,7 @@ namespace BrightData.Cuda
                     var maxBlock = Allocate(bufferSize, true);
 
                     try {
-                        InvokeManual(_defaultStream.Stream, _findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
+                        InvokeManual(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
                         if (ptr != a)
                             ptr.Release();
                         size = bufferSize * 2;
@@ -549,7 +558,7 @@ namespace BrightData.Cuda
 			while (size >= N) {
 				var bufferSize = (size / N) + 1;
 				var sumBlock = Allocate(bufferSize, true);
-                InvokeManual(_defaultStream.Stream, _sumValues, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
+                InvokeManual(_sumValues, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Release();
 				size = bufferSize;
@@ -570,7 +579,7 @@ namespace BrightData.Cuda
 				while (size >= N) {
 					var bufferSize = (size / N) + 1;
 					var sumBlock = Allocate(bufferSize, true);
-                    InvokeManual(_defaultStream.Stream, _findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
+                    InvokeManual(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
 						ptr.Release();
 					size = bufferSize;
@@ -605,9 +614,9 @@ namespace BrightData.Cuda
 
 		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, uint rows, uint columns)
 		{
-			var len = System.Math.Min(rows, columns);
-			var ret = Allocate(len);
-			Invoke(_diagonal, len, a.DevicePointer, ret.DevicePointer, rows, columns);
+			var size = System.Math.Min(rows, columns);
+			var ret = Allocate(size);
+			Invoke(_diagonal, size, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
 
@@ -668,6 +677,11 @@ namespace BrightData.Cuda
 			Invoke(_normalise, size, a.DevicePointer, size, min, range);
 		}
 
+        internal void ScaleInPlace(IDeviceMemoryPtr a, uint size, float scaleBy)
+        {
+            Invoke(_scale, size, a.DevicePointer, size, scaleBy);
+        }
+
 		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max)
 		{
 			var ret = Allocate(size);
@@ -706,7 +720,7 @@ namespace BrightData.Cuda
 		}
 
         internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorAddPadding(
-			IDeviceMemoryPtr tensor, 
+            IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 
 			uint depth, 
@@ -734,7 +748,7 @@ namespace BrightData.Cuda
 		}
 
 		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorRemovePadding(
-			IDeviceMemoryPtr tensor, 
+            IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 
 			uint depth, 
@@ -783,7 +797,7 @@ namespace BrightData.Cuda
 		}
 
 		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr? Indices, uint Rows, uint Columns) TensorMaxPool(
-			IDeviceMemoryPtr tensor, 
+            IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 
 			uint depth, 
@@ -827,7 +841,20 @@ namespace BrightData.Cuda
             return (ret, indices, outputRows, outputColumns);
         }
 
-		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, uint rows, uint columns, uint depth, uint count, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+		internal IDeviceMemoryPtr TensorReverseMaxPool(
+            IDeviceMemoryPtr tensor, 
+            IDeviceMemoryPtr indices, 
+            uint rows, 
+            uint columns, 
+            uint depth, 
+            uint count, 
+            uint outputRows, 
+            uint outputColumns, 
+            uint filterWidth, 
+            uint filterHeight, 
+            uint xStride, 
+            uint yStride
+        )
 		{
 			var ret = Allocate(outputRows * outputColumns * depth * count, true);
 			var size = rows * columns * depth * count;
@@ -853,7 +880,7 @@ namespace BrightData.Cuda
 		}
 
 		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns, uint Depth) TensorIm2Col(
-			IDeviceMemoryPtr tensor, 
+            IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 
 			uint depth, 
@@ -892,7 +919,7 @@ namespace BrightData.Cuda
         }
 
 		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns, uint Depth, uint Count) TensorReverseIm2Col(
-			IDeviceMemoryPtr tensor,
+            IDeviceMemoryPtr tensor,
 			IDeviceMemoryPtr filters,
 			uint rows,
 			uint columns,

@@ -28,6 +28,13 @@ extern "C"
         }
 	}
 
+    __global__ void Scale(float* __restrict a, uint size, float scale)
+	{
+        for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
+            a[index] *= scale;
+        }
+	}
+
 	__global__ void PointwiseMultiply(const float* __restrict a, float* __restrict b, uint size)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
@@ -414,6 +421,13 @@ extern "C"
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
             b[index] = log(a[index]);
+        }
+	}
+
+    __global__ void Exp(const float* __restrict a, float* __restrict b, uint count)
+	{
+        for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
+            b[index] = exp(a[index]);
         }
 	}
 

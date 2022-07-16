@@ -245,6 +245,8 @@ namespace BrightData
         IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
         void AddToEachRow(ITensorSegment segment);
         void AddToEachColumn(ITensorSegment segment);
+        IVector[] SoftmaxPerRow();
+        IVector[] SoftmaxDerivativePerRow(IVector[] rows);
     }
 
     public interface IMatrixSegments

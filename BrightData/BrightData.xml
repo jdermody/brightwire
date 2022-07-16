@@ -551,6 +551,26 @@
         <member name="M:BrightData.DataTable.BrightDataTable.Dispose">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.FirstRow">
+            <summary>
+            Returns the first row as a string
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.SecondRow">
+            <summary>
+            Returns the second row as a string
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.ThirdRow">
+            <summary>
+            Returns the third row as a string
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.LastRow">
+            <summary>
+            Returns the last row as a string
+            </summary>
+        </member>
         <member name="M:BrightData.DataTable.BrightDataTable.ToString">
             <inheritdoc />
         </member>
@@ -1393,7 +1413,7 @@
             <param name="shuffle">True to shuffle the table before folding</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.EnumerateTyped``1(BrightData.ISingleTypeTableSegment)">
+        <member name="M:BrightData.ExtensionMethods.AsDataTableSegment``1(BrightData.ISingleTypeTableSegment)">
             <summary>
             Strongly typed enumeration of items in segment
             </summary>
@@ -1451,21 +1471,21 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts indexed classifications to a data table
             </summary>
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts weighted index classifications to a data table
             </summary>
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IVector}},System.Boolean,BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{System.ValueTuple{System.String,BrightData.IVector}},System.Boolean,BrightData.BrightDataContext)">
             <summary>
             Converts the vector classifications into a data table
             </summary>
@@ -1474,7 +1494,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
             <summary>
             Converts the weighted index classification list to a list of dense vectors
             </summary>
@@ -1792,46 +1812,46 @@
             <param name="context"></param>
             <param name="reader">The binary reader</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.ValueTuple{System.String,BrightData.IndexList}[],System.Boolean)">
             <summary>
             Converts the indexed classifications to weighted indexed classifications
             </summary>
             <param name="data"></param>
             <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
             <summary>
             Finds the greatest weight within the weighted index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
             <summary>
             Find the greatest index within the weighted index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Span{System.ValueTuple{System.String,BrightData.IndexList}})">
             <summary>
             Find the greatest index within the index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.Normalize(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
             <summary>
             Normalizes the weighted index classification list to fit between 0 and 1
             </summary>
             <param name="data"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.ValueTuple{``0,BrightData.WeightedIndexList}[])">
             <summary>
             Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Tf%E2%80%93idf
             </summary>
             <returns>A newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyList{System.ValueTuple{``0,BrightData.WeightedIndexList}},System.Single,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.ValueTuple{``0,BrightData.WeightedIndexList}[],System.Single,System.Single,System.Single)">
             <summary>
             Okapi B525+ modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Okapi_BM25
@@ -3176,12 +3196,12 @@
         </member>
         <member name="F:BrightData.DataTableOrientation.RowOriented">
             <summary>
-            Data table is a series of rows, optimised for per-row processing
+            Data table is stored as a series of rows
             </summary>
         </member>
         <member name="F:BrightData.DataTableOrientation.ColumnOriented">
             <summary>
-            Data table is a series of columns, optimised for column based processing
+            Data table is stored as aa series of columns
             </summary>
         </member>
         <member name="T:BrightData.BrightDataType">
@@ -3377,267 +3397,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IDataTable">
-            <summary>
-            A data table is an immutable collection of data with columns and rows (in which the columns have the same type of data)
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.RowCount">
-            <summary>
-            Number of rows
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.ColumnCount">
-            <summary>
-            Number of columns
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.ColumnTypes">
-            <summary>
-            The type of each column
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.Orientation">
-            <summary>
-            How the table is aligned (either row or column)
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.ForEachRow(System.Action{System.Object[],System.UInt32},System.UInt32)">
-            <summary>
-            Invokes the callback on each row of the data table
-            </summary>
-            <param name="callback">Callback for each row</param>
-            <param name="maxRows">Maximum number of rows to process</param>
-        </member>
-        <member name="M:BrightData.IDataTable.ForEachRow(System.Action{System.Object[]},System.UInt32)">
-            <summary>
-            Invokes the callback on each row of the data table
-            </summary>
-            <param name="callback">Callback for each row</param>
-            <param name="maxRows">Maximum number of rows to process</param>
-        </member>
-        <member name="M:BrightData.IDataTable.Columns(System.UInt32[])">
-            <summary>
-            Enumerates the columns of the data table
-            </summary>
-            <param name="columnIndices">Column indices to retrieve</param>
-        </member>
-        <member name="M:BrightData.IDataTable.ReadTyped(System.Collections.Generic.IEnumerable{BrightData.IConsumeColumnData},System.UInt32)">
-            <summary>
-            Consumes data in the table via an array of consumers, which will each consume data for each row in the table
-            </summary>
-            <param name="consumers">Array of consumers, for each column in the table</param>
-            <param name="maxRows">Maximum number of rows to process</param>
-        </member>
-        <member name="M:BrightData.IDataTable.Column(System.UInt32)">
-            <summary>
-            Returns a single column from the table
-            </summary>
-            <param name="columnIndex">Column index to retrieve</param>
-        </member>
-        <member name="M:BrightData.IDataTable.ColumnAnalysis(System.Collections.Generic.IEnumerable{System.UInt32})">
-            <summary>
-            Returns analysed metadata for the specified columns
-            </summary>
-            <param name="columnIndices">Column indices</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.ColumnMetaData(System.UInt32)">
-            <summary>
-            Returns the metadata for a single column (without analysis)
-            </summary>
-            <param name="columnIndex">Column index to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.Project(System.Func{System.Object[],System.Object[]},System.String)">
-            <summary>
-            Applies a projection function to each row of this data table
-            </summary>
-            <param name="projector">Mutates the rows of each row by changing values, types, or both</param>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-        </member>
-        <member name="M:BrightData.IDataTable.WriteTo(System.String)">
-            <summary>
-            Writes the data table to disk
-            </summary>
-            <param name="filePath">File path</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.ForEachRow(System.Collections.Generic.IEnumerable{System.UInt32},System.Action{System.Object[]})">
-            <summary>
-            Invokes the callback on each specified row of the table
-            </summary>
-            <param name="rowIndices">Row indices to select</param>
-            <param name="callback">Callback to invoke on each selected row</param>
-        </member>
-        <member name="M:BrightData.IDataTable.GroupBy(System.UInt32[])">
-            <summary>
-            Groups columns into groups based on the specified column values
-            </summary>
-            <param name="columnIndices">Column indices to group on</param>
-            <returns>Groups of column buffers</returns>
-        </member>
-        <member name="T:BrightData.IColumnOrientedDataTable">
-            <summary>
-            Column oriented data table
-            </summary>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.AsRowOriented(System.String)">
-            <summary>
-            Converts to a row oriented data table
-            </summary>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.Transform(System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,BrightData.IConvertColumn}},System.String)">
-            <summary>
-            Transforms the table
-            </summary>
-            <param name="transformations"></param>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.CopyColumns(System.String,System.UInt32[])">
-            <summary>
-            Copies the selected columns to a new data table
-            </summary>
-            <param name="filePath">File path to store new table on disk</param>
-            <param name="columnIndices">Column indices to copy</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.ConcatColumns(System.String,BrightData.IColumnOrientedDataTable[])">
-            <summary>
-            Creates a new data table with this concatenated with other column oriented data tables
-            </summary>
-            <param name="filePath">File path to store new table on disk</param>
-            <param name="others">Other tables to concatenate</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.FilterRows(System.Predicate{System.Object[]},System.String)">
-            <summary>
-            Creates a new data table of the rows that match the predicate
-            </summary>
-            <param name="predicate">Predicate function to evaluate which rows to include in the new table</param>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.ReinterpretColumns(System.String,BrightData.IReinterpretColumns[])">
-            <summary>
-            Many to one or one to many style column transformations
-            </summary>
-            <param name="filePath">File path to store new table on disk</param>
-            <param name="columns">Parameters to determine which columns are reinterpreted</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.Clone(System.String)">
-            <summary>
-            Clones the current data table
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IColumnOrientedDataTable.ColumnAnalysis(System.UInt32,System.Boolean,System.UInt32,System.UInt32)">
-            <summary>
-            Returns the metadata for a single column after performing analysis on the column
-            </summary>
-            <param name="columnIndex">Column index to retrieve</param>
-            <param name="force">True to force metadata analysis</param>
-            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-            <param name="maxCount">Maximum number of distinct items to track</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.IRowOrientedDataTable">
-            <summary>
-            Row oriented data table
-            </summary>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.AsColumnOriented(System.String)">
-            <summary>
-            Converts to a column oriented data table
-            </summary>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Bag(System.UInt32,System.String)">
-            <summary>
-            Samples (with replacement) from the data table
-            </summary>
-            <param name="sampleCount">Number of rows to sample</param>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Row(System.UInt32)">
-            <summary>
-            Returns the row at the specified index
-            </summary>
-            <param name="rowIndex">Row index to retrieve</param>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Rows(System.UInt32[])">
-            <summary>
-            Returns the rows at the specified indices
-            </summary>
-            <param name="rowIndices">Row indices to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.ConcatRows(System.String,BrightData.IRowOrientedDataTable[])">
-            <summary>
-            Creates a new table of this concatenated with other row oriented data tables
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <param name="others">Other row oriented data tables to concatenate</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.CopyRows(System.String,System.UInt32[])">
-            <summary>
-            Copy specified rows from this to a new data table
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <param name="rowIndices">Row indices to copy</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Shuffle(System.String)">
-            <summary>
-            Creates a new data table from the randomly shuffled rows of this data table
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Sort(System.UInt32,System.Boolean,System.String)">
-            <summary>
-            Creates a new sorted data table
-            </summary>
-            <param name="columnIndex">Column index to sort</param>
-            <param name="ascending">True to sort ascending</param>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IRowOrientedDataTable.FirstRow">
-            <summary>
-            Returns the first row as a string
-            </summary>
-        </member>
-        <member name="P:BrightData.IRowOrientedDataTable.SecondRow">
-            <summary>
-            Returns the second row as a string
-            </summary>
-        </member>
-        <member name="P:BrightData.IRowOrientedDataTable.ThirdRow">
-            <summary>
-            Returns the third row as a string
-            </summary>
-        </member>
-        <member name="P:BrightData.IRowOrientedDataTable.LastRow">
-            <summary>
-            Returns the last row as a string
-            </summary>
-        </member>
-        <member name="M:BrightData.IRowOrientedDataTable.Clone(System.String)">
-            <summary>
-            Clones the current data table
-            </summary>
-            <param name="filePath">File path to store new table on disk (optional)</param>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.ColumnConversionType">
             <summary>
             Single column conversion options
@@ -3750,44 +3509,6 @@
             <param name="index">Index within the buffer</param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.ITransformationContext">
-            <summary>
-            Transforms a column
-            </summary>
-        </member>
-        <member name="M:BrightData.ITransformationContext.Transform(System.Action{System.Single},System.Threading.CancellationToken)">
-            <summary>
-            Performs the transformation
-            </summary>
-            <param name="progressNotification">Progress notification callback</param>
-            <param name="ct">Cancellation token</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.ITransformationContext.Buffer">
-            <summary>
-            Buffer that is written to
-            </summary>
-        </member>
-        <member name="T:BrightData.IColumnInfo">
-            <summary>
-            Table column information
-            </summary>
-        </member>
-        <member name="P:BrightData.IColumnInfo.Index">
-            <summary>
-            Column index
-            </summary>
-        </member>
-        <member name="P:BrightData.IColumnInfo.ColumnType">
-            <summary>
-            Column type
-            </summary>
-        </member>
-        <member name="P:BrightData.IColumnInfo.Dictionary">
-            <summary>
-            Encoded dictionary
-            </summary>
-        </member>
         <member name="T:BrightData.IColumnTransformationParam">
             <summary>
             Informtion about a column transformation
@@ -3808,84 +3529,6 @@
             <param name="tempStreams">Temp stream provider</param>
             <param name="inMemoryRowCount">Number of rows to cache in memory</param>
             <returns></returns>
-        </member>
-        <member name="T:BrightData.IConvertibleTable">
-            <summary>
-            A table that is easily convertible to other types
-            </summary>
-        </member>
-        <member name="M:BrightData.IConvertibleTable.Row(System.UInt32)">
-            <summary>
-            Returns a row that can be easily converted
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IConvertibleTable.Rows(System.UInt32[])">
-            <summary>
-            Returns rows that can be easily converted
-            </summary>
-            <param name="rowIndices">Row indices to return</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IConvertibleTable.DataTable">
-            <summary>
-            The underlying data table
-            </summary>
-        </member>
-        <member name="M:BrightData.IConvertibleTable.Map``1(System.Func{BrightData.IConvertibleRow,``0})">
-            <summary>
-            Maps each row
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="rowMapper">Callback that will be invoked on each convertible row</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IConvertibleTable.ForEachRow(System.Action{BrightData.IConvertibleRow})">
-            <summary>
-            Invokes a callback on each convertible row
-            </summary>
-            <param name="action">Callback</param>
-        </member>
-        <member name="T:BrightData.IHaveDataTable">
-            <summary>
-            Indicates that the type has a data table
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveDataTable.DataTable">
-            <summary>
-            Data table
-            </summary>
-        </member>
-        <member name="T:BrightData.IConvertibleRow">
-            <summary>
-            A row that whose elements can be converted to other types
-            </summary>
-        </member>
-        <member name="M:BrightData.IConvertibleRow.Get(System.UInt32)">
-            <summary>
-            Gets an element
-            </summary>
-            <param name="index">Column index</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IConvertibleRow.Segment">
-            <summary>
-            Returns the row segment
-            </summary>
-        </member>
-        <member name="M:BrightData.IConvertibleRow.GetTyped``1(System.UInt32)">
-            <summary>
-            Returns a value (dynamic conversion to type T)
-            </summary>
-            <typeparam name="T">Type to convert to</typeparam>
-            <param name="index">Column index</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IConvertibleRow.RowIndex">
-            <summary>
-            Row index
-            </summary>
         </member>
         <member name="T:BrightData.IConsumeColumnData">
             <summary>
@@ -4342,13 +3985,6 @@
             </summary>
             <param name="val">Value to normalize</param>
             <returns>Normalized result</returns>
-        </member>
-        <member name="T:BrightData.Transformation.TransformationContext`2">
-            <summary>
-            A transformation context reads values from a column and writes transformed values to a buffer
-            </summary>
-            <typeparam name="TF"></typeparam>
-            <typeparam name="TT"></typeparam>
         </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>

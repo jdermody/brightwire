@@ -594,6 +594,32 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
+        public void MatrixSoftmaxPerRowActivation()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = a.SoftmaxPerRow();
+            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
+            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixSoftmaxPerRowActivationDerivative()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = a.SoftmaxPerRow();
+            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
+            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow());
+            var cpu2 = a.SoftmaxDerivativePerRow(cpu);
+            var gpu2 = Apply(_cuda, a, a => a.SoftmaxDerivativePerRow(gpu));
+            var mkl2 = Apply(_mkl, a, a => a.SoftmaxDerivativePerRow(mkl));
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+            AssertSameAndThenDispose(cpu2, gpu2, mkl2);
+        }
+
+        [Fact]
         public void MatrixNewMatrixFromRows()
         {
             var rows = new uint[] { 7, 8, 9 };
@@ -904,9 +930,9 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixToVector()
         {
-            var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1));
-            var vector = matrix.Reshape();
-            var matrix2 = vector.Reshape(3, 4);
+            using var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1));
+            using var vector = matrix.Reshape();
+            using var matrix2 = vector.Reshape(3, 4);
             FloatMath.AreApproximatelyEqual(matrix, matrix2);
 
             using var gpuMatrix = _cuda.CreateMatrix(matrix);

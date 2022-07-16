@@ -24,7 +24,7 @@ namespace BrightData.DataTable
 
             public bool MoveNext() => _structEnumerator.MoveNext();
             public void Reset() => _structEnumerator.Reset();
-            public T Current => _converter.Convert(ref _mutableReference.Current);
+            public T Current => _converter.Convert(in _mutableReference.Current);
             object IEnumerator.Current => Current;
 
             public void Dispose()

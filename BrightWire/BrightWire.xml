@@ -2227,7 +2227,7 @@
             <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
             <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightWire.IIndexListClassifier)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(System.ValueTuple{System.String,BrightData.IndexList}[],BrightWire.IIndexListClassifier)">
             <summary>
             Classifies each row of the index classification list
             </summary>

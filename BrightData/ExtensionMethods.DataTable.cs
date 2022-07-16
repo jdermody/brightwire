@@ -15,6 +15,7 @@ using BrightData.DataTable;
 using BrightData.Helper;
 using BrightData.Input;
 using BrightData.Transformation;
+using Microsoft.Toolkit.HighPerformance.Helpers;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData
@@ -850,7 +851,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, IndexList Data)> data, BrightDataContext context)
+        public static BrightDataTable ConvertToTable(this Span<(string Label, IndexList Data)> data, BrightDataContext context)
         {
             var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.IndexList, "Index");
@@ -867,7 +868,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
+        public static BrightDataTable ConvertToTable(this Span<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
         {
             var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.WeightedIndexList, "Weighted Index");
@@ -886,7 +887,7 @@ namespace BrightData
         /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static BrightDataTable ConvertToTable(this IReadOnlyList<(string Label, IVector Data)> data, bool preserveVectors, BrightDataContext context)
+        public static BrightDataTable ConvertToTable(this Span<(string Label, IVector Data)> data, bool preserveVectors, BrightDataContext context)
         {
             var builder = new BrightDataTableBuilder(context);
             if (preserveVectors) {
@@ -921,7 +922,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static IReadOnlyList<(string Classification, IVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
+        public static (string Classification, IVector Data)[] Vectorise(this Span<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
             var lap = context.LinearAlgebraProvider;
@@ -932,7 +933,12 @@ namespace BrightData
                     ret[item.Index] = item.Weight;
                 return lap.CreateVector(ret);
             }
-            return data.Select(r => (r.Label, Create(r.Data))).ToList();
+
+            var index = 0;
+            var ret = new (string Classification, IVector Data)[data.Length];
+            foreach (ref var item in data)
+                ret[index++] = (item.Label, Create(item.Data));
+            return ret;
         }
 
         /// <summary>
@@ -1401,25 +1407,5 @@ namespace BrightData
                 yield return mapper(row);
             }
         }
-
-        /// <summary>
-        /// Creates a table segment with an associated hybrid buffer
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="columnIndex">Column index</param>
-        /// <param name="columnType">Column data type</param>
-        /// <param name="metaData">Column meta data (optional)</param>
-        /// <returns></returns>
-        //public static (ISingleTypeTableSegment Segment, IHybridBuffer Buffer) GetSegmentWithHybridBuffer(
-        //    this BrightDataContext context, 
-        //    uint columnIndex, 
-        //    BrightDataType columnType, 
-        //    MetaData? metaData = null
-        //)
-        //{
-        //    var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
-        //    var columnInfo = CreateColumnInfo(columnIndex, columnType, metaData);
-        //    return GenericActivator.Create<ISingleTypeTableSegment, IHybridBuffer>(type, context, columnInfo, context.TempStreamProvider);
-        //}
     }
 }

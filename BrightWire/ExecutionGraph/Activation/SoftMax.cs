@@ -25,13 +25,7 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                var rowList = new IVector[matrix.RowCount];
-                for (uint i = 0; i < matrix.RowCount; i++) {
-                    using var derivative = _rows[(int)i].SoftmaxDerivative();
-                    using var row = matrix.GetRowVector(i);
-                    var sm = derivative.Multiply(row);
-                    rowList[i] = sm.Reshape();
-                }
+                var rowList = matrix.SoftmaxDerivativePerRow(_rows);
                 var ret = lap.CreateMatrixFromRows(rowList);
                 rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);
@@ -44,12 +38,7 @@ namespace BrightWire.ExecutionGraph.Activation
         {
             var lap = context.GetLinearAlgebraProvider();
             var input = signal.GetMatrix();
-            var rowList = new IVector[input.RowCount];
-            using var transposed = input.Transpose();
-            for (uint i = 0; i < input.RowCount; i++) {
-                using var row = transposed.GetColumnVector(i);
-                rowList[i] = row.Softmax();
-            }
+            var rowList = input.SoftmaxPerRow();
             var output = lap.CreateMatrixFromRows(rowList);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }

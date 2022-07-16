@@ -141,7 +141,7 @@ namespace ExampleCode
 
         static void MnistFeedForward(BrightDataContext context, bool useMkl)
         {
-            Start(context, useMkl);
+            Start(context, false, true);
             context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 

@@ -143,7 +143,7 @@ namespace BrightData.UnitTests
             return _context.CreateWeightedIndexList(GetStringIndices(words, stringTable).GroupBy(w => w).Select(g => new WeightedIndexList.Item(g.Key, g.Count())));
         }
 
-        IReadOnlyList<(string Label, WeightedIndexList Data)> GetSampleDocuments()
+        (string Label, WeightedIndexList Data)[] GetSampleDocuments()
         {
             var stringTable = new Dictionary<string, uint>();
             return new[] {

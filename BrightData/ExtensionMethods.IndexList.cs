@@ -13,7 +13,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this BrightDataContext context, params uint[] indices) => IndexList.Create(indices);
+        public static IndexList CreateIndexList(this BrightDataContext _, params uint[] indices) => IndexList.Create(indices);
 
         /// <summary>
         /// Creates an index list from indices
@@ -21,7 +21,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
-        public static IndexList CreateIndexList(this BrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(indices);
+        public static IndexList CreateIndexList(this BrightDataContext _, IEnumerable<uint> indices) => IndexList.Create(indices);
 
         /// <summary>
         /// Creates an index list from a binary reader
@@ -41,7 +41,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -49,7 +49,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from weighted indices
@@ -57,32 +57,27 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(indexList);
 
         /// <summary>
         /// Creates a weighted index list from a binary reader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="reader">The binary reader</param>
-        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext context, BinaryReader reader)
+        public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = reader.BaseStream.ReadArray<WeightedIndexList.Item>(len);
             return WeightedIndexList.Create(ret);
         }
 
-        static BrightDataContext? GetContext<T, T2>(IReadOnlyList<(T, T2 Data)> list) where T2: IHaveBrightDataContext => list.Count == 0 
-            ? null 
-            : list[0].Data.Context
-        ;
-
         /// <summary>
         /// Converts the indexed classifications to weighted indexed classifications
         /// </summary>
         /// <param name="data"></param>
         /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> ConvertToWeightedIndexList(
-            this IReadOnlyList<(string Label, IndexList Data)> data,
+        public static (string Label, WeightedIndexList Data)[] ConvertToWeightedIndexList(
+            this (string Label, IndexList Data)[] data,
             bool groupByClassification
         )
         {
@@ -111,27 +106,48 @@ namespace BrightData
         /// Finds the greatest weight within the weighted index classification list
         /// </summary>
         /// <param name="data"></param>
-        public static float GetMaxWeight(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        public static float GetMaxWeight(this Span<(string Label, WeightedIndexList Data)> data)
         {
-            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Weight);
+            var max = float.MinValue;
+            foreach (ref var item in data) {
+                foreach (ref var index in item.Data.GetSpan()) {
+                    if (index.Weight > max)
+                        max = index.Weight;
+                }
+            }
+            return max;
         }
 
         /// <summary>
         /// Find the greatest index within the weighted index classification list
         /// </summary>
         /// <param name="data"></param>
-        public static uint GetMaxIndex(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        public static uint GetMaxIndex(this Span<(string Label, WeightedIndexList Data)> data)
         {
-            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Index);
+            uint max = 0;
+            foreach (ref var item in data) {
+                foreach (ref var index in item.Data.GetSpan()) {
+                    if (index.Index > max)
+                        max = index.Index;
+                }
+            }
+            return max;
         }
 
         /// <summary>
         /// Find the greatest index within the index classification list
         /// </summary>
         /// <param name="data"></param>
-        public static uint GetMaxIndex(this IReadOnlyList<(string Label, IndexList Data)> data)
+        public static uint GetMaxIndex(this Span<(string Label, IndexList Data)> data)
         {
-            return data.SelectMany(r => r.Data.Indices).Max();
+            uint max = 0;
+            foreach (ref var item in data) {
+                foreach (var index in item.Data.Indices) {
+                    if (index > max)
+                        max = index;
+                }
+            }
+            return max;
         }
 
         /// <summary>
@@ -139,16 +155,21 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalize(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        public static (string Label, WeightedIndexList Data)[] Normalize(this Span<(string Label, WeightedIndexList Data)> data)
         {
             var maxWeight = data.GetMaxWeight();
+            var ret = new (string Label, WeightedIndexList Data)[data.Length];
+            var index = 0;
+            foreach(ref var item in data) {
+                ret[index++] = (item.Label, WeightedIndexList.Create(
+                    item.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
+                ));
+            }
 
-            return data.Select(r => (r.Label, WeightedIndexList.Create(
-                r.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
-            ))).ToList();
+            return ret;
         }
 
-        static (Dictionary<uint, uint> IndexOccurrence, Dictionary<T, float> ClassificationSum) FindIndexOccurrence<T>(IReadOnlyList<(T Label, WeightedIndexList Data)> data) where T: notnull
+        static (Dictionary<uint, uint> IndexOccurrence, Dictionary<T, float> ClassificationSum) FindIndexOccurrence<T>((T Label, WeightedIndexList Data)[] data) where T: notnull
         {
             var indexOccurrence = new Dictionary<uint, uint>();
             var classificationSum = new Dictionary<T, float>();
@@ -180,12 +201,13 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A newly weighted classification set</returns>
-        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Tfidf<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data) where T: notnull
+        public static (T Label, WeightedIndexList Data)[] Tfidf<T>(this (T Label, WeightedIndexList Data)[] data) where T: notnull
         {
-            var ret = new List<(T Label, WeightedIndexList Data)>();
+            int len = data.Length, i = 0;
+            var ret = new (T Label, WeightedIndexList Data)[len];
 
             var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
-            var numDocs = (float)data.Count;
+            var numDocs = (float)len;
 
             // calculate tf-idf for each document
             foreach (var (label, weightedIndexList) in data) {
@@ -200,7 +222,7 @@ namespace BrightData
                     classificationIndex.Add(new WeightedIndexList.Item(index, score));
                 }
 
-                ret.Add((label, WeightedIndexList.Create(classificationIndex.ToArray())));
+                ret[i++] = (label, WeightedIndexList.Create(classificationIndex.ToArray()));
             }
 
             return ret;
@@ -211,13 +233,14 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Okapi_BM25
         /// </summary>
         /// <returns>Newly weighted classification set</returns>
-        public static IReadOnlyList<(T Label, WeightedIndexList Data)> Bm25Plus<T>(this IReadOnlyList<(T Label, WeightedIndexList Data)> data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
+        public static (T Label, WeightedIndexList Data)[] Bm25Plus<T>(this (T Label, WeightedIndexList Data)[] data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
         {
-            var ret = new List<(T Label, WeightedIndexList Data)>();
+            int len = data.Length, i = 0;
+            var ret = new (T Label, WeightedIndexList Data)[len];
 
             var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
             var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
-            var numDocs = (float)data.Count;
+            var numDocs = (float)len;
                 
             // calculate bm25f score for each document
             foreach (var (label, weightedIndexList) in data) {
@@ -232,7 +255,7 @@ namespace BrightData
                     classificationIndex.Add(new WeightedIndexList.Item(index, score));
                 }
 
-                ret.Add((label, WeightedIndexList.Create(classificationIndex.ToArray())));
+                ret[i++] = (label, WeightedIndexList.Create(classificationIndex.ToArray()));
             }
 
             return ret;

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
@@ -14,7 +15,7 @@ namespace BrightWire.UnitTests
             var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(false)
+                .ConvertToWeightedIndexList(false).AsSpan()
                 .Vectorise(_context)
                 .ToDictionary(d => d.Data, d => d.Classification)
             ;
@@ -35,7 +36,7 @@ namespace BrightWire.UnitTests
             var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(false)
+                .ConvertToWeightedIndexList(false).AsSpan()
                 .Vectorise(_context)
                 .ToDictionary(d => d.Data, d => d.Classification)
             ;

@@ -45,7 +45,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     type = MiniBatchSequenceType.SequenceStart;
                 else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
-                ret.Add(type, _lap.CreateVector(row).Reshape(1, null).AsGraphData(), null);
+                using var temp = _lap.CreateVector(row);
+                ret.Add(type, temp.Reshape(1, null).AsGraphData(), null);
                 ++index;
             }
             return ret;

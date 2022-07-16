@@ -1153,5 +1153,31 @@ namespace BrightData.LinearAlgebra
         }
 
         public virtual float Sum(ITensorSegment segment) => segment.Sum();
+
+        public virtual IVector[] SoftmaxPerRow(IMatrix matrix)
+        {
+            var ret = new IVector[matrix.RowCount];
+            using var transposed = matrix.Transpose();
+            for (uint i = 0; i < matrix.RowCount; i++) {
+                using var row = transposed.GetColumnVector(i);
+                ret[i] = row.Softmax();
+            }
+
+            return ret;
+        }
+
+        public virtual IVector[] SoftmaxDerivativePerRow(IMatrix matrix, IVector[] rows)
+        {
+            var ret = new IVector[matrix.RowCount];
+            using var transposed = matrix.Transpose();
+            for (uint i = 0; i < matrix.RowCount; i++) {
+                using var derivative = rows[(int)i].SoftmaxDerivative();
+                using var row = transposed.GetColumnVector(i);
+                var sm = derivative.Multiply(row);
+                ret[i] = sm.Reshape();
+            }
+
+            return ret;
+        }
     }
 }

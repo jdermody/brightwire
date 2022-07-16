@@ -112,7 +112,12 @@ namespace BrightData.LinearAlgebra
         public IVector GetDiagonal() => _lap.GetDiagonal(this);
         public IVector RowSums() => _lap.RowSums(this);
         public IVector ColumnSums() => _lap.ColumnSums(this);
-        public IMatrix Multiply(IVector vector) => Multiply(vector.Reshape(null, 1));
+
+        public IMatrix Multiply(IVector vector)
+        {
+            using var temp = vector.Reshape(null, 1);
+            return Multiply(temp);
+        }
         public IMatrix TransposeAndMultiply(IMatrix other) => _lap.TransposeSecondAndMultiply(this, other);
         public IMatrix TransposeThisAndMultiply(IMatrix other) => _lap.TransposeFirstAndMultiply(this, other);
 
@@ -150,6 +155,8 @@ namespace BrightData.LinearAlgebra
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
         public void AddToEachRow(ITensorSegment segment) => _lap.AddToEachRow(this, segment);
         public void AddToEachColumn(ITensorSegment segment) => _lap.AddToEachColumn(this, segment);
+        public IVector[] SoftmaxPerRow() => _lap.SoftmaxPerRow(this);
+        public IVector[] SoftmaxDerivativePerRow(IVector[] rows) => _lap.SoftmaxDerivativePerRow(this, rows);
 
         /// <inheritdoc />
         public override string ToString()

@@ -1,4 +1,5 @@
-﻿using BrightData.DataTable.TensorData;
+﻿using System.Runtime.CompilerServices;
+using BrightData.DataTable.TensorData;
 
 namespace BrightData.DataTable
 {
@@ -52,9 +53,9 @@ namespace BrightData.DataTable
             where CT : unmanaged
             where T: notnull
         {
-            public T Convert(ref CT item)
+            public T Convert(in CT item)
             {
-                return __refvalue(__makeref(item), T);
+                return __refvalue(__makeref(Unsafe.AsRef(item)), T);
             }
         }
 
@@ -67,7 +68,7 @@ namespace BrightData.DataTable
                 _stringTable = stringTable;
             }
 
-            public string Convert(ref uint item) => _stringTable[item];
+            public string Convert(in uint item) => _stringTable[item];
         }
 
         class IndexListConverter : IConvertStructsToObjects<DataRangeColumnType, IndexList>
@@ -79,7 +80,7 @@ namespace BrightData.DataTable
                 _indices = indices;
             }
 
-            public IndexList Convert(ref DataRangeColumnType item)
+            public IndexList Convert(in DataRangeColumnType item)
             {
                 var span = _indices.GetSpan(item.StartIndex, item.Count);
                 return IndexList.Create(span);
@@ -95,7 +96,7 @@ namespace BrightData.DataTable
                 _indices = indices;
             }
 
-            public WeightedIndexList Convert(ref DataRangeColumnType item)
+            public WeightedIndexList Convert(in DataRangeColumnType item)
             {
                 var span = _indices.GetSpan(item.StartIndex, item.Count);
                 return WeightedIndexList.Create(span);
@@ -111,7 +112,7 @@ namespace BrightData.DataTable
                 _data = data;
             }
 
-            public VectorData Convert(ref DataRangeColumnType item)
+            public VectorData Convert(in DataRangeColumnType item)
             {
                 return new VectorData(_data, item.StartIndex, 1, item.Count);
             }
@@ -126,7 +127,7 @@ namespace BrightData.DataTable
                 _data = data;
             }
 
-            public MatrixData Convert(ref MatrixColumnType item)
+            public MatrixData Convert(in MatrixColumnType item)
             {
                 return new MatrixData(_data, item.RowCount, item.ColumnCount, item.StartIndex);
             }
@@ -141,7 +142,7 @@ namespace BrightData.DataTable
                 _data = data;
             }
 
-            public Tensor3DData Convert(ref Tensor3DColumnType item)
+            public Tensor3DData Convert(in Tensor3DColumnType item)
             {
                 return new Tensor3DData(_data, item.Depth, item.RowCount, item.ColumnCount, item.StartIndex);
             }
@@ -156,7 +157,7 @@ namespace BrightData.DataTable
                 _data = data;
             }
 
-            public Tensor4DData Convert(ref Tensor4DColumnType item)
+            public Tensor4DData Convert(in Tensor4DColumnType item)
             {
                 return new Tensor4DData(_data, item.Count, item.Depth, item.RowCount, item.ColumnCount, item.StartIndex);
             }

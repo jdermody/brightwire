@@ -85,6 +85,7 @@ namespace BrightData
         /// The list of indices
         /// </summary>
         public Item[] Indices { get; private set; }
+        public Span<Item> GetSpan() => Indices.AsSpan();
 
         public static WeightedIndexList Create(params Item[] indexList) => new(indexList);
         public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => new(indexList.ToArray());

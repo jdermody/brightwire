@@ -227,13 +227,14 @@ namespace BrightWire
         /// <param name="data"></param>
         /// <param name="classifier">The classifier to classify each item in the list</param>
         /// <returns></returns>
-        public static IReadOnlyList<(string Label, string Classification, float Score)> Classify(this IReadOnlyList<(string Label, IndexList Data)> data, IIndexListClassifier classifier)
+        public static (string Label, string Classification, float Score)[] Classify(this (string Label, IndexList Data)[] data, IIndexListClassifier classifier)
         {
-            var ret = new List<(string Label, string Classification, float Score)>();
+            var i = 0;
+            var ret = new (string Label, string Classification, float Score)[data.Length];
             foreach (var (label, indexList) in data)
             {
                 var classification = classifier.Classify(indexList).GetBestClassification();
-                ret.Add((label, classification, label == classification ? 1f : 0f));
+                ret[i++] = (label, classification, label == classification ? 1f : 0f);
             }
             return ret;
         }

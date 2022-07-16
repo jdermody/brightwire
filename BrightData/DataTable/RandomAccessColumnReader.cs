@@ -23,7 +23,7 @@
             get
             {
                 _randomAccess.Get(index, out var val);
-                return _converter.Convert(ref val);
+                return _converter.Convert(in val);
             }
         }
         public T this[uint index]
@@ -31,7 +31,7 @@
             get
             {
                 _randomAccess.Get(index, out var val);
-                return _converter.Convert(ref val);
+                return _converter.Convert(in val);
             }
         }
         object ICanRandomlyAccessData.this[uint index]
@@ -39,7 +39,7 @@
             get
             {
                 _randomAccess.Get(index, out var val);
-                return _converter.Convert(ref val);
+                return _converter.Convert(in val);
             }
         }
         object ICanRandomlyAccessData.this[int index]
@@ -47,7 +47,7 @@
             get
             {
                 _randomAccess.Get(index, out var val);
-                return _converter.Convert(ref val);
+                return _converter.Convert(in val);
             }
         }
     }
