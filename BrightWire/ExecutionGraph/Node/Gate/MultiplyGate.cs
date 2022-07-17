@@ -25,8 +25,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             protected override void DisposeMemory(bool isDisposing)
             {
-                //_input1.Dispose();
-                //_input2.Dispose();
+                _primary.Dispose();
+                _secondary.Dispose();
             }
 
             public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)

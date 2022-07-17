@@ -4,13 +4,13 @@ using System.Linq;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlgebra.TensorInfo
+namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class VectorInfoWrapper : IVectorInfo
+    internal class ReadOnlyVectorWrapper : IReadOnlyVector
     {
-        readonly TensorSegmentWrapper _segment;
+        readonly ITensorSegment _segment;
 
-        public VectorInfoWrapper(TensorSegmentWrapper segment)
+        public ReadOnlyVectorWrapper(ITensorSegment segment)
         {
             _segment = segment;
         }

@@ -40,7 +40,7 @@ namespace ExampleCode.DataSet
         public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
-            float trainingRate = 0.1f,
+            float trainingRate = 0.001f,
             uint batchSize = 128
         )
         {
@@ -100,7 +100,7 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (IVectorInfo Data, IVectorInfo Label) AsFloatArray(BrightDataContext context)
+            public (IReadOnlyVector Data, IReadOnlyVector Label) AsFloatArray(BrightDataContext context)
             {
                 return (
                     context.CreateVectorInfo(Data.Length, i => Data[i] / 255f),
@@ -111,11 +111,11 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (ITensor3DInfo Tensor, IVectorInfo Label) AsFloatTensor(BrightDataContext context)
+            public (IReadOnlyTensor3D Tensor, IReadOnlyVector Label) AsFloatTensor(BrightDataContext context)
             {
                 const int SIZE = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new List<IVectorInfo>();
+                var rows = new List<IReadOnlyVector>();
 
                 for (var y = 0; y < SIZE; y++) {
                     var row = new float[SIZE];

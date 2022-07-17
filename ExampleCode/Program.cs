@@ -50,8 +50,8 @@ namespace ExampleCode
             //PredictBicyclesWithNeuralNetwork(context, useMkl);
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
-            MnistFeedForward(context, useMkl);
-            //MnistConvolutional(context, useMkl, useCuda);
+            //MnistFeedForward(context, useMkl);
+            MnistConvolutional(context, useMkl, useCuda);
             //TrainIncomePrediction(context, useMkl);
             //SentimentClassification(context, useMkl, useCuda);
         }

@@ -212,7 +212,7 @@
             <param name="rows">Row indices</param>
             <param name="data">Array of input/output pairs</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IMatrixInfo,BrightData.IMatrixInfo}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IReadOnlyMatrix,BrightData.IReadOnlyMatrix}[])">
             <summary>
             Creates a sequential mini batch
             </summary>
@@ -3197,7 +3197,7 @@
             True if the result should be formatted as a percentage
             </summary>
         </member>
-        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IVectorInfo,BrightData.IVectorInfo)">
+        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IReadOnlyVector,BrightData.IReadOnlyVector)">
             <summary>
             Computes the error between the output vector and target vector
             </summary>

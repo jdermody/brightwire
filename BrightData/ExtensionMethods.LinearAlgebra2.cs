@@ -8,7 +8,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.TensorInfo;
+using BrightData.LinearAlgebra.ReadOnly;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
@@ -842,8 +842,8 @@ namespace BrightData
             );
         }
 
-        public static IVectorInfo ToVectorInfo(this ITensorSegment segment) => new VectorInfo(segment);
-        public static IVectorInfo ToVectorInfo(this float[] segment) => new VectorInfo(segment);
+        public static IReadOnlyVector ToVectorInfo(this ITensorSegment segment) => new ReadOnlyVector(segment);
+        public static IReadOnlyVector ToVectorInfo(this float[] segment) => new ReadOnlyVector(segment);
 
         public static IVector ToVector(this ITensorSegment segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
         public static IMatrix ToMatrix(this ITensorSegment segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);

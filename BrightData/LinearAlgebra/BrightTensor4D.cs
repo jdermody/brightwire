@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra
         }
 
         public override ITensor4D Create(ITensorSegment segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, _lap);
-        ITensor4D ITensor4DInfo.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
+        ITensor4D IReadOnlyTensor4D.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
 
         public uint Count { get; private set; }
         public uint Depth { get; private set; }

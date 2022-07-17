@@ -6,7 +6,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class Tensor4DData : ITensor4DInfo
+    internal class Tensor4DData : IReadOnlyTensor4D
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;

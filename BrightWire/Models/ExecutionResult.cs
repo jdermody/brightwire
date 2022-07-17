@@ -22,31 +22,31 @@ namespace BrightWire.Models
         {
             _miniBatch = miniBatch;
 
-            Output = output.CopyAllRows();
-            Target = _miniBatch.Target?.GetMatrix().CopyAllRows();
+            Output = output.AllRows(true);
+            Target = _miniBatch.Target?.GetMatrix().AllRows(true);
 			if(wantInputInExecutionResults)
-                Input = _miniBatch.Input?.GetMatrix().CopyAllRows();
+                Input = _miniBatch.Input?.GetMatrix().AllRows(true);
         }
 
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IVectorInfo[] Output { get; }
+		public IReadOnlyVector[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IVectorInfo[]? Target { get; }
+		public IReadOnlyVector[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IVectorInfo[]? Input { get; }
+		public IReadOnlyVector[]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public IVectorInfo[]? Error { get; set; } = null;
+        public IReadOnlyVector[]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch

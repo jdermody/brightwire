@@ -6,7 +6,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class Tensor3DData : ITensor3DInfo
+    internal class Tensor3DData : IReadOnlyTensor3D
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;
@@ -57,6 +57,16 @@ namespace BrightData.DataTable.TensorData
             var segment = lap.CreateSegment(size);
             segment.CopyFrom(span);
             return lap.CreateTensor3D(Depth, RowCount, ColumnCount, segment);
+        }
+
+        public IReadOnlyMatrix GetReadOnlyMatrix(uint index) => new MatrixData(_data, RowCount, ColumnCount, index * MatrixSize);
+
+        public IReadOnlyMatrix[] AllMatrices()
+        {
+            var ret = new IReadOnlyMatrix[Depth];
+            for (uint i = 0; i < Depth; i++)
+                ret[i] = GetReadOnlyMatrix(i);
+            return ret;
         }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)

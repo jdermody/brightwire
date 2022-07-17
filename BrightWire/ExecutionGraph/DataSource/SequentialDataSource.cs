@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<IVectorInfo>>();
+            var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
             foreach (var item in data) {
                 var input = item;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {

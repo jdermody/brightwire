@@ -47,8 +47,8 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = GetBitArray(b);
                 var r2 = GetBitArray(a + b);
 
-                var inputList = new IVectorInfo[r2.Length];
-                var outputList = new IVectorInfo[r2.Length];
+                var inputList = new IReadOnlyVector[r2.Length];
+                var outputList = new IReadOnlyVector[r2.Length];
                 for (var j = 0; j < r2.Length; j++) {
                     inputList[j] = context.CreateVectorInfo(a2[j], b2[j]);
                     outputList[j] = context.CreateVectorInfo(r2[j]);

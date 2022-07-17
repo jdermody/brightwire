@@ -74,20 +74,20 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(val), T);
             }
 
-            if (typeOfT == typeof(IVectorInfo)) {
+            if (typeOfT == typeof(IReadOnlyVector)) {
                 var val = _context.CreateVectorInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(IMatrixInfo)) {
+            if (typeOfT == typeof(IReadOnlyMatrix)) {
                 var val = _context.CreateMatrixInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(ITensor3DInfo)) {
-                var val = _context.CreateTensor3D(reader);
+            if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var val = _context.CreateTensor3DInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
-            if (typeOfT == typeof(ITensor4DInfo)) {
-                var val = _context.CreateTensor4D(reader);
+            if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var val = _context.CreateTensor4DInfo(reader);
                 return __refvalue(__makeref(val), T);
             }
 
@@ -170,28 +170,28 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(IVector)) {
-                var ret = new IVectorInfo[len];
+                var ret = new IReadOnlyVector[len];
                 for (uint i = 0; i < len; i++) {
                     ret[i] = _context.CreateVectorInfo(reader);
                 }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(IMatrixInfo)) {
-                var ret = new IMatrixInfo[len];
+            if (typeOfT == typeof(IReadOnlyMatrix)) {
+                var ret = new IReadOnlyMatrix[len];
                 for (uint i = 0; i < len; i++)
                     ret[i] = _context.CreateMatrixInfo(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(ITensor3DInfo)) {
-                var ret = new ITensor3DInfo[len];
+            if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var ret = new IReadOnlyTensor3D[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = _context.CreateTensor3D(reader);
+                    ret[i] = _context.CreateTensor3DInfo(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(ITensor4DInfo)) {
-                var ret = new ITensor4DInfo[len];
+            if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var ret = new IReadOnlyTensor4D[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = _context.CreateTensor4D(reader);
+                    ret[i] = _context.CreateTensor4DInfo(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(BinaryData)) {

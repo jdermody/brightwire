@@ -96,22 +96,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IMatrixInfo Input, IMatrixInfo? Output)[] data)
+        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
         {
-            List<IVectorInfo>? temp;
-            var inputData = new Dictionary<uint, List<IVectorInfo>>();
-            var outputData = new Dictionary<uint, List<IVectorInfo>>();
+            List<IReadOnlyVector>? temp;
+            var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
+            var outputData = new Dictionary<uint, List<IReadOnlyVector>>();
             var lap = _dataTable.Context.LinearAlgebraProvider;
 
             foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out temp))
-                        inputData.Add(i, temp = new List<IVectorInfo>());
+                        inputData.Add(i, temp = new List<IReadOnlyVector>());
                     temp.Add(input.GetRow(i));
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = new List<IVectorInfo>());
+                            outputData.Add(i, temp = new List<IReadOnlyVector>());
                         temp.Add(output.GetRow(i));
                     }
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -87,12 +88,12 @@ namespace BrightData.LinearAlgebra
         }
         static uint[] ResolveShape(uint total, params uint?[] shape)
         {
-            uint nonNullTotal = 0;
+            uint nonNullTotal = 1;
             var hasFoundNull = false;
             foreach (var item in shape)
             {
                 if (item.HasValue)
-                    nonNullTotal += item.Value;
+                    nonNullTotal *= item.Value;
                 else if (!hasFoundNull)
                     hasFoundNull = true;
                 else
@@ -101,6 +102,9 @@ namespace BrightData.LinearAlgebra
 
             if (hasFoundNull && nonNullTotal == 0)
                 throw new ArgumentException("Cannot resolve null parameter");
+
+            if (!hasFoundNull && nonNullTotal != total)
+                throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
 
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }

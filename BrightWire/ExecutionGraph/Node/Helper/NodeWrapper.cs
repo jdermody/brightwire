@@ -32,7 +32,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
             public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
             {
-                // TODO: wrap the backpropagation?
                 _context.AddForwardHistory(_wrapper, data, callback, prev);
             }
 

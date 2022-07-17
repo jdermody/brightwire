@@ -64,7 +64,7 @@ namespace BrightWire.Unsupervised
             }
 
             // weights gives cluster membership
-            var documentClusters = weights.AllRows()
+            var documentClusters = weights.AllRows(false)
                 .Select((r, i) => (Index: i, r.Segment.GetMinAndMaxValues().MaxIndex))
                 .ToList();
             weights.Dispose();
@@ -77,7 +77,7 @@ namespace BrightWire.Unsupervised
 
         float DifferenceCost(IMatrix m1, IMatrix m2)
         {
-            return m1.AllRows().Zip(m2.AllRows(), (r1, r2) => _costFunction.Compute(r1.ToArray(), r2.ToArray())).Average();
+            return m1.AllRows(false).Zip(m2.AllRows(false), (r1, r2) => _costFunction.Compute(r1.ToArray(), r2.ToArray())).Average();
         }
     }
 }

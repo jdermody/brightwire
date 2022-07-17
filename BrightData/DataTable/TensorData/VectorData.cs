@@ -7,7 +7,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class VectorData : IVectorInfo
+    internal class VectorData : IReadOnlyVector
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;

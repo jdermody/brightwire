@@ -21,11 +21,13 @@ namespace BrightData.MKL
         public override string Name => "mkl";
         public override Type VectorType { get; } = typeof(MklVector);
         public override Type MatrixType { get; } = typeof(MklMatrix);
-        //public override Type Tensor3DType { get; } = typeof(Tensor3D2);
-        //public override Type Tensor4DType { get; } = typeof(Tensor4D2);
+        public override Type Tensor3DType { get; } = typeof(MklTensor3D);
+        public override Type Tensor4DType { get; } = typeof(MklTensor4D);
 
         public override IVector CreateVector(ITensorSegment data) => new MklVector(data, this);
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new MklMatrix(data, rowCount, columnCount, this);
+        public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new MklTensor3D(data, depth, rowCount, columnCount, this);
+        public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
         ITensorSegment Apply(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], float[], float[]> mkl)
         {

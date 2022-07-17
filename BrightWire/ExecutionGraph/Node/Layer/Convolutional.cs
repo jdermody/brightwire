@@ -30,12 +30,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
+                var tensor = errorSignal.GetMatrix().Reshape(null, _source._filter.ColumnCount, _newHeight, _newWidth);
                 var padding = _source._padding;
 
                 // calculate the weight and bias updates
                 using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
-                    var weightUpdate = update.CombineDepthSlices();
+                    var weightUpdate = update.AddMatrices();
                     var biasUpdate = tensor.ColumnSums();
 
                     var learningContext = context.LearningContext!;
@@ -62,7 +62,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         delta.Dispose();
                         delta = delta2;
                     }
-                    return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
+
+                    var deltaMatrix = delta.ReshapeAsMatrix();
+                    var ret = new Tensor4DGraphData(deltaMatrix, _inputHeight, _inputWidth, inputDepth);
+                    return ret;
                 }
                 return GraphData.Null;
             }
@@ -119,7 +122,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
+            var tensor = signal.GetMatrix().Reshape(null, signal.Depth, signal.Rows, signal.Columns);
 
             var inputWidth = tensor.ColumnCount;
             var inputHeight = tensor.RowCount;
@@ -132,8 +135,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _xStride, _yStride);
             var outputSignal = im2Col.Multiply(_filter);
             outputSignal.AddToEachRow(_bias);
-            var outputTensor = outputSignal.Reshape(newHeight, newWidth, outputSignal.ColumnCount, outputSignal.Depth);
-            Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
+            var outputTensor = outputSignal.Reshape(tensor.Count, FilterCount, newHeight, newWidth);
 
             var graphData = new Tensor4DGraphData(outputTensor);
             return (this, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));

@@ -7,7 +7,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class MatrixData : IMatrixInfo
+    internal class MatrixData : IReadOnlyMatrix
     {
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;
@@ -57,12 +57,16 @@ namespace BrightData.DataTable.TensorData
             return lap.CreateMatrix(RowCount, ColumnCount, segment);
         }
 
-        public IVectorInfo GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
-        public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
-        public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
-        public IVectorInfo[] CopyAllRows() => RowCount.AsRange().Select(i => GetRow(i).ToArray().ToVectorInfo()).ToArray();
-        public IVectorInfo[] CopyAllColumns() => ColumnCount.AsRange().Select(i => GetColumn(i).ToArray().ToVectorInfo()).ToArray();
+        public IReadOnlyVector GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
+        public IReadOnlyVector GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
+        public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
+            ? RowCount.AsRange().Select(i => GetRow(i).ToArray().ToVectorInfo()).ToArray()
+            : RowCount.AsRange().Select(GetRow).ToArray()
+        ;
+        public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
+            ? ColumnCount.AsRange().Select(i => GetColumn(i).ToArray().ToVectorInfo()).ToArray()
+            : ColumnCount.AsRange().Select(GetColumn).ToArray()
+        ;
 
         public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 

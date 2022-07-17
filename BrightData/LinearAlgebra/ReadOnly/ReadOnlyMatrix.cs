@@ -4,24 +4,24 @@ using System.Linq;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlgebra.TensorInfo
+namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class MatrixInfo : IMatrixInfo
+    internal class ReadOnlyMatrix : IReadOnlyMatrix
     {
         float[] _data;
         ITensorSegment? _segment;
 
-        public MatrixInfo(float[] data, uint rows, uint columns)
+        public ReadOnlyMatrix(float[] data, uint rows, uint columns)
         {
             _data = data;
             RowCount = rows;
             ColumnCount = columns;
         }
-        public MatrixInfo(uint rows, uint columns) : this(new float[rows * columns], rows, columns)
+        public ReadOnlyMatrix(uint rows, uint columns) : this(new float[rows * columns], rows, columns)
         {
         }
 
-        public MatrixInfo(uint rows, uint columns, Func<uint, uint, float> initializer)
+        public ReadOnlyMatrix(uint rows, uint columns, Func<uint, uint, float> initializer)
         {
             RowCount = rows;
             ColumnCount = columns;
@@ -65,12 +65,16 @@ namespace BrightData.LinearAlgebra.TensorInfo
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, Segment);
         public TensorSegmentWrapper Row(uint index) => new(Segment, index, RowCount, ColumnCount);
         public TensorSegmentWrapper Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
-        public IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
-        public IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
-        public IVectorInfo[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
-        public IVectorInfo[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
-        public IVectorInfo[] CopyAllRows() => RowCount.AsRange().Select(i => Row(i).ToNewArray().ToVectorInfo()).ToArray();
-        public IVectorInfo[] CopyAllColumns() => ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToVectorInfo()).ToArray();
+        public IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
+        public IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
+        public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
+            ? RowCount.AsRange().Select(i => Row(i).ToNewArray().ToVectorInfo()).ToArray()
+            : RowCount.AsRange().Select(GetRow).ToArray()
+        ;
+        public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
+            ? ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToVectorInfo()).ToArray()
+            : ColumnCount.AsRange().Select(GetColumn).ToArray()
+        ;
         public override string ToString()
         {
             var preview = String.Join("|", _data.Take(Consts.PreviewSize));

@@ -163,7 +163,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new IVectorInfo[sequenceData.Count];
+                var rows = new IReadOnlyVector[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -180,7 +180,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(summary, output);
             }
 
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
         public static SequenceToSequenceTrainer ManyToOne(this BrightDataContext context)
@@ -194,7 +194,7 @@ namespace ExampleCode.DataSet
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new IVectorInfo[sequence.Length];
+                var rows = new IReadOnlyVector[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
@@ -205,7 +205,7 @@ namespace ExampleCode.DataSet
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateMatrixInfoFromRows(rows), target);
             }
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
         static string Reverse(string str) => new(str.Reverse().ToArray());
@@ -226,7 +226,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(encodedSequence, encodedSequence2);
             }
 
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
         //public static LinearTrainer SimpleLinear(this BrightDataContext context)

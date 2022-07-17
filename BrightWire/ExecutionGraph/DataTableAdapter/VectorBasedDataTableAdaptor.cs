@@ -18,8 +18,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.GetRow(0);
-            var input = (IVectorInfo)firstRow[_featureColumnIndices.Single()];
-            var output = (IVectorInfo)firstRow[_targetColumnIndex];
+            var input = (IReadOnlyVector)firstRow[_featureColumnIndices.Single()];
+            var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
 
             InputSize = input.Size;
             OutputSize = output.Size;
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var featureColumnIndex = _featureColumnIndices.Single();
             var data = GetRows(rows)
-                .Select(r => (((IVectorInfo)r[featureColumnIndex]).ToArray(), ((IVectorInfo)r[_targetColumnIndex]).ToArray()))
+                .Select(r => (((IReadOnlyVector)r[featureColumnIndex]).ToArray(), ((IReadOnlyVector)r[_targetColumnIndex]).ToArray()))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);

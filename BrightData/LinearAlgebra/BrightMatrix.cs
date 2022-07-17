@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using BrightData.LinearAlgebra.TensorInfo;
+using BrightData.LinearAlgebra.ReadOnly;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
@@ -69,38 +69,37 @@ namespace BrightData.LinearAlgebra
         }
 
         public override IMatrix Create(ITensorSegment segment) => _lap.CreateMatrix(RowCount, ColumnCount, segment);
-        IMatrix IMatrixInfo.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
-        public virtual IVectorInfo GetRow(uint rowIndex) => new VectorInfoWrapper(Row(rowIndex));
-        public virtual IVectorInfo GetColumn(uint columnIndex) => new VectorInfoWrapper(Column(columnIndex));
+        IMatrix IReadOnlyMatrix.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
+        public virtual IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
+        public virtual IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
 
-        public virtual IVectorInfo[] AllRows()
+        public virtual IReadOnlyVector[] AllRows(bool makeCopy)
         {
-            var ret = new IVectorInfo[RowCount];
-            for (uint i = 0; i < RowCount; i++)
-                ret[i] = GetRow(i);
+            var ret = new IReadOnlyVector[RowCount];
+            if (makeCopy) {
+                var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
+                for (uint i = 0; i < RowCount; i++)
+                    ret[i] = Row(i, segment).ToVectorInfo();
+            }
+            else {
+                for (uint i = 0; i < RowCount; i++)
+                    ret[i] = GetRow(i);
+            }
             return ret;
         }
-        public virtual IVectorInfo[] AllColumns()
+        public virtual IReadOnlyVector[] AllColumns(bool makeCopy)
         {
-            var ret = new IVectorInfo[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = GetColumn(i);
-            return ret;
-        }
-        public virtual IVectorInfo[] CopyAllRows()
-        {
-            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-            var ret = new IVectorInfo[RowCount];
-            for (uint i = 0; i < RowCount; i++)
-                ret[i] = Row(i, segment).ToVectorInfo();
-            return ret;
-        }
-        public virtual IVectorInfo[] CopyAllColumns()
-        {
-            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-            var ret = new IVectorInfo[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = Column(i, segment).ToVectorInfo();
+            var ret = new IReadOnlyVector[ColumnCount];
+            if (makeCopy) {
+                var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
+                for (uint i = 0; i < ColumnCount; i++)
+                    ret[i] = Column(i, segment).ToVectorInfo();
+            }
+            else {
+                for (uint i = 0; i < ColumnCount; i++)
+                    ret[i] = GetColumn(i);
+            }
+
             return ret;
         }
 

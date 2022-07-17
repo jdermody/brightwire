@@ -94,7 +94,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="ch"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        public IVectorInfo Encode(char ch, float val = 1f)
+        public IReadOnlyVector Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
@@ -106,7 +106,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public IVectorInfo Encode(IEnumerable<(char, float)> data)
+        public IReadOnlyVector Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
@@ -119,9 +119,9 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public IMatrixInfo Encode(string str)
+        public IReadOnlyMatrix Encode(string str)
         {
-            var data = new IVectorInfo[str.Length];
+            var data = new IReadOnlyVector[str.Length];
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 

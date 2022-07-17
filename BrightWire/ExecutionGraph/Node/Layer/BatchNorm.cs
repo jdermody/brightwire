@@ -78,7 +78,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             IMatrix input;
-            IVectorInfo[]? samples;
+            IReadOnlyVector[]? samples;
             var lap = context.GetLinearAlgebraProvider();
             var shouldDispose = false;
             (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);
@@ -105,7 +105,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 			else {
 				input = signal.GetMatrix();
-				samples = input.AllRows();
+				samples = input.AllRows(false);
 			}
 
 			// collect statistics

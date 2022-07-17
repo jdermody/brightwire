@@ -167,7 +167,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
         public ITensor4D Get4DTensor()
         {
-            return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
+            return _matrix.Reshape(null, Depth, Rows, Columns);
         }
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count}): {_matrix}";
@@ -175,37 +175,16 @@ namespace BrightWire.ExecutionGraph.Helper
 
     }
 
-    static class GraphHelperMethods
+    public static class GraphHelperMethods
     {
         public static IMatrix ReshapeAsMatrix(this ITensor3D tensor)
         {
-            return tensor.Reshape(tensor.RowCount * tensor.ColumnCount, tensor.Depth);
+            return tensor.Reshape(null, tensor.Depth);
         }
 
         public static IMatrix ReshapeAsMatrix(this ITensor4D tensor)
         {
-            return tensor.Reshape(tensor.RowCount * tensor.ColumnCount * tensor.Depth, tensor.Count);
-        }
-
-        //public static ITensor3D ReshapeAs3DTensor(this IMatrix inputMatrix, uint rows, uint columns, uint depth)
-        //{
-        //    Debug.Assert(rows * columns * depth == inputMatrix.ColumnCount);
-        //    if (depth > 1) {
-        //        var slice = inputMatrix.Split(depth);
-        //        var matrixList = slice.Select(part => part.Reshape(rows, columns)).ToArray();
-        //        return inputMatrix.LinearAlgebraProvider.CreateTensor3D(true, matrixList);
-        //    }
-        //    var matrix = ReshapeAsMatrix(rows, columns).Data;
-        //    return new Float3DTensor(Data.Context.CreateTensor3D(matrix));
-        //}
-
-        public static ITensor4D ReshapeAs4DTensor(this IMatrix matrix, uint rows, uint columns, uint depth)
-        {
-            var lap = matrix.LinearAlgebraProvider;
-            var list = new ITensor3D[matrix.ColumnCount];
-            for (uint i = 0; i < matrix.ColumnCount; i++)
-                list[i] = lap.CreateTensor3DAndThenDisposeInput(matrix.GetColumn(i).Segment.Split(depth).Select(v => v.ToMatrix(lap, rows, columns)).ToArray());
-            return lap.CreateTensor4DAndThenDisposeInput(list);
+            return tensor.Reshape(null, tensor.Count);
         }
     }
 }

@@ -488,7 +488,7 @@ namespace BrightData
         IStructByReferenceEnumerator<T> GetEnumerator() => this;
         bool MoveNext();
         void Reset();
-        ref T Current { get; }
+        ref readonly T Current { get; }
     }
 
     /// <summary>

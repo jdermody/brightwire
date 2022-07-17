@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify each step of a sequence
     /// </summary>
-    internal class SequentialDataTableAdapter : DataTableAdapterBase<(IMatrixInfo Input, IMatrixInfo? Output)>
+    internal class SequentialDataTableAdapter : DataTableAdapterBase<(IReadOnlyMatrix Input, IReadOnlyMatrix? Output)>
     {
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
@@ -34,8 +34,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             // find the number of sequences of each row
             var foundData = false;
             foreach(var (i, row) in dataTable.GetAllRowData()) {
-                var inputMatrix = (IMatrixInfo) row[_featureColumnIndices[0]];
-                var outputMatrix = (IMatrixInfo) row[_targetColumnIndex];
+                var inputMatrix = (IReadOnlyMatrix) row[_featureColumnIndices[0]];
+                var outputMatrix = (IReadOnlyMatrix) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
@@ -51,11 +51,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _sequenceLengthsAreVaried = sequenceLengthsAreVaried;
         }
 
-        protected override IEnumerable<(IMatrixInfo Input, IMatrixInfo? Output)> GetRows(uint[] rows)
+        protected override IEnumerable<(IReadOnlyMatrix Input, IReadOnlyMatrix? Output)> GetRows(uint[] rows)
         {
             foreach (var row in _dataTable.GetRows(rows)) {
-                var input = (IMatrixInfo)row[_featureColumnIndex];
-                var output = (IMatrixInfo?)row[_targetColumnIndex];
+                var input = (IReadOnlyMatrix)row[_featureColumnIndex];
+                var output = (IReadOnlyMatrix?)row[_targetColumnIndex];
                 yield return (input, output);
             }
         }
@@ -73,8 +73,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
-                var inputData = new Dictionary<uint, List<IVectorInfo>>();
-                var outputData = new Dictionary<uint, List<IVectorInfo>>();
+                var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
+                var outputData = new Dictionary<uint, List<IReadOnlyVector>>();
 
                 foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {

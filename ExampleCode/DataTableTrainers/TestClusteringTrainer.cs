@@ -139,7 +139,7 @@ namespace ExampleCode.DataTableTrainers
                 v2.Dispose();
                 s.Dispose();
 
-                var vectorList3 = sv2.AllColumns().Select(c => c.Create(lap)).ToList();
+                var vectorList3 = sv2.AllColumns(false).Select(c => c.Create(lap)).ToList();
                 var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");

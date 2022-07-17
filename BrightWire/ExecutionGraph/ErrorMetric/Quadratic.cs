@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IVectorInfo output, IVectorInfo targetOutput)
+        public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
         {
             var diff = output.Segment.Values.Zip(targetOutput.Segment.Values, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
             return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));

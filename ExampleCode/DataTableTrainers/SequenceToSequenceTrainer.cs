@@ -13,12 +13,10 @@ namespace ExampleCode.DataTableTrainers
     internal class SequenceToSequenceTrainer : DataTableTrainer
     {
         readonly SequenceGenerator _sequenceGenerator;
-        readonly BrightDataContext _context;
 
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataContext context, BrightDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataTable dataTable) : base(dataTable)
         {
             _sequenceGenerator = sequenceGenerator;
-            _context = context;
         }
 
         public void TrainOneToMany()
@@ -58,7 +56,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Get<IVectorInfo>(i, 0)),
+                    Input: GetStringIndices(Test.Get<IReadOnlyVector>(i, 0)),
                     Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                 ))
             ;
@@ -69,7 +67,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        static uint[] GetStringIndices(IVectorInfo vector)
+        static uint[] GetStringIndices(IReadOnlyVector vector)
         {
             return GetStringIndices(vector.Segment.GetLocalOrNewArray());
         }
@@ -120,7 +118,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     using var matrix = Test.Get<IMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
+                        Input: matrix.AllRows(false).Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
                     );
                 })
@@ -191,7 +189,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     using var matrix = Test.Get<IMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
+                        Input: matrix.AllRows(false).Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
                     );
                 })

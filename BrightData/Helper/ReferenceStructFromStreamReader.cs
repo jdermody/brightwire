@@ -56,6 +56,6 @@ namespace BrightData.Helper
             _bufferIndex = -1;
             _stream.Seek(_initialStreamPosition, SeekOrigin.Begin);
         }
-        public ref T Current => ref _buffer.Span[_bufferIndex];
+        public ref readonly T Current => ref _buffer.Span[_bufferIndex];
     }
 }

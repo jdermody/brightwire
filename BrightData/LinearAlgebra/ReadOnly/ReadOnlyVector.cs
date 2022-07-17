@@ -4,26 +4,26 @@ using System.Linq;
 using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlgebra.TensorInfo
+namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class VectorInfo : IVectorInfo
+    internal class ReadOnlyVector : IReadOnlyVector
     {
         float[]? _data = null;
         ITensorSegment? _segment = null;
 
-        public VectorInfo(float[] data)
+        public ReadOnlyVector(float[] data)
         {
             _data = data;
         }
-        public VectorInfo(ITensorSegment? segment)
+        public ReadOnlyVector(ITensorSegment? segment)
         {
             _segment = segment;
         }
-        public VectorInfo(uint size)
+        public ReadOnlyVector(uint size)
         {
             _data = new float[size];
         }
-        public VectorInfo(uint size, Func<uint, float> initializer)
+        public ReadOnlyVector(uint size, Func<uint, float> initializer)
         {
             _data = new float[size];
             for (uint i = 0; i < size; i++)

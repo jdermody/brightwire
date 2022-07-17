@@ -26,7 +26,7 @@ namespace BrightWire
 		/// <param name="output">The vector that was the output of the model</param>
 		/// <param name="targetOutput">The vector that the model was expected to output</param>
 		/// <returns></returns>
-		float Compute(IVectorInfo output, IVectorInfo targetOutput);
+		float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput);
 
         /// <summary>
         /// Computes the error between the output vector and target vector

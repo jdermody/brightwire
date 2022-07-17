@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IVectorInfo output, IVectorInfo expectedOutput)
+        public float Compute(IReadOnlyVector output, IReadOnlyVector expectedOutput)
         {
             var outputIndex = output.Segment.GetMinAndMaxValues().MaxIndex;
             var expectedIndex = expectedOutput.Segment.GetMinAndMaxValues().MaxIndex;

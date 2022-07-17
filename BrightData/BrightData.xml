@@ -1927,7 +1927,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,BrightData.IVectorInfo[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
             <summary>
             Creates a matrix from vectors (each will become a row)
             </summary>
@@ -1945,7 +1945,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,BrightData.IVectorInfo[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -1974,7 +1974,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,BrightData.IMatrixInfo[])">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,BrightData.IReadOnlyMatrix[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -1983,7 +1983,7 @@
             <param name="slices"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3DInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Create a 3D tensor from a binary reader
             </summary>
@@ -1992,19 +1992,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a 4D tensor
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="context"></param>
-            <param name="count">Number of 3D tensors</param>
-            <param name="depth">Number of matrices in each 3D tensor</param>
-            <param name="rows">Number of rows in each matrix</param>
-            <param name="columns">Number of columns in each matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor4DInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a 4D tensor from a binary reader
             </summary>
@@ -2012,16 +2000,6 @@
             <param name="context"></param>
             <param name="reader"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4D(BrightData.BrightDataContext,BrightData.ITensor3D[])">
-            <summary>
-            Creates a 4D tensor from 3D tensors
-            </summary>
-            <param name="context"></param>
-            <param name="tensors">3D tensors that form the 4D tensor</param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateIdentityMatrix(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32)">
             <summary>

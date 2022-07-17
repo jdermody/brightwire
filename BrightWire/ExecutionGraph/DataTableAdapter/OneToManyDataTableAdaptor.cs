@@ -26,11 +26,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
-            IVectorInfo? inputVector = null;
-            IMatrixInfo? outputMatrix = null;
+            IReadOnlyVector? inputVector = null;
+            IReadOnlyMatrix? outputMatrix = null;
             foreach(var (i, row) in dataTable.GetAllRowData()) {
-                inputVector = (IVectorInfo)row[_featureColumnIndices[0]];
-                outputMatrix = (IMatrixInfo)row[_targetColumnIndex];
+                inputVector = (IReadOnlyVector)row[_featureColumnIndices[0]];
+                outputMatrix = (IReadOnlyMatrix)row[_targetColumnIndex];
                 _rowDepth[i] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -64,10 +64,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
-                .Select(r => ((IVectorInfo)r[_featureColumnIndices[0]], (IMatrixInfo)r[_targetColumnIndex]))
+                .Select(r => ((IReadOnlyVector)r[_featureColumnIndices[0]], (IReadOnlyMatrix)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var outputData = new Dictionary<uint, List<IVectorInfo>>();
+            var outputData = new Dictionary<uint, List<IReadOnlyVector>>();
             foreach (var item in data) {
                 var output = item.Item2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {

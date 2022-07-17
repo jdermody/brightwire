@@ -83,29 +83,27 @@ namespace BrightData
         ITensorSegment Segment { get; }
     }
 
-    public interface IVectorInfo : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
+    public interface IReadOnlyVector : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         float this[int index] { get; }
         float this[uint index] { get; }
         IVector Create(LinearAlgebraProvider lap);
     }
 
-    public interface IMatrixInfo : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
+    public interface IReadOnlyMatrix : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint RowCount { get; }
         uint ColumnCount { get; }
         float this[int rowY, int columnX] { get; }
         float this[uint rowY, uint columnX] { get; }
         IMatrix Create(LinearAlgebraProvider lap);
-        IVectorInfo GetRow(uint rowIndex);
-        IVectorInfo GetColumn(uint columnIndex);
-        IVectorInfo[] AllRows();
-        IVectorInfo[] AllColumns();
-        IVectorInfo[] CopyAllRows();
-        IVectorInfo[] CopyAllColumns();
+        IReadOnlyVector GetRow(uint rowIndex);
+        IReadOnlyVector GetColumn(uint columnIndex);
+        IReadOnlyVector[] AllRows(bool makeCopy);
+        IReadOnlyVector[] AllColumns(bool makeCopy);
     }
 
-    public interface ITensor3DInfo : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
+    public interface IReadOnlyTensor3D : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint Depth { get; }
         uint RowCount { get; }
@@ -114,8 +112,10 @@ namespace BrightData
         float this[int depth, int rowY, int columnX] { get; }
         float this[uint depth, uint rowY, uint columnX] { get; }
         ITensor3D Create(LinearAlgebraProvider lap);
+        IReadOnlyMatrix GetReadOnlyMatrix(uint index);
+        IReadOnlyMatrix[] AllMatrices();
     }
-    public interface ITensor4DInfo : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
+    public interface IReadOnlyTensor4D : IAmSerializable, IHaveSpan, IHaveSize, IHaveTensorSegment
     {
         uint Count { get; }
         uint Depth { get; }
@@ -206,7 +206,7 @@ namespace BrightData
         T Map(Func<float, float> mutator);
     }
 
-    public interface IVector : ITensor<IVector>, IVectorInfo
+    public interface IVector : IReadOnlyVector, ITensor<IVector>
     {
         new float this[int index] { get; set; }
         new float this[uint index] { get; set; }
@@ -216,7 +216,7 @@ namespace BrightData
         void MapIndexedInPlace(Func<uint, float, float> mutator);
     }
 
-    public interface IMatrix : ITensor<IMatrix>, IMatrixInfo
+    public interface IMatrix : IReadOnlyMatrix, ITensor<IMatrix>
     {
         new float this[int rowY, int columnX] { get; set; }
         new float this[uint rowY, uint columnX] { get; set; }
@@ -255,7 +255,7 @@ namespace BrightData
         TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
     }
 
-    public interface ITensor3D : ITensor<ITensor3D>, ITensor3DInfo
+    public interface ITensor3D : IReadOnlyTensor3D, ITensor<ITensor3D>
     {
         new float this[int depth, int rowY, int columnX] { get; set; }
         new float this[uint depth, uint rowY, uint columnX] { get; set; }
@@ -268,13 +268,13 @@ namespace BrightData
         (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
         ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        IMatrix CombineDepthSlices();
+        IMatrix AddMatrices();
         ITensor3D Multiply(IMatrix matrix);
         void AddToEachRow(IVector vector);
         ITensor3D TransposeThisAndMultiply(ITensor4D other);
     }
 
-    public interface ITensor4D : ITensor<ITensor4D>, ITensor4DInfo
+    public interface ITensor4D : ITensor<ITensor4D>, IReadOnlyTensor4D
     {
         new float this[int count, int depth, int rowY, int columnX] { get; set; }
         new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }

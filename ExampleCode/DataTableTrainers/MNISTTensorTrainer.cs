@@ -82,11 +82,11 @@ namespace ExampleCode.DataTableTrainers
 
             // execute the model with a single image
             var firstRow = Test.GetRow(0);
-            var tensor = (ITensor3D) firstRow[0];
-            var singleData = graph.CreateDataSource(new[] { tensor });
+            var tensor = (IReadOnlyTensor3D) firstRow[0];
+            var singleData = graph.CreateDataSource(new[] { tensor.Create(context.LinearAlgebraProvider) });
             var result = executionEngine.Execute(singleData);
             var prediction = result.Single().Output[0].Segment.GetMinAndMaxValues().MaxIndex;
-            var expectedPrediction = ((IVector) firstRow[1]).GetMaxIndex();
+            var expectedPrediction = ((IReadOnlyVector) firstRow[1]).Segment.GetMinAndMaxValues().MaxIndex;
             Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;
         }

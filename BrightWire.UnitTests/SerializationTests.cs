@@ -24,7 +24,7 @@ namespace BrightWire.UnitTests
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IVectorInfo output, IVectorInfo targetOutput)
+            public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
             {
                 return output.Segment.GetMinAndMaxValues().MaxIndex == targetOutput.Segment.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }
@@ -61,7 +61,7 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(IVectorInfo value) => value[0] > 0.5f;
+            static bool Handle(IReadOnlyVector value) => value[0] > 0.5f;
             var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }

@@ -19,8 +19,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.GetRow(0);
-            var input = (ITensor3D)firstRow[_featureColumnIndices[0]];
-            var output = (IVector)firstRow[_targetColumnIndex];
+            var input = (IReadOnlyTensor3D)firstRow[_featureColumnIndices[0]];
+            var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
             _outputSize = output.Size;
             _inputSize = input.Segment.Size;
             Height = input.RowCount;
@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((ITensor3D)r[i]).Segment).ToList(), Data: ((IVector)r[_targetColumnIndex]).Segment))
+                .Select(r => (_featureColumnIndices.Select(i => ((IReadOnlyTensor3D)r[i]).Segment).ToList(), Data: ((IReadOnlyVector)r[_targetColumnIndex]).Segment))
                 .ToArray()
             ;
             var inputList = new IGraphData[_featureColumnIndices.Length];
