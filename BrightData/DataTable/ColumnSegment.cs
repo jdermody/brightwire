@@ -4,7 +4,7 @@ using System.IO;
 
 namespace BrightData.DataTable
 {
-    internal class ColumnSegment<CT, T> : IDataTableSegment<T>, ICanEnumerateWithSize<T>, ICanEnumerateDisposable
+    internal class ColumnSegment<CT, T> : ITypedSegment<T>, ICanEnumerateWithSize<T>, ICanEnumerateDisposable
         where CT : unmanaged
         where T: notnull
     {
@@ -18,7 +18,7 @@ namespace BrightData.DataTable
             MetaData metaData)
         {
             _reader = reader;
-            SingleType = dataType;
+            SegmentType = dataType;
             MetaData = metaData;
             Context = context;
             Size = size;
@@ -36,7 +36,7 @@ namespace BrightData.DataTable
             _reader.Dispose();
         }
 
-        public BrightDataType SingleType { get; }
+        public BrightDataType SegmentType { get; }
         IEnumerable<object> ICanEnumerate.Values
         {
             get

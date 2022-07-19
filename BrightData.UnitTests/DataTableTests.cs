@@ -363,7 +363,7 @@ namespace BrightData.UnitTests
             table2.RowCount.Should().Be(4);
             table2.ColumnCount.Should().Be(3);
 
-            using var column = table2.GetColumn(0).As<IDataTableSegment<double>>();
+            using var column = table2.GetColumn(0).As<ITypedSegment<double>>();
             var columnValues = column.Values.ToArray();
             columnValues[0].Should().Be(1.1);
             columnValues[1].Should().Be(1.5);

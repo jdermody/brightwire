@@ -18,14 +18,14 @@ namespace BrightData.DataTable
         public ICanEnumerateDisposable ReadColumn(uint columnIndex) => GetColumnReader(columnIndex, _header.RowCount);
         public ICanEnumerateDisposable<T> ReadColumn<T>(uint columnIndex) where T : notnull => GetColumnReader<T>(columnIndex, _header.RowCount);
 
-        public IEnumerable<ISingleTypeTableSegment> GetAllColumns() => GetColumns(ColumnIndices);
-        public IEnumerable<ISingleTypeTableSegment> GetColumns(IEnumerable<uint> columnIndices) => columnIndices.Select(GetColumn);
-        public ISingleTypeTableSegment GetColumn(uint columnIndex)
+        public IEnumerable<ITypedSegment> GetAllColumns() => GetColumns(ColumnIndices);
+        public IEnumerable<ITypedSegment> GetColumns(IEnumerable<uint> columnIndices) => columnIndices.Select(GetColumn);
+        public ITypedSegment GetColumn(uint columnIndex)
         {
             var brightDataType = ColumnTypes[columnIndex];
             var columnDataType = brightDataType.GetColumnType().Type;
             var dataType = brightDataType.GetDataType();
-            return GenericActivator.Create<ISingleTypeTableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
+            return GenericActivator.Create<ITypedSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
                 Context,
                 brightDataType,
                 _header.RowCount,
@@ -33,7 +33,7 @@ namespace BrightData.DataTable
                 GetColumnMetaData(columnIndex)
             );
         }
-        public IDataTableSegment<T> GetColumn<T>(uint columnIndex) where T : notnull => (IDataTableSegment<T>)GetColumn(columnIndex);
+        public ITypedSegment<T> GetColumn<T>(uint columnIndex) where T : notnull => (ITypedSegment<T>)GetColumn(columnIndex);
 
         static void ValidateColumnTypes(Type columnType, Type requestedType)
         {

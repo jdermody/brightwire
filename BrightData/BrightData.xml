@@ -420,7 +420,7 @@
         <member name="P:BrightData.Buffer.Hybrid.HybridBufferSegment`1.MetaData">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Buffer.Hybrid.HybridBufferSegment`1.SingleType">
+        <member name="P:BrightData.Buffer.Hybrid.HybridBufferSegment`1.SegmentType">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Buffer.Hybrid.HybridBufferSegment`1.WriteTo(System.IO.BinaryWriter)">
@@ -435,7 +435,7 @@
         <member name="P:BrightData.Buffer.InMemory.InMemorySegment`1.MetaData">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Buffer.InMemory.InMemorySegment`1.SingleType">
+        <member name="P:BrightData.Buffer.InMemory.InMemorySegment`1.SegmentType">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Buffer.InMemory.InMemorySegment`1.WriteTo(System.IO.BinaryWriter)">
@@ -1192,20 +1192,6 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.IDataTableSegment)">
-            <summary>
-            Returns the underlying Type for a data table segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetDataType``1(BrightData.IDataTableSegment{``0})">
-            <summary>
-            Returns the underlying Type for a data table segment
-            </summary>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.RowIndices(BrightData.DataTable.BrightDataTable)">
             <summary>
             Returns all row indices as an enumerable
@@ -1308,7 +1294,7 @@
             <param name="filePath">File path on disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.ITypedSegment{``0},BrightData.ITensorSegment)">
             <summary>
             Copies a data table segment to a tensor segment
             </summary>
@@ -1317,7 +1303,7 @@
             <param name="vector">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ITypedSegment,BrightData.ITensorSegment)">
             <summary>
             Copies a data table segment to tensor segment
             </summary>
@@ -1413,7 +1399,7 @@
             <param name="shuffle">True to shuffle the table before folding</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsDataTableSegment``1(BrightData.ISingleTypeTableSegment)">
+        <member name="M:BrightData.ExtensionMethods.AsDataTableSegment``1(BrightData.ITypedSegment)">
             <summary>
             Strongly typed enumeration of items in segment
             </summary>
@@ -1421,7 +1407,7 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ISingleTypeTableSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITypedSegment)">
             <summary>
             Reads the segment as a strongly typed array
             </summary>
@@ -1463,7 +1449,7 @@
             <param name="filePath">Optional path to save data table to disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.IDataTableSegment{``0})">
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITypedSegment{``0})">
             <summary>
             Converts a data table segment to an array
             </summary>
@@ -1551,14 +1537,14 @@
             <param name="outputColumnIndex"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray(BrightData.IDataTableSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToArray(BrightData.ICanRandomlyAccessData)">
             <summary>
             Converts the segment to an array
             </summary>
             <param name="row"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Get``1(BrightData.IDataTableSegment,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.Get``1(BrightData.ICanRandomlyAccessData,System.UInt32)">
             <summary>
             Casts the value at column index to type T
             </summary>
@@ -3337,39 +3323,23 @@
             Whole number
             </summary>
         </member>
-        <member name="T:BrightData.ISingleTypeTableSegment">
+        <member name="T:BrightData.ITypedSegment">
             <summary>
             A segment (series of values) in a table of which each element has the same type
             </summary>
         </member>
-        <member name="P:BrightData.ISingleTypeTableSegment.SingleType">
+        <member name="P:BrightData.ITypedSegment.SegmentType">
             <summary>
             The single type of the segment
             </summary>
         </member>
-        <member name="T:BrightData.IDataTableSegment">
-            <summary>
-            A series of values from a data table
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTableSegment.Types">
-            <summary>
-            The column type of each value
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTableSegment.Item(System.UInt32)">
-            <summary>
-            The value at each index (cast to object)
-            </summary>
-            <param name="index">Index to retrieve</param>
-        </member>
-        <member name="T:BrightData.IDataTableSegment`1">
+        <member name="T:BrightData.ITypedSegment`1">
             <summary>
             Typed data table segment (all of the same type)
             </summary>
             <typeparam name="T">Data type of values within the segment</typeparam>
         </member>
-        <member name="P:BrightData.IDataTableSegment`1.Values">
+        <member name="P:BrightData.ITypedSegment`1.Values">
             <summary>
             Enumerates the values
             </summary>
@@ -3497,7 +3467,7 @@
             Column index
             </summary>
         </member>
-        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITypedSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Gets a column transformer
             </summary>
@@ -3541,7 +3511,7 @@
             <param name="row"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IDataTableVectoriser.Vectorise(BrightData.IDataTableSegment)">
+        <member name="M:BrightData.IDataTableVectoriser.Vectorise(BrightData.ICanRandomlyAccessData)">
             <summary>
             Vectorise a data table segment
             </summary>
@@ -3911,7 +3881,7 @@
         <member name="P:BrightData.Transformation.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITypedSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Transformation.ColumnNormalization">

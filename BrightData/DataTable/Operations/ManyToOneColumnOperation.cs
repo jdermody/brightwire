@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BrightData.DataTable.Operations
 {
-    internal class ManyToOneColumnOperation<T> : OperationBase<ISingleTypeTableSegment?>
+    internal class ManyToOneColumnOperation<T> : OperationBase<ITypedSegment?>
         where T: notnull
     {
         readonly ICanEnumerateDisposable[] _input;
@@ -45,12 +45,12 @@ namespace BrightData.DataTable.Operations
             _outputBuffer.Add(_converter(_temp));
         }
 
-        protected override ISingleTypeTableSegment? GetResult(bool wasCancelled)
+        protected override ITypedSegment? GetResult(bool wasCancelled)
         {
             if (wasCancelled)
                 return null;
 
-            return (ISingleTypeTableSegment) _outputBuffer;
+            return (ITypedSegment) _outputBuffer;
         }
     }
 }

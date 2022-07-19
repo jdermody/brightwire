@@ -636,15 +636,14 @@ namespace BrightData
         IReadOnlyEnumerator<T> GetEnumerator();
     }
 
-    public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable where T: unmanaged
+    public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable, IHaveSize where T: unmanaged
     {
-        uint Size { get; }
         void Get(int index, out T value);
         void Get(uint index, out T value);
         ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
     }
 
-    public interface ICanRandomlyAccessData : IDisposable
+    public interface ICanRandomlyAccessData : IDisposable, IHaveSize
     {
         object this[int index] { get; }
         object this[uint index] { get; }

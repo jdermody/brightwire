@@ -186,36 +186,19 @@ namespace BrightData
     /// <summary>
     /// A segment (series of values) in a table of which each element has the same type
     /// </summary>
-    public interface ISingleTypeTableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable, IHaveSize, ICanEnumerate
+    public interface ITypedSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable, IHaveSize, ICanEnumerate, IHaveBrightDataContext
     {
         /// <summary>
         /// The single type of the segment
         /// </summary>
-        BrightDataType SingleType { get; }
-    }
-
-    /// <summary>
-    /// A series of values from a data table
-    /// </summary>
-    public interface IDataTableSegment : IHaveSize
-    {
-        /// <summary>
-        /// The column type of each value
-        /// </summary>
-        BrightDataType[] Types { get; }
-
-        /// <summary>
-        /// The value at each index (cast to object)
-        /// </summary>
-        /// <param name="index">Index to retrieve</param>
-        object this[uint index] { get; }
+        BrightDataType SegmentType { get; }
     }
 
     /// <summary>
     /// Typed data table segment (all of the same type)
     /// </summary>
     /// <typeparam name="T">Data type of values within the segment</typeparam>
-    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveBrightDataContext
+    public interface ITypedSegment<out T> : ITypedSegment
         where T : notnull
     {
         /// <summary>
@@ -365,7 +348,7 @@ namespace BrightData
         public IConvertColumn? GetTransformer(
             BrightDataContext context, 
             BrightDataType fromType, 
-            ISingleTypeTableSegment column, 
+            ITypedSegment column, 
             Func<MetaData> analysedMetaData, 
             IProvideTempStreams tempStreams, 
             uint inMemoryRowCount = 32768
@@ -414,7 +397,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        float[] Vectorise(IDataTableSegment segment);
+        float[] Vectorise(ICanRandomlyAccessData segment);
 
         /// <summary>
         /// Size of the output vectors
@@ -458,6 +441,6 @@ namespace BrightData
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="columns">Source column data</param>
         /// <returns></returns>
-        IEnumerable<IOperation<ISingleTypeTableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
+        IEnumerable<IOperation<ITypedSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
     }
 }

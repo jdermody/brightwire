@@ -36,7 +36,7 @@ namespace BrightData.DataTable
 
         public void Write(
             MetaData tableMetaData, 
-            ISingleTypeTableSegment[] columnSegments
+            ITypedSegment[] columnSegments
         ) {
             // check that all columns have the same number of rows
             var firstColumn = columnSegments.First();
@@ -70,7 +70,7 @@ namespace BrightData.DataTable
             var index = 0;
             foreach (var columnSegment in columnSegments) {
                 ref var c = ref columns[index++];
-                c.DataType = columnSegment.SingleType;
+                c.DataType = columnSegment.SegmentType;
                 (_, c.DataTypeSize) = c.DataType.GetColumnType();
                 columnSegment.MetaData.WriteTo(metaDataWriter);
             }
@@ -81,7 +81,7 @@ namespace BrightData.DataTable
 
             // write the data (column oriented)
             foreach (var columnSegment in columnSegments) {
-                var dataType = columnSegment.SingleType;
+                var dataType = columnSegment.SegmentType;
                 var (columnType, _) = dataType.GetColumnType();
 
                 if (dataType == BrightDataType.IndexList)

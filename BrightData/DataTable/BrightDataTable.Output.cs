@@ -18,7 +18,7 @@ namespace BrightData.DataTable
             var columns = GetColumns(columnIndices).ToArray();
             WriteTo(columns, stream);
         }
-        void WriteTo(ISingleTypeTableSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
+        void WriteTo(ITypedSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
 
         public void ConcatenateColumns(BrightDataTable[] tables, Stream stream)
         {

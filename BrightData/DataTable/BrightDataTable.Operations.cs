@@ -36,7 +36,7 @@ namespace BrightData.DataTable
             );
         }
 
-        public IEnumerable<IOperation<ISingleTypeTableSegment?>> MutateColumns(IProvideTempStreams temp, IEnumerable<(uint ColumnIndex, IConvertColumn Converter)> converters)
+        public IEnumerable<IOperation<ITypedSegment?>> MutateColumns(IProvideTempStreams temp, IEnumerable<(uint ColumnIndex, IConvertColumn Converter)> converters)
         {
             var converterTable = converters.ToDictionary(d => d.ColumnIndex, d => d.Converter);
 
@@ -47,7 +47,7 @@ namespace BrightData.DataTable
 
                     var columnReader = GetColumnReader(ci, RowCount);
                     var outputBuffer = converter.To.GetBrightDataType().GetHybridBufferWithMetaData(ColumnMetaData[ci], Context, temp);
-                    var operation = GenericActivator.Create<IOperation<ISingleTypeTableSegment?>>(typeof(ColumnConversionOperation<,>).MakeGenericType(converter.From, converter.To),
+                    var operation = GenericActivator.Create<IOperation<ITypedSegment?>>(typeof(ColumnConversionOperation<,>).MakeGenericType(converter.From, converter.To),
                         RowCount,
                         columnReader,
                         converter,
@@ -60,7 +60,7 @@ namespace BrightData.DataTable
             }
         }
 
-        public IEnumerable<IOperation<ISingleTypeTableSegment?>> ReinterpretColumns(IProvideTempStreams temp, IEnumerable<IReinterpretColumns> columns)
+        public IEnumerable<IOperation<ITypedSegment?>> ReinterpretColumns(IProvideTempStreams temp, IEnumerable<IReinterpretColumns> columns)
         {
             var rowCount = RowCount;
             var reinterpreted = columns.SelectMany(c => c.SourceColumnIndices.Select(i => (Column: c, Index: i)))

@@ -184,31 +184,6 @@ namespace BrightData
         };
 
         /// <summary>
-        /// Returns the underlying Type for a data table segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        public static Type? GetDataType(this IDataTableSegment segment)
-        {
-            Type? ret = null;
-            for (uint i = 0; i < segment.Size; i++) {
-                var type = segment[i].GetType();
-                if (ret == null)
-                    ret = type;
-                else if (type != ret)
-                    return null;
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Returns the underlying Type for a data table segment
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static Type GetDataType<T>(this IDataTableSegment<T> _) where T : notnull => typeof(T);
-
-        /// <summary>
         /// Returns all row indices as an enumerable
         /// </summary>
         /// <param name="dataTable"></param>
@@ -363,7 +338,7 @@ namespace BrightData
                     ++rowCount;
             }
 
-            var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();
+            var segments = columns.Cast<ITypedSegment>().ToArray();
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
@@ -427,7 +402,7 @@ namespace BrightData
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     var columnMetaData = new MetaData();
                     columnMetaData.Set(Consts.ColumnIndex, (uint)i);
-                    columns.Add(new HybridBufferSegment<string>(BrightDataType.String, columnMetaData, buffer));
+                    columns.Add(new HybridBufferSegment<string>(context, BrightDataType.String, columnMetaData, buffer));
                 }
 
                 for (var i = 0; i < cols; i++) {
@@ -445,7 +420,7 @@ namespace BrightData
                     ++rowCount;
             }
 
-            var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();
+            var segments = columns.Cast<ITypedSegment>().ToArray();
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
@@ -480,7 +455,7 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment vector)
+        public static uint CopyToFloatSegment<T>(this ITypedSegment<T> column, ITensorSegment vector)
             where T : struct
         {
             uint index = 0;
@@ -497,9 +472,9 @@ namespace BrightData
         /// <param name="column">Data table segment</param>
         /// <param name="vector">Tensor segment</param>
         /// <returns></returns>
-        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment vector)
+        public static uint CopyTo(this ITypedSegment column, ITensorSegment vector)
         {
-            var type = GetDataType(column.SingleType);
+            var type = GetDataType(column.SegmentType);
             var copySegment = typeof(ExtensionMethods).GetMethod(nameof(CopyToFloatSegment))!.MakeGenericMethod(type);
             return (uint)copySegment.Invoke(null, new object[] { column, vector })!;
         }
@@ -598,6 +573,7 @@ namespace BrightData
 
             var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(columnType);
             return GenericActivator.Create<IHybridBufferWithMetaData>(segmentType,
+                context,
                 type,
                 new MetaData(metaData, Consts.StandardMetaData),
                 buffer
@@ -729,7 +705,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IDataTableSegment<T> AsDataTableSegment<T>(this ISingleTypeTableSegment segment) where T : notnull => ((IDataTableSegment<T>)segment);
+        public static ITypedSegment<T> AsDataTableSegment<T>(this ITypedSegment segment) where T : notnull => ((ITypedSegment<T>)segment);
 
         /// <summary>
         /// Reads the segment as a strongly typed array
@@ -737,7 +713,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) where T : notnull => AsDataTableSegment<T>(segment).ToArray();
+        public static T[] ToArray<T>(this ITypedSegment segment) where T : notnull => AsDataTableSegment<T>(segment).ToArray();
 
         /// <summary>
         /// Converts the data table to feature and target matrices
@@ -765,7 +741,7 @@ namespace BrightData
                 if (columnType == BrightDataType.Vector) {
                     var index = 0;
                     var rows = new IVector[dataTable.RowCount];
-                    var vectorSegment = (IDataTableSegment<IVector>)dataTable.GetColumn(columnIndices[0]);
+                    var vectorSegment = (ITypedSegment<IVector>)dataTable.GetColumn(columnIndices[0]);
                     foreach (var row in vectorSegment.Values)
                         rows[index++] = row;
                     return dataTable.Context.LinearAlgebraProvider.CreateMatrixFromRowsAndThenDisposeInput(rows);
@@ -844,7 +820,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static T[] ToArray<T>(this IDataTableSegment<T> segment) where T : notnull => segment.Values.ToArray();
+        public static T[] ToArray<T>(this ITypedSegment<T> segment) where T : notnull => segment.Values.ToArray();
 
         /// <summary>
         /// Converts indexed classifications to a data table
@@ -1012,7 +988,7 @@ namespace BrightData
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static object[] ToArray(this IDataTableSegment row)
+        public static object[] ToArray(this ICanRandomlyAccessData row)
         {
             var len = row.Size;
             var ret = new object[len];
@@ -1028,7 +1004,7 @@ namespace BrightData
         /// <param name="columnIndex"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Get<T>(this IDataTableSegment segment, uint columnIndex) where T : notnull => (T)segment[columnIndex];
+        public static T Get<T>(this ICanRandomlyAccessData segment, uint columnIndex) where T : notnull => (T)segment[columnIndex];
 
         /// <summary>
         /// Samples rows from the data table
@@ -1036,7 +1012,7 @@ namespace BrightData
         /// <param name="table"></param>
         /// <param name="sampleSize">Number of rows to sample</param>
         /// <returns></returns>
-        public static IEnumerable<IDataTableSegment> Sample(this BrightDataTable table, uint sampleSize)
+        public static IEnumerable<BrightDataTableRow> Sample(this BrightDataTable table, uint sampleSize)
         {
             var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int)sampleSize).OrderBy(i => i).ToArray();
             return table.GetRows(rows);
@@ -1275,7 +1251,7 @@ namespace BrightData
                 var writer = new BrightDataTableWriter(context, tempStreams, GetMemoryOrFileStream(filePath));
                 writer.Write(
                     dataTable.TableMetaData,
-                    columnData.Cast<ISingleTypeTableSegment>().ToArray()
+                    columnData.Cast<ITypedSegment>().ToArray()
                 );
             }
 
@@ -1372,7 +1348,7 @@ namespace BrightData
             return new BrightDataTable(context, stream, bufferSize);
         }
 
-        public static void WriteDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, Stream stream)
+        public static void WriteDataTable(this BrightDataContext context, MetaData tableMetaData, ITypedSegment[] columns, Stream stream)
         {
             if (columns.Any()) {
                 try {
@@ -1387,17 +1363,17 @@ namespace BrightData
             }
         }
 
-        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, Stream stream)
+        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ITypedSegment[] columns, Stream stream)
         {
             context.WriteDataTable(tableMetaData, columns, stream);
             return context.LoadTableFromStream(stream);
         }
 
-        public static BrightDataTable BuildDataTableInMemory(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns) => context
+        public static BrightDataTable BuildDataTableInMemory(this BrightDataContext context, MetaData tableMetaData, ITypedSegment[] columns) => context
             .BuildDataTable(tableMetaData, columns, new MemoryStream())
         ;
 
-        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ISingleTypeTableSegment[] columns, string? filePath) => context
+        public static BrightDataTable BuildDataTable(this BrightDataContext context, MetaData tableMetaData, ITypedSegment[] columns, string? filePath) => context
             .BuildDataTable(tableMetaData, columns, GetMemoryOrFileStream(filePath))
         ;
 

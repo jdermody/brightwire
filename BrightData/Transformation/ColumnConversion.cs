@@ -236,7 +236,7 @@ namespace BrightData.Transformation
         public uint? ColumnIndex { get; }
 
         /// <inheritdoc />
-        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ISingleTypeTableSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ITypedSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;

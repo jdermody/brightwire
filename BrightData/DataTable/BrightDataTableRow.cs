@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BrightData.DataTable
 {
-    public class BrightDataTableRow : IDataTableSegment
+    public class BrightDataTableRow : ICanRandomlyAccessData
     {
         readonly BrightDataTable _dataTable;
         readonly ICanRandomlyAccessData[] _data;
@@ -15,15 +15,18 @@ namespace BrightData.DataTable
             _dataTable = dataTable;
         }
 
+        public void Dispose()
+        {
+            // nop
+        }
+
+        public object this[int index] => _data[index][RowIndex];
         public object this[uint index] => _data[index][RowIndex];
         public BrightDataType[] Types => _dataTable.ColumnTypes;
         public uint Size => (uint)_data.Length;
         public IEnumerable<object> Data => _data.Select(x => x[RowIndex]);
 
-        public override string ToString()
-        {
-            return string.Join(",", Types.Zip(Data, (t, d) => $"{Format(d, t)} [{t}]"));
-        }
+        public override string ToString() => string.Join(",", Types.Zip(Data, (t, d) => $"{Format(d, t)} [{t}]"));
 
         static string Format(object obj, BrightDataType type)
         {

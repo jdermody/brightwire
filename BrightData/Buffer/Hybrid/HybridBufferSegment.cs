@@ -8,16 +8,17 @@ namespace BrightData.Buffer.Hybrid
     /// A single type data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class HybridBufferSegment<T> : ISingleTypeTableSegment, IHybridBufferWithMetaData, IHybridBufferWithMetaData<T>
+    internal class HybridBufferSegment<T> : ITypedSegment<T>, IHybridBufferWithMetaData, IHybridBufferWithMetaData<T>
         where T : notnull
     {
         readonly IHybridBuffer<T> _buffer;
 
-        public HybridBufferSegment(BrightDataType type, MetaData metaData, IHybridBuffer<T> buffer)
+        public HybridBufferSegment(BrightDataContext context, BrightDataType type, MetaData metaData, IHybridBuffer<T> buffer)
         {
             _buffer = buffer;
+            Context = context;
             MetaData = metaData;
-            SingleType = type;
+            SegmentType = type;
             metaData.SetType(type);
         }
 
@@ -27,11 +28,13 @@ namespace BrightData.Buffer.Hybrid
             // nop
         }
 
+        public BrightDataContext Context { get; }
+
         /// <inheritdoc />
         public MetaData MetaData { get; }
 
         /// <inheritdoc />
-        public BrightDataType SingleType { get; }
+        public BrightDataType SegmentType { get; }
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);

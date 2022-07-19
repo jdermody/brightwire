@@ -50,5 +50,7 @@
                 return _converter.Convert(in val);
             }
         }
+
+        public uint Size => _randomAccess.Size;
     }
 }

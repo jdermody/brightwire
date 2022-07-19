@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BrightData.Buffer.InMemory
 {
-    class InMemorySegment<T> : IDataTableSegment<T> where T : notnull
+    class InMemorySegment<T> : ITypedSegment<T> where T : notnull
     {
         readonly InMemoryBuffer<T> _buffer = new();
         readonly ushort _maxDistinct;
@@ -18,7 +18,7 @@ namespace BrightData.Buffer.InMemory
             _maxDistinct = maxDistinct;
             MetaData = metaData;
             Context = context;
-            SingleType = type;
+            SegmentType = type;
             metaData.SetType(type);
         }
 
@@ -32,7 +32,7 @@ namespace BrightData.Buffer.InMemory
         public MetaData MetaData { get; }
 
         /// <inheritdoc />
-        public BrightDataType SingleType { get; }
+        public BrightDataType SegmentType { get; }
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
