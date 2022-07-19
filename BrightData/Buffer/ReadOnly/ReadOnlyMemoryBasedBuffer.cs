@@ -93,9 +93,10 @@ namespace BrightData.Buffer.ReadOnly
         {
             readonly T* _memory;
 
-            public RandomAccessBlock(T* memory)
+            public RandomAccessBlock(T* memory, uint sizeInBytes)
             {
                 _memory = memory;
+                Size = sizeInBytes / (uint)Unsafe.SizeOf<T>();
             }
 
             public void Dispose()
@@ -103,6 +104,7 @@ namespace BrightData.Buffer.ReadOnly
                 // nop
             }
 
+            public uint Size { get; }
             public void Get(int index, out T value) => value = *(_memory + index);
             public void Get(uint index, out T value) => value = *(_memory + index);
 
@@ -130,7 +132,7 @@ namespace BrightData.Buffer.ReadOnly
         public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;
-            return new RandomAccessBlock<T>((T*)(ptr + offset));
+            return new RandomAccessBlock<T>((T*)(ptr + offset), (uint)sizeInBytes);
         }
     }
 }

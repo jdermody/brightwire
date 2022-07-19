@@ -87,16 +87,18 @@ namespace BrightData.Buffer.ReadOnly
             readonly MemoryMappedViewAccessor _accessor;
             readonly int _sizeOfT;
 
-            public RandomAccessBlock(MemoryMappedViewAccessor accessor)
+            public RandomAccessBlock(MemoryMappedViewAccessor accessor, uint sizeInBytes)
             {
                 _accessor = accessor;
                 _sizeOfT = Unsafe.SizeOf<T>();
+                Size = sizeInBytes / (uint)_sizeOfT;
             }
 
             public void Dispose()
             {
                 _accessor.Dispose();
             }
+            public uint Size { get; }
             public void Get(int index, out T value) => _accessor.Read(index * _sizeOfT, out value);
             public void Get(uint index, out T value) => _accessor.Read(index * _sizeOfT, out value);
 
@@ -132,7 +134,7 @@ namespace BrightData.Buffer.ReadOnly
         public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewAccessor = _file.CreateViewAccessor(offset, sizeInBytes, MemoryMappedFileAccess.Read);
-            return new RandomAccessBlock<T>(viewAccessor);
+            return new RandomAccessBlock<T>(viewAccessor, (uint)sizeInBytes);
         }
     }
 }

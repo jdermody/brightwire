@@ -17,6 +17,7 @@ namespace BrightData.DataTable.TensorData
             // nop
         }
 
+        public uint Size => (uint)_data.Length;
         public void Get(int index, out float value) => value = _data[index];
         public void Get(uint index, out float value) => value = _data[index];
 

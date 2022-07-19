@@ -9,6 +9,7 @@ namespace BrightData.Buffer.ReadOnly
             // nop
         }
 
+        public uint Size => 0;
         public void Get(int index, out T value) => value = default;
         public void Get(uint index, out T value) => value = default;
         public ReadOnlySpan<T> GetSpan(uint startIndex, uint count) => new(null);

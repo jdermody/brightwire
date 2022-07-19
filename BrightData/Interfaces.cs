@@ -638,6 +638,7 @@ namespace BrightData
 
     public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable where T: unmanaged
     {
+        uint Size { get; }
         void Get(int index, out T value);
         void Get(uint index, out T value);
         ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
