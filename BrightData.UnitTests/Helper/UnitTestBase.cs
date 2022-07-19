@@ -36,6 +36,13 @@ namespace BrightData.UnitTests.Helper
                 FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
         }
 
+        protected static void AssertSame(params float[][] tensors)
+        {
+            var first = tensors[0];
+            for(var i = 1; i < tensors.Length; i++)
+                FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
+        }
+
         protected static void AssertSameWithMaxDifference<T>(int maxDifference, params T[] tensors) where T: IHaveSize, IHaveSpan
         {
             var first = tensors[0];

@@ -55,6 +55,12 @@ namespace BrightData.Cuda.Helper
                 DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
             }
         }
+
+        public unsafe void CopyToDevice(float* ptr, uint sourceOffset, uint targetOffset, uint size)
+        {
+            DeviceVariable.CopyToDevice((IntPtr)ptr, sourceOffset, targetOffset, (int)size * sizeof(float));
+        }
+
         public void CopyToHost(float[] target)
         {
             _context.CopyToHost<float>(target, _ptr.DevicePointer);

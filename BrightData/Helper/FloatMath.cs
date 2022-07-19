@@ -108,6 +108,20 @@ namespace BrightData.Helper
                     temp2.Dispose();
             }
         }
+
+        public static bool AreApproximatelyEqual(float[] t1, float[] t2, int maxDifference = 6)
+        {
+            var len = t1.Length;
+            if (len != t2.Length)
+                return false;
+
+            for (var i = 0; i < len; i++) {
+                if (!AreApproximatelyEqual(t1[i], t2[i], maxDifference))
+                    return false;
+            }
+
+            return true;
+        }
 #pragma warning restore 1591
     }
 }

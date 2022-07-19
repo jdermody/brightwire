@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -19,7 +20,15 @@ namespace BrightData.Cuda
             Release();
         }
 
-        public static bool IsCuda(ITensorSegment segment) => segment.SegmentType == CudaSegmentType;
+        public static bool IsCuda(ITensorSegment segment, [NotNullWhen(true)]out CudaTensorSegment? cudaSegment)
+        {
+            if (segment.SegmentType == CudaSegmentType) {
+                cudaSegment = (CudaTensorSegment)segment;
+                return true;
+            }
+            cudaSegment = null;
+            return false;
+        }
 
         public int AddRef() => DeviceMemory.AddRef();
         public int Release() => DeviceMemory.Release();

@@ -40,41 +40,44 @@ namespace BrightData.Cuda
         public CudaProvider Provider { get; }
 
         public override ITensorSegment CreateSegment(uint size) => new CudaTensorSegment(Provider.Allocate(size, true));
-        public override ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
+        public override unsafe ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             using var buffer = SpanOwner<float>.Allocate((int)size);
-            var ptr = buffer.Span;
-            for (uint i = 0; i < size; i++)
-                ptr[(int)i] = initializer(i);
-            var deviceMemory = Provider.Allocate(size);
-            deviceMemory.CopyToDevice(ptr);
-            return new CudaTensorSegment(deviceMemory);
+            var span = buffer.Span;
+            fixed (float* ptr = span) {
+                var p = ptr;
+                for (uint i = 0; i < size; i++)
+                    *p++ = initializer(i);
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return new CudaTensorSegment(deviceMemory);
+            }
         }
         public override IVector CreateVector(ITensorSegment data) => new CudaVector(OptionallyCopyToDevice(data), this);
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
         public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor3D(data, depth, rowCount, columnCount, this);
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor4D(data, count, depth, rowCount, columnCount, this);
 
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
+        public override unsafe IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var size = rowCount * columnCount;
             using var buffer = SpanOwner<float>.Allocate((int)size);
-            var ptr = buffer.Span;
-            for (uint i = 0; i < rowCount; i++) {
-                for (uint j = 0; j < columnCount; j++)
-                    ptr[(int)(j * rowCount + i)] = initializer(i, j);
+            fixed (float* ptr = buffer.Span) {
+                for (uint i = 0; i < rowCount; i++) {
+                    for (uint j = 0; j < columnCount; j++)
+                        ptr[(int)(j * rowCount + i)] = initializer(i, j);
+                }
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rowCount, columnCount, new CudaTensorSegment(deviceMemory));
             }
-
-            var deviceMemory = Provider.Allocate(size);
-            deviceMemory.CopyToDevice(ptr);
-            return CreateMatrix(rowCount, columnCount, new CudaTensorSegment(deviceMemory));
         }
 
         public override ITensorSegment Clone(ITensorSegment segment)
         {
-            if (CudaTensorSegment.IsCuda(segment)) {
+            if (CudaTensorSegment.IsCuda(segment, out var cudaSegment)) {
                 var ret = (CudaTensorSegment)CreateSegment(segment.Size);
-                ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(segment));
+                ret.DeviceMemory.CopyToDevice(cudaSegment.DeviceMemory);
                 return ret;
             }
             return CopyToDevice(segment);
@@ -82,8 +85,8 @@ namespace BrightData.Cuda
 
         ITensorSegment OptionallyCopyToDevice(ITensorSegment segment)
         {
-            if (CudaTensorSegment.IsCuda(segment))
-                return segment;
+            if (CudaTensorSegment.IsCuda(segment, out var ret))
+                return ret;
             while (segment is TensorSegmentWrapper { Stride: 1 } wrapper) {
                 segment = wrapper.UnderlyingSegment;
                 if (segment is CudaTensorSegment cudaTensor) {
@@ -680,67 +683,92 @@ namespace BrightData.Cuda
             return CreateMatrix((uint)indices.Count, matrix.ColumnCount, new CudaTensorSegment(ret));
         }
 
-        CUdeviceptr[] GetDevicePointers(ReadOnlySpan<ITensorSegment> segments, List<IDeviceMemoryPtr> tempList)
+        CUdeviceptr[] GetDevicePointers(List<CudaTensorSegment> segments)
         {
-            var len = segments.Length;
+            var len = segments.Count;
             var ret = new CUdeviceptr[len];
             for (var i = 0; i < len; i++) {
                 var segment = segments[i];
-                var deviceMemory = TryGetDeviceMemoryPtr(segment);
-                if (deviceMemory is null) {
-                    var tempBuffer = Provider.Allocate(segment.Size);
-                    var temp = SpanOwner<float>.Empty;;
-                    var span = segment.GetSpan(ref temp, out var wasTempUsed);
-                    try {
-                        tempBuffer.CopyToDevice(span);
-                        tempList.Add(tempBuffer);
-                        ret[i] = tempBuffer.DevicePointer;
-                    }
-                    finally {
-                        if (wasTempUsed)
-                            temp.Dispose();
-                    }
-                }else
-                    ret[i] = deviceMemory.DevicePointer;
+                ret[i] = segment.DeviceMemory.DevicePointer;
             }
             return ret;
         }
 
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
+        public override unsafe IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
         {
+            var allAreCuda = true;
+            var cudaSegmentList = new List<CudaTensorSegment>();
+            foreach (var item in vectorColumns) {
+                if(CudaTensorSegment.IsCuda(item, out var cudaSegment))
+                    cudaSegmentList.Add(cudaSegment);
+                else {
+                    allAreCuda = false;
+                    break;
+                }
+            }
+
             var columns = (uint)vectorColumns.Length;
             var rows = vectorColumns[0].Size;
 
-            var tempList = new List<IDeviceMemoryPtr>();
-            try {
-                var devicePointers = GetDevicePointers(vectorColumns, tempList);
+            if(allAreCuda) {
+                var devicePointers = GetDevicePointers(cudaSegmentList);
                 var ret = (CudaTensorSegment)CreateSegment(rows * columns);
                 using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
                 return CreateMatrix(rows, columns, ret);
             }
-            finally {
-                tempList.DisposeAll();
+            else {
+                var size = rows * columns;
+                using var buffer = SpanOwner<float>.Allocate((int)(size));
+                fixed (float* ptr = buffer.Span) {
+                    for (uint i = 0; i < rows; i++) {
+                        for (uint j = 0; j < columns; j++)
+                            ptr[(int)(j * rows + i)] = vectorColumns[(int)j][i];
+                    }
+                    var deviceMemory = Provider.Allocate(size);
+                    deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                    return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+                }
             }
         }
 
-        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> vectorRows)
+        public override unsafe IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> vectorRows)
         {
+            var allAreCuda = true;
+            var cudaSegmentList = new List<CudaTensorSegment>();
+            foreach (var item in vectorRows) {
+                if(CudaTensorSegment.IsCuda(item, out var cudaSegment))
+                    cudaSegmentList.Add(cudaSegment);
+                else {
+                    allAreCuda = false;
+                    break;
+                }
+            }
+
             var rows = (uint)vectorRows.Length;
             var columns = vectorRows[0].Size;
 
-            var tempList = new List<IDeviceMemoryPtr>();
-            try {
-                var devicePointers = GetDevicePointers(vectorRows, tempList);
+            if(allAreCuda) {
+                var devicePointers = GetDevicePointers(cudaSegmentList);
                 var ret = (CudaTensorSegment)CreateSegment(rows * columns);
                 using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixRows(rows, columns, devicePtr, ret.DeviceMemory);
                 return CreateMatrix(rows, columns, ret);
             }
-            finally {
-                tempList.DisposeAll();
+            else {
+                var size = rows * columns;
+                using var buffer = SpanOwner<float>.Allocate((int)(size));
+                fixed (float* ptr = buffer.Span) {
+                    for (uint i = 0; i < rows; i++) {
+                        for (uint j = 0; j < columns; j++)
+                            ptr[(int)(j * rows + i)] = vectorRows[(int)i][j];
+                    }
+                    var deviceMemory = Provider.Allocate(size);
+                    deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                    return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+                }
             }
         }
 

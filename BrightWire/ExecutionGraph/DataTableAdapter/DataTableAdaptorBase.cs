@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         protected IMiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            var input = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
+            var input = lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
             var output = OutputSize > 0 
                 ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Output[y]).AsGraphData()
                 : null;

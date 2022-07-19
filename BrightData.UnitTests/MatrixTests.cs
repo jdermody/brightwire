@@ -321,11 +321,8 @@ namespace BrightData.UnitTests
             {
                 var aStr = gpuA.ToString();
                 var bStr = gpuB.ToString();
-                using (var gpuC = gpuA.Subtract(gpuB))
-                using (var gpuD = gpuB.Subtract(gpuA)) {
-                    gpu = gpuC;
-                    gpu2 = gpuD;
-                }
+                gpu = gpuA.Subtract(gpuB);
+                gpu2 = gpuB.Subtract(gpuA);
 
                 aStr.Should().BeEquivalentTo(gpuA.ToString());
                 bStr.Should().BeEquivalentTo(gpuB.ToString());
@@ -337,11 +334,8 @@ namespace BrightData.UnitTests
             {
                 var aStr = simpleA.ToString();
                 var bStr = simpleB.ToString();
-                using (var simpleC = simpleA.Subtract(simpleB))
-                using (var simpleD = simpleB.Subtract(simpleA)) {
-                    mkl = simpleC;
-                    mkl2 = simpleD;
-                }
+                mkl = simpleA.Subtract(simpleB);
+                mkl2 = simpleB.Subtract(simpleA);
 
                 aStr.Should().BeEquivalentTo(simpleA.ToString());
                 bStr.Should().BeEquivalentTo(simpleB.ToString());
@@ -408,9 +402,9 @@ namespace BrightData.UnitTests
         {
             const int INDEX = 7;
             using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
-            var cpu = a.GetColumn(INDEX);
-            var gpu = Apply(_cuda, a, a => a.GetColumn(INDEX));
-            var mkl = Apply(_mkl, a, a => a.GetColumn(INDEX));
+            var cpu = a.GetColumn(INDEX).Segment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetColumn(INDEX).Segment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetColumn(INDEX).Segment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -419,9 +413,9 @@ namespace BrightData.UnitTests
         {
             const int INDEX = 11;
             using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
-            var cpu = a.GetRow(INDEX);
-            var gpu = Apply(_cuda, a, a => a.GetRow(INDEX));
-            var mkl = Apply(_mkl, a, a => a.GetRow(INDEX));
+            var cpu = a.GetRow(INDEX).Segment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetRow(INDEX).Segment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetRow(INDEX).Segment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
