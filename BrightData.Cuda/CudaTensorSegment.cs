@@ -7,13 +7,11 @@ namespace BrightData.Cuda
 {
     internal class CudaTensorSegment : ITensorSegment
     {
-        int _refCount = 0;
         static readonly string CudaSegmentType = "cuda";
 
         public CudaTensorSegment(IDeviceMemoryPtr data)
         {
             DeviceMemory = data;
-            IsValid = true;
         }
 
         public void Dispose()
@@ -24,21 +22,13 @@ namespace BrightData.Cuda
         public static bool IsCuda(ITensorSegment segment) => segment.SegmentType == CudaSegmentType;
 
         public int AddRef() => DeviceMemory.AddRef();
-        public int Release()
-        {
-            var ret = Interlocked.Decrement(ref _refCount);
-            if (IsValid && ret <= 0) {
-                DeviceMemory.Release();
-                IsValid = false;
-            }
-
-            return ret;
-        }
+        public int Release() => DeviceMemory.Release();
 
         public IDeviceMemoryPtr DeviceMemory { get; }
-        public bool IsValid { get; private set; }
+        public bool IsValid => DeviceMemory.IsValid;
         public uint Size => DeviceMemory.Size;
         public string SegmentType => CudaSegmentType;
+        public bool IsWrapper => false;
 
         public float this[int index]
         {
@@ -133,7 +123,7 @@ namespace BrightData.Cuda
 
         public override string ToString()
         {
-            return $"{SegmentType} ({Size})";
+            return $"{SegmentType} ({IsValid}): {Size:N0} floats";
         }
     }
 }

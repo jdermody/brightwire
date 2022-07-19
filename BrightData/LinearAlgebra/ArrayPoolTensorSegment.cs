@@ -38,6 +38,7 @@ namespace BrightData.LinearAlgebra
         public bool IsValid { get; private set; } = true;
         public uint Size => (uint)_data.Length;
         public string SegmentType => "memory owner";
+        public bool IsWrapper => false;
 
         public float this[int index]
         {

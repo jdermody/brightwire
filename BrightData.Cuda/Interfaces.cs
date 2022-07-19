@@ -34,6 +34,7 @@ namespace BrightData.Cuda
         CUdeviceptr DevicePointer { get; }
         void CopyToDevice(float[] source);
         void CopyToDevice(IDeviceMemoryPtr source);
+        void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource = 0);
         void CopyToHost(float[] target);
         void CopyToHost(ArraySegment<float> target);
         void Clear();

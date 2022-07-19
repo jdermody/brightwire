@@ -29,6 +29,7 @@ namespace BrightData.LinearAlgebra
         public ITensorSegment UnderlyingSegment { get; }
         public uint Offset { get; }
         public uint Stride { get; }
+        public bool IsWrapper => true;
 
         public float this[int index]
         {
@@ -66,6 +67,14 @@ namespace BrightData.LinearAlgebra
         public float[] ToNewArray() => Values.ToArray();
         public void CopyFrom(ReadOnlySpan<float> span)
         {
+            if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
+                var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
+                if (stride == 1) {
+                    span.CopyTo(new Span<float>(array, (int)(offset + Offset), (int)Size));
+                    return;
+                }
+            }
+
             uint index = 0;
             foreach (var val in span)
                 this[index++] = val;
@@ -73,6 +82,14 @@ namespace BrightData.LinearAlgebra
 
         public void CopyTo(ITensorSegment segment)
         {
+            if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
+                var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
+                if (stride == 1) {
+                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset), (int)Size));
+                    return;
+                }
+            }
+
             using var tempBuffer = SpanOwner<float>.Allocate((int)Size);
             var span = tempBuffer.Span;
             for(var i = 0; i < Size; i++)
@@ -117,7 +134,7 @@ namespace BrightData.LinearAlgebra
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
         {
             var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
-            return (array, offset + Offset, stride * Stride);
+            return (array, offset + Offset, stride + Stride);
         }
 
         public override string ToString()

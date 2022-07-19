@@ -13,7 +13,8 @@ namespace BrightData.LinearAlgebra
 {
     public class LinearAlgebraProvider : IDisposable
     {
-        readonly ConcurrentStack<ThreadSafeHashSet<IDisposable>> _scope = new();
+        protected readonly ConcurrentStack<ThreadSafeHashSet<IDisposable>> _scope = new();
+        bool _isPoppingScope = false;
 
         public LinearAlgebraProvider(
             BrightDataContext context
@@ -35,10 +36,11 @@ namespace BrightData.LinearAlgebra
 
         void InternalDispose()
         {
+            _isPoppingScope = true;
             foreach (var set in _scope) using(set) {
-                // TODO: trace unallocated blocks
-                //set.ForEach(x => x.Dispose());
+                set.ForEach(x => x.Dispose());
             }
+            _isPoppingScope = false;
             _scope.Clear();
         }
 
@@ -52,14 +54,21 @@ namespace BrightData.LinearAlgebra
 
         // scope
         public void PushScope() => _scope.Push(new());
-        public void PopScope()
+        public virtual void PopScope()
         {
             if (_scope.TryPop(out var set)) using(set) {
-                set.ForEach(x => x.Dispose());
+                set.ForEach(x => {
+                    x.Dispose();
+                    //#if DEBUG
+                    //if (x is ITensor tensor && tensor.Segment.IsValid) {
+                    //    Debug.WriteLine($"Found potentially leaked memory: ${tensor.Segment}");
+                    //}
+                    //#endif
+                });
             }
         }
         internal bool AddToScope(IDisposable obj) => _scope.First().Add(obj);
-        internal bool RemoveFromScope(IDisposable obj) => _scope.First().Remove(obj);
+        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || _scope.First().Remove(obj);
 
         // segment creation
         public virtual ITensorSegment CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
@@ -81,9 +90,9 @@ namespace BrightData.LinearAlgebra
         // vector creation
         public virtual IVector CreateVector(ITensorSegment data) => new BrightVector(data, this);
         public IVector CreateVector(uint size) => CreateVector(CreateSegment(size));
-        public IVector CreateVector(params float[] data) => CreateVector((uint)data.Length, i => data[i]);
+        public IVector CreateVector(params float[] data) => CreateVector(data.AsSpan());
         public IVector CreateVector(uint size, float value) => CreateVector(size, i => value);
-        public IVector CreateVector(Span<float> span)
+        public IVector CreateVector(ReadOnlySpan<float> span)
         {
             var segment = CreateSegment((uint)span.Length);
             segment.CopyFrom(span);
@@ -92,6 +101,7 @@ namespace BrightData.LinearAlgebra
         public IVector CreateVector(uint size, Func<uint, float> initializer) => CreateVector(CreateSegment(size, initializer));
         public IVector CreateVector(IVector vector) => CreateVector(Clone(vector.Segment));
         public IVector CreateVector(IReadOnlyVector vector) => vector.Create(this);
+        public IVector CreateVector(IEnumerable<float> values) => CreateVector(values.ToArray().AsSpan());
 
         // matrix creation
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new BrightMatrix(data, rowCount, columnCount, this);
@@ -109,6 +119,9 @@ namespace BrightData.LinearAlgebra
 
         // create from rows
         public IMatrix CreateMatrixFromRows(params IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
+        public IMatrix CreateMatrixFromRows(params IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public IMatrix CreateMatrixFromRows(IEnumerable<float[]> rows) => CreateMatrixFromRows(rows.ToArray().AsSpan());
+        public IMatrix CreateMatrixFromRows(params float[][] rows) => CreateMatrixFromRows(rows.AsSpan());
         public IMatrix CreateMatrixFromRowsAndThenDisposeInput(params IVector[] rows)
         {
             try {
@@ -135,16 +148,37 @@ namespace BrightData.LinearAlgebra
             var ret = CreateMatrix((uint)rows.Length, columns);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < rows.Length; i++) {
-                var sourceRow = rows[i];
+                var temp = SpanOwner<float>.Empty;
+                var source = rows[i].GetSpan(ref temp, out var wasTempUsed);
+                try {
+                    var targetRow = matrix.Row((uint)i);
+                    targetRow.CopyFrom(source);
+                }
+                finally {
+                    if(wasTempUsed)
+                        temp.Dispose();
+                }
+            }
+            return ret;
+        }
+        public IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
+        {
+            var columns = (uint)rows[0].Length;
+            var ret = CreateMatrix((uint)rows.Length, columns);
+            var matrix = (IMatrixSegments)ret;
+            for (var i = 0; i < rows.Length; i++) {
+                var source = rows[i].AsSpan();
                 var targetRow = matrix.Row((uint)i);
-                for (var j = 0; j < columns; j++)
-                    targetRow[j] = sourceRow[j];
-            } 
+                targetRow.CopyFrom(source);
+            }
             return ret;
         }
 
         // create from columns
         public IMatrix CreateMatrixFromColumns(params IVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
+        public IMatrix CreateMatrixFromColumns(params IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public IMatrix CreateMatrixFromColumns(IEnumerable<float[]> columns) => CreateMatrixFromColumns(columns.ToArray().AsSpan());
+        public IMatrix CreateMatrixFromColumns(params float[][] columns) => CreateMatrixFromColumns(columns.AsSpan());
         public IMatrix CreateMatrixFromColumnsAndThenDisposeInput(params IVector[] columns)
         {
             try {
@@ -171,11 +205,29 @@ namespace BrightData.LinearAlgebra
             var ret = CreateMatrix(rows, (uint)columns.Length);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < columns.Length; i++) {
-                var sourceColumn = columns[i];
-                var targetColumn = matrix.Column((uint)i);
-                for (var j = 0; j < rows; j++)
-                    targetColumn[j] = sourceColumn[j];
+                var temp = SpanOwner<float>.Empty;
+                var source = columns[i].GetSpan(ref temp, out var wasTempUsed);
+                try {
+                    var targetColumn = matrix.Column((uint)i);
+                    targetColumn.CopyFrom(source);
+                }
+                finally {
+                    if(wasTempUsed)
+                        temp.Dispose();
+                }
             } 
+            return ret;
+        }
+        public IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
+        {
+            var rows = (uint)columns[0].Length;
+            var ret = CreateMatrix(rows, (uint)columns.Length);
+            var matrix = (IMatrixSegments)ret;
+            for (var i = 0; i < columns.Length; i++) {
+                var source = columns[i].AsSpan();
+                var target = matrix.Column((uint)i);
+                target.CopyFrom(source);
+            }
             return ret;
         }
 

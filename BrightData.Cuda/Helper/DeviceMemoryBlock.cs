@@ -3,13 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
+using BrightData.Helper;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
-	/// <summary>
+    /// <summary>
 	/// Maintains a cache of available device memory
 	/// </summary>
     public class DeviceMemoryBlock : IDeviceMemoryPtr
@@ -24,6 +26,7 @@ namespace BrightData.Cuda.Helper
 #if DEBUG
         static readonly long _badAlloc = -1;
         static readonly long _badDispose = -1;
+        static ThreadSafeHashSet<DeviceMemoryBlock> AllocatedBlocks = new();
 #endif
 
         public DeviceMemoryBlock(uint size) 
@@ -35,8 +38,9 @@ namespace BrightData.Cuda.Helper
 	        var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
             CudaProvider.CheckForError(result);
             _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
-
+            
 #if DEBUG
+            AllocatedBlocks.Add(this);
             if (Index == _badAlloc)
                 Debugger.Break();
 #endif
@@ -49,6 +53,7 @@ namespace BrightData.Cuda.Helper
 #if DEBUG
             if (Index == _badAlloc)
                 Debugger.Break();
+            AllocatedBlocks.Add(this);
 #endif
         }
 
@@ -58,6 +63,15 @@ namespace BrightData.Cuda.Helper
             if (!_disposed)
                 Debug.WriteLine($"\tMemory Block {Index} was not disposed - {_data.SizeInBytes} bytes leaked in the GPU !!");
         }
+
+        public static void FindLeakedBlocks(HashSet<IDeviceMemoryPtr> exclude)
+        {
+            AllocatedBlocks.ForEach(b => {
+                if(!exclude.Contains(b))
+                    Debug.WriteLine($"Found leaked memory: block {b.Index} ({b.IsValid}): {b.Size:N0} bytes");
+            });
+        }
+
 #endif
         public void Dispose()
         {
@@ -72,22 +86,7 @@ namespace BrightData.Cuda.Helper
         public long Index { get; }
         public bool IsValid => !_disposed;
 
-        public void Destroy()
-        {
-#if DEBUG
-            if (Index == _badDispose)
-                Debugger.Break();
-#endif
-            if (!_disposed) {
-                _data.Dispose();
-                _disposed = true;
-            }
-#if DEBUG
-            GC.SuppressFinalize(this);
-#endif
-        }
-
-	    public int AddRef()
+        public int AddRef()
 	    {
 		    return Interlocked.Increment(ref _refCount);
 	    }
@@ -98,6 +97,12 @@ namespace BrightData.Cuda.Helper
                 _memoryPool?.Recycle(_data.SizeInBytes, _data.DevicePointer);
                 _data.Dispose();
                 _disposed = true;
+#if DEBUG
+                GC.SuppressFinalize(this);
+                if (Index == _badDispose)
+                    Debugger.Break();
+                AllocatedBlocks.Remove(this);
+#endif
             }
 
             return ret;
@@ -114,6 +119,13 @@ namespace BrightData.Cuda.Helper
         public void CopyToDevice(IDeviceMemoryPtr source)
         {
             _data.CopyToDevice(source.DeviceVariable);
+        }
+        public unsafe void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource)
+        {
+            fixed (float* p = &MemoryMarshal.GetReference(span))
+            {
+                DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
+            }
         }
         public void CopyToHost(float[] target)
         {

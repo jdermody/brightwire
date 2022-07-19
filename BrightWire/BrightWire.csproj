@@ -16,6 +16,7 @@
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

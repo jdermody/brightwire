@@ -76,6 +76,7 @@ namespace BrightData
         ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
         ReadOnlySpan<float> GetSpan();
         (float[] Array, uint Offset, uint Stride) GetUnderlyingArray();
+        bool IsWrapper { get; }
     }
 
     public interface IHaveTensorSegment

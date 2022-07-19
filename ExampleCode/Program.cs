@@ -148,7 +148,7 @@ namespace ExampleCode
         static void MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
         {
             Start(context, useMkl, useCuda);
-            context.Mnist().TrainConvolutionalNeuralNetwork();
+            context.Mnist().TrainConvolutionalNeuralNetwork(1024, 1);
         }
 
         static void SentimentClassification(BrightDataContext context, bool useMkl, bool useCuda)

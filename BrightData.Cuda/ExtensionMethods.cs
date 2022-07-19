@@ -44,13 +44,5 @@ namespace BrightData.Cuda
             ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
             return ret;
         }
-
-        public static unsafe void CopyToDevice(this IDeviceMemoryPtr ptr, ReadOnlySpan<float> span)
-        {
-            fixed (float* p = &MemoryMarshal.GetReference(span))
-            {
-                ptr.DeviceVariable.CopyToDevice((IntPtr)p, 0, 0, (int)ptr.Size * sizeof(float));
-            }
-        }
     }
 }

@@ -12,7 +12,6 @@ namespace ExampleCode.DataTableTrainers
     {
         public MnistTensorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
         {
-
         }
 
         public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(

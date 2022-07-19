@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
@@ -47,7 +48,13 @@ namespace BrightData.Cuda.Helper
         {
 	        _ptr.CopyToDevice(source.DeviceVariable);
         }
-
+        public unsafe void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource)
+        {
+            fixed (float* p = &MemoryMarshal.GetReference(span))
+            {
+                DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
+            }
+        }
         public void CopyToHost(float[] target)
         {
             _context.CopyToHost<float>(target, _ptr.DevicePointer);
