@@ -1383,5 +1383,20 @@ namespace BrightData
                 yield return mapper(row);
             }
         }
+
+        public static void SetCustomColumnReaders(this BrightDataTable dataTable, ICanRandomlyAccessData[]? columnReaders)
+        {
+            var context = dataTable.Context;
+            if (columnReaders == null) {
+                var mappingGuid = dataTable.TableMetaData.GetNullable<string>(Consts.CustomColumnReaders);
+                if (mappingGuid is not null)
+                    context.Clear($"{Consts.CustomColumnReaders}:{mappingGuid}");
+            }
+            else {
+                var mappingGuid = Guid.NewGuid().ToString("n");
+                context.Set($"{Consts.CustomColumnReaders}:{mappingGuid}", columnReaders);
+                dataTable.TableMetaData.Set(Consts.CustomColumnReaders, mappingGuid);
+            }
+        }
     }
 }

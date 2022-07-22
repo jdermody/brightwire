@@ -188,6 +188,20 @@ namespace BrightData.DataTable
         public MetaData TableMetaData => _metaData.Value[0];
         public uint ColumnCount => _header.ColumnCount;
         public uint RowCount => _header.RowCount;
+        public ICanRandomlyAccessData[] DefaultColumnReaders => _columnReaders.Value;
+        public string[] StringTable => _stringTable.Value;
+        public ICanRandomlyAccessUnmanagedData<byte> BinaryDataBlock => _binaryData.Value;
+        public ICanRandomlyAccessUnmanagedData<float> TensorDataBlock => _tensors.Value;
+        public ICanRandomlyAccessUnmanagedData<uint> IndexDataBlock => _indices.Value;
+        public ICanRandomlyAccessUnmanagedData<WeightedIndexList.Item> WeightedIndexBlock => _weightedIndices.Value;
+
+        public ICanRandomlyAccessUnmanagedData<CT> GetRawColumnData<CT>(uint columnIndex) where CT : unmanaged
+        {
+            ref readonly var column = ref _columns[columnIndex];
+            var offset = _columnOffset[columnIndex];
+            var sizeInBytes = _header.RowCount * column.DataTypeSize;
+            return _buffer.GetBlock<CT>(offset, sizeInBytes);
+        }
 
         public MetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
         {

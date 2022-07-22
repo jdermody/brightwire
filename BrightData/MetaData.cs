@@ -121,11 +121,11 @@ namespace BrightData
         /// <param name="name">Name of the value</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T? GetNullable<T>(string name) where T : struct
+        public T? GetNullable<T>(string name)
         {
             if (_values.TryGetValue(name, out var obj))
                 return (T)obj;
-            return null;
+            return default;
         }
 
         /// <summary>

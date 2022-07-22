@@ -16,7 +16,7 @@ namespace ExampleCode
         public static void Run(params LinearAlgebraProvider[] laps)
         {
             var headers = new ColumnHeader("Operation").ToEnumerable()
-                .Concat(laps.Select(lap => new ColumnHeader(lap.Name + " (ms)", Alignment.Right)))
+                .Concat(laps.Select(lap => new ColumnHeader(lap.ProviderName + " (ms)", Alignment.Right)))
                 .ToArray();
 
             var table = new Table(new TableConfiguration(Style.Unicode), headers);

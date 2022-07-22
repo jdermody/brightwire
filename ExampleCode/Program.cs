@@ -142,13 +142,15 @@ namespace ExampleCode
         static void MnistFeedForward(BrightDataContext context, bool useMkl)
         {
             Start(context, false, true);
-            context.Mnist().TrainFeedForwardNeuralNetwork();
+            using var mnist = context.Mnist();
+            mnist.TrainFeedForwardNeuralNetwork();
         }
 
         static void MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
         {
             Start(context, useMkl, useCuda);
-            context.Mnist().TrainConvolutionalNeuralNetwork(1024, 1);
+            using var mnist = context.Mnist();
+            mnist.TrainConvolutionalNeuralNetwork(1024, 1);
         }
 
         static void SentimentClassification(BrightDataContext context, bool useMkl, bool useCuda)

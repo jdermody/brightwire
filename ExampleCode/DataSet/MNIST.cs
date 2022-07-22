@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.Cuda;
+using BrightData.Cuda.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
@@ -11,17 +13,23 @@ using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
-    internal class Mnist
+    internal class Mnist : IDisposable
     {
         readonly BrightDataContext _context;
         public Image[] TrainingImages { get; }
         public Image[] TestImages { get; }
+        readonly List<IDisposable> _tensorCache = new();
 
         public Mnist(BrightDataContext context, Image[] trainingImages, Image[] testImages)
         {
             _context = context;
             TrainingImages = trainingImages;
             TestImages = testImages;
+        }
+
+        public void Dispose()
+        {
+            _tensorCache.DisposeAll();
         }
 
         public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
@@ -160,17 +168,20 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public static BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
+        public BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a vector => vector mapping
-            var dataTable = context.CreateTwoColumnVectorTableBuilder();
+            var builder = context.CreateTwoColumnVectorTableBuilder();
 
             foreach (var image in images) {
                 var (data, label) = image.AsFloatArray(context);
-                dataTable.AddRow(data, label);
+                builder.AddRow(data, label);
             }
 
-            return dataTable.BuildInMemory();
+            var ret = builder.BuildInMemory();
+            if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            return ret;
         }
 
         public static BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)

@@ -45,7 +45,7 @@ namespace BrightData.LinearAlgebra
         }
 
         public BrightDataContext Context { get; }
-        public virtual string Name => "default";
+        public virtual string ProviderName => "default";
 
         public virtual Type VectorType { get; } = typeof(BrightVector);
         public virtual Type MatrixType { get; } = typeof(BrightMatrix);

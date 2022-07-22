@@ -19,6 +19,14 @@ namespace BrightData.DataTable
             return new RandomAccessColumnReader<CT, T>(block, converter);
         }
 
+        ICanRandomlyAccessData[] GetColumnReaders()
+        {
+            var mappingGuid = TableMetaData.GetNullable<string>(Consts.CustomColumnReaders);
+            if (mappingGuid is not null && Context.TryGet<ICanRandomlyAccessData[]>($"{Consts.CustomColumnReaders}:{mappingGuid}", out var readers))
+                return readers;
+            return DefaultColumnReaders;
+        }
+
         public T Get<T>(uint rowIndex, uint columnIndex) where T : notnull => (T)_columnReaders.Value[columnIndex][rowIndex];
 
         public IEnumerable<(uint RowIndex, object[] Data)> GetAllRowData(bool reuseArrayForEachIteration = true, params uint[] rowIndices)
@@ -61,7 +69,7 @@ namespace BrightData.DataTable
         public BrightDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
         public IEnumerable<BrightDataTableRow> GetRows(params uint[] rowIndices)
         {
-            var readers = _columnReaders.Value;
+            var readers = GetColumnReaders();
             foreach (var ri in AllOrSpecifiedRowIndices(rowIndices)) {
                 yield return new BrightDataTableRow(this, readers, ri);
             }
@@ -71,7 +79,7 @@ namespace BrightData.DataTable
 
         public IEnumerable<BrightDataTableRow> GetSlice(uint offset, uint count)
         {
-            var readers = _columnReaders.Value;
+            var readers = GetColumnReaders();
             for(uint i = offset; i < count; i++) {
                 yield return new BrightDataTableRow(this, readers, i);
             }

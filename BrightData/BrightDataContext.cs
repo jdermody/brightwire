@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
@@ -67,11 +68,24 @@ namespace BrightData
         /// <inheritdoc />
         public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;
 
+        public bool TryGet<T>(string name, [NotNullWhen(true)]out T? ret)
+        {
+            if (_attachedProperties.TryGetValue(name, out var obj)) {
+                ret = (T)obj;
+                return true;
+            }
+
+            ret = default;
+            return false;
+        }
+
         /// <inheritdoc />
         public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (_, _) => value);
 
         /// <inheritdoc />
         public T Set<T>(string name, Func<T> valueCreator) where T : notnull => (T)_attachedProperties.AddOrUpdate(name, _ => valueCreator(), (_, o) => o);
+
+        public void Clear(string name) => _attachedProperties.TryRemove(name, out var _);
 
         /// <inheritdoc />
         public bool IsStochastic { get; }

@@ -90,6 +90,7 @@
         public const string BaseTempPath                  = "BaseTempPath";
         public const string ArrayBased                    = "ArrayBased";
         public const string DateTimeCreated               = "DateTimeCreated";
+        public const string CustomColumnReaders           = "CustomColumnReaders";
 #pragma warning restore 1591
 
         /// <summary>

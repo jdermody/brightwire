@@ -18,7 +18,7 @@ namespace BrightData.MKL
             Vml.SetMode(VmlMode.EP | VmlMode.FTZDAZ_ON | VmlMode.ERRMODE_EXCEPT);
         }
 
-        public override string Name => "mkl";
+        public override string ProviderName => "mkl";
         public override Type VectorType { get; } = typeof(MklVector);
         public override Type MatrixType { get; } = typeof(MklMatrix);
         public override Type Tensor3DType { get; } = typeof(MklTensor3D);
