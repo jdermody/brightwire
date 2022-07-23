@@ -63,7 +63,7 @@ namespace BrightData.LinearAlgebra
             }
         }
         internal bool AddToScope(IDisposable obj) => _scope.First().TryAdd(obj, true);
-        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || _scope.First().TryRemove(new KeyValuePair<IDisposable, bool>(obj, true));
+        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || (_scope.FirstOrDefault()?.TryRemove(new KeyValuePair<IDisposable, bool>(obj, true)) ?? false);
 
         // segment creation
         public virtual ITensorSegment CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
