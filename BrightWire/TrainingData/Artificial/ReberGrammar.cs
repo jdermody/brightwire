@@ -43,10 +43,10 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="sequence">The reber sequence to encode</param>
         public static IReadOnlyMatrix Encode(BrightDataContext context, string sequence)
         {
-            return context.CreateMatrixInfoFromRows(sequence.Select(ch => {
+            return context.CreateReadOnlyMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
                     ret[Ch[ch]] = 1f;
-                    return context.CreateVectorInfo(ret);
+                    return context.CreateReadOnlyVector(ret);
                 }).ToArray()
             );
         }
@@ -94,10 +94,10 @@ namespace BrightWire.TrainingData.Artificial
                         foreach (var item in temp)
                             output[item] = 1f;
                     }
-                    inputList[i] = context.CreateVectorInfo(input);
-                    outputList[i] = context.CreateVectorInfo(output);
+                    inputList[i] = context.CreateReadOnlyVector(input);
+                    outputList[i] = context.CreateReadOnlyVector(output);
                 }
-                builder.AddRow(context.CreateMatrixInfoFromRows(inputList), context.CreateMatrixInfoFromRows(outputList));
+                builder.AddRow(context.CreateReadOnlyMatrixFromRows(inputList), context.CreateReadOnlyMatrixFromRows(outputList));
             }
             return builder.BuildInMemory();
         }

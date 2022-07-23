@@ -111,8 +111,8 @@ namespace ExampleCode.DataSet
             public (IReadOnlyVector Data, IReadOnlyVector Label) AsFloatArray(BrightDataContext context)
             {
                 return (
-                    context.CreateVectorInfo(Data.Length, i => Data[i] / 255f),
-                    context.CreateVectorInfo(10, i => i == Label ? 1f : 0f)
+                    context.CreateReadOnlyVector(Data.Length, i => Data[i] / 255f),
+                    context.CreateReadOnlyVector(10, i => i == Label ? 1f : 0f)
                 );
             }
 
@@ -129,10 +129,10 @@ namespace ExampleCode.DataSet
                     var row = new float[SIZE];
                     for (var x = 0; x < SIZE; x++)
                         row[x] = vector[(y * SIZE) + x];
-                    rows.Add(context.CreateVectorInfo(row));
+                    rows.Add(context.CreateReadOnlyVector(row));
                 }
 
-                var tensor = context.CreateTensor3D(context.CreateMatrixInfoFromRows(rows.ToArray()));
+                var tensor = context.CreateReadOnlyTensor3D(context.CreateReadOnlyMatrixFromRows(rows.ToArray()));
                 return (tensor, Label: label);
             }
         }

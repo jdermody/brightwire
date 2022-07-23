@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var isElman = reader.ReadBoolean();
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memoryData = factory.Context.ReadVectorAndThenGetArrayFrom(reader);
+            var memoryData = factory.Context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
             var activation = Hydrate(factory, reader);
             var activation2 = Hydrate(factory, reader);
 

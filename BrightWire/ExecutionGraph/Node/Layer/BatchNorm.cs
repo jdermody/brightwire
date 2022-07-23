@@ -178,12 +178,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		{
 			var inputSize = (uint)reader.ReadInt32();
             var context = factory.Context;
-			var gamma = context.ReadVectorAndThenGetArrayFrom(reader);
-			var beta = context.ReadVectorAndThenGetArrayFrom(reader);
+			var gamma = context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
+			var beta = context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
 
 			var count = (uint)reader.ReadInt32();
-			var mean = context.ReadVectorAndThenGetArrayFrom(reader);
-			var m2 = context.ReadVectorAndThenGetArrayFrom(reader);
+			var mean = context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
+			var m2 = context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
 
 			Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}

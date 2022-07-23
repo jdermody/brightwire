@@ -121,7 +121,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             OutputSize = (uint)reader.ReadInt32();
 
             // read the bias parameters
-            var bias = factory.Context.ReadVectorFrom(reader);
+            var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (Bias == null)
                 Bias = bias.Create(lap);

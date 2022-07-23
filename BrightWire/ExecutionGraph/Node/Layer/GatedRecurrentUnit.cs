@@ -97,7 +97,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memoryData = factory.Context.ReadVectorAndThenGetArrayFrom(reader);
+            var memoryData = factory.Context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)

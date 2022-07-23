@@ -88,7 +88,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var lap = factory.LinearAlgebraProvider;
             _layerId = reader.ReadString();
 
-            var bias = factory.Context.ReadVectorFrom(reader);
+            var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = bias.Create(lap);

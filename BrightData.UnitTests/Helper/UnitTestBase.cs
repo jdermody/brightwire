@@ -12,7 +12,7 @@ namespace BrightData.UnitTests.Helper
         public IReadOnlyVector CreateRandomVector(uint size = 32)
         {
             var rand = new Random();
-            return _context.CreateVectorInfo(size, _ => FloatMath.Next(rand));
+            return _context.CreateReadOnlyVector(size, _ => FloatMath.Next(rand));
         }
 
         protected static void AssertSame(params float[] values)

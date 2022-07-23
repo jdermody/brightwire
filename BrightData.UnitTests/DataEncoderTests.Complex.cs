@@ -105,7 +105,7 @@ namespace BrightData.UnitTests
         public void EncodeFloatVector()
         {
             Encode(
-                _context.Context.CreateVectorInfo(8, i => i)
+                _context.Context.CreateReadOnlyVector(8, i => i)
             );
         }
 
@@ -113,8 +113,8 @@ namespace BrightData.UnitTests
         public void EncodeFloatVectorArray()
         {
             EncodeArray(new [] {
-                _context.Context.CreateVectorInfo(8, i => (float)i),
-                _context.Context.CreateVectorInfo(8, i => (float)i*2)
+                _context.Context.CreateReadOnlyVector(8, i => (float)i),
+                _context.Context.CreateReadOnlyVector(8, i => (float)i*2)
             });
         }
 

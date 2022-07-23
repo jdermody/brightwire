@@ -171,7 +171,7 @@ namespace ExampleCode.DataSet
                     rows[index++] = row;
                 }
 
-                var output = context.CreateMatrixInfoFromRows(rows);
+                var output = context.CreateReadOnlyMatrixFromRows(rows);
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
@@ -203,7 +203,7 @@ namespace ExampleCode.DataSet
                 }
 
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
-                builder.AddRow(context.CreateMatrixInfoFromRows(rows), target);
+                builder.AddRow(context.CreateReadOnlyMatrixFromRows(rows), target);
             }
             return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }

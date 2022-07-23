@@ -98,7 +98,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
-            return _context.CreateVectorInfo(ret);
+            return _context.CreateReadOnlyVector(ret);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace BrightWire.TrainingData.Artificial
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[CharTable[item.Item1]] = item.Item2;
-            return _context.CreateVectorInfo(ret);
+            return _context.CreateReadOnlyVector(ret);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace BrightWire.TrainingData.Artificial
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return _context.CreateMatrixInfoFromRows(data);
+            return _context.CreateReadOnlyMatrixFromRows(data);
         }
 
         /// <summary>

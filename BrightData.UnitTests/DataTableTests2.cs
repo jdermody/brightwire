@@ -112,7 +112,7 @@ namespace BrightData.UnitTests
             var matrixBuilder = builder.AddColumn<IReadOnlyMatrix>("matrix");
             using var firstMatrix = _context.LinearAlgebraProvider.CreateMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
-            var secondMatrix = _context.CreateMatrixInfo(5, 5, (i, j) => (i + j) + 1);
+            var secondMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => (i + j) + 1);
             matrixBuilder.Add(secondMatrix);
 
             using var stream = new MemoryStream();

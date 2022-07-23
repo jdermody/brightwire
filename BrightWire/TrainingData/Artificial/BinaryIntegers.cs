@@ -50,12 +50,12 @@ namespace BrightWire.TrainingData.Artificial
                 var inputList = new IReadOnlyVector[r2.Length];
                 var outputList = new IReadOnlyVector[r2.Length];
                 for (var j = 0; j < r2.Length; j++) {
-                    inputList[j] = context.CreateVectorInfo(a2[j], b2[j]);
-                    outputList[j] = context.CreateVectorInfo(r2[j]);
+                    inputList[j] = context.CreateReadOnlyVector(a2[j], b2[j]);
+                    outputList[j] = context.CreateReadOnlyVector(r2[j]);
                 }
 
-                var input = context.CreateMatrixInfoFromRows(inputList);
-                var output = context.CreateMatrixInfoFromRows(outputList);
+                var input = context.CreateReadOnlyMatrixFromRows(inputList);
+                var output = context.CreateReadOnlyMatrixFromRows(outputList);
                 builder.AddRow(input, output);
             }
             return builder.BuildInMemory();

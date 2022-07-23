@@ -1844,7 +1844,7 @@
             </summary>
             <returns>Newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyVector(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,System.Single})">
             <summary>
             Creates a vector
             </summary>
@@ -1854,7 +1854,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyVector(BrightData.BrightDataContext,System.UInt32,System.Single)">
             <summary>
             Creates a vector
             </summary>
@@ -1864,7 +1864,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.Single[])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyVector(BrightData.BrightDataContext,System.Single[])">
             <summary>
             Creates a vector
             </summary>
@@ -1873,7 +1873,7 @@
             <param name="initialData">Initial data</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVectorInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyVector(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a vector from a binary reader
             </summary>
@@ -1882,7 +1882,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrix(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
             <summary>
             Creates a matrix
             </summary>
@@ -1893,7 +1893,7 @@
             <param name="initializer">Callback to initialize each value (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrix(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.Single)">
             <summary>
             Creates a matrix
             </summary>
@@ -1904,7 +1904,7 @@
             <param name="initialValue">Initial value of each element</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrix(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a matrix from a binary reader
             </summary>
@@ -1913,7 +1913,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrixFromRows(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
             <summary>
             Creates a matrix from vectors (each will become a row)
             </summary>
@@ -1922,7 +1922,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromRows(BrightData.BrightDataContext,System.Single[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrixFromRows(BrightData.BrightDataContext,System.Single[][])">
             <summary>
             Creates a matrix from rows (each will become a row)
             </summary>
@@ -1931,7 +1931,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrixFromColumns(BrightData.BrightDataContext,BrightData.IReadOnlyVector[])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -1940,7 +1940,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixInfoFromColumns(BrightData.BrightDataContext,System.Single[][])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyMatrixFromColumns(BrightData.BrightDataContext,System.Single[][])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -1949,18 +1949,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a 3D tensor
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="context"></param>
-            <param name="depth">Number of matrices</param>
-            <param name="rows">Number of rows in each matrix</param>
-            <param name="columns">Number of columns in each matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D(BrightData.BrightDataContext,BrightData.IReadOnlyMatrix[])">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyTensor3D(BrightData.BrightDataContext,BrightData.IReadOnlyMatrix[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -1969,7 +1958,7 @@
             <param name="slices"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3DInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyTensor3D(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Create a 3D tensor from a binary reader
             </summary>
@@ -1978,7 +1967,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor4DInfo(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyTensor4D(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Creates a 4D tensor from a binary reader
             </summary>
@@ -2003,12 +1992,11 @@
             <param name="values">Diagonal values</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.InitializeRandomly``1(BrightData.ITensor)">
+        <member name="M:BrightData.ExtensionMethods.InitializeRandomly(BrightData.ITensor)">
             <summary>
             Randomly initialize a tensor
             </summary>
             <param name="tensor"></param>
-            <typeparam name="T"></typeparam>
         </member>
         <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor,System.Single)">
             <summary>
@@ -2016,7 +2004,6 @@
             </summary>
             <param name="tensor"></param>
             <param name="value">Value to initialize each element of the tensor</param>
-            <typeparam name="T"></typeparam>
         </member>
         <member name="M:BrightData.ExtensionMethods.Initialize(BrightData.ITensor,System.Func{System.UInt32,System.Single})">
             <summary>
@@ -2033,7 +2020,7 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReadVectorFrom(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.ExtensionMethods.LoadReadOnlyVectorFrom(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Reads a vector from a binary reader
             </summary>
@@ -2099,7 +2086,7 @@
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReduceDimensions(BrightData.IMatrix,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ReduceDimensionsWithSVD(BrightData.IMatrix,System.UInt32)">
             <summary>
             Reduce dimensions of the matrix with a singular value decomposition
             </summary>

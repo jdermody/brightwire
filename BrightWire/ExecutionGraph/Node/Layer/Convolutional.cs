@@ -159,7 +159,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_shouldBackpropagate = reader.ReadBoolean();
 
 			// read the bias parameters
-			var bias = factory.Context.ReadVectorFrom(reader);
+			var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = bias.Create(lap);

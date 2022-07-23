@@ -93,13 +93,13 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.01f, 8);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
-                .AddRecurrentBridge("encoder1", "encoder2")
+                //.AddGru(HIDDEN_LAYER_SIZE, "encoder1")
+                //.AddRecurrentBridge("encoder1", "encoder2")
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
@@ -107,7 +107,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(5, testData, g => bestModel = g.Graph);
+            engine.Train(20, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
             var output = executionEngine.Execute(testData);
@@ -116,7 +116,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    using var matrix = Test.Get<IMatrix>(i, 0);
+                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
                     return (
                         Input: matrix.AllRows(false).Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())

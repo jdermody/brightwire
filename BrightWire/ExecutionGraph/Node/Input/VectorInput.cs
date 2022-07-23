@@ -57,12 +57,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void WriteTo(BinaryWriter writer)
 		{
-            _context.CreateVectorInfo(_data).WriteTo(writer);
+            _context.CreateReadOnlyVector(_data).WriteTo(writer);
 		}
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-            var temp = _context.ReadVectorFrom(reader);
+            var temp = _context.LoadReadOnlyVectorFrom(reader);
             temp.Segment.CopyTo(_data);
 		}
 	}

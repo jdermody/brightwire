@@ -41,9 +41,9 @@ namespace ExampleCode
             //TextClustering(context, useMkl);
             //IntegerAddition(context, useMkl);
             //ReberPrediction(context, useMkl);
-            //OneToMany(context, useMkl);
+            OneToMany(context, useMkl);
             //ManyToOne(context, useMkl, useCuda);
-            SequenceToSequence(context, useMkl, useCuda);
+            //SequenceToSequence(context, useMkl, useCuda);
             //StockData(context, useMkl, useCuda);
             //SimpleLinearTest(context, useMkl);
             //PredictBicyclesWithLinearModel(context, useMkl);

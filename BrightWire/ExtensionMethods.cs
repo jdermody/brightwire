@@ -158,13 +158,13 @@ namespace BrightWire
             var hasAddedColumns = false;
             var context = dataTable.Context;
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
-                var past = context.CreateMatrixInfoFromRows(dataTable
+                var past = context.CreateReadOnlyMatrixFromRows(dataTable
                     .GetRows(windowSize.AsRange(i).ToArray())
-                    .Select(r => context.CreateVectorInfo(r.GetFields<float>(columnIndices)))
+                    .Select(r => context.CreateReadOnlyVector(r.GetFields<float>(columnIndices)))
                     .ToArray()
                 );
                 var targetRow = dataTable.GetRow(i + windowSize);
-                var target = context.CreateVectorInfo(targetRow.GetFields<float>(columnIndices));
+                var target = context.CreateReadOnlyVector(targetRow.GetFields<float>(columnIndices));
                 if (!hasAddedColumns) {
                     hasAddedColumns = true;
                     builder.AddFixedSizeMatrixColumn(past.RowCount, past.ColumnCount, "Past");

@@ -84,7 +84,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            Data = _context.ReadVectorAndThenGetArrayFrom(reader);
+            Data = _context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
         }
     }
 }
