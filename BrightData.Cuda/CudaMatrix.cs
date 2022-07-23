@@ -29,7 +29,7 @@ namespace BrightData.Cuda
         public override IVector GetColumnVector(uint index)
         {
             var segment = (CudaTensorSegment)Segment;
-            var ptr = _lap.Provider.Offset(segment.DeviceMemory, index * RowCount, RowCount);
+            var ptr = segment.DeviceMemory.Offset(index * RowCount, RowCount);
             return _lap.CreateVector(new CudaTensorSegment(ptr));
         }
 

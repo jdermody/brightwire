@@ -4,7 +4,7 @@ namespace BrightData.Cuda
 {
     internal class CudaVector : BrightVector<CudaLinearAlgebraProvider>, IHaveDeviceMemory
     {
-        public CudaVector(ITensorSegment data, CudaLinearAlgebraProvider computationUnit) : base(data, computationUnit)
+        public CudaVector(ITensorSegment data, CudaLinearAlgebraProvider lap) : base(data, lap)
         {
         }
 

@@ -3,6 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using BrightData.LinearAlgebra;
+using ManagedCuda;
+using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda
 {
@@ -43,6 +46,23 @@ namespace BrightData.Cuda
             var ret = new CudaLinearAlgebraProvider(context, provider);
             ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
             return ret;
+        }
+
+        public static bool IsCuda(this LinearAlgebraProvider lap, out CudaLinearAlgebraProvider cuda)
+        {
+            if (lap.ProviderName == CudaLinearAlgebraProvider.Name) {
+                cuda = (CudaLinearAlgebraProvider)lap;
+                return true;
+            }
+
+            cuda = null;
+            return false;
+        }
+
+        internal static void CheckResult(this CUResult result)
+        {
+            if (result != CUResult.Success)
+                throw new CudaException(result);
         }
     }
 }

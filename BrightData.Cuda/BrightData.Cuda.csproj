@@ -22,7 +22,7 @@
     <DocumentationFile>C:\code\brightwire\BrightData.Cuda\BrightData.Cuda.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Compile Remove="Properties\**" />
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />

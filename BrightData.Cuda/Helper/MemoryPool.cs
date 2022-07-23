@@ -13,7 +13,7 @@ namespace BrightData.Cuda.Helper
     {
         readonly uint _maxSize;
         uint _currentSize = 0;
-        ConcurrentDictionary<uint, ConcurrentStack<CUdeviceptr>> _memoryPool = new();
+        readonly ConcurrentDictionary<uint, ConcurrentStack<CUdeviceptr>> _memoryPool = new();
 
         public MemoryPool(uint maxSize)
         {
@@ -22,6 +22,7 @@ namespace BrightData.Cuda.Helper
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             foreach (var block in _memoryPool.Values) {
                 foreach (var ptr in block)
                     DriverAPINativeMethods.MemoryManagement.cuMemFree_v2(ptr);

@@ -4,7 +4,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda.Helper
 {
-    internal class ConvolutionsData : IDisposable
+    internal unsafe class ConvolutionsData : IDisposable
     {
 		public ConvolutionsData(CudaProvider cuda, List<(uint X, uint Y)> convolutions)
 	    {

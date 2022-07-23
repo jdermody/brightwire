@@ -39,6 +39,7 @@ namespace BrightData.Cuda
         void CopyToHost(float[] target);
         void CopyToHost(ArraySegment<float> target);
         void Clear();
+        IDeviceMemoryPtr Offset(uint offsetInFloats, uint size);
     }
 
     internal interface IHaveDeviceMemory
