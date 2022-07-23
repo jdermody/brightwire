@@ -144,7 +144,7 @@ namespace ExampleCode.DataTableTrainers
 
             const uint BATCH_SIZE = 16;
             const uint HIDDEN_LAYER_SIZE = 128;
-            const float TRAINING_RATE = 0.1f;
+            const float TRAINING_RATE = 0.03f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
             Training.TableMetaData.Set("Seq2Seq", true);
@@ -153,12 +153,12 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
-                .AddRecurrentBridge("encoder1", "encoder2")
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
+                //.AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                //.AddRecurrentBridge("encoder1", "encoder2")
+                .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
-                .AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, "self-attention")
+                //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, "self-attention")
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
@@ -167,8 +167,8 @@ namespace ExampleCode.DataTableTrainers
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
-            engine.Train(20, testData, model => bestModel = model.Graph);
+            engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 3);
+            engine.Train(30, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);
@@ -187,7 +187,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    using var matrix = Test.Get<IMatrix>(i, 0);
+                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
                     return (
                         Input: matrix.AllRows(false).Select(r => r.Segment.GetMinAndMaxValues().MaxIndex).ToArray(),
                         Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()

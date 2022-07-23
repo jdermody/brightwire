@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -16,6 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     class SelfAttention : NodeBase, IHaveFeedForward
     {
         FeedForward _layer;
+        LinearAlgebraProvider _lap;
         string _encoderName, _decoderName;
 
         class Backpropagation : SingleBackpropagationBase<SelfAttention>
@@ -40,12 +42,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     using var errRows = err.RowSums();
                     errRows.MultiplyInPlace(1f / err.ColumnCount);
 
-                    var feedForwardError = errRows.SoftmaxDerivative();
-                    using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
-                    collapsed.MultiplyInPlace(1f / feedForwardError.ColumnCount);
-                    var weightUpdate = collapsed.Reshape(null, 1);
+                    using var feedForwardError = errRows.SoftmaxDerivative();
+                    using var feedForwardError2 = feedForwardError.ColumnSums();
+                    using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError);
+                    using var rowSums = collapsed.RowSums();
+                    rowSums.MultiplyInPlace(1f / feedForwardError.ColumnCount);
+                    var weightUpdate = rowSums.Reshape(null, 1);
 
-                    learningContext.AddError(ErrorType.Bias, _source, feedForwardError);
+                    learningContext.AddError(ErrorType.Bias, _source, feedForwardError2.Reshape(null, 1));
                     learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
                 }
 
@@ -53,8 +57,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        public SelfAttention(string encoderName, string decoderName, FeedForward layer, string? name, string? id = null) : base(name, id)
+        public SelfAttention(LinearAlgebraProvider lap, string encoderName, string decoderName, FeedForward layer, string? name, string? id = null) : base(name, id)
         {
+            _lap = lap;
             _encoderName = encoderName;
             _decoderName = decoderName;
             _layer = layer;
@@ -105,21 +110,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // form the new attention as a product of the weights
             using var softmax = weights!.Softmax();
-            var lap = context.GetLinearAlgebraProvider();
-            var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
+            using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softmax.AllColumns(false).Zip(encoderStates)) {
+                // save the average weight across the batch for diagnostics
                 var multiplyWeight = first.Segment.Average();
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
-                var saved = second.Clone();
-                using var stretched = lap.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => first[i]);
-                second.PointwiseMultiplyInPlace(stretched);
-                //second.Multiply(multiplyWeight);
-                combinedAttention.AddInPlace(second);
-                backward.Add((saved, inputs[index++]));
+                using var stretched = _lap.CreateMatrixFromColumns(Enumerable.Repeat(first, (int)second.ColumnCount).ToArray());
+                using var result = second.PointwiseMultiply(stretched);
+                combinedAttention.AddInPlace(result);
+                backward.Add((second, inputs[index++]));
             }
             combinedAttention.MultiplyInPlace(1f / index);
 
@@ -144,7 +147,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            // ReSharper disable once ConstantNullCoalescingCondition
+            _lap = factory.LinearAlgebraProvider;
             _layer ??= GenericActivator.CreateUninitialized<FeedForward>();
             _layer.ReadFrom(factory, reader);
             _encoderName = reader.ReadString();

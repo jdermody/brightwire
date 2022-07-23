@@ -13,7 +13,7 @@ namespace BrightData.LinearAlgebra
 {
     public class LinearAlgebraProvider : IDisposable
     {
-        protected readonly ConcurrentStack<ThreadSafeHashSet<IDisposable>> _scope = new();
+        protected readonly ConcurrentStack<ConcurrentDictionary<IDisposable, bool>> _scope = new();
         bool _isPoppingScope = false;
 
         public LinearAlgebraProvider(
@@ -37,8 +37,9 @@ namespace BrightData.LinearAlgebra
         void InternalDispose()
         {
             _isPoppingScope = true;
-            foreach (var set in _scope) using(set) {
-                set.ForEach(x => x.Dispose());
+            foreach (var set in _scope) {
+                foreach(var item in set.Keys)
+                    item.Dispose();
             }
             _isPoppingScope = false;
             _scope.Clear();
@@ -56,19 +57,13 @@ namespace BrightData.LinearAlgebra
         public void PushScope() => _scope.Push(new());
         public virtual void PopScope()
         {
-            if (_scope.TryPop(out var set)) using(set) {
-                set.ForEach(x => {
-                    x.Dispose();
-                    //#if DEBUG
-                    //if (x is ITensor tensor && tensor.Segment.IsValid) {
-                    //    Debug.WriteLine($"Found potentially leaked memory: ${tensor.Segment}");
-                    //}
-                    //#endif
-                });
+            if (_scope.TryPop(out var set)) {
+                foreach(var item in set.Keys)
+                    item.Dispose();
             }
         }
-        internal bool AddToScope(IDisposable obj) => _scope.First().Add(obj);
-        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || _scope.First().Remove(obj);
+        internal bool AddToScope(IDisposable obj) => _scope.First().TryAdd(obj, true);
+        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || _scope.First().TryRemove(new KeyValuePair<IDisposable, bool>(obj, true));
 
         // segment creation
         public virtual ITensorSegment CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));

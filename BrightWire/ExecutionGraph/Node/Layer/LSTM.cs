@@ -7,7 +7,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    class Lstm : NodeBase
+    class Lstm : NodeBase, IHaveMemoryNode
     {
         uint _inputSize;
         FlowThrough _input;
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
 
-            _input = new FlowThrough();
+            _input = new FlowThrough(Name != null ? $"{Name}_start" : null);
             _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
             _previous = new MemoryFeeder(graph.Context, new float[hiddenLayerSize], null);
 
@@ -101,5 +101,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             foreach(var item in SerializedNodes)
                 ReadSubNode(item, factory, reader);
         }
+
+        public NodeBase Memory => _memory;
     }
 }

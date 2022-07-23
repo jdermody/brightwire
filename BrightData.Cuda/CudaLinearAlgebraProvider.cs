@@ -28,8 +28,10 @@ namespace BrightData.Cuda
             base.Dispose();
 #if DEBUG
             var trackedBlocks = new HashSet<IDeviceMemoryPtr>();
-            foreach (var block in _scope)
-                block.ForEach(b => trackedBlocks.Add(((CudaTensorSegment)((ITensor)b).Segment).DeviceMemory));
+            foreach (var block in _scope) {
+                foreach (var item in block.Keys)
+                    trackedBlocks.Add(((CudaTensorSegment)((ITensor)item).Segment).DeviceMemory);
+            }
             DeviceMemoryBlock.FindLeakedBlocks(trackedBlocks);
 #endif
             Provider.Dispose();
