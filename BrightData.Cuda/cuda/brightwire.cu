@@ -14,59 +14,59 @@
 #include <builtin_types.h>
 #include <vector_functions.h>
 
-#define BLOCKSIZE 16
+#define BLOCKSIZE 32
 #define N BLOCKSIZE*BLOCKSIZE
 
 typedef unsigned int uint;
 
 extern "C"
 {
-    __global__ void IsFinite(const float* __restrict a, float* __restrict b, uint size)
+    __global__ void IsFinite(const float* __restrict a, float* __restrict b, uint size, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = isfinite(a[index]) ? 0 : 1;
+            b[index] = isfinite(a[index * ai]) ? 0 : 1;
         }
 	}
 
-    __global__ void Scale(float* __restrict a, uint size, float scale)
+    __global__ void Scale(float* __restrict a, uint size, float scale, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            a[index] *= scale;
+            a[index * ai] *= scale;
         }
 	}
 
-	__global__ void PointwiseMultiply(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void PointwiseMultiply(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] *= a[index];
+            b[index * bi] *= a[index * ai];
         }
 	}
 
-	__global__ void PointwiseDivide(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void PointwiseDivide(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = a[index] / b[index];
+            b[index * bi] = a[index * ai] / b[index * bi];
         }
 	}
 
-	__global__ void Sqrt(const float* __restrict a, float* __restrict b, uint size, float valueAdjustment)
+	__global__ void Sqrt(const float* __restrict a, float* __restrict b, uint size, float valueAdjustment, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = sqrt(a[index] + valueAdjustment);
+            b[index * bi] = sqrt(a[index * ai] + valueAdjustment);
         }
 	}
 
-	__global__ void AddInPlace(float* __restrict a, const float* __restrict b, uint size, float coefficient1, float coefficient2)
+	__global__ void AddInPlace(float* __restrict a, const float* __restrict b, uint size, float coefficient1, float coefficient2, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            a[index] = (a[index] * coefficient1) + (b[index] * coefficient2);
+            a[index * ai] = (a[index * ai] * coefficient1) + (b[index * bi] * coefficient2);
         }
 	}
 
-	__global__ void SubtractInPlace(float* __restrict a, const float* __restrict b, uint size, float coefficient1, float coefficient2)
+	__global__ void SubtractInPlace(float* __restrict a, const float* __restrict b, uint size, float coefficient1, float coefficient2, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            a[index] = (a[index] * coefficient1) - (b[index] * coefficient2);
+            a[index * ai] = (a[index * ai] * coefficient1) - (b[index * bi] * coefficient2);
         }
 	}
 
@@ -88,65 +88,65 @@ extern "C"
         }
 	}
 
-	__global__ void TanH(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void TanH(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = tanh(a[index]);
+            b[index * bi] = tanh(a[index * ai]);
         }
 	}
 
-	__global__ void TanHDerivative(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void TanHDerivative(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float ta = tanh(a[index]);
-            b[index] = 1.0f - ta * ta;
+            float ta = tanh(a[index * ai]);
+            b[index * bi] = 1.0f - ta * ta;
         }
 	}
 
-	__global__ void Sigmoid(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void Sigmoid(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = 1.0f / (1.0f + exp(-1.0f * a[index]));
+            b[index * bi] = 1.0f / (1.0f + exp(-1.0f * a[index * ai]));
         }
 	}
 
-	__global__ void SigmoidDerivative(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void SigmoidDerivative(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float sigmoid = 1.0f / (1.0f + exp(-1.0f * a[index]));
-			b[index] = sigmoid * (1.0f - sigmoid);
+            float sigmoid = 1.0f / (1.0f + exp(-1.0f * a[index * ai]));
+			b[index * bi] = sigmoid * (1.0f - sigmoid);
         }
 	}
 
-	__global__ void RELU(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void RELU(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			b[index] = (val <= 0) ? 0 : val;
+            float val = a[index * ai];
+			b[index * bi] = (val <= 0) ? 0 : val;
         }
 	}
 
-	__global__ void RELUDerivative(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void RELUDerivative(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			b[index] = (val <= 0) ? 0 : 1;
+            float val = a[index * ai];
+			b[index * bi] = (val <= 0) ? 0 : 1;
         }
 	}
 
-	__global__ void LeakyRELU(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void LeakyRELU(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			b[index] = (val <= 0) ? 0.01f*val : val;
+            float val = a[index * ai];
+			b[index * bi] = (val <= 0) ? 0.01f*val : val;
         }
 	}
 
-	__global__ void LeakyRELUDerivative(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void LeakyRELUDerivative(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			b[index] = (val <= 0) ? 0.01f : 1;
+            float val = a[index * ai];
+			b[index * bi] = (val <= 0) ? 0.01f : 1;
         }
 	}
 
@@ -175,11 +175,10 @@ extern "C"
         }
 	}
 
-	__global__ void MemClear(float* data, uint count, uint srcOffset, uint srcIncrement)
+	__global__ void MemClear(float* a, uint count, uint offset, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            uint arrayIndex = srcOffset + (index * srcIncrement);
-			data[arrayIndex] = 0.0f;
+			a[offset + (index * ai)] = 0.0f;
         }
 	}
 
@@ -238,47 +237,49 @@ extern "C"
 		}
 	}
 
-	__global__ void Constrain(float* __restrict data, uint count, float min, float max)
+	__global__ void Constrain(float* __restrict a, uint count, float min, float max, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            float val = data[index];
+            uint ind = index * ai;
+            float val = a[ind];
 			if (val < min)
-				data[index] = min;
+				a[ind] = min;
 			if (val > max)
-				data[index] = max;
+				a[ind] = max;
         }
 	}
 
-    __global__ void RoundInPlace(float* __restrict data, uint count, float lower, float upper, float mid)
+    __global__ void RoundInPlace(float* __restrict data, uint count, float lower, float upper, float mid, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            float val = data[index];
+            uint ind = index * ai;
+            float val = data[ind];
 			if (val >= mid)
-				data[index] = upper;
+				data[ind] = upper;
 			else
-				data[index] = lower;
+				data[ind] = lower;
         }
 	}
 
-	__global__ void Pow(const float* __restrict a, float* __restrict b, uint count, float power)
+	__global__ void Pow(const float* __restrict a, float* __restrict b, uint count, float power, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-			b[index] = pow(a[index], power);
+			b[index * bi] = pow(a[index * ai], power);
         }
 	}
 
-	__global__ void Diagonal(const float* __restrict a, float* __restrict b, uint rows, uint columns)
+	__global__ void Diagonal(const float* __restrict a, float* __restrict b, uint rows, uint columns, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < rows && index < columns; index += blockDim.x * gridDim.x) {
-            b[index] = a[index * rows + index];
+            b[index * bi] = a[index * ai * rows + index];
         }
 	}
 
-	__global__ void L1Regularisation(float* __restrict a, uint count, float coefficient)
+	__global__ void L1Regularisation(float* __restrict a, uint count, float coefficient, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			a[index] = val - ((val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient);
+            float val = a[index * ai];
+			a[index * ai] = val - ((val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient);
         }
 	}
 
@@ -361,11 +362,11 @@ extern "C"
         }
 	}
 
-	__global__ void EuclideanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, uint count)
+	__global__ void EuclideanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, uint count, uint ai, uint bi, uint ci)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            float val = a[index] - b[index];
-            c[index] = val * val;
+            float val = a[index * ai] - b[index * bi];
+            c[index * ci] = val * val;
         }
 	}
 
@@ -381,10 +382,10 @@ extern "C"
         }
 	}*/
 
-	__global__ void ManhattanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, uint count)
+	__global__ void ManhattanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, uint count, uint ai, uint bi, uint ci)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            c[index] = abs(a[index] - b[index]);
+            c[index * ci] = abs(a[index * ai] - b[index * bi]);
         }
 	}
 
@@ -399,63 +400,63 @@ extern "C"
         }
 	}*/
 
-	__global__ void CosineDistance(const float* __restrict a, const float* __restrict b, float* __restrict aa, float* __restrict ab, float* __restrict bb, uint count)
+	__global__ void CosineDistance(const float* __restrict a, const float* __restrict b, float* __restrict aa, float* __restrict ab, float* __restrict bb, uint count, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-			float left = a[index];
-			float right = b[index];
+			float left = a[index * ai];
+			float right = b[index * bi];
 			atomicAdd(aa, left * left);
 			atomicAdd(ab, left * right);
 			atomicAdd(bb, right * right);
         }
 	}
 
-	__global__ void Abs(const float* __restrict a, float* __restrict b, uint count)
+	__global__ void Abs(const float* __restrict a, float* __restrict b, uint count, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            b[index] = abs(a[index]);
+            b[index * bi] = abs(a[index * ai]);
         }
 	}
 
-	__global__ void Log(const float* __restrict a, float* __restrict b, uint count)
+	__global__ void Log(const float* __restrict a, float* __restrict b, uint count, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            b[index] = log(a[index]);
+            b[index * bi] = log(a[index * ai]);
         }
 	}
 
-    __global__ void Exp(const float* __restrict a, float* __restrict b, uint count)
+    __global__ void Exp(const float* __restrict a, float* __restrict b, uint count, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            b[index] = exp(a[index]);
+            b[index * bi] = exp(a[index * ai]);
         }
 	}
 
-	__global__ void Normalise(float* __restrict a, uint count, float min, float range)
+	__global__ void Normalise(float* __restrict a, uint count, float min, float range, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            a[index] = (a[index] - min) / range;
+            a[index * ai] = (a[index * ai] - min) / range;
         }
 	}
 
-	__global__ void SoftmaxVector(const float* __restrict a, float* __restrict b, uint count, float max)
+	__global__ void SoftmaxVector(const float* __restrict a, float* __restrict b, uint count, float max, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            b[index] = exp(a[index] - max);
+            b[index * bi] = exp(a[index * ai] - max);
         }
 	}
 
-	__global__ void VectorAdd(float* __restrict a, uint size, float scalar)
+	__global__ void VectorAddInPlace(float* __restrict a, uint size, float scalar, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            a[index] += scalar;
+            a[index * ai] += scalar;
         }
 	}
 
-	__global__ void VectorCopyRandom(const float* __restrict a, float* __restrict b, uint* __restrict c, uint size)
+	__global__ void VectorCopyRandom(const float* __restrict a, float* __restrict b, uint* __restrict c, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-			b[index] += a[c[index]];
+			b[index * bi] += a[c[index] * ai];
         }
 	}
 

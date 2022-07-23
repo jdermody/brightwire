@@ -172,13 +172,7 @@ namespace BrightData.Cuda
 
         public override void AddInPlace(ITensorSegment target, float scalar)
         {
-            // TODO: create new cuda method?
-            using var buffer = SpanOwner<float>.Allocate((int)target.Size);
-            Array.Fill(buffer.DangerousGetArray().Array!, scalar);
-            var ret = (CudaTensorSegment)CreateSegment(target.Size);
-            ret.CopyFrom(buffer.Span);
-
-            Provider.AddInPlace(GetDeviceMemoryPtr(target), ret.DeviceMemory, target.Size, 1f, 1f);
+            Provider.VectorAddInPlace(GetDeviceMemoryPtr(target), target.Size, scalar);
         }
 
         public override void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue)

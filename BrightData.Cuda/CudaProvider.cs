@@ -19,7 +19,7 @@ namespace BrightData.Cuda
     public unsafe class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
         readonly BrightDataContext _context;
-        const int BlockSize = 16;
+        const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);
         internal const int UIntSize = sizeof(uint);
@@ -136,7 +136,7 @@ namespace BrightData.Cuda
             _multiCosine,
 			_log,
             _exp,
-			_vectorAdd,
+            _vectorAddInPlace,
 			_vectorCopyRandom,
 			_copyToMatrixColumns,
 			_copyToMatrixRows,
@@ -231,7 +231,7 @@ namespace BrightData.Cuda
             _multiCosine            = _kernel.LoadFunction("MultiCosineDistance");
 			_log                    = _kernel.LoadFunction("Log");
             _exp                    = _kernel.LoadFunction("Exp");
-			_vectorAdd              = _kernel.LoadFunction("VectorAdd");
+			_vectorAddInPlace       = _kernel.LoadFunction("VectorAddInPlace");
 			_vectorCopyRandom       = _kernel.LoadFunction("VectorCopyRandom");
 			_copyToMatrixColumns    = _kernel.LoadFunction("CopyToMatrixColumns");
 			_copyToMatrixRows       = _kernel.LoadFunction("CopyToMatrixRows");
@@ -345,43 +345,43 @@ namespace BrightData.Cuda
 			execution.Run(stream is not null ? *stream : _defaultStream.Stream, 0, param);
 		}
 
-		internal bool IsFinite(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal bool IsFinite(IDeviceMemoryPtr a, uint size, uint ai = 1, CUstream* stream = null)
 		{
-			var ret = Allocate(size, stream);
+			var temp = Allocate(size, stream);
 			try {
-				Invoke(_isFinite, stream, size, a.DevicePointer, ret.DevicePointer, size);
-				var sum = _blas.Value.AbsoluteSum(ret.DeviceVariable, 1);
+				Invoke(_isFinite, stream, size, a.DevicePointer, temp.DevicePointer, size, ai);
+				var sum = Blas.AbsoluteSum(temp.DeviceVariable, 1);
 				return FloatMath.IsZero(sum);
 			}
 			finally {
-				ret.Release();
+				temp.Release();
 			}
 		}
 
-		internal IDeviceMemoryPtr PointwiseMultiply(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr PointwiseMultiply(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
 			ret.CopyToDevice(b);
-			Invoke(_pointwiseMultiply, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_pointwiseMultiply, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr PointwiseDivide(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr PointwiseDivide(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
 			ret.CopyToDevice(b);
-			Invoke(_pointwiseDivide, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_pointwiseDivide, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-        internal void AddInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2, CUstream* stream = null)
+        internal void AddInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
-			Invoke(_addInPlace, stream, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2);
+			Invoke(_addInPlace, stream, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2, ai, bi);
 		}
 
-		internal void SubtractInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2, CUstream* stream = null)
+		internal void SubtractInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
-			Invoke(_subtractInPlace, stream, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2);
+			Invoke(_subtractInPlace, stream, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2, ai, bi);
 		}
 
 		internal void AddToEachRow(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns, CUstream* stream = null)
@@ -394,59 +394,59 @@ namespace BrightData.Cuda
 			InvokeMatrix(_addToEachColumn, stream, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
 		}
 
-		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_tanh, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_tanh, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr TanHDerivative(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr TanHDerivative(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_tanhDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_tanhDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Sigmoid(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr Sigmoid(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_sigmoid, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_sigmoid, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SigmoidDerivative(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr SigmoidDerivative(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_sigmoidDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_sigmoidDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Relu(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr Relu(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_relu, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_relu, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr ReluDerivative(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr ReluDerivative(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_reluDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_reluDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyRelu(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr LeakyRelu(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_leakyRelu, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_leakyRelu, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyReluDerivative(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr LeakyReluDerivative(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_leakyReluDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_leakyReluDerivative, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
@@ -469,46 +469,46 @@ namespace BrightData.Cuda
 			Invoke(_memClear, stream, count, data.DevicePointer, count, offset, increment);
 		}
 
-		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, uint size, float valueAdjustment, CUstream* stream = null)
+		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, uint size, float valueAdjustment, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_sqrt, stream, size, a.DevicePointer, ret.DevicePointer, size, valueAdjustment);
+			Invoke(_sqrt, stream, size, a.DevicePointer, ret.DevicePointer, size, valueAdjustment, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Abs(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr Abs(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_abs, stream, size, a.DevicePointer, ret.DevicePointer, size);
+			Invoke(_abs, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-            InvokeManual(_log, stream, size, a.DevicePointer, ret.DevicePointer, size);
+            InvokeManual(_log, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
 			return ret;
 		}
 
-        internal IDeviceMemoryPtr Exp(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+        internal IDeviceMemoryPtr Exp(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
         {
             var ret = Allocate(size, stream);
-            InvokeManual(_exp, stream, size, a.DevicePointer, ret.DevicePointer, size);
+            InvokeManual(_exp, stream, size, a.DevicePointer, ret.DevicePointer, size, ai, bi);
             return ret;
         }
 
-		internal void VectorAdd(IDeviceMemoryPtr a, uint size, float scalar, CUstream* stream = null)
+		internal void VectorAddInPlace(IDeviceMemoryPtr a, uint size, float scalar, uint ai = 1, CUstream* stream = null)
 		{
-			Invoke(_vectorAdd, stream, size, a.DevicePointer, size, scalar);
+			Invoke(_vectorAddInPlace, stream, size, a.DevicePointer, size, scalar, ai);
 		}
 
-		internal IDeviceMemoryPtr VectorCopy(IDeviceMemoryPtr a, uint[] indexList, CUstream* stream = null)
+		internal IDeviceMemoryPtr VectorCopy(IDeviceMemoryPtr a, uint[] indexList, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var retSize = (uint)indexList.Length;
 			var ret = Allocate(retSize, stream);
             using var indexGpu = new CudaDeviceVariable<uint>(retSize);
             indexGpu.CopyToDevice(indexList);
-            Invoke(_vectorCopyRandom, stream, retSize, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize);
+            Invoke(_vectorCopyRandom, stream, retSize, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize, ai, bi);
             return ret;
         }
 
@@ -595,68 +595,63 @@ namespace BrightData.Cuda
 			return 0f;
 		}
 
-		internal void Constrain(IDeviceMemoryPtr a, uint size, float min, float max, CUstream* stream = null)
+		internal void Constrain(IDeviceMemoryPtr a, uint size, float min, float max, uint ai = 1, CUstream* stream = null)
 		{
-			Invoke(_constrain, stream, size, a.DevicePointer, size, min, max);
+			Invoke(_constrain, stream, size, a.DevicePointer, size, min, max, ai);
 		}
         
-        public void RoundInPlace(IDeviceMemoryPtr a, uint size, float lower, float upper, float mid, CUstream* stream = null)
+        public void RoundInPlace(IDeviceMemoryPtr a, uint size, float lower, float upper, float mid, uint ai = 1, CUstream* stream = null)
         {
-            Invoke(_roundInPlace, stream, size, a.DevicePointer, size, lower, upper, mid);
+            Invoke(_roundInPlace, stream, size, a.DevicePointer, size, lower, upper, mid, ai);
         }
 
-		internal IDeviceMemoryPtr Pow(IDeviceMemoryPtr a, uint size, float power, CUstream* stream = null)
+		internal IDeviceMemoryPtr Pow(IDeviceMemoryPtr a, uint size, float power, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_pow, stream, size, a.DevicePointer, ret.DevicePointer, size, power);
+			Invoke(_pow, stream, size, a.DevicePointer, ret.DevicePointer, size, power, ai, bi);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, uint rows, uint columns, CUstream* stream = null)
+		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, uint rows, uint columns, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var size = System.Math.Min(rows, columns);
 			var ret = Allocate(size, stream);
-			Invoke(_diagonal, stream, size, a.DevicePointer, ret.DevicePointer, rows, columns);
+			Invoke(_diagonal, stream, size, a.DevicePointer, ret.DevicePointer, rows, columns, ai, bi);
 			return ret;
 		}
 
-		internal void L1Regularisation(IDeviceMemoryPtr a, uint size, float coefficient, CUstream* stream = null)
+		internal void L1Regularisation(IDeviceMemoryPtr a, uint size, float coefficient, uint ai = 1, CUstream* stream = null)
 		{
-			Invoke(_l1Regularisation, stream, size, a.DevicePointer, size, coefficient);
+			Invoke(_l1Regularisation, stream, size, a.DevicePointer, size, coefficient, ai);
 		}
 
-        internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, CUstream* stream = null)
+        internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, uint ci = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_euclideanDistance, stream, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
+			Invoke(_euclideanDistance, stream, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size, ai, bi, ci);
 			return Convert.ToSingle(System.Math.Sqrt(SumValues(ret, size)));
 		}
 
-		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, CUstream* stream = null)
+		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, uint ci = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_manhattanDistance, stream, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
+			Invoke(_manhattanDistance, stream, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size, ai, bi, ci);
 			return SumValues(ret, size);
 		}
 
-		static float GetSingleValue(IDeviceMemoryPtr ptr)
+        internal float CosineDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
-			var buffer = new float[1];
-			ptr.CopyToHost(buffer);
-			return buffer[0];
-		}
-
-		internal float CosineDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, CUstream* stream = null)
-		{
-			var aaDevice = Allocate(1, stream);
-			var abDevice = Allocate(1, stream);
-			var bbDevice = Allocate(1, stream);
+			var buffer = Allocate(3, stream);
+            var aaDevice = buffer.DevicePointer;
+			var abDevice = aaDevice + sizeof(float);
+			var bbDevice = abDevice + sizeof(float);
 			try {
-				Invoke(_cosineDistance, stream, size, a.DevicePointer, b.DevicePointer, aaDevice.DevicePointer, abDevice.DevicePointer, bbDevice.DevicePointer, size);
-
-				float aa = GetSingleValue(aaDevice);
-				float ab = GetSingleValue(abDevice);
-				float bb = GetSingleValue(bbDevice);
+				Invoke(_cosineDistance, stream, size, a.DevicePointer, b.DevicePointer, aaDevice, abDevice, bbDevice, size, ai, bi);
+                var local = new float[3];
+				buffer.CopyToHost(local);
+				var aa = local[0];
+                var ab = local[1];
+                var bb = local[2];
 
 				if (aa.Equals(0f))
 					return bb.Equals(0f) ? 1.0f : 0.0f;
@@ -666,26 +661,24 @@ namespace BrightData.Cuda
 					return 1f - (ab / (float)System.Math.Sqrt(aa) / (float)System.Math.Sqrt(bb));
 			}
 			finally {
-				aaDevice.Release();
-				abDevice.Release();
-				bbDevice.Release();
-			}
+                buffer.Release();
+            }
 		}
 
-		internal void Normalise(IDeviceMemoryPtr a, uint size, float min, float range, CUstream* stream = null)
+		internal void Normalise(IDeviceMemoryPtr a, uint size, float min, float range, uint ai = 1, CUstream* stream = null)
 		{
-			Invoke(_normalise, stream, size, a.DevicePointer, size, min, range);
+			Invoke(_normalise, stream, size, a.DevicePointer, size, min, range, ai);
 		}
 
-        internal void ScaleInPlace(IDeviceMemoryPtr a, uint size, float scaleBy, CUstream* stream = null)
+        internal void ScaleInPlace(IDeviceMemoryPtr a, uint size, float scaleBy, uint ai = 1, CUstream* stream = null)
         {
-            Invoke(_scale, stream, size, a.DevicePointer, size, scaleBy);
+            Invoke(_scale, stream, size, a.DevicePointer, size, scaleBy, ai);
         }
 
-		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max, CUstream* stream = null)
+		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_softmaxVector, stream, size, a.DevicePointer, ret.DevicePointer, size, max);
+			Invoke(_softmaxVector, stream, size, a.DevicePointer, ret.DevicePointer, size, max, ai, bi);
 			return ret;
 		}
 
