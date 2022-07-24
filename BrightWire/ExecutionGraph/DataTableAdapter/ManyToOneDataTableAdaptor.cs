@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
-                .Select(r => ((IReadOnlyMatrix)r[_featureColumnIndices[0]], (IReadOnlyVector)r[_targetColumnIndex]))
+                .Select(r => (Matrix: (IReadOnlyMatrix)r[_featureColumnIndices[0]], Vector: (IReadOnlyVector)r[_targetColumnIndex]))
                 .ToList()
             ;
             var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Item2.Segment[y]);
+            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Vector[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)

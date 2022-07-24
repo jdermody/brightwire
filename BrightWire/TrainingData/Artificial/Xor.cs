@@ -14,7 +14,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns></returns>
         public static BrightDataTable Get(BrightDataContext context)
         {
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Float, "X");
             builder.AddColumn(BrightDataType.Float, "Y");
             builder.AddColumn(BrightDataType.Float, "XOR").MetaData.SetTarget(true);

@@ -13,7 +13,7 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestNaiveBayes()
         {
-            var dataTable = _context.BuildTable();
+            var dataTable = _context.CreateTableBuilder();
             dataTable.AddColumn(BrightDataType.Float, "height");
             dataTable.AddColumn(BrightDataType.Int, "weight");
             dataTable.AddColumn(BrightDataType.Int, "foot-size");
@@ -30,7 +30,7 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.75f, 150, 9, "female");
             var index = dataTable.BuildInMemory();
 
-            var testData = _context.BuildTable();
+            var testData = _context.CreateTableBuilder();
             testData.CopyColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
             var testDataTable = testData.BuildInMemory();

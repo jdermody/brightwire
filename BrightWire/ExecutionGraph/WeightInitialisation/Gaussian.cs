@@ -37,9 +37,9 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         float GetWeight(uint inputSize, uint outputSize)
         {
             uint n = 0;
-            if (_varianceCount == GaussianVarianceCount.FanIn || _varianceCount == GaussianVarianceCount.FanInFanOut)
+            if (_varianceCount is GaussianVarianceCount.FanIn or GaussianVarianceCount.FanInFanOut)
                 n += inputSize;
-            if (_varianceCount == GaussianVarianceCount.FanOut || _varianceCount == GaussianVarianceCount.FanInFanOut)
+            if (_varianceCount is GaussianVarianceCount.FanOut or GaussianVarianceCount.FanInFanOut)
                 n += outputSize;
 
             var sample = _distribution.Sample();

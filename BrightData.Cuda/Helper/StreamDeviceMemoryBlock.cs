@@ -15,10 +15,13 @@ namespace BrightData.Cuda.Helper
     internal unsafe class StreamDeviceMemoryBlock : DeviceMemoryBlockBase
     {
         readonly CUstream _stream;
+        readonly bool _isStreamOwner;
 
-        public StreamDeviceMemoryBlock(CUstream stream, uint size)
+        public StreamDeviceMemoryBlock(CUstream stream, uint size, bool isStreamOwner)
         {
             _stream = stream;
+            _isStreamOwner = isStreamOwner;
+
             var ptr = new CUdeviceptr();
             var sizeInBytes = size * sizeof(float);
             DriverAPINativeMethods.MemoryManagement.cuMemAllocAsync(ref ptr, sizeInBytes, stream).CheckResult();
@@ -28,6 +31,8 @@ namespace BrightData.Cuda.Helper
         protected override void OnDispose()
         {
             DriverAPINativeMethods.MemoryManagement.cuMemFreeAsync(DevicePointer, _stream).CheckResult();
+            if(_isStreamOwner)
+                DriverAPINativeMethods.Streams.cuStreamDestroy_v2(_stream).CheckResult();
         }
 
         public override void CopyToDevice(float[] source)

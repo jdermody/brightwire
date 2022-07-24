@@ -49,7 +49,7 @@ namespace ExampleCode.DataTableTrainers
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
                 var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(_context, 8));
-                var results = executionEngine.Execute(testData2).ToArray();
+                var results = executionEngine.Execute(testData2, 128, null, true).ToArray();
 
                 // group the output
                 var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];

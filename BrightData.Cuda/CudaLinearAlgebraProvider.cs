@@ -694,7 +694,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override unsafe IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
+        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();

@@ -52,7 +52,7 @@ namespace ExampleCode.DataTableTrainers
                  .TransposeFrom4DTensorToMatrix()
                  .AddFeedForward(hiddenLayerSize)
                  .Add(graph.LeakyReluActivation())
-                 .AddDropOut(dropOutPercentage: 0.5f)
+                 //.AddDropOut(dropOutPercentage: 0.5f)
                  .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                  .Add(graph.SoftMaxActivation())
                  .AddBackpropagation()

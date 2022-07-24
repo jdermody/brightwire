@@ -80,14 +80,14 @@ namespace BrightData.Cuda.Helper
         public virtual void CopyToDevice(float[] source)
         {
             fixed (float* ptr = &source[0]) {
-                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyHtoD_v2(DevicePointer, (IntPtr)ptr, source.Length * sizeof(float)).CheckResult();
+                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyHtoD_v2(DevicePointer, (IntPtr)ptr, Math.Min(Size, source.Length) * sizeof(float)).CheckResult();
             }
             //_data.CopyToDevice(source);
         }
 
         public virtual void CopyToDevice(IDeviceMemoryPtr source)
         {
-            DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoD_v2(DevicePointer, source.DevicePointer, source.Size * sizeof(float)).CheckResult();
+            DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoD_v2(DevicePointer, source.DevicePointer, Math.Min(Size, source.Size) * sizeof(float)).CheckResult();
             //_data.CopyToDevice(source.DeviceVariable);
         }
 
@@ -96,7 +96,7 @@ namespace BrightData.Cuda.Helper
             fixed (float* p = &MemoryMarshal.GetReference(span))
             {
                 var ptr = p + offsetSource * sizeof(float);
-                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyHtoD_v2(DevicePointer, (IntPtr)ptr, Size * sizeof(float)).CheckResult();
+                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyHtoD_v2(DevicePointer, (IntPtr)ptr, Math.Min(Size, span.Length) * sizeof(float)).CheckResult();
                 //DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
             }
         }
@@ -109,7 +109,7 @@ namespace BrightData.Cuda.Helper
 
         public virtual void CopyToHost(float[] target)
         {
-            DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoH_v2(target, DevicePointer, target.Length * sizeof(float));
+            DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoH_v2(target, DevicePointer, Math.Min(Size, target.Length) * sizeof(float));
             //_data.CopyToHost(target);
         }
 
@@ -117,7 +117,7 @@ namespace BrightData.Cuda.Helper
         {
             fixed (float* p = &target.Array![0]) {
                 var ptr = p + target.Offset * sizeof(float);
-                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoH_v2((IntPtr)ptr, DevicePointer, target.Count * sizeof(float));
+                DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoH_v2((IntPtr)ptr, DevicePointer, Math.Min(Size, target.Count) * sizeof(float));
             }
             //_data.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
         }

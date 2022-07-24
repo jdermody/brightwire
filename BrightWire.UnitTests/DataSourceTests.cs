@@ -19,7 +19,7 @@ namespace BrightWire.UnitTests
         [Fact]
 		public void DefaultDataSource()
 		{
-			var builder = _context.BuildTable();
+			var builder = _context.CreateTableBuilder();
 			builder.AddColumn(BrightDataType.Float, "val1");
 			builder.AddColumn(BrightDataType.Double, "val2");
 			builder.AddColumn(BrightDataType.String, "val3");

@@ -168,7 +168,7 @@ namespace ExampleCode.DataTableTrainers
 
         static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             var addColumns = true;
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
@@ -199,7 +199,7 @@ namespace ExampleCode.DataTableTrainers
 
         static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             var addColumns = true;
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
@@ -276,7 +276,7 @@ namespace ExampleCode.DataTableTrainers
             var training = graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
-            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.1f, batchSize: 128);
+            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.01f, batchSize: 128);
 
             graph.CurrentPropertySet
                 .Use(graph.Adam())
@@ -306,7 +306,7 @@ namespace ExampleCode.DataTableTrainers
 
         BrightDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix);
             builder.AddColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
 

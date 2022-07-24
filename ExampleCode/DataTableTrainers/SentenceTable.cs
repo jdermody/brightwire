@@ -22,7 +22,7 @@ namespace ExampleCode.DataTableTrainers
             // create an empty string to represent null
             _empty = GetStringIndex("");
 
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.IndexList, "Sentences");
             foreach(var sentence in sentences)
                 builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));

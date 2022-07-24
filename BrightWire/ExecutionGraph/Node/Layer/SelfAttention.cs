@@ -93,7 +93,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var encoderStates = new List<IMatrix>();
             var inputs = new List<IMatrix>();
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
-                var encoderState = previous.GetSequenceAtIndex(i).GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
+                var sequence = previous.GetSequenceAtIndex(i);
+                var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
                 var combined = decoderHiddenState.ConcatRows(encoderState);
                 var output = _layer.Forward(combined);
 

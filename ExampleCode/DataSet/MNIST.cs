@@ -121,18 +121,19 @@ namespace ExampleCode.DataSet
             /// </summary>
             public (IReadOnlyTensor3D Tensor, IReadOnlyVector Label) AsFloatTensor(BrightDataContext context)
             {
-                const int SIZE = 28;
+                const int ImageSize = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new List<IReadOnlyVector>();
+                var rows = new IReadOnlyVector[ImageSize];
 
-                for (var y = 0; y < SIZE; y++) {
-                    var row = new float[SIZE];
-                    for (var x = 0; x < SIZE; x++)
-                        row[x] = vector[(y * SIZE) + x];
-                    rows.Add(context.CreateReadOnlyVector(row));
+                for (var y = 0; y < ImageSize; y++) {
+                    var row = new float[ImageSize];
+                    for (var x = 0; x < ImageSize; x++)
+                        row[x] = vector[(y * ImageSize) + x];
+                    rows[y] = context.CreateReadOnlyVector(row);
                 }
 
-                var tensor = context.CreateReadOnlyTensor3D(context.CreateReadOnlyMatrixFromRows(rows.ToArray()));
+                var imageAsMatrix = context.CreateReadOnlyMatrixFromRows(rows);
+                var tensor = context.CreateReadOnlyTensor3D(imageAsMatrix);
                 return (tensor, Label: label);
             }
         }
@@ -179,22 +180,25 @@ namespace ExampleCode.DataSet
             }
 
             var ret = builder.BuildInMemory();
-            if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
             return ret;
         }
 
-        public static BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
+        public BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a 3D tensor => vector mapping
-            var dataTable = context.Create3DTensorToVectorTableBuilder();
+            var builder = context.Create3DTensorToVectorTableBuilder();
 
             foreach (var image in images) {
                 var (tensor, label) = image.AsFloatTensor(context);
-                dataTable.AddRow(tensor, label);
+                builder.AddRow(tensor, label);
             }
 
-            return dataTable.BuildInMemory();
+            var ret = builder.BuildInMemory();
+            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            return ret;
         }
     }
 }

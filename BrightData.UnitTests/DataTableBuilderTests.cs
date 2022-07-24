@@ -9,7 +9,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void BuildSimple()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Int, "int");
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow(6, "test");

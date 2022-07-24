@@ -28,7 +28,7 @@ namespace ExampleCode
             useMkl = true;
 
             // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
-            useCuda = false;
+            useCuda = true;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -41,7 +41,7 @@ namespace ExampleCode
             //TextClustering(context, useMkl);
             //IntegerAddition(context, useMkl);
             //ReberPrediction(context, useMkl);
-            OneToMany(context, useMkl);
+            //OneToMany(context, useMkl);
             //ManyToOne(context, useMkl, useCuda);
             //SequenceToSequence(context, useMkl, useCuda);
             //StockData(context, useMkl, useCuda);
@@ -51,7 +51,7 @@ namespace ExampleCode
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
             //MnistFeedForward(context, useMkl);
-            //MnistConvolutional(context, useMkl, useCuda);
+            MnistConvolutional(context, useMkl, useCuda);
             //TrainIncomePrediction(context, useMkl);
             //SentimentClassification(context, useMkl, useCuda);
         }
@@ -141,7 +141,7 @@ namespace ExampleCode
 
         static void MnistFeedForward(BrightDataContext context, bool useMkl)
         {
-            Start(context, false, true);
+            Start(context, useMkl);
             using var mnist = context.Mnist();
             mnist.TrainFeedForwardNeuralNetwork();
         }
@@ -189,7 +189,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             var reber = context.ReberSequencePrediction();
-            var engine = reber.TrainLstm();
+            var engine = reber.TrainGru();
             ReberSequenceTrainer.GenerateSequences(engine);
         }
 

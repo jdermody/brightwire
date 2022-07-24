@@ -651,12 +651,12 @@ namespace BrightData
                 var trainingRows = Enumerable.Range(0, k).Where(n => n != i1).SelectMany(n => folds[n]).ToArray();
                 var validationRows = folds[i1];
 
-                var writer1 = context.BuildTable();
+                var writer1 = context.CreateTableBuilder();
                 writer1.CopyColumnsFrom(table);
                 foreach (var (_, row) in table.GetAllRowData(true, trainingRows))
                     writer1.AddRow(row);
 
-                var writer2 = context.BuildTable();
+                var writer2 = context.CreateTableBuilder();
                 writer2.CopyColumnsFrom(table);
                 foreach (var (_, row) in table.GetAllRowData(true, validationRows))
                     writer2.AddRow(row);
@@ -1377,12 +1377,7 @@ namespace BrightData
             .BuildDataTable(tableMetaData, columns, GetMemoryOrFileStream(filePath))
         ;
 
-        public static IEnumerable<T> MapRows<T>(this BrightDataTable dataTable, Func<BrightDataTableRow, T> mapper)
-        {
-            foreach (var row in dataTable.GetRows()) {
-                yield return mapper(row);
-            }
-        }
+        public static IEnumerable<T> MapRows<T>(this BrightDataTable dataTable, Func<BrightDataTableRow, T> mapper) => dataTable.GetRows().Select(mapper);
 
         public static void SetCustomColumnReaders(this BrightDataTable dataTable, ICanRandomlyAccessData[]? columnReaders)
         {

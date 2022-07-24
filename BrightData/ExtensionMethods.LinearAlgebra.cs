@@ -473,6 +473,7 @@ namespace BrightData
                 foreach (var item in tensors) {
                     if (ret is null) {
                         ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.TotalSize);
+                        item.Segment.CopyTo(ret);
                         shape = item.Shape;
                     }
                     else
@@ -485,7 +486,7 @@ namespace BrightData
 
                 if (ret is null || lap is null || shape is null)
                     throw new ArgumentException("Empty enumerable", nameof(tensors));
-                ret.Multiply(1f / count);
+                ret.MultiplyInPlace(1f / count);
                 return (T)lap.CreateTensor(shape, ret);
             }
             catch {

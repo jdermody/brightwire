@@ -552,7 +552,7 @@ namespace BrightData
                 yield return (startRange.Value, prev!.Value);
         }
 
-        public static BrightDataTableBuilder BuildTable(this BrightDataContext context) => new(context);
+        public static BrightDataTableBuilder CreateTableBuilder(this BrightDataContext context) => new(context);
 
         public static void DisposeAll(this IEnumerable<IDisposable> disposables)
         {

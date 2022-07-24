@@ -27,15 +27,15 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.GaussianWeightInitialisation(false, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             // create the engine
-            const float TRAINING_RATE = 0.03f;
+            const float TRAINING_RATE = 0.003f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 16);
-            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
+            engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
@@ -47,7 +47,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(15, testData, g => bestModel = g.Graph);
+            engine.Train(40, testData, g => bestModel = g.Graph);
             var executionEngine = engine.CreateExecutionEngine(bestModel);
 
             var output = executionEngine.Execute(testData);
@@ -87,19 +87,19 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.GaussianWeightInitialisation(false, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.01f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.00375f, 8);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
             graph.Connect(engine)
-                //.AddGru(HIDDEN_LAYER_SIZE, "encoder1")
-                //.AddRecurrentBridge("encoder1", "encoder2")
+                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddRecurrentBridge("encoder1", "encoder2")
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
@@ -107,7 +107,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(20, testData, g => bestModel = g.Graph);
+            engine.Train(10, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
             var output = executionEngine.Execute(testData);
@@ -139,7 +139,7 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.Adam)
-                .Use(graph.GaussianWeightInitialisation(true, 0.005f))
+                .Use(graph.GaussianWeightInitialisation(false, 0.005f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             const uint BATCH_SIZE = 16;
@@ -153,8 +153,8 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
             graph.Connect(engine)
-                //.AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
-                //.AddRecurrentBridge("encoder1", "encoder2")
+                .AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddRecurrentBridge("encoder1", "encoder2")
                 .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
@@ -168,7 +168,7 @@ namespace ExampleCode.DataTableTrainers
             // train
             ExecutionGraphModel? bestModel = null;
             engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 3);
-            engine.Train(30, testData, model => bestModel = model.Graph);
+            engine.Train(50, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);

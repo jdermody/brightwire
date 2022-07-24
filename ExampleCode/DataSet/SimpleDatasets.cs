@@ -138,7 +138,7 @@ namespace ExampleCode.DataSet
             return new TestClusteringTrainer(context, docList);
         }
 
-        public static ReberSequenceTrainer ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 10, int? maxLength = 10)
+        public static ReberSequenceTrainer ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
         {
             var grammar = new ReberGrammar(context.Random);
             var sequences = extended
@@ -152,8 +152,8 @@ namespace ExampleCode.DataSet
         {
             var grammar = new SequenceGenerator(context, dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
-            var addColumns = true;
+            var builder = context.CreateTableBuilder();
+            var addTableColumns = true;
 
             foreach (var sequence in sequences)
             {
@@ -172,8 +172,8 @@ namespace ExampleCode.DataSet
                 }
 
                 var output = context.CreateReadOnlyMatrixFromRows(rows);
-                if (addColumns) {
-                    addColumns = false;
+                if (addTableColumns) {
+                    addTableColumns = false;
                     builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
                     builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
                 }
@@ -188,7 +188,7 @@ namespace ExampleCode.DataSet
             const int SIZE = 5, DICTIONARY_SIZE = 16;
             var grammar = new SequenceGenerator(context, dictionarySize: DICTIONARY_SIZE, minSize: SIZE-1, maxSize: SIZE+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Sequence");
             builder.AddColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
 
@@ -212,10 +212,10 @@ namespace ExampleCode.DataSet
 
         public static SequenceToSequenceTrainer SequenceToSequence(this BrightDataContext context)
         {
-            const int SEQUENCE_LENGTH = 4;
+            const int SEQUENCE_LENGTH = 5;
             var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH-1, SEQUENCE_LENGTH+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Input");
             builder.AddColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
 

@@ -12,7 +12,7 @@ namespace BrightData.UnitTests
     {
         public BrightDataTable GetTable()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Boolean, "bool");
             builder.AddColumn(BrightDataType.SByte, "byte");
             builder.AddColumn(BrightDataType.Decimal, "decimal");
@@ -33,7 +33,7 @@ namespace BrightData.UnitTests
 
         public BrightDataTable GetTable2()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.String);
 
             builder.AddRow("a");

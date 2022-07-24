@@ -13,9 +13,7 @@ namespace BrightData.Cuda.Helper
         public StreamWrapper()
         {
             var stream = new CUstream();
-            var status = DriverAPINativeMethods.Streams.cuStreamCreate(ref stream, CUStreamFlags.Default);
-            if (status != CUResult.Success)
-                throw new CudaException(status);
+            DriverAPINativeMethods.Streams.cuStreamCreate(ref stream, CUStreamFlags.Default).CheckResult();
             Stream = stream;
         }
         public CUstream Stream { get; }
@@ -31,9 +29,7 @@ namespace BrightData.Cuda.Helper
 
         public void Dispose()
         {
-            var status = DriverAPINativeMethods.Streams.cuStreamDestroy_v2(Stream);
-            if (status != CUResult.Success)
-                throw new CudaException(status);
+            DriverAPINativeMethods.Streams.cuStreamDestroy_v2(Stream).CheckResult();
         }
     }
 }

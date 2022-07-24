@@ -41,7 +41,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddRecurrentBridge("layer1", "layer2")
                 .AddSimpleRecurrent(graph.SigmoidActivation(), HIDDEN_LAYER_SIZE, "layer2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
             ;
 
@@ -66,14 +66,14 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 32);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE, "layer1")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
             ;
 
@@ -91,26 +91,28 @@ namespace ExampleCode.DataTableTrainers
 
             // configure the network properties
             graph.CurrentPropertySet
-                .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.GradientDescent.Adam)
+                .Use(graph.GaussianWeightInitialisation(true, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var learningRate = 0.3f;
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
+            var learningRate = 0.01f;
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 30;
+            const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE)
+                .AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddRecurrentBridge("encoder1", "encoder2")
+                .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
+            engine.LearningContext.ScheduleLearningRate(25, learningRate / 3);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }

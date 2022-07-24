@@ -9,7 +9,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void FilterColumnOrientedDataTable()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow("str1");
             builder.AddRow("str2");
@@ -26,7 +26,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void FilterRowOrientedDataTable()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.String, "str");
             builder.AddRow("str1");
             builder.AddRow("str2");

@@ -1100,7 +1100,7 @@ namespace BrightData.Cuda
                 ret = new DeviceMemoryBlock(_memoryPool, ptr);
             }
             else
-                ret = new StreamDeviceMemoryBlock(*stream, size);
+                ret = new StreamDeviceMemoryBlock(*stream, size, false);
             if (setToZero)
 				ret.Clear();
 			return ret;
