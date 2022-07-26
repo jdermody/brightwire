@@ -35,6 +35,12 @@ namespace BrightData.UnitTests.Helper
             for(var i = 1; i < tensors.Length; i++)
                 FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
         }
+        protected static void AssertSame(params ITensorSegment[] tensors)
+        {
+            var first = tensors[0];
+            for(var i = 1; i < tensors.Length; i++)
+                FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
+        }
 
         protected static void AssertSame(params float[][] tensors)
         {
@@ -59,6 +65,15 @@ namespace BrightData.UnitTests.Helper
                 tensors.DisposeAll();
             }
         }
+        protected static void AssertSameAndThenDispose(params ITensorSegment[] tensors)
+        {
+            try {
+                AssertSame(tensors);
+            }
+            finally {
+                tensors.DisposeAll();
+            }
+        }
         protected static void AssertSameAndThenDispose(params ITensor[][] tensors)
         {
             try {
@@ -74,9 +89,28 @@ namespace BrightData.UnitTests.Helper
                     item.DisposeAll();
             }
         }
+        protected static void AssertSameAndThenDispose(int maxDifference, params ITensorSegment[][] tensors)
+        {
+            try {
+                var first = tensors[0];
+                var size = first.Length;
+                for (var i = 1; i < tensors.Length; i++) {
+                    for (uint j = 0; j < size; j++) {
+                        var v1 = first[j];
+                        var v2 = tensors[i][j];
+                        FloatMath.AreApproximatelyEqual(v1, v2, maxDifference).Should().BeTrue();
+                    }
+                }
+            }
+            finally {
+                foreach(var item in tensors)
+                    item.DisposeAll();
+            }
+        }
 
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
             _context.Dispose();
         }
     }

@@ -35,6 +35,7 @@ namespace BrightData.Cuda
 
         public override IVector GetRowVector(uint index)
         {
+            //return _lap.CreateVector(Row(index));
             var segment = _lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
             return _lap.CreateVector(segment);
         }

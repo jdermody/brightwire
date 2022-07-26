@@ -187,8 +187,9 @@ namespace BrightData.Cuda
 
             _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new(() => {
-                var ret = new CudaBlas(_defaultStream.Stream, AtomicsMode.Allowed);
-                ret.MathMode = ManagedCuda.CudaBlas.Math.TF32TensorOpMath;
+                var ret = new CudaBlas(_defaultStream.Stream, AtomicsMode.Allowed) {
+                    MathMode = ManagedCuda.CudaBlas.Math.TF32TensorOpMath
+                };
                 return ret;
             });
             _cuda.SetCurrent();
@@ -518,7 +519,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+        internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size, uint ai = 1, CUstream* stream = null)
         {
             if (size > 0) {
                 var ptr = a;
@@ -528,9 +529,11 @@ namespace BrightData.Cuda
                     var maxBlock = Allocate(bufferSize, stream, true);
 
                     try {
-                        InvokeManual(_findMinAndMax, stream, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
+                        InvokeManual(_findMinAndMax, stream, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer, ai);
                         if (ptr != a)
                             ptr.Release();
+
+                        ai = 1;
                         size = bufferSize * 2;
                         ptr = Allocate(size, stream);
                         ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * FloatSize);
@@ -558,18 +561,19 @@ namespace BrightData.Cuda
             return (0f, 0f);
         }
 
-		internal float SumValues(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal float SumValues(IDeviceMemoryPtr a, uint size, uint ai = 1, CUstream* stream = null)
 		{
 			var ptr = a;
 			while (size >= N) {
 				var bufferSize = (size / N) + 1;
 				var sumBlock = Allocate(bufferSize, stream, true);
-                InvokeManual(_sumValues, stream, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
+                InvokeManual(_sumValues, stream, size, ptr.DevicePointer, size, sumBlock.DevicePointer, ai);
 				if (ptr != a)
 					ptr.Release();
 				size = bufferSize;
 				ptr = sumBlock;
-			}
+                ai = 1;
+            }
 			var total = new float[size];
 			ptr.CopyToHost(total);
 			if (ptr != a)
@@ -577,7 +581,7 @@ namespace BrightData.Cuda
 			return total.Sum();
 		}
 
-		internal float FindStdDev(IDeviceMemoryPtr a, uint size, float mean, CUstream* stream = null)
+		internal float FindStdDev(IDeviceMemoryPtr a, uint size, float mean, uint ai = 1, CUstream* stream = null)
 		{
 			var inputSize = size;
 			if (size > 0) {
@@ -585,12 +589,13 @@ namespace BrightData.Cuda
 				while (size >= N) {
 					var bufferSize = (size / N) + 1;
 					var sumBlock = Allocate(bufferSize, stream, true);
-                    InvokeManual(_findStdDev, stream, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
+                    InvokeManual(_findStdDev, stream, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer, ai);
 					if (ptr != a)
 						ptr.Release();
 					size = bufferSize;
 					ptr = sumBlock;
-				}
+                    ai = 1;
+                }
 				var total = new float[size];
 				ptr.CopyToHost(total);
 				if (ptr != a)
@@ -681,10 +686,10 @@ namespace BrightData.Cuda
             Invoke(_scale, stream, size, a.DevicePointer, size, scaleBy, ai);
         }
 
-		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max, uint ai = 1, uint bi = 1, CUstream* stream = null)
+		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max, uint ai = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size, stream);
-			Invoke(_softmaxVector, stream, size, a.DevicePointer, ret.DevicePointer, size, max, ai, bi);
+			Invoke(_softmaxVector, stream, size, a.DevicePointer, ret.DevicePointer, size, max, ai);
 			return ret;
 		}
 
@@ -777,10 +782,10 @@ namespace BrightData.Cuda
 			return (ret, outputRows, outputColumns);
 		}
 
-		internal IDeviceMemoryPtr VectorSoftmaxDerivative(IDeviceMemoryPtr a, uint size, CUstream* stream = null)
+		internal IDeviceMemoryPtr VectorSoftmaxDerivative(IDeviceMemoryPtr a, uint size, uint ai = 1, CUstream* stream = null)
 		{
 			var ret = Allocate(size * size, stream);
-			InvokeMatrix(_softmaxDerivative, stream, size, size, a.DevicePointer, ret.DevicePointer, size);
+			InvokeMatrix(_softmaxDerivative, stream, size, size, a.DevicePointer, ret.DevicePointer, size, ai);
 			return ret;
 		}
 

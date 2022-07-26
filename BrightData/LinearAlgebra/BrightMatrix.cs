@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra.ReadOnly;
@@ -154,8 +155,35 @@ namespace BrightData.LinearAlgebra
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
         public void AddToEachRow(ITensorSegment segment) => _lap.AddToEachRow(this, segment);
         public void AddToEachColumn(ITensorSegment segment) => _lap.AddToEachColumn(this, segment);
-        public IVector[] SoftmaxPerRow() => _lap.SoftmaxPerRow(this);
-        public IVector[] SoftmaxDerivativePerRow(IVector[] rows) => _lap.SoftmaxDerivativePerRow(this, rows);
+
+        public ITensorSegment[] SoftmaxPerRow()
+        {
+            var segments = SpanOwner<ITensorSegment>.Allocate((int)RowCount);
+            var ptr = segments.Span;
+            for (var i = 0; i < RowCount; i++)
+                ptr[i] = Row((uint)i);
+            return _lap.MultiSoftmax(segments.DangerousGetArray());
+        }
+        public ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows) => _lap.SoftmaxDerivativePerRow(this, rows);
+
+        //public ITensorSegment[] SoftmaxDerivativePerRow(IVector[] rows)
+        //{
+        //    var ret = new ITensorSegment[RowCount];
+        //    var derivative = _lap.MultiSoftmaxDerivative(new ArraySegment<ITensorSegment>(rows.Select(x => x.Segment).ToArray()));
+        //    for (uint i = 0, len = RowCount; i < len; i++) {
+        //        var row = Row(i);
+        //        using var softmaxDerivative = derivative[i];
+        //        var segments = (IMatrixSegments)softmaxDerivative;
+        //        ret[i] = _lap.CreateSegment(row.Size, true);
+        //        for (uint j = 0; j < row.Size; j++) {
+        //            var otherRow = segments.Row(j);
+        //            var val = row.DotProduct(otherRow);
+        //            ret[i][j] = val;
+        //        }
+        //    }
+
+        //    return ret;
+        //}
 
         /// <inheritdoc />
         public override string ToString()

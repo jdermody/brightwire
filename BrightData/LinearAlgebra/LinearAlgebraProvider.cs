@@ -1204,27 +1204,45 @@ namespace BrightData.LinearAlgebra
 
         public virtual float Sum(ITensorSegment segment) => segment.Sum();
 
-        public virtual IVector[] SoftmaxPerRow(IMatrix matrix)
+        public virtual ITensorSegment[] MultiSoftmax(ArraySegment<ITensorSegment> segments)
         {
-            var ret = new IVector[matrix.RowCount];
-            using var transposed = matrix.Transpose();
-            for (uint i = 0; i < matrix.RowCount; i++) {
-                using var row = transposed.GetColumnVector(i);
-                ret[i] = row.Softmax();
+            var len = segments.Count;
+            var ret = new ITensorSegment[len];
+            if (len >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, len, i => ret[i] = Softmax(segments[i]));
+            else {
+                for(var i = 0; i < len; i++)
+                    ret[i] = Softmax(segments[i]);
             }
-
             return ret;
         }
 
-        public virtual IVector[] SoftmaxDerivativePerRow(IMatrix matrix, IVector[] rows)
+        public virtual IMatrix[] MultiSoftmaxDerivative(ITensorSegment[] segments)
         {
-            var ret = new IVector[matrix.RowCount];
+            var len = segments.Length;
+            var ret = new IMatrix[len];
+            if (len >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, len, i => ret[i] = SoftmaxDerivative(segments[i]));
+            else {
+                for(var i = 0; i < len; i++)
+                    ret[i] = SoftmaxDerivative(segments[i]);
+            }
+            return ret;
+        }
+
+        public virtual ITensorSegment[] SoftmaxDerivativePerRow(IMatrix matrix, ITensorSegment[] rows)
+        {
+            var derivatives = MultiSoftmaxDerivative(rows);
             using var transposed = matrix.Transpose();
+
+            var ret = new ITensorSegment[matrix.RowCount];
             for (uint i = 0; i < matrix.RowCount; i++) {
-                using var derivative = rows[(int)i].SoftmaxDerivative();
+                using var derivative = derivatives[i];
+                //using var row = matrix.GetRowVector(i);
                 using var row = transposed.GetColumnVector(i);
-                var sm = derivative.Multiply(row);
-                ret[i] = sm.Reshape();
+                using var sm = derivative.Multiply(row);
+                ret[i] = sm.Segment;
+                sm.Segment.AddRef();
             }
 
             return ret;

@@ -64,7 +64,7 @@ namespace BrightData.Cuda
         public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor3D(data, depth, rowCount, columnCount, this);
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor4D(data, count, depth, rowCount, columnCount, this);
 
-        public override unsafe IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
+        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var size = rowCount * columnCount;
             using var buffer = SpanOwner<float>.Allocate((int)size);
@@ -340,21 +340,22 @@ namespace BrightData.Cuda
         public override ITensorSegment ReluDerivative(ITensorSegment tensor) => new CudaTensorSegment(Provider.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
         public override ITensorSegment LeakyRelu(ITensorSegment tensor) => new CudaTensorSegment(Provider.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
 
-        public override ITensorSegment Softmax(ITensorSegment tensor)
+        public override ITensorSegment Softmax(ITensorSegment tensor) => Softmax(GetDeviceMemoryPtr(tensor), 1);
+        ITensorSegment Softmax(IDeviceMemoryPtr ptr, uint stride)
         {
-            var max = GetMax(tensor);
-
-            var softmax = Provider.SoftmaxVector(GetDeviceMemoryPtr(tensor), tensor.Size, max);
-            var softmaxSum = Provider.SumValues(softmax, tensor.Size);
+            var max = Provider.FindMinAndMax(ptr, ptr.Size, stride).Max;
+            var softmax = Provider.SoftmaxVector(ptr, ptr.Size, max, stride);
+            var softmaxSum = Provider.SumValues(softmax, ptr.Size);
             if (FloatMath.IsNotZero(softmaxSum))
                 Provider.ScaleInPlace(softmax, softmax.Size, 1f / softmaxSum);
             return new CudaTensorSegment(softmax);
         }
 
-        public override IMatrix SoftmaxDerivative(ITensorSegment tensor)
+        public override IMatrix SoftmaxDerivative(ITensorSegment tensor) => SoftmaxDerivative(GetDeviceMemoryPtr(tensor), 1);
+        IMatrix SoftmaxDerivative(IDeviceMemoryPtr ptr, uint stride)
         {
-            var ret = Provider.VectorSoftmaxDerivative(GetDeviceMemoryPtr(tensor), tensor.Size);
-            return CreateMatrix(tensor.Size, tensor.Size, new CudaTensorSegment(ret));
+            var ret = Provider.VectorSoftmaxDerivative(ptr, ptr.Size, stride);
+            return CreateMatrix(ptr.Size, ptr.Size, new CudaTensorSegment(ret));
         }
 
         public override ITensorSegment Pow(ITensorSegment tensor, float power) => new CudaTensorSegment(Provider.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
@@ -798,16 +799,24 @@ namespace BrightData.Cuda
 
             throw new Exception("CUDA tensors can only be used with other CUDA tensors");
         }
-
-        internal static IDeviceMemoryPtr? TryGetDeviceMemoryPtr(ITensorSegment segment)
+        internal static (IDeviceMemoryPtr Ptr, uint Offset, uint Stride, uint Size) GetDeviceMemory(ITensorSegment segment)
         {
+            var foundWrapper = false;
+            uint offset = 0, stride = 0, size = uint.MaxValue;
+            while (segment is TensorSegmentWrapper wrapper) {
+                offset += wrapper.Offset;
+                stride += wrapper.Stride;
+                size = wrapper.Size;
+                foundWrapper = true;
+                segment = wrapper.UnderlyingSegment;
+            }
             if (segment is CudaTensorSegment cudaSegment) {
                 if (!segment.IsValid)
                     throw new Exception("CUDA tensor was not valid");
-                return cudaSegment.DeviceMemory;
+                return (cudaSegment.DeviceMemory, offset, foundWrapper ? stride : 1, foundWrapper ? size : segment.Size);
             }
 
-            return null;
+            throw new Exception("CUDA tensors can only be used with other CUDA tensors");
         }
 
         public IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
@@ -1063,6 +1072,46 @@ namespace BrightData.Cuda
 
             return output;
         }
+
+        public override ITensorSegment[] MultiSoftmax(ArraySegment<ITensorSegment> segments)
+        {
+            var index = 0;
+            var ret = new ITensorSegment[segments.Count];
+            foreach (var segment in segments) {
+                var (ptr, offset, stride, size) = GetDeviceMemory(segment);
+                var ptr2 = ptr.Offset(offset, size);
+                ret[index++] = Softmax(ptr2, stride);
+            }
+            return ret;
+        }
+
+        public override IMatrix[] MultiSoftmaxDerivative(ITensorSegment[] segments)
+        {
+            var index = 0;
+            var ret = new IMatrix[segments.Length];
+            foreach (var segment in segments) {
+                var (ptr, offset, stride, size) = GetDeviceMemory(segment);
+                var ptr2 = ptr.Offset(offset, size);
+                ret[index++] = SoftmaxDerivative(ptr2, stride);
+            }
+            return ret;
+        }
+
+        //public override ITensorSegment[] SoftmaxDerivativePerRow(IMatrix matrix, IVector[] rows)
+        //{
+        //    var derivatives = MultiSoftmaxDerivative(rows);
+
+        //    var ret = new ITensorSegment[matrix.RowCount];
+        //    for (uint i = 0; i < matrix.RowCount; i++) {
+        //        using var derivative = derivatives[i];
+        //        using var row = matrix.GetRowVector(i);
+        //        using var sm = derivative.Multiply(row);
+        //        ret[i] = sm.Segment;
+        //        sm.Segment.AddRef();
+        //    }
+
+        //    return ret;
+        //}
 
         //public override IVector[] SoftmaxPerRow(IMatrix matrix)
         //{

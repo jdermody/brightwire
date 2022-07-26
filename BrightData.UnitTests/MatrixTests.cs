@@ -409,6 +409,17 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
+        public void MatrixColumnVector()
+        {
+            const int INDEX = 7;
+            using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
+            using var cpu = a.GetColumnVector(INDEX);
+            using var gpu = Apply(_cuda, a, a => a.GetColumnVector(INDEX));
+            using var mkl = Apply(_mkl, a, a => a.GetColumnVector(INDEX));
+            AssertSame(cpu, gpu, mkl);
+        }
+
+        [Fact]
         public void MatrixRow()
         {
             const int INDEX = 11;
@@ -416,6 +427,17 @@ namespace BrightData.UnitTests
             var cpu = a.GetRow(INDEX).Segment.ToNewArray();
             var gpu = Apply(_cuda, a, a => a.GetRow(INDEX).Segment.ToNewArray());
             var mkl = Apply(_mkl, a, a => a.GetRow(INDEX).Segment.ToNewArray());
+            AssertSame(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixRowVector()
+        {
+            const int INDEX = 11;
+            using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
+            using var cpu = a.GetRowVector(INDEX);
+            using var gpu = Apply(_cuda, a, a => a.GetRowVector(INDEX));
+            using var mkl = Apply(_mkl, a, a => a.GetRowVector(INDEX));
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -588,29 +610,65 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void MatrixSoftmaxPerRowActivation()
+        public void MatrixSoftmaxPerRow()
         {
             var normalDistribution = _context.CreateNormalDistribution(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
-            var cpu = a.SoftmaxPerRow();
-            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
-            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow());
+            var cpu = a.SoftmaxPerRow().Select(x => _cpu.CreateVector(x)).ToArray();
+            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow().Select(x => _cuda.CreateVector(x)).ToArray());
+            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow().Select(x => _mkl.CreateVector(x)).ToArray());
             AssertSameAndThenDispose(cpu, gpu, mkl);
         }
 
         [Fact]
-        public void MatrixSoftmaxPerRowActivationDerivative()
+        public void MatrixRowVector2()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = 3.AsRange().Select(a.GetRowVector).ToArray();
+            var gpu = Apply(_cuda, a, a => 3.AsRange().Select(a.GetRowVector).ToArray());
+            var mkl = Apply(_mkl, a, a => 3.AsRange().Select(a.GetRowVector).ToArray());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixRowVectorsTransposed()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var aT = a.Transpose();
+            var cpu = 3.AsRange().Select(aT.GetColumnVector).ToArray();
+            var gpu = Apply(_cuda, aT, aT => 3.AsRange().Select(aT.GetColumnVector).ToArray());
+            var mkl = Apply(_mkl, aT, aT => 3.AsRange().Select(aT.GetColumnVector).ToArray());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixSoftmaxDerivative()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = _cpu.SoftmaxDerivative(a.Segment);
+            var gpu = Apply(_cuda, a, a => _cuda.SoftmaxDerivative(a.Segment));
+            var mkl = Apply(_mkl, a, a => _mkl.SoftmaxDerivative(a.Segment));
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixSoftmaxPerRowDerivative()
         {
             var normalDistribution = _context.CreateNormalDistribution(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             var cpu = a.SoftmaxPerRow();
             var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
             var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow());
+
             var cpu2 = a.SoftmaxDerivativePerRow(cpu);
-            var gpu2 = Apply(_cuda, a, a => a.SoftmaxDerivativePerRow(gpu));
-            var mkl2 = Apply(_mkl, a, a => a.SoftmaxDerivativePerRow(mkl));
-            AssertSameAndThenDispose(cpu, gpu, mkl);
-            AssertSameAndThenDispose(cpu2, gpu2, mkl2);
+            var gpu2 = Apply(_cuda, a, a2 => a2.SoftmaxDerivativePerRow(gpu));
+            var mkl2 = Apply(_mkl, a, a2 => a2.SoftmaxDerivativePerRow(mkl));
+
+            AssertSameAndThenDispose(8, cpu, gpu, mkl);
+            AssertSameAndThenDispose(8, cpu2, gpu2, mkl2);
         }
 
         [Fact]

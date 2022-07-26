@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Node;
@@ -14,9 +15,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IVector[] _rows;
+            readonly ITensorSegment[] _rows;
 
-            public Backpropagation(SoftMax source, IVector[] rows) : base(source)
+            public Backpropagation(SoftMax source, ITensorSegment[] rows) : base(source)
             {
                 _rows = rows;
             }

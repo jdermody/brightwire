@@ -18,17 +18,11 @@ namespace BrightData.Cuda.Helper
         }
         public CUstream Stream { get; }
 
-        public IDeviceMemoryPtr CopyResultAndDispose(IDeviceMemoryPtr block, CudaProvider provider)
-        {
-            var ret = provider.Allocate(block.Size);
-            DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyAsync(ret.DevicePointer, block.DevicePointer, block.Size * sizeof(float), Stream).CheckResult();
-            DriverAPINativeMethods.Streams.cuStreamSynchronize(Stream).CheckResult();
-            block.Dispose();
-            return ret;
-        }
+        public IDeviceMemoryPtr AllocateMasterBlock(uint size) => new StreamDeviceMemoryBlock(Stream, size, true);
 
         public void Dispose()
         {
+            DriverAPINativeMethods.Streams.cuStreamSynchronize(Stream).CheckResult();
             DriverAPINativeMethods.Streams.cuStreamDestroy_v2(Stream).CheckResult();
         }
     }

@@ -182,7 +182,7 @@ extern "C"
         }
 	}
 
-	__global__ void FindMinAndMax(const float* __restrict data, uint count, float* __restrict minBlock, float* __restrict maxBlock)
+	__global__ void FindMinAndMax(const float* __restrict a, uint count, float* __restrict minBlock, float* __restrict maxBlock, uint ai)
 	{
 		uint tidX = threadIdx.x;
 		uint blockX = blockIdx.x;
@@ -190,7 +190,7 @@ extern "C"
 
 		// read block into shared memory
 		__shared__ float block[N];
-		block[tidX] = (index < count) ? data[index] : 0;
+		block[tidX] = (index < count) ? a[index * ai] : 0;
 		__syncthreads();
 
 		// aggregate per block
@@ -211,7 +211,7 @@ extern "C"
 		}
 	}
 
-	__global__ void FindStdDev(const float* __restrict data, uint count, float mean, float* __restrict stdDev)
+	__global__ void FindStdDev(const float* __restrict a, uint count, float mean, float* __restrict stdDev, uint ai)
 	{
 		uint tidX = threadIdx.x;
 		uint blockX = blockIdx.x;
@@ -220,7 +220,7 @@ extern "C"
 		// read block into shared memory
 		__shared__ float block[N];
 		if (index < count)
-			block[tidX] = data[index];
+			block[tidX] = a[index * ai];
 		__syncthreads();
 
 		// aggregate per block
@@ -249,15 +249,15 @@ extern "C"
         }
 	}
 
-    __global__ void RoundInPlace(float* __restrict data, uint count, float lower, float upper, float mid, uint ai)
+    __global__ void RoundInPlace(float* __restrict a, uint count, float lower, float upper, float mid, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
             uint ind = index * ai;
-            float val = data[ind];
+            float val = a[ind * ai];
 			if (val >= mid)
-				data[ind] = upper;
+				a[ind * ai] = upper;
 			else
-				data[ind] = lower;
+				a[ind * ai] = lower;
         }
 	}
 
@@ -439,10 +439,10 @@ extern "C"
         }
 	}
 
-	__global__ void SoftmaxVector(const float* __restrict a, float* __restrict b, uint count, float max, uint ai, uint bi)
+	__global__ void SoftmaxVector(const float* __restrict a, float* __restrict b, uint count, float max, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            b[index * bi] = exp(a[index * ai] - max);
+            b[index] = exp(a[index * ai] - max);
         }
 	}
 
@@ -686,15 +686,15 @@ extern "C"
         }
     }
 
-	__global__ void SoftmaxDerivative(const float* __restrict a, float* __restrict b, uint size)
+	__global__ void SoftmaxDerivative(const float* __restrict a, float* __restrict b, uint size, uint ai)
 	{
         for (uint i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
             for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < size; j += blockDim.y * gridDim.y) {
                 uint index = j * size + i;
 			    if(i == j)
-				    b[index] = a[i] * (1 - a[i]);
+				    b[index] = a[i * ai] * (1 - a[i * ai]);
 			    else
-				    b[index] = -a[i] * a[j];
+				    b[index] = -a[i * ai] * a[j * ai];
             }
         }
 	}
@@ -890,7 +890,7 @@ extern "C"
         }
 	}
 
-    __global__ void SumValues(const float* __restrict data, uint count, float* __restrict sum)
+    __global__ void SumValues(const float* __restrict a, uint count, float* __restrict sum, uint ai)
 	{
 		uint tidX = threadIdx.x;
 		uint blockX = blockIdx.x;
@@ -899,7 +899,7 @@ extern "C"
 		// read block into shared memory
 		__shared__ float block[N];
 		if (index < count)
-			block[tidX] = data[index];
+			block[tidX] = a[index * ai];
 		__syncthreads();
 
 		// aggregate per block
