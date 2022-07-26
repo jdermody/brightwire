@@ -17,9 +17,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
         }
 
-        protected ITensorSegment GetSegment(uint rowIndex, uint columnIndex, ICanRandomlyAccessData segment, LinearAlgebraProvider lap)
+        protected ITensorSegment GetSegment(uint rowIndex, uint columnIndex, ICanRandomlyAccessData segment)
         {
-            return ((IHaveTensorSegment)segment[columnIndex]).Segment;;
+            return ((IHaveTensorSegment)segment[columnIndex]).Segment;
         }
 
         /// <inheritdoc />

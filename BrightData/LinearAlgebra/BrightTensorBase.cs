@@ -27,6 +27,7 @@ namespace BrightData.LinearAlgebra
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _lap.RemoveFromScope(this);
             Segment.Release();
         }
@@ -55,7 +56,7 @@ namespace BrightData.LinearAlgebra
             _lap = (LAP)context.LinearAlgebraProvider;
             _lap.AddToScope(this);
 
-            Segment = _lap.CreateSegment((uint)size);
+            Segment = _lap.CreateSegment((uint)size, false);
             Segment.CopyFrom(MemoryMarshal.Cast<byte, float>(data));
             Segment.AddRef();
         }

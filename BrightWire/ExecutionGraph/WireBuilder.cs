@@ -3,6 +3,7 @@ using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
+using BrightWire.ExecutionGraph.Node.Attention;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -479,11 +480,12 @@ namespace BrightWire.ExecutionGraph
         /// <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
         /// <param name="encoderDecoderSize">Node size</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderDecoderSize, string? name = null)
+        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint inputSize, uint encoderSize, uint decoderSize, string? name = null)
         {
-            var layer = _factory.CreateFeedForward(encoderDecoderSize * 2, 1, name != null ? null + "_attention" : null);
-            SetNode(new SelfAttention(_factory.LinearAlgebraProvider, encoderName, decoderName, (FeedForward)layer, name));
-            SetNewSize(encoderDecoderSize * 2);
+            var newSize = inputSize + encoderSize + decoderSize;
+            //var layer = _factory.CreateFeedForward(inputSize + encoderSize + decoderSize, 1, name != null ? null + "_attention" : null);
+            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, inputSize, encoderSize, decoderSize, name));
+            SetNewSize(_width + newSize);
             return this;
         }
 

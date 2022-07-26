@@ -66,7 +66,7 @@ namespace BrightData.LinearAlgebra
         internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || (_scope.FirstOrDefault()?.TryRemove(new KeyValuePair<IDisposable, bool>(obj, true)) ?? false);
 
         // segment creation
-        public virtual ITensorSegment CreateSegment(uint size) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear));
+        public virtual ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, initialiseToZero ? AllocationMode.Clear : AllocationMode.Default));
         public virtual ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             var ret = MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear);
@@ -77,19 +77,19 @@ namespace BrightData.LinearAlgebra
         }
         public virtual ITensorSegment Clone(ITensorSegment segment)
         {
-            var ret = CreateSegment(segment.Size);
+            var ret = CreateSegment(segment.Size, false);
             segment.CopyTo(ret);
             return ret;
         }
 
         // vector creation
         public virtual IVector CreateVector(ITensorSegment data) => new BrightVector(data, this);
-        public IVector CreateVector(uint size) => CreateVector(CreateSegment(size));
-        public IVector CreateVector(params float[] data) => CreateVector(data.AsSpan());
+        public IVector CreateVector(uint size, bool initialiseToZero) => CreateVector(CreateSegment(size, initialiseToZero));
+        public IVector CreateVector(float[] data) => CreateVector(data.AsSpan());
         public IVector CreateVector(uint size, float value) => CreateVector(size, i => value);
         public IVector CreateVector(ReadOnlySpan<float> span)
         {
-            var segment = CreateSegment((uint)span.Length);
+            var segment = CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
             return CreateVector(segment);
         }
@@ -100,10 +100,10 @@ namespace BrightData.LinearAlgebra
 
         // matrix creation
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new BrightMatrix(data, rowCount, columnCount, this);
-        public IMatrix CreateMatrix(uint rowCount, uint columnCount) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount));
+        public IMatrix CreateMatrix(uint rowCount, uint columnCount, bool initialiseToZero) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount, initialiseToZero));
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
-            var segment = CreateSegment(rowCount * columnCount);
+            var segment = CreateSegment(rowCount * columnCount, false);
             var array = segment.GetArrayForLocalUseOnly()!;
             for (uint i = 0, len = segment.Size; i < len; i++)
                 array[i] = initializer(i % rowCount, i / rowCount);
@@ -113,11 +113,11 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrix(IReadOnlyMatrix matrix) => matrix.Create(this);
 
         // create from rows
-        public IMatrix CreateMatrixFromRows(params IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
-        public IMatrix CreateMatrixFromRows(params IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public IMatrix CreateMatrixFromRows(IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
+        public IMatrix CreateMatrixFromRows(IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.AsSpan());
         public IMatrix CreateMatrixFromRows(IEnumerable<float[]> rows) => CreateMatrixFromRows(rows.ToArray().AsSpan());
-        public IMatrix CreateMatrixFromRows(params float[][] rows) => CreateMatrixFromRows(rows.AsSpan());
-        public IMatrix CreateMatrixFromRowsAndThenDisposeInput(params IVector[] rows)
+        public IMatrix CreateMatrixFromRows(float[][] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public IMatrix CreateMatrixFromRowsAndThenDisposeInput(IVector[] rows)
         {
             try {
                 return CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
@@ -127,11 +127,11 @@ namespace BrightData.LinearAlgebra
                     row.Dispose();
             }
         }
-        public IMatrix CreateMatrixFromRows(params ITensorSegment[] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public IMatrix CreateMatrixFromRows(ITensorSegment[] rows) => CreateMatrixFromRows(rows.AsSpan());
         public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> rows)
         {
             var columns = rows[0].Size;
-            var ret = CreateMatrix((uint)rows.Length, columns);
+            var ret = CreateMatrix((uint)rows.Length, columns, false);
             var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < rows.Length; i++)
                 rows[i].CopyTo(matrix.Row((uint)i));
@@ -140,7 +140,7 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrixFromRows(ReadOnlySpan<IReadOnlyVector> rows)
         {
             var columns = rows[0].Size;
-            var ret = CreateMatrix((uint)rows.Length, columns);
+            var ret = CreateMatrix((uint)rows.Length, columns, false);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < rows.Length; i++) {
                 var temp = SpanOwner<float>.Empty;
@@ -159,7 +159,7 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
         {
             var columns = (uint)rows[0].Length;
-            var ret = CreateMatrix((uint)rows.Length, columns);
+            var ret = CreateMatrix((uint)rows.Length, columns, false);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i].AsSpan();
@@ -170,11 +170,11 @@ namespace BrightData.LinearAlgebra
         }
 
         // create from columns
-        public IMatrix CreateMatrixFromColumns(params IVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
-        public IMatrix CreateMatrixFromColumns(params IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public IMatrix CreateMatrixFromColumns(IVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
+        public IMatrix CreateMatrixFromColumns(IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.AsSpan());
         public IMatrix CreateMatrixFromColumns(IEnumerable<float[]> columns) => CreateMatrixFromColumns(columns.ToArray().AsSpan());
-        public IMatrix CreateMatrixFromColumns(params float[][] columns) => CreateMatrixFromColumns(columns.AsSpan());
-        public IMatrix CreateMatrixFromColumnsAndThenDisposeInput(params IVector[] columns)
+        public IMatrix CreateMatrixFromColumns(float[][] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public IMatrix CreateMatrixFromColumnsAndThenDisposeInput(IVector[] columns)
         {
             try {
                 return CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
@@ -184,11 +184,11 @@ namespace BrightData.LinearAlgebra
                     column.Dispose();
             }
         }
-        public IMatrix CreateMatrixFromColumns(params ITensorSegment[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public IMatrix CreateMatrixFromColumns(ITensorSegment[] columns) => CreateMatrixFromColumns(columns.AsSpan());
         public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> columns)
         {
             var rows = columns[0].Size;
-            var ret = CreateMatrix(rows, (uint)columns.Length);
+            var ret = CreateMatrix(rows, (uint)columns.Length, false);
             var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < columns.Length; i++)
                 columns[i].CopyTo(matrix.Column((uint)i));
@@ -197,7 +197,7 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrixFromColumns(ReadOnlySpan<IReadOnlyVector> columns)
         {
             var rows = columns[0].Size;
-            var ret = CreateMatrix(rows, (uint)columns.Length);
+            var ret = CreateMatrix(rows, (uint)columns.Length, false);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < columns.Length; i++) {
                 var temp = SpanOwner<float>.Empty;
@@ -216,7 +216,7 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
         {
             var rows = (uint)columns[0].Length;
-            var ret = CreateMatrix(rows, (uint)columns.Length);
+            var ret = CreateMatrix(rows, (uint)columns.Length, false);
             var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i].AsSpan();
@@ -228,7 +228,7 @@ namespace BrightData.LinearAlgebra
 
         // 3D tensor creation
         public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor3D(data, depth, rowCount, columnCount, this);
-        public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount));
+        public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, bool initialiseToZero) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount, initialiseToZero));
         public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
         public ITensor3D CreateTensor3D(params IReadOnlyMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
         public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
@@ -260,7 +260,7 @@ namespace BrightData.LinearAlgebra
             var rows = first.RowCount;
             var columns = first.ColumnCount;
 
-            var data = CreateSegment(depth * rows * columns);
+            var data = CreateSegment(depth * rows * columns, false);
             var ret = CreateTensor3D(depth, rows, columns, data);
             var allSame = true;
             for (uint i = 0; i < ret.Depth; i++) {
@@ -283,7 +283,7 @@ namespace BrightData.LinearAlgebra
 
         // 4D tensor creation
         public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor4D(data, count, depth, rowCount, columnCount, this);
-        public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount));
+        public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, bool initialiseToZero) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount, initialiseToZero));
         public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
         public ITensor4D CreateTensor4D(params IReadOnlyTensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
         public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
@@ -316,7 +316,7 @@ namespace BrightData.LinearAlgebra
             var columns = first.ColumnCount;
             var depth = first.Depth;
 
-            var data = CreateSegment(depth * rows * columns * count);
+            var data = CreateSegment(depth * rows * columns * count, false);
             var ret = CreateTensor4D(count, depth, rows, columns, data);
             var allSame = true;
             for (uint i = 0; i < ret.Count; i++) {
@@ -401,7 +401,7 @@ namespace BrightData.LinearAlgebra
         {
             var columnCount = matrix.ColumnCount;
             var rowCount = matrix.RowCount;
-            var ret = CreateMatrix(columnCount, rowCount);
+            var ret = CreateMatrix(columnCount, rowCount, false);
             var temp = SpanOwner<float>.Empty;
             fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrix.Segment.GetSpan(ref temp, out var wasTempUsed)))
             fixed (float* retPtr = &MemoryMarshal.GetReference(ret.Segment.GetSpan())) {
@@ -476,7 +476,7 @@ namespace BrightData.LinearAlgebra
 
             var rowCount = transposedThis.ColumnCount;
             var columnCount = other.ColumnCount;
-            var ret = CreateMatrix(rowCount, columnCount);
+            var ret = CreateMatrix(rowCount, columnCount, false);
 
             SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
             var matrixSpan = transposedThis.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
@@ -677,7 +677,7 @@ namespace BrightData.LinearAlgebra
                     columnSums.Dispose();
                 }
             }
-            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
+            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount, true);
         }
 
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
@@ -688,7 +688,7 @@ namespace BrightData.LinearAlgebra
         public ITensorSegment MapParallel(ITensorSegment segment, Func<float, float> mapper)
         {
             var size = segment.Size;
-            var ret = CreateSegment(size);
+            var ret = CreateSegment(size, false);
 
             if (size >= Consts.MinimumSizeForParallel)
                 Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
@@ -714,7 +714,7 @@ namespace BrightData.LinearAlgebra
         public ITensorSegment MapParallel(ITensorSegment segment, Func<uint, float, float> mapper)
         {
             var size = segment.Size;
-            var ret = CreateSegment(size);
+            var ret = CreateSegment(size, false);
             
             if(size >= Consts.MinimumSizeForParallel)
                 Parallel.For(0, (int)size, i => ret[i] = mapper((uint)i, segment[i]));
@@ -727,7 +727,7 @@ namespace BrightData.LinearAlgebra
 
         public void MapParallelInPlace(ITensorSegment segment, Func<uint, float, float> mapper)
         {
-            var ret = CreateSegment(segment.Size);
+            var ret = CreateSegment(segment.Size, false);
             try {
                 Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
                 ret.CopyTo(segment);
@@ -812,7 +812,7 @@ namespace BrightData.LinearAlgebra
         {
             var newRows = tensor.RowCount + padding * 2;
             var newColumns = tensor.ColumnCount + padding * 2;
-            var ret = CreateTensor3D(tensor.Depth, newRows, newColumns);
+            var ret = CreateTensor3D(tensor.Depth, newRows, newColumns, true);
 
             for (uint k = 0; k < tensor.Depth; k++) {
                 for (uint i = 0; i < newRows; i++) {
@@ -832,7 +832,7 @@ namespace BrightData.LinearAlgebra
         {
             var newRows = tensor.RowCount - padding * 2;
             var newColumns = tensor.ColumnCount - padding * 2;
-            var ret = CreateTensor3D(tensor.Depth, newRows, newColumns);
+            var ret = CreateTensor3D(tensor.Depth, newRows, newColumns, true);
             for (uint k = 0; k < tensor.Depth; k++) {
                 for (uint i = 0; i < newRows; i++) {
                     for (uint j = 0; j < newColumns; j++) {
@@ -871,14 +871,14 @@ namespace BrightData.LinearAlgebra
         {
             var newColumns = (tensor.ColumnCount - filterWidth) / xStride + 1;
             var newRows = (tensor.RowCount - filterHeight) / yStride + 1;
-            using var matrixList = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
-            var ptr = matrixList.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
+            var ptr = temp.Span;
             var indexList = saveIndices ? new IMatrix[tensor.Depth] : null;
             var convolutions = ConvolutionHelper.Default(tensor.ColumnCount, tensor.RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (uint k = 0; k < tensor.Depth; k++) {
-                var indices = saveIndices ? CreateMatrix(newRows, newColumns) : null;
-                var layer = CreateMatrix(newRows, newColumns);
+                var indices = saveIndices ? CreateMatrix(newRows, newColumns, true) : null;
+                var layer = CreateMatrix(newRows, newColumns, true);
 
                 foreach (var (cx, cy) in convolutions) {
                     var targetX = cx / xStride;
@@ -917,15 +917,15 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor3D ReverseMaxPool(ITensor3D tensor, ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            using var matrixList = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
-            var ptr = matrixList.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint k = 0; k < tensor.Depth; k++) {
                 using var source = tensor.GetMatrix(k);
                 var sourceRows = source.RowCount;
                 var sourceColumns = source.ColumnCount;
                 using var index = indices.GetMatrix(k);
-                var target = ptr[(int)k] = CreateMatrix(outputRows, outputColumns);
+                var target = ptr[(int)k] = CreateMatrix(outputRows, outputColumns, true);
 
                 for (uint j = 0; j < sourceColumns; j++) {
                     for (uint i = 0; i < sourceRows; i++) {
@@ -944,11 +944,11 @@ namespace BrightData.LinearAlgebra
         public virtual ITensor3D ReverseIm2Col(ITensor3D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-            using var output = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Clear);
-            var ptr = output.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (var i = 0; i < outputDepth; i++)
-                ptr[i] = CreateMatrix(outputRows, outputColumns);
+                ptr[i] = CreateMatrix(outputRows, outputColumns, true);
             for (uint k = 0; k < tensor.Depth; k++) {
                 using var slice = tensor.GetMatrix(k);
                 var filters = filter.GetColumn(k).Segment.Split(outputDepth).ToArray();
@@ -974,7 +974,7 @@ namespace BrightData.LinearAlgebra
 
         public virtual IMatrix AddMatrices(ITensor3D tensor)
         {
-            var ret = CreateMatrix(tensor.RowCount, tensor.ColumnCount);
+            var ret = CreateMatrix(tensor.RowCount, tensor.ColumnCount, true);
 
             for (uint i = 0; i < tensor.Depth; i++) {
                 using var matrix = tensor.GetMatrix(i);
@@ -986,8 +986,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor3D Multiply(ITensor3D tensor, IMatrix other)
         {
-            using var ret = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint i = 0; i < tensor.Depth; i++) {
                 using var matrix = tensor.GetMatrix(i);
@@ -1009,14 +1009,15 @@ namespace BrightData.LinearAlgebra
         public virtual ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, ITensor4D other)
         {
             Debug.Assert(other.Count == tensor.Depth);
-            using var ret = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint i = 0; i < other.Count; i++) {
                 using var item = other.GetTensor(i);
-                using var multiplyWith = item.Reshape(null, other.Count);
+                using var multiplyWith = item.Reshape(null, other.Depth);
                 using var slice = tensor.GetMatrix(i);
-                ptr[(int)i] = slice.TransposeThisAndMultiply(multiplyWith);
+                var result = slice.TransposeThisAndMultiply(multiplyWith);
+                ptr[(int)i] = result;
             }
 
             return CreateTensor3DAndThenDisposeInput(ptr);
@@ -1024,8 +1025,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor4D AddPadding(ITensor4D tensor, uint padding)
         {
-            using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1037,8 +1038,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor4D RemovePadding(ITensor4D tensor, uint padding)
         {
-            using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1053,8 +1054,8 @@ namespace BrightData.LinearAlgebra
             var indexList = saveIndices 
                 ? new ITensor3D[tensor.Count]
                 : null;
-            using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1069,8 +1070,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor4D ReverseMaxPool(ITensor4D tensor, ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            using var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
 
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1084,8 +1085,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor3D Im2Col(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            var ret = SpanOwner<IMatrix>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1097,8 +1098,8 @@ namespace BrightData.LinearAlgebra
 
         public virtual ITensor4D ReverseIm2Col(ITensor4D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            var ret = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Clear);
-            var ptr = ret.Span;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
+            var ptr = temp.Span;
             
             for (uint i = 0; i < tensor.Count; i++) {
                 using var subTensor = tensor.GetTensor(i);
@@ -1146,7 +1147,7 @@ namespace BrightData.LinearAlgebra
         {
             var rows = (uint)compareTo.Count;
             var columns = (uint)vectors.Length;
-            var ret = CreateMatrix(rows, columns);
+            var ret = CreateMatrix(rows, columns, false);
             var totalSize = rows * columns;
 
             if (totalSize >= Consts.MinimumSizeForParallel) {

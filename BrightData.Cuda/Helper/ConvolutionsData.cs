@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ManagedCuda.BasicTypes;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda.Helper

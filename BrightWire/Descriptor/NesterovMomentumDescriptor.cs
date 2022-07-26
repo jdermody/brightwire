@@ -14,7 +14,7 @@ namespace BrightWire.Descriptor
 
         public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {
-            var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount);
+            var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new NesterovMomentum(_momentum, cache, prev);
         }
     }

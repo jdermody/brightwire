@@ -203,7 +203,7 @@ namespace BrightData.UnitTests
         public void TensorMaxPool()
         {
             const uint FILTER_WIDTH = 2, FILTER_HEIGHT = 2, XSTRIDE = 2, YSTRIDE = 2, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH)).ToArray());
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, false)).ToArray());
             cpuTensor[0, 0, 0] = 1f;
             cpuTensor[0, 3, 0] = 2f;
             cpuTensor[0, 0, 3] = 3f;
@@ -855,8 +855,6 @@ namespace BrightData.UnitTests
 
             var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
             using var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
-            var cpuResult = cpuReverseIm2Col;
-            var gpu = gpuReverseIm2Col;
 
             using var mklTensor = _mkl.CreateTensor4D(data);
             using var mklFilter = _mkl.CreateMatrix(cpuFilter);

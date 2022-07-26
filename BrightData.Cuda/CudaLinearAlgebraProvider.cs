@@ -45,7 +45,7 @@ namespace BrightData.Cuda
         public override Type Tensor4DType { get; } = typeof(CudaTensor4D);
         public CudaProvider Provider { get; }
 
-        public override ITensorSegment CreateSegment(uint size) => new CudaTensorSegment(Provider.Allocate(size, null, true));
+        public override ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new CudaTensorSegment(Provider.Allocate(size, null, initialiseToZero));
         public override unsafe ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             using var buffer = SpanOwner<float>.Allocate((int)size);
@@ -82,7 +82,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Clone(ITensorSegment segment)
         {
             if (CudaTensorSegment.IsCuda(segment, out var cudaSegment)) {
-                var ret = (CudaTensorSegment)CreateSegment(segment.Size);
+                var ret = (CudaTensorSegment)CreateSegment(segment.Size, false);
                 ret.DeviceMemory.CopyToDevice(cudaSegment.DeviceMemory);
                 return ret;
             }
@@ -133,7 +133,7 @@ namespace BrightData.Cuda
             // TODO: create new cuda method?
             using var buffer = SpanOwner<float>.Allocate((int)tensor.Size);
             Array.Fill(buffer.DangerousGetArray().Array!, scalar);
-            var ret = (CudaTensorSegment)CreateSegment(tensor.Size);
+            var ret = (CudaTensorSegment)CreateSegment(tensor.Size, false);
             ret.CopyFrom(buffer.Span);
 
             Provider.AddInPlace(ret.DeviceMemory, GetDeviceMemoryPtr(tensor), tensor.Size, 1f, 1f);
@@ -143,7 +143,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2)
         {
             var size = GetSize(tensor, tensor2);
-            var ret = (CudaTensorSegment)CreateSegment(size);
+            var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor2));
             Provider.Blas.Axpy(1.0f, GetDeviceVariable(tensor), 1, ret.DeviceMemory.DeviceVariable, 1);
             return ret;
@@ -164,7 +164,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor, tensor2);
-            var ret = (CudaTensorSegment)CreateSegment(size);
+            var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor));
             Provider.AddInPlace(ret.DeviceMemory, GetDeviceMemoryPtr(tensor2), size, coefficient1, coefficient2);
             return ret;
@@ -214,7 +214,7 @@ namespace BrightData.Cuda
 
         public override ITensorSegment Multiply(ITensorSegment target, float scalar)
         {
-            var ret = (CudaTensorSegment)CreateSegment(target.Size);
+            var ret = (CudaTensorSegment)CreateSegment(target.Size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(target));
             Provider.ScaleInPlace(ret.DeviceMemory, ret.Size, scalar);
             return ret;
@@ -225,7 +225,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
-            var ret = (CudaTensorSegment)CreateSegment(size);
+            var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor1));
             Provider.Blas.Axpy(-1.0f, GetDeviceVariable(tensor2), 1, ret.DeviceMemory.DeviceVariable, 1);
             return ret;
@@ -241,7 +241,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor1, tensor2);
-            var ret = (CudaTensorSegment)CreateSegment(size);
+            var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor1));
             Provider.SubtractInPlace(ret.DeviceMemory, GetDeviceMemoryPtr(tensor2), size, coefficient1, coefficient2);
             return ret;
@@ -694,7 +694,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
+        public override unsafe IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -712,7 +712,7 @@ namespace BrightData.Cuda
 
             if (allAreCuda) {
                 var devicePointers = GetDevicePointers(cudaSegmentList);
-                var ret = (CudaTensorSegment)CreateSegment(rows * columns);
+                var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
                 using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
@@ -720,12 +720,12 @@ namespace BrightData.Cuda
             }
             else {
                 var size = rows * columns;
-                using var buffer = SpanOwner<float>.Allocate((int)(size));
+                using var buffer = SpanOwner<float>.Allocate((int)size);
                 fixed (float* ptr = buffer.Span) {
-                    for (uint i = 0; i < rows; i++) {
-                        for (uint j = 0; j < columns; j++)
-                            ptr[(int)(j * rows + i)] = vectorColumns[(int)j][i];
-                    }
+                    var p = ptr;
+                    for (uint j = 0; j < columns; j++)
+                        for (uint i = 0; i < rows; i++)
+                            *p++ = vectorColumns[(int)j][i];
                     var deviceMemory = Provider.Allocate(size);
                     deviceMemory.CopyToDevice(ptr, 0, 0, size);
                     return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
@@ -751,7 +751,7 @@ namespace BrightData.Cuda
 
             if (allAreCuda) {
                 var devicePointers = GetDevicePointers(cudaSegmentList);
-                var ret = (CudaTensorSegment)CreateSegment(rows * columns);
+                var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
                 using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixRows(rows, columns, devicePtr, ret.DeviceMemory);
@@ -762,10 +762,10 @@ namespace BrightData.Cuda
             var size = rows * columns;
             using var buffer = SpanOwner<float>.Allocate((int)(size));
             fixed (float* ptr = buffer.Span) {
-                for (uint i = 0; i < rows; i++) {
-                    for (uint j = 0; j < columns; j++)
-                        ptr[(int)(j * rows + i)] = vectorRows[(int)i][j];
-                }
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                    for (uint i = 0; i < rows; i++)
+                        *p++ = vectorRows[(int)i][j];
                 var deviceMemory = Provider.Allocate(size);
                 deviceMemory.CopyToDevice(ptr, 0, 0, size);
                 return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
@@ -810,9 +810,9 @@ namespace BrightData.Cuda
             return null;
         }
 
-        public IMatrix CreateMatrix(uint rows, uint columns)
+        public IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
         {
-            return new CudaMatrix(CreateSegment(rows * columns), rows, columns, this);
+            return new CudaMatrix(CreateSegment(rows * columns, initialiseToZero), rows, columns, this);
         }
 
         public override IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)

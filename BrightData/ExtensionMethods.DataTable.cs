@@ -748,7 +748,7 @@ namespace BrightData
                 }
 
                 if (columnType.IsNumeric()) {
-                    var ret = dataTable.Context.LinearAlgebraProvider.CreateMatrix(dataTable.RowCount, 1);
+                    var ret = dataTable.Context.LinearAlgebraProvider.CreateMatrix(dataTable.RowCount, 1, false);
                     dataTable.GetColumn(columnIndices[0]).CopyTo(ret.Segment);
                     return ret;
                 }

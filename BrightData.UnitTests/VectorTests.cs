@@ -203,7 +203,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorMaximumIndex()
         {
-            using var a = _cpu.CreateVector(1.0f, 2.0f, 1.0f, 1.0f, -5f);
+            using var a = _cpu.CreateVector(new [] {1.0f, 2.0f, 1.0f, 1.0f, -5f});
             var cpu = a.GetMaxIndex();
             var gpu = Apply(_cuda, a, a => a.GetMaxIndex());
             var mkl = Apply(_cuda, a, a => a.GetMaxIndex());
@@ -213,7 +213,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorMinimumIndex()
         {
-            using var a = _cpu.CreateVector(3.0f, -2.0f, 1.0f, 2.0f);
+            using var a = _cpu.CreateVector(new [] {3.0f, -2.0f, 1.0f, 2.0f});
             var cpu = a.GetMinIndex();
             var gpu = Apply(_cuda, a, a => a.GetMinIndex());
             var mkl = Apply(_mkl, a, a => a.GetMinIndex());
@@ -411,11 +411,11 @@ namespace BrightData.UnitTests
             var distribution = _context.CreateNormalDistribution(0, 5);
 
             using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
-            var (min, max, minIndex, maxIndex) = a.GetMinAndMaxValues();
+            var (min, max, _, _) = a.GetMinAndMaxValues();
 
-            var gpuMinMax = Apply(_cuda, a, a => a.GetMinAndMaxValues());
-            AssertSame(min, gpuMinMax.Min);
-            AssertSame(max, gpuMinMax.Max);
+            var (gpuMin, gpuMax, _, _) = Apply(_cuda, a, a => a.GetMinAndMaxValues());
+            AssertSame(min, gpuMin);
+            AssertSame(max, gpuMax);
             //AssertSame(minIndex, gpuMinMax.MinIndex);
             //AssertSame(maxIndex, gpuMinMax.MaxIndex);
         }
@@ -731,7 +731,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestFinite()
         {
-            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f);
+            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f});
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -744,7 +744,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestFinite2()
         {
-            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f, float.Epsilon);
+            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f, float.Epsilon});
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -757,7 +757,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite()
         {
-            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NaN);
+            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NaN});
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -770,7 +770,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite2()
         {
-            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NegativeInfinity);
+            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NegativeInfinity});
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -783,7 +783,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite3()
         {
-            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.PositiveInfinity);
+            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.PositiveInfinity});
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -796,7 +796,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestRoundInPlace()
         {
-            using var cpu = _cpu.CreateVector(0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f);
+            using var cpu = _cpu.CreateVector(new [] {0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f});
             using var gpu = _cuda.CreateVector(cpu);
             using var mkl = _mkl.CreateVector(cpu);
 

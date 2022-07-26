@@ -111,7 +111,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // form the new attention as a product of the weights
             using var softmax = weights!.Softmax();
-            using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount);
+            using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softmax.AllColumns(false).Zip(encoderStates)) {

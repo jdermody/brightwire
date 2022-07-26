@@ -801,7 +801,7 @@ namespace BrightData
         {
             var size = (uint)vectors.Count;
             var lap = compareTo.LinearAlgebraProvider;
-            var ret = lap.CreateVector(size);
+            var ret = lap.CreateVector(size, false);
             if (size >= Consts.MinimumSizeForParallel) {
                 Parallel.For(0, size, ind => {
                     lap.BindThread();

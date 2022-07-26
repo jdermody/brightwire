@@ -52,7 +52,7 @@ namespace BrightData.DataTable.TensorData
         {
             var size = RowCount * ColumnCount;
             var span = _data.GetSpan(_startIndex, size);
-            var segment = lap.CreateSegment(size);
+            var segment = lap.CreateSegment(size, false);
             segment.CopyFrom(span);
             return lap.CreateMatrix(RowCount, ColumnCount, segment);
         }

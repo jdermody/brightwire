@@ -42,8 +42,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             foreach (var row in GetRows(rows)) {
                 var rowIndex = rows[index];
-                inputRowPtr[index] = GetSegment(rowIndex, _inputColumnIndex, row, lap);
-                targetRowsPtr[index] = GetSegment(rowIndex, _targetColumnIndex, row, lap);
+                inputRowPtr[index] = GetSegment(rowIndex, _inputColumnIndex, row);
+                targetRowsPtr[index] = GetSegment(rowIndex, _targetColumnIndex, row);
                 ++index;
             }
 

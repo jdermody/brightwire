@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -19,6 +20,7 @@ namespace BrightData.Cuda
     public unsafe class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
         readonly BrightDataContext _context;
+        readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = new();
         const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);
@@ -253,6 +255,10 @@ namespace BrightData.Cuda
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !_disposed) {
+				foreach(var item in _convolutionDataCache)
+					item.Value.Dispose();
+                _convolutionDataCache.Clear();
+
 				if(_blas.IsValueCreated)
 				    _blas.Value.Dispose();
 				if(_solver.IsValueCreated)
@@ -809,17 +815,16 @@ namespace BrightData.Cuda
 			var outputMatrixSize = outputColumns * outputRows;
 			var ret = Allocate(outputMatrixSize * depth * count, stream, true);
 			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count, stream, true) : null;
-			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
+			var convolutions = GetConvolutions(rows, columns, filterWidth, filterHeight, xStride, yStride);
 			var size = (uint)convolutions.Count * depth * count;
 
-            using var convolutionData = new ConvolutionsData(this, convolutions);
             Invoke(_tensorMaxPool, stream, size,
                 size,
                 tensor.DevicePointer,
                 ret.DevicePointer,
                 indices?.DevicePointer ?? new CUdeviceptr(),
-                convolutionData.X.DevicePointer,
-                convolutionData.Y.DevicePointer,
+                convolutions.X.DevicePointer,
+                convolutions.Y.DevicePointer,
                 convolutions.Count,
                 rows,
                 columns,
@@ -888,26 +893,25 @@ namespace BrightData.Cuda
 			uint yStride, 
             CUstream* stream = null
 		) {
-			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
+			var convolutions = GetConvolutions(rows, columns, filterWidth, filterHeight, xStride, yStride);
 			var filterSize = filterWidth * filterHeight;
 			var outputRows = (uint)convolutions.Count;
 			var outputColumns = filterSize * depth;
 			var ret = Allocate(outputRows * outputColumns * count, stream, true);
 
-            using var convolutionData = new ConvolutionsData(this, convolutions);
             Invoke(_tensorIm2Col, stream, ret.Size,
                 ret.Size,
                 tensor.DevicePointer,
                 ret.DevicePointer,
-                convolutionData.X.DevicePointer,
-                convolutionData.Y.DevicePointer,
+                convolutions.X.DevicePointer,
+                convolutions.Y.DevicePointer,
                 rows,
                 columns,
                 depth,
                 count,
                 outputRows,
                 outputColumns,
-                convolutionData.Count,
+                convolutions.Count,
                 filterWidth,
                 filterHeight,
                 xStride,
@@ -934,7 +938,7 @@ namespace BrightData.Cuda
 		) {
 			var ret = Allocate(outputRows * outputColumns * outputDepth * count, stream, true);
 
-            using var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride));
+            var convolutions = GetConvolutions(outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
             var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
             Invoke(_tensorReverseIm2Col, stream, size,
                 size,
@@ -959,6 +963,20 @@ namespace BrightData.Cuda
 
             return (ret, outputRows, outputColumns, outputDepth, count);
 		}
+
+        ConvolutionsData GetConvolutions(
+            uint outputRows, 
+            uint outputColumns,
+            uint filterWidth,
+            uint filterHeight,
+            uint xStride, 
+            uint yStride)
+        {
+            var list = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
+            if (!_convolutionDataCache.TryGetValue(list, out var ret))
+                _convolutionDataCache.Add(list, ret = new ConvolutionsData(this, list));
+            return ret;
+        }
 
         //      public IFloatVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
 

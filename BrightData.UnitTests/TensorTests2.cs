@@ -53,7 +53,7 @@ namespace BrightData.UnitTests
         public void TestCudaDirectInitialization()
         {
             var span = new ReadOnlySpan<float>(new float[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 2, 2);
-            var segment = _cudaLinearAlgebraProvider.CreateSegment((uint)span.Length);
+            var segment = _cudaLinearAlgebraProvider.CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
             var test = segment.ToNewArray();
             test.Should().BeEquivalentTo(span.ToArray());
@@ -120,13 +120,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void DotProduct()
         {
-            using var vector = _linearAlgebraProvider.CreateVector(VectorSize);
+            using var vector = _linearAlgebraProvider.CreateVector(VectorSize, false);
             vector.MapIndexedInPlace((i, v) => i);
 
             Test(
                 vector, 
-                _mklLinearAlgebraProvider.CreateVector(VectorSize), 
-                _cudaLinearAlgebraProvider.CreateVector(VectorSize), 
+                _mklLinearAlgebraProvider.CreateVector(VectorSize, false), 
+                _cudaLinearAlgebraProvider.CreateVector(VectorSize, false), 
                 (v1, v2) => v1.DotProduct(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -141,8 +141,8 @@ namespace BrightData.UnitTests
 
             Test(
                 matrix, 
-                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
-                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
+                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
+                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
                 (v1, v2) => v1.Transpose(),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -158,8 +158,8 @@ namespace BrightData.UnitTests
 
             Test(
                 matrix, 
-                _mklLinearAlgebraProvider.CreateMatrix(rowCount, columnCount), 
-                _cudaLinearAlgebraProvider.CreateMatrix(rowCount, columnCount), 
+                _mklLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
+                _cudaLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
                 (v1, v2) => v1.Multiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -168,13 +168,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTransposeThisAndMultiply()
         {
-            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
+            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
             Test(
                 matrix, 
-                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
-                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
+                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
+                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
                 (v1, v2) => v1.TransposeThisAndMultiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -183,13 +183,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTransposeAndMultiply()
         {
-            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
+            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
             Test(
                 matrix, 
-                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
-                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount), 
+                _mklLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
+                _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false), 
                 (v1, v2) => v1.TransposeAndMultiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -199,7 +199,7 @@ namespace BrightData.UnitTests
         public void SVD()
         {
             const int RowCount = 2, ColumnCount = 2;
-            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount);
+            using var matrix = _linearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, false);
             matrix.MapIndexedInPlace((i, j, v) => (i+1) * (j+1));
 
             var cudaMatrix = _cudaLinearAlgebraProvider.CreateMatrix(RowCount, ColumnCount, matrix.Segment);
@@ -212,13 +212,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void L2Norm()
         {
-            using var vector = _linearAlgebraProvider.CreateVector(VectorSize);
+            using var vector = _linearAlgebraProvider.CreateVector(VectorSize, false);
             vector.MapIndexedInPlace((i, v) => i);
 
             Test(
                 vector, 
-                _mklLinearAlgebraProvider.CreateVector(VectorSize), 
-                _cudaLinearAlgebraProvider.CreateVector(VectorSize), 
+                _mklLinearAlgebraProvider.CreateVector(VectorSize, false), 
+                _cudaLinearAlgebraProvider.CreateVector(VectorSize, false), 
                 (v1, v2) => v1.L2Norm(),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -227,13 +227,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void PointwiseMultiply()
         {
-            using var vector = _linearAlgebraProvider.CreateVector(VectorSize);
+            using var vector = _linearAlgebraProvider.CreateVector(VectorSize, false);
             vector.MapIndexedInPlace((i, v) => i);
 
             Test(
                 vector, 
-                _mklLinearAlgebraProvider.CreateVector(VectorSize), 
-                _cudaLinearAlgebraProvider.CreateVector(VectorSize), 
+                _mklLinearAlgebraProvider.CreateVector(VectorSize, false), 
+                _cudaLinearAlgebraProvider.CreateVector(VectorSize, false), 
                 (v1, v2) => v1.PointwiseMultiply(v2),
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
@@ -242,15 +242,15 @@ namespace BrightData.UnitTests
         [Fact]
         public void PointwiseDivide()
         {
-            using var vector = _linearAlgebraProvider.CreateVector(VectorSize);
+            using var vector = _linearAlgebraProvider.CreateVector(VectorSize, false);
             vector.MapIndexedInPlace((i, v) => i+1);
 
             Test(
                 vector, 
-                _mklLinearAlgebraProvider.CreateVector(VectorSize), 
-                _cudaLinearAlgebraProvider.CreateVector(VectorSize), 
+                _mklLinearAlgebraProvider.CreateVector(VectorSize, false), 
+                _cudaLinearAlgebraProvider.CreateVector(VectorSize, false), 
                 (v1, v2) => v1.PointwiseDivide(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2, 14)
             );
         }
 

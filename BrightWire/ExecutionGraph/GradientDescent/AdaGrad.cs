@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         {
             var rows = (uint)reader.ReadInt32();
             var columns = (uint)reader.ReadInt32();
-            _cache = factory.LinearAlgebraProvider.CreateMatrix(rows, columns);
+            _cache = factory.LinearAlgebraProvider.CreateMatrix(rows, columns, true);
             _updater = factory.CreateGradientDescentOptimisation(reader);
         }
 

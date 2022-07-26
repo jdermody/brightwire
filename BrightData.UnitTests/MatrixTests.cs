@@ -13,7 +13,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Simple()
         {
-            using var matrix = _cpu.CreateMatrix(2, 2);
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
             matrix[0, 0] = 1;
             matrix[1, 0] = 2;
             matrix[0, 1] = 3;
@@ -30,7 +30,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void SimpleTranspose()
         {
-            using var matrix = _cpu.CreateMatrix(2, 2);
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
             matrix[0, 0] = 1;
             matrix[1, 0] = 2;
             matrix[0, 1] = 3;
@@ -43,7 +43,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void SimpleTranspose2()
         {
-            using var matrix = _cpu.CreateMatrix(2, 3);
+            using var matrix = _cpu.CreateMatrix(2, 3, false);
             matrix[0, 0] = 1;
             matrix[1, 0] = 2;
             matrix[0, 1] = 3;
@@ -58,7 +58,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Multiply2x2()
         {
-            using var matrix = _cpu.CreateMatrix(2, 2);
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
             matrix[0, 0] = 1;
             matrix[1, 0] = 2;
             matrix[0, 1] = 3;

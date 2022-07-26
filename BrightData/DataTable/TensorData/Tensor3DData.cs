@@ -54,7 +54,7 @@ namespace BrightData.DataTable.TensorData
         {
             var size = Size;
             var span = _data.GetSpan(_startIndex, size);
-            var segment = lap.CreateSegment(size);
+            var segment = lap.CreateSegment(size, false);
             segment.CopyFrom(span);
             return lap.CreateTensor3D(Depth, RowCount, ColumnCount, segment);
         }

@@ -196,8 +196,8 @@ namespace ExampleCode.DataSet
             }
 
             var ret = builder.BuildInMemory();
-            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
             return ret;
         }
     }

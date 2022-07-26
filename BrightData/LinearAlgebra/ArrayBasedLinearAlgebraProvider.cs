@@ -7,6 +7,6 @@
         }
 
         /// <inheritdoc />
-        public override ITensorSegment CreateSegment(uint size) => new ArrayBasedTensorSegment(new float[size]);
+        public override ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new ArrayBasedTensorSegment(new float[size]);
     }
 }

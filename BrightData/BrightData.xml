@@ -3598,7 +3598,7 @@
             Square Euclidean
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.ArrayBasedLinearAlgebraProvider.CreateSegment(System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.ToString">

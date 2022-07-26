@@ -10,9 +10,9 @@ namespace BrightData.UnitTests
         public void CudaMemoryLayerTest()
         {
 #if DEBUG
-            var matrix = _cuda.CreateMatrix(10, 10);
+            var matrix = _cuda.CreateMatrix(10, 10, false);
             _cuda.PushScope();
-            var matrix2 = _cuda.CreateMatrix(10, 10);
+            var matrix2 = _cuda.CreateMatrix(10, 10, false);
             _cuda.PopScope();
             matrix2.Segment.IsValid.Should().BeFalse();
             matrix.Segment.IsValid.Should().BeTrue();

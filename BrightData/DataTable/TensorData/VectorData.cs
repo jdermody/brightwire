@@ -41,7 +41,7 @@ namespace BrightData.DataTable.TensorData
         public IVector Create(LinearAlgebraProvider lap)
         {
             var span = _data.GetSpan(_startIndex, Size);
-            var segment = lap.CreateSegment(Size);
+            var segment = lap.CreateSegment(Size, false);
             segment.CopyFrom(span);
             return lap.CreateVector(segment);
         }

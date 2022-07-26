@@ -21,15 +21,19 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
         }
 
-        public ReadOnlyMatrix(uint rows, uint columns, Func<uint, uint, float> initializer)
+        public unsafe ReadOnlyMatrix(uint rows, uint columns, Func<uint, uint, float> initializer)
         {
             RowCount = rows;
             ColumnCount = columns;
             _data = new float[rows * columns];
-            for (uint i = 0; i < rows; i++) {
-                for (uint j = 0; j < columns; j++)
-                    _data[j * rows + i] = initializer(i, j);
+            fixed (float* ptr = &_data[0]) {
+                var p = ptr;
+                for (uint i = 0, len = (uint)_data.Length; i < len; i++)
+                    *p++ = initializer(i % rows, i / rows);
             }
+            //for (uint j = 0; j < columns; j++)
+            //    for (uint i = 0; i < rows; i++)
+            //        _data[j * rows + i] = initializer(i, j);
         }
 
         public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data);

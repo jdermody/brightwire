@@ -472,7 +472,7 @@ namespace BrightData
                 uint[]? shape = null;
                 foreach (var item in tensors) {
                     if (ret is null) {
-                        ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.TotalSize);
+                        ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.TotalSize, false);
                         item.Segment.CopyTo(ret);
                         shape = item.Shape;
                     }
