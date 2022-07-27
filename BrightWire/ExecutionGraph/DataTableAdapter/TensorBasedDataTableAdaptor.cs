@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             Depth = input.Depth;
         }
 
-        TensorBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns) 
+        TensorBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _inputSize = inputSize;
@@ -49,10 +49,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override uint InputSize => _inputSize;
         public override uint? OutputSize => _outputSize;
         public uint Width { get; }
-	    public uint Height { get; }
-	    public uint Depth { get; }
+        public uint Height { get; }
+        public uint Depth { get; }
 
-	    public override IMiniBatch Get(uint[] rows)
+        public override IMiniBatch Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             using var inputRows = SpanOwner<ITensorSegment>.Allocate(rows.Length);
@@ -69,10 +69,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
 
             var input = lap.CreateMatrixFromColumns(inputRowPtr);
-            var output = OutputSize > 0 
+            var output = OutputSize > 0
                 ? lap.CreateMatrixFromRows(targetRowsPtr).AsGraphData()
                 : null;
-            
+
             return new MiniBatch(rows, this, new Tensor4DGraphData(input, Height, Width, Depth), output);
         }
     }

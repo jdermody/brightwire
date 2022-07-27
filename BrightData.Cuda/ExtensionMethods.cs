@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
+using ManagedCuda.CudaBlas;
 
 namespace BrightData.Cuda
 {
@@ -63,6 +64,12 @@ namespace BrightData.Cuda
         {
             if (result != CUResult.Success)
                 throw new CudaException(result);
+        }
+
+        internal static void CheckResult(this CublasStatus result)
+        {
+            if (result != CublasStatus.Success)
+                throw new CudaBlasException(result);
         }
     }
 }

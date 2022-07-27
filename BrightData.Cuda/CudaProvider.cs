@@ -1125,8 +1125,8 @@ namespace BrightData.Cuda
             else
                 ret = new StreamDeviceMemoryBlock(*stream, size, false);
             if (setToZero)
-				ret.Clear();
-			return ret;
+                ret.Clear();
+            return ret;
 		}
 
 		public void BindThread()

@@ -113,11 +113,7 @@ namespace BrightData.LinearAlgebra
         public IVector RowSums() => _lap.RowSums(this);
         public IVector ColumnSums() => _lap.ColumnSums(this);
 
-        public IMatrix Multiply(IVector vector)
-        {
-            using var temp = vector.Reshape(null, 1);
-            return Multiply(temp);
-        }
+        public IVector Multiply(IVector vector) => _lap.Multiply(this, vector);
         public IMatrix TransposeAndMultiply(IMatrix other) => _lap.TransposeSecondAndMultiply(this, other);
         public IMatrix TransposeThisAndMultiply(IMatrix other) => _lap.TransposeFirstAndMultiply(this, other);
 

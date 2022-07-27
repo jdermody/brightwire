@@ -456,6 +456,13 @@ namespace BrightData.LinearAlgebra
         //    return ret;
         //}
 
+        public virtual IVector Multiply(IMatrix matrix, IVector vector)
+        {
+            using var temp = vector.Reshape(null, 1);
+            using var temp2 = Multiply(matrix, temp);
+            return temp2.Reshape();
+        }
+
         public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
             if (matrix.ColumnCount != other.RowCount)
@@ -677,7 +684,7 @@ namespace BrightData.LinearAlgebra
                     columnSums.Dispose();
                 }
             }
-            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount, true);
+            return ret ?? CreateVector(tensor.ColumnCount, true);
         }
 
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)

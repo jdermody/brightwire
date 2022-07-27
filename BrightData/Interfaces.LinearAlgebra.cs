@@ -234,7 +234,7 @@ namespace BrightData
         IVector GetDiagonal();
         IVector RowSums();
         IVector ColumnSums();
-        IMatrix Multiply(IVector vector);
+        IVector Multiply(IVector vector);
         (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
         (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
         IMatrix ConcatColumns(IMatrix bottom);

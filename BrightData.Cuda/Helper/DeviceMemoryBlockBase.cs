@@ -122,9 +122,13 @@ namespace BrightData.Cuda.Helper
             //_data.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
-            _data.Memset(0);
+            DriverAPINativeMethods.Memset.cuMemsetD8_v2(DevicePointer, 0, Size * sizeof(float));
+            //if(Size % 2 == 0)
+            //    DriverAPINativeMethods.Memset.cuMemsetD32_v2(DevicePointer, 0, Size / 2).CheckResult();
+            //else
+            //    DriverAPINativeMethods.Memset.cuMemsetD16_v2(DevicePointer, 0, Size).CheckResult();
         }
 
         public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)

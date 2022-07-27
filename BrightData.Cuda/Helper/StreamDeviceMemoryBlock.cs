@@ -75,5 +75,14 @@ namespace BrightData.Cuda.Helper
                 DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyDtoHAsync_v2((IntPtr)ptr, DevicePointer, target.Count * sizeof(float), _stream);
             }
         }
+
+        public override void Clear()
+        {
+            DriverAPINativeMethods.MemsetAsync.cuMemsetD8Async(DevicePointer, 0, Size * sizeof(float), _stream);
+            //if (Size % 2 == 0)
+            //    DriverAPINativeMethods.MemsetAsync.cuMemsetD32Async(DevicePointer, 0, Size / 2, _stream).CheckResult();
+            //else
+            //    DriverAPINativeMethods.MemsetAsync.cuMemsetD16Async(DevicePointer, 0, Size, _stream).CheckResult();
+        }
     }
 }
