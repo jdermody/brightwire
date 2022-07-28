@@ -464,9 +464,9 @@ namespace BrightData.Cuda
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SumColumns(IDeviceMemoryPtr a, uint rows, uint columns, CUstream* stream = null)
+		internal IDeviceMemoryPtr SumColumns(IDeviceMemoryPtr a, uint rows, uint columns, IDeviceMemoryPtr? ret, CUstream* stream = null)
 		{
-			var ret = Allocate(columns, stream, true);
+			ret ??= Allocate(columns, stream, true);
 			InvokeMatrix(_sumColumns, stream, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
@@ -1124,8 +1124,12 @@ namespace BrightData.Cuda
             }
             else
                 ret = new StreamDeviceMemoryBlock(*stream, size, false);
-            if (setToZero)
+
+            if (setToZero) {
+				//MemClear(ret, size);
                 ret.Clear();
+            }
+
             return ret;
 		}
 
