@@ -111,7 +111,7 @@ namespace BrightData.Cuda
             var temp = SpanOwner<float>.Empty;
             var span = segment.GetSpan(ref temp, out var wasTempUsed);
             try {
-                deviceMemory.CopyToDevice(span);
+                deviceMemory.CopyToDevice(span, 0);
                 return new CudaTensorSegment(deviceMemory);
             }
             finally {
@@ -132,12 +132,8 @@ namespace BrightData.Cuda
 
         public override ITensorSegment Add(ITensorSegment tensor, float scalar)
         {
-            // TODO: create new cuda method?
-            using var buffer = SpanOwner<float>.Allocate((int)tensor.Size);
-            Array.Fill(buffer.DangerousGetArray().Array!, scalar);
             var ret = (CudaTensorSegment)CreateSegment(tensor.Size, false);
-            ret.CopyFrom(buffer.Span);
-
+            Provider.MemSet(ret.DeviceMemory, scalar, ret.Size);
             Provider.AddInPlace(ret.DeviceMemory, GetDeviceMemoryPtr(tensor), tensor.Size, 1f, 1f);
             return ret;
         }
@@ -681,7 +677,7 @@ namespace BrightData.Cuda
             return CreateMatrix((uint)indices.Count, matrix.ColumnCount, new CudaTensorSegment(ret));
         }
 
-        CUdeviceptr[] GetDevicePointers(List<CudaTensorSegment> segments)
+        static CUdeviceptr[] GetDevicePointers(List<CudaTensorSegment> segments)
         {
             var len = segments.Count;
             var ret = new CUdeviceptr[len];

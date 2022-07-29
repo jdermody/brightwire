@@ -42,8 +42,8 @@ namespace ExampleCode
             //IntegerAddition(context, useMkl);
             //ReberPrediction(context, useMkl);
             //OneToMany(context, useMkl);
-            //ManyToOne(context, useMkl, useCuda);
-            //SequenceToSequence(context, useMkl, useCuda);
+            //ManyToOne(context, useMkl);
+            SequenceToSequence(context, useMkl, useCuda);
             //StockData(context, useMkl, useCuda);
             //SimpleLinearTest(context, useMkl);
             //PredictBicyclesWithLinearModel(context, useMkl);
@@ -51,7 +51,7 @@ namespace ExampleCode
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
             //MnistFeedForward(context, useMkl);
-            MnistConvolutional(context, useMkl, useCuda);
+            //MnistConvolutional(context, useMkl, useCuda);
             //TrainIncomePrediction(context, useMkl);
             //SentimentClassification(context, useMkl, useCuda);
         }
@@ -92,10 +92,10 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             var iris = context.Iris();
-            //iris.TrainNaiveBayes();
-            //iris.TrainDecisionTree();
-            //iris.TrainRandomForest(500, 7);
-            //iris.TrainKNearestNeighbours(10);
+            iris.TrainNaiveBayes();
+            iris.TrainDecisionTree();
+            iris.TrainRandomForest(500, 7);
+            iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
             iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
@@ -200,9 +200,9 @@ namespace ExampleCode
             sequences.TrainOneToMany();
         }
 
-        static void ManyToOne(BrightDataContext context, bool useMkl, bool useCuda)
+        static void ManyToOne(BrightDataContext context, bool useMkl)
         {
-            Start(context, useMkl, useCuda);
+            Start(context, useMkl);
             var sequences = context.ManyToOne();
             sequences.TrainManyToOne();
         }

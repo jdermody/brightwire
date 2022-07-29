@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
@@ -57,18 +58,18 @@ namespace BrightData.LinearAlgebra
         }
 
         public IEnumerable<float> Values => _data;
-        public float[]? GetArrayForLocalUseOnly() => _data;
+        public float[] GetArrayForLocalUseOnly() => _data;
 
         public float[] ToNewArray() => _data.ToArray();
 
-        public void CopyFrom(ReadOnlySpan<float> span)
+        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
-            span.CopyTo(_data);
+            span.CopyTo(_data.AsSpan((int)targetOffset));
         }
 
-        public void CopyTo(ITensorSegment segment)
+        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
-            segment.CopyFrom(_data);
+            segment.CopyFrom(_data.AsSpan((int)sourceOffset), targetOffset);
         }
 
         public void CopyTo(Span<float> destination)
@@ -77,14 +78,20 @@ namespace BrightData.LinearAlgebra
         }
         public unsafe void CopyTo(float* destination, int offset, int stride, int count)
         {
-            for (var i = 0; i < count; i++)
-                *destination++ = _data[offset + (stride * i)];
+            fixed (float* ptr = &_data[offset]) {
+                var p = ptr;
+                for (var i = 0; i < count; i++) {
+                    *destination++ = *p;
+                    p += stride;
+                }
+            }
         }
 
-        public void Clear()
+        public unsafe void Clear()
         {
-            for(var i = 0; i < _data.Length; i++)
-                _data[i] = 0f;
+            fixed (float* ptr = &_data[0]) {
+                Unsafe.InitBlock(ptr, 0, (uint)_data.Length * sizeof(float));
+            }
         }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
@@ -93,7 +100,7 @@ namespace BrightData.LinearAlgebra
             return new(_data); 
         }
 
-        public ReadOnlySpan<float> GetSpan() => new(_data);
+        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _data.AsSpan((int)offset);
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
         public bool IsWrapper => false;
 

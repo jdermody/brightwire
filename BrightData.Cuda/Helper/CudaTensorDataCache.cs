@@ -182,7 +182,7 @@ namespace BrightData.Cuda.Helper
             // copy entire tensor block into CUDA device
             var span = table.TensorDataBlock.GetSpan(0, table.TensorDataBlock.Size);
             _data = new DeviceMemoryBlock(null, new CudaDeviceVariable<float>(span.Length));
-            _data.CopyToDevice(span);
+            _data.CopyToDevice(span, 0);
 
             // replace any tensor column reader with a reader that reads from the cache
             var len = (uint)table.DefaultColumnReaders.Length;
@@ -206,6 +206,7 @@ namespace BrightData.Cuda.Helper
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _data.Dispose();
             foreach(var item in _readers)
                 item.Dispose();

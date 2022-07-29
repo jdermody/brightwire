@@ -175,10 +175,10 @@ extern "C"
         }
 	}
 
-	__global__ void MemClear(float* a, uint count, uint offset, uint ai)
+	__global__ void MemSet(float* a, float val, uint count, uint offset, uint ai)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-			a[offset + (index * ai)] = 0.0f;
+			a[offset + (index * ai)] = val;
         }
 	}
 

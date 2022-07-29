@@ -169,7 +169,7 @@ namespace BrightData.Helper
                     ret[i] = _context.CreateWeightedIndexList(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(IVector)) {
+            if (typeOfT == typeof(IReadOnlyVector)) {
                 var ret = new IReadOnlyVector[len];
                 for (uint i = 0; i < len; i++) {
                     ret[i] = _context.CreateReadOnlyVector(reader);
@@ -238,14 +238,14 @@ namespace BrightData.Helper
                 __refvalue(valRef, IndexList).WriteTo(writer);
             else if (typeOfT == typeof(WeightedIndexList))
                 __refvalue(valRef, WeightedIndexList).WriteTo(writer);
-            else if (typeOfT == typeof(IVector))
-                __refvalue(valRef, IVector).WriteTo(writer);
-            else if (typeOfT == typeof(IMatrix))
-                __refvalue(valRef, IMatrix).WriteTo(writer);
-            else if (typeOfT == typeof(ITensor3D))
-                __refvalue(valRef, ITensor3D).WriteTo(writer);
-            else if (typeOfT == typeof(ITensor4D))
-                __refvalue(valRef, ITensor4D).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyVector))
+                __refvalue(valRef, IReadOnlyVector).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyMatrix))
+                __refvalue(valRef, IReadOnlyMatrix).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyTensor3D))
+                __refvalue(valRef, IReadOnlyTensor3D).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyTensor4D))
+                __refvalue(valRef, IReadOnlyTensor4D).WriteTo(writer);
             else if (typeOfT == typeof(BinaryData))
                 __refvalue(valRef, BinaryData).WriteTo(writer);
             else
@@ -315,20 +315,20 @@ namespace BrightData.Helper
                 var data = __refvalue(__makeref(values), WeightedIndexList[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(IVector)) {
-                var data = __refvalue(__makeref(values), IVector[]);
+            } else if (typeOfT == typeof(IReadOnlyVector)) {
+                var data = __refvalue(__makeref(values), IReadOnlyVector[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(IMatrix)) {
-                var data = __refvalue(__makeref(values), IMatrix[]);
+            } else if (typeOfT == typeof(IReadOnlyMatrix)) {
+                var data = __refvalue(__makeref(values), IReadOnlyMatrix[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(ITensor3D)) {
-                var data = __refvalue(__makeref(values), ITensor3D[]);
+            } else if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var data = __refvalue(__makeref(values), IReadOnlyTensor3D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(ITensor4D)) {
-                var data = __refvalue(__makeref(values), ITensor4D[]);
+            } else if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var data = __refvalue(__makeref(values), IReadOnlyTensor4D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
             } else if (typeOfT == typeof(BinaryData)) {

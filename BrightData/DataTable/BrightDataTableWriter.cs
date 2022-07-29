@@ -34,7 +34,7 @@ namespace BrightData.DataTable
             _writeStructs = methods[nameof(WriteStructs)];
         }
 
-        public void Write(
+        public Stream Write(
             MetaData tableMetaData, 
             ITypedSegment[] columnSegments
         ) {
@@ -154,6 +154,7 @@ namespace BrightData.DataTable
             _stream.Seek(0, SeekOrigin.Begin);
             _stream.Write(MemoryMarshal.AsBytes<BrightDataTable.Header>(headers));
             _stream.Seek(0, SeekOrigin.End);
+            return _stream;
         }
 
         void Write<T, CT>(ICanEnumerateWithSize<T> buffer, FillDelegate<CT, T> filler)

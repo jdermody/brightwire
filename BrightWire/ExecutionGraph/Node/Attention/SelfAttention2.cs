@@ -8,14 +8,16 @@ using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightData.Serialisation;
+using BrightWire.ExecutionGraph.Node.Layer;
 
 namespace BrightWire.ExecutionGraph.Node.Attention
 {
-    internal class SelfAttention2 : NodeBase, IHaveFeedForward
+    internal class SelfAttention2 : NodeBase
     {
         LinearAlgebraProvider _lap;
         string _encoderName, _decoderName;
-        uint _inputSize, _encoderSize, _decoderSize;
+        uint _inputSize, _encoderSize, _decoderSize, _blockSize;
+        IMatrix _attention;
 
         public SelfAttention2(
             LinearAlgebraProvider lap, 
@@ -24,6 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             uint inputSize, 
             uint encoderSize, 
             uint decoderSize,
+            IWeightInitialisation weightInit,
             string? name, 
             string? id = null
         ) : base(name, id)
@@ -34,6 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             _inputSize = inputSize;
             _encoderSize = encoderSize;
             _decoderSize = decoderSize;
+            _attention = weightInit.CreateWeight(1, _blockSize = _inputSize + _encoderSize + _decoderSize);
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
@@ -42,7 +46,6 @@ namespace BrightWire.ExecutionGraph.Node.Attention
 
             // get the previous decoder state
             IMatrix? decoderHiddenState = null;
-            uint numInputRows = 0;
             if (_decoderSize > 0) {
                 if (currentIndex == 0) {
                     if ((FindByName(_decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
@@ -57,7 +60,6 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                     throw new Exception("Not able to find the decoder hidden state");
                 if (decoderHiddenState.ColumnCount != _decoderSize)
                     throw new Exception($"Expected decoder size to be {_decoderSize} but found {decoderHiddenState.ColumnCount}");
-                numInputRows += decoderHiddenState.RowCount;
             }
 
             // find each encoder hidden state and sequence input
@@ -65,18 +67,19 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             if(previousBatch == null)
                 throw new Exception("No previous mini batch");
 
-            var encoderStates = new List<IMatrix>();
-            var inputs = new List<IMatrix>();
+            IMatrix[]? encoderStates = null;
+            var inputs = new IMatrix[previousBatch.SequenceCount];
             for (uint i = 0, len = previousBatch.SequenceCount; i < len; i++) {
                 var sequence = previousBatch.GetSequenceAtIndex(i);
                 if (_encoderSize > 0) {
+                    if (i == 0)
+                        encoderStates = new IMatrix[len];
                     var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
                     if(encoderState == null)
                         throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != _encoderSize)
                         throw new Exception($"Expected encoder size to be {_encoderSize} but found {encoderState.ColumnCount}");
-                    encoderStates.Add(encoderState);
-                    numInputRows += encoderState.RowCount;
+                    encoderStates![i] = encoderState;
                 }
 
                 var input = sequence.Input?.GetMatrix();
@@ -84,17 +87,35 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                     throw new Exception("Not able to find the input matrix");
                 if (input.ColumnCount != _inputSize)
                     throw new Exception($"Expected input size to be {_inputSize} but found {input.ColumnCount}");
-                inputs.Add(input);
-                numInputRows += input.RowCount;
+                inputs[i] = input;
             }
 
-            // create the big input matrix
-            using var inputMatrix = _lap.CreateMatrix(numInputRows, _inputSize + _encoderSize + _decoderSize, false);
+            var numInputRows = previousBatch.BatchSize * previousBatch.SequenceCount;
+
+            // create a big input matrix
+            using var inputMatrix = _lap.CreateMatrix(numInputRows, _blockSize, false);
+            var inputMatrixSegments = (IMatrixSegments)inputMatrix;
+            for (uint i = 0; i < numInputRows; i++) {
+                var row = inputMatrixSegments.Row(i);
+                var sequenceIndex = i / previousBatch.BatchSize;
+                inputs[sequenceIndex].Segment.CopyTo(row);
+            }
+
+            // find the per batch and input softmax
+            using var output = inputMatrix.TransposeThisAndMultiply(_attention);
+            var numInputs = (uint)inputs.Length;
+            var numPointers = numInputRows / numInputs;
+            var pointers = new TensorSegmentWrapper[numPointers];
+            var outputSegment = output.Segment;
+            for (uint i = 0; i < numPointers; i++)
+                pointers[i] = new TensorSegmentWrapper(outputSegment, i, numPointers, numInputs);
+            var softmax = _lap.MultiSoftmax(pointers);
+
+            // construct the attention weights 
+            using var inputWeight = _lap.CreateMatrix(inputMatrix.RowCount, inputMatrix.ColumnCount, (i, j) => 0f);
 
             return (this, signal, null);
         }
-
-        public IFeedForward FeedForward { get; }
 
         protected override (string Description, byte[] Data) GetInfo()
         {

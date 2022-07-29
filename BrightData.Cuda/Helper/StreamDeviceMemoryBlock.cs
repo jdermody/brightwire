@@ -47,12 +47,11 @@ namespace BrightData.Cuda.Helper
             DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyDtoDAsync_v2(DevicePointer, source.DevicePointer, source.Size * sizeof(float), _stream).CheckResult();
         }
 
-        public override void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource = 0)
+        public override void CopyToDevice(ReadOnlySpan<float> span, uint targetOffset)
         {
-            fixed (float* p = &MemoryMarshal.GetReference(span))
+            fixed (float* ptr = &MemoryMarshal.GetReference(span))
             {
-                var ptr = p + offsetSource * sizeof(float);
-                DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyHtoDAsync_v2(DevicePointer, (IntPtr)ptr, Size * sizeof(float), _stream).CheckResult();
+                DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyHtoDAsync_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)ptr, Size * sizeof(float), _stream).CheckResult();
             }
         }
 

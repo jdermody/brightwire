@@ -65,36 +65,36 @@ namespace BrightData.LinearAlgebra
         }
         public float[]? GetArrayForLocalUseOnly() => null;
         public float[] ToNewArray() => Values.ToArray();
-        public void CopyFrom(ReadOnlySpan<float> span)
+        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
                 if (stride == 1) {
-                    span.CopyTo(new Span<float>(array, (int)(offset + Offset), (int)Size));
+                    span.CopyTo(new Span<float>(array, (int)(offset + Offset + targetOffset), (int)(Size - targetOffset)));
                     return;
                 }
             }
 
-            uint index = 0;
+            var index = targetOffset;
             foreach (var val in span)
                 this[index++] = val;
         }
 
-        public void CopyTo(ITensorSegment segment)
+        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetoffset)
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
                 if (stride == 1) {
-                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset), (int)Size));
+                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetoffset);
                     return;
                 }
             }
 
-            using var tempBuffer = SpanOwner<float>.Allocate((int)Size);
+            using var tempBuffer = SpanOwner<float>.Allocate((int)(Size - sourceOffset));
             var span = tempBuffer.Span;
             for(var i = 0; i < Size; i++)
-                span[i] = this[i];
-            segment.CopyFrom(span);
+                span[i] = this[i + sourceOffset];
+            segment.CopyFrom(span, targetoffset);
         }
 
         public void CopyTo(Span<float> destination)
@@ -126,7 +126,7 @@ namespace BrightData.LinearAlgebra
             return span;
         }
 
-        public ReadOnlySpan<float> GetSpan()
+        public ReadOnlySpan<float> GetSpan(uint offset)
         {
             throw new NotImplementedException();
         }

@@ -483,8 +483,8 @@ namespace BrightWire.ExecutionGraph
         public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint inputSize, uint encoderSize, uint decoderSize, string? name = null)
         {
             var newSize = inputSize + encoderSize + decoderSize;
-            //var layer = _factory.CreateFeedForward(inputSize + encoderSize + decoderSize, 1, name != null ? null + "_attention" : null);
-            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, inputSize, encoderSize, decoderSize, name));
+            var weightInit = _factory.GetWeightInitialisation();
+            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, inputSize, encoderSize, decoderSize, weightInit, name));
             SetNewSize(_width + newSize);
             return this;
         }

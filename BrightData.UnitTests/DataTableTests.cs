@@ -533,7 +533,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.Short);
 
             foreach(var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
-                builder.AddRow(val.ToString(), val);
+                builder.AddRow(val.ToString(), (short)val);
 
             CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, BrightDataType.Short);
         }
@@ -542,8 +542,8 @@ namespace BrightData.UnitTests
         public void IntColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
             builder.AddColumn(BrightDataType.Int);
+            builder.AddColumn(BrightDataType.String);
 
             builder.AddRow(int.MinValue, int.MinValue.ToString());
             builder.AddRow(0, "0");

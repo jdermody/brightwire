@@ -147,7 +147,7 @@ namespace BrightData.LinearAlgebra
                 var source = rows[i].GetSpan(ref temp, out var wasTempUsed);
                 try {
                     var targetRow = matrix.Row((uint)i);
-                    targetRow.CopyFrom(source);
+                    targetRow.CopyFrom(source, 0);
                 }
                 finally {
                     if(wasTempUsed)
@@ -164,7 +164,7 @@ namespace BrightData.LinearAlgebra
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i].AsSpan();
                 var targetRow = matrix.Row((uint)i);
-                targetRow.CopyFrom(source);
+                targetRow.CopyFrom(source, 0);
             }
             return ret;
         }
@@ -204,7 +204,7 @@ namespace BrightData.LinearAlgebra
                 var source = columns[i].GetSpan(ref temp, out var wasTempUsed);
                 try {
                     var targetColumn = matrix.Column((uint)i);
-                    targetColumn.CopyFrom(source);
+                    targetColumn.CopyFrom(source, 0);
                 }
                 finally {
                     if(wasTempUsed)
@@ -221,7 +221,7 @@ namespace BrightData.LinearAlgebra
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i].AsSpan();
                 var target = matrix.Column((uint)i);
-                target.CopyFrom(source);
+                target.CopyFrom(source, 0);
             }
             return ret;
         }

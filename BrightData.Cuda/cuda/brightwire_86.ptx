@@ -1163,28 +1163,31 @@ $L__BB19_6:
 	ret;
 
 }
-	// .globl	MemClear
-.visible .entry MemClear(
-	.param .u64 MemClear_param_0,
-	.param .u32 MemClear_param_1,
-	.param .u32 MemClear_param_2,
-	.param .u32 MemClear_param_3
+	// .globl	MemSet
+.visible .entry MemSet(
+	.param .u64 MemSet_param_0,
+	.param .f32 MemSet_param_1,
+	.param .u32 MemSet_param_2,
+	.param .u32 MemSet_param_3,
+	.param .u32 MemSet_param_4
 )
 {
 	.reg .pred 	%p<3>;
-	.reg .b32 	%r<15>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<14>;
 	.reg .b64 	%rd<5>;
 
 
-	ld.param.u64 	%rd2, [MemClear_param_0];
-	ld.param.u32 	%r6, [MemClear_param_1];
-	ld.param.u32 	%r7, [MemClear_param_2];
-	ld.param.u32 	%r8, [MemClear_param_3];
+	ld.param.u64 	%rd2, [MemSet_param_0];
+	ld.param.f32 	%f1, [MemSet_param_1];
+	ld.param.u32 	%r6, [MemSet_param_2];
+	ld.param.u32 	%r7, [MemSet_param_3];
+	ld.param.u32 	%r8, [MemSet_param_4];
 	mov.u32 	%r9, %ctaid.x;
 	mov.u32 	%r1, %ntid.x;
 	mov.u32 	%r10, %tid.x;
-	mad.lo.s32 	%r14, %r1, %r9, %r10;
-	setp.ge.u32 	%p1, %r14, %r6;
+	mad.lo.s32 	%r13, %r1, %r9, %r10;
+	setp.ge.u32 	%p1, %r13, %r6;
 	@%p1 bra 	$L__BB20_3;
 
 	mov.u32 	%r11, %nctaid.x;
@@ -1192,13 +1195,12 @@ $L__BB19_6:
 	cvta.to.global.u64 	%rd1, %rd2;
 
 $L__BB20_2:
-	mad.lo.s32 	%r12, %r14, %r8, %r7;
+	mad.lo.s32 	%r12, %r13, %r8, %r7;
 	mul.wide.u32 	%rd3, %r12, 4;
 	add.s64 	%rd4, %rd1, %rd3;
-	mov.u32 	%r13, 0;
-	st.global.u32 	[%rd4], %r13;
-	add.s32 	%r14, %r14, %r3;
-	setp.lt.u32 	%p2, %r14, %r6;
+	st.global.f32 	[%rd4], %f1;
+	add.s32 	%r13, %r13, %r3;
+	setp.lt.u32 	%p2, %r13, %r6;
 	@%p2 bra 	$L__BB20_2;
 
 $L__BB20_3:

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
@@ -74,28 +75,35 @@ namespace BrightData.LinearAlgebra
         }
         public float[] GetArrayForLocalUseOnly() => _array;
         public float[] ToNewArray() => _data.Span.ToArray();
-        public void CopyFrom(ReadOnlySpan<float> span) => span.CopyTo(_data.Span);
-        public void CopyTo(ITensorSegment segment)
+        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _data.Span : _data.Span[(int)targetOffset..]);
+        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
-            var span = GetSpan();
+            var span = GetSpan(sourceOffset);
             var destination = segment.GetArrayForLocalUseOnly();
             if(destination is not null)
-                span.CopyTo(destination);
+                span.CopyTo(destination.AsSpan((int)targetOffset, (int)(segment.Size - targetOffset)));
             else
-                segment.CopyFrom(span);
+                segment.CopyFrom(span, targetOffset);
         }
+
         public void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
-        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        public unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count)
         {
-            fixed (float* buffer = &_array[offset]) {
-                var ptr = buffer;
+            fixed (float* ptr = &_array[sourceOffset]) {
+                var p = ptr;
                 for (var i = 0; i < count; i++) {
-                    *destination++ = *ptr;
-                    ptr += stride;
+                    *destination++ = *p;
+                    p += stride;
                 }
             }
         }
-        public void Clear() => _data.Span.Clear();
+
+        public unsafe void Clear()
+        {
+            fixed (float* ptr = &_array[0]) {
+                Unsafe.InitBlock(ptr, 0, (uint)_data.Length * sizeof(float));
+            }
+        }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
@@ -103,7 +111,7 @@ namespace BrightData.LinearAlgebra
             return _array.AsSpan(0, (int)Size);
         }
 
-        public ReadOnlySpan<float> GetSpan() => _array.AsSpan(0, (int)Size);
+        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _array.AsSpan((int)offset, (int)Size);
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_array, 0, 1);
 
         public override string ToString()

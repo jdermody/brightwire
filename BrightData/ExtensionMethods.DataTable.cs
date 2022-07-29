@@ -1246,13 +1246,16 @@ namespace BrightData
             var groups = EnsureCompleted(op.Complete(null, CancellationToken.None));
             var ret = new (string Label, BrightDataTable Table)[groups.Length];
 
+            uint index = 0;
             foreach (var (label, columnData) in groups) {
                 var filePath = filePathProvider?.Invoke(label);
                 var writer = new BrightDataTableWriter(context, tempStreams, GetMemoryOrFileStream(filePath));
-                writer.Write(
+                var stream = writer.Write(
                     dataTable.TableMetaData,
                     columnData.Cast<ITypedSegment>().ToArray()
                 );
+                stream.Seek(0, SeekOrigin.Begin);
+                ret[index++] = (label, new BrightDataTable(context, stream));
             }
 
             return ret;

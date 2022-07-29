@@ -68,13 +68,13 @@ namespace BrightData
         IEnumerable<float> Values { get; }
         float[]? GetArrayForLocalUseOnly();
         float[] ToNewArray();
-        void CopyFrom(ReadOnlySpan<float> span);
-        void CopyTo(ITensorSegment segment);
+        void CopyFrom(ReadOnlySpan<float> span, uint targetOffset = 0);
+        void CopyTo(ITensorSegment segment, uint sourceOffset = 0, uint targetOffset = 0);
         void CopyTo(Span<float> destination);
-        unsafe void CopyTo(float* destination, int offset, int stride, int count);
+        unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count);
         void Clear();
         ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
-        ReadOnlySpan<float> GetSpan();
+        ReadOnlySpan<float> GetSpan(uint offset = 0);
         (float[] Array, uint Offset, uint Stride) GetUnderlyingArray();
         bool IsWrapper { get; }
     }

@@ -80,20 +80,22 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public void CopyFrom(ReadOnlySpan<float> span)
+        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
-            DeviceMemory.CopyToDevice(span);
+            DeviceMemory.CopyToDevice(span, targetOffset);
         }
 
-        public void CopyTo(ITensorSegment segment)
+        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             if (segment.SegmentType == CudaSegmentType) {
                 var other = (CudaTensorSegment)segment;
-                other.DeviceMemory.CopyToDevice(DeviceMemory);
+                var target = targetOffset == 0 ? other.DeviceMemory : other.DeviceMemory.Offset(targetOffset, other.DeviceMemory.Size - targetOffset);
+                var source = sourceOffset == 0 ? DeviceMemory : DeviceMemory.Offset(sourceOffset, DeviceMemory.Size - sourceOffset);
+                target.CopyToDevice(source);
             }
             else {
                 using var buffer = ToNewMemoryOwner();
-                segment.CopyFrom(buffer.Span);
+                segment.CopyFrom(buffer.Span[(int)sourceOffset..], targetOffset);
             }
         }
 
@@ -120,7 +122,7 @@ namespace BrightData.Cuda
             return temp.Span;
         }
 
-        public ReadOnlySpan<float> GetSpan()
+        public ReadOnlySpan<float> GetSpan(uint offset)
         {
             throw new NotImplementedException();
         }

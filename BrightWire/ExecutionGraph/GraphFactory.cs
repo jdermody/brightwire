@@ -116,7 +116,7 @@ namespace BrightWire.ExecutionGraph
 			return ret ?? SimpleGradientDescent;
 		}
 
-		IWeightInitialisation GetWeightInitialisation()
+		public IWeightInitialisation GetWeightInitialisation()
 		{
 			var propertySet = CurrentPropertySet;
 			var ret = propertySet.WeightInitialisation;
