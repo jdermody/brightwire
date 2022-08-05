@@ -511,6 +511,32 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
+        public void MatrixMultiplyEachRowWith()
+        {
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(5, (i) => i);
+
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.MultiplyEachRowWith(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.MultiplyEachRowWith(b.Segment));
+
+            a.MultiplyEachRowWith(b.Segment);
+            AssertSame(a, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixMultiplyEachColumnWith()
+        {
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(2, (i) => i + 5);
+
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.MultiplyEachColumnWith(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.MultiplyEachColumnWith(b.Segment));
+
+            a.MultiplyEachColumnWith(b.Segment);
+            AssertSame(a, gpu, mkl);
+        }
+
+        [Fact]
         public void MatrixSigmoidActivation()
         {
             var normalDistribution = _context.CreateNormalDistribution(0, 1);

@@ -17,6 +17,7 @@ namespace BrightData
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="lap">Linear algebra provider to use (optional)</param>
         /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
         public BrightDataContext(LinearAlgebraProvider? lap = null, int? randomSeed = null)
         {

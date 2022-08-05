@@ -73,21 +73,21 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
-                var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
-                var outputData = new Dictionary<uint, List<IReadOnlyVector>>();
+                var inputData = new Dictionary<uint, List<ITensorSegment>>();
+                var outputData = new Dictionary<uint, List<ITensorSegment>>();
 
                 foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {
                         if (!inputData.TryGetValue(i, out var temp))
                             inputData.Add(i, temp = new());
-                        temp.Add(input.GetRow(i));
+                        temp.Add(input.GetRow(i).Segment);
                     }
 
                     if (output != null) {
                         for (uint i = 0, len = output.RowCount; i < len; i++) {
                             if (!outputData.TryGetValue(i, out var temp))
                                 outputData.Add(i, temp = new());
-                            temp.Add(output.GetRow(i));
+                            temp.Add(output.GetRow(i).Segment);
                         }
                     }
                 }

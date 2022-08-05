@@ -69,7 +69,7 @@ namespace BrightData.LinearAlgebra
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
-                if (stride == 1) {
+                if (array is not null && stride == 1) {
                     span.CopyTo(new Span<float>(array, (int)(offset + Offset + targetOffset), (int)(Size - targetOffset)));
                     return;
                 }
@@ -84,7 +84,7 @@ namespace BrightData.LinearAlgebra
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
-                if (stride == 1) {
+                if (array is not null && stride == 1) {
                     segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetoffset);
                     return;
                 }
@@ -131,7 +131,7 @@ namespace BrightData.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
+        public (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray()
         {
             var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
             return (array, offset + Offset, stride + Stride);

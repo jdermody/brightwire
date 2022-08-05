@@ -12,20 +12,27 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public struct IndexList : IHaveIndices, IAmSerializable
+    public record struct IndexList(uint[] Indices) : IHaveIndices, IAmSerializable
     {
-        public IndexList(uint[] indices)
-        {
-            Indices = indices;
-        }
+        /// <summary>
+        /// Creates an index list
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
+        public static IndexList Create(params uint[] indices) => new(indices);
 
         /// <summary>
-        /// The list of indices
+        /// Creates an index list
         /// </summary>
-        public uint[] Indices { get; private set; }
-
-        public static IndexList Create(params uint[] indices) => new(indices);
+        /// <param name="indices"></param>
+        /// <returns></returns>
         public static IndexList Create(ReadOnlySpan<uint> indices) => new(indices.ToArray());
+
+        /// <summary>
+        /// Creates an index list
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
         public static IndexList Create(IEnumerable<uint> indices) => new(indices.ToArray());
 
         /// <summary>
@@ -63,16 +70,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => Indices.GetHashCode();
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is IndexList other)
-                return StructuralComparisons.StructuralEqualityComparer.Equals(Indices, other.Indices);
-            return false;
-        }
 
         /// <summary>
         /// Writes the data to an XML writer

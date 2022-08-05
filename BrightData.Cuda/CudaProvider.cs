@@ -103,6 +103,8 @@ namespace BrightData.Cuda
 			_subtractInPlace,
 			_addToEachRow,
 			_addToEachColumn,
+            _multiplyByEachRow,
+            _multiplyByEachColumn,
 			_tanh,
 			_tanhDerivative,
 			_sigmoid,
@@ -199,6 +201,8 @@ namespace BrightData.Cuda
 			_subtractInPlace        = _kernel.LoadFunction("SubtractInPlace");
 			_addToEachRow           = _kernel.LoadFunction("AddToEachRow");
 			_addToEachColumn        = _kernel.LoadFunction("AddToEachColumn");
+            _multiplyByEachRow      = _kernel.LoadFunction("MultiplyByEachRow");
+            _multiplyByEachColumn   = _kernel.LoadFunction("MultiplyByEachColumn");
 			_tanh                   = _kernel.LoadFunction("TanH");
 			_tanhDerivative         = _kernel.LoadFunction("TanHDerivative");
 			_sigmoid                = _kernel.LoadFunction("Sigmoid");
@@ -400,6 +404,16 @@ namespace BrightData.Cuda
 		{
 			InvokeMatrix(_addToEachColumn, stream, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
 		}
+
+        internal void MultiplyByEachRow(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns, CUstream* stream = null)
+        {
+            InvokeMatrix(_multiplyByEachRow, stream, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
+        }
+
+        internal void MultiplyByEachColumn(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns, CUstream* stream = null)
+        {
+            InvokeMatrix(_multiplyByEachColumn, stream, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
+        }
 
 		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CUstream* stream = null)
 		{

@@ -114,7 +114,7 @@ namespace BrightData.LinearAlgebra
 
         // create from rows
         public IMatrix CreateMatrixFromRows(IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
-        public IMatrix CreateMatrixFromRows(IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.AsSpan());
+        public IMatrix CreateMatrixFromRows(IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
         public IMatrix CreateMatrixFromRows(IEnumerable<float[]> rows) => CreateMatrixFromRows(rows.ToArray().AsSpan());
         public IMatrix CreateMatrixFromRows(float[][] rows) => CreateMatrixFromRows(rows.AsSpan());
         public IMatrix CreateMatrixFromRowsAndThenDisposeInput(IVector[] rows)
@@ -137,26 +137,7 @@ namespace BrightData.LinearAlgebra
                 rows[i].CopyTo(matrix.Row((uint)i));
             return ret;
         }
-        public IMatrix CreateMatrixFromRows(ReadOnlySpan<IReadOnlyVector> rows)
-        {
-            var columns = rows[0].Size;
-            var ret = CreateMatrix((uint)rows.Length, columns, false);
-            var matrix = (IMatrixSegments)ret;
-            for (var i = 0; i < rows.Length; i++) {
-                var temp = SpanOwner<float>.Empty;
-                var source = rows[i].GetSpan(ref temp, out var wasTempUsed);
-                try {
-                    var targetRow = matrix.Row((uint)i);
-                    targetRow.CopyFrom(source, 0);
-                }
-                finally {
-                    if(wasTempUsed)
-                        temp.Dispose();
-                }
-            }
-            return ret;
-        }
-        public IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
+        public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
         {
             var columns = (uint)rows[0].Length;
             var ret = CreateMatrix((uint)rows.Length, columns, false);
@@ -171,7 +152,7 @@ namespace BrightData.LinearAlgebra
 
         // create from columns
         public IMatrix CreateMatrixFromColumns(IVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
-        public IMatrix CreateMatrixFromColumns(IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+        public IMatrix CreateMatrixFromColumns(IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
         public IMatrix CreateMatrixFromColumns(IEnumerable<float[]> columns) => CreateMatrixFromColumns(columns.ToArray().AsSpan());
         public IMatrix CreateMatrixFromColumns(float[][] columns) => CreateMatrixFromColumns(columns.AsSpan());
         public IMatrix CreateMatrixFromColumnsAndThenDisposeInput(IVector[] columns)
@@ -194,26 +175,7 @@ namespace BrightData.LinearAlgebra
                 columns[i].CopyTo(matrix.Column((uint)i));
             return ret;
         }
-        public IMatrix CreateMatrixFromColumns(ReadOnlySpan<IReadOnlyVector> columns)
-        {
-            var rows = columns[0].Size;
-            var ret = CreateMatrix(rows, (uint)columns.Length, false);
-            var matrix = (IMatrixSegments)ret;
-            for (var i = 0; i < columns.Length; i++) {
-                var temp = SpanOwner<float>.Empty;
-                var source = columns[i].GetSpan(ref temp, out var wasTempUsed);
-                try {
-                    var targetColumn = matrix.Column((uint)i);
-                    targetColumn.CopyFrom(source, 0);
-                }
-                finally {
-                    if(wasTempUsed)
-                        temp.Dispose();
-                }
-            } 
-            return ret;
-        }
-        public IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
+        public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
         {
             var rows = (uint)columns[0].Length;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
@@ -1140,14 +1102,24 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public virtual void AddToEachRow(IMatrix matrix, ITensorSegment vector)
+        public virtual void AddToEachRow(IMatrix matrix, ITensorSegment segment)
         {
-            matrix.MapIndexedInPlace((_, k, v) => v + vector[k]);
+            matrix.MapIndexedInPlace((_, k, v) => v + segment[k]);
         }
 
-        public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment vector)
+        public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment segment)
         {
-            matrix.MapIndexedInPlace((j, _, v) => v + vector[j]);
+            matrix.MapIndexedInPlace((j, _, v) => v + segment[j]);
+        }
+
+        public virtual void MultiplyEachRowWith(IMatrix matrix, ITensorSegment segment)
+        {
+            matrix.MapIndexedInPlace((_, k, v) => v * segment[k]);
+        }
+
+        public virtual void MultiplyEachColumnWith(IMatrix matrix, ITensorSegment segment)
+        {
+            matrix.MapIndexedInPlace((j, _, v) => v * segment[j]);
         }
 
         public virtual IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)

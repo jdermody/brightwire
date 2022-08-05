@@ -75,7 +75,7 @@ namespace BrightData
         void Clear();
         ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
         ReadOnlySpan<float> GetSpan(uint offset = 0);
-        (float[] Array, uint Offset, uint Stride) GetUnderlyingArray();
+        (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray();
         bool IsWrapper { get; }
     }
 
@@ -246,6 +246,8 @@ namespace BrightData
         IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
         void AddToEachRow(ITensorSegment segment);
         void AddToEachColumn(ITensorSegment segment);
+        void MultiplyEachRowWith(ITensorSegment segment);
+        void MultiplyEachColumnWith(ITensorSegment segment);
         ITensorSegment[] SoftmaxPerRow();
         ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows);
     }

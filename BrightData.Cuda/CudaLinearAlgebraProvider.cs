@@ -712,18 +712,34 @@ namespace BrightData.Cuda
                 Provider.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
                 return CreateMatrix(rows, columns, ret);
             }
-            else {
-                var size = rows * columns;
-                using var buffer = SpanOwner<float>.Allocate((int)size);
-                fixed (float* ptr = buffer.Span) {
-                    var p = ptr;
-                    for (uint j = 0; j < columns; j++)
-                        for (uint i = 0; i < rows; i++)
-                            *p++ = vectorColumns[(int)j][i];
-                    var deviceMemory = Provider.Allocate(size);
-                    deviceMemory.CopyToDevice(ptr, 0, 0, size);
-                    return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
-                }
+
+            var size = rows * columns;
+            using var buffer = SpanOwner<float>.Allocate((int)size);
+            fixed (float* ptr = buffer.Span) {
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                for (uint i = 0; i < rows; i++)
+                    *p++ = vectorColumns[(int)j][i];
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+            }
+        }
+
+        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columnSpan)
+        {
+            var columns = (uint)columnSpan.Length;
+            var rows = (uint)columnSpan[0].Length;
+            var size = rows * columns;
+            using var buffer = SpanOwner<float>.Allocate((int)size);
+            fixed (float* ptr = buffer.Span) {
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                for (uint i = 0; i < rows; i++)
+                    *p++ = columnSpan[(int)j][i];
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
             }
         }
 
@@ -766,6 +782,23 @@ namespace BrightData.Cuda
             }
         }
 
+        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rowSpan)
+        {
+            var rows = (uint)rowSpan.Length;
+            var columns = (uint)rowSpan[0].Length;
+            var size = rows * columns;
+            using var buffer = SpanOwner<float>.Allocate((int)(size));
+            fixed (float* ptr = buffer.Span) {
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                for (uint i = 0; i < rows; i++)
+                    *p++ = rowSpan[(int)i][j];
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+            }
+        }
+
         public override void L1Regularisation(ITensorSegment segment, float coefficient)
         {
             Provider.L1Regularisation(GetDeviceMemoryPtr(segment), segment.Size, coefficient);
@@ -779,6 +812,16 @@ namespace BrightData.Cuda
         public override void AddToEachRow(IMatrix matrix, ITensorSegment segment)
         {
             Provider.AddToEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
+        }
+
+        public override void MultiplyEachColumnWith(IMatrix matrix, ITensorSegment segment)
+        {
+            Provider.MultiplyByEachColumn(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
+        }
+
+        public override void MultiplyEachRowWith(IMatrix matrix, ITensorSegment segment)
+        {
+            Provider.MultiplyByEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
         static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment segment) => GetDeviceMemoryPtr(segment).DeviceVariable;

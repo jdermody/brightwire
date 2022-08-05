@@ -111,7 +111,8 @@ namespace BrightWire.Helper
                     throw new Exception("Cannot find minimum with zero length");
             }
 
-            var (min, _, minIndex, _) = matrix.GetRow(index).Segment.GetMinAndMaxValues();
+            var column = matrix.GetColumn(index);
+            var (min, _, minIndex, _) = column.Segment.GetMinAndMaxValues();
             return (minIndex, min);
 
             //var bestIndex = uint.MaxValue;

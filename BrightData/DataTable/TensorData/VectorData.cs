@@ -81,6 +81,7 @@ namespace BrightData.DataTable.TensorData
             writer.Write(Size);
             writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
         }
+
         public override string ToString()
         {
             var preview = String.Join("|", Math.Min(Consts.PreviewSize, Size).AsRange().Select(i => this[i]));

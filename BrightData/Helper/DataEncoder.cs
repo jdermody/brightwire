@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using BrightData.Serialisation;
 
 namespace BrightData.Helper
 {
@@ -91,9 +92,8 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(val), T);
             }
 
-
             if (typeOfT == typeof(BinaryData)) {
-                var val = new BinaryData(reader);
+                var val = _context.Create<BinaryData>(reader);
                 return __refvalue(__makeref(val), T);
             }
 
@@ -197,7 +197,7 @@ namespace BrightData.Helper
             if (typeOfT == typeof(BinaryData)) {
                 var ret = new BinaryData[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = new BinaryData(reader);
+                    ret[i] = _context.Create<BinaryData>(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             throw new NotImplementedException();

@@ -250,7 +250,7 @@ namespace BrightData.DataTable
             foreach (var consumer in consumers) {
                 var columnReader = GetColumnReader(consumer.ColumnIndex, maxRows);
                 var type = typeof(CopyToConsumerOperation<>).MakeGenericType(consumer.ColumnType.GetDataType());
-                yield return GenericActivator.Create<IOperation<bool>>(type, columnReader, consumer);
+                yield return GenericActivator.Create<IOperation<bool>>(type, RowCount, columnReader, consumer);
             }
         }
 

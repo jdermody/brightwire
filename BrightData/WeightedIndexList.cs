@@ -14,13 +14,13 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public struct WeightedIndexList : IHaveIndices, IAmSerializable
+    public record struct WeightedIndexList(WeightedIndexList.Item[] Indices) : IHaveIndices, IAmSerializable
     {
         /// <summary>
         /// An item within a weighted index list
         /// </summary>
         [StructLayout(LayoutKind.Sequential, Pack=0)]
-        public readonly struct Item : IEquatable<Item>
+        public readonly record struct Item : IEquatable<Item>
         {
             /// <summary>
             /// Index of item
@@ -49,43 +49,8 @@ namespace BrightData
             /// <inheritdoc />
             public bool Equals(Item other) => other.Index == Index && FloatMath.Equals(other.Weight, Weight);
             /// <inheritdoc />
-            public override bool Equals(object? obj) => obj is Item item && Equals(item);
-            /// <inheritdoc />
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="left"></param>
-            /// <param name="right"></param>
-            /// <returns></returns>
-            public static bool operator ==(Item left, Item right)
-            {
-                return left.Equals(right);
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="left"></param>
-            /// <param name="right"></param>
-            /// <returns></returns>
-            public static bool operator !=(Item left, Item right)
-            {
-                return !(left == right);
-            }
         }
-
-        public WeightedIndexList(Item[] indices)
-        {
-            Indices = indices;
-        }
-
-        /// <summary>
-        /// The list of indices
-        /// </summary>
-        public Item[] Indices { get; private set; }
-        public Span<Item> GetSpan() => Indices.AsSpan();
 
         public static WeightedIndexList Create(params Item[] indexList) => new(indexList);
         public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => new(indexList.ToArray());
@@ -283,14 +248,6 @@ namespace BrightData
         /// <inheritdoc />
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => (Indices as IStructuralEquatable).GetHashCode(EqualityComparer<Item>.Default);
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is WeightedIndexList other)
-                return StructuralComparisons.StructuralEqualityComparer.Equals(Indices, other.Indices);
-            return false;
-        }
 
         /// <summary>
         /// Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type

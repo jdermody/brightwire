@@ -52,8 +52,21 @@ namespace BrightData.LinearAlgebra
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
-        public TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null) => new(segment ?? Segment, index, RowCount, ColumnCount);
-        public TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null) => new(segment ?? Segment, index * RowCount, 1, RowCount);
+
+        public TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null)
+        {
+            if(index > RowCount)
+                throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
+            return new(segment ?? Segment, index, RowCount, ColumnCount);
+        }
+
+        public TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null)
+        {
+            if(index > ColumnCount)
+                throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
+            return new(segment ?? Segment, index * RowCount, 1, RowCount);
+        }
+
         public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
         {
             temp = SpanOwner<float>.Allocate((int)TotalSize);
@@ -63,6 +76,7 @@ namespace BrightData.LinearAlgebra
             }
             return span;
         }
+
         public ReadOnlySpan<float> GetColumnSpan(uint columnIndex)
         {
             var ret = Segment.GetSpan();
@@ -151,6 +165,8 @@ namespace BrightData.LinearAlgebra
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);
         public void AddToEachRow(ITensorSegment segment) => _lap.AddToEachRow(this, segment);
         public void AddToEachColumn(ITensorSegment segment) => _lap.AddToEachColumn(this, segment);
+        public void MultiplyEachRowWith(ITensorSegment segment) => _lap.MultiplyEachRowWith(this, segment);
+        public void MultiplyEachColumnWith(ITensorSegment segment) => _lap.MultiplyEachColumnWith(this, segment);
 
         public ITensorSegment[] SoftmaxPerRow()
         {

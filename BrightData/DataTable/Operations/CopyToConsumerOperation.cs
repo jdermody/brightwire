@@ -9,10 +9,10 @@ namespace BrightData.DataTable.Operations
         readonly IEnumerator<T>             _enumerator;
 
         public CopyToConsumerOperation(
-            uint columnCount, 
+            uint rowCount, 
             ICanEnumerateDisposable<T> columnData, 
             IConsumeColumnData<T> consumer
-        ) : base(columnCount, null)
+        ) : base(rowCount, null)
         {
             _columnData = columnData;
             _consumer = consumer;

@@ -23,15 +23,19 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
                 var es = errorSignal.GetMatrix();
                 using var columnSums = es.ColumnSums();
-                using var initialDelta = columnSums.Multiply(1f / es.RowCount);
+                using var deltaVector = columnSums.Multiply(1f / es.RowCount);
+
+                // copy to local array to avoid CUDA performance problems
+                var delta = deltaVector.Segment.ToNewArray();
+
                 var learningRate = context.LearningContext!.LearningRate;
                 for (uint j = 0; j < _source.Data.Length; j++) {
-                    _source.Data[j] += initialDelta[j] * learningRate;
+                    _source.Data[j] += delta[j] * learningRate;
                 }
-                #if DEBUG
-                foreach(var item in _source.Data)
-                    Debug.Assert(!float.IsNaN(item));
-                #endif
+                //#if DEBUG
+                //foreach(var item in _source.Data)
+                //    Debug.Assert(!float.IsNaN(item));
+                //#endif
 
                 if(_source._contextName != null)
                     context.SetData(_source._contextName, "hidden-backward", errorSignal);

@@ -46,7 +46,7 @@ namespace BrightData.Buffer.EncodedStream
                     : new StringWriter(stringBuffer);
             }
 
-            if (typeOfT.IsValueType) {
+            if (typeOfT.IsValueType && typeOfT.GetInterface(nameof(ICanWriteToBinaryWriter)) == null) {
                 var writerType = shouldEncode ? typeof(StructEncoder<>) : typeof(StructWriter<>);
                 return GenericActivator.Create<ICanWriteToBinaryWriter>(writerType.MakeGenericType(typeOfT), buffer);
             }

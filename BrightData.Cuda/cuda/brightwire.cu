@@ -88,6 +88,24 @@ extern "C"
         }
 	}
 
+    __global__ void MultiplyByEachRow(float* __restrict a, const float* __restrict b, uint rows, uint columns)
+	{
+        for (uint i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+            for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                a[j * rows + i] *= b[j];
+            }
+        }
+	}
+
+	__global__ void MultiplyByEachColumn(float* __restrict a, const float* __restrict b, uint rows, uint columns)
+	{
+        for (uint i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+            for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                a[j * rows + i] *= b[i];
+            }
+        }
+	}
+
 	__global__ void TanH(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {

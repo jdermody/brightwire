@@ -299,15 +299,8 @@
         </member>
         <member name="M:BrightData.BinaryData.#ctor(System.Byte[])">
             <summary>
-            Constructor
+            Blob of binary data
             </summary>
-            <param name="data">Binary data</param>
-        </member>
-        <member name="M:BrightData.BinaryData.#ctor(System.IO.BinaryReader)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="reader">Binary reader to read binary data from</param>
         </member>
         <member name="M:BrightData.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
@@ -315,18 +308,7 @@
         <member name="M:BrightData.BinaryData.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.BinaryData.Data">
-            <summary>
-            Byte array of binary data
-            </summary>
-        </member>
         <member name="M:BrightData.BinaryData.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.Equals(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.GetHashCode">
             <inheritdoc />
         </member>
         <member name="T:BrightData.BrightDataContext">
@@ -338,6 +320,7 @@
             <summary>
             Constructor
             </summary>
+            <param name="lap">Linear algebra provider to use (optional)</param>
             <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
         </member>
         <member name="M:BrightData.BrightDataContext.Dispose">
@@ -2536,10 +2519,31 @@
             Contains a list of indices
             </summary>
         </member>
-        <member name="P:BrightData.IndexList.Indices">
+        <member name="M:BrightData.IndexList.#ctor(System.UInt32[])">
             <summary>
-            The list of indices
+            Contains a list of indices
             </summary>
+        </member>
+        <member name="M:BrightData.IndexList.Create(System.UInt32[])">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.Create(System.ReadOnlySpan{System.UInt32})">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.Create(System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
         </member>
         <member name="P:BrightData.IndexList.Count">
             <summary>
@@ -2558,9 +2562,6 @@
             <param name="lists">Lists to merge</param>
         </member>
         <member name="M:BrightData.IndexList.GetHashCode">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.Equals(System.Object)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.WriteTo(System.String,System.Xml.XmlWriter)">
@@ -3926,6 +3927,11 @@
             A list of weighted indices is a sparse vector
             </summary>
         </member>
+        <member name="M:BrightData.WeightedIndexList.#ctor(BrightData.WeightedIndexList.Item[])">
+            <summary>
+            A list of weighted indices is a sparse vector
+            </summary>
+        </member>
         <member name="T:BrightData.WeightedIndexList.Item">
             <summary>
             An item within a weighted index list
@@ -3954,32 +3960,8 @@
         <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Item.Equals(System.Object)">
-            <inheritdoc />
-        </member>
         <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
             <inheritdoc />
-        </member>
-        <member name="M:BrightData.WeightedIndexList.Item.op_Equality(BrightData.WeightedIndexList.Item,BrightData.WeightedIndexList.Item)">
-            <summary>
-            
-            </summary>
-            <param name="left"></param>
-            <param name="right"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.WeightedIndexList.Item.op_Inequality(BrightData.WeightedIndexList.Item,BrightData.WeightedIndexList.Item)">
-            <summary>
-            
-            </summary>
-            <param name="left"></param>
-            <param name="right"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.WeightedIndexList.Indices">
-            <summary>
-            The list of indices
-            </summary>
         </member>
         <member name="P:BrightData.WeightedIndexList.Count">
             <summary>
@@ -4063,9 +4045,6 @@
             <returns></returns>
         </member>
         <member name="M:BrightData.WeightedIndexList.GetHashCode">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.WeightedIndexList.Unique(BrightData.AggregationType)">

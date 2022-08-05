@@ -110,7 +110,7 @@ namespace BrightData
         {
             var max = float.MinValue;
             foreach (ref var item in data) {
-                foreach (ref var index in item.Data.GetSpan()) {
+                foreach (ref var index in item.Data.Indices.AsSpan()) {
                     if (index.Weight > max)
                         max = index.Weight;
                 }
@@ -126,7 +126,7 @@ namespace BrightData
         {
             uint max = 0;
             foreach (ref var item in data) {
-                foreach (ref var index in item.Data.GetSpan()) {
+                foreach (ref var index in item.Data.Indices.AsSpan()) {
                     if (index.Index > max)
                         max = index.Index;
                 }

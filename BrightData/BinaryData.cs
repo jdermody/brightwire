@@ -7,27 +7,8 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public record struct BinaryData(byte[] Data) : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Binary data</param>
-        public BinaryData(byte[] data)
-        {
-            Data = data;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="reader">Binary reader to read binary data from</param>
-        public BinaryData(BinaryReader reader)
-        {
-            var size = reader.ReadInt32();
-            Data = reader.ReadBytes(size);
-        }
-
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
@@ -41,11 +22,6 @@ namespace BrightData
             writer.Write(Data.Length);
             writer.Write(Data);
         }
-
-        /// <summary>
-        /// Byte array of binary data
-        /// </summary>
-        public byte[] Data { get; private set; }
 
         /// <inheritdoc />
         public override string ToString()
@@ -63,16 +39,5 @@ namespace BrightData
             var hash = sb.ToString();
             return $"Hash:{hash}, Size:{Data.Length:N0}";
         }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if(obj is BinaryData other)
-                return ToString() == other.ToString();
-            return false;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode() => ToString().GetHashCode();
     }
 }

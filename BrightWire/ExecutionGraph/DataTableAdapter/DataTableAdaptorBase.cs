@@ -98,20 +98,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// <param name="data">List of input/output matrix tuples</param>
         protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
         {
-            var inputData = new Dictionary<uint, List<IReadOnlyVector>>();
-            var outputData = new Dictionary<uint, List<IReadOnlyVector>>();
+            var inputData = new Dictionary<uint, List<ITensorSegment>>();
+            var outputData = new Dictionary<uint, List<ITensorSegment>>();
             var lap = _dataTable.Context.LinearAlgebraProvider;
 
             foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<IReadOnlyVector>());
-                    temp.Add(input.GetRow(i));
+                        inputData.Add(i, temp = new List<ITensorSegment>());
+                    temp.Add(input.GetRow(i).Segment);
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = new List<IReadOnlyVector>());
-                        temp.Add(output.GetRow(i));
+                            outputData.Add(i, temp = new List<ITensorSegment>());
+                        temp.Add(output.GetRow(i).Segment);
                     }
                 }
             }

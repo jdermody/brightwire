@@ -127,10 +127,7 @@ namespace BrightData.Cuda
             throw new NotImplementedException();
         }
 
-        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray()
-        {
-            throw new NotImplementedException();
-        }
+        public (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray() => (null, 0, 0);
 
         public override string ToString()
         {
