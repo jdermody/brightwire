@@ -142,9 +142,9 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(false, 0.005f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
-            const uint BATCH_SIZE = 16;
+            const uint BATCH_SIZE = 32;
             const uint HIDDEN_LAYER_SIZE = 128;
-            const float TRAINING_RATE = 0.03f;
+            const float TRAINING_RATE = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
             Training.TableMetaData.Set("Seq2Seq", true);
@@ -153,12 +153,12 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
-                .AddRecurrentBridge("encoder1", "encoder2")
+                //.AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                //.AddRecurrentBridge("encoder1", "encoder2")
                 .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
-                //.AddSelfAttention("encoder2", "decoder", 3, HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE, "self-attention")
+                //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE, "self-attention")
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())

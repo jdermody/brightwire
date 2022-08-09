@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
-            var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));
+            var output = signal.ReplaceWith(signal.GetMatrix().ConcatRight(memory));
             return (this, output, () => new Backpropagation(this, memory.ColumnCount));
         }
 

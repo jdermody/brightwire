@@ -76,7 +76,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput.Remove(sequenceIndex);
 
             // concatenate the inputs
-            var next = data.ConcatRows(floatMatrix).AsGraphData();
+            var next = data.ConcatRight(floatMatrix).AsGraphData();
             context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize, forwardParent, reverseParent));
             foreach(var wire in Output)
                 wire.SendTo.Forward(next, context, wire.Channel, this);

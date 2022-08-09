@@ -1159,14 +1159,13 @@ namespace BrightData.Cuda
         {
             uint size = rows[0].Size, rowCount = matrix.RowCount;
             var derivatives = MultiSoftmaxDerivative(rows);
-            var segments = (IMatrixSegments)matrix;
             using var singleBlock = Provider.Allocate(size * rowCount);
             var ret = new ITensorSegment[rowCount];
 
             for (uint i = 0; i < rowCount; i++) {
                 using var derivative = derivatives[i];
                 var derivativePtr = GetDeviceMemoryPtr(derivative.Segment);
-                var (ptr, stride) = GetDeviceMemory(segments.Row(i));
+                var (ptr, stride) = GetDeviceMemory(matrix.Row(i));
 
                 float alpha = 1.0f, beta = 0f;
                 var result = singleBlock.Offset(i * size, size);

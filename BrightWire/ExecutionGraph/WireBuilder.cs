@@ -19,6 +19,7 @@ namespace BrightWire.ExecutionGraph
     {
         readonly GraphFactory _factory;
         readonly NodeBase _first;
+        readonly uint _initialWidth;
         uint _width, _height, _depth;
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace BrightWire.ExecutionGraph
         {
             _factory = factory;
             _first = LastNode = node;
-            _width = size;
+            _initialWidth = _width = size;
             _height = 1;
             _depth = 1;
         }
@@ -48,7 +49,7 @@ namespace BrightWire.ExecutionGraph
         {
             _factory = factory;
             _first = LastNode = node;
-            _width = width;
+            _initialWidth = _width = width;
             _height = height;
             _depth = depth;
         }
@@ -62,7 +63,7 @@ namespace BrightWire.ExecutionGraph
             : this(factory, engine.DataSource?.InputSize ?? throw new ArgumentException("No data source"), engine.Start)
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
-                _width = volumeDataSource.Width;
+                _initialWidth = _width = volumeDataSource.Width;
                 _height = volumeDataSource.Height;
                 _depth = volumeDataSource.Depth;
             }
@@ -480,11 +481,11 @@ namespace BrightWire.ExecutionGraph
         /// <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
         /// <param name="encoderDecoderSize">Node size</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint inputSize, uint encoderSize, uint decoderSize, string? name = null)
+        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderSize, uint decoderSize, string? name = null)
         {
-            var newSize = inputSize + encoderSize + decoderSize;
+            var newSize = _initialWidth + encoderSize + decoderSize;
             var weightInit = _factory.GetWeightInitialisation();
-            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, inputSize, encoderSize, decoderSize, weightInit, name));
+            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, _initialWidth, encoderSize, decoderSize, weightInit, _factory.CreateWeightUpdater, name));
             SetNewSize(_width + newSize);
             return this;
         }

@@ -132,19 +132,17 @@ namespace BrightData.LinearAlgebra
         {
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns, false);
-            var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < rows.Length; i++)
-                rows[i].CopyTo(matrix.Row((uint)i));
+                rows[i].CopyTo(ret.Row((uint)i));
             return ret;
         }
         public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
         {
             var columns = (uint)rows[0].Length;
             var ret = CreateMatrix((uint)rows.Length, columns, false);
-            var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i].AsSpan();
-                var targetRow = matrix.Row((uint)i);
+                var targetRow = ret.Row((uint)i);
                 targetRow.CopyFrom(source, 0);
             }
             return ret;
@@ -170,19 +168,17 @@ namespace BrightData.LinearAlgebra
         {
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
-            var matrix = (IMatrixSegments)ret;
             for(var i = 0; i < columns.Length; i++)
-                columns[i].CopyTo(matrix.Column((uint)i));
+                columns[i].CopyTo(ret.Column((uint)i));
             return ret;
         }
         public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
         {
             var rows = (uint)columns[0].Length;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
-            var matrix = (IMatrixSegments)ret;
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i].AsSpan();
-                var target = matrix.Column((uint)i);
+                var target = ret.Column((uint)i);
                 target.CopyFrom(source, 0);
             }
             return ret;

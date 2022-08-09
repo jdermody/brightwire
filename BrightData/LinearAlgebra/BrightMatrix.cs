@@ -8,7 +8,7 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix, IMatrixSegments
+    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix
         where LAP: LinearAlgebraProvider
     {
         public BrightMatrix(ITensorSegment data, uint rows, uint columns, LAP lap) : base(data, lap)
@@ -158,8 +158,8 @@ namespace BrightData.LinearAlgebra
 
         public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex) => _lap.SplitAtColumn(this, columnIndex);
         public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex) => _lap.SplitAtRow(this, rowIndex);
-        public IMatrix ConcatColumns(IMatrix bottom) => _lap.ConcatColumns(this, bottom);
-        public IMatrix ConcatRows(IMatrix right) => _lap.ConcatRows(this, right);
+        public IMatrix ConcatBelow(IMatrix bottom) => _lap.ConcatColumns(this, bottom);
+        public IMatrix ConcatRight(IMatrix right) => _lap.ConcatRows(this, right);
         public (IMatrix U, IVector S, IMatrix VT) Svd() => _lap.Svd(this);
         public IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => _lap.GetNewMatrixFromRows(this, rowIndices);
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => _lap.GetNewMatrixFromColumns(this, columnIndices);

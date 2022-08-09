@@ -223,6 +223,8 @@ namespace BrightData
         new float this[uint rowY, uint columnX] { get; set; }
         float this[long rowY, long columnX] { get; set; }
         float this[ulong rowY, ulong columnX] { get; set; }
+        TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
+        TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
         ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp);
         ReadOnlySpan<float> GetColumnSpan(uint columnIndex);
         IVector GetRowVector(uint index);
@@ -237,8 +239,8 @@ namespace BrightData
         IVector Multiply(IVector vector);
         (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
         (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
-        IMatrix ConcatColumns(IMatrix bottom);
-        IMatrix ConcatRows(IMatrix right);
+        IMatrix ConcatBelow(IMatrix bottom);
+        IMatrix ConcatRight(IMatrix right);
         IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
         void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
         (IMatrix U, IVector S, IMatrix VT) Svd();
@@ -250,12 +252,6 @@ namespace BrightData
         void MultiplyEachColumnWith(ITensorSegment segment);
         ITensorSegment[] SoftmaxPerRow();
         ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows);
-    }
-
-    public interface IMatrixSegments
-    {
-        TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
-        TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
     }
 
     public interface ITensor3D : IReadOnlyTensor3D, ITensor<ITensor3D>

@@ -791,9 +791,9 @@ namespace BrightData.UnitTests
             var rand = new Random();
             using var a = _cpu.CreateMatrix(4000, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
             using var b = _cpu.CreateMatrix(200, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            using var cpu = a.ConcatColumns(b);
-            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatColumns(b));
-            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatColumns(b));
+            using var cpu = a.ConcatBelow(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatBelow(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatBelow(b));
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -803,9 +803,9 @@ namespace BrightData.UnitTests
             var rand = new Random();
             using var a = _cpu.CreateMatrix(300, 4000, (x, y) => Convert.ToSingle(rand.NextDouble()));
             using var b = _cpu.CreateMatrix(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            using var cpu = a.ConcatRows(b);
-            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatRows(b));
-            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatRows(b));
+            using var cpu = a.ConcatRight(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatRight(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatRight(b));
             AssertSame(cpu, gpu, mkl);
         }
 

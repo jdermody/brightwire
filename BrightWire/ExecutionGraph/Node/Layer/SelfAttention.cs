@@ -95,13 +95,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
                 var sequence = previous.GetSequenceAtIndex(i);
                 var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
-                var combined = decoderHiddenState.ConcatRows(encoderState);
+                var combined = decoderHiddenState.ConcatRight(encoderState);
                 var output = _layer.Forward(combined);
 
                 if (weights == null)
                     weights = output;
                 else {
-                    var next = weights.ConcatRows(output);
+                    var next = weights.ConcatRight(output);
                     weights.Dispose();
                     weights = next;
                 }
@@ -128,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             combinedAttention.MultiplyInPlace(1f / index);
 
             // concatenate signal with combined attention
-            var final = signal.GetMatrix().ConcatRows(combinedAttention);
+            var final = signal.GetMatrix().ConcatRight(combinedAttention);
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, backward));
         }
 

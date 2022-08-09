@@ -2085,7 +2085,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.String,System.String,System.UInt32,System.UInt32,System.UInt32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.String,System.String,System.UInt32,System.UInt32,System.String)">
             <summary>
             Adds a self attention node
             </summary>

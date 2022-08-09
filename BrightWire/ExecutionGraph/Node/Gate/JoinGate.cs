@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             var list = new List<IncomingChannel>();
             var nodes = data.Select(d => d.Source!).ToArray();
             foreach(var item in data.Skip(1)) {
-                var next = curr.ConcatRows(item.Data!);
+                var next = curr.ConcatRight(item.Data!);
                 //curr.Dispose();
                 curr = next;
                 list.Add(item);
