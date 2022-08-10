@@ -48,7 +48,6 @@
 /UnitTests/obj
 /Data/bin
 /Data/obj
-/BrightAPI
 /BrightData.MKL/bin
 /BrightData.MKL/obj
 /BrightData2/bin
@@ -57,3 +56,8 @@
 /BrightData.Cuda2/obj
 /BrightData.OpenBlas/bin
 /BrightData.OpenBlas/obj
+/BrightAPI/obj
+/BrightAPI/bin
+/BrightAPI/UI/.parcel-cache
+/BrightAPI/UI/dist
+/BrightAPI/UI/node_modules

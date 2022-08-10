@@ -1,0 +1,11 @@
+.project {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    >form {
+        flex-shrink: 0;
+    }
+    >.mosaic {
+        flex-grow: 1;
+    }
+}
