@@ -222,7 +222,7 @@ namespace ExampleCode.DataSet
             foreach (var sequence in sequences)
             {
                 var encodedSequence = grammar.Encode(sequence);
-                var encodedSequence2 = grammar.Encode(Reverse(sequence));
+                var encodedSequence2 = grammar.Encode(Reverse(sequence[1..]));
                 builder.AddRow(encodedSequence, encodedSequence2);
             }
 

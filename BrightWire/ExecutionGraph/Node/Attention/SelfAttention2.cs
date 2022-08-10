@@ -149,7 +149,6 @@ namespace BrightWire.ExecutionGraph.Node.Attention
 
             // create a big input matrix
             using var inputMatrix = _lap.CreateMatrix(numInputRows, _blockSize, false);
-            uint offset = 0;
             for (uint i = 0; i < numInputRows; i++) {
                 var sequenceIndex = i / batchSize;
                 var batchIndex = i % batchSize;

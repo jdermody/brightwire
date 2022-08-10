@@ -143,7 +143,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             const uint BATCH_SIZE = 32;
-            const uint HIDDEN_LAYER_SIZE = 128;
+            const uint HIDDEN_LAYER_SIZE = 8;
             const float TRAINING_RATE = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
@@ -199,8 +199,8 @@ namespace ExampleCode.DataTableTrainers
             // group by index and calculate error
             var errorByIndex = new Dictionary<int, int>();
             foreach (var (input, output) in inputOutput) {
-                var len = input.Length;
                 var outputReversed = output.Reverse().ToList();
+                var len = Math.Min(input.Length, outputReversed.Count);
                 for (var i = 0; i < len; i++) {
                     if (input[i] != outputReversed[i]) {
                         if (errorByIndex.TryGetValue(i, out var error))

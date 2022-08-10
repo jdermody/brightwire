@@ -136,7 +136,6 @@ namespace BrightWire.TrainingData.Artificial
         {
             while (true)
                 yield return NextSequence();
-            // ReSharper disable once IteratorNeverReturns
         }
 
         /// <summary>
