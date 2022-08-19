@@ -645,6 +645,23 @@ namespace BrightData.LinearAlgebra
             return ret ?? CreateVector(tensor.ColumnCount, true);
         }
 
+        public virtual IVector RowSums(ITensor4D tensor)
+        {
+            IVector? ret = null;
+            for (uint i = 0, count = tensor.Count; i < count; i++) {
+                using var subTensor = tensor.GetTensor(i);
+                using var tensorAsMatrix = subTensor.Reshape(subTensor.RowCount * subTensor.ColumnCount, subTensor.Depth);
+                var rowSums = tensorAsMatrix.RowSums();
+                if (ret == null)
+                    ret = rowSums;
+                else {
+                    ret.AddInPlace(rowSums);
+                    rowSums.Dispose();
+                }
+            }
+            return ret ?? CreateVector(tensor.ColumnCount, true);
+        }
+
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
         {
             throw new NotImplementedException();
@@ -961,6 +978,18 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        public virtual ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix other)
+        {
+            using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < tensor.Depth; i++) {
+                using var matrix = tensor.GetMatrix(i);
+                ptr[(int)i] = matrix.TransposeThisAndMultiply(other);
+            }
+            return CreateTensor3DAndThenDisposeInput(ptr);
+        }
+
         public virtual void AddToEachRow(ITensor3D tensor, IVector vector)
         {
             for (uint k = 0; k < tensor.Depth; k++) {
@@ -969,6 +998,33 @@ namespace BrightData.LinearAlgebra
                         tensor[k, i, j] += vector[j];
                 }
             }
+        }
+
+        public virtual void AddToEachColumn(ITensor3D tensor, IVector vector)
+        {
+            for (uint k = 0; k < tensor.Depth; k++) {
+                for (uint j = 0; j < tensor.ColumnCount; j++) {
+                    for (uint i = 0; i < tensor.RowCount; i++)
+                        tensor[k, i, j] += vector[i];
+                }
+            }
+        }
+
+        public virtual ITensor3D Multiply(ITensor3D tensor, ITensor4D other)
+        {
+            Debug.Assert(other.Count == tensor.Depth);
+            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < other.Count; i++) {
+                using var item = other.GetTensor(i);
+                using var multiplyWith = item.Reshape(null, other.Depth);
+                using var slice = tensor.GetMatrix(i);
+                var result = slice.Multiply(multiplyWith);
+                ptr[(int)i] = result;
+            }
+
+            return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
         public virtual ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, ITensor4D other)
@@ -982,6 +1038,23 @@ namespace BrightData.LinearAlgebra
                 using var multiplyWith = item.Reshape(null, other.Depth);
                 using var slice = tensor.GetMatrix(i);
                 var result = slice.TransposeThisAndMultiply(multiplyWith);
+                ptr[(int)i] = result;
+            }
+
+            return CreateTensor3DAndThenDisposeInput(ptr);
+        }
+
+        public virtual ITensor3D TransposeSecondAndMultiply(ITensor3D tensor, ITensor4D other)
+        {
+            Debug.Assert(other.Count == tensor.Depth);
+            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < other.Count; i++) {
+                using var item = other.GetTensor(i);
+                using var multiplyWith = item.Reshape(null, other.Depth);
+                using var slice = tensor.GetMatrix(i);
+                var result = slice.TransposeAndMultiply(multiplyWith);
                 ptr[(int)i] = result;
             }
 

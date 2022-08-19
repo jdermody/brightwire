@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var rowList = new IVector[tensor.Count];
 
             for(uint i = 0; i < tensor.Count; i++) {
-                using var matrix = tensor.GetTensor(i).AddMatrices();
+                using var matrix = tensor.GetTensor(i).AddAllMatrices();
                 rowList[i] = matrix.Reshape();
             }
             var output = context.GetLinearAlgebraProvider().CreateMatrixFromRows(rowList);

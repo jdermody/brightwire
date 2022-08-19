@@ -485,7 +485,7 @@ namespace BrightWire.ExecutionGraph
         {
             var newSize = _initialWidth + encoderSize + decoderSize;
             var weightInit = _factory.GetWeightInitialisation();
-            SetNode(new SelfAttention2(_factory.LinearAlgebraProvider, encoderName, decoderName, _initialWidth, encoderSize, decoderSize, weightInit, _factory.CreateWeightUpdater, name));
+            SetNode(new SimpleAttention(_factory.LinearAlgebraProvider, encoderName, decoderName, _initialWidth, encoderSize, decoderSize, weightInit, _factory.CreateWeightUpdater, name));
             SetNewSize(_width + newSize);
             return this;
         }

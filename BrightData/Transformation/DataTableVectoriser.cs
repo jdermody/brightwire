@@ -147,9 +147,9 @@ namespace BrightData.Transformation
                 writer.Write(_maxSize);
             }
         }
-        class TensorVectoriser : VectoriserBase<ITensor>
+        class TensorVectoriser : VectoriserBase<IHaveTensorSegment>
         {
-            TensorVectoriser(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<ITensor>)column).Values.GetEnumerator()) {}
+            TensorVectoriser(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<IHaveTensorSegment>)column).Values.GetEnumerator()) {}
             public TensorVectoriser(uint size, ITypedSegment column) : this(column)
             {
                 Size = size;
@@ -168,7 +168,7 @@ namespace BrightData.Transformation
             public override uint Size { get; }
             public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
-            protected override IEnumerable<float> Vectorize(ITensor obj)
+            protected override IEnumerable<float> Vectorize(IHaveTensorSegment obj)
             {
                 return obj.Segment.Values;
             }

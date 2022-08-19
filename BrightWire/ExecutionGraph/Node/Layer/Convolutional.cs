@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // calculate the weight and bias updates
                 using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
-                    var weightUpdate = update.AddMatrices();
+                    var weightUpdate = update.AddAllMatrices();
                     var biasUpdate = tensor.ColumnSums();
 
                     var learningContext = context.LearningContext!;
@@ -133,7 +133,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 tensor = tensor.AddPadding(_padding);
 
             var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _xStride, _yStride);
-            var outputSignal = im2Col.Multiply(_filter);
+            var outputSignal = im2Col.MultiplyEachMatrixBy(_filter);
             outputSignal.AddToEachRow(_bias);
             var outputTensor = outputSignal.Reshape(tensor.Count, FilterCount, newHeight, newWidth);
 

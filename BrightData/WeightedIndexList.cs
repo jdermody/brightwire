@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -14,13 +16,31 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public record struct WeightedIndexList(WeightedIndexList.Item[] Indices) : IHaveIndices, IAmSerializable
+    public struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>
     {
+        readonly Item[] _indices;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="indices">Weighted indices</param>
+        public WeightedIndexList(Item[] indices)
+        {
+            _indices = indices;
+        }
+
+        /// <summary>
+        /// Weighted indices
+        /// </summary>
+        public IReadOnlyList<Item> Indices => _indices;
+
+        public ReadOnlySpan<Item> AsSpan() => new(_indices);
+
         /// <summary>
         /// An item within a weighted index list
         /// </summary>
-        [StructLayout(LayoutKind.Sequential, Pack=0)]
-        public readonly record struct Item : IEquatable<Item>
+        //[StructLayout(LayoutKind.Sequential, Pack=0)]
+        public readonly record struct Item
         {
             /// <summary>
             /// Index of item
@@ -47,8 +67,6 @@ namespace BrightData
             public override string ToString() => $"{Index}:{Weight}";
 
             /// <inheritdoc />
-            public bool Equals(Item other) => other.Index == Index && FloatMath.Equals(other.Weight, Weight);
-            /// <inheritdoc />
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
         }
 
@@ -65,7 +83,7 @@ namespace BrightData
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => Indices.Length;
+        public int Count => _indices.Length;
 
         /// <summary>
         /// ToString override
@@ -84,7 +102,8 @@ namespace BrightData
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            Indices = reader.BaseStream.ReadArray<Item>(len);
+            ref var array = ref Unsafe.AsRef(_indices);
+            array = reader.BaseStream.ReadArray<Item>(len);
         }
 
         /// <summary>
@@ -132,8 +151,8 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
-            fixed (Item* ptr = Indices) {
-                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(Item)));
+            fixed (Item* ptr = _indices) {
+                writer.Write(new ReadOnlySpan<byte>(ptr, _indices.Length * sizeof(Item)));
             }
         }
 
@@ -247,7 +266,10 @@ namespace BrightData
 
         /// <inheritdoc />
         // ReSharper disable once NonReadonlyMemberInGetHashCode
-        public override int GetHashCode() => (Indices as IStructuralEquatable).GetHashCode(EqualityComparer<Item>.Default);
+        public override int GetHashCode()
+        {
+            return Indices.GetHashCode();
+        }
 
         /// <summary>
         /// Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type
@@ -268,5 +290,14 @@ namespace BrightData
         /// All weights
         /// </summary>
         public IEnumerable<float> Weights => Indices.Select(d => d.Weight);
+
+        /// <inheritdoc />
+        public bool Equals(WeightedIndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is WeightedIndexList other && Equals(other);
+        }
     }
 }

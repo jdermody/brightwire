@@ -11,12 +11,12 @@ namespace BrightAPI.Controllers
     {
         readonly ILogger<DataTableController> _logger;
         readonly DatabaseManager              _databaseManager;
-        readonly IBrightDataContext           _context;
+        readonly BrightDataContext            _context;
 
         public DataTableController(
             ILogger<DataTableController> logger, 
             DatabaseManager databaseManager,
-            IBrightDataContext context
+            BrightDataContext context
         ) {
             _logger = logger;
             _databaseManager = databaseManager;
@@ -33,11 +33,15 @@ namespace BrightAPI.Controllers
                 using var table = _context.ParseCsvIntoMemory(reader, hasHeader, delimiter);
                 if (targetIndex.HasValue)
                     table.SetTargetColumn(targetIndex.Value);
-                var columns = table.ColumnMetaData().Zip(table.ColumnTypes).Select(c => new DataTableColumnModel {
-                    IsTarget = c.First.IsTarget(),
-                    ColumnType = c.Second
-                }).ToArray();
-
+                var columns = new DataTableColumnModel[table.ColumnCount];
+                for (var i = 0; i < table.ColumnCount; i++) {
+                    var metaData = table.ColumnMetaData[i];
+                    columns[i] = new DataTableColumnModel {
+                        ColumnType = table.ColumnTypes[i],
+                        IsTarget = metaData.IsTarget(),
+                        Name = metaData.GetName()
+                    };
+                }
                 return new DataTablePreviewModel {
                     Columns = columns
                 };

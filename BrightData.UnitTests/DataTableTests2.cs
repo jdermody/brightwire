@@ -64,7 +64,7 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             var fromTable = dataTable.Get<IndexList>(0, 0);
-            fromTable.Should().BeEquivalentTo(sampleIndexList);
+            fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<IndexList>());
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             var fromTable = dataTable.Get<WeightedIndexList>(0, 0);
-            fromTable.Should().BeEquivalentTo(sampleIndexList);
+            fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<WeightedIndexList>());
         }
 
         [Fact]

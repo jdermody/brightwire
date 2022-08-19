@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
@@ -12,8 +14,22 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public record struct IndexList(uint[] Indices) : IHaveIndices, IAmSerializable
+    public struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
     {
+        readonly uint[] _indices;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indices"></param>
+        public IndexList(uint[] indices)
+        {
+            _indices = indices;
+        }
+
+        public IReadOnlyList<uint> Indices => _indices;
+        public ReadOnlySpan<uint> AsSpan() => new(_indices);
+
         /// <summary>
         /// Creates an index list
         /// </summary>
@@ -38,7 +54,7 @@ namespace BrightData
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => Indices.Length;
+        public int Count => _indices.Length;
 
         /// <summary>
         /// ToString override
@@ -50,6 +66,15 @@ namespace BrightData
                 return $"IndexList - {indices}";
             } 
             return $"IndexList ({Count} indices)";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(IndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is IndexList other && Equals(other);
         }
 
         /// <summary>
@@ -70,7 +95,10 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => Indices.GetHashCode();
+        public override int GetHashCode()
+        {
+            return Indices.GetHashCode();
+        }
 
         /// <summary>
         /// Writes the data to an XML writer
@@ -91,8 +119,8 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
-            fixed (uint* ptr = Indices) {
-                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(uint)));
+            fixed (uint* ptr = _indices) {
+                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Count * sizeof(uint)));
             }
         }
 
@@ -100,7 +128,8 @@ namespace BrightData
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            Indices = reader.BaseStream.ReadArray<uint>(len);
+            ref var array = ref Unsafe.AsRef(_indices);
+            array = reader.BaseStream.ReadArray<uint>(len);
         }
 
         /// <summary>

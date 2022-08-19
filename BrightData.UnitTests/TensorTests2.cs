@@ -304,5 +304,25 @@ namespace BrightData.UnitTests
                 (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
             );
         }
+
+        [Fact]
+        public void TestTensorMultipy()
+        {
+            uint index = 1;
+            using var tensor = _linearAlgebraProvider.CreateTensor3D(
+                _linearAlgebraProvider.CreateMatrix(2, 2, (_, _) => index++),
+                _linearAlgebraProvider.CreateMatrix(2, 2, (_, _) => index++)
+            );
+            index = 1;
+
+            using var matrix = _linearAlgebraProvider.CreateMatrix(2, 2, (_, _) => index++);
+            using var multiply1 = tensor.MultiplyEachMatrixBy(matrix);
+
+            using var matrix2 = tensor.Reshape(tensor.Depth * tensor.RowCount, tensor.ColumnCount);
+            using var transposed = matrix2.Transpose();
+            using var matrix3 = transposed.Reshape(tensor.Depth * tensor.RowCount, tensor.ColumnCount);
+            using var multiply2 = matrix3.Multiply(matrix);
+            using var tensor2 = multiply2.Reshape(2, 2, 2);
+        }
     }
 }

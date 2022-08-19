@@ -490,12 +490,12 @@ namespace BrightData.UnitTests
         {
             var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             using var cpuTensor = _cpu.CreateTensor3D(tensor);
-            using var cpuResult = cpuTensor.AddMatrices();
+            using var cpuResult = cpuTensor.AddAllMatrices();
 
-            using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddMatrices());
+            using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddAllMatrices());
             FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
 
-            using var mklResult = Apply(_mkl, cpuTensor, a => a.AddMatrices());
+            using var mklResult = Apply(_mkl, cpuTensor, a => a.AddAllMatrices());
             FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
@@ -504,12 +504,12 @@ namespace BrightData.UnitTests
         {
             var tensor = CheckCreateTensor(12, 6, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             using var cpuTensor = _cpu.CreateTensor3D(tensor);
-            using var cpuResult = cpuTensor.AddMatrices();
+            using var cpuResult = cpuTensor.AddAllMatrices();
 
-            using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddMatrices());
+            using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddAllMatrices());
             FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
 
-            using var mklResult = Apply(_mkl, cpuTensor, a => a.AddMatrices());
+            using var mklResult = Apply(_mkl, cpuTensor, a => a.AddAllMatrices());
             FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
@@ -605,15 +605,33 @@ namespace BrightData.UnitTests
             using var cpuTensor = _cpu.CreateTensor4D(data);
             using var cpuIm2Col = cpuTensor.Im2Col(2, 2, 1, 1);
             using var cpuFilter = _cpu.CreateMatrix(2 * 2 * 2, 5, (i, j) => (i + 1) * (j + 1));
-            using var cpu = cpuIm2Col.Multiply(cpuFilter);
+            using var cpu = cpuIm2Col.MultiplyEachMatrixBy(cpuFilter);
 
             using var gpuIm2Col = _cuda.CreateTensor3D(cpuIm2Col);
             using var gpuFilter = _cuda.CreateMatrix(cpuFilter);
-            using var gpu = gpuIm2Col.Multiply(gpuFilter);
+            using var gpu = gpuIm2Col.MultiplyEachMatrixBy(gpuFilter);
 
             using var mklIm2Col = _mkl.CreateTensor3D(cpuIm2Col);
             using var mklFilter = _mkl.CreateMatrix(cpuFilter);
-            using var mkl = mklIm2Col.Multiply(mklFilter);
+            using var mkl = mklIm2Col.MultiplyEachMatrixBy(mklFilter);
+            AssertSame(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void TensorTransposeMultiplyMatrix()
+        {
+            var tensor = CheckCreateTensor(4, 4, 4, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            using var cpuTensor = _cpu.CreateTensor3D(tensor);
+            using var cpuFilter = _cpu.CreateMatrix(4, 4, (i, j) => (i + 1) * (j + 1));
+            using var cpu = cpuTensor.TransposeAndMultiplyEachMatrixBy(cpuFilter);
+
+            using var gpuIm2Col = _cuda.CreateTensor3D(tensor);
+            using var gpuFilter = _cuda.CreateMatrix(cpuFilter);
+            using var gpu = gpuIm2Col.TransposeAndMultiplyEachMatrixBy(gpuFilter);
+
+            using var mklIm2Col = _mkl.CreateTensor3D(tensor);
+            using var mklFilter = _mkl.CreateMatrix(cpuFilter);
+            using var mkl = mklIm2Col.TransposeAndMultiplyEachMatrixBy(mklFilter);
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -740,6 +758,25 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
+        public void Tensor3DAddVectorToEachColumn()
+        {
+            var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            using var cpuTensor = _cpu.CreateTensor3D(tensor);
+            using var cpuVector = _cpu.CreateVector(2, 1f);
+            cpuTensor.AddToEachColumn(cpuVector);
+
+            using var gpuTensor = _cuda.CreateTensor3D(tensor);
+            using var gpuVector = _cuda.CreateVector(4, 1f);
+            gpuTensor.AddToEachColumn(gpuVector);
+            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+
+            using var mklTensor = _mkl.CreateTensor3D(tensor);
+            using var mklVector = _mkl.CreateVector(4, 1f);
+            mklTensor.AddToEachColumn(mklVector);
+            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+        }
+
+        [Fact]
         public void Tensor3DToFloatTensor()
         {
             var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
@@ -756,10 +793,9 @@ namespace BrightData.UnitTests
         [Fact]
         public void Tensor3DTransposeThisAndMultiply()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
-            var tensor1 = CheckCreateTensor(9, 3, 3, (_, _, _) => (float)normalDistribution.Sample());
-            var data = Enumerable.Range(0, 3)
-                .Select(_ => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+            var normalDistribution = _context.CreateNormalDistribution();
+            var tensor1 = CheckCreateTensor(9, 3, 3, (_, _, _) => normalDistribution.Sample());
+            var data = 3.AsRange().Select(_ => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
             using var cpuTensor1 = _cpu.CreateTensor3D(tensor1);
             using var cpuTensor2 = _cpu.CreateTensor4D(data);
@@ -772,6 +808,27 @@ namespace BrightData.UnitTests
             using var mklTensor1 = _mkl.CreateTensor3D(tensor1);
             using var mklTensor2 = _mkl.CreateTensor4D(data);
             var mkl = mklTensor1.TransposeThisAndMultiply(mklTensor2);
+            AssertSameWithMaxDifference(8, cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void Tensor3DMultiply()
+        {
+            var normalDistribution = _context.CreateNormalDistribution();
+            var tensor1 = CheckCreateTensor(3, 9, 3, (_, _, _) => normalDistribution.Sample());
+            var data = 3.AsRange().Select(_ => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+
+            using var cpuTensor1 = _cpu.CreateTensor3D(tensor1);
+            using var cpuTensor2 = _cpu.CreateTensor4D(data);
+            using var cpu = cpuTensor1.Multiply(cpuTensor2);
+
+            using var gpuTensor1 = _cuda.CreateTensor3D(tensor1);
+            using var gpuTensor2 = _cuda.CreateTensor4D(data);
+            var gpu = gpuTensor1.Multiply(gpuTensor2);
+
+            using var mklTensor1 = _mkl.CreateTensor3D(tensor1);
+            using var mklTensor2 = _mkl.CreateTensor4D(data);
+            var mkl = mklTensor1.Multiply(mklTensor2);
             AssertSameWithMaxDifference(8, cpu, gpu, mkl);
         }
 
@@ -813,6 +870,22 @@ namespace BrightData.UnitTests
 
             using var mklTensor = _mkl.CreateTensor4D(data);
             using var mkl = mklTensor.ColumnSums();
+            AssertSame(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void Tensor4DRowSums()
+        {
+            var data = Enumerable.Range(0, 5)
+                .Select(_ => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+            using var cpuTensor = _cpu.CreateTensor4D(data);
+            using var cpu = cpuTensor.RowSums();
+
+            using var gpuTensor = _cuda.CreateTensor4D(data);
+            using var gpu = gpuTensor.RowSums();
+
+            using var mklTensor = _mkl.CreateTensor4D(data);
+            using var mkl = mklTensor.RowSums();
             AssertSame(cpu, gpu, mkl);
         }
 

@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections;
+using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,13 +10,27 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public record struct BinaryData(byte[] Data) : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>
     {
+        readonly byte[] _data;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">Binary data blob</param>
+        public BinaryData(byte[] data)
+        {
+            _data = data;
+        }
+
+        public byte[] Data => _data;
+
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var size = reader.ReadInt32();
-            Data = reader.ReadBytes(size);
+            ref var array = ref Unsafe.AsRef(_data);
+            array = reader.ReadBytes(size);
         }
 
         /// <inheritdoc />
@@ -38,6 +55,21 @@ namespace BrightData
 
             var hash = sb.ToString();
             return $"Hash:{hash}, Size:{Data.Length:N0}";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(BinaryData other) => StructuralComparisons.StructuralEqualityComparer.Equals(Data, other.Data);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is BinaryData other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Data.GetHashCode();
         }
     }
 }

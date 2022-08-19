@@ -14,12 +14,31 @@ namespace BrightData.DataTable
             var metaData = GetColumnMetaData(columnIndex);
             var type = metaData.GetColumnType();
             var analyser = type.GetColumnAnalyser(metaData, writeCount, maxDistinctCount);
-
-            return GenericActivator.Create<IOperation<(uint, MetaData)>>(typeof(AnalyseColumnOperation<>).MakeGenericType(type.GetDataType()),
+            var reader = GetColumnReader(columnIndex, _header.RowCount);
+            var dataType = type.GetDataType();
+            var dataType2 = type switch {
+                BrightDataType.IndexList => typeof(IHaveIndices),
+                BrightDataType.WeightedIndexList => typeof(IHaveIndices),
+                BrightDataType.Matrix => typeof(ITensor),
+                BrightDataType.Vector => typeof(ITensor),
+                BrightDataType.Tensor3D => typeof(ITensor),
+                BrightDataType.Tensor4D => typeof(ITensor),
+                _ => dataType
+            };
+            if (dataType != dataType2) {
+                return GenericActivator.Create<IOperation<(uint, MetaData)>>(typeof(AnalyseColumnWithCastOperation<,>).MakeGenericType(dataType, dataType2),
+                    RowCount,
+                    columnIndex,
+                    metaData,
+                    reader,
+                    analyser
+                );
+            }
+            return GenericActivator.Create<IOperation<(uint, MetaData)>>(typeof(AnalyseColumnOperation<>).MakeGenericType(dataType),
                 RowCount,
                 columnIndex,
                 metaData,
-                GetColumnReader(columnIndex, _header.RowCount),
+                reader,
                 analyser
             );
         }

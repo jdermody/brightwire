@@ -471,9 +471,9 @@ namespace BrightData.Cuda
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SumRows(IDeviceMemoryPtr a, uint rows, uint columns, CUstream* stream = null)
+		internal IDeviceMemoryPtr SumRows(IDeviceMemoryPtr a, uint rows, uint columns, IDeviceMemoryPtr? ret, CUstream* stream = null)
 		{
-			var ret = Allocate(rows, stream, true);
+			ret ??= Allocate(rows, stream, true);
 			InvokeMatrix(_sumRows, stream, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}

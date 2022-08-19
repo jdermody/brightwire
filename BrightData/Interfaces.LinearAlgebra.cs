@@ -264,12 +264,16 @@ namespace BrightData
         ITensor3D AddPadding(uint padding);
         ITensor3D RemovePadding(uint padding);
         IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
         ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
-        IMatrix AddMatrices();
-        ITensor3D Multiply(IMatrix matrix);
+        IMatrix AddAllMatrices();
+        ITensor3D MultiplyEachMatrixBy(IMatrix matrix);
+        ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix matrix);
         void AddToEachRow(IVector vector);
+        void AddToEachColumn(IVector vector);
+        ITensor3D Multiply(ITensor4D other);
+        ITensor3D TransposeAndMultiply(ITensor4D other);
         ITensor3D TransposeThisAndMultiply(ITensor4D other);
     }
 
@@ -287,5 +291,6 @@ namespace BrightData
         ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
         IVector ColumnSums();
+        IVector RowSums();
     }
 }

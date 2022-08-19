@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -176,7 +177,7 @@ namespace BrightData.DataTable
         }
         void WriteStructs<T>(ICanEnumerateWithSize<T> buffer) where T : struct =>
             Write<T, T>(buffer, (item, ptr, index) => ptr[index] = item);
-        delegate IT[] GetArray<in T, out IT>(T item) where IT : struct;
+        delegate ReadOnlySpan<IT> GetArray<in T, IT>(T item) where IT : struct;
         void WriteDataRange<T, IT>(ICanEnumerateWithSize<T> buffer, IHybridBuffer<IT> indices, GetArray<T, IT> getArray)
             where T : notnull
             where IT : struct
@@ -192,9 +193,9 @@ namespace BrightData.DataTable
         }
 
         void WriteIndexLists(ICanEnumerateWithSize<IndexList> buffer, IHybridBuffer<uint> indices) =>
-            WriteDataRange(buffer, indices, indexList => indexList.Indices);
+            WriteDataRange(buffer, indices, indexList => indexList.AsSpan());
         void WriteWeightedIndexLists(ICanEnumerateWithSize<WeightedIndexList> buffer, IHybridBuffer<WeightedIndexList.Item> indices) =>
-            WriteDataRange(buffer, indices, indexList => indexList.Indices);
+            WriteDataRange(buffer, indices, indexList => indexList.AsSpan());
         void WriteBinaryData(ICanEnumerateWithSize<BinaryData> buffer, IHybridBuffer<byte> indices) =>
             WriteDataRange(buffer, indices, indexList => indexList.Data);
 

@@ -126,8 +126,10 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.Values)
-                item.Should().Be(indexTranslator(index++));
+            foreach (var item in bufferReader.Values) {
+                var comparison = indexTranslator(index++);
+                item.Should().BeEquivalentTo(comparison, options => options.ComparingByMembers<T>());
+            }
         }
 
         void StructBufferReadWriteTest<T>(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : struct

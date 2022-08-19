@@ -65,8 +65,9 @@ namespace BrightData.LinearAlgebra
         public IReadOnlyMatrix[] AllMatrices()
         {
             var ret = new IReadOnlyMatrix[Depth];
+            var _this = (IReadOnlyTensor3D)this;
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetMatrix(i);
+                ret[i] = _this.GetReadOnlyMatrix(i);
             return ret;
         }
         public IMatrix GetMatrix(uint index) => _lap.GetMatrix(this, index);
@@ -76,9 +77,14 @@ namespace BrightData.LinearAlgebra
         public (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
         public ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
         public ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
-        public IMatrix AddMatrices() => _lap.AddMatrices(this);
-        public ITensor3D Multiply(IMatrix matrix) => _lap.Multiply(this, matrix);
+        public IMatrix AddAllMatrices() => _lap.AddMatrices(this);
+        public ITensor3D MultiplyEachMatrixBy(IMatrix matrix) => _lap.Multiply(this, matrix);
+        public ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix matrix) => _lap.TransposeFirstAndMultiply(this, matrix);
         public void AddToEachRow(IVector vector) => _lap.AddToEachRow(this, vector);
+        public void AddToEachColumn(IVector vector) => _lap.AddToEachColumn(this, vector);
+        public ITensor3D Multiply(ITensor4D other) => _lap.Multiply(this, other);
+        public ITensor3D TransposeAndMultiply(ITensor4D other) => _lap.TransposeSecondAndMultiply(this, other);
+
         public ITensor3D TransposeThisAndMultiply(ITensor4D other) => _lap.TransposeFirstAndMultiply(this, other);
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }

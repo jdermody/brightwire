@@ -440,7 +440,7 @@ namespace BrightData.Cuda
 
         public override IVector RowSums(IMatrix matrix)
         {
-            var ret = Provider.SumRows(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount);
+            var ret = Provider.SumRows(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount, null);
             return CreateVector(new CudaTensorSegment(ret));
         }
 
@@ -974,6 +974,14 @@ namespace BrightData.Cuda
             }
         }
 
+        public override void AddToEachColumn(ITensor3D tensor, IVector vector)
+        {
+            for (uint i = 0, len = tensor.Depth; i < len; i++) {
+                using var matrix = tensor.GetMatrix(i);
+                matrix.AddToEachColumn(vector.Segment);
+            }
+        }
+
         public override IVector ColumnSums(ITensor4D tensor)
         {
             uint matrixSize = tensor.MatrixSize, tensorSize = tensor.TensorSize, depth = tensor.Depth, count = tensor.Count;
@@ -985,8 +993,25 @@ namespace BrightData.Cuda
             for (uint i = 0; i < count; i++) {
                 var tensorPtr = tensorMemory.Offset(i * tensorSize, tensorSize);
                 var retPtr = singleBlock.Offset(i * matrixSize, matrixSize);
-                var columnSums = Provider.SumColumns(tensorPtr, matrixSize, depth, retPtr);
+                using var columnSums = Provider.SumColumns(tensorPtr, matrixSize, depth, retPtr);
                 Provider.AddInPlace(retMemory, columnSums, depth, 1f, 1f);
+            }
+            return new CudaVector(ret, this);
+        }
+
+        public override IVector RowSums(ITensor4D tensor)
+        {
+            uint matrixSize = tensor.MatrixSize, tensorSize = tensor.TensorSize, depth = tensor.Depth, count = tensor.Count;
+            var ret = (CudaTensorSegment)CreateSegment(depth, true);
+            var tensorMemory = GetDeviceMemoryPtr(tensor.Segment);
+            var retMemory = ret.DeviceMemory;
+            using var singleBlock = Provider.Allocate(count * matrixSize, null, true);
+
+            for (uint i = 0; i < count; i++) {
+                var tensorPtr = tensorMemory.Offset(i * tensorSize, tensorSize);
+                var retPtr = singleBlock.Offset(i * matrixSize, matrixSize);
+                using var rowSums = Provider.SumRows(tensorPtr, matrixSize, depth, retPtr);
+                Provider.AddInPlace(retMemory, rowSums, depth, 1f, 1f);
             }
             return new CudaVector(ret, this);
         }
@@ -1063,6 +1088,38 @@ namespace BrightData.Cuda
             return output;
         }
 
+        //public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix matrix)
+        //{
+        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
+        //    uint rowsA = tensor.RowCount, columnsArowsB = tensor.ColumnCount, columnsB = matrix.ColumnCount;
+        //    float alpha = 1.0f, beta = 0.0f;
+        //    var outputPtr = Provider.Allocate(tensor.RowCount * columnsB * tensor.Depth);
+        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, tensor.RowCount, columnsB, this);
+
+        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
+        //        Operation.Transpose,
+        //        Operation.NonTranspose,
+        //        (int)rowsA,
+        //        (int)columnsB,
+        //        (int)columnsArowsB,
+        //        ref alpha,
+        //        ptr.DevicePointer,
+        //        (int)rowsA,
+        //        tensor.MatrixSize,
+        //        GetDeviceMemoryPtr(matrix.Segment).DevicePointer,
+        //        (int)columnsArowsB,
+        //        0,
+        //        ref beta,
+        //        outputPtr.DevicePointer,
+        //        (int)rowsA,
+        //        tensor.RowCount * columnsB,
+        //        (int)tensor.Depth
+        //    );
+        //    if (status != CublasStatus.Success)
+        //        throw new CudaBlasException(status);
+        //    return output;
+        //}
+
         public override ITensor3D RemovePadding(ITensor3D tensor, uint padding)
         {
             var (ptr, rows, cols) = Provider.TensorRemovePadding(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, padding);
@@ -1099,11 +1156,45 @@ namespace BrightData.Cuda
             return new CudaTensor4D(new CudaTensorSegment(ptr), tensor.Count, tensor.Depth, outputRows, outputColumns, this);
         }
 
+        //public override ITensor3D Multiply(ITensor3D tensor, ITensor4D other)
+        //{
+        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
+        //    var ptr2 = GetDeviceMemoryPtr(other.Segment);
+        //    uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
+        //    float alpha = 1.0f, beta = 0.0f;
+        //    var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
+        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
+
+        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
+        //        Operation.NonTranspose,
+        //        Operation.NonTranspose,
+        //        (int)columnsA,
+        //        (int)columnsB,
+        //        (int)rowsB,
+        //        ref alpha,
+        //        ptr.DevicePointer,
+        //        (int)rowsA,
+        //        tensor.MatrixSize,
+        //        ptr2.DevicePointer,
+        //        (int)rowsB,
+        //        blockSize2,
+        //        ref beta,
+        //        outputPtr.DevicePointer,
+        //        (int)columnsA,
+        //        tensor.ColumnCount * columnsB,
+        //        (int)tensor.Depth
+        //    );
+        //    if (status != CublasStatus.Success)
+        //        throw new CudaBlasException(status);
+
+        //    return output;
+        //}
+
         public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, ITensor4D other)
         {
             var ptr = GetDeviceMemoryPtr(tensor.Segment);
             var ptr2 = GetDeviceMemoryPtr(other.Segment);
-            uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
+            uint rowsA = tensor.RowCount, columnsArowsB = tensor.ColumnCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
             float alpha = 1.0f, beta = 0.0f;
             var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
             var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
@@ -1132,6 +1223,40 @@ namespace BrightData.Cuda
 
             return output;
         }
+
+        //public override ITensor3D TransposeSecondAndMultiply(ITensor3D tensor, ITensor4D other)
+        //{
+        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
+        //    var ptr2 = GetDeviceMemoryPtr(other.Segment);
+        //    uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
+        //    float alpha = 1.0f, beta = 0.0f;
+        //    var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
+        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
+
+        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
+        //        Operation.NonTranspose,
+        //        Operation.Transpose,
+        //        (int)columnsA,
+        //        (int)columnsB,
+        //        (int)rowsB,
+        //        ref alpha,
+        //        ptr.DevicePointer,
+        //        (int)rowsA,
+        //        tensor.MatrixSize,
+        //        ptr2.DevicePointer,
+        //        (int)rowsB,
+        //        blockSize2,
+        //        ref beta,
+        //        outputPtr.DevicePointer,
+        //        (int)columnsA,
+        //        tensor.ColumnCount * columnsB,
+        //        (int)tensor.Depth
+        //    );
+        //    if (status != CublasStatus.Success)
+        //        throw new CudaBlasException(status);
+
+        //    return output;
+        //}
 
         public override ITensorSegment[] MultiSoftmax(ArraySegment<ITensorSegment> segments)
         {

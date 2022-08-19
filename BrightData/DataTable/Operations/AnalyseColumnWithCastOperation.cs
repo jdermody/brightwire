@@ -1,18 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BrightData.DataTable.Operations
 {
-    internal class AnalyseColumnOperation<T> : OperationBase<(uint, MetaData)> 
-        where T : notnull
+    internal class AnalyseColumnWithCastOperation<T, T2> : OperationBase<(uint, MetaData)> 
+        where T : notnull 
+        where T2 : class
     {
         readonly uint                       _columnIndex;
         readonly MetaData                   _metaData;
         readonly ICanEnumerateDisposable<T> _reader;
         readonly IEnumerator<T>             _enumerator;
-        readonly IDataAnalyser<T>           _analyser;
+        readonly IDataAnalyser<T2>          _analyser;
 
-        public AnalyseColumnOperation(uint rowCount, uint columnIndex, MetaData metaData, ICanEnumerateDisposable<T> reader, IDataAnalyser<T> analyser) : base(rowCount, null)
+        public AnalyseColumnWithCastOperation(uint rowCount, uint columnIndex, MetaData metaData, ICanEnumerateDisposable<T> reader, IDataAnalyser<T2> analyser) : base(rowCount, null)
         {
             _columnIndex = columnIndex;
             _metaData = metaData;
@@ -30,7 +35,7 @@ namespace BrightData.DataTable.Operations
         {
             if (_enumerator.MoveNext()) {
                 var val = _enumerator.Current;
-                _analyser.Add(val);
+                _analyser.Add(Unsafe.As<T2>(val));
             }
         }
 

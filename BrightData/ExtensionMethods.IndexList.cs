@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
@@ -110,7 +111,7 @@ namespace BrightData
         {
             var max = float.MinValue;
             foreach (ref var item in data) {
-                foreach (ref var index in item.Data.Indices.AsSpan()) {
+                foreach (ref readonly var index in item.Data.AsSpan()) {
                     if (index.Weight > max)
                         max = index.Weight;
                 }
@@ -126,7 +127,7 @@ namespace BrightData
         {
             uint max = 0;
             foreach (ref var item in data) {
-                foreach (ref var index in item.Data.Indices.AsSpan()) {
+                foreach (ref readonly var index in item.Data.AsSpan()) {
                     if (index.Index > max)
                         max = index.Index;
                 }
