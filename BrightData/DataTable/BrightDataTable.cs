@@ -180,6 +180,7 @@ namespace BrightData.DataTable
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             // _stream will be disposed by the buffer
             _buffer.Dispose();
         }
@@ -188,6 +189,7 @@ namespace BrightData.DataTable
         public MetaData TableMetaData => _metaData.Value[0];
         public uint ColumnCount => _header.ColumnCount;
         public uint RowCount => _header.RowCount;
+        public DataTableOrientation Orientation => _header.Orientation;
         public ICanRandomlyAccessData[] DefaultColumnReaders => _columnReaders.Value;
         public string[] StringTable => _stringTable.Value;
         public ICanRandomlyAccessUnmanagedData<byte> BinaryDataBlock => _binaryData.Value;

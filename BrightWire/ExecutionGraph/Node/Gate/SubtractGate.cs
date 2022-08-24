@@ -32,10 +32,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public SubtractGate(string? name = null) : base(name) { }
 
-        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        protected override (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource)
         {
-            var output = primary.Subtract(secondary);
-            return (output, () => new Backpropagation(this, primarySource, secondarySource));
+            var output = primary.GetMatrix().Subtract(secondary.GetMatrix());
+            return (output.AsGraphData(), () => new Backpropagation(this, primarySource, secondarySource));
         }
     }
 }

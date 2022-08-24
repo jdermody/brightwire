@@ -26,6 +26,11 @@ namespace BrightWire.ExecutionGraph.Helper
             throw new System.NotImplementedException();
         }
 
+        public ITensor3D Get3DTensor()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public ITensor4D Get4DTensor()
         {
             throw new System.NotImplementedException();
@@ -55,6 +60,11 @@ namespace BrightWire.ExecutionGraph.Helper
         public SingleGraphData(float data) => _value = data;
 
         public IMatrix GetMatrix()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ITensor3D Get3DTensor()
         {
             throw new System.NotImplementedException();
         }
@@ -92,6 +102,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Count => 1;
 
         public IMatrix GetMatrix() => _matrix;
+        public ITensor3D? Get3DTensor() => null;
         public ITensor4D? Get4DTensor() => null;
         public IGraphData ReplaceWith(IMatrix matrix) => new MatrixGraphData(matrix);
 
@@ -124,6 +135,7 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Depth => _matrix.ColumnCount;
         public uint Count => 1;
 	    public IMatrix GetMatrix() => _matrix;
+        public ITensor3D? Get3DTensor() => _matrix.Reshape(_matrix.ColumnCount, Rows, Columns);
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
         public ITensor4D? Get4DTensor()
         {
@@ -159,6 +171,7 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Count => _matrix.ColumnCount;
         public IMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
+        public ITensor3D Get3DTensor() => _matrix.Reshape(null, Rows, Columns);
         public ITensor4D Get4DTensor() => _matrix.Reshape(null, Depth, Rows, Columns);
         public bool HasValue { get; } = true;
         public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count}): {_matrix}";

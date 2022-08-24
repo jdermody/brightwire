@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.ExecutionGraph.Node;
+using BrightWire.Models;
+
+namespace BrightWire.UnitTests.Helper
+{
+    internal class MockGraphEngine : IGraphEngine
+    {
+        public MockGraphEngine(LinearAlgebraProvider lap)
+        {
+            LinearAlgebraProvider = lap;
+        }
+
+        public IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
+        public ExecutionGraphModel Graph { get; }
+        public IDataSource? DataSource { get; }
+        public NodeBase Start { get; }
+    }
+}

@@ -19,6 +19,14 @@ namespace ExampleCode
     {
         const int RandomSeed = 0;
 
+        enum Outcome
+        {
+            Red,
+            Green,
+            Blue,
+            Yellow
+        }
+
         static void Main()
         {
             using var context = new BrightDataContext(null, RandomSeed);

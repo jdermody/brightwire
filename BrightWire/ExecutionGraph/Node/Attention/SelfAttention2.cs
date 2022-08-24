@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
     internal class SelfAttention2 : NodeBase
     {
         readonly GetAttentionInput _start;
-        readonly FeedForward _key, _query, _value;
+        readonly FeedForward _key, _query;
 
         public SelfAttention2(
             GraphFactory graph, 
@@ -27,9 +27,8 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             ) : base(name, id)
         {
             _start = new GetAttentionInput(graph.LinearAlgebraProvider, inputSize, encoderSize, decoderSize, encoderName, decoderName, $"{Name}_input");
-            _key = (FeedForward)graph.CreateFeedForward(_start.BlockSize, attentionSize, $"{Name}_key");
+            _key = (FeedForward)graph.CreateFeedForward(_start.BlockSize, 1, $"{Name}_key");
             _query = (FeedForward)graph.CreateFeedForward(_start.BlockSize, attentionSize, $"{Name}_key");
-            _value = (FeedForward)graph.CreateFeedForward(_start.BlockSize, _start.BlockSize, $"{Name}_key");
             Create(graph);
         }
 
@@ -38,7 +37,6 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             var graphStart = graph.Connect(_start.BlockSize, _start);
             graphStart.Add(_key);
             graphStart.Add(_query);
-            graphStart.Add(_value);
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

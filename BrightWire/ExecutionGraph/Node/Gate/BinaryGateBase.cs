@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     public abstract class BinaryGateBase : NodeBase
     {
-        IMatrix? _primary = null, _secondary = null;
+        IGraphData? _primary = null, _secondary = null;
         NodeBase? _primarySource = null, _secondarySource = null;
 
         /// <summary>
@@ -26,12 +26,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             if (channel == 0) {
                 _primarySource = source;
-                _primary = signal.GetMatrix();
-                (next, backProp) = TryComplete(signal, context);
+                _primary = signal;
+                (next, backProp) = TryComplete(context);
             }else if (channel == 1) {
                 _secondarySource = source;
-                _secondary = signal.GetMatrix();
-                (next, backProp) = TryComplete(signal, context);
+                _secondary = signal;
+                (next, backProp) = TryComplete(context);
             }
             else
                 throw new NotImplementedException();
@@ -39,13 +39,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, next, backProp);
         }
 
-        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete(IGraphData signal, IGraphContext context)
+        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete(IGraphContext context)
         {
             if (_primary != null && _secondary != null && _primarySource != null && _secondarySource != null) {
                 var (next, backProp) = Activate(context, _primary, _secondary, _primarySource, _secondarySource);
                 _primary = _secondary = null;
                 _primarySource = _secondarySource = null;
-                return (signal.ReplaceWith(next), backProp);
+                return (next, backProp);
             }
 
             return (GraphData.Null, null);
@@ -59,6 +59,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="secondary">Secondary signal</param>
         /// <param name="primarySource">Primary source node</param>
         /// <param name="secondarySource">Secondary source node</param>
-        protected abstract (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
+        protected abstract (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource);
     }
 }

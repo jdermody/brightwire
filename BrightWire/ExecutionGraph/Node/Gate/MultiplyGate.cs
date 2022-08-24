@@ -40,11 +40,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public MultiplyGate(string? name = null) : base(name) { }
 
-        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        protected override (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource)
         {
-            var output = primary.PointwiseMultiply(secondary);
+            var primaryMatrix = primary.GetMatrix();
+            var secondaryMatrix = secondary.GetMatrix();
+            var output = primaryMatrix.PointwiseMultiply(secondaryMatrix);
 
-            return (output, () => new Backpropagation(this, primary,  secondary, primarySource, secondarySource));
+            return (output.AsGraphData(), () => new Backpropagation(this, primaryMatrix,  secondaryMatrix, primarySource, secondarySource));
         }
     }
 }

@@ -67,6 +67,14 @@ namespace BrightData.DataTable
         }
 
         public BrightDataTableRow GetRow(uint rowIndex) => GetRows(rowIndex).Single();
+
+        public IEnumerable<BrightDataTableRow> GetRows(IEnumerable<uint> rowIndices)
+        {
+            var readers = GetColumnReaders();
+            foreach (var ri in rowIndices) {
+                yield return new BrightDataTableRow(this, readers, ri);
+            }
+        }
         public IEnumerable<BrightDataTableRow> GetRows(params uint[] rowIndices)
         {
             var readers = GetColumnReaders();

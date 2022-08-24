@@ -8,6 +8,8 @@ namespace BrightData.DataTable
 {
     public partial class BrightDataTable
     {
+        public void WriteTo(string path) => WriteColumnsTo(new FileStream(path, FileMode.Create, FileAccess.Write));
+
         public void WriteColumnsTo(Stream stream, params uint[] columnIndices)
         {
             var columns = GetColumns(AllOrSpecifiedColumnIndices(columnIndices)).ToArray();

@@ -21,7 +21,7 @@
 	var interfaceList = new List<CodeInterface>();
 	foreach(var project in dte.Solution.Projects.Cast<Project>()) {
         var name = project.Name;
-        if(name == "BrightWire" || name == "BrightTable" || name == "BrightData") {
+        if(name == "BrightWire" || name == "BrightData") {
 			foreach(var file in project.ProjectItems.Cast<ProjectItem>()) {
 				Collect(file, classList, enumList, interfaceList);
             }

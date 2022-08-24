@@ -18,6 +18,7 @@ namespace BrightWire.UnitTests.Helper
 #pragma warning restore 8618
         {
             LearningContext = new MockLearningContext();
+            ExecutionContext = new(new MockGraphEngine(lap));
         }
 
         public void Dispose()

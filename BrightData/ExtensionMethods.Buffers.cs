@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrightData.Buffer.EncodedStream;
+using BrightData.Buffer.Hybrid;
 using BrightData.Helper;
 
 namespace BrightData
@@ -97,6 +98,12 @@ namespace BrightData
         {
             for(int i = 0, len = span.Length; i < len; i++)
                 buffer.Add(span[i]);
+        }
+
+        public static (ITypedSegment<T> Segment, IHybridBufferWithMetaData<T> Buffer) GetSegmentWithHybridBuffer<T>(this BrightDataContext context, MetaData metaData, IHybridBuffer<T> buffer) where T : notnull
+        {
+            var ret = new HybridBufferSegment<T>(context, typeof(T).GetBrightDataType(), metaData, buffer);
+            return (ret, ret);
         }
     }
 }

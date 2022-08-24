@@ -299,8 +299,9 @@
         </member>
         <member name="M:BrightData.BinaryData.#ctor(System.Byte[])">
             <summary>
-            Blob of binary data
+            Constructor
             </summary>
+            <param name="data">Binary data blob</param>
         </member>
         <member name="M:BrightData.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
@@ -309,6 +310,15 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.BinaryData.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.Equals(BrightData.BinaryData)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.GetHashCode">
             <inheritdoc />
         </member>
         <member name="T:BrightData.BrightDataContext">
@@ -1557,7 +1567,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.DataTable.BrightDataTable,BrightData.IColumnTransformationParam[])">
+        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.DataTable.BrightDataTable,System.String,BrightData.IColumnTransformationParam[])">
             <summary>
             Creates a new table with columns that have been converted
             </summary>
@@ -1725,6 +1735,65 @@
             <param name="context"></param>
             <param name="mean"></param>
             <param name="stdDev">Standard deviation</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CosineDistance(System.Single[],System.Single[])">
+            <summary>
+            Vectorised cosine distance
+            </summary>
+            <param name="v1">First vector</param>
+            <param name="v2">Second vector</param>
+            <returns>Cosine distance between the two vectors</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Minimum(System.Single[])">
+            <summary>
+            Find the minimum value and index in a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the minimum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumIndex(System.Single[])">
+            <summary>
+            Returns the index of the minimum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumValue(System.Single[])">
+            <summary>
+            Returns the minimum value
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Maximum(System.Single[])">
+            <summary>
+            Returns the maximum value and index within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the maximum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumIndex(System.Single[])">
+            <summary>
+            Returns the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumValue(System.Single[])">
+            <summary>
+            Returns the index of the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Softmax(System.Single[])">
+            <summary>
+            Calculates the softmax of a vector
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+            <param name="vector"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.BrightDataContext,System.UInt32[])">
@@ -2017,56 +2086,6 @@
             </summary>
             <param name="context"></param>
             <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Minimum(System.Single[])">
-            <summary>
-            Find the minimum value and index in a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns>Tuple containing the minimum value and its index</returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MinimumIndex(System.Single[])">
-            <summary>
-            Returns the index of the minimum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MinimumValue(System.Single[])">
-            <summary>
-            Returns the minimum value
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Maximum(System.Single[])">
-            <summary>
-            Returns the maximum value and index within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns>Tuple containing the maximum value and its index</returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MaximumIndex(System.Single[])">
-            <summary>
-            Returns the maximum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MaximumValue(System.Single[])">
-            <summary>
-            Returns the index of the maximum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Softmax(System.Single[])">
-            <summary>
-            Calculates the softmax of a vector
-            https://en.wikipedia.org/wiki/Softmax_function
-            </summary>
-            <param name="vector"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ReduceDimensionsWithSVD(BrightData.IMatrix,System.UInt32)">
@@ -2521,8 +2540,9 @@
         </member>
         <member name="M:BrightData.IndexList.#ctor(System.UInt32[])">
             <summary>
-            Contains a list of indices
+            
             </summary>
+            <param name="indices"></param>
         </member>
         <member name="M:BrightData.IndexList.Create(System.UInt32[])">
             <summary>
@@ -2554,6 +2574,12 @@
             <summary>
             ToString override
             </summary>
+        </member>
+        <member name="M:BrightData.IndexList.Equals(BrightData.IndexList)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.IndexList.Equals(System.Object)">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.IndexList})">
             <summary>
@@ -3929,7 +3955,13 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.#ctor(BrightData.WeightedIndexList.Item[])">
             <summary>
-            A list of weighted indices is a sparse vector
+            Constructor
+            </summary>
+            <param name="indices">Weighted indices</param>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Indices">
+            <summary>
+            Weighted indices
             </summary>
         </member>
         <member name="T:BrightData.WeightedIndexList.Item">
@@ -3955,9 +3987,6 @@
             <param name="weight">Weight of item</param>
         </member>
         <member name="M:BrightData.WeightedIndexList.Item.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
@@ -4057,6 +4086,12 @@
             <summary>
             All weights
             </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Equals(BrightData.WeightedIndexList)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
+            <inheritdoc />
         </member>
     </members>
 </doc>

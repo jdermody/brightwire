@@ -66,6 +66,7 @@ namespace BrightData.LinearAlgebra
         internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || (_scope.FirstOrDefault()?.TryRemove(new KeyValuePair<IDisposable, bool>(obj, true)) ?? false);
 
         // segment creation
+        public virtual ITensorSegment CreateSegment(float[] data) => new ArrayBasedTensorSegment(data);
         public virtual ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, initialiseToZero ? AllocationMode.Clear : AllocationMode.Default));
         public virtual ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {

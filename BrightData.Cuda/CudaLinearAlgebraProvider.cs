@@ -45,6 +45,12 @@ namespace BrightData.Cuda
         public override Type Tensor4DType { get; } = typeof(CudaTensor4D);
         public CudaProvider Provider { get; }
 
+        public override ITensorSegment CreateSegment(float[] data)
+        {
+            var deviceMemory = Provider.Allocate((uint)data.Length);
+            deviceMemory.CopyToDevice(data);
+            return new CudaTensorSegment(deviceMemory);
+        }
         public override ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new CudaTensorSegment(Provider.Allocate(size, null, initialiseToZero));
         public override ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {

@@ -6,6 +6,9 @@ using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
+    /// <summary>
+    /// Connects the hidden states across two recurrent neural network nodes
+    /// </summary>
     class RecurrentBridge : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<RecurrentBridge>

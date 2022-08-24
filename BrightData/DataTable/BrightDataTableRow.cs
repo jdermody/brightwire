@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightData.DataTable
@@ -17,6 +18,7 @@ namespace BrightData.DataTable
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             // nop
         }
 

@@ -31,10 +31,12 @@ namespace BrightWire
             var executionContext = new GraphExecutionContext(engine);
             var userNotifications = engine.Context.UserNotifications;
 
-            //var testId = Guid.NewGuid().ToString("n");
-            //userNotifications?.OnStartOperation(testId);
-            //engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
-            //userNotifications?.OnCompleteOperation(testId, false);
+#if !DEBUG
+            var testId = Guid.NewGuid().ToString("n");
+            userNotifications?.OnStartOperation(testId);
+            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            userNotifications?.OnCompleteOperation(testId, false);
+#endif
 
             var count = 0;
             GraphModel? ret = null;

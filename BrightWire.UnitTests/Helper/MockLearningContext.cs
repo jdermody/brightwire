@@ -34,7 +34,6 @@ namespace BrightWire.UnitTests.Helper
         public bool DeferUpdates { get; set; }
         public void AddError(ErrorType errorType, NodeBase fromNode, ITensor error)
         {
-            throw new NotImplementedException();
         }
 
         public void ApplyUpdates()

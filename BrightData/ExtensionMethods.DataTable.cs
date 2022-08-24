@@ -1047,6 +1047,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
+        public static BrightDataTable Convert(this BrightDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, filePath, conversion);
         public static BrightDataTable Convert(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
 
         public static BrightDataTable Convert(this BrightDataTable dataTable, params ColumnConversionType[] conversionTypes) => MutateColumns(dataTable, null, conversionTypes.Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
@@ -1058,6 +1059,7 @@ namespace BrightData
         /// <param name="conversion">Column normalization parameters</param>
         /// <returns></returns>
         public static BrightDataTable Normalize(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
+        public static BrightDataTable Normalize(this BrightDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, filePath, conversion);
 
         /// <summary>
         /// Creates a new data table with this concatenated with other column oriented data tables
@@ -1086,14 +1088,14 @@ namespace BrightData
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, newColumns, GetMemoryOrFileStream(filePath));
         }
 
-        public static BrightDataTable ConcatenateColumns(this BrightDataTable table, string? filePath, BrightDataTable[] others)
+        public static BrightDataTable ConcatenateColumns(this BrightDataTable table, string? filePath, params BrightDataTable[] others)
         {
             var stream = GetMemoryOrFileStream(filePath);
             table.ConcatenateColumns(others, stream);
             return table.Context.LoadTableFromStream(stream);
         }
 
-        public static BrightDataTable ConcatenateRows(this BrightDataTable table, string? filePath, BrightDataTable[] others)
+        public static BrightDataTable ConcatenateRows(this BrightDataTable table, string? filePath, params BrightDataTable[] others)
         {
             using var operation = table.ConcatenateRows(others, GetMemoryOrFileStream(filePath));
             var stream = EnsureCompleted(operation.Complete(null, CancellationToken.None));
@@ -1300,6 +1302,12 @@ namespace BrightData
             var stream = new MemoryStream();
             builder.WriteTo(stream);
             return builder.Context.LoadTableFromStream(stream);
+        }
+
+        public static BrightDataTable BuildToFile(this BrightDataTableBuilder builder, string filePath)
+        {
+            using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+            return BuildToStream(builder, stream);
         }
 
         public static BrightDataTable BuildToStream(this BrightDataTableBuilder builder, Stream stream)

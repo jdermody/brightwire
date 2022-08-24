@@ -43,6 +43,8 @@ namespace BrightWire
         /// <returns></returns>
         IMatrix GetMatrix();
 
+        ITensor3D? Get3DTensor();
+
         /// <summary>
         /// Gets the signal as a 4D tensor
         /// </summary>
@@ -715,6 +717,9 @@ namespace BrightWire
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
         void UpdateWeights(IMatrix delta, ILearningContext context);
+
+        void UpdateBias(IMatrix delta, ILearningContext context);
+        (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source);
     }
 
     /// <summary>
