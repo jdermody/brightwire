@@ -6,25 +6,30 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "start": "parcel",
-    "build": "parcel build"
+    "build": "parcel build",
+    "gen": "npx swagger-typescript-api --disableStrictSSL --no-client -p https://localhost:7181/swagger/v1/swagger.json -o ./src -n models.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^4.4.1",
-    "@devbookhq/splitter": "^1.3.2",
+    "ag-grid-community": "^28.1.1",
+    "ag-grid-react": "^28.1.1",
     "normalize.css": "^8.0.1",
     "react": "^18.1.0",
     "react-data-grid": "^7.0.0-beta.14",
     "react-dom": "^18.1.0",
+    "react-router-dom": "^6.3.0",
     "recoil": "^0.7.4"
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "@parcel/transformer-sass": "2.6.0",
     "@types/react": "^18.0.11",
     "@types/react-dom": "^18.0.5",
     "parcel": "^2.6.0",
     "process": "^0.11.10",
+    "swagger-typescript-api": "^10.0.1",
     "typescript": "^4.7.3"
   }
 }

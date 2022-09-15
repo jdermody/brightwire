@@ -12,5 +12,7 @@ namespace BrightAPI.Models.DataTable
         public BrightDataType ColumnType { get; set; }
 
         public bool IsTarget { get; set; }
+
+        public NameValueModel[]? Metadata { get; set; }
     }
 }

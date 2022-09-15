@@ -2,8 +2,14 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    padding:0.5em 1em;
+
     >form {
         flex-shrink: 0;
+        >input[type="file"] {
+            display: none;
+        }
     }
     >.mosaic {
         flex-grow: 1;

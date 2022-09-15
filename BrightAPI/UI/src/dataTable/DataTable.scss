@@ -1,0 +1,49 @@
+.data-table {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #aaa;
+    max-width: 100%;
+    
+    .lhs {
+        background-color: #fff;
+        overflow: auto;
+        flex-basis: 50%;
+        >table {
+            width:100%;
+            thead {
+                th {
+                    $padding:0.5em;
+                    padding: 0 $padding;
+                    div {
+                        display: flex;
+                        align-items: center;
+                        align-content: stretch;
+                        >span {
+                            display: inline-block;
+                        }
+                        .name {
+                            margin-left: $padding;
+                            flex-grow: 1;
+                        }
+                        .type {
+                            background-color: #8ABBFF;
+                            padding:$padding;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .rhs {
+        background-color: #fff;
+        flex-shrink: 0;
+        flex-basis: 50%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .data-table { 
+        flex-direction: row;
+    }
+}

@@ -446,7 +446,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="filePath">File path on disk</param>
         /// <returns></returns>
-        public static BrightDataTable LoadTable(this BrightDataContext context, string filePath) => new(context, new FileStream(filePath, FileMode.Open, FileAccess.Read));
+        public static BrightDataTable LoadTable(this BrightDataContext context, string filePath) => new(context, new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read));
 
         /// <summary>
         /// Copies a data table segment to a tensor segment

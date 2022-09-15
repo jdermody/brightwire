@@ -7,12 +7,18 @@ export function importFromFile(
 ) {
     if(fileInput.files) {
         for(const file of fileInput.files) {
-            if(file.type === 'text/csv') {
+            console.log(file.type);
+            if(file.type === 'text/csv' || file.type === "text/plain") {
                 var reader = new FileReader();
                 reader.onload = function() {
                     if(typeof(reader.result) === 'string') {
-                        const lines = reader.result.split('\n').slice(0, 1000);
-                        onNewFile({file, lines});
+                        const allLines = reader.result.split('\n');
+                        const previewLines = allLines.slice(0, 1000);
+                        onNewFile({
+                            file, 
+                            previewLines, 
+                            allLines
+                        });
                     }
                 };
                 reader.readAsText(file);

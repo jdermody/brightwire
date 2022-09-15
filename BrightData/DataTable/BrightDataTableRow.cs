@@ -38,7 +38,7 @@ namespace BrightData.DataTable
         }
 
         /// <summary>
-        /// Returns a value (dynamic conversion to type T)
+        /// Returns a value (converted to type T)
         /// </summary>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="index">Column index</param>

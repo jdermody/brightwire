@@ -88,8 +88,8 @@ namespace BrightData.DataTable
         public IEnumerable<BrightDataTableRow> GetSlice(uint offset, uint count)
         {
             var readers = GetColumnReaders();
-            for(uint i = offset; i < count; i++) {
-                yield return new BrightDataTableRow(this, readers, i);
+            for(uint i = 0; i < count; i++) {
+                yield return new BrightDataTableRow(this, readers, offset + i);
             }
         }
     }

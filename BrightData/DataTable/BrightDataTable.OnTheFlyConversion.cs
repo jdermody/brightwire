@@ -15,7 +15,7 @@ namespace BrightData.DataTable
         }
         readonly Lazy<Dictionary<(uint Index, Type TargetType), TypeConversion>> _typeConversionTable = new();
 
-        public T ConvertObjectTo<T>(uint index, object ret) where T: notnull
+        internal T ConvertObjectTo<T>(uint index, object ret) where T: notnull
         {
             var targetType = typeof(T);
             var key = (index, targetType);

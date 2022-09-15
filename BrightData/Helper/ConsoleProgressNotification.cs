@@ -32,6 +32,7 @@ namespace BrightData.Helper
         public void OnCompleteOperation(string operationId, bool wasCancelled)
         {
             _stopWatch.Stop();
+            Console.WriteLine();
         }
 
         /// <inheritdoc />

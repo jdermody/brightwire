@@ -1,0 +1,72 @@
+.text-file-preview {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    >header {
+        flex-shrink: 0;
+        display: flex;
+        padding:0.5em 1em;
+        align-items: center;
+        >.controls {
+            flex-grow: 1;
+        }
+        >.input {
+            display: grid;
+            grid-template-rows: auto auto auto;
+            grid-template-columns: 8em 20em 18em 1fr;
+            grid-row-gap: 0.5em;
+            grid-column-gap: 1em;
+            align-items: center;
+            margin-bottom: 1em;
+            width:100%;
+
+            >label {
+                font-weight: 600;
+            }
+
+            .delimiter {
+                grid-row:1;
+                grid-column: 2/4;
+                display: flex;
+                align-items: center;
+                >div {
+                    display: flex;
+                    align-items: center;
+                    >label {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+            .target-column {
+                grid-row:2;
+                grid-column: 2;
+            }
+            .has-header {
+                margin-top: 0.5em;
+                grid-row:3;
+                grid-column: 2;
+                margin-bottom: 0;
+            }
+            .button-panel {
+                align-self: center;
+                grid-row:1/4;
+                grid-column: 4;
+            }
+        }
+    }
+    >div {
+        flex-grow: 1;
+    }
+
+    .table-header {
+        padding-inline: 0;
+        display: flex;
+        &.target {
+            background-color: #FBB360;
+        }
+        >div {
+            padding-left: 5px;
+            flex-grow: 1;
+        }
+    }
+}

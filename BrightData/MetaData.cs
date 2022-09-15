@@ -259,7 +259,11 @@ namespace BrightData
             };
         }
 
-        IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
+        /// <summary>
+        /// Returns non empty metadata
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
         {
             var nonNull = _values.ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {

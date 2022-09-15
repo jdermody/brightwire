@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BrightData.Buffer.InMemory
 {
-    class InMemorySegment<T> : ITypedSegment<T> where T : notnull
+    class InMemorySegment<T> : ITypedSegment<T>, ICanEnumerateWithSize<T> where T : notnull
     {
         readonly InMemoryBuffer<T> _buffer = new();
         readonly ushort _maxDistinct;

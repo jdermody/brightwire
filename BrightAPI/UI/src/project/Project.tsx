@@ -3,35 +3,50 @@ import React, { useCallback, useRef, useState } from 'react';
 import { importFromFile } from './Commands';
 import { TextFilePreview, TextFilePreviewProps } from './TextFilePreview';
 import './Project.scss';
-import Splitter, { SplitDirection } from '@devbookhq/splitter'
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { activePanelState, currentPanelsState } from '../state/panelState';
+import { dataTablesState } from '../state/dataTablesState';
+import { DataTable } from '../dataTable/DataTable';
+import { useNavigate } from 'react-router-dom';
 
 export const Project = () => {
     const form = useRef<HTMLFormElement>(null);
     const fileInput = useRef<HTMLInputElement>(null);
     const mainContainer = useRef<HTMLDivElement>(null);
-    const [textFilePreviews, setTextFilePreviews] = useState<TextFilePreviewProps[]>([]);
+    const [currentPanels, setCurrentPanels] = useRecoilState(currentPanelsState);
+    const setActivePanel = useSetRecoilState(activePanelState);
+    const [dataTables, setDataTables] = useRecoilState(dataTablesState);
+    const navigate = useNavigate();
+
+    const openPanel = useCallback((id: string, name: string, content: JSX.Element) => {
+        if(!currentPanels.find(x => x.id === id)) {
+            setCurrentPanels(x => [...x, {
+                canClose: true,
+                contents: content,
+                id,
+                name
+            }]);
+        }
+        navigate({
+            hash: id
+        });
+    }, [currentPanels, setCurrentPanels, setActivePanel]);
 
     return <div className="project" ref={mainContainer}>
         <form ref={form}>
-            <input type="file" ref={fileInput} onChange={e => importFromFile(e.currentTarget, form.current!, (props) => {
-                setTextFilePreviews(curr => [props, ...curr]);
-            })} multiple />
+            <input 
+                type="file" 
+                ref={fileInput} 
+                onChange={e => importFromFile(e.currentTarget, form.current!, (props) => openPanel(`preview:${props.file.name}`, `Import ${props.file.name}`, <TextFilePreview {...props}/>))} 
+                multiple 
+            />
             <Button icon='document-open' onClick={() => fileInput.current!.click()}>Import...</Button>
         </form>
-
-        <Dialog isOpen={textFilePreviews.length > 0}>
-            <div className={Classes.DIALOG_HEADER}>
-                <Icon icon='panel-table'/>
-                <h3>{textFilePreviews[0].file.name}</h3>
-            </div>
-            <div className={Classes.DIALOG_BODY}>
-                <TextFilePreview {...textFilePreviews[0]}/>
-            </div>
-            <div className={Classes.DIALOG_FOOTER}>
-                <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                    <Button onClick={() => setTextFilePreviews(textFilePreviews.slice(1))}>Cancel</Button>
-                </div>
-            </div>
-        </Dialog>
+        <div className="tables">
+            <h2>Tables</h2>
+            <ul>{dataTables.map(x => 
+                <li key={x.id}><a onClick={() => openPanel(x.id, x.name, <DataTable id={x.id}/>)}>{x.name}</a></li>
+            )}</ul>
+        </div>
     </div>;
 };
