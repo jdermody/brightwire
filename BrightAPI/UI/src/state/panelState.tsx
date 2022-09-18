@@ -7,14 +7,12 @@ export interface PanelInfo
     id: string;
     name: string;
     contents: JSX.Element;
-    canClose: boolean;
 }
 
 const projectPanel: PanelInfo = {
-    id: 'project',
-    name: 'Bright Wire',
-    contents: <Project/>,
-    canClose: false
+    id: 'bright-data',
+    name: 'Bright Data',
+    contents: <Project/>
 };
 
 export let previousActivePanel: PanelInfo[] = [];

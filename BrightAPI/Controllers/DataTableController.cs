@@ -178,6 +178,39 @@ namespace BrightAPI.Controllers
             return table.GetSlice(start, count).Select(r => r.ToArray().ToArray()).ToArray();
         }
 
+        [HttpPost, Route("{id}/convert")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<string>> ConvertTable(string id, [FromBody] ConvertDataTableColumnsRequest request)
+        {
+            int len;
+            if ((len = request.ColumnIndices.Length) != request.ColumnConversions.Length || len == 0)
+                return BadRequest();
+
+            var dataTableInfo = await _databaseManager.GetDataTable(id);
+            if (dataTableInfo is null)
+                return NotFound();
+
+            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+            var columnConversions = new ColumnConversionType[table.ColumnCount];
+            for (uint i = 0; i < len; i++) {
+                if (i > table.ColumnCount)
+                    return BadRequest($"Column index exceeded column count: {i}");
+                columnConversions[request.ColumnIndices[i]] = request.ColumnConversions[i];
+            }
+
+            // check if there is anything to convert
+            if (columnConversions.All(x => x == ColumnConversionType.Unchanged)) 
+                return id;
+
+            // create a new converted table
+            var (path, newTableId) = _tempFileManager.GetNewTempPath();
+            using var newTable = table.Convert(path, columnConversions.Where(x => x != ColumnConversionType.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
+            var newTableInfo = await _databaseManager.CreateDataTable(dataTableInfo.Name, newTableId, path, table.RowCount);
+            return newTableInfo.PublicId;
+        }
+
         static NameValueModel[] AsModel(MetaData metadata) => metadata.GetNonEmpty().Select(x => new NameValueModel {
             Value = x.String,
             Name = x.Name

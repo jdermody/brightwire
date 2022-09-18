@@ -32,6 +32,30 @@ export enum BrightDataType {
   DateOnly = "DateOnly",
 }
 
+export enum ColumnConversionType {
+  Unchanged = "Unchanged",
+  ToBoolean = "ToBoolean",
+  ToDate = "ToDate",
+  ToNumeric = "ToNumeric",
+  ToString = "ToString",
+  ToIndexList = "ToIndexList",
+  ToWeightedIndexList = "ToWeightedIndexList",
+  ToVector = "ToVector",
+  ToCategoricalIndex = "ToCategoricalIndex",
+  ToByte = "ToByte",
+  ToShort = "ToShort",
+  ToInt = "ToInt",
+  ToLong = "ToLong",
+  ToFloat = "ToFloat",
+  ToDouble = "ToDouble",
+  ToDecimal = "ToDecimal",
+}
+
+export interface ConvertDataTableColumnsRequest {
+  columnIndices?: number[] | null;
+  columnConversions?: ColumnConversionType[] | null;
+}
+
 export interface DataTableColumnModel {
   name: string;
   columnType: BrightDataType;

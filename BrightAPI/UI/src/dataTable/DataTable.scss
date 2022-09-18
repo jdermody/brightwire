@@ -1,3 +1,5 @@
+@import '../../node_modules/@blueprintjs/core/lib/scss/variables.scss';
+
 .data-table {
     flex-grow: 1;
     display: flex;
@@ -5,45 +7,76 @@
     background-color: #aaa;
     max-width: 100%;
     
-    .lhs {
+    .header {
+        flex-shrink: 0;
         background-color: #fff;
-        overflow: auto;
-        flex-basis: 50%;
-        >table {
-            width:100%;
-            thead {
-                th {
-                    $padding:0.5em;
-                    padding: 0 $padding;
-                    div {
-                        display: flex;
-                        align-items: center;
-                        align-content: stretch;
-                        >span {
-                            display: inline-block;
-                        }
-                        .name {
-                            margin-left: $padding;
-                            flex-grow: 1;
-                        }
-                        .type {
-                            background-color: #8ABBFF;
-                            padding:$padding;
-                        }
+    }
+    .body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        .lhs {
+            $padding:0.5em;
+            $borderRadius: 5px;
+
+            background-color: $light-gray5;
+            overflow: auto;
+            flex-basis: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: flex-start;
+            padding-bottom: $padding;
+            .column-info {
+                background-color: #fff;
+                margin-top:$padding;
+                max-width: 24em;
+                border-radius: $borderRadius;
+                box-shadow: $pt-elevation-shadow-3;
+                .header {
+                    display: flex;
+                    align-items: center;
+                    align-content: stretch;
+                    border-radius: $borderRadius 0 0 0;
+                    margin-right: $padding*1.5;
+                    >span {
+                        display: inline-block;
+                    }
+                    .name {
+                        margin-left: $padding;
+                        flex-grow: 1;
+                    }
+                    .type {
+                        font-weight: bold;
+                        border-radius: $borderRadius 0 $borderRadius 0;
+                        background-color: #8ABBFF;
+                        padding:$padding;
+                    }
+                }
+                .body {
+                    padding:$padding*2;
+                    >table {
+                        margin: 0 auto;
                     }
                 }
             }
         }
+        .rhs {
+            background-color: #fff;
+            flex-shrink: 0;
+            flex-basis: 50%;
+        }
     }
-    .rhs {
-        background-color: #fff;
-        flex-shrink: 0;
-        flex-basis: 50%;
+    .histogram-container {
+        flex-grow: 1;
     }
 }
 
 @media (min-width: 1200px) {
     .data-table { 
-        flex-direction: row;
+        .body {
+            flex-direction: row;
+        }
     }
 }

@@ -13,20 +13,25 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^4.4.1",
+    "@blueprintjs/popover2": "^1.6.6",
+    "@types/numeral": "^2.0.2",
     "ag-grid-community": "^28.1.1",
     "ag-grid-react": "^28.1.1",
     "normalize.css": "^8.0.1",
+    "numeral": "^2.0.6",
     "react": "^18.1.0",
     "react-data-grid": "^7.0.0-beta.14",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
-    "recoil": "^0.7.4"
+    "recoil": "^0.7.4",
+    "vis-data": "^7.1.4",
+    "vis-network": "^9.1.2"
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "@parcel/transformer-sass": "2.6.0",
     "@types/react": "^18.0.11",
     "@types/react-dom": "^18.0.5",
+    "@types/react-router-dom": "^5.3.3",
     "parcel": "^2.6.0",
     "process": "^0.11.10",
     "swagger-typescript-api": "^10.0.1",

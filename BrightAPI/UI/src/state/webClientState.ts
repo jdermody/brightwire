@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel } from "../models";
+import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest } from "../models";
 import { baseUrlState } from "./baseUrlState";
 import { authenticatedHeaderState } from "./webClientHeaders";
 
@@ -28,6 +28,10 @@ class WebClient
 
     getDataTableData(id: string, start: number, count: number) {
         return this.getResult<any[][]>(`${this.baseUrl}/datatable/${id}/${start}/${count}`);
+    }
+
+    convertDataTable(id: string, request: ConvertDataTableColumnsRequest) {
+        return this.postModel<string>(`${this.baseUrl}/datatable/${id}/convert`, request);
     }
 
     async getResult<RT>(url: string): Promise<RT>

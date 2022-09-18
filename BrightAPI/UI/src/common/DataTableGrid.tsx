@@ -10,9 +10,10 @@ export interface DataGridProps {
     tableId: string;
     rowCount: number;
     columns: DataTableColumnModel[];
+    onDataPreview: (preview: any[][]) => void;
 }
 
-export const DataTableGrid = ({tableId, columns, rowCount}: DataGridProps) => {
+export const DataTableGrid = ({tableId, columns, rowCount, onDataPreview}: DataGridProps) => {
     const gridRef = useRef<AgGridReact>(null);
     const webClient = useRecoilValue(webClientState);
 
@@ -20,6 +21,9 @@ export const DataTableGrid = ({tableId, columns, rowCount}: DataGridProps) => {
         return {
             getRows:({startRow, endRow, successCallback, failCallback, sortModel, filterModel}) => {
                 webClient.getDataTableData(tableId, startRow, endRow - startRow).then(r => {
+                    if(startRow === 0)
+                        onDataPreview(r.slice(0, 5));
+
                     const rows = r.map(x => {
                         let ret:any = {};
                         let index = 0;
@@ -27,7 +31,7 @@ export const DataTableGrid = ({tableId, columns, rowCount}: DataGridProps) => {
                             ret[`c${index++}`] = y;
                         return ret;
                     });
-                    successCallback(rows);
+                    successCallback(rows, rowCount);
                 });
             },
             rowCount
@@ -35,9 +39,8 @@ export const DataTableGrid = ({tableId, columns, rowCount}: DataGridProps) => {
     }, []);
     const gridColumns = useMemo(() => columns.map((x,i) => ({
         headerName: x.name,
-        field: `c${i}`,
-
-    })), []);
+        field: `c${i}`
+    })), [columns]);
 
     return (
         <div className="ag-theme-alpine" style={{height:'100%'}}>
@@ -47,6 +50,7 @@ export const DataTableGrid = ({tableId, columns, rowCount}: DataGridProps) => {
                 rowModelType ='infinite'
                 datasource={dataSource}
                 columnDefs={gridColumns}
+                infiniteInitialRowCount={rowCount}
             />
         </div>
     );
