@@ -14,4 +14,26 @@
     >.mosaic {
         flex-grow: 1;
     }
+    table.items {
+        $borderColour: #999;
+        $borderWidth: 2px;
+
+        border-collapse: collapse;
+        border-left:$borderWidth solid $borderColour;
+        border-right:$borderWidth solid $borderColour;
+        td, th {
+            padding: 0.35em 0.5em;
+            border-top: $borderWidth solid $borderColour;
+            border-bottom: $borderWidth solid $borderColour;
+
+            &.primary {
+                >a {
+                    font-weight: bold;
+                }
+            }
+            &.ctrls {
+                padding: 0.35em 1em 0.35em 2em;
+            }
+        }
+    }
 }

@@ -25,5 +25,11 @@ namespace BrightAPI.Database
         public Task<DataTable?> GetDataTable(string id) => _dataContext.DataTables
             .Where(x => x.PublicId == id)
             .SingleOrDefaultAsync();
+
+        public async Task DeleteDataTable(DataTable dataTable)
+        {
+            _dataContext.DataTables.Remove(dataTable);
+            await _dataContext.SaveChangesAsync();
+        }
     }
 }

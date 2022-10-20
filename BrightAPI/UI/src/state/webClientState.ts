@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest } from "../models";
+import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel } from "../models";
 import { baseUrlState } from "./baseUrlState";
 import { authenticatedHeaderState } from "./webClientHeaders";
 
@@ -19,7 +19,7 @@ class WebClient
     }
 
     getDataTables() {
-        return this.getResult<NamedItemModel[]>(`${this.baseUrl}/datatable`);
+        return this.getResult<DataTableListItemModel[]>(`${this.baseUrl}/datatable`);
     }
 
     getDataTableInfo(id: string) {
@@ -31,7 +31,11 @@ class WebClient
     }
 
     convertDataTable(id: string, request: ConvertDataTableColumnsRequest) {
-        return this.postModel<string>(`${this.baseUrl}/datatable/${id}/convert`, request);
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/convert`, request);
+    }
+
+    deleteDataTable(id: string) {
+        return this.delete(`${this.baseUrl}/datatable/${id}`);
     }
 
     async getResult<RT>(url: string): Promise<RT>
@@ -61,6 +65,14 @@ class WebClient
             body: text
         });
         return await r.json();
+    }
+
+    async delete(url: string): Promise<string> {
+        const r = await fetch(url, {
+            method: 'DELETE',
+            headers: this.headers
+        });
+        return await r.text();
     }
 }
 

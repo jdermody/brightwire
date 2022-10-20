@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using BrightAPI.Database;
 using BrightAPI.Helper;
 using BrightAPI.Models;
@@ -123,10 +124,10 @@ namespace BrightAPI.Controllers
 
         [HttpGet, Route("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IEnumerable<NamedItemModel>> GetDataTables()
+        public async Task<IEnumerable<DataTableListItemModel>> GetDataTables()
         {
             var ret = await _databaseManager.GetAllDataTables();
-            return ret.Select(AsNamedItem);
+            return ret.Select(AsListItem);
         }
 
         [HttpGet, Route("{id}")]
@@ -182,7 +183,7 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<string>> ConvertTable(string id, [FromBody] ConvertDataTableColumnsRequest request)
+        public async Task<ActionResult<NamedItemModel>> ConvertTable(string id, [FromBody] ConvertDataTableColumnsRequest request)
         {
             int len;
             if ((len = request.ColumnIndices.Length) != request.ColumnConversions.Length || len == 0)
@@ -201,14 +202,49 @@ namespace BrightAPI.Controllers
             }
 
             // check if there is anything to convert
-            if (columnConversions.All(x => x == ColumnConversionType.Unchanged)) 
-                return id;
+            if (columnConversions.All(x => x == ColumnConversionType.Unchanged)) {
+                return new NamedItemModel {
+                    Id = dataTableInfo.PublicId,
+                    Name = dataTableInfo.Name
+                };
+            }
 
             // create a new converted table
             var (path, newTableId) = _tempFileManager.GetNewTempPath();
             using var newTable = table.Convert(path, columnConversions.Where(x => x != ColumnConversionType.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
-            var newTableInfo = await _databaseManager.CreateDataTable(dataTableInfo.Name, newTableId, path, table.RowCount);
-            return newTableInfo.PublicId;
+
+            // set table metadata
+            var requestJson = JsonSerializer.Serialize(request);
+            newTable.GetColumnAnalysis(newTable.ColumnIndices);
+            newTable.TableMetaData.Set("based-on-table-id", id);
+            newTable.TableMetaData.Set("transformation-request", requestJson);
+            newTable.TableMetaData.Set("date-created", DateTime.UtcNow);
+            newTable.PersistMetaData();
+
+            var newTableInfo = await _databaseManager.CreateDataTable(dataTableInfo.Name + " [Converted]", newTableId, path, table.RowCount);
+            return new NamedItemModel {
+                Id = newTableInfo.PublicId,
+                Name = newTableInfo.Name
+            };
+        }
+
+        [HttpDelete, Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteTable(string id)
+        {
+            var dataTable = await _databaseManager.GetDataTable(id);
+            if (dataTable is null)
+                return NotFound();
+
+            await _databaseManager.DeleteDataTable(dataTable);
+
+            // delete the file on disk
+            var fileInfo = new FileInfo(dataTable.LocalPath);
+            if(fileInfo.Exists)
+                fileInfo.Delete();
+
+            return Ok();
         }
 
         static NameValueModel[] AsModel(MetaData metadata) => metadata.GetNonEmpty().Select(x => new NameValueModel {
@@ -219,6 +255,13 @@ namespace BrightAPI.Controllers
         static NamedItemModel AsNamedItem(DataTable dataTable) => new() {
             Name = dataTable.Name,
             Id = dataTable.PublicId
+        };
+
+        static DataTableListItemModel AsListItem(DataTable dataTable) => new() {
+            Name = dataTable.Name,
+            Id = dataTable.PublicId,
+            RowCount = dataTable.RowCount,
+            DateCreated = dataTable.DateCreated
         };
 
         static string GetDefaultColumnName(uint columnIndex) => $"Column {columnIndex+1}";

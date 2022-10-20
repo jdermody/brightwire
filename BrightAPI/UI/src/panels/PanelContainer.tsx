@@ -1,7 +1,7 @@
 import { AnchorButton } from '@blueprintjs/core';
 import React, { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataTablesState } from '../state/dataTablesState';
+import { dataTablesChangeState, dataTablesState } from '../state/dataTablesState';
 import { activePanelState, currentPanelsState, PanelInfo, previousActivePanel } from '../state/panelState';
 import { webClientState } from '../state/webClientState';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,13 +12,14 @@ export const PanelContainer = () => {
     const [activePanel, setActivePanel] = useRecoilState(activePanelState);
     const webClient = useRecoilValue(webClientState);
     const setDataTables = useSetRecoilState(dataTablesState);
+    const dataTablesChange = useRecoilValue(dataTablesChangeState);
     const location = useLocation();
     const navigate = useNavigate();
 
     // initialise state
     useEffect(() => {
         webClient.getDataTables().then(setDataTables);
-    }, []);
+    }, [dataTablesChange]);
 
     useEffect(() => {
         const locationId = location.hash.substring(1);

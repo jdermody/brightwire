@@ -1,7 +1,12 @@
 import { atom } from "recoil";
-import { NamedItemModel } from "../models";
+import { DataTableListItemModel, NamedItemModel } from "../models";
 
-export const dataTablesState = atom<NamedItemModel[]>({
+export const dataTablesState = atom<DataTableListItemModel[]>({
     key: 'dataTablesState',
     default: []
+});
+
+export const dataTablesChangeState = atom<number>({
+    key: 'dataTablesChangeState',
+    default: 0
 });

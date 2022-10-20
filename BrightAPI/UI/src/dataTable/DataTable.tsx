@@ -1,9 +1,10 @@
 import { Alignment, Button, ButtonGroup, HTMLTable, Menu, MenuDivider, MenuItem, Navbar, Popover, Position, Spinner } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
 import { ColumnConversionType, DataTableInfoModel } from '../models';
+import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
 import { ColumnInfo } from './ColumnInfo';
 import './DataTable.scss';
@@ -13,11 +14,17 @@ export const enum Operation{
     ConvertColumns
 }
 
-export const DataTable = ({id}: {id: string}) => {
+export interface DataTableProps {
+    id: string;
+    openDataTable: (id: string, name: string) => void;
+}
+
+export const DataTable = ({id, openDataTable}: DataTableProps) => {
     const webClient = useRecoilValue(webClientState);
     const [dataTableInfo, setDataTableInfo] = useState<DataTableInfoModel>();
     const [operation, setOperation] = useState(Operation.None);
     const [operationName, setOperationName] = useState("");
+    const setDataTablesChangeState = useSetRecoilState(dataTablesChangeState);
     const columnConversionOptions = useRef(new Map<number, ColumnConversionType>);
     const [preview, setPreview] = useState<any[][]>([]);
 
@@ -40,7 +47,10 @@ export const DataTable = ({id}: {id: string}) => {
             webClient.convertDataTable(id, {
                 columnConversions,
                 columnIndices
-            }).then(id => console.log(id));
+            }).then(id => {
+                setDataTablesChangeState(x => x+1);
+                openDataTable(id.id, id.name);
+            });
         }
     }, [operation]);
 

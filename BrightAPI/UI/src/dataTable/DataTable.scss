@@ -56,6 +56,8 @@
                 }
                 .body {
                     padding:$padding*2;
+                    display: flex;
+                    flex-wrap: wrap;    
                     >table {
                         margin: 0 auto;
                     }

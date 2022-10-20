@@ -109,7 +109,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 })) ?? [])
             ]}/>}
             {operation === Operation.ConvertColumns
-                ? <>
+                ? <div className="lhs">
                     <RadioGroup
                         key="radio"
                         onChange={e => {
@@ -125,15 +125,15 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                             setColumnConversionOption(ColumnConversionType[e.currentTarget.value as ColumnConversionType]);
                         }}
                     /> : undefined}
-                </>
+                </div>
                 : undefined
             }
             {operation === Operation.ConvertColumns && preview
-                ? <HTMLTable>
+                ? <div className="rhs"><HTMLTable>
                     <tbody>{preview.map((v, i) => 
                         <tr key={i}><td>{v}</td></tr>
                     )}</tbody>
-                </HTMLTable>
+                </HTMLTable></div>
                 : undefined
             }
         </div>

@@ -86,8 +86,22 @@ export interface DataTableInfoModel {
 
   /** @format int32 */
   rowCount: number;
+
+  /** @format date-time */
+  dateCreated: string;
   metadata: NameValueModel[];
   columns: DataTableColumnModel[];
+}
+
+export interface DataTableListItemModel {
+  id: string;
+  name: string;
+
+  /** @format int32 */
+  rowCount: number;
+
+  /** @format date-time */
+  dateCreated: string;
 }
 
 export interface DataTablePreviewModel {
