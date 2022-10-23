@@ -569,7 +569,7 @@
         </member>
         <member name="M:BrightData.DataTable.BrightDataTableRow.Get``1(System.UInt32)">
             <summary>
-            Returns a value (dynamic conversion to type T)
+            Returns a value (converted to type T)
             </summary>
             <typeparam name="T">Type to convert to</typeparam>
             <param name="index">Column index</param>
@@ -3736,6 +3736,12 @@
             Returns all value names with the specified prefix
             </summary>
             <param name="prefix">Prefix to query</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.MetaData.GetNonEmpty">
+            <summary>
+            Returns non empty metadata
+            </summary>
             <returns></returns>
         </member>
         <member name="M:BrightData.MetaData.ToString">

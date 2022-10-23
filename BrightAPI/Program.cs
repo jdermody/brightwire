@@ -61,10 +61,12 @@ using(var scope = app.Services.CreateScope())
     dataContext.Database.EnsureCreated();
 
     // load a test file
-    var fileData = File.ReadAllText(@"c:\data\iris.csv");
-    var context = scope.ServiceProvider.GetRequiredService<BrightDataContext>();
-    var tempFileManaher = scope.ServiceProvider.GetRequiredService<TempFileManager>();
-    var dataTable = DataTableController.CreateDataTableFromCSV(new DatabaseManager(dataContext), context, tempFileManaher, false, ',', 5, new [] { "C1", "C2", "C3", "C4", "C5"}, "iris.csv", fileData).Result;
+    if (File.Exists(@"c:\data\iris.csv")) {
+        var fileData = File.ReadAllText(@"c:\data\iris.csv");
+        var context = scope.ServiceProvider.GetRequiredService<BrightDataContext>();
+        var tempFileManaher = scope.ServiceProvider.GetRequiredService<TempFileManager>();
+        var dataTable = DataTableController.CreateDataTableFromCSV(new DatabaseManager(dataContext), context, tempFileManaher, false, ',', 5, new[] { "C1", "C2", "C3", "C4", "C5" }, "iris.csv", fileData).Result;
+    }
 }
 
 app.Run();

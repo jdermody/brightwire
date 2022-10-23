@@ -176,7 +176,8 @@ namespace BrightAPI.Controllers
                 return Problem("Local file not found");
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
-            return table.GetSlice(start, count).Select(r => r.ToArray().ToArray()).ToArray();
+            var ret = table.GetSlice(start, count).Select(r => r.ToArray().ToArray()).ToArray();
+            return ret;
         }
 
         [HttpPost, Route("{id}/convert")]

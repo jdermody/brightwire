@@ -21,6 +21,7 @@
             $borderRadius: 5px;
 
             background-color: $light-gray5;
+            padding:0.25em;
             overflow: auto;
             flex-basis: 50%;
             display: flex;
@@ -52,14 +53,26 @@
                         border-radius: $borderRadius 0 $borderRadius 0;
                         background-color: #8ABBFF;
                         padding:$padding;
+                        &.Float {
+                            background-color: #62D96B;
+                        }
+                        &.Int {
+                            background-color: #29A634;
+                        }
                     }
                 }
                 .body {
-                    padding:$padding*2;
+                    padding:$padding*2 $padding*2 $padding $padding*2;
                     display: flex;
                     flex-wrap: wrap;    
                     >table {
-                        margin: 0 auto;
+                        
+                    }
+                }
+                table.property-list {
+                    margin: 0 auto;
+                    th, td {
+                        padding:0.4rem;
                     }
                 }
             }
