@@ -1,9 +1,9 @@
 import { Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Histogram } from '../charts/Histogram';
 import { formatName, simplify, getDataTypeName } from '../common/FormatUtils';
 import { FullScreenPopup } from '../common/FullScreenPopup';
-import { formatMetaData, getAllMetaData, getName } from '../common/MetaDataUtil';
+import { formatMetaData, getAllMetaData, getName, isNumeric } from '../common/MetaDataUtil';
 import { PropertyList } from '../common/PropertyList';
 import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueModel, NormalizationType } from '../models';
 import { AutoSizeContainer } from '../panels/AutoSizeContainer';
@@ -77,12 +77,17 @@ function* getSecondaryConversionOptions(dataType: BrightDataType) {
     }
 }
 
-function* getNormalizationOptions() {
-    yield { label: 'None', value: NormalizationType.None};
-    yield { label: 'Euclidean', value: NormalizationType.Euclidean};
-    yield { label: 'Feature Scale', value: NormalizationType.FeatureScale};
-    yield { label: 'Manhattan', value: NormalizationType.Manhattan};
-    yield { label: 'Standard', value: NormalizationType.Standard};
+function* getNormalizationOptions(dataType: BrightDataType) {
+    
+    if(isNumeric(dataType)) {
+        yield { label: 'None', value: NormalizationType.None};
+        yield { label: 'Euclidean', value: NormalizationType.Euclidean};
+        yield { label: 'Feature Scale', value: NormalizationType.FeatureScale};
+        yield { label: 'Manhattan', value: NormalizationType.Manhattan};
+        yield { label: 'Standard', value: NormalizationType.Standard};
+    }else {
+        yield { label: 'None (not numeric)', value: NormalizationType.None};
+    }
 }
 
 export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview}: ColumnInfoProps) => {
@@ -93,6 +98,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     const reversedPrimary = [...primary].reverse();
     const secondary = Array.from(getSecondaryConversionOptions(column.columnType));
     const [normalizationType, setNormalizationType] = useState(NormalizationType.None);
+    const categories = useMemo(() => metadata ? getAllMetaData("Category:", metadata).map(x => ({index: parseInt(x.name.substring(9), 10), name: x.value})) : [], [metadata]);
 
     useEffect(() => {
         onChangeColumnType(index, columnConversionOption);
@@ -112,7 +118,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 : <div style={{cursor: 'pointer'}} tabIndex={0} onClick={() => setIsExpanded(true)}>{getHistogram(metadata ?? [])}</div>
             }
             {operation != Operation.None ? undefined : <PropertyList properties={[
-                ...(metadata?.filter(m => !invalidColumns.has(m.name) && !m.name.startsWith('Frequency:') && !m.name.startsWith('FrequencyRange:') && !m.name.startsWith('FrequencyRange:')).map(m => ({
+                ...(metadata?.filter(m => !invalidColumns.has(m.name) && !m.name.startsWith('Frequency:') && !m.name.startsWith('FrequencyRange:') && !m.name.startsWith('FrequencyRange:') && !m.name.startsWith('Category:')).map(m => ({
                     name: formatName(m.name), 
                     value: simplify(m.value)
                 })) ?? [])
@@ -140,7 +146,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
             {operation === Operation.NormalizeColumns
                 ? <div className="lhs">
                     <RadioGroup key="radio"
-                        options={Array.from(getNormalizationOptions())}
+                        options={Array.from(getNormalizationOptions(column.columnType))}
                         selectedValue={normalizationType.toString()}
                         onChange={e => {
                             setNormalizationType(NormalizationType[e.currentTarget.value as NormalizationType]);
@@ -155,6 +161,24 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                         <tr key={i}><td>{v}</td></tr>
                     )}</tbody>
                 </HTMLTable></div>
+                : undefined
+            }
+            {categories.length
+                ? <div className="box">
+                    <HTMLTable>
+                        <thead>
+                            <tr>
+                                <th colSpan={2}>Categories</th>
+                            </tr>
+                        </thead>
+                        <tbody>{categories.map(x => 
+                            <tr key={x.index}>
+                                <td>{x.index}</td>
+                                <td>{x.name}</td>
+                            </tr>
+                        )}</tbody>
+                    </HTMLTable>
+                </div>
                 : undefined
             }
         </div>

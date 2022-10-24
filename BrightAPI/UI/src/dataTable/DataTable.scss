@@ -10,6 +10,9 @@
     .header {
         flex-shrink: 0;
         background-color: #fff;
+        .#{$ns}-form-group {
+            margin: 0 0 0 1em;
+        }
     }
     .body {
         flex-grow: 1;
@@ -70,6 +73,16 @@
                     margin: 0 auto;
                     th, td {
                         padding:0.4rem;
+                    }
+                }
+                .box {
+                    max-height: 20em;
+                    overflow: auto;
+                    margin-top:1rem;
+                    >table {
+                        th, td {
+                            padding:0.25em;
+                        }
                     }
                 }
             }
