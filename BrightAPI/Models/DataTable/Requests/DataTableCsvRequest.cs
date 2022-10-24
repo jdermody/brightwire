@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BrightAPI.Models.DataTable
+namespace BrightAPI.Models.DataTable.Requests
 {
     public class DataTableCsvRequest : DataTableCsvPreviewRequest
     {

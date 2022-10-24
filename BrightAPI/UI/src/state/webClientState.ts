@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel } from "../models";
+import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel, NormalizeDataTableColumnsRequest, ReinterpretDataTableColumnsRequest, VectoriseDataTableColumnsRequest, DataTableColumnsRequest, DataTableRowsRequest, BagTableRequest, SplitTableRequest } from "../models";
 import { baseUrlState } from "./baseUrlState";
 import { authenticatedHeaderState } from "./webClientHeaders";
 
@@ -36,6 +36,38 @@ class WebClient
 
     deleteDataTable(id: string) {
         return this.delete(`${this.baseUrl}/datatable/${id}`);
+    }
+
+    normalizeDataTable(id: string, request: NormalizeDataTableColumnsRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/normalize`, request);
+    }
+
+    reinterpretDataTable(id: string, request: ReinterpretDataTableColumnsRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/reinterpret`, request);
+    }
+
+    vectoriseDataTable(id: string, request: VectoriseDataTableColumnsRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/vectorise`, request);
+    }
+
+    copyDataTableColumns(id: string, request: DataTableColumnsRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/copy-columns`, request);
+    }
+
+    copyDataTableRows(id: string, request: DataTableRowsRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/copy-rows`, request);
+    }
+    
+    shuffleDataTable(id: string) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/shuffle`, {});
+    }
+
+    bagDataTable(id: string, request: BagTableRequest) {
+        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/${id}/bag`, request);
+    }
+
+    splitDataTable(id: string, request: SplitTableRequest) {
+        return this.postModel<NamedItemModel[]>(`${this.baseUrl}/datatable/${id}/split`, request);
     }
 
     async getResult<RT>(url: string): Promise<RT>

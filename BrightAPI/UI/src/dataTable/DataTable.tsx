@@ -11,7 +11,15 @@ import './DataTable.scss';
 
 export const enum Operation{
     None = 0,
-    ConvertColumns
+    ConvertColumns,
+    NormalizeColumns,
+    ReinterpretColumns,
+    VectoriseColumns,
+    CopyColumns,
+    CopyRows,
+    Shuffle,
+    Bag,
+    Split
 }
 
 export interface DataTableProps {
@@ -66,8 +74,40 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                         text="Convert Columns" 
                         onClick={() => startOperation(Operation.ConvertColumns, "Convert Columns")}
                     />
+                    <MenuItem 
+                        text="Normalize Columns" 
+                        onClick={() => startOperation(Operation.NormalizeColumns, "Normalize Columns")}
+                    />
+                    <MenuItem 
+                        text="Reinterpret Columns" 
+                        onClick={() => startOperation(Operation.ReinterpretColumns, "Reinterpret Columns")}
+                    />
+                    <MenuItem 
+                        text="Vectorise Columns" 
+                        onClick={() => startOperation(Operation.VectoriseColumns, "Vectorise Columns")}
+                    />
+                    <MenuItem 
+                        text="Copy Columns" 
+                        onClick={() => startOperation(Operation.CopyColumns, "Copy Columns")}
+                    />
+                    <MenuItem 
+                        text="Copy Rows" 
+                        onClick={() => startOperation(Operation.CopyRows, "Copy Rows")}
+                    />
+                    <MenuItem 
+                        text="Shuffle" 
+                        onClick={() => startOperation(Operation.Shuffle, "Shuffle")}
+                    />
+                    <MenuItem 
+                        text="Bag" 
+                        onClick={() => startOperation(Operation.Bag, "Bag")}
+                    />
+                    <MenuItem 
+                        text="Split" 
+                        onClick={() => startOperation(Operation.Split, "Split")}
+                    />
                 </Menu>} position={Position.BOTTOM_LEFT}>
-                    <Button icon="flows" text="Modify" />
+                    <Button icon="flows" text="Transform" />
                 </Popover2>
                 </Navbar.Group>
                 <Navbar.Group align={Alignment.RIGHT}>

@@ -1109,7 +1109,7 @@ namespace BrightData
         /// <param name="filePath"></param>
         /// <param name="rowIndices">Row indices to copy</param>
         /// <returns></returns>
-        public static BrightDataTable CopyRows(this BrightDataTable dataTable, string? filePath, params uint[] rowIndices)
+        public static BrightDataTable CopyRowsToNewTable(this BrightDataTable dataTable, string? filePath, params uint[] rowIndices)
         {
             using var op = dataTable.WriteRowsTo(GetMemoryOrFileStream(filePath), rowIndices);
             var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));

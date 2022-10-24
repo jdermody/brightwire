@@ -1,12 +1,16 @@
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using BrightAPI.Database;
 using BrightAPI.Helper;
 using BrightAPI.Models;
 using BrightAPI.Models.DataTable;
+using BrightAPI.Models.DataTable.Requests;
 using BrightData;
+using BrightData.DataTable;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BrightAPI.Controllers
 {
@@ -190,44 +194,208 @@ namespace BrightAPI.Controllers
             if ((len = request.ColumnIndices.Length) != request.ColumnConversions.Length || len == 0)
                 return BadRequest();
 
+            return await Transform(id, request, "Converted", (table, path) => {
+                var columnConversions = new ColumnConversionType[table.ColumnCount];
+                for (uint i = 0; i < len; i++) {
+                    if (i > table.ColumnCount)
+                        throw new BadHttpRequestException($"Column index exceeded column count: {i}");
+                    columnConversions[request.ColumnIndices[i]] = request.ColumnConversions[i];
+                }
+
+                // check if there is anything to convert
+                return columnConversions.All(x => x == ColumnConversionType.Unchanged) 
+                    ? table 
+                    : table.Convert(path, columnConversions.Where(x => x != ColumnConversionType.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray())
+                ;
+            });
+        }
+
+        [HttpPost, Route("{id}/normalize")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> NormalizeTable(string id, [FromBody] NormalizeDataTableColumnsRequest request)
+        {
+            int len;
+            if ((len = request.ColumnIndices.Length) != request.Columns.Length || len == 0)
+                return BadRequest();
+
+            return await Transform(id, request, "Normalized", (table, path) => {
+                var columnConversions = new NormalizationType[table.ColumnCount];
+                for (uint i = 0; i < len; i++) {
+                    if (i > table.ColumnCount)
+                        throw new BadHttpRequestException($"Column index exceeded column count: {i}");
+                    columnConversions[request.ColumnIndices[i]] = request.Columns[i];
+                }
+
+                var conversions = columnConversions.Select((c, i) => (Column: c, Index: (uint)i)).Where(c => c.Column != NormalizationType.None).Select(c => c.Column.ConvertColumn(c.Index)).ToArray();
+                return table.Normalize(path, conversions);
+            });
+        }
+
+        [HttpPost, Route("{id}/reinterpret")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> ReinterpretTableColumns(string id, [FromBody] ReinterpretDataTableColumnsRequest request)
+        {
+            if (request.Columns.Length == 0)
+                return BadRequest();
+
+            return await Transform(id, request, "Reinterpreted", (table, path) => {
+                var outputColumnIndices = new HashSet<uint>();
+                var reinterpretColumns = new IReinterpretColumns[request.Columns.Length];
+                var index = 0;
+                foreach (var column in request.Columns) {
+                    if(column.ColumnIndices.Any(x => x > table.ColumnCount))
+                        throw new BadHttpRequestException($"Column index exceeded column count");
+
+                    if(!outputColumnIndices.Add(column.OutputColumnIndex))
+                        throw new BadHttpRequestException($"Duplicate output column index: {column.OutputColumnIndex}");
+
+                    reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name, column.OutputColumnIndex);
+                }
+
+                using var tempStreams = _context.CreateTempStreamProvider();
+                return table.ReinterpretColumns(tempStreams, path, reinterpretColumns);
+            });
+        }
+
+        [HttpPost, Route("{id}/vectorise")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> VectoriseTable(string id, [FromBody] VectoriseDataTableColumnsRequest request)
+        {
+            if (request.ColumnIndices.Length == 0)
+                return BadRequest();
+
+            return await Transform(id, request, "Vectorised", (table, path) => table.Vectorise(request.OneHotEncodeToMultipleColumns, request.ColumnIndices, path));
+        }
+
+        [HttpPost, Route("{id}/copy-columns")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> CopyTableColumns(string id, [FromBody] DataTableColumnsRequest request)
+        {
+            if (request.ColumnIndices.Length == 0)
+                return BadRequest();
+
+            return await Transform(id, request, "Column Subset", (table, path) => table.CopyColumnsToNewTable(path, request.ColumnIndices));
+        }
+
+        [HttpPost, Route("{id}/copy-rows")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> CopyTableRows(string id, [FromBody] DataTableRowsRequest request)
+        {
+            if (request.RowRanges.Length == 0)
+                return BadRequest();
+
+            // collect the unique set of rows
+            var rows = new HashSet<uint>();
+            foreach (var range in request.RowRanges) {
+                if (range.FirstInclusiveRow >= range.LastInclusiveRow)
+                    return BadRequest();
+                for (var i = range.FirstInclusiveRow; i < range.LastInclusiveRow; i++)
+                    rows.Add(i);
+            }
+            if (!rows.Any())
+                return BadRequest();
+
+            return await Transform(id, request, "Row Subset", (table, path) => table.CopyRowsToNewTable(path, rows.OrderBy(x => x).ToArray()));
+        }
+
+        [HttpPost, Route("{id}/shuffle")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> ShuffleTableRows(string id, [FromBody] EmptyTableRequest request)
+        {
+            return await Transform(id, request, "Shuffled", (table, path) => table.Shuffle(path));
+        }
+
+        [HttpPost, Route("{id}/bag")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel>> BagTableRows(string id, [FromBody] BagTableRequest request)
+        {
+            if (request.RowCount == 0)
+                return BadRequest();
+
+            return await Transform(id, request, "Bagged", (table, path) => table.Bag(path, request.RowCount));
+        }
+
+        [HttpPost, Route("{id}/split")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NamedItemModel[]>> SplitTableRows(string id, [FromBody] SplitTableRequest request)
+        {
+            if (request.TrainingPercentage is < 0 or > 100)
+                return BadRequest();
+
             var dataTableInfo = await _databaseManager.GetDataTable(id);
             if (dataTableInfo is null)
                 return NotFound();
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
-            var columnConversions = new ColumnConversionType[table.ColumnCount];
-            for (uint i = 0; i < len; i++) {
-                if (i > table.ColumnCount)
-                    return BadRequest($"Column index exceeded column count: {i}");
-                columnConversions[request.ColumnIndices[i]] = request.ColumnConversions[i];
-            }
 
-            // check if there is anything to convert
-            if (columnConversions.All(x => x == ColumnConversionType.Unchanged)) {
+            var (path1, newTableId1) = _tempFileManager.GetNewTempPath();
+            var (path2, newTableId2) = _tempFileManager.GetNewTempPath();
+
+            var (trainingTable, testTable) = table.Split(request.TrainingPercentage, path1, path2);
+
+            var training = await CreateTable(id, dataTableInfo, request, "Training", newTableId1, path1, trainingTable);
+            var test = await CreateTable(id, dataTableInfo, request, "Test", newTableId2, path2, testTable);
+            return new[] {
+                training,
+                test
+            };
+        }
+
+        async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<BrightDataTable /* input */, string /* path */, BrightDataTable /* output */> callback)
+        {
+            var dataTableInfo = await _databaseManager.GetDataTable(id);
+            if (dataTableInfo is null)
+                return NotFound();
+
+            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+
+            // create a new converted table
+            var (path, newTableId) = _tempFileManager.GetNewTempPath();
+            using var newTable = callback(table, path);
+
+            // maybe there was nothing to transform
+            if (newTable == table) {
                 return new NamedItemModel {
                     Id = dataTableInfo.PublicId,
                     Name = dataTableInfo.Name
                 };
             }
 
-            // create a new converted table
-            var (path, newTableId) = _tempFileManager.GetNewTempPath();
-            using var newTable = table.Convert(path, columnConversions.Where(x => x != ColumnConversionType.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
+            return await CreateTable(id, dataTableInfo, request, newTableSuffix, newTableId, path, newTable);
+        }
 
+        async Task<NamedItemModel> CreateTable<T>(string sourceId, DataTable sourceDataTableInfo, T request, string newTableSuffix, Guid newTableId, string path, BrightDataTable newTable)
+        {
             // set table metadata
             var requestJson = JsonSerializer.Serialize(request);
             newTable.GetColumnAnalysis(newTable.ColumnIndices);
-            newTable.TableMetaData.Set("based-on-table-id", id);
+            newTable.TableMetaData.Set("based-on-table-id", sourceId);
             newTable.TableMetaData.Set("transformation-request", requestJson);
             newTable.TableMetaData.Set("date-created", DateTime.UtcNow);
             newTable.PersistMetaData();
 
-            var newTableInfo = await _databaseManager.CreateDataTable(dataTableInfo.Name + " [Converted]", newTableId, path, table.RowCount);
+            var newTableInfo = await _databaseManager.CreateDataTable(sourceDataTableInfo.Name + $" [{newTableSuffix}]", newTableId, path, newTable.RowCount);
             return new NamedItemModel {
                 Id = newTableInfo.PublicId,
                 Name = newTableInfo.Name
             };
         }
+
 
         [HttpDelete, Route("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

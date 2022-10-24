@@ -9,6 +9,11 @@
  * ---------------------------------------------------------------
  */
 
+export interface BagTableRequest {
+  /** @format int32 */
+  rowCount: number;
+}
+
 export enum BrightDataType {
   Unknown = "Unknown",
   Boolean = "Boolean",
@@ -52,8 +57,8 @@ export enum ColumnConversionType {
 }
 
 export interface ConvertDataTableColumnsRequest {
-  columnIndices?: number[] | null;
-  columnConversions?: ColumnConversionType[] | null;
+  columnIndices: number[];
+  columnConversions: ColumnConversionType[];
 }
 
 export interface DataTableColumnModel {
@@ -61,6 +66,10 @@ export interface DataTableColumnModel {
   columnType: BrightDataType;
   isTarget?: boolean;
   metadata?: NameValueModel[] | null;
+}
+
+export interface DataTableColumnsRequest {
+  columnIndices: number[];
 }
 
 export interface DataTableCsvPreviewRequest {
@@ -109,6 +118,12 @@ export interface DataTablePreviewModel {
   previewRows?: string[][] | null;
 }
 
+export interface DataTableRowsRequest {
+  rowRanges: RangeModel[];
+}
+
+export type EmptyTableRequest = object;
+
 export interface NamedItemModel {
   id: string;
   name: string;
@@ -119,6 +134,28 @@ export interface NameValueModel {
   value: string;
 }
 
+export interface NewColumnFromExistingColumnsModel {
+  columnIndices: number[];
+  newType: BrightDataType;
+  name: string;
+
+  /** @format int32 */
+  outputColumnIndex: number;
+}
+
+export enum NormalizationType {
+  None = "None",
+  Standard = "Standard",
+  Euclidean = "Euclidean",
+  Manhattan = "Manhattan",
+  FeatureScale = "FeatureScale",
+}
+
+export interface NormalizeDataTableColumnsRequest {
+  columnIndices: number[];
+  columns: NormalizationType[];
+}
+
 export interface ProblemDetails {
   type?: string | null;
   title?: string | null;
@@ -127,4 +164,26 @@ export interface ProblemDetails {
   status?: number | null;
   detail?: string | null;
   instance?: string | null;
+}
+
+export interface RangeModel {
+  /** @format int32 */
+  firstInclusiveRow: number;
+
+  /** @format int32 */
+  lastInclusiveRow: number;
+}
+
+export interface ReinterpretDataTableColumnsRequest {
+  columns: NewColumnFromExistingColumnsModel[];
+}
+
+export interface SplitTableRequest {
+  /** @format double */
+  trainingPercentage: number;
+}
+
+export interface VectoriseDataTableColumnsRequest {
+  columnIndices: number[];
+  oneHotEncodeToMultipleColumns: boolean;
 }

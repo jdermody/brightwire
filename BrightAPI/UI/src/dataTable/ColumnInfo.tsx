@@ -5,7 +5,7 @@ import { formatName, simplify, getDataTypeName } from '../common/FormatUtils';
 import { FullScreenPopup } from '../common/FullScreenPopup';
 import { formatMetaData, getAllMetaData, getName } from '../common/MetaDataUtil';
 import { PropertyList } from '../common/PropertyList';
-import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueModel } from '../models';
+import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueModel, NormalizationType } from '../models';
 import { AutoSizeContainer } from '../panels/AutoSizeContainer';
 import { Operation } from './DataTable';
 
@@ -77,6 +77,14 @@ function* getSecondaryConversionOptions(dataType: BrightDataType) {
     }
 }
 
+function* getNormalizationOptions() {
+    yield { label: 'None', value: NormalizationType.None};
+    yield { label: 'Euclidean', value: NormalizationType.Euclidean};
+    yield { label: 'Feature Scale', value: NormalizationType.FeatureScale};
+    yield { label: 'Manhattan', value: NormalizationType.Manhattan};
+    yield { label: 'Standard', value: NormalizationType.Standard};
+}
+
 export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview}: ColumnInfoProps) => {
     const {metadata, isTarget} = column;
     const [isExpanded, setIsExpanded] = useState(false);
@@ -84,6 +92,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     const primary = Array.from(getConversionOptions(column.columnType));
     const reversedPrimary = [...primary].reverse();
     const secondary = Array.from(getSecondaryConversionOptions(column.columnType));
+    const [normalizationType, setNormalizationType] = useState(NormalizationType.None);
 
     useEffect(() => {
         onChangeColumnType(index, columnConversionOption);
@@ -128,7 +137,19 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 </div>
                 : undefined
             }
-            {operation === Operation.ConvertColumns && preview
+            {operation === Operation.NormalizeColumns
+                ? <div className="lhs">
+                    <RadioGroup key="radio"
+                        options={Array.from(getNormalizationOptions())}
+                        selectedValue={normalizationType.toString()}
+                        onChange={e => {
+                            setNormalizationType(NormalizationType[e.currentTarget.value as NormalizationType]);
+                        }}
+                    />
+                </div>
+                : undefined
+            }
+            {(operation === Operation.ConvertColumns || operation == Operation.NormalizeColumns) && preview
                 ? <div className="rhs"><HTMLTable>
                     <tbody>{preview.map((v, i) => 
                         <tr key={i}><td>{v}</td></tr>

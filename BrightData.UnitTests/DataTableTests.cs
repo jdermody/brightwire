@@ -136,7 +136,7 @@ namespace BrightData.UnitTests
         public void TestTableSlice()
         {
             var table = GetSimpleTable();
-            var rows = table.CopyRows(null, Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).GetRows().Select(r => r.Get<int>(0)).ToList();
+            var rows = table.CopyRowsToNewTable(null, Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).GetRows().Select(r => r.Get<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)
                 rows[i].Should().Be(5000 + i);

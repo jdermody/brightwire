@@ -36,7 +36,7 @@ namespace ExampleCode
             useMkl = true;
 
             // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
-            useCuda = false;
+            useCuda = true;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -51,7 +51,7 @@ namespace ExampleCode
             //ReberPrediction(context, useMkl);
             //OneToMany(context, useMkl);
             //ManyToOne(context, useMkl);
-            SequenceToSequence(context, useMkl, useCuda);
+            //SequenceToSequence(context, useMkl, useCuda);
             //StockData(context, useMkl, useCuda);
             //SimpleLinearTest(context, useMkl);
             //PredictBicyclesWithLinearModel(context, useMkl);
