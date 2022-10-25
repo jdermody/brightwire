@@ -1,4 +1,4 @@
-import { Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
+import { Callout, Checkbox, Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Histogram } from '../charts/Histogram';
 import { formatName, simplify, getDataTypeName } from '../common/FormatUtils';
@@ -86,7 +86,7 @@ function* getNormalizationOptions(dataType: BrightDataType) {
         yield { label: 'Manhattan', value: NormalizationType.Manhattan};
         yield { label: 'Standard', value: NormalizationType.Standard};
     }else {
-        yield { label: 'None (not numeric)', value: NormalizationType.None};
+        yield { label: 'Not numeric column', value: NormalizationType.None};
     }
 }
 
@@ -94,6 +94,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     const {metadata, isTarget} = column;
     const [isExpanded, setIsExpanded] = useState(false);
     const [columnConversionOption, setColumnConversionOption] = useState(ColumnConversionType.Unchanged);
+    const [isSelected, setIsSelected] = useState(false);
     const primary = Array.from(getConversionOptions(column.columnType));
     const reversedPrimary = [...primary].reverse();
     const secondary = Array.from(getSecondaryConversionOptions(column.columnType));
@@ -104,13 +105,17 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
         onChangeColumnType(index, columnConversionOption);
     }, [columnConversionOption, index, onChangeColumnType]);
 
-    return <div className={'column-info' + (isTarget ? ' target' : '')}>
+    return <div className={'column-info' + (isTarget ? ' target' : '') + ((isSelected && operation === Operation.VectoriseColumns) ? ' selected' : '')}>
         <div className="header">
             <span className={'type ' + column.columnType}>
                 {getDataTypeName(column.columnType)}
                 {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
             </span>
             <span className="name">{column.name}</span>
+            {((operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns)
+                ? <Switch checked={isSelected} onChange={e => setIsSelected(e.currentTarget.checked)}/>    
+                : undefined
+            }
         </div>
         <div className="body">
             {operation != Operation.None || invalidHistogramColumnTypes.has(column.columnType)
@@ -155,7 +160,13 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 </div>
                 : undefined
             }
-            {(operation === Operation.ConvertColumns || operation == Operation.NormalizeColumns) && preview
+            {operation === Operation.VectoriseColumns && !isNumeric(column.columnType)
+                ? <Callout title="Not Numeric" icon="info-sign" intent='primary'>
+                    <p>Only numeric columns can be vectorised</p>
+                </Callout>
+                : undefined
+            }
+            {(operation === Operation.ConvertColumns || operation === Operation.NormalizeColumns || (operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns) && preview
                 ? <div className="rhs"><HTMLTable>
                     <tbody>{preview.map((v, i) => 
                         <tr key={i}><td>{v}</td></tr>

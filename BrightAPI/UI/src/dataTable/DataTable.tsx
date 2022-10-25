@@ -3,11 +3,14 @@ import { Popover2 } from '@blueprintjs/popover2';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
+import { Splitter } from '../common/Splitter';
 import { ColumnConversionType, DataTableInfoModel } from '../models';
 import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
 import { ColumnInfo } from './ColumnInfo';
 import './DataTable.scss';
+import { ReinterpretColumns } from './ReinterpretColumns';
+import { SelectRows } from './SelectRows';
 
 export const enum Operation{
     None = 0,
@@ -27,7 +30,7 @@ export interface DataTableProps {
     openDataTable: (id: string, name: string) => void;
 }
 
-function getOperationUI(operation: Operation) {
+function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel) {
     if(operation === Operation.Split) {
         return <Callout icon="info-sign" intent="primary" title="Split Table">
             <p>This will split randomly split the current table into two parts - a training table and a test table.</p>
@@ -43,6 +46,10 @@ function getOperationUI(operation: Operation) {
             <p>This will randomly shuffle the rows from this table into a new table.</p>
             <p>The rows (and row count) will remain the same, only the order within the table will be changed.</p>
         </Callout>;
+    }else if(operation === Operation.ReinterpretColumns) {
+        return <ReinterpretColumns dataTable={dataTableInfo} />;
+    }else if(operation === Operation.CopyRows) {
+        return <SelectRows/>;
     }
     return <div>TODO</div>;
 }
@@ -173,29 +180,25 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                 </Navbar.Group>
             </Navbar>}
         </div>
-        <div className="body">
-            <div className="lhs">
-                {operation === Operation.Bag || operation === Operation.CopyRows || operation === Operation.ReinterpretColumns || operation === Operation.Shuffle || operation === Operation.Split
-                    ? getOperationUI(operation)
-                    : dataTableInfo.columns.map((c, i) => 
-                    <ColumnInfo 
-                        key={i} 
-                        column={c} 
-                        index={i} 
-                        operation={operation}
-                        onChangeColumnType={(index, type) => columnConversionOptions.current.set(index, type)}
-                        preview={preview.map(x => x[i])}
-                    />
-                )}
-            </div>
-            <div className="rhs">
-                <DataTableGrid 
-                    tableId={id} 
-                    columns={dataTableInfo.columns} 
-                    rowCount={dataTableInfo.rowCount} 
-                    onDataPreview={setPreview} 
+        <Splitter
+            first={operation === Operation.Bag || operation === Operation.CopyRows || operation === Operation.ReinterpretColumns || operation === Operation.Shuffle || operation === Operation.Split
+                ? getOperationUI(operation, dataTableInfo)
+                : dataTableInfo.columns.map((c, i) => 
+                <ColumnInfo 
+                    key={i} 
+                    column={c} 
+                    index={i} 
+                    operation={operation}
+                    onChangeColumnType={(index, type) => columnConversionOptions.current.set(index, type)}
+                    preview={preview.map(x => x[i])}
                 />
-            </div>
-        </div>
+            )}
+            second={<DataTableGrid 
+                tableId={id} 
+                columns={dataTableInfo.columns} 
+                rowCount={dataTableInfo.rowCount} 
+                onDataPreview={setPreview} 
+            />}
+        />
     </div>;
 }
