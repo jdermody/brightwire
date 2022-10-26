@@ -1,0 +1,68 @@
+@import '../../node_modules/@blueprintjs/core/lib/scss/variables.scss';
+$padding:0.5em;
+$borderRadius: 5px;
+
+.column-info {
+    background-color: #fff;
+    margin-top:$padding;
+    max-width: 24em;
+    border-radius: $borderRadius;
+    box-shadow: $pt-elevation-shadow-3;
+    &.selected {
+        background-color: lighten(#8ABBFF, 12%);
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        align-content: stretch;
+        border-radius: $borderRadius 0 0 0;
+        >span {
+            display: inline-block;
+        }
+        .name {
+            margin-left: $padding;
+            flex-grow: 1;
+            margin-right: $padding*1.5;
+        }
+        .#{$ns}-control {
+            margin-left: 10px;
+            margin-bottom: 0;
+        }
+        .type {
+            font-weight: bold;
+            border-radius: $borderRadius 0 $borderRadius 0;
+            background-color: #8ABBFF;
+            padding:$padding;
+            &.Float {
+                background-color: #62D96B;
+            }
+            &.Int {
+                background-color: #29A634;
+            }
+        }
+    }
+    .body {
+        padding:$padding*2 $padding*2 $padding $padding*2;
+        display: flex;
+        flex-wrap: wrap;
+        >.lhs, >.rhs {
+            flex-basis: 50%;
+        }
+    }
+    table.property-list {
+        margin: 0 auto;
+        th, td {
+            padding:0.4rem;
+        }
+    }
+    .box {
+        max-height: 20em;
+        overflow: auto;
+        margin-top:1rem;
+        >table {
+            th, td {
+                padding:0.25em;
+            }
+        }
+    }
+}

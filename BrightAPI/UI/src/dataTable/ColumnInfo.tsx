@@ -8,12 +8,13 @@ import { PropertyList } from '../common/PropertyList';
 import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueModel, NormalizationType } from '../models';
 import { AutoSizeContainer } from '../panels/AutoSizeContainer';
 import { Operation } from './DataTable';
+import './ColumnInfo.scss';
 
 export interface ColumnInfoProps {
     operation: Operation;
     column: DataTableColumnModel;
     index: number;
-    onChangeColumnType: (columnIndex: number, type: ColumnConversionType) => void;
+    onChangeColumnType?: (columnIndex: number, type: ColumnConversionType) => void;
     preview?: string[];
 }
 
@@ -102,7 +103,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     const categories = useMemo(() => metadata ? getAllMetaData("Category:", metadata).map(x => ({index: parseInt(x.name.substring(9), 10), name: x.value})) : [], [metadata]);
 
     useEffect(() => {
-        onChangeColumnType(index, columnConversionOption);
+        onChangeColumnType?.(index, columnConversionOption);
     }, [columnConversionOption, index, onChangeColumnType]);
 
     return <div className={'column-info' + (isTarget ? ' target' : '') + ((isSelected && operation === Operation.VectoriseColumns) ? ' selected' : '')}>
