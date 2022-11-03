@@ -1,4 +1,4 @@
-import { Callout, Checkbox, Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
+import { Button, Callout, Checkbox, Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Histogram } from '../charts/Histogram';
 import { formatName, simplify, getDataTypeName } from '../common/FormatUtils';
@@ -9,12 +9,15 @@ import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueMo
 import { AutoSizeContainer } from '../panels/AutoSizeContainer';
 import { Operation } from './DataTable';
 import './ColumnInfo.scss';
+import { Popover2 } from '@blueprintjs/popover2';
+import { ColumnDataPreview } from './ColumnDataPreview';
 
 export interface ColumnInfoProps {
     operation: Operation;
     column: DataTableColumnModel;
     index: number;
     onChangeColumnType?: (columnIndex: number, type: ColumnConversionType) => void;
+    onChangeColumnNormalization?: (columnIndex: number, normalization: NormalizationType) => void;
     preview?: string[];
 }
 
@@ -91,7 +94,7 @@ function* getNormalizationOptions(dataType: BrightDataType) {
     }
 }
 
-export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview}: ColumnInfoProps) => {
+export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview, onChangeColumnNormalization}: ColumnInfoProps) => {
     const {metadata, isTarget} = column;
     const [isExpanded, setIsExpanded] = useState(false);
     const [columnConversionOption, setColumnConversionOption] = useState(ColumnConversionType.Unchanged);
@@ -106,6 +109,10 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
         onChangeColumnType?.(index, columnConversionOption);
     }, [columnConversionOption, index, onChangeColumnType]);
 
+    useEffect(() => {
+        onChangeColumnNormalization?.(index, normalizationType);
+    }, [normalizationType, index, onChangeColumnNormalization]);
+
     return <div className={'column-info' + (isTarget ? ' target' : '') + ((isSelected && operation === Operation.VectoriseColumns) ? ' selected' : '')}>
         <div className="header">
             <span className={'type ' + column.columnType}>
@@ -115,6 +122,31 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
             <span className="name">{column.name}</span>
             {((operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns)
                 ? <Switch checked={isSelected} onChange={e => setIsSelected(e.currentTarget.checked)}/>    
+                : undefined
+            }
+            {categories.length
+                ? <Popover2 content={<HTMLTable>
+                        <thead>
+                            <tr>
+                                <th colSpan={2}>Categories</th>
+                            </tr>
+                        </thead>
+                        <tbody>{categories.map(x => 
+                            <tr key={x.index}>
+                                <td>{x.index}</td>
+                                <td>{x.name}</td>
+                            </tr>
+                        )}</tbody>
+                    </HTMLTable>
+                }>
+                    <Button icon="properties"/>
+                </Popover2>
+                : undefined
+            }
+            {preview
+                ? <Popover2 content={<ColumnDataPreview preview={preview}/>}>
+                    <Button icon="th-list"/>
+                </Popover2>
                 : undefined
             }
         </div>
@@ -130,7 +162,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 })) ?? [])
             ]}/>}
             {operation === Operation.ConvertColumns
-                ? <div className="lhs">
+                ? <>
                     <RadioGroup
                         key="radio"
                         onChange={e => {
@@ -146,51 +178,23 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                             setColumnConversionOption(ColumnConversionType[e.currentTarget.value as ColumnConversionType]);
                         }}
                     /> : undefined}
-                </div>
+                </>
                 : undefined
             }
             {operation === Operation.NormalizeColumns
-                ? <div className="lhs">
-                    <RadioGroup key="radio"
-                        options={Array.from(getNormalizationOptions(column.columnType))}
-                        selectedValue={normalizationType.toString()}
-                        onChange={e => {
-                            setNormalizationType(NormalizationType[e.currentTarget.value as NormalizationType]);
-                        }}
-                    />
-                </div>
+                ? <RadioGroup key="radio"
+                    options={Array.from(getNormalizationOptions(column.columnType))}
+                    selectedValue={normalizationType.toString()}
+                    onChange={e => {
+                        setNormalizationType(NormalizationType[e.currentTarget.value as NormalizationType]);
+                    }}
+                />
                 : undefined
             }
             {operation === Operation.VectoriseColumns && !isNumeric(column.columnType)
                 ? <Callout title="Not Numeric" icon="info-sign" intent='primary'>
                     <p>Only numeric columns can be vectorised</p>
                 </Callout>
-                : undefined
-            }
-            {(operation === Operation.ConvertColumns || operation === Operation.NormalizeColumns || (operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns) && preview
-                ? <div className="rhs"><HTMLTable>
-                    <tbody>{preview.map((v, i) => 
-                        <tr key={i}><td>{v}</td></tr>
-                    )}</tbody>
-                </HTMLTable></div>
-                : undefined
-            }
-            {categories.length
-                ? <div className="box">
-                    <HTMLTable>
-                        <thead>
-                            <tr>
-                                <th colSpan={2}>Categories</th>
-                            </tr>
-                        </thead>
-                        <tbody>{categories.map(x => 
-                            <tr key={x.index}>
-                                <td>{x.index}</td>
-                                <td>{x.name}</td>
-                            </tr>
-                        )}</tbody>
-                    </HTMLTable>
-                </div>
                 : undefined
             }
         </div>

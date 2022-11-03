@@ -72,7 +72,7 @@ namespace BrightAPI.Controllers
         [HttpPost, Route("csv")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<NamedItemModel>> CreateNewTableFromCSV([FromBody] DataTableCsvRequest request)
+        public async Task<ActionResult<DataTableListItemModel>> CreateNewTableFromCSV([FromBody] DataTableCsvRequest request)
         {
             var fileData = string.Join('\n', request.Lines);
             if (string.IsNullOrWhiteSpace(fileData))
@@ -82,7 +82,7 @@ namespace BrightAPI.Controllers
 
             try {
                 var dataTable = await CreateDataTableFromCSV(_databaseManager, _context, _tempFileManager, request.HasHeader, request.Delimiter, request.TargetIndex, columnNames, request.FileName, fileData);
-                return AsNamedItem(dataTable);
+                return AsListItem(dataTable);
             }
             catch (Exception ex) {
                 _logger.LogError(ex, null);
@@ -140,12 +140,10 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<DataTableInfoModel>> GetDataTable(string id)
         {
-            var dataTableInfo = await _databaseManager.GetDataTable(id);
-            if (dataTableInfo is null)
-                return NotFound();
-
-            if (!System.IO.File.Exists(dataTableInfo.LocalPath))
-                return Problem("Local file not found");
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
             var ret = new DataTableInfoModel {
@@ -172,12 +170,10 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<object[][]>> GetDataTableData(string id, uint start, uint count)
         {
-            var dataTableInfo = await _databaseManager.GetDataTable(id);
-            if (dataTableInfo is null)
-                return NotFound();
-
-            if (!System.IO.File.Exists(dataTableInfo.LocalPath))
-                return Problem("Local file not found");
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
             var ret = table.GetSlice(start, count).Select(r => r.ToArray().ToArray()).ToArray();
@@ -337,9 +333,10 @@ namespace BrightAPI.Controllers
             if (request.TrainingPercentage is < 0 or > 100)
                 return BadRequest();
 
-            var dataTableInfo = await _databaseManager.GetDataTable(id);
-            if (dataTableInfo is null)
-                return NotFound();
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
 
@@ -358,9 +355,10 @@ namespace BrightAPI.Controllers
 
         async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<BrightDataTable /* input */, string /* path */, BrightDataTable /* output */> callback)
         {
-            var dataTableInfo = await _databaseManager.GetDataTable(id);
-            if (dataTableInfo is null)
-                return NotFound();
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
 
@@ -402,9 +400,10 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTable(string id)
         {
-            var dataTable = await _databaseManager.GetDataTable(id);
-            if (dataTable is null)
-                return NotFound();
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTable = dataTableResult.Value!;
 
             await _databaseManager.DeleteDataTable(dataTable);
 
@@ -414,6 +413,62 @@ namespace BrightAPI.Controllers
                 fileInfo.Delete();
 
             return Ok();
+        }
+
+        [HttpPost, Route("{id}/rename-columns")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> RenameTableColumns(string id, [FromBody] RenameTableColumnsRequest request)
+        {
+            if (request.ColumnIndices.Length == 0 || request.ColumnsNames.Length != request.ColumnIndices.Length)
+                return BadRequest();
+            var nameTable = request.ColumnIndices.Zip(request.ColumnsNames).ToDictionary(x => x.First, x => x.Second);
+
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTable = dataTableResult.Value!;
+
+            using var table = _context.LoadTable(dataTable.LocalPath);
+            foreach (var item in nameTable)
+                table.ColumnMetaData[item.Key].SetName(item.Value);
+            table.PersistMetaData();
+
+            return Ok();
+        }
+
+        [HttpPost, Route("{id}/set-target")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> SetTableColumnTarget(string id, [FromBody] SetColumnTargetRequest request)
+        {
+            var dataTableResult = await LoadDataTable(id);
+            if (dataTableResult.Result is not null)
+                return dataTableResult.Result;
+            var dataTable = dataTableResult.Value!;
+
+            using var table = _context.LoadTable(dataTable.LocalPath);
+            uint index = 0;
+            foreach (var column in table.ColumnMetaData)
+                column.SetTarget(index++ == request.TargetColumn);
+            table.PersistMetaData();
+
+            return Ok();
+        }
+
+        async Task<ActionResult<DataTable>> LoadDataTable(string id)
+        {
+            var dataTable = await _databaseManager.GetDataTable(id);
+
+            if (dataTable is null)
+                return NotFound($"Data table not found in database: {id}");
+
+            if (!System.IO.File.Exists(dataTable.LocalPath))
+                return Problem($"Data table not found on disk: {id}");
+
+            return dataTable;
         }
 
         static NameValueModel[] AsModel(MetaData metadata) => metadata.GetNonEmpty().Select(x => new NameValueModel {

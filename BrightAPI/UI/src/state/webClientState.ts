@@ -15,7 +15,7 @@ class WebClient
     }
 
     createCSV(request: DataTableCsvRequest) {
-        return this.postModel<NamedItemModel>(`${this.baseUrl}/datatable/csv`, request);
+        return this.postModel<DataTableListItemModel>(`${this.baseUrl}/datatable/csv`, request);
     }
 
     getDataTables() {

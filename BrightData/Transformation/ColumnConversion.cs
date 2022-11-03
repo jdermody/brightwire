@@ -208,15 +208,15 @@ namespace BrightData.Transformation
         static readonly IConvertColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
         static readonly IConvertColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Indices.Select(ind => (ind, 1f))));
 
-        static DateTime ParseDate(string str)
+        public static DateTime ParseDate(string str)
         {
-            if (DateTime.TryParse(str, out var ret))
-                return ret;
-
-            if (DateTime.TryParse(str, new DateTimeFormatInfo(), DateTimeStyles.AllowWhiteSpaces, out ret))
-                return ret;
-
-            throw new Exception($"{str} was not recognised as a valid date");
+            try {
+                return str.ToDateTime();
+            }
+            catch {
+                // return placeholder date
+                return DateTime.MinValue;
+            }
         }
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)

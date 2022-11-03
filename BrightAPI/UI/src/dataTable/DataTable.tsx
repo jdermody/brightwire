@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
 import { Splitter } from '../common/Splitter';
-import { ColumnConversionType, DataTableInfoModel } from '../models';
+import { ColumnConversionType, DataTableInfoModel, NormalizationType } from '../models';
 import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
 import { ColumnInfo } from './ColumnInfo';
@@ -30,7 +30,7 @@ export interface DataTableProps {
     openDataTable: (id: string, name: string) => void;
 }
 
-function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel) {
+function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel, preview: string[][]) {
     if(operation === Operation.Split) {
         return <Callout icon="info-sign" intent="primary" title="Split Table">
             <p>This will split randomly split the current table into two parts - a training table and a test table.</p>
@@ -47,7 +47,7 @@ function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel)
             <p>The rows (and row count) will remain the same, only the order within the table will be changed.</p>
         </Callout>;
     }else if(operation === Operation.ReinterpretColumns) {
-        return <ReinterpretColumns dataTable={dataTableInfo} />;
+        return <ReinterpretColumns dataTable={dataTableInfo} preview={preview} />;
     }else if(operation === Operation.CopyRows) {
         return <SelectRows/>;
     }
@@ -61,17 +61,32 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
     const [operationName, setOperationName] = useState("");
     const setDataTablesChangeState = useSetRecoilState(dataTablesChangeState);
     const columnConversionOptions = useRef(new Map<number, ColumnConversionType>);
+    const columnNormalizationOptions = useRef(new Map<number, NormalizationType>);
     const [preview, setPreview] = useState<any[][]>([]);
     const [splitPercentage, setSplitPercentage] = useState(80);
     const [bagCount, setBagCount] = useState<number>(100);
+    const [canCompleteOperation, setCanCompleteOperation] = useState(true);
 
     useEffect(() => {
         webClient.getDataTableInfo(id).then(setDataTableInfo);
     }, [webClient]);
+
+    const columnPreviews = useMemo(() => {
+        const ret: string[][] = [];
+        if(dataTableInfo && preview.length) {
+            for(let i = 0; i < dataTableInfo.columns.length; i++) {
+                ret.push(preview.map(x => x[i]));
+            }
+        }
+        return ret;
+    }, [preview, dataTableInfo]);
+    
     const startOperation = useCallback((operation: Operation, name: string) => {
         setOperation(operation);
         setOperationName(name);
-    }, [setOperation]);
+        setCanCompleteOperation(operation !== Operation.ConvertColumns && operation !== Operation.NormalizeColumns);
+    }, [setOperation, operation]);
+
     const completeOperation = useCallback(() => {
         if(operation === Operation.ConvertColumns) {
             const table = columnConversionOptions.current;
@@ -83,6 +98,21 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
             }
             webClient.convertDataTable(id, {
                 columnConversions,
+                columnIndices
+            }).then(id => {
+                setDataTablesChangeState(x => x+1);
+                openDataTable(id.id, id.name);
+            });
+        }else if(operation === Operation.NormalizeColumns) {
+            const table = columnNormalizationOptions.current;
+            const columnIndices: Array<number> = [];
+            const columns: Array<NormalizationType> = [];
+            for(const kv of table.entries()) {
+                columnIndices.push(kv[0]);
+                columns.push(kv[1]);
+            }
+            webClient.normalizeDataTable(id, {
+                columns,
                 columnIndices
             }).then(id => {
                 setDataTablesChangeState(x => x+1);
@@ -175,22 +205,30 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                     }
                     <ButtonGroup style={{marginLeft:'1em'}}>
                         <Button onClick={(() => setOperation(Operation.None))}>Cancel</Button>
-                        <Button intent='primary' onClick={completeOperation}>Okay</Button>
+                        <Button intent='primary' onClick={completeOperation}/* disabled={!canCompleteOperation}*/>Okay</Button>
                     </ButtonGroup>
                 </Navbar.Group>
             </Navbar>}
         </div>
         <Splitter
             first={operation === Operation.Bag || operation === Operation.CopyRows || operation === Operation.ReinterpretColumns || operation === Operation.Shuffle || operation === Operation.Split
-                ? getOperationUI(operation, dataTableInfo)
+                ? getOperationUI(operation, dataTableInfo, columnPreviews)
                 : dataTableInfo.columns.map((c, i) => 
                 <ColumnInfo 
                     key={i} 
                     column={c} 
                     index={i} 
                     operation={operation}
-                    onChangeColumnType={(index, type) => columnConversionOptions.current.set(index, type)}
-                    preview={preview.map(x => x[i])}
+                    onChangeColumnType={(index, type) => {
+                        columnConversionOptions.current.set(index, type);
+                        console.log(Array.from(columnConversionOptions.current.values()).some(x => x !== ColumnConversionType.Unchanged));
+                        setCanCompleteOperation(Array.from(columnConversionOptions.current.values()).some(x => x !== ColumnConversionType.Unchanged));
+                    }}
+                    onChangeColumnNormalization={(index, type) => {
+                        columnNormalizationOptions.current.set(index, type);
+                        setCanCompleteOperation(Array.from(columnNormalizationOptions.current.values()).some(x => x !== NormalizationType.None));
+                    }}
+                    preview={columnPreviews[i]}
                 />
             )}
             second={<DataTableGrid 

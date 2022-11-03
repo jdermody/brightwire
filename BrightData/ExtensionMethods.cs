@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -581,6 +582,35 @@ namespace BrightData
         public static void CopyTo(this IHaveTensorSegment source, IHaveTensorSegment target)
         {
             source.Segment.CopyTo(target.Segment);
+        }
+
+        public static DateTime ToDateTime(this string str)
+        {
+            if (DateTime.TryParse(str, out var ret))
+                return ret;
+
+            var formatInfo = new DateTimeFormatInfo();
+            var styles = DateTimeStyles.AllowWhiteSpaces;
+            if (DateTime.TryParse(str, formatInfo, styles, out ret))
+                return ret;
+
+            // 20150225T000000
+            if (DateTime.TryParseExact(str, "yyyyMMddTHHmmss", formatInfo, styles, out ret))
+                return ret;
+
+            // 20070405143000
+            if (DateTime.TryParseExact(str, "yyyyMMddHHmmss", formatInfo, styles, out ret))
+                return ret;
+
+            // 200704051430
+            if (DateTime.TryParseExact(str, "yyyyMMddHHmm", formatInfo, styles, out ret))
+                return ret;
+
+            // 19950204
+            if (DateTime.TryParseExact(str, "yyyyMMdd", formatInfo, styles, out ret))
+                return ret;
+
+            throw new Exception($"{str} was not recognised as a valid date");
         }
     }
 }

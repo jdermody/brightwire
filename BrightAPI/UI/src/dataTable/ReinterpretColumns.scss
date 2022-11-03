@@ -11,10 +11,11 @@
         border-radius: 3px;
     }
     li {
-        border: 1px solid #eee;
+        border: 1px solid #ccc;
         padding: 1em;
         display: flex;
         align-items: center;
+        margin-bottom: 0.5em;
         .#{$ns}-popover2-target {
             margin-left:1em;
         }
@@ -30,6 +31,7 @@
     }
     .header {
         flex-shrink: 0;
+        margin-top:0.5em;
     }
     $spacing: 1em;
     .body {
@@ -47,6 +49,10 @@
         h2 {
             margin:0.2em 0.1em;
             font-size:large;
+        }
+        >.header {
+            display: flex;
+            align-items: center;
         }
     }
 }
