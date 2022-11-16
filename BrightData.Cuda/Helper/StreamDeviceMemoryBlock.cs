@@ -47,7 +47,7 @@ namespace BrightData.Cuda.Helper
             DriverAPINativeMethods.AsynchronousMemcpy_v2.cuMemcpyDtoDAsync_v2(DevicePointer, source.DevicePointer, source.Size * sizeof(float), _stream).CheckResult();
         }
 
-        public override void CopyToDevice(ReadOnlySpan<float> span, uint targetOffset)
+        public override void CopyToDevice(ReadOnlySpan<float> span, uint targetOffset = 0)
         {
             fixed (float* ptr = &MemoryMarshal.GetReference(span))
             {

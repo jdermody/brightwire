@@ -161,7 +161,7 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
 
-		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint? memoryCacheSize)
+		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory)
         {
             _context = context;
             _cuda = new CudaContext();
@@ -182,9 +182,7 @@ namespace BrightData.Cuda
                     throw new Exception($"No default kernel was found in {cudaDirectory}");
             }
 
-			// use most available CUDA memory for the cache by default
-            var cacheSize = memoryCacheSize ?? 512 * 1048576;//((ulong)_cuda.GetTotalDeviceMemorySize() * 5 / 6);
-            _memoryPool = new MemoryPool(cacheSize);
+            _memoryPool = new MemoryPool();
             _defaultStream = new CudaStream(CUStreamFlags.Default);
 
             _kernel = new KernelModule(_cuda, cudaKernelPath);

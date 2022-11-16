@@ -20,7 +20,7 @@ namespace ExampleCode.DataTableTrainers
 
         public static BrightDataTable Parse(BrightDataContext context, string filePath)
         {
-            const int TARGET_COLUMN_COUNT = 6;
+            const int targetColumnCount = 6;
 
             // read the data as CSV, skipping the header
             using var reader = new StreamReader(filePath);
@@ -33,8 +33,8 @@ namespace ExampleCode.DataTableTrainers
             using var table = context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
-            var featureColumns = (table.ColumnCount - TARGET_COLUMN_COUNT).AsRange().ToArray();
-            var targetColumns = TARGET_COLUMN_COUNT.AsRange((int)table.ColumnCount - TARGET_COLUMN_COUNT).ToArray();
+            var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
+            var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
             var columnConversions = featureColumns
                 .Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i))
                 .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.ConvertColumn(i)))
@@ -43,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
 
             // convert the many feature columns to an index list and set that as the feature column
             using var tempStreams = context.CreateTempStreamProvider();
-            var reinterpreted = converted.ReinterpretColumns(tempStreams, filePath, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets", (uint)featureColumns.Length));
+            var reinterpreted = converted.ReinterpretColumns(tempStreams, filePath, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
             reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
 
             return reinterpreted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
@@ -77,15 +77,15 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create a training engine
-            const float TRAINING_RATE = 0.3f;
+            const float trainingRate = 0.3f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
+            const int hiddenLayerSize = 64, trainingIterations = 2000;
             graph.Connect(engine)
-                .AddFeedForward(HIDDEN_LAYER_SIZE)
+                .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -94,7 +94,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, model => bestGraph = model.Graph, 50);
+            engine.Train(trainingIterations, testData, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
@@ -177,15 +177,15 @@ namespace ExampleCode.DataTableTrainers
                 );
 
                 // create a training engine
-                const float TRAINING_RATE = 0.1f;
+                const float trainingRate = 0.1f;
                 var trainingData = graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
-                var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 64);
+                var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 64);
 
                 // build the network
-                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 1000;
+                const int hiddenLayerSize = 64, trainingIterations = 1000;
                 graph.Connect(engine)
-                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+                    .AddFeedForward(hiddenLayerSize)
                     .Add(graph.SigmoidActivation())
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -194,7 +194,7 @@ namespace ExampleCode.DataTableTrainers
                 ;
 
                 // train the network
-                engine.Train(TRAINING_ITERATIONS, testData, null, 200);
+                engine.Train(trainingIterations, testData, null, 200);
             }
         }
     }

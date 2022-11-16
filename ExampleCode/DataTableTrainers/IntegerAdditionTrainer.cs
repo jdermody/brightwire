@@ -33,9 +33,9 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.001f, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 20, TRAINING_ITERATIONS = 50;
+            const int hiddenLayerSize = 20, trainingIterations = 50;
             graph.Connect(engine)
-                .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
+                .AddSimpleRecurrent(graph.ReluActivation(), hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.ReluActivation())
                 .AddBackpropagationThroughTime()
@@ -43,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, bn => bestGraph = bn.Graph);
+            engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model

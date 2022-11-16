@@ -31,16 +31,16 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            const float TRAINING_RATE = 0.003f;
+            const float trainingRate = 0.003f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
-            engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 8);
+            engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 128;
+            const int hiddenLayerSize = 128;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE)
+                .AddGru(hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagation()
@@ -96,11 +96,11 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.00375f, 8);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 128;
+            const int hiddenLayerSize = 128;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddGru(hiddenLayerSize, "encoder1")
                 .AddRecurrentBridge("encoder1", "encoder2")
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
+                .AddGru(hiddenLayerSize, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
@@ -142,27 +142,27 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(false, 0.005f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
-            const uint BATCH_SIZE = 8;
-            const uint HIDDEN_LAYER_SIZE = 32;
-            const float TRAINING_RATE = 0.01f;
+            const uint batchSize = 8;
+            const uint hiddenLayerSize = 32;
+            const float trainingRate = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
             Training.TableMetaData.Set("Seq2Seq", true);
 
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddLstm(hiddenLayerSize, "encoder1")
                 .AddRecurrentBridge("encoder1", "encoder2")
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
+                .AddLstm(hiddenLayerSize, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
                 //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE, "self-attention")
-                .AddGru(HIDDEN_LAYER_SIZE, "decoder")
+                .AddGru(hiddenLayerSize, "decoder")
                 .AddRecurrentBridge("decoder", "decoder2")
-                .AddGru(HIDDEN_LAYER_SIZE, "decoder2")
+                .AddGru(hiddenLayerSize, "decoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
@@ -170,7 +170,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
+            engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
             engine.Train(60, testData, model => bestModel = model.Graph);
 
             // execute

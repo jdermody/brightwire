@@ -97,8 +97,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             if (_data.TryGetValue(channel, out var data)) {
                 data.SetData(signal.GetMatrix(), source);
                 if(_data.All(kv => kv.Value.IsValid)) {
-                    IMatrix? matrix;
-                    (matrix, backProp) = Activate(context, _data.Select(kv => kv.Value).ToList());
+                    (var matrix, backProp) = Activate(context, _data.Select(kv => kv.Value).ToList());
                     if(matrix != null)
                         next = signal.ReplaceWith(matrix);
 

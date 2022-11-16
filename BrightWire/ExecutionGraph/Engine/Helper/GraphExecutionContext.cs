@@ -23,10 +23,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 End = end;
             }
 
-            public IMiniBatch Batch { get; set; } 
-            public IGraphData Data { get; set; } 
-            public Action<IGraphContext, IGraphData> Start { get; set; }  
-            public Action<IGraphContext[]> End { get; set; }  
+            public IMiniBatch Batch { get; } 
+            public IGraphData Data { get; } 
+            public Action<IGraphContext, IGraphData> Start { get; }  
+            public Action<IGraphContext[]> End { get; }  
         }
         readonly ICreateGraphContext _createGraphContext;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();
@@ -72,9 +72,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IEnumerable<(IGraphContext Context, Action<IGraphContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext)
         {
             while (_additionalBatches.TryPop(out var item)) {
-                IMiniBatchSequence? sequence, prev = null;
+                IMiniBatchSequence? prev = null;
 
-                while ((sequence = item.Batch.GetNextSequence()) != null) {
+                while (item.Batch.GetNextSequence() is { } sequence) {
                     var context = _createGraphContext.Create(this, sequence, learningContext);
                     IGraphData? state;
 

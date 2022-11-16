@@ -185,8 +185,8 @@ namespace ExampleCode.DataSet
 
         public static SequenceToSequenceTrainer ManyToOne(this BrightDataContext context)
         {
-            const int SIZE = 5, DICTIONARY_SIZE = 16;
-            var grammar = new SequenceGenerator(context, dictionarySize: DICTIONARY_SIZE, minSize: SIZE-1, maxSize: SIZE+1);
+            const int size = 5, dictionarySize = 16;
+            var grammar = new SequenceGenerator(context, dictionarySize: dictionarySize, minSize: size-1, maxSize: size+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Sequence");
@@ -212,8 +212,8 @@ namespace ExampleCode.DataSet
 
         public static SequenceToSequenceTrainer SequenceToSequence(this BrightDataContext context)
         {
-            const int SEQUENCE_LENGTH = 5;
-            var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH-1, SEQUENCE_LENGTH+1, false);
+            const int sequenceLength = 5;
+            var grammar = new SequenceGenerator(context, 3, sequenceLength-1, sequenceLength+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Input");

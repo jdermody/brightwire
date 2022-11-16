@@ -53,7 +53,7 @@ namespace BrightData.DataTable.Operations
             // find the group by row
             var label = GetGroupLabel(_groupByColumnIndices, _row);
             if (!_groups.TryGetValue(label, out var groupBuffers))
-                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetColumnType().GetHybridBufferWithMetaData(x, _context, _tempStreams)).ToArray());
+                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetColumnType().GetHybridBufferWithMetaData(x, _context, _tempStreams)).Cast<IHybridBuffer>().ToArray());
 
             // write the row into the group
             foreach(var (obj, buffer) in _row.Zip(groupBuffers))

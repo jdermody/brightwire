@@ -84,10 +84,9 @@ namespace BrightWire.ExecutionGraph.Engine
             var provider = new MiniBatchProvider(DataSource, Context.Random);
             executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize));
 
-            IGraphOperation? operation;
             float operationCount = executionContext.RemainingOperationCount;
             var index = 0f;
-            while ((operation = executionContext.GetNextOperation()) != null && !ct.IsCancellationRequested) {
+            while (executionContext.GetNextOperation() is { } operation && !ct.IsCancellationRequested) {
                 LinearAlgebraProvider.PushScope();
                 var contextList = Train(executionContext, LearningContext, operation, ct).ToList();
                 LearningContext.ApplyUpdates();
@@ -109,9 +108,8 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             var batch = operation.GetMiniBatch();
             if (batch.IsSequential) {
-                IMiniBatchSequence? curr;
                 var contextTable = new Dictionary<IMiniBatchSequence, IGraphContext>();
-                while ((curr = batch.GetNextSequence()) != null && !ct.IsCancellationRequested) {
+                while (batch.GetNextSequence() is { } curr && !ct.IsCancellationRequested) {
                     var context = Train(executionContext, learningContext, curr);
                     contextTable.Add(context.BatchSequence, context);
                 }
@@ -148,8 +146,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
 
                 batch.Reset();
-                IMiniBatchSequence? currentSequence;
-                while ((currentSequence = batch.GetNextSequence()) != null) {
+                while (batch.GetNextSequence() is { } currentSequence) {
                     var context = lookupContext(currentSequence);
                     executionContext.Continue(context);
                     yield return context;

@@ -27,6 +27,10 @@
             &.sortable-chosen {
                 background-color: lighten(#FBD065, 10%);
             }
+            &.invalid {
+                background-color: #eee;
+                cursor: not-allowed;
+            }
         }
     }
     .header {
@@ -47,8 +51,9 @@
         margin-left:$spacing;
         margin-top:$spacing;
         h2 {
-            margin:0.2em 0.1em;
-            font-size:large;
+            margin:0.2em auto;
+            font-size:medium;
+            text-align: center;
         }
         >.header {
             display: flex;

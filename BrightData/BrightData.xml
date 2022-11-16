@@ -336,37 +336,10 @@
         <member name="M:BrightData.BrightDataContext.Dispose">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.BrightDataContext.Random">
-            <inheritdoc />
-        </member>
         <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
             </summary>
-        </member>
-        <member name="M:BrightData.BrightDataContext.Get``1(System.String,``0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BrightDataContext.Get``1(System.String,System.Func{``0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BrightDataContext.Get``1(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BrightDataContext.Set``1(System.String,``0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BrightDataContext.Set``1(System.String,System.Func{``0})">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.BrightDataContext.IsStochastic">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BrightDataContext.ResetRandom(System.Nullable{System.Int32})">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.BrightDataContext.UserNotifications">
-            <inheritdoc />
         </member>
         <member name="T:BrightData.Buffer.EncodedStream.EncodedStreamReader">
             <summary>
@@ -1605,7 +1578,7 @@
             <param name="columns">Parameters to determine which columns are reinterpreted</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyRows(BrightData.DataTable.BrightDataTable,System.String,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.CopyRowsToNewTable(BrightData.DataTable.BrightDataTable,System.String,System.UInt32[])">
             <summary>
             Copy specified rows from this to a new data table
             </summary>
@@ -2088,7 +2061,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ReduceDimensionsWithSVD(BrightData.IMatrix,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ReduceDimensionsWithSvd(BrightData.IMatrix,System.UInt32)">
             <summary>
             Reduce dimensions of the matrix with a singular value decomposition
             </summary>
@@ -3721,9 +3694,6 @@
             <summary>
             XML representation of the meta data
             </summary>
-        </member>
-        <member name="M:BrightData.MetaData.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
         </member>
         <member name="M:BrightData.MetaData.ReadFrom(System.IO.BinaryReader)">
             <summary>

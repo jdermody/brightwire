@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel, NormalizeDataTableColumnsRequest, ReinterpretDataTableColumnsRequest, VectoriseDataTableColumnsRequest, DataTableColumnsRequest, DataTableRowsRequest, BagTableRequest, SplitTableRequest } from "../models";
+import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel, NormalizeDataTableColumnsRequest, ReinterpretDataTableColumnsRequest, VectoriseDataTableColumnsRequest, DataTableColumnsRequest, DataTableRowsRequest, BagTableRequest, SplitTableRequest, RenameTableColumnsRequest, SetColumnTargetRequest } from "../models";
 import { baseUrlState } from "./baseUrlState";
 import { authenticatedHeaderState } from "./webClientHeaders";
 
@@ -68,6 +68,14 @@ class WebClient
 
     splitDataTable(id: string, request: SplitTableRequest) {
         return this.postModel<NamedItemModel[]>(`${this.baseUrl}/datatable/${id}/split`, request);
+    }
+
+    renameDataTableColumns(id: string, request: RenameTableColumnsRequest) {
+        return this.postModel<any>(`${this.baseUrl}/datatable/${id}/rename-columns`, request);
+    }
+
+    setDataTableTargetColumn(id: string, request: SetColumnTargetRequest) {
+        return this.postModel<any>(`${this.baseUrl}/datatable/${id}/set-target`, request);
     }
 
     async getResult<RT>(url: string): Promise<RT>

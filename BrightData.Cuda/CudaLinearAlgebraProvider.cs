@@ -19,7 +19,7 @@ namespace BrightData.Cuda
     {
         public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : base(context)
         {
-            Provider = cuda ?? ExtensionMethods.CreateCudaProvider(context);
+            Provider = cuda ?? context.CreateCudaProvider();
         }
 
         public override void Dispose()

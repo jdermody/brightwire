@@ -328,9 +328,7 @@ namespace BrightWire.TreeBased.Training
                 }
 
                 if (scoreTable.Any()) {
-                    var bestSplit = scoreTable
-                        .OrderByDescending(kv => kv.Score)
-                        .First();
+                    var bestSplit = scoreTable.MaxBy(kv => kv.Score);
                     foreach (var child in node.SetAttribute(bestSplit.Attribute, bestSplit.Nodes))
                         stack.Push(child);
                 }

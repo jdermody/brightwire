@@ -34,7 +34,7 @@ namespace ExampleCode.DataSet
 
         public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
-            uint numIterations = 1,
+            uint numIterations = 10,
             float trainingRate = 0.003f,
             uint batchSize = 128
         )
@@ -121,14 +121,14 @@ namespace ExampleCode.DataSet
             /// </summary>
             public (IReadOnlyTensor3D Tensor, IReadOnlyVector Label) AsFloatTensor(BrightDataContext context)
             {
-                const int ImageSize = 28;
+                const int imageSize = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new IReadOnlyVector[ImageSize];
+                var rows = new IReadOnlyVector[imageSize];
 
-                for (var y = 0; y < ImageSize; y++) {
-                    var row = new float[ImageSize];
-                    for (var x = 0; x < ImageSize; x++)
-                        row[x] = vector[(y * ImageSize) + x];
+                for (var y = 0; y < imageSize; y++) {
+                    var row = new float[imageSize];
+                    for (var x = 0; x < imageSize; x++)
+                        row[x] = vector[(y * imageSize) + x];
                     rows[y] = context.CreateReadOnlyVector(row);
                 }
 

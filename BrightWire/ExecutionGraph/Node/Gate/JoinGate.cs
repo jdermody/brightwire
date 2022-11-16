@@ -20,10 +20,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
-                IMatrix split, residual = errorSignal.GetMatrix();
+                var residual = errorSignal.GetMatrix();
                 var index = parents.Length-1;
                 foreach(var item in _channels) {
-                    (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
+                    (residual, var split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
                     yield return (errorSignal.ReplaceWith(split), context, _ancestors[index--]);
                 }
                 yield return (errorSignal.ReplaceWith(residual), context, _ancestors[index]);

@@ -221,11 +221,10 @@ namespace BrightData.DataTable
             var operations = new List<IOperation<(uint ColumnIndex, MetaData MetaData)>>();
             foreach (var ci in columnIndices) {
                 var metaData = GetColumnMetaData(ci);
-                if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
-                    operations.Add(CreateColumnAnalyser(ci, writeCount, maxDistinctCount));
-                }
-                else
-                    operations.Add(new NopMetaDataOperation(ci, metaData));
+                operations.Add(!metaData.Get(Consts.HasBeenAnalysed, false) 
+                    ? CreateColumnAnalyser(ci, writeCount, maxDistinctCount) 
+                    : new NopMetaDataOperation(ci, metaData)
+                );
             }
 
             var results = operations.CompleteInParallel();

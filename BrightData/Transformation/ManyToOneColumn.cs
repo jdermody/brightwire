@@ -10,21 +10,16 @@ namespace BrightData.Transformation
     /// </summary>
     internal class ManyToOneColumn : IReinterpretColumns
     {
-        readonly uint _outputColumnIndex;
-
-        public ManyToOneColumn(BrightDataType newType, string? name, uint outputColumnIndex, params uint[] sourceColumnIndices)
+        public ManyToOneColumn(BrightDataType newType, string? name, params uint[] sourceColumnIndices)
         {
-            _outputColumnIndex = outputColumnIndex;
             NewType = newType;
             Name = name;
             SourceColumnIndices = sourceColumnIndices;
-            OutputColumnIndices = new[] { _outputColumnIndex };
         }
 
         public BrightDataType NewType { get; }
         public string? Name { get; }
         public uint[] SourceColumnIndices { get; }
-        public uint[] OutputColumnIndices { get; }
 
         public IEnumerable<IOperation<ITypedSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] sourceColumns)
         {
@@ -33,7 +28,6 @@ namespace BrightData.Transformation
                 if (!String.IsNullOrWhiteSpace(Name))
                     metaData.SetName(Name);
                 metaData.SetType(NewType);
-                metaData.Set(Consts.ColumnIndex, _outputColumnIndex);
                 var outputBuffer = NewType.GetHybridBufferWithMetaData(metaData, context, tempStreams);
 
                 if (NewType == BrightDataType.IndexList)
@@ -51,11 +45,11 @@ namespace BrightData.Transformation
                         (IHybridBuffer<WeightedIndexList>)outputBuffer
                     );
                 else if (NewType == BrightDataType.Vector)
-                    yield return new ManyToOneColumnOperation<IVector>(
+                    yield return new ManyToOneColumnOperation<IReadOnlyVector>(
                         rowCount,
                         sourceColumns, 
                         obj => ToVector(context , obj),
-                        (IHybridBuffer<IVector>)outputBuffer
+                        (IHybridBuffer<IReadOnlyVector>)outputBuffer
                     );
                 else if (NewType == BrightDataType.String)
                     yield return new ManyToOneColumnOperation<string>(

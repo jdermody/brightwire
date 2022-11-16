@@ -14,12 +14,11 @@
             Provides a GPU based linear algebra provider
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.ExtensionMethods.CreateCudaProvider(BrightData.BrightDataContext,System.String,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Cuda.ExtensionMethods.CreateCudaProvider(BrightData.BrightDataContext,System.String)">
             <summary>
             Creates a linear alebra provider that runs on the GPU
             </summary>
             <param name="context"></param>
-            <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
             <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
         </member>
         <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlock">

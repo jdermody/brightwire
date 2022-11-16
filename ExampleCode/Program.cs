@@ -48,7 +48,7 @@ namespace ExampleCode
             //MarkovChains(context, useMkl);
             //TextClustering(context, useMkl);
             //IntegerAddition(context, useMkl);
-            //ReberPrediction(context, useMkl);
+            ReberPrediction(context, useMkl);
             //OneToMany(context, useMkl);
             //ManyToOne(context, useMkl);
             //SequenceToSequence(context, useMkl, useCuda);
@@ -75,7 +75,7 @@ namespace ExampleCode
                 context.UseCuda();
                 Console.WriteLine("* (GPU - CUDA)");
             }else if (useMkl) {
-                context.UseMKL();
+                context.UseMkl();
                 Console.WriteLine("* (CPU - MKL)");
             }
             else {

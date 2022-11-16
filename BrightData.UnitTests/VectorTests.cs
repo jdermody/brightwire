@@ -300,11 +300,11 @@ namespace BrightData.UnitTests
         public void VectorMultiply()
         {
             using var a = _cpu.CreateVector(5, i => i);
-            const float OPERAND = 2f;
+            const float operand = 2f;
 
-            using var gpu = Apply(_cuda, a, a => a.Multiply(OPERAND));
-            using var mkl = Apply(_mkl, a, a => a.Multiply(OPERAND));
-            using var cpu = a.Multiply(OPERAND);
+            using var gpu = Apply(_cuda, a, a => a.Multiply(operand));
+            using var mkl = Apply(_mkl, a, a => a.Multiply(operand));
+            using var cpu = a.Multiply(operand);
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -643,20 +643,20 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorSplit()
         {
-            const int BLOCK_COUNT = 3;
+            const int blockCount = 3;
             using var a = _cpu.CreateVector(12, i => i);
-            var cpu = a.Split(BLOCK_COUNT).Select(v => v).ToList();
+            var cpu = a.Split(blockCount).Select(v => v).ToList();
             foreach (var item in cpu)
                 item.Size.Should().Be(4);
 
             var gpu = new List<IVector>();
             using (var gpuA = _cuda.CreateVector(a)) {
-                gpu.AddRange(gpuA.Split(BLOCK_COUNT));
+                gpu.AddRange(gpuA.Split(blockCount));
             }
             
             var mkl = new List<IVector>();
             using (var mklA = _mkl.CreateVector(a)) {
-                mkl.AddRange(mklA.Split(BLOCK_COUNT));
+                mkl.AddRange(mklA.Split(blockCount));
             }
             for (var i = 0; i < cpu.Count; i++)
                 AssertSameAndThenDispose(cpu[i], gpu[i], mkl[i]);

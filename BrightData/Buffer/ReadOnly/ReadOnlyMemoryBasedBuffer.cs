@@ -110,7 +110,8 @@ namespace BrightData.Buffer.ReadOnly
 
             public ReadOnlySpan<T> GetSpan(uint startIndex, uint count) => new(_memory + startIndex, (int)count);
         }
-        readonly MemoryHandle _memory;
+
+        MemoryHandle _memory;
 
         public ReadOnlyMemoryBasedBuffer(ReadOnlyMemory<byte> memory)
         {

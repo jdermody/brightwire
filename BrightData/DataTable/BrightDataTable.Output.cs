@@ -50,7 +50,11 @@ namespace BrightData.DataTable
             }
 
             var tempStream = Context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
+            var buffers = ColumnMetaData
+                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
+                .Cast<IHybridBuffer>()
+                .ToArray()
+            ;
 
             return new WriteRowsOperation(
                 Context,
@@ -67,7 +71,11 @@ namespace BrightData.DataTable
         public IOperation<Stream?> WriteRowsTo(Stream stream, params uint[] rowIndices)
         {
             var tempStream = Context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
+            var buffers = ColumnMetaData
+                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
+                .Cast<IHybridBuffer>()
+                .ToArray()
+            ;
             var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;
 
             return new WriteRowsOperation(
@@ -85,7 +93,11 @@ namespace BrightData.DataTable
         public IOperation<Stream?> WriteRowsTo(Stream stream, Predicate<BrightDataTableRow> predicate, params uint[] rowIndices)
         {
             var tempStream = Context.CreateTempStreamProvider();
-            var buffers = ColumnMetaData.Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream)).ToArray();
+            var buffers = ColumnMetaData
+                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
+                .Cast<IHybridBuffer>()
+                .ToArray()
+            ;
             var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;
 
             return new WriteRowsOperation(

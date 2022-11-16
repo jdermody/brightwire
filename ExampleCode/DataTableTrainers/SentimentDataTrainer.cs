@@ -284,14 +284,14 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 100;
+            const int hiddenLayerSize = 100;
 
             var forward = graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "forward")
+                .AddLstm(hiddenLayerSize, "forward")
             ;
             var reverse = graph.Connect(engine)
                 .ReverseSequence()
-                .AddLstm(HIDDEN_LAYER_SIZE, "backward")
+                .AddLstm(hiddenLayerSize, "backward")
             ;
             graph.BidirectionalJoin(forward, reverse)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")

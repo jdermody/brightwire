@@ -219,8 +219,7 @@ namespace BrightData.UnitTests
             var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
             var normalised = table.Normalize(NormalizationType.Standard);
 
-            RandomSample(table.RowCount, normalised, (index, row) =>
-            {
+            RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
                 var prevRow = table.GetRow(index);
                 var prevVal = (double)prevRow[0];
@@ -236,8 +235,7 @@ namespace BrightData.UnitTests
             var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
             var normalised = table.Normalize(NormalizationType.FeatureScale);
 
-            RandomSample(table.RowCount, normalised, (index, row) =>
-            {
+            RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
                 var prevRow = table.GetRow(index);
                 var prevVal = (double)prevRow[0];
@@ -256,8 +254,7 @@ namespace BrightData.UnitTests
             var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Values.Select(d => Math.Pow(d, 2)).Sum());
             analysis.L2Norm.Should().Be(l2Norm);
 
-            RandomSample(table.RowCount, normalised, (index, row) =>
-            {
+            RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
                 var prevRow = table.GetRow(index);
                 var prevVal = prevRow.Get<double>(0);
@@ -276,8 +273,7 @@ namespace BrightData.UnitTests
             var l1Norm = table.GetColumn<double>(0).Values.Select(Math.Abs).Sum();
             analysis.L1Norm.Should().Be(l1Norm);
 
-            RandomSample(table.RowCount, normalised, (index, row) =>
-            {
+            RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
                 var prevRow = table.GetRow(index);
                 var prevVal = prevRow.Get<double>(0);
@@ -421,34 +417,34 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.String, "actual");
             builder.AddColumn(BrightDataType.String, "expected");
 
-            const int CAT_CAT = 5;
-            const int CAT_DOG = 2;
-            const int DOG_CAT = 3;
-            const int DOG_DOG = 5;
-            const int DOG_RABBIT = 2;
-            const int RABBIT_DOG = 1;
-            const int RABBIT_RABBIT = 11;
+            const int catCat = 5;
+            const int catDog = 2;
+            const int dogCat = 3;
+            const int dogDog = 5;
+            const int dogRabbit = 2;
+            const int rabbitDog = 1;
+            const int rabbitRabbit = 11;
 
-            for (var i = 0; i < CAT_CAT; i++)
+            for (var i = 0; i < catCat; i++)
                 builder.AddRow("cat", "cat");
-            for (var i = 0; i < CAT_DOG; i++)
+            for (var i = 0; i < catDog; i++)
                 builder.AddRow("cat", "dog");
-            for (var i = 0; i < DOG_CAT; i++)
+            for (var i = 0; i < dogCat; i++)
                 builder.AddRow("dog", "cat");
-            for (var i = 0; i < DOG_DOG; i++)
+            for (var i = 0; i < dogDog; i++)
                 builder.AddRow("dog", "dog");
-            for (var i = 0; i < DOG_RABBIT; i++)
+            for (var i = 0; i < dogRabbit; i++)
                 builder.AddRow("dog", "rabbit");
-            for (var i = 0; i < RABBIT_DOG; i++)
+            for (var i = 0; i < rabbitDog; i++)
                 builder.AddRow("rabbit", "dog");
-            for (var i = 0; i < RABBIT_RABBIT; i++)
+            for (var i = 0; i < rabbitRabbit; i++)
                 builder.AddRow("rabbit", "rabbit");
             var table = builder.BuildInMemory();
             var confusionMatrix = table.CreateConfusionMatrix(1, 0);
 
-            confusionMatrix.GetCount("cat", "dog").Should().Be(CAT_DOG);
-            confusionMatrix.GetCount("dog", "rabbit").Should().Be(DOG_RABBIT);
-            confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(RABBIT_RABBIT);
+            confusionMatrix.GetCount("cat", "dog").Should().Be(catDog);
+            confusionMatrix.GetCount("dog", "rabbit").Should().Be(dogRabbit);
+            confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(rabbitRabbit);
         }
 
         static void CheckTableConversion<T>(BrightDataTableBuilder builder, ColumnConversionType conversionType, BrightDataType columnType)
@@ -458,7 +454,7 @@ namespace BrightData.UnitTests
             converted.ColumnTypes[0].Should().Be(columnType);
             converted.ColumnTypes[1].Should().Be(columnType);
 
-            foreach(var (b1, b2) in converted.ForEachRow<T, T>())
+            foreach (var (b1, b2) in converted.ForEachRow<T, T>())
                 b1.Should().Be(b2);
         }
 
@@ -519,7 +515,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.SByte);
 
             for (int i = 0, len = sbyte.MaxValue - sbyte.MinValue; i < len; i++) {
-                var val = (sbyte) (sbyte.MinValue + i);
+                var val = (sbyte)(sbyte.MinValue + i);
                 builder.AddRow(val.ToString(), val);
             }
             CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, BrightDataType.SByte);
@@ -532,7 +528,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(BrightDataType.String);
             builder.AddColumn(BrightDataType.Short);
 
-            foreach(var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
+            foreach (var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
                 builder.AddRow(val.ToString(), (short)val);
 
             CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, BrightDataType.Short);
@@ -550,6 +546,29 @@ namespace BrightData.UnitTests
             builder.AddRow(int.MaxValue, int.MaxValue.ToString());
 
             CheckTableConversion<int>(builder, ColumnConversionType.ToNumeric, BrightDataType.Int);
+        }
+
+        [Fact]
+        public void ManyToVector()
+        {
+            var builder = _context.CreateTableBuilder();
+            builder.AddColumn(BrightDataType.Float);
+            builder.AddColumn(BrightDataType.Float);
+
+            builder.AddRow(0.1f, 0.2f);
+            builder.AddRow(0.3f, 0.4f);
+
+            using var tempStreams = _context.CreateTempStreamProvider();
+            var manyToOne = new uint[] { 0, 1 }.ReinterpretColumns(BrightDataType.Vector, "Data");
+
+            var table = builder.BuildInMemory();
+            var newTable = table.ReinterpretColumns(tempStreams, null, manyToOne);
+
+            newTable.ColumnCount.Should().Be(1);
+            var metaData = newTable.ColumnMetaData[0];
+            metaData.GetColumnIndex().Should().Be(0);
+            metaData.GetName().Should().Be("Data");
+            metaData.GetColumnType().Should().Be(BrightDataType.Vector);
         }
     }
 }

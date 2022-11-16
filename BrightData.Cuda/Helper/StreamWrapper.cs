@@ -8,7 +8,7 @@ using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
-    unsafe struct StreamWrapper : IDisposable
+    readonly struct StreamWrapper : IDisposable
     {
         public StreamWrapper()
         {

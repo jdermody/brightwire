@@ -204,7 +204,6 @@ namespace BrightData
             _values[name] = value;
         }
 
-        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
             var items = GetNonEmpty().ToList();

@@ -72,7 +72,7 @@ namespace BrightAPI.Controllers
         [HttpPost, Route("csv")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<DataTableListItemModel>> CreateNewTableFromCSV([FromBody] DataTableCsvRequest request)
+        public async Task<ActionResult<DataTableListItemModel>> CreateNewTableFromCsv([FromBody] DataTableCsvRequest request)
         {
             var fileData = string.Join('\n', request.Lines);
             if (string.IsNullOrWhiteSpace(fileData))
@@ -81,7 +81,7 @@ namespace BrightAPI.Controllers
             var columnNames = request.ColumnNames?.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             try {
-                var dataTable = await CreateDataTableFromCSV(_databaseManager, _context, _tempFileManager, request.HasHeader, request.Delimiter, request.TargetIndex, columnNames, request.FileName, fileData);
+                var dataTable = await CreateDataTableFromCsv(_databaseManager, _context, _tempFileManager, request.HasHeader, request.Delimiter, request.TargetIndex, columnNames, request.FileName, fileData);
                 return AsListItem(dataTable);
             }
             catch (Exception ex) {
@@ -89,7 +89,7 @@ namespace BrightAPI.Controllers
             }
             return BadRequest();
         }
-        public static async Task<DataTable> CreateDataTableFromCSV(
+        public static async Task<DataTable> CreateDataTableFromCsv(
             DatabaseManager dataBase, 
             BrightDataContext context, 
             TempFileManager tempFileManager,
@@ -246,10 +246,7 @@ namespace BrightAPI.Controllers
                     if(column.ColumnIndices.Any(x => x > table.ColumnCount))
                         throw new BadHttpRequestException($"Column index exceeded column count");
 
-                    if(!outputColumnIndices.Add(column.OutputColumnIndex))
-                        throw new BadHttpRequestException($"Duplicate output column index: {column.OutputColumnIndex}");
-
-                    reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name, column.OutputColumnIndex);
+                    reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name);
                 }
 
                 using var tempStreams = _context.CreateTempStreamProvider();
@@ -293,9 +290,9 @@ namespace BrightAPI.Controllers
             // collect the unique set of rows
             var rows = new HashSet<uint>();
             foreach (var range in request.RowRanges) {
-                if (range.FirstInclusiveRow >= range.LastInclusiveRow)
+                if (range.FirstInclusiveRowIndex >= range.LastExclusiveRowIndex)
                     return BadRequest();
-                for (var i = range.FirstInclusiveRow; i < range.LastInclusiveRow; i++)
+                for (var i = range.FirstInclusiveRowIndex; i < range.LastExclusiveRowIndex; i++)
                     rows.Add(i);
             }
             if (!rows.Any())
@@ -321,7 +318,12 @@ namespace BrightAPI.Controllers
             if (request.RowCount == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Bagged", (table, path) => table.Bag(path, request.RowCount));
+            return await Transform(id, request, "Bagged", (table, path) => {
+                var newTable = table.Bag(path, request.RowCount);
+                newTable.GetColumnAnalysis(table.ColumnIndices);
+                newTable.PersistMetaData();
+                return newTable;
+            });
         }
 
         [HttpPost, Route("{id}/split")]
@@ -344,13 +346,18 @@ namespace BrightAPI.Controllers
             var (path2, newTableId2) = _tempFileManager.GetNewTempPath();
 
             var (trainingTable, testTable) = table.Split(request.TrainingPercentage, path1, path2);
-
-            var training = await CreateTable(id, dataTableInfo, request, "Training", newTableId1, path1, trainingTable);
-            var test = await CreateTable(id, dataTableInfo, request, "Test", newTableId2, path2, testTable);
-            return new[] {
-                training,
-                test
-            };
+            try {
+                var training = await CreateTable(id, dataTableInfo, request, "Training", newTableId1, path1, trainingTable);
+                var test = await CreateTable(id, dataTableInfo, request, "Test", newTableId2, path2, testTable);
+                return new[] {
+                    training,
+                    test
+                };
+            }
+            finally {
+                trainingTable.Dispose();
+                testTable.Dispose();
+            }
         }
 
         async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<BrightDataTable /* input */, string /* path */, BrightDataTable /* output */> callback)

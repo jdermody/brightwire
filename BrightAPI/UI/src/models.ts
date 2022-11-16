@@ -138,9 +138,6 @@ export interface NewColumnFromExistingColumnsModel {
   columnIndices: number[];
   newType: BrightDataType;
   name: string;
-
-  /** @format int32 */
-  outputColumnIndex: number;
 }
 
 export enum NormalizationType {
@@ -168,14 +165,24 @@ export interface ProblemDetails {
 
 export interface RangeModel {
   /** @format int32 */
-  firstInclusiveRow: number;
+  firstInclusiveRowIndex: number;
 
   /** @format int32 */
-  lastInclusiveRow: number;
+  lastExclusiveRowIndex: number;
 }
 
 export interface ReinterpretDataTableColumnsRequest {
   columns: NewColumnFromExistingColumnsModel[];
+}
+
+export interface RenameTableColumnsRequest {
+  columnIndices: number[];
+  columnsNames?: string[] | null;
+}
+
+export interface SetColumnTargetRequest {
+  /** @format int32 */
+  targetColumn?: number | null;
 }
 
 export interface SplitTableRequest {

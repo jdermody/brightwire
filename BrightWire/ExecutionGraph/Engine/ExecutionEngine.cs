@@ -59,8 +59,7 @@ namespace BrightWire.ExecutionGraph.Engine
             var table = new Dictionary<IMiniBatchSequence, IGraphContext>();
 
             if (batch.IsSequential) {
-				IMiniBatchSequence? curr;
-				while ((curr = batch.GetNextSequence()) != null) {
+                while (batch.GetNextSequence() is { } curr) {
 					var context = CreateContext(executionContext, curr);
                     Start.Forward(GraphData.Null, context);
                     table.Add(curr, context);
@@ -88,8 +87,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     }
 
                     batch.Reset();
-                    IMiniBatchSequence? currentSequence;
-                    while ((currentSequence = batch.GetNextSequence()) != null) {
+                    while (batch.GetNextSequence() is { } currentSequence) {
                         var context = table[currentSequence];
                         executionContext.Continue(context);
                         yield return context;
@@ -115,8 +113,7 @@ namespace BrightWire.ExecutionGraph.Engine
             float operationCount = executionContext.RemainingOperationCount;
             var index = 0f;
 
-            IGraphOperation? operation;
-            while ((operation = executionContext.GetNextOperation()) != null) {
+            while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
                 foreach (var context in Execute(executionContext, operation)) {
                     foreach (var result in context.Results)
@@ -143,10 +140,9 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1/*, mb => Execute(executionContext, mb)*/));
 
-            IGraphOperation? operation;
             IGraphContext? context = null;
             // TODO: check that there is a single operation?
-            while ((operation = executionContext.GetNextOperation()) != null) {
+            while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
                 context = Execute(executionContext, operation).Single();
                 LinearAlgebraProvider.PopScope();
@@ -189,8 +185,7 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1));
 
-            IGraphOperation? operation;
-            while ((operation = executionContext.GetNextOperation()) != null) {
+            while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
                 foreach (var context in Execute(executionContext, operation)) {
                     yield return context.Results.Single();
@@ -212,10 +207,9 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1));
 
-            IGraphOperation? operation;
             IGraphContext? context = null;
             // TODO: check that there is a single operation?
-            while ((operation = executionContext.GetNextOperation()) != null) {
+            while (executionContext.GetNextOperation() is { } operation) {
                 context = Execute(executionContext, operation).Single();
             }
 

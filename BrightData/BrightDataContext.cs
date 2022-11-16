@@ -41,7 +41,6 @@ namespace BrightData
                 _lap.Value.Dispose();
         }
 
-        /// <inheritdoc />
         public Random Random { get; private set; }
 
         /// <summary>
@@ -60,13 +59,10 @@ namespace BrightData
 
         public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
 
-        /// <inheritdoc />
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;
 
-        /// <inheritdoc />
         public T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull => (T)_attachedProperties.GetOrAdd(name, _ => defaultValueCreator());
 
-        /// <inheritdoc />
         public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;
 
         public bool TryGet<T>(string name, [NotNullWhen(true)]out T? ret)
@@ -80,21 +76,16 @@ namespace BrightData
             return false;
         }
 
-        /// <inheritdoc />
         public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (_, _) => value);
 
-        /// <inheritdoc />
         public T Set<T>(string name, Func<T> valueCreator) where T : notnull => (T)_attachedProperties.AddOrUpdate(name, _ => valueCreator(), (_, o) => o);
 
         public void Clear(string name) => _attachedProperties.TryRemove(name, out var _);
 
-        /// <inheritdoc />
         public bool IsStochastic { get; }
 
-        /// <inheritdoc />
         public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
 
-        /// <inheritdoc />
         public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
     }
 }

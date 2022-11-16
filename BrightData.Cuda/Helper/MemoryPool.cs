@@ -11,13 +11,11 @@ namespace BrightData.Cuda.Helper
 {
     public class MemoryPool : IDisposable
     {
-        readonly uint _maxSize;
         uint _currentSize = 0;
         readonly ConcurrentDictionary<uint, ConcurrentStack<CUdeviceptr>> _memoryPool = new();
 
-        public MemoryPool(uint maxSize)
+        public MemoryPool()
         {
-            _maxSize = maxSize;
         }
 
         public void Dispose()

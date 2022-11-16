@@ -18,7 +18,9 @@ export interface ColumnInfoProps {
     index: number;
     onChangeColumnType?: (columnIndex: number, type: ColumnConversionType) => void;
     onChangeColumnNormalization?: (columnIndex: number, normalization: NormalizationType) => void;
+    onChangeColumnSelection?: (columnIndex: number, isSelected: boolean) => void;
     preview?: string[];
+    disablePopups?: boolean;
 }
 
 export const invalidHistogramColumnTypes = new Set<BrightDataType>([
@@ -94,7 +96,7 @@ function* getNormalizationOptions(dataType: BrightDataType) {
     }
 }
 
-export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview, onChangeColumnNormalization}: ColumnInfoProps) => {
+export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview, onChangeColumnNormalization, onChangeColumnSelection, disablePopups}: ColumnInfoProps) => {
     const {metadata, isTarget} = column;
     const [isExpanded, setIsExpanded] = useState(false);
     const [columnConversionOption, setColumnConversionOption] = useState(ColumnConversionType.Unchanged);
@@ -112,6 +114,10 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     useEffect(() => {
         onChangeColumnNormalization?.(index, normalizationType);
     }, [normalizationType, index, onChangeColumnNormalization]);
+
+    useEffect(() => {
+        onChangeColumnSelection?.(index, isSelected);
+    }, [isSelected, index, onChangeColumnSelection])
 
     return <div className={'column-info' + (isTarget ? ' target' : '') + ((isSelected && operation === Operation.VectoriseColumns) ? ' selected' : '')}>
         <div className="header">
@@ -153,7 +159,9 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
         <div className="body">
             {operation != Operation.None || invalidHistogramColumnTypes.has(column.columnType)
                 ? undefined
-                : <div style={{cursor: 'pointer'}} tabIndex={0} onClick={() => setIsExpanded(true)}>{getHistogram(metadata ?? [])}</div>
+                : disablePopups
+                    ? <div>{getHistogram(metadata ?? [])}</div>
+                    : <div style={{cursor: 'pointer'}} tabIndex={0} onClick={() => setIsExpanded(true)}>{getHistogram(metadata ?? [])}</div>
             }
             {operation != Operation.None ? undefined : <PropertyList properties={[
                 ...(metadata?.filter(m => !invalidColumns.has(m.name) && !m.name.startsWith('Frequency:') && !m.name.startsWith('FrequencyRange:') && !m.name.startsWith('FrequencyRange:') && !m.name.startsWith('Category:')).map(m => ({

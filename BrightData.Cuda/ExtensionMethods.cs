@@ -19,9 +19,8 @@ namespace BrightData.Cuda
         /// Creates a linear alebra provider that runs on the GPU
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static CudaProvider CreateCudaProvider(this BrightDataContext context, string? cudaKernelPath = null, uint? memoryCacheSize = null)
+        public static CudaProvider CreateCudaProvider(this BrightDataContext context, string? cudaKernelPath = null)
         {
             if (cudaKernelPath != null && !File.Exists(cudaKernelPath))
                 throw new FileNotFoundException($"Could not find cuda kernel at: {cudaKernelPath}");
@@ -37,13 +36,13 @@ namespace BrightData.Cuda
                     throw new Exception($"Could not find the default cuda kernel location ({cudaDirectory}). Are the ptx kernels in BrightData.Cuda/cuda set to 'Copy to Output Directory'?");
             }
 
-            var ret = new CudaProvider(context, cudaKernelPath, cudaDirectory, memoryCacheSize);
+            var ret = new CudaProvider(context, cudaKernelPath, cudaDirectory);
             return ret;
         }
 
-        public static CudaLinearAlgebraProvider UseCuda(this BrightDataContext context, string? cudaKernelPath = null, uint? cudaMemoryCacheSize = null)
+        public static CudaLinearAlgebraProvider UseCuda(this BrightDataContext context, string? cudaKernelPath = null)
         {
-            var provider = CreateCudaProvider(context, cudaKernelPath, cudaMemoryCacheSize);
+            var provider = CreateCudaProvider(context, cudaKernelPath);
             var ret = new CudaLinearAlgebraProvider(context, provider);
             ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
             return ret;

@@ -430,11 +430,6 @@ namespace BrightData
         uint[] SourceColumnIndices { get; }
 
         /// <summary>
-        /// Source column indices
-        /// </summary>
-        uint[] OutputColumnIndices { get; }
-
-        /// <summary>
         /// Gets new column operations
         /// </summary>
         /// <param name="context">Bright data context</param>

@@ -349,7 +349,7 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="dimensions">Number of dimensions to reduce to</param>
         /// <returns></returns>
-        public static IMatrix ReduceDimensionsWithSVD(this IMatrix matrix, uint dimensions)
+        public static IMatrix ReduceDimensionsWithSvd(this IMatrix matrix, uint dimensions)
         {
             using var matrixT = matrix.Transpose();
             var (u, vector, vt) = matrixT.Svd();

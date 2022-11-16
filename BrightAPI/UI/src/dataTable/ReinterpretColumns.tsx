@@ -1,7 +1,6 @@
 import { Button, Callout, EditableText } from '@blueprintjs/core';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
-import Sortable from 'sortablejs';
 import { BrightDataType, DataTableColumnModel, DataTableInfoModel } from '../models';
 import {v4} from 'uuid';
 import './ReinterpretColumns.scss';
@@ -9,6 +8,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 import { ColumnInfo } from './ColumnInfo';
 import { Operation } from './DataTable';
 import { ColumnDataPreview } from './ColumnDataPreview';
+import { isNumeric } from '../common/MetaDataUtil';
 
 export interface ReinterpretColumnsProps {
     dataTable: DataTableInfoModel;
@@ -28,21 +28,24 @@ interface Group {
 }
 
 const LightColumnInfo = ({column, preview}: {column:Column, preview: string[]}) => {
-    return <li className="column">
-        {column.name}
+    const isValid = isNumeric(column.columnType);
+
+    return <li className={"column" + (isValid ? '' : ' invalid')}>
+        {column.name}{isValid ? '' : ' - Not Numeric'}
         {preview
             ? <Popover2 content={<ColumnDataPreview preview={preview} />}>
                 <Button icon="th-list"/>
             </Popover2>
             :undefined
         }
-        <Popover2 content={<ColumnInfo column={column} index={0} operation={Operation.None} />}>
+        <Popover2 content={<ColumnInfo column={column} index={0} operation={Operation.None} disablePopups={true} />}>
             <Button icon="info-sign"/>
         </Popover2>
     </li>;
 };
 
 export const ReinterpretColumns = ({dataTable, preview}: ReinterpretColumnsProps) => {
+    const hasNumeric = dataTable.columns.some(x => isNumeric(x.columnType));
     const [columns, setColumns] = useState<Column[]>(() => dataTable.columns.map((x, i) => ({
         id: `c${i}`,
         index: i,
@@ -63,16 +66,22 @@ export const ReinterpretColumns = ({dataTable, preview}: ReinterpretColumnsProps
         setColumns(x => x.concat(group.columns));
     }, [setGroups]);
 
-    return <div className="reinterpret-columns">
+    useEffect(() => {
+        console.log(columns);
+        console.log(groups);
+    }, [groups, columns]);
+
+    return hasNumeric ? <div className="reinterpret-columns">
         <Callout icon="info-sign" intent='primary'>
-            Create new groups and drag and drop existing table columns into groups to create new columns from multiple input columns.
+            Create new groups and drag and drop existing <strong>numeric</strong> table columns into those groups.
         </Callout>
         <div className="header">
             <Button onClick={() => addGroup(BrightDataType.Vector, 'Vector')}>Add Vector</Button>
         </div>
         <div className="body">
             <div className="columns">
-                <ReactSortable list={columns} setList={setColumns} tag='ul' group='columns'>
+                <h2>Table Columns</h2>
+                <ReactSortable list={columns} setList={setColumns} tag='ul' group='columns' filter='.invalid'>
                     {columns.map((item, i) => <LightColumnInfo key={item.id} column={item} preview={preview[item.index]}/>)}
                 </ReactSortable>
             </div>
@@ -84,11 +93,13 @@ export const ReinterpretColumns = ({dataTable, preview}: ReinterpretColumnsProps
                         </h2>
                         <Button icon="delete" intent="danger" onClick={() => deleteGroup(x)}/>
                     </div>
-                    <ReactSortable list={x.columns} setList={addColumnToGroup.bind(null, x)} tag='ul' group='columns'>
+                    <ReactSortable list={x.columns} setList={addColumnToGroup.bind(null, x)} tag='ul' group='columns' filter='.invalid'>
                         {x.columns.map((item) => <LightColumnInfo key={item.id} column={item} preview={preview[item.index]} />)}
                     </ReactSortable>
                 </div>
             )}
         </div>
-    </div>;
+    </div> : <Callout icon="warning-sign" intent='danger'>
+        No numeric columns - convert some columns to numeric first
+    </Callout>;
 };

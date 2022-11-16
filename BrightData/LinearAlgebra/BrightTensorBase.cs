@@ -42,7 +42,7 @@ namespace BrightData.LinearAlgebra
             }
             finally {
                 if(wasTempUsed)
-                    temp.Dispose();;
+                    temp.Dispose();
             }
         }
 

@@ -68,7 +68,7 @@ namespace BrightWire.UnitTests
             var model = data.TrainMultinomialNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(_context, stringTableBuilder));
-            classification.OrderByDescending(c => c.Weight).First().Label.Should().Be("china");
+            classification.MaxBy(c => c.Weight).Label.Should().Be("china");
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace BrightWire.UnitTests
             var model = data.TrainBernoulliNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(_context, stringTableBuilder));
-            classification.OrderByDescending(c => c.Weight).First().Label.Should().Be("japan");
+            classification.MaxBy(c => c.Weight).Label.Should().Be("japan");
         }
     }
 }

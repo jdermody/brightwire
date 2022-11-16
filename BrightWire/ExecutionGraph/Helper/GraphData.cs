@@ -135,7 +135,7 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Depth => _matrix.ColumnCount;
         public uint Count => 1;
 	    public IMatrix GetMatrix() => _matrix;
-        public ITensor3D? Get3DTensor() => _matrix.Reshape(_matrix.ColumnCount, Rows, Columns);
+        public ITensor3D Get3DTensor() => _matrix.Reshape(_matrix.ColumnCount, Rows, Columns);
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
         public ITensor4D? Get4DTensor()
         {

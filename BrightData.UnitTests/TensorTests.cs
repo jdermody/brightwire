@@ -48,16 +48,16 @@ namespace BrightData.UnitTests
         [Fact]
         public void TensorCreateFromVector()
         {
-            const int DEPTH = 3, ROWS = 4, COLUMNS = 4;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(ROWS, COLUMNS, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
+            const int depth = 3, rows = 4, columns = 4;
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
             using var cpuVector = cpuTensor.Reshape();
-            using var cpu = cpuVector.Reshape(ROWS, COLUMNS, DEPTH);
+            using var cpu = cpuVector.Reshape(rows, columns, depth);
 
             using var gpuVector = _cuda.CreateVector(cpuVector);
-            using var gpu = gpuVector.Reshape(ROWS, COLUMNS, DEPTH);
+            using var gpu = gpuVector.Reshape(rows, columns, depth);
 
             using var mklVector = _mkl.CreateVector(cpuVector);
-            using var mkl = mklVector.Reshape(ROWS, COLUMNS, DEPTH);
+            using var mkl = mklVector.Reshape(rows, columns, depth);
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -76,14 +76,14 @@ namespace BrightData.UnitTests
         [Fact]
         public void TensorCreateFromMatrix()
         {
-            const int DEPTH = 3, ROWS = 4, COLUMNS = 4;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(ROWS, COLUMNS, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
+            const int depth = 3, rows = 4, columns = 4;
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray());
             using var cpuMatrix = cpuTensor.ReshapeAsMatrix();
-            using var cpu = cpuMatrix.Reshape(null, ROWS, COLUMNS);
+            using var cpu = cpuMatrix.Reshape(null, rows, columns);
             using var gpuMatrix = _cuda.CreateMatrix(cpuMatrix);
-            using var gpu = gpuMatrix.Reshape(null, ROWS, COLUMNS);
+            using var gpu = gpuMatrix.Reshape(null, rows, columns);
             using var mklMatrix = _mkl.CreateMatrix(cpuMatrix);
-            using var mkl = mklMatrix.Reshape(null, ROWS, COLUMNS);
+            using var mkl = mklMatrix.Reshape(null, rows, columns);
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -202,8 +202,8 @@ namespace BrightData.UnitTests
         [Fact]
         public void TensorMaxPool()
         {
-            const uint FILTER_WIDTH = 2, FILTER_HEIGHT = 2, XSTRIDE = 2, YSTRIDE = 2, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, false)).ToArray());
+            const uint filterWidth = 2, filterHeight = 2, xstride = 2, ystride = 2, inputWidth = 4, inputHeight = 4;
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(inputHeight, inputWidth, false)).ToArray());
             cpuTensor[0, 0, 0] = 1f;
             cpuTensor[0, 3, 0] = 2f;
             cpuTensor[0, 0, 3] = 3f;
@@ -214,16 +214,16 @@ namespace BrightData.UnitTests
             cpuTensor[1, 1, 2] = 3f;
             cpuTensor[1, 2, 2] = 4f;
 
-            var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
-            using var cpu = cpuMaxPool.ReverseMaxPool(cpuIndex!, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE);
+            var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
+            using var cpu = cpuMaxPool.ReverseMaxPool(cpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
             
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor);
-            var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
-            using var gpu = gpuMaxPool.ReverseMaxPool(gpuIndex!, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE);
+            var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
+            using var gpu = gpuMaxPool.ReverseMaxPool(gpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
 
             using var mklTensor = _mkl.CreateTensor3D(cpuTensor);
-            var (mklMaxPool, mklIndex) = mklTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
-            using var mkl = mklMaxPool.ReverseMaxPool(mklIndex!, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE);
+            var (mklMaxPool, mklIndex) = mklTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
+            using var mkl = mklMaxPool.ReverseMaxPool(mklIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
             try {
                 AssertSame(cpuTensor, cpu);
                 AssertSame(cpuMaxPool, gpuMaxPool, mklMaxPool);
@@ -284,24 +284,24 @@ namespace BrightData.UnitTests
         [Fact]
         public void TensorMaxPoolBlankIrregular()
         {
-            const int ROWS = 7, COLUMNS = 7, DEPTH = 8, FILTER_WIDTH = 2, FILTER_HEIGHT = 2, X_STRIDE = 2, Y_STRIDE = 2;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, DEPTH).Select(_ => _cpu.CreateMatrix(ROWS, COLUMNS, (_, _) => 0)).ToArray());
+            const int rows = 7, columns = 7, depth = 8, filterWidth = 2, filterHeight = 2, xStride = 2, yStride = 2;
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, depth).Select(_ => _cpu.CreateMatrix(rows, columns, (_, _) => 0)).ToArray());
 
-            var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
-            var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, ROWS, COLUMNS, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
+            var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+            var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
             AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor);
-            var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
+            var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
             FloatMath.AreApproximatelyEqual(gpuMaxPool, cpuMaxPool);
             FloatMath.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
-            using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices!, ROWS, COLUMNS, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
+            using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
 
             using var mklTensor = _mkl.CreateTensor3D(cpuTensor);
-            var (mklMaxPool, mklIndices) = mklTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE, true);
+            var (mklMaxPool, mklIndices) = mklTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
             FloatMath.AreApproximatelyEqual(mklMaxPool, cpuMaxPool);
             FloatMath.AreApproximatelyEqual(mklIndices!, cpuIndices!);
-            using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices!, ROWS, COLUMNS, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
+            using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
 
             try {
                 AssertSame(cpuReverseMaxPool, gpuReverseMaxPool, mklReverseMaxPool);
@@ -443,8 +443,8 @@ namespace BrightData.UnitTests
         [Fact]
         public void Tensor4DCreate()
         {
-            const uint ROWS = 3, COLUMNS = 4, DEPTH = 2, COUNT = 5;
-            var data = COUNT.AsRange().Select(_ => CheckCreateTensor(ROWS, COLUMNS, DEPTH, (i, j, d) => (j + 1) * (i + 1))).ToArray();
+            const uint rows = 3, columns = 4, depth = 2, count = 5;
+            var data = count.AsRange().Select(_ => CheckCreateTensor(rows, columns, depth, (i, j, d) => (j + 1) * (i + 1))).ToArray();
             using var cpuTensor = _cpu.CreateTensor4D(data);
             using var gpuTensor = _cuda.CreateTensor4D(data);
             FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
@@ -914,26 +914,26 @@ namespace BrightData.UnitTests
         [Fact]
         public void Tensor4DReverseIm2Col()
         {
-            const int ROWS = 4, COLUMNS = 4, DEPTH = 1, COUNT = 1, FILTER_WIDTH = 2, FILTER_HEIGHT = 2, FILTER_COUNT = 1, X_STRIDE = 2, Y_STRIDE = 2;
+            const int rows = 4, columns = 4, depth = 1, count = 1, filterWidth = 2, filterHeight = 2, filterCount = 1, xStride = 2, yStride = 2;
 
             var normalDistribution = _context.CreateNormalDistribution(0, 1);
-            var data = Enumerable.Range(0, COUNT)
-                .Select(_ => CheckCreateTensor(ROWS, COLUMNS, DEPTH, (_, _, _) => (float)normalDistribution.Sample())).ToArray();
+            var data = Enumerable.Range(0, count)
+                .Select(_ => CheckCreateTensor(rows, columns, depth, (_, _, _) => (float)normalDistribution.Sample())).ToArray();
             using var cpuTensor = _cpu.CreateTensor4D(data);
-            using var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (_, _) => (float)normalDistribution.Sample());
+            using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => (float)normalDistribution.Sample());
 
             using var gpuTensor = _cuda.CreateTensor4D(data);
             using var gpuFilter = _cuda.CreateMatrix(cpuFilter);
             AssertSame(cpuTensor, gpuTensor);
 
-            var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
-            using var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
+            var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, rows, columns, depth, filterWidth, filterHeight, xStride, yStride);
+            using var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, rows, columns, depth, filterWidth, filterHeight, xStride, yStride);
 
             using var mklTensor = _mkl.CreateTensor4D(data);
             using var mklFilter = _mkl.CreateMatrix(cpuFilter);
             AssertSame(cpuTensor, mklTensor);
 
-            using var mklReverseIm2Col = mklTensor.ReverseIm2Col(mklFilter, ROWS, COLUMNS, DEPTH, FILTER_WIDTH, FILTER_HEIGHT, X_STRIDE, Y_STRIDE);
+            using var mklReverseIm2Col = mklTensor.ReverseIm2Col(mklFilter, rows, columns, depth, filterWidth, filterHeight, xStride, yStride);
             AssertSame(cpuReverseIm2Col, gpuReverseIm2Col, mklReverseIm2Col);
         }
 

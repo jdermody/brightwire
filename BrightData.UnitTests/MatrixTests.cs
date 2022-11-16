@@ -56,7 +56,7 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void Multiply2x2()
+        public void Multiply2X2()
         {
             using var matrix = _cpu.CreateMatrix(2, 2, false);
             matrix[0, 0] = 1;
@@ -70,7 +70,7 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void Multiply3x2()
+        public void Multiply3X2()
         {
             var index = 1;
             using var matrix = _cpu.CreateMatrix(3, 2, (i, j) => index++);
@@ -389,55 +389,55 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixMultiplyScalar()
         {
-            const float SCALAR = 2.5f;
+            const float scalar = 2.5f;
             using var matrix = _cpu.CreateMatrix(2, 5, (j, k) => k);
-            using var gpu = Apply(_cuda, matrix, a => a.Multiply(SCALAR));
-            using var mkl = Apply(_mkl, matrix, a => a.Multiply(SCALAR));
-            using var cpu = matrix.Multiply(SCALAR);
+            using var gpu = Apply(_cuda, matrix, a => a.Multiply(scalar));
+            using var mkl = Apply(_mkl, matrix, a => a.Multiply(scalar));
+            using var cpu = matrix.Multiply(scalar);
             AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixColumn()
         {
-            const int INDEX = 7;
+            const int index = 7;
             using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
-            var cpu = a.GetColumn(INDEX).Segment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetColumn(INDEX).Segment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetColumn(INDEX).Segment.ToNewArray());
+            var cpu = a.GetColumn(index).Segment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetColumn(index).Segment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetColumn(index).Segment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixColumnVector()
         {
-            const int INDEX = 7;
+            const int index = 7;
             using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
-            using var cpu = a.GetColumnVector(INDEX);
-            using var gpu = Apply(_cuda, a, a => a.GetColumnVector(INDEX));
-            using var mkl = Apply(_mkl, a, a => a.GetColumnVector(INDEX));
+            using var cpu = a.GetColumnVector(index);
+            using var gpu = Apply(_cuda, a, a => a.GetColumnVector(index));
+            using var mkl = Apply(_mkl, a, a => a.GetColumnVector(index));
             AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixRow()
         {
-            const int INDEX = 11;
+            const int index = 11;
             using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
-            var cpu = a.GetRow(INDEX).Segment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetRow(INDEX).Segment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetRow(INDEX).Segment.ToNewArray());
+            var cpu = a.GetRow(index).Segment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetRow(index).Segment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetRow(index).Segment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixRowVector()
         {
-            const int INDEX = 11;
+            const int index = 11;
             using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
-            using var cpu = a.GetRowVector(INDEX);
-            using var gpu = Apply(_cuda, a, a => a.GetRowVector(INDEX));
-            using var mkl = Apply(_mkl, a, a => a.GetRowVector(INDEX));
+            using var cpu = a.GetRowVector(index);
+            using var gpu = Apply(_cuda, a, a => a.GetRowVector(index));
+            using var mkl = Apply(_mkl, a, a => a.GetRowVector(index));
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -812,13 +812,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSplitColumns()
         {
-            const int POSITION = 2000;
+            const int position = 2000;
             var rand = new Random();
             using var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            var (top, bottom) = a.SplitAtRow(POSITION);
+            var (top, bottom) = a.SplitAtRow(position);
 
             using (var gpuA = _cuda.CreateMatrix(a)) {
-                var (top2, bottom2) = gpuA.SplitAtRow(POSITION);
+                var (top2, bottom2) = gpuA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
                 FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
@@ -826,7 +826,7 @@ namespace BrightData.UnitTests
             }
 
             using (var simpleA = _mkl.CreateMatrix(a)) {
-                var (top2, bottom2) = simpleA.SplitAtRow(POSITION);
+                var (top2, bottom2) = simpleA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
                 FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
@@ -839,14 +839,14 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSplitRows()
         {
-            const int POSITION = 2000;
+            const int position = 2000;
             var rand = new Random();
             using var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            var (left, right) = a.SplitAtColumn(POSITION);
+            var (left, right) = a.SplitAtColumn(position);
 
             using var gpuA = _cuda.CreateMatrix(a);
             {
-                var (left2, right2) = gpuA.SplitAtColumn(POSITION);
+                var (left2, right2) = gpuA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
                 FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
@@ -854,7 +854,7 @@ namespace BrightData.UnitTests
             }
 
             using (var simpleA = _mkl.CreateMatrix(a)) {
-                var (left2, right2) = simpleA.SplitAtColumn(POSITION);
+                var (left2, right2) = simpleA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
                 FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
@@ -868,10 +868,10 @@ namespace BrightData.UnitTests
         public void MatrixL1Regularisation()
         {
             using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
-            const float OPERAND = 2f;
-            using var gpu = Apply(_cuda, a, a => a.L1Regularisation(OPERAND));
-            using var mkl = Apply(_mkl, a, a => a.L1Regularisation(OPERAND));
-            a.L1Regularisation(OPERAND);
+            const float operand = 2f;
+            using var gpu = Apply(_cuda, a, a => a.L1Regularisation(operand));
+            using var mkl = Apply(_mkl, a, a => a.L1Regularisation(operand));
+            a.L1Regularisation(operand);
             AssertSame(a, gpu, mkl);
         }
 
@@ -931,10 +931,10 @@ namespace BrightData.UnitTests
         public void MatrixPow()
         {
             using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
-            const float OPERAND = 2.5f;
-            using var cpu = a.Pow(OPERAND);
-            using var gpu = Apply(_cuda, a, a => a.Pow(OPERAND));
-            using var mkl = Apply(_mkl, a, a => a.Pow(OPERAND));
+            const float operand = 2.5f;
+            using var cpu = a.Pow(operand);
+            using var gpu = Apply(_cuda, a, a => a.Pow(operand));
+            using var mkl = Apply(_mkl, a, a => a.Pow(operand));
             AssertSameWithMaxDifference(12, cpu, gpu, mkl);
         }
 

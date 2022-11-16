@@ -65,7 +65,7 @@ using(var scope = app.Services.CreateScope())
         var fileData = File.ReadAllText(@"c:\data\iris.csv");
         var context = scope.ServiceProvider.GetRequiredService<BrightDataContext>();
         var tempFileManaher = scope.ServiceProvider.GetRequiredService<TempFileManager>();
-        var dataTable = DataTableController.CreateDataTableFromCSV(new DatabaseManager(dataContext), context, tempFileManaher, false, ',', 5, new[] { "C1", "C2", "C3", "C4", "C5" }, "iris.csv", fileData).Result;
+        var dataTable = DataTableController.CreateDataTableFromCsv(new DatabaseManager(dataContext), context, tempFileManaher, false, ',', 5, new[] { "C1", "C2", "C3", "C4", "C5" }, "iris.csv", fileData).Result;
     }
 }
 

@@ -35,11 +35,11 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 40;
+            const int hiddenLayerSize = 50, trainingIterations = 40;
             graph.Connect(engine)
-                .AddSimpleRecurrent(graph.SigmoidActivation(), HIDDEN_LAYER_SIZE, "layer1")
+                .AddSimpleRecurrent(graph.SigmoidActivation(), hiddenLayerSize, "layer1")
                 .AddRecurrentBridge("layer1", "layer2")
-                .AddSimpleRecurrent(graph.SigmoidActivation(), HIDDEN_LAYER_SIZE, "layer2")
+                .AddSimpleRecurrent(graph.SigmoidActivation(), hiddenLayerSize, "layer2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
@@ -47,7 +47,7 @@ namespace ExampleCode.DataTableTrainers
 
             engine.LearningContext.ScheduleLearningRate(10, 0.01f);
             engine.LearningContext.ScheduleLearningRate(20, 0.003f);
-            var model = engine.Train(TRAINING_ITERATIONS, testData);
+            var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
@@ -69,9 +69,9 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 50;
+            const int hiddenLayerSize = 40, trainingIterations = 50;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "layer1")
+                .AddGru(hiddenLayerSize, "layer1")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
@@ -79,7 +79,7 @@ namespace ExampleCode.DataTableTrainers
 
             engine.LearningContext.ScheduleLearningRate(15, 0.1f);
             engine.LearningContext.ScheduleLearningRate(30, 0.03f);
-            var model = engine.Train(TRAINING_ITERATIONS, testData);
+            var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
@@ -102,18 +102,18 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 50;
+            const int hiddenLayerSize = 32, trainingIterations = 50;
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddLstm(hiddenLayerSize, "encoder1")
                 .AddRecurrentBridge("encoder1", "encoder2")
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder2")
+                .AddLstm(hiddenLayerSize, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
             ;
 
             engine.LearningContext.ScheduleLearningRate(25, learningRate / 3);
-            var model = engine.Train(TRAINING_ITERATIONS, testData);
+            var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 

@@ -268,7 +268,7 @@ namespace BrightWire
         /// <returns></returns>
         public static string GetBestClassification(this IEnumerable<(string Label, float Weight)> classifications)
         {
-            return classifications.OrderByDescending(c => c.Weight).First().Label;
+            return classifications.MaxBy(c => c.Weight).Label;
         }
 
         /// <summary>

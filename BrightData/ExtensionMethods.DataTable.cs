@@ -978,9 +978,9 @@ namespace BrightData
         /// <param name="newColumnName"></param>
         /// <param name="outputColumnIndex"></param>
         /// <returns></returns>
-        public static IReinterpretColumns ReinterpretColumns(this uint[] sourceColumnIndices, BrightDataType newColumnType, string newColumnName, uint outputColumnIndex)
+        public static IReinterpretColumns ReinterpretColumns(this uint[] sourceColumnIndices, BrightDataType newColumnType, string newColumnName)
         {
-            return new ManyToOneColumn(newColumnType, newColumnName, outputColumnIndex, sourceColumnIndices);
+            return new ManyToOneColumn(newColumnType, newColumnName, sourceColumnIndices);
         }
 
         /// <summary>
@@ -1363,6 +1363,11 @@ namespace BrightData
         {
             if (columns.Any()) {
                 try {
+                    // ensure column indices are correct
+                    uint columnIndex = 0;
+                    foreach (var column in columns)
+                        column.MetaData.Set(Consts.ColumnIndex, columnIndex++);
+
                     using var tempStream = context.CreateTempStreamProvider();
                     var writer = new BrightDataTableWriter(context, tempStream, stream);
                     writer.Write(tableMetaData, columns);

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
 import { Splitter } from '../common/Splitter';
-import { ColumnConversionType, DataTableInfoModel, NormalizationType } from '../models';
+import { ColumnConversionType, DataTableInfoModel, NamedItemModel, NormalizationType } from '../models';
 import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
 import { ColumnInfo } from './ColumnInfo';
@@ -49,7 +49,7 @@ function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel,
     }else if(operation === Operation.ReinterpretColumns) {
         return <ReinterpretColumns dataTable={dataTableInfo} preview={preview} />;
     }else if(operation === Operation.CopyRows) {
-        return <SelectRows/>;
+        return <SelectRows dataTable={dataTableInfo} />;
     }
     return <div>TODO</div>;
 }
@@ -62,6 +62,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
     const setDataTablesChangeState = useSetRecoilState(dataTablesChangeState);
     const columnConversionOptions = useRef(new Map<number, ColumnConversionType>);
     const columnNormalizationOptions = useRef(new Map<number, NormalizationType>);
+    const columnSelection = useRef(new Map<number, boolean>);
     const [preview, setPreview] = useState<any[][]>([]);
     const [splitPercentage, setSplitPercentage] = useState(80);
     const [bagCount, setBagCount] = useState<number>(100);
@@ -87,6 +88,11 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
         setCanCompleteOperation(operation !== Operation.ConvertColumns && operation !== Operation.NormalizeColumns);
     }, [setOperation, operation]);
 
+    const addTable = useCallback((newTable: NamedItemModel) => {
+        setDataTablesChangeState(x => x+1);
+        openDataTable(newTable.id, newTable.name);
+    }, [setDataTablesChangeState, openDataTable]);
+
     const completeOperation = useCallback(() => {
         if(operation === Operation.ConvertColumns) {
             const table = columnConversionOptions.current;
@@ -99,10 +105,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
             webClient.convertDataTable(id, {
                 columnConversions,
                 columnIndices
-            }).then(id => {
-                setDataTablesChangeState(x => x+1);
-                openDataTable(id.id, id.name);
-            });
+            }).then(addTable);
         }else if(operation === Operation.NormalizeColumns) {
             const table = columnNormalizationOptions.current;
             const columnIndices: Array<number> = [];
@@ -114,10 +117,40 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
             webClient.normalizeDataTable(id, {
                 columns,
                 columnIndices
-            }).then(id => {
+            }).then(addTable);
+        }else if(operation === Operation.VectoriseColumns || operation === Operation.CopyColumns) {
+            const table = columnSelection.current;
+            const columnIndices: Array<number> = [];
+            for(let i = 0; i < (dataTableInfo?.columns ?? []).length; i++) {
+                if(table.get(i))
+                    columnIndices.push(i);
+            }
+            if(columnIndices.length) {
+                if(operation === Operation.VectoriseColumns) {
+                    webClient.vectoriseDataTable(id, {
+                        columnIndices,
+                        oneHotEncodeToMultipleColumns: true
+                    }).then(addTable);
+                }else {
+                    webClient.copyDataTableColumns(id, {
+                        columnIndices
+                    }).then(addTable);
+                }
+            }
+        }else if(operation === Operation.Split) {
+            webClient.splitDataTable(id, {
+                trainingPercentage: splitPercentage
+            }).then((tables: NamedItemModel[]) => {
                 setDataTablesChangeState(x => x+1);
-                openDataTable(id.id, id.name);
+                openDataTable(tables[0].id, tables[0].name);
+                openDataTable(tables[1].id, tables[1].name);
             });
+        }else if(operation === Operation.Bag) {
+            webClient.bagDataTable(id, {
+                rowCount: bagCount
+            }).then(addTable);
+        }else if(operation === Operation.Shuffle) {
+            webClient.shuffleDataTable(id).then(addTable);
         }
     }, [operation]);
 
@@ -227,6 +260,10 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                     onChangeColumnNormalization={(index, type) => {
                         columnNormalizationOptions.current.set(index, type);
                         setCanCompleteOperation(Array.from(columnNormalizationOptions.current.values()).some(x => x !== NormalizationType.None));
+                    }}
+                    onChangeColumnSelection={(index, isSelected) => {
+                        columnSelection.current.set(index, isSelected);
+                        setCanCompleteOperation(Array.from(columnSelection.current.values()).some(x => x === true));
                     }}
                     preview={columnPreviews[i]}
                 />

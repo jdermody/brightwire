@@ -22,13 +22,12 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestSvd()
         {
-            var lap = _context.LinearAlgebraProvider;
-            var a = lap.CreateMatrix(256, 128, (x, y) => x * y);
+            var a = _mkl.CreateMatrix(256, 128, (x, y) => x * y);
             var (floatMatrix, floatVector, floatMatrix1) = a.Svd();
             var reducedSize = 32.AsRange().ToList();
 
             var u = floatMatrix.GetNewMatrixFromRows(reducedSize);
-            var s = lap.CreateDiagonalMatrix(floatVector.Segment.Values.Take(reducedSize.Count).ToArray());
+            var s = _mkl.CreateDiagonalMatrix(floatVector.Segment.Values.Take(reducedSize.Count).ToArray());
             var vt = floatMatrix1.GetNewMatrixFromColumns(reducedSize);
             var us = u.TransposeThisAndMultiply(s);
             var usvt = us.TransposeAndMultiply(vt);
