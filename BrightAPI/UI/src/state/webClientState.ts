@@ -7,7 +7,6 @@ class WebClient
 {
     constructor(public baseUrl: string, private headers: any)
     {
-        console.log(headers);
     }
 
     getCSVPreview(request: DataTableCsvPreviewRequest) {
@@ -71,11 +70,11 @@ class WebClient
     }
 
     renameDataTableColumns(id: string, request: RenameTableColumnsRequest) {
-        return this.postModel<any>(`${this.baseUrl}/datatable/${id}/rename-columns`, request);
+        return this.postModel<DataTableInfoModel>(`${this.baseUrl}/datatable/${id}/rename-columns`, request);
     }
 
     setDataTableTargetColumn(id: string, request: SetColumnTargetRequest) {
-        return this.postModel<any>(`${this.baseUrl}/datatable/${id}/set-target`, request);
+        return this.postModel<DataTableInfoModel>(`${this.baseUrl}/datatable/${id}/set-target`, request);
     }
 
     async getResult<RT>(url: string): Promise<RT>

@@ -6,7 +6,6 @@ using BrightAPI.Helper;
 using BrightData;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,4 @@
-import { Button, Callout, Checkbox, Classes, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
+import { Button, Callout, Checkbox, Classes, EditableText, HTMLSelect, HTMLTable, Icon, Overlay, RadioGroup, Switch } from '@blueprintjs/core';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Histogram } from '../charts/Histogram';
 import { formatName, simplify, getDataTypeName } from '../common/FormatUtils';
@@ -19,6 +19,8 @@ export interface ColumnInfoProps {
     onChangeColumnType?: (columnIndex: number, type: ColumnConversionType) => void;
     onChangeColumnNormalization?: (columnIndex: number, normalization: NormalizationType) => void;
     onChangeColumnSelection?: (columnIndex: number, isSelected: boolean) => void;
+    onRenameColumn?: (columnIndex: number, newName: string) => void;
+    onSetTargetColumn?: (columnIndex: number) => void;
     preview?: string[];
     disablePopups?: boolean;
 }
@@ -96,7 +98,7 @@ function* getNormalizationOptions(dataType: BrightDataType) {
     }
 }
 
-export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview, onChangeColumnNormalization, onChangeColumnSelection, disablePopups}: ColumnInfoProps) => {
+export const ColumnInfo = ({column, index, operation, onChangeColumnType, preview, onChangeColumnNormalization, onChangeColumnSelection, disablePopups, onRenameColumn, onSetTargetColumn}: ColumnInfoProps) => {
     const {metadata, isTarget} = column;
     const [isExpanded, setIsExpanded] = useState(false);
     const [columnConversionOption, setColumnConversionOption] = useState(ColumnConversionType.Unchanged);
@@ -106,6 +108,7 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     const secondary = Array.from(getSecondaryConversionOptions(column.columnType));
     const [normalizationType, setNormalizationType] = useState(NormalizationType.None);
     const categories = useMemo(() => metadata ? getAllMetaData("Category:", metadata).map(x => ({index: parseInt(x.name.substring(9), 10), name: x.value})) : [], [metadata]);
+    const [name, setName] = useState(column.name);
 
     useEffect(() => {
         onChangeColumnType?.(index, columnConversionOption);
@@ -125,7 +128,16 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 {getDataTypeName(column.columnType)}
                 {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
             </span>
-            <span className="name">{column.name}</span>
+            <span className="name">
+                {onRenameColumn 
+                    ? <EditableText value={name} onChange={setName} onConfirm={e => onRenameColumn(index, e)}/> 
+                    : column.name
+                }
+            </span>
+            {onSetTargetColumn && !isTarget
+                ? <Button icon="target" small={true} onClick={() => onSetTargetColumn(index)}/>
+                : undefined
+            }
             {((operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns)
                 ? <Switch checked={isSelected} onChange={e => setIsSelected(e.currentTarget.checked)}/>    
                 : undefined

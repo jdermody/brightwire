@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text;
 using System.Text.Json;
 using BrightAPI.Database;
@@ -9,8 +8,6 @@ using BrightAPI.Models.DataTable.Requests;
 using BrightData;
 using BrightData.DataTable;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BrightAPI.Controllers
 {
@@ -250,7 +247,10 @@ namespace BrightAPI.Controllers
                 }
 
                 using var tempStreams = _context.CreateTempStreamProvider();
-                return table.ReinterpretColumns(tempStreams, path, reinterpretColumns);
+                var newTable = table.ReinterpretColumns(tempStreams, path, reinterpretColumns);
+                newTable.GetColumnAnalysis(newTable.ColumnIndices);
+                newTable.PersistMetaData();
+                return newTable;
             });
         }
 
@@ -263,7 +263,12 @@ namespace BrightAPI.Controllers
             if (request.ColumnIndices.Length == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Vectorised", (table, path) => table.Vectorise(request.OneHotEncodeToMultipleColumns, request.ColumnIndices, path));
+            return await Transform(id, request, "Vectorised", (table, path) => {
+                var newTable = table.Vectorise(request.OneHotEncodeToMultipleColumns, request.ColumnIndices, path);
+                newTable.GetColumnAnalysis(newTable.ColumnIndices);
+                newTable.PersistMetaData();
+                return newTable;
+            });
         }
 
         [HttpPost, Route("{id}/copy-columns")]
@@ -287,8 +292,7 @@ namespace BrightAPI.Controllers
             if (request.RowRanges.Length == 0)
                 return BadRequest();
 
-            // collect the unique set of rows
-            var rows = new HashSet<uint>();
+            var rows = new List<uint>();
             foreach (var range in request.RowRanges) {
                 if (range.FirstInclusiveRowIndex >= range.LastExclusiveRowIndex)
                     return BadRequest();
@@ -298,7 +302,12 @@ namespace BrightAPI.Controllers
             if (!rows.Any())
                 return BadRequest();
 
-            return await Transform(id, request, "Row Subset", (table, path) => table.CopyRowsToNewTable(path, rows.OrderBy(x => x).ToArray()));
+            return await Transform(id, request, "Row Subset", (table, path) => {
+                var newTable = table.CopyRowsToNewTable(path, rows.ToArray());
+                newTable.GetColumnAnalysis(table.ColumnIndices);
+                newTable.PersistMetaData();
+                return newTable;
+            });
         }
 
         [HttpPost, Route("{id}/shuffle")]
@@ -345,10 +354,17 @@ namespace BrightAPI.Controllers
             var (path1, newTableId1) = _tempFileManager.GetNewTempPath();
             var (path2, newTableId2) = _tempFileManager.GetNewTempPath();
 
-            var (trainingTable, testTable) = table.Split(request.TrainingPercentage, path1, path2);
+            var (trainingTable, testTable) = table.Split(request.TrainingPercentage / 100, path1, path2);
             try {
+                trainingTable.GetColumnAnalysis(table.ColumnIndices);
+                trainingTable.PersistMetaData();
+
+                testTable.GetColumnAnalysis(table.ColumnIndices);
+                testTable.PersistMetaData();
+
                 var training = await CreateTable(id, dataTableInfo, request, "Training", newTableId1, path1, trainingTable);
                 var test = await CreateTable(id, dataTableInfo, request, "Test", newTableId2, path2, testTable);
+
                 return new[] {
                     training,
                     test
@@ -426,7 +442,7 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> RenameTableColumns(string id, [FromBody] RenameTableColumnsRequest request)
+        public async Task<ActionResult<DataTableInfoModel>> RenameTableColumns(string id, [FromBody] RenameTableColumnsRequest request)
         {
             if (request.ColumnIndices.Length == 0 || request.ColumnsNames.Length != request.ColumnIndices.Length)
                 return BadRequest();
@@ -437,32 +453,36 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTable = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTable.LocalPath);
-            foreach (var item in nameTable)
-                table.ColumnMetaData[item.Key].SetName(item.Value);
-            table.PersistMetaData();
+            {
+                using var table = _context.LoadTable(dataTable.LocalPath, forModification: true);
+                foreach (var item in nameTable)
+                    table.ColumnMetaData[item.Key].SetName(item.Value);
+                table.PersistMetaData();
+            }
 
-            return Ok();
+            return await GetDataTable(id);
         }
 
         [HttpPost, Route("{id}/set-target")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> SetTableColumnTarget(string id, [FromBody] SetColumnTargetRequest request)
+        public async Task<ActionResult<DataTableInfoModel>> SetTableColumnTarget(string id, [FromBody] SetColumnTargetRequest request)
         {
             var dataTableResult = await LoadDataTable(id);
             if (dataTableResult.Result is not null)
                 return dataTableResult.Result;
             var dataTable = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTable.LocalPath);
-            uint index = 0;
-            foreach (var column in table.ColumnMetaData)
-                column.SetTarget(index++ == request.TargetColumn);
-            table.PersistMetaData();
+            {
+                using var table = _context.LoadTable(dataTable.LocalPath, forModification: true);
+                uint index = 0;
+                foreach (var column in table.ColumnMetaData)
+                    column.SetTarget(index++ == request.TargetColumn);
+                table.PersistMetaData();
+            }
 
-            return Ok();
+            return await GetDataTable(id);
         }
 
         async Task<ActionResult<DataTable>> LoadDataTable(string id)

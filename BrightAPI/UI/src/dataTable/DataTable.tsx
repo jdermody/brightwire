@@ -4,13 +4,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
 import { Splitter } from '../common/Splitter';
-import { ColumnConversionType, DataTableInfoModel, NamedItemModel, NormalizationType } from '../models';
+import { ColumnConversionType, DataTableInfoModel, NamedItemModel, NewColumnFromExistingColumnsModel, NormalizationType, RangeModel } from '../models';
 import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
 import { ColumnInfo } from './ColumnInfo';
 import './DataTable.scss';
-import { ReinterpretColumns } from './ReinterpretColumns';
-import { SelectRows } from './SelectRows';
+import { ReinterpretColumns, ReinterpretColumnsProps } from './ReinterpretColumns';
+import { SelectRows, SelectRowsProps } from './SelectRows';
 
 export const enum Operation{
     None = 0,
@@ -30,7 +30,13 @@ export interface DataTableProps {
     openDataTable: (id: string, name: string) => void;
 }
 
-function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel, preview: string[][]) {
+function getOperationUI(
+    operation            : Operation, 
+    dataTableInfo        : DataTableInfoModel, 
+    preview              : string[][], 
+    onChangeRowGroups    : SelectRowsProps["onChange"],
+    onChangeColumnGroups : ReinterpretColumnsProps["onChange"]
+) {
     if(operation === Operation.Split) {
         return <Callout icon="info-sign" intent="primary" title="Split Table">
             <p>This will split randomly split the current table into two parts - a training table and a test table.</p>
@@ -47,9 +53,11 @@ function getOperationUI(operation: Operation, dataTableInfo: DataTableInfoModel,
             <p>The rows (and row count) will remain the same, only the order within the table will be changed.</p>
         </Callout>;
     }else if(operation === Operation.ReinterpretColumns) {
-        return <ReinterpretColumns dataTable={dataTableInfo} preview={preview} />;
+        return <ReinterpretColumns dataTable={dataTableInfo} preview={preview} onChange={onChangeColumnGroups} />;
     }else if(operation === Operation.CopyRows) {
-        return <SelectRows dataTable={dataTableInfo} />;
+        return <SelectRows dataTable={dataTableInfo} onChange={x => {
+            onChangeRowGroups(x);
+        }} />;
     }
     return <div>TODO</div>;
 }
@@ -67,6 +75,8 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
     const [splitPercentage, setSplitPercentage] = useState(80);
     const [bagCount, setBagCount] = useState<number>(100);
     const [canCompleteOperation, setCanCompleteOperation] = useState(true);
+    const [rowGroups, setRowGroups] = useState<RangeModel[]>([]);
+    const [columnGroups, setColumnGroups] = useState<NewColumnFromExistingColumnsModel[]>([]);
 
     useEffect(() => {
         webClient.getDataTableInfo(id).then(setDataTableInfo);
@@ -82,18 +92,18 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
         return ret;
     }, [preview, dataTableInfo]);
     
-    const startOperation = useCallback((operation: Operation, name: string) => {
+    const startOperation = (operation: Operation, name: string) => {
         setOperation(operation);
         setOperationName(name);
         setCanCompleteOperation(operation !== Operation.ConvertColumns && operation !== Operation.NormalizeColumns);
-    }, [setOperation, operation]);
+    };
 
-    const addTable = useCallback((newTable: NamedItemModel) => {
+    const addTable = (newTable: NamedItemModel) => {
         setDataTablesChangeState(x => x+1);
         openDataTable(newTable.id, newTable.name);
-    }, [setDataTablesChangeState, openDataTable]);
+    };
 
-    const completeOperation = useCallback(() => {
+    const completeOperation = () => {
         if(operation === Operation.ConvertColumns) {
             const table = columnConversionOptions.current;
             const columnIndices: Array<number> = [];
@@ -151,8 +161,26 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
             }).then(addTable);
         }else if(operation === Operation.Shuffle) {
             webClient.shuffleDataTable(id).then(addTable);
+        }else if(operation === Operation.CopyRows) {
+            webClient.copyDataTableRows(id, {rowRanges: rowGroups}).then(addTable);
+        }else if(operation === Operation.ReinterpretColumns) {
+            webClient.reinterpretDataTable(id, {columns: columnGroups}).then(addTable);
         }
-    }, [operation]);
+        setOperation(Operation.None);
+    };
+
+    const renameColumn = (index: number, newName: string) => {
+        webClient.renameDataTableColumns(id, {
+            columnIndices: [index],
+            columnsNames: [newName]
+        }).then(setDataTableInfo);;
+    };
+
+    const setTargetColumn = (index: number) => {
+        webClient.setDataTableTargetColumn(id, {
+            targetColumn: index
+        }).then(setDataTableInfo);
+    };
 
     if(!dataTableInfo)
         return <Spinner/>;
@@ -171,12 +199,12 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                         onClick={() => startOperation(Operation.NormalizeColumns, "Normalize Columns")}
                     />
                     <MenuItem 
-                        text="Reinterpret Columns" 
-                        onClick={() => startOperation(Operation.ReinterpretColumns, "Reinterpret Columns")}
-                    />
-                    <MenuItem 
                         text="Vectorise Columns" 
                         onClick={() => startOperation(Operation.VectoriseColumns, "Vectorise Columns")}
+                    />
+                    <MenuItem 
+                        text="Reinterpret Columns" 
+                        onClick={() => startOperation(Operation.ReinterpretColumns, "Reinterpret Columns")}
                     />
                     <MenuItem 
                         text="Copy Columns" 
@@ -203,6 +231,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                 </Popover2>
                 </Navbar.Group>
                 <Navbar.Group align={Alignment.RIGHT}>
+                    <div className="info">{dataTableInfo.rowCount.toLocaleString()} row{dataTableInfo.rowCount > 1 ? 's' : ''}</div>
                     <Button icon="cross" large={false} onClick={() => {
                         // setIsOpen(false);
                     }} />
@@ -219,7 +248,10 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                                 min={1} 
                                 max={99}
                                 value={splitPercentage} 
-                                onChange={e => setSplitPercentage(e.currentTarget.valueAsNumber)}
+                                onValueChange ={e => {
+                                    console.log(e);
+                                    setSplitPercentage(e);
+                                }}
                             />
                         </FormGroup>
                         : undefined
@@ -230,8 +262,9 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                             id="bag-count" 
                             autoFocus={true} 
                             type="number" 
-                            value={bagCount} 
-                            onChange={e => setBagCount(e.currentTarget.valueAsNumber)}
+                            value={bagCount}
+                            min={1}
+                            onValueChange={e => setBagCount(e)}
                         />
                     </FormGroup>
                         : undefined
@@ -245,7 +278,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
         </div>
         <Splitter
             first={operation === Operation.Bag || operation === Operation.CopyRows || operation === Operation.ReinterpretColumns || operation === Operation.Shuffle || operation === Operation.Split
-                ? getOperationUI(operation, dataTableInfo, columnPreviews)
+                ? getOperationUI(operation, dataTableInfo, columnPreviews, setRowGroups, setColumnGroups)
                 : dataTableInfo.columns.map((c, i) => 
                 <ColumnInfo 
                     key={i} 
@@ -254,7 +287,6 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                     operation={operation}
                     onChangeColumnType={(index, type) => {
                         columnConversionOptions.current.set(index, type);
-                        console.log(Array.from(columnConversionOptions.current.values()).some(x => x !== ColumnConversionType.Unchanged));
                         setCanCompleteOperation(Array.from(columnConversionOptions.current.values()).some(x => x !== ColumnConversionType.Unchanged));
                     }}
                     onChangeColumnNormalization={(index, type) => {
@@ -265,6 +297,8 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                         columnSelection.current.set(index, isSelected);
                         setCanCompleteOperation(Array.from(columnSelection.current.values()).some(x => x === true));
                     }}
+                    onRenameColumn={renameColumn}
+                    onSetTargetColumn={setTargetColumn}
                     preview={columnPreviews[i]}
                 />
             )}

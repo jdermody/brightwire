@@ -1,7 +1,7 @@
 import { Button, Callout, EditableText } from '@blueprintjs/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
-import { BrightDataType, DataTableColumnModel, DataTableInfoModel } from '../models';
+import { BrightDataType, DataTableColumnModel, DataTableInfoModel, NewColumnFromExistingColumnsModel } from '../models';
 import {v4} from 'uuid';
 import './ReinterpretColumns.scss';
 import { Popover2 } from '@blueprintjs/popover2';
@@ -13,6 +13,7 @@ import { isNumeric } from '../common/MetaDataUtil';
 export interface ReinterpretColumnsProps {
     dataTable: DataTableInfoModel;
     preview: string[][];
+    onChange: (newColumns: NewColumnFromExistingColumnsModel[]) => void;
 }
 
 interface Column extends DataTableColumnModel{
@@ -44,7 +45,7 @@ const LightColumnInfo = ({column, preview}: {column:Column, preview: string[]}) 
     </li>;
 };
 
-export const ReinterpretColumns = ({dataTable, preview}: ReinterpretColumnsProps) => {
+export const ReinterpretColumns = ({dataTable, preview, onChange}: ReinterpretColumnsProps) => {
     const hasNumeric = dataTable.columns.some(x => isNumeric(x.columnType));
     const [columns, setColumns] = useState<Column[]>(() => dataTable.columns.map((x, i) => ({
         id: `c${i}`,
@@ -67,8 +68,12 @@ export const ReinterpretColumns = ({dataTable, preview}: ReinterpretColumnsProps
     }, [setGroups]);
 
     useEffect(() => {
-        console.log(columns);
-        console.log(groups);
+        const newColumns = groups.map(x => ({
+            columnIndices: x.columns.map(y => y.index),
+            name: x.name,
+            newType: x.type
+        }) as NewColumnFromExistingColumnsModel);
+        onChange(newColumns);
     }, [groups, columns]);
 
     return hasNumeric ? <div className="reinterpret-columns">

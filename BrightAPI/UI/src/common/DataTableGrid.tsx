@@ -1,8 +1,8 @@
-import { IDatasource } from 'ag-grid-community';
+import { ColDef, IDatasource } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import React, { useMemo, useRef } from 'react';
 import { useRecoilValue } from 'recoil';
-import { DataTableColumnModel } from '../models';
+import { BrightDataType, DataTableColumnModel } from '../models';
 import { webClientState } from '../state/webClientState';
 import './DataTableGrid.scss';
 
@@ -37,10 +37,16 @@ export const DataTableGrid = ({tableId, columns, rowCount, onDataPreview}: DataG
             rowCount
         }as IDatasource;
     }, []);
-    const gridColumns = useMemo(() => columns.map((x,i) => ({
-        headerName: x.name,
-        field: `c${i}`
-    })), [columns]);
+    const gridColumns = useMemo(() => columns.map((x,i) => {
+        let ret: ColDef<any> = {
+            headerName: x.name,
+            field: `c${i}`
+        };
+        if(x.columnType === BrightDataType.Vector) {
+            ret.valueFormatter= e => e.value ? e.value.segment.values : '-'
+        }
+        return ret;
+    }), [columns]);
 
     return (
         <div className="ag-theme-alpine" style={{height:'100%'}}>
