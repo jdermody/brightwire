@@ -566,10 +566,10 @@ namespace BrightData
             yield return obj;
         }
 
-        public static float[] ToArray(this IHaveSpan spanOwner)
+        public static float[] ToArray(this IHaveSpanOfFloats spanOwner)
         {
             var temp = SpanOwner<float>.Empty;
-            var span = spanOwner.GetSpan(ref temp, out var wasTempUsed);
+            var span = spanOwner.GetFloatSpan(ref temp, out var wasTempUsed);
             try {
                 return span.ToArray();
             }

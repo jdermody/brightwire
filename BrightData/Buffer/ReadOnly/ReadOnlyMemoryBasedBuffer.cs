@@ -32,7 +32,7 @@ namespace BrightData.Buffer.ReadOnly
 
             public IEnumerator GetEnumerator() => this;
         }
-        class ReferenceEnumerator<T> : IReadOnlyEnumerator<T>, IHaveMutableReference<T> where T : unmanaged
+        class ReferenceEnumerator<T> : IReadOnlyUnmanagedEnumerator<T>, IHaveMutableReference<T> where T : unmanaged
         {
             int _index = -1;
             readonly T* _ptr;
@@ -86,7 +86,7 @@ namespace BrightData.Buffer.ReadOnly
             }
 
             public IEnumerable<T> Enumerate() => new EnumerableBlock<T>(this);
-            public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceEnumerator<T>(Pointer, Length);
+            public IReadOnlyUnmanagedEnumerator<T> GetEnumerator() => new ReferenceEnumerator<T>(Pointer, Length);
         }
 
         class RandomAccessBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged

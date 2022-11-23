@@ -800,9 +800,9 @@ namespace BrightData.UnitTests
             using var gpu = _cuda.CreateVector(cpu);
             using var mkl = _mkl.CreateVector(cpu);
 
-            cpu.RoundInPlace(0f, 1f, null);
-            gpu.RoundInPlace(0f, 1f, null);
-            mkl.RoundInPlace(0f, 1f, null);
+            cpu.RoundInPlace(0f, 1f);
+            gpu.RoundInPlace(0f, 1f);
+            mkl.RoundInPlace(0f, 1f);
             AssertSame(cpu, gpu, mkl);
 
             var data = cpu.Segment;

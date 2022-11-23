@@ -29,7 +29,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(Count);
             foreach (var item in _tensors) {
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetSpan(ref temp, out var wasTempUsed);
+                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
                 writer.Write(span.AsBytes());
                 if(wasTempUsed)
                     temp.Dispose();
@@ -52,7 +52,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             _segment = null;
         }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
         public uint Size => TensorSize * Count;
         public uint Count { get; private set; }
         public uint Depth { get; private set; }
@@ -71,7 +71,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                     uint offset = 0;
                     foreach (var tensor in _tensors) {
                         var temp = SpanOwner<float>.Empty;
-                        var span = tensor.GetSpan(ref temp, out var wasTempUsed);
+                        var span = tensor.GetFloatSpan(ref temp, out var wasTempUsed);
                         span.CopyTo(ptr.Slice((int)offset, (int)TensorSize));
                         if(wasTempUsed)
                             temp.Dispose();

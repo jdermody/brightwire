@@ -10,7 +10,7 @@ namespace BrightData.Buffer.ReadOnly
 {
     public class ReadOnlyFileBasedBuffer : IReadOnlyBuffer
     {
-        class ReferenceStructFromStreamReader<T> : IReadOnlyEnumerator<T>, IHaveMutableReference<T>
+        class ReferenceStructFromStreamReader<T> : IReadOnlyUnmanagedEnumerator<T>, IHaveMutableReference<T>
             where T : unmanaged
         {
             readonly MemoryOwner<T>         _buffer;
@@ -80,7 +80,7 @@ namespace BrightData.Buffer.ReadOnly
             }
 
             public IEnumerable<T> Enumerate() => _stream.Enumerate<T>((uint)(_stream.Length / _sizeOfT));
-            public IReadOnlyEnumerator<T> GetEnumerator() => new ReferenceStructFromStreamReader<T>(_stream, _stream.Length / _sizeOfT);
+            public IReadOnlyUnmanagedEnumerator<T> GetEnumerator() => new ReferenceStructFromStreamReader<T>(_stream, _stream.Length / _sizeOfT);
         }
         class RandomAccessBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged
         {

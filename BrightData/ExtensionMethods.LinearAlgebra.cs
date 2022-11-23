@@ -408,6 +408,6 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment segment) => segment.GetArrayForLocalUseOnly() ?? segment.ToNewArray();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment segment) => segment.GetArrayIfEasilyAvailable() ?? segment.ToNewArray();
     }
 }

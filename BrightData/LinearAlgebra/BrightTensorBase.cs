@@ -69,7 +69,7 @@ namespace BrightData.LinearAlgebra
         public BrightDataContext Context => _lap.Context;
         public LinearAlgebraProvider LinearAlgebraProvider => _lap;
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
 
         public IVector Reshape() => _lap.CreateVector(Segment);
         public IMatrix Reshape(uint? rows, uint? columns)
@@ -148,7 +148,7 @@ namespace BrightData.LinearAlgebra
         public void PointwiseDivideInPlace(ITensor tensor)                                  => _lap.PointwiseDivideInPlace(Segment, tensor.Segment);
         public float DotProduct(ITensor tensor)                                             => _lap.DotProduct(Segment, tensor.Segment);
         public T Sqrt()                                                                     => Create(_lap.Sqrt(Segment));
-        public uint? Search(float value)                                                    => _lap.Search(Segment, value);
+        public uint? Search(float value, float tolerance)                                   => _lap.Search(Segment, value, tolerance);
         public void ConstrainInPlace(float? minValue, float? maxValue)                      => _lap.ConstrainInPlace(Segment, minValue, maxValue);
         public float Average()                                                              => _lap.Average(Segment);
         public float L1Norm()                                                               => _lap.L1Norm(Segment);
@@ -182,9 +182,9 @@ namespace BrightData.LinearAlgebra
         public T Softmax()                                                                  => Create(_lap.Softmax(Segment));
         public IMatrix SoftmaxDerivative()                                                  => _lap.SoftmaxDerivative(Segment);
         public T Pow(float power)                                                           => Create(_lap.Pow(Segment, power));
-        public void RoundInPlace(float lower, float upper, float? mid)                      => _lap.RoundInPlace(Segment, lower, upper, mid);
+        public void RoundInPlace(float lower, float upper)                                  => _lap.RoundInPlace(Segment, lower, upper);
         public T CherryPick(uint[] indices)                                                 => Create(_lap.CherryPickIndices(Segment, indices));
-        public void L1Regularisation(float coefficient)                                     => _lap.L1Regularisation(Segment, coefficient);
+        public void L1RegularisationInPlace(float coefficient)                                     => _lap.L1Regularisation(Segment, coefficient);
         public float Sum()                                                                  => _lap.Sum(Segment);
     }
 }

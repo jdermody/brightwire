@@ -10,11 +10,11 @@ namespace BrightData.DataTable
     {
         class Enumerator : IEnumerator<T>
         {
-            readonly IReadOnlyEnumerator<CT>         _structEnumerator;
+            readonly IReadOnlyUnmanagedEnumerator<CT>         _structEnumerator;
             readonly IHaveMutableReference<CT>       _mutableReference;
             readonly IConvertStructsToObjects<CT, T> _converter;
 
-            public Enumerator(IReadOnlyEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
+            public Enumerator(IReadOnlyUnmanagedEnumerator<CT> structEnumerator, IConvertStructsToObjects<CT, T> converter)
             {
                 _structEnumerator = structEnumerator;
                 _mutableReference = (IHaveMutableReference<CT>)_structEnumerator;
@@ -35,9 +35,9 @@ namespace BrightData.DataTable
 
         readonly IConvertStructsToObjects<CT, T> _converter;
         readonly IDisposable                     _stream;
-        readonly IReadOnlyEnumerator<CT>         _enumerator;
+        readonly IReadOnlyUnmanagedEnumerator<CT>         _enumerator;
 
-        public SequentialColumnReader(IReadOnlyEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter, IDisposable stream)
+        public SequentialColumnReader(IReadOnlyUnmanagedEnumerator<CT> enumerator, IConvertStructsToObjects<CT, T> converter, IDisposable stream)
         {
             _converter = converter;
             _stream = stream;

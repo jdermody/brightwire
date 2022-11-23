@@ -64,7 +64,7 @@ namespace BrightData.Cuda
         }
 
         public IEnumerable<float> Values => ToNewArray();
-        public float[]? GetArrayForLocalUseOnly() => null;
+        public float[]? GetArrayIfEasilyAvailable() => null;
 
         public MemoryOwner<float> ToNewMemoryOwner()
         {

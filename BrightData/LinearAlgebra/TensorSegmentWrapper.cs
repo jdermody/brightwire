@@ -63,7 +63,7 @@ namespace BrightData.LinearAlgebra
                     yield return this[i];
             }
         }
-        public float[]? GetArrayForLocalUseOnly() => null;
+        public float[]? GetArrayIfEasilyAvailable() => null;
         public float[] ToNewArray() => Values.ToArray();
         public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {

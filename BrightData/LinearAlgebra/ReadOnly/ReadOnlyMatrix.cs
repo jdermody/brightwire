@@ -55,7 +55,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             _data = reader.BaseStream.ReadArray<float>(Size);
         }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return _data.AsSpan();

@@ -58,7 +58,7 @@ namespace BrightData.LinearAlgebra
         }
 
         public IEnumerable<float> Values => _data;
-        public float[] GetArrayForLocalUseOnly() => _data;
+        public float[] GetArrayIfEasilyAvailable() => _data;
 
         public float[] ToNewArray() => _data.ToArray();
 

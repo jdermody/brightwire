@@ -11,13 +11,32 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
+    /// <summary>
+    /// Extensions that work with a span of floats
+    /// </summary>
     public static class SpanExtensions
     {
+        /// <summary>
+        /// Hardware dependent size of a numeric vector of floats
+        /// </summary>
         public static readonly int NumericsVectorSize = Vector<float>.Count;
+
+        /// <summary>
+        /// Callback to calculate a new vector of floats from two existing vectors
+        /// </summary>
+        /// <param name="a">First input vector</param>
+        /// <param name="b">Second input vector</param>
+        /// <param name="r">Result (output) vector</param>
         public delegate void ComputeVectorisedTwo(in Vector<float> a, in Vector<float> b, out Vector<float> r);
+
+        /// <summary>
+        /// Callback to calculate a new vector of floats from an existing vector
+        /// </summary>
+        /// <param name="a">Input vector</param>
+        /// <param name="r">Result (output) vector</param>
         public delegate void ComputeVectorisedOne(in Vector<float> a, out Vector<float> r);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(int size) => MemoryOwner<float>.Allocate((int)size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(int size) => MemoryOwner<float>.Allocate(size);
         
         /// <summary>
         /// Creates a new buffer from applying an operation to each pair of elements from two spans
@@ -55,6 +74,15 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Applies a function across each pair of elements from two vectors
+        /// </summary>
+        /// <param name="segment">First vector</param>
+        /// <param name="other">Second vector</param>
+        /// <param name="func1">Vector callback</param>
+        /// <param name="func2">Element callback</param>
+        /// <returns>Memory buffer that holds results from each callback</returns>
+        /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> ZipVectorised(
             this ReadOnlySpan<float> segment, 
             ReadOnlySpan<float> other, 
@@ -82,6 +110,12 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Applies a callback to each item in the span
+        /// </summary>
+        /// <param name="segment">Vector</param>
+        /// <param name="transfomer">Callback</param>
+        /// <returns>Memory buffer that holds results from each callback</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> TransformParallel(this ReadOnlySpan<float> segment, Func<float, float> transfomer)
         {
             var size = segment.Length;

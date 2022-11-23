@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using BrightData.Helper;
@@ -34,6 +32,10 @@ namespace BrightData
         /// </summary>
         public IReadOnlyList<Item> Indices => _indices;
 
+        /// <summary>
+        /// Returns a span of the weighted indices
+        /// </summary>
+        /// <returns></returns>
         public ReadOnlySpan<Item> AsSpan() => new(_indices);
 
         /// <summary>
@@ -70,13 +72,40 @@ namespace BrightData
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
         }
 
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList Create(params Item[] indexList) => new(indexList);
+        
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => new(indexList.ToArray());
+
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList Create(IEnumerable<Item> indexList) => new(indexList.ToArray());
 
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList Create(params (uint Index, float Weight)[] indexList) =>
             new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList Create(IEnumerable<(uint Index, float Weight)> indexList) =>
             new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
@@ -243,6 +272,7 @@ namespace BrightData
         /// <summary>
         /// Converts to a vector
         /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
         public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)

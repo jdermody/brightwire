@@ -83,15 +83,15 @@ namespace BrightData.Helper
         }
 
         public static bool AreApproximatelyEqual<T>(T t1, T t2, int maxDifference = 6)
-            where T: IHaveSize, IHaveSpan
+            where T: IHaveSize, IHaveSpanOfFloats
         {
             var len = t1.Size;
             if (len != t2.Size)
                 return false;
 
             SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
-            var p1 = t1.GetSpan(ref temp1, out var wasTemp1Used);
-            var p2 = t2.GetSpan(ref temp2, out var wasTemp2Used);
+            var p1 = t1.GetFloatSpan(ref temp1, out var wasTemp1Used);
+            var p2 = t2.GetFloatSpan(ref temp2, out var wasTemp2Used);
 
             try {
                 for (var i = 0; i < len; i++) {

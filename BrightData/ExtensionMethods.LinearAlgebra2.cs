@@ -486,11 +486,11 @@ namespace BrightData
             );
         }
 
-        public static uint? Search(this ITensorSegment segment, float value)
+        public static uint? Search(this ITensorSegment segment, float value, float tolerance)
         {
             uint? ret = null;
             Analyse(segment, (v, index) => {
-                if (Math.Abs(value - v) < FloatMath.AlmostZero)
+                if (Math.Abs(value - v) < tolerance)
                     ret = index;
             });
             return ret;
@@ -763,9 +763,9 @@ namespace BrightData
             return new ArrayPoolTensorSegment(ret);
         }
 
-        public static void RoundInPlace(this ITensorSegment segment, float lower, float upper, float? mid)
+        public static void RoundInPlace(this ITensorSegment segment, float lower, float upper)
         {
-            var compareTo = mid ?? lower + (upper - lower) / 2;
+            var compareTo = lower + (upper - lower) / 2;
             MutateInPlace(segment, v => v >= compareTo ? upper : lower);
         }
 

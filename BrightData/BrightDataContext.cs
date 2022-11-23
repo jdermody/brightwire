@@ -41,6 +41,9 @@ namespace BrightData
                 _lap.Value.Dispose();
         }
 
+        /// <summary>
+        /// Default random number generator
+        /// </summary>
         public Random Random { get; private set; }
 
         /// <summary>
@@ -57,14 +60,45 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a new temp stream provider
+        /// </summary>
+        /// <returns></returns>
         public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
 
+        /// <summary>
+        /// Returns a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="defaultValue">Value to return if the property was not set</param>
+        /// <returns></returns>
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;
 
+        /// <summary>
+        /// Returns a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="defaultValueCreator">Callback to return a value if the property was not set</param>
+        /// <returns></returns>
         public T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull => (T)_attachedProperties.GetOrAdd(name, _ => defaultValueCreator());
 
+        /// <summary>
+        /// Returns a typed property from the context (or null if the property was not set)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <returns></returns>
         public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;
 
+        /// <summary>
+        /// Tries to get a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="ret">The property value (if set)</param>
+        /// <returns>True if the property was set</returns>
         public bool TryGet<T>(string name, [NotNullWhen(true)]out T? ret)
         {
             if (_attachedProperties.TryGetValue(name, out var obj)) {
@@ -76,16 +110,35 @@ namespace BrightData
             return false;
         }
 
+        /// <summary>
+        /// Sets a typed property in this context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="value">Property value</param>
+        /// <returns></returns>
         public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (_, _) => value);
 
-        public T Set<T>(string name, Func<T> valueCreator) where T : notnull => (T)_attachedProperties.AddOrUpdate(name, _ => valueCreator(), (_, o) => o);
-
+        /// <summary>
+        /// Removes a typed property from the context
+        /// </summary>
+        /// <param name="name">Property name</param>
         public void Clear(string name) => _attachedProperties.TryRemove(name, out var _);
 
+        /// <summary>
+        /// True if the context does not use a predefined random seed
+        /// </summary>
         public bool IsStochastic { get; }
 
+        /// <summary>
+        /// Resets the random seed
+        /// </summary>
+        /// <param name="seed"></param>
         public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
 
+        /// <summary>
+        /// Optional interface to provide user notification of long running operations
+        /// </summary>
         public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
     }
 }

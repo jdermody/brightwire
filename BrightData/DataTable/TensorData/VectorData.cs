@@ -24,7 +24,7 @@ namespace BrightData.DataTable.TensorData
 
         public uint Size { get; private set; }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (_stride == 1) {
                 wasTempUsed = false;

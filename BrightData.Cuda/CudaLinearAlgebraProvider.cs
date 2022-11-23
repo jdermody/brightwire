@@ -368,9 +368,9 @@ namespace BrightData.Cuda
             temp.Release();
         }
 
-        public override void RoundInPlace(ITensorSegment tensor, float lower, float upper, float? mid)
+        public override void RoundInPlace(ITensorSegment tensor, float lower, float upper)
         {
-            Provider.RoundInPlace(GetDeviceMemoryPtr(tensor), tensor.Size, lower, upper, mid ?? lower + (upper - lower) / 2);
+            Provider.RoundInPlace(GetDeviceMemoryPtr(tensor), tensor.Size, lower, upper, lower + (upper - lower) / 2);
         }
 
         public override void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other)
@@ -403,9 +403,9 @@ namespace BrightData.Cuda
             return Provider.FindStdDev(GetDeviceMemoryPtr(tensor), tensor.Size, mean ?? Average(tensor));
         }
 
-        public override uint? Search(ITensorSegment segment, float value)
+        public override uint? Search(ITensorSegment segment, float value, float tolerance)
         {
-            return base.Search(segment, value);
+            return base.Search(segment, value, tolerance);
         }
 
         public override IVector ColumnSums(IMatrix matrix)

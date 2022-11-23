@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -29,9 +28,18 @@ namespace BrightData
         IEnumerable<uint> Indices { get; }
     }
 
-    public interface IHaveSpan
+    /// <summary>
+    /// Indicates that the type can create a readonly span of floats
+    /// </summary>
+    public interface IHaveSpanOfFloats
     {
-        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
+        /// <summary>
+        /// Returns a span of floats
+        /// </summary>
+        /// <param name="temp">Optional temporary memory buffer</param>
+        /// <param name="wasTempUsed">True if the memory buffer was used</param>
+        /// <returns>Span of floats</returns>
+        ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
     }
 
     /// <summary>
@@ -346,13 +354,23 @@ namespace BrightData
     public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerateWithSize<T>, IAcceptSequentialTypedData<T>
         where T : notnull
     {
+        /// <summary>
+        /// (Optional) set of the distinct items in the buffer
+        /// </summary>
         Dictionary<T, uint>? DistinctItems { get; }
     }
 
+    /// <summary>
+    /// Hybrid buffer with metadata
+    /// </summary>
     public interface IHybridBufferWithMetaData : IHybridBuffer, IHaveMetaData
     {
     }
 
+    /// <summary>
+    /// Typed hybrid buffer with metadata
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IHybridBufferWithMetaData<T> : IHybridBuffer<T>, IHaveMetaData
         where T : notnull
     {
@@ -431,14 +449,25 @@ namespace BrightData
         new IEnumerable<T> Values { get; }
     }
 
+    /// <summary>
+    /// Indicates that the type can enumerate items of this type (disposable)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanEnumerateDisposable<out T> : ICanEnumerate<T>, IDisposable where T : notnull
     {
     }
 
+    /// <summary>
+    /// Indicates that the type can enumerate items (disposable)
+    /// </summary>
     public interface ICanEnumerateDisposable : ICanEnumerate, IDisposable
     {
     }
 
+    /// <summary>
+    /// Indicates that the type can enumerate items of this type and has a predetermined size
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanEnumerateWithSize<out T> : ICanEnumerate<T>, IHaveSize where T : notnull
     {
     }
@@ -483,11 +512,32 @@ namespace BrightData
         string[] StringTable { get; }
     }
 
+    /// <summary>
+    /// Allows readonly reference enumeration
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IStructByReferenceEnumerator<T> : IDisposable where T : struct
     {
+        /// <summary>
+        /// Gets an enumerator
+        /// </summary>
+        /// <returns></returns>
         IStructByReferenceEnumerator<T> GetEnumerator() => this;
+
+        /// <summary>
+        /// Moves to the next item
+        /// </summary>
+        /// <returns></returns>
         bool MoveNext();
+
+        /// <summary>
+        /// Resets the enumerator
+        /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Gets the current item
+        /// </summary>
         ref readonly T Current { get; }
     }
 
@@ -501,7 +551,21 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         BinaryReader GetReader();
+
+        /// <summary>
+        /// Returns an readonly reference enumerator for a block of data
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="count">Size of block to enumerate</param>
+        /// <returns></returns>
         IStructByReferenceEnumerator<T> GetStructByReferenceEnumerator<T>(uint count) where T : struct;
+
+        /// <summary>
+        /// Enumerates a block of data
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="count">Size of block to enumerate</param>
+        /// <returns></returns>
         IEnumerable<T> Enumerate<T>(uint count) where T : struct;
     }
 
@@ -623,63 +687,205 @@ namespace BrightData
         void OnMessage(string msg);
     }
 
+    /// <summary>
+    /// Reference counter
+    /// </summary>
     public interface ICountReferences
     {
+        /// <summary>
+        /// Adds a reference
+        /// </summary>
+        /// <returns></returns>
         int AddRef();
+
+        /// <summary>
+        /// Removes a reference (and might release the data)
+        /// </summary>
+        /// <returns></returns>
         int Release();
+
+        /// <summary>
+        /// Checks if there is still a valid reference count (and that the data has not been released)
+        /// </summary>
         bool IsValid { get; }
     }
 
+    /// <summary>
+    /// Indicates that the type can iterate data
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanIterateData<T> : IDisposable where T: unmanaged
     {
+        /// <summary>
+        /// Iterates the data
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<T> Enumerate();
-        IReadOnlyEnumerator<T> GetEnumerator();
+
+        /// <summary>
+        /// Returns an enumerator
+        /// </summary>
+        /// <returns></returns>
+        IReadOnlyUnmanagedEnumerator<T> GetEnumerator();
     }
 
+    /// <summary>
+    /// Indicates that the type can randomly access typed data
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable, IHaveSize where T: unmanaged
     {
+        /// <summary>
+        /// Returns a randomly accessed item
+        /// </summary>
+        /// <param name="index">Item index</param>
+        /// <param name="value">Item value</param>
         void Get(int index, out T value);
+
+        /// <summary>
+        /// Returns a randomly accessed item
+        /// </summary>
+        /// <param name="index">Item index</param>
+        /// <param name="value">Item value</param>
         void Get(uint index, out T value);
+
+        /// <summary>
+        /// Returns a span of data
+        /// </summary>
+        /// <param name="startIndex">Inclusive first index of the span</param>
+        /// <param name="count">Size of the span</param>
+        /// <returns></returns>
         ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
     }
 
+    /// <summary>
+    /// Indicates that the type can randomly access untyped data
+    /// </summary>
     public interface ICanRandomlyAccessData : IDisposable, IHaveSize
     {
+        /// <summary>
+        /// Returns the untyped item at this index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         object this[int index] { get; }
+
+        /// <summary>
+        /// Returns the untyped item at this index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         object this[uint index] { get; }
     }
 
+    /// <summary>
+    /// Indicates that the type can randomly access typed data
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanRandomlyAccessData<out T> : ICanRandomlyAccessData
     {
-        T this[int index] { get; }
-        T this[uint index] { get; }
+        /// <summary>
+        /// Returns the typed at at this index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new T this[int index] { get; }
+
+        /// <summary>
+        /// Returns the typed at at this index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new T this[uint index] { get; }
     }
 
+    /// <summary>
+    /// Indicates that type exposes a mutable reference
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IHaveMutableReference<T> where T : unmanaged
     {
+        /// <summary>
+        /// The current mutable reference
+        /// </summary>
         ref T Current { get; }
     }
 
-    public interface IReadOnlyEnumerator<T> : IDisposable where T : unmanaged
+    /// <summary>
+    /// A read only reference enumerator for unmanaged types
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IReadOnlyUnmanagedEnumerator<T> : IDisposable where T : unmanaged
     {
+        /// <summary>
+        /// Moves to the next item
+        /// </summary>
+        /// <returns></returns>
         bool MoveNext();
+
+        /// <summary>
+        /// Resets the enumerator
+        /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Returns a readonly reference to the current item
+        /// </summary>
         ref readonly T Current { get; }
     }
 
+    /// <summary>
+    /// A readonly buffer
+    /// </summary>
     public interface IReadOnlyBuffer : IDisposable
     {
+        /// <summary>
+        /// Returns an iterator into the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="offset">First inclusive byte index to iterate</param>
+        /// <param name="sizeInBytes">Size in bytes of the block to iterate</param>
+        /// <returns></returns>
         ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged;
+
+
+        /// <summary>
+        /// Returns a block of memory from the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="offset">First inclusive byte index of the block</param>
+        /// <param name="sizeInBytes">Size of the block in bytes</param>
+        /// <returns></returns>
         ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged;
     }
 
+    /// <summary>
+    /// Indicates that the type can convert structs to other types
+    /// </summary>
+    /// <typeparam name="CT"></typeparam>
+    /// <typeparam name="T"></typeparam>
     public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
     {
+        /// <summary>
+        /// Converts a struct to another type
+        /// </summary>
+        /// <param name="item">The item to convert</param>
+        /// <returns></returns>
         T Convert(in CT item);
     }
 
+    /// <summary>
+    /// A generic operation that might require user notification and that can be cancelled
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IOperation<out T> : IDisposable
     {
+        /// <summary>
+        /// Tries to complete the operation
+        /// </summary>
+        /// <param name="notifyUser">Optional interface to notify the user of progress</param>
+        /// <param name="cancellationToken">Cancellation token to cancel operation</param>
+        /// <returns></returns>
         T Complete(INotifyUser? notifyUser, CancellationToken cancellationToken);
     }
 

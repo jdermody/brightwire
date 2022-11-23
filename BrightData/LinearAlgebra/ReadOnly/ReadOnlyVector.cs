@@ -46,7 +46,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             _segment = null;
         }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (_data is not null) {
                 wasTempUsed = false;

@@ -73,13 +73,13 @@ namespace BrightData.LinearAlgebra
                     yield return _array[i];
             }
         }
-        public float[] GetArrayForLocalUseOnly() => _array;
+        public float[] GetArrayIfEasilyAvailable() => _array;
         public float[] ToNewArray() => _data.Span.ToArray();
         public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _data.Span : _data.Span[(int)targetOffset..]);
         public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             var span = GetSpan(sourceOffset);
-            var destination = segment.GetArrayForLocalUseOnly();
+            var destination = segment.GetArrayIfEasilyAvailable();
             if(destination is not null)
                 span.CopyTo(destination.AsSpan((int)targetOffset, (int)(segment.Size - targetOffset)));
             else

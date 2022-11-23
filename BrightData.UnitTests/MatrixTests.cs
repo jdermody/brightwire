@@ -869,9 +869,9 @@ namespace BrightData.UnitTests
         {
             using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
             const float operand = 2f;
-            using var gpu = Apply(_cuda, a, a => a.L1Regularisation(operand));
-            using var mkl = Apply(_mkl, a, a => a.L1Regularisation(operand));
-            a.L1Regularisation(operand);
+            using var gpu = Apply(_cuda, a, a => a.L1RegularisationInPlace(operand));
+            using var mkl = Apply(_mkl, a, a => a.L1RegularisationInPlace(operand));
+            a.L1RegularisationInPlace(operand);
             AssertSame(a, gpu, mkl);
         }
 

@@ -105,7 +105,7 @@ namespace BrightData.LinearAlgebra
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var segment = CreateSegment(rowCount * columnCount, false);
-            var array = segment.GetArrayForLocalUseOnly()!;
+            var array = segment.GetArrayIfEasilyAvailable()!;
             for (uint i = 0, len = segment.Size; i < len; i++)
                 array[i] = initializer(i % rowCount, i / rowCount);
             return CreateMatrix(rowCount, columnCount, segment);
@@ -319,7 +319,7 @@ namespace BrightData.LinearAlgebra
         public virtual void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other) => target.PointwiseDivideInPlace(other);
         public virtual float DotProduct(ITensorSegment tensor, ITensorSegment tensor2) => tensor.DotProduct(tensor2);
         public virtual ITensorSegment Sqrt(ITensorSegment tensor) => tensor.Sqrt();
-        public virtual uint? Search(ITensorSegment segment, float value) => segment.Search(value);
+        public virtual uint? Search(ITensorSegment segment, float value, float tolerance) => segment.Search(value, tolerance);
         public virtual void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue) => segment.ConstrainInPlace(minValue, maxValue);
         public virtual float Average(ITensorSegment segment) => segment.Average();
         public virtual float L1Norm(ITensorSegment segment) => segment.L1Norm();
@@ -353,7 +353,7 @@ namespace BrightData.LinearAlgebra
         public virtual ITensorSegment Softmax(ITensorSegment tensor) => tensor.Softmax();
         public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor) => tensor.SoftmaxDerivative(this);
         public virtual ITensorSegment Pow(ITensorSegment tensor, float power) => tensor.Pow(power);
-        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper, float? mid) => tensor.RoundInPlace(lower, upper, mid);
+        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper) => tensor.RoundInPlace(lower, upper);
         public virtual ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices) => tensor.CherryPickIndices(indices);
 
         public virtual unsafe IMatrix Transpose(IMatrix matrix)
