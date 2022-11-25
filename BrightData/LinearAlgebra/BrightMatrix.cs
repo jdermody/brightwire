@@ -8,6 +8,10 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
+    /// <summary>
+    /// Matrix type
+    /// </summary>
+    /// <typeparam name="LAP"></typeparam>
     public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix
         where LAP: LinearAlgebraProvider
     {
@@ -200,8 +204,8 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public override string ToString()
         {
-            var preview = String.Join("|", Segment.Values.Take(Consts.PreviewSize));
-            if (TotalSize > Consts.PreviewSize)
+            var preview = String.Join("|", Segment.Values.Take(Consts.DefaultPreviewSize));
+            if (TotalSize > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }

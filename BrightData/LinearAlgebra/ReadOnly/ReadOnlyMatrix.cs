@@ -81,8 +81,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         ;
         public override string ToString()
         {
-            var preview = String.Join("|", _data.Take(Consts.PreviewSize));
-            if (Size > Consts.PreviewSize)
+            var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
+            if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Matrix Info (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }

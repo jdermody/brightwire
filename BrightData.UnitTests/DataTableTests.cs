@@ -447,7 +447,7 @@ namespace BrightData.UnitTests
             confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(rabbitRabbit);
         }
 
-        static void CheckTableConversion<T>(BrightDataTableBuilder builder, ColumnConversionType conversionType, BrightDataType columnType)
+        static void CheckTableConversion<T>(BrightDataTableBuilder builder, ColumnConversionOperation conversionType, BrightDataType columnType)
         {
             var table = builder.BuildInMemory();
             var converted = table.Convert(conversionType.ConvertColumn(0), conversionType.ConvertColumn(1));
@@ -476,7 +476,7 @@ namespace BrightData.UnitTests
             builder.AddRow("f", false);
             builder.AddRow("0", false);
 
-            CheckTableConversion<bool>(builder, ColumnConversionType.ToBoolean, BrightDataType.Boolean);
+            CheckTableConversion<bool>(builder, ColumnConversionOperation.ToBoolean, BrightDataType.Boolean);
         }
 
         [Fact]
@@ -504,7 +504,7 @@ namespace BrightData.UnitTests
             AddRow(date.ToString("u"));
             AddRow(date.ToString("U"));
 
-            CheckTableConversion<DateTime>(builder, ColumnConversionType.ToDate, BrightDataType.Date);
+            CheckTableConversion<DateTime>(builder, ColumnConversionOperation.ToDate, BrightDataType.Date);
         }
 
         [Fact]
@@ -518,7 +518,7 @@ namespace BrightData.UnitTests
                 var val = (sbyte)(sbyte.MinValue + i);
                 builder.AddRow(val.ToString(), val);
             }
-            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, BrightDataType.SByte);
+            CheckTableConversion<sbyte>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.SByte);
         }
 
         [Fact]
@@ -531,7 +531,7 @@ namespace BrightData.UnitTests
             foreach (var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
                 builder.AddRow(val.ToString(), (short)val);
 
-            CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, BrightDataType.Short);
+            CheckTableConversion<short>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.Short);
         }
 
         [Fact]
@@ -545,7 +545,7 @@ namespace BrightData.UnitTests
             builder.AddRow(0, "0");
             builder.AddRow(int.MaxValue, int.MaxValue.ToString());
 
-            CheckTableConversion<int>(builder, ColumnConversionType.ToNumeric, BrightDataType.Int);
+            CheckTableConversion<int>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.Int);
         }
 
         [Fact]

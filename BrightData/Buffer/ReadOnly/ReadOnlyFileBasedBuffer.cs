@@ -8,6 +8,9 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
 {
+    /// <summary>
+    /// A read only buffer from a file or memory mapped file
+    /// </summary>
     public class ReadOnlyFileBasedBuffer : IReadOnlyBuffer
     {
         class ReferenceStructFromStreamReader<T> : IReadOnlyUnmanagedEnumerator<T>, IHaveMutableReference<T>
@@ -39,8 +42,6 @@ namespace BrightData.Buffer.ReadOnly
                 var readBytes = _stream.Read(MemoryMarshal.AsBytes(_buffer.Span));
                 _bufferSize = readBytes / _sizeOfT;
             }
-
-            public ReferenceStructFromStreamReader<T> GetEnumerator() => this;
 
             public bool MoveNext()
             {
@@ -111,26 +112,38 @@ namespace BrightData.Buffer.ReadOnly
         }
         readonly MemoryMappedFile _file;
 
+        /// <summary>
+        /// Creates from a file
+        /// </summary>
+        /// <param name="file">File to access</param>
         public ReadOnlyFileBasedBuffer(FileStream file)
         {
             _file = MemoryMappedFile.CreateFromFile(file, null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, false);
         }
+
+        /// <summary>
+        /// Creates from a memory mapped file
+        /// </summary>
+        /// <param name="file">Memory mapped file to access</param>
         public ReadOnlyFileBasedBuffer(MemoryMappedFile file)
         {
             _file = file;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _file.Dispose();
         }
 
+        /// <inheritdoc />
         public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewStream = _file.CreateViewStream(offset, sizeInBytes, MemoryMappedFileAccess.Read);
             return new IterableBlock<T>(viewStream);
         }
 
+        /// <inheritdoc />
         public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var viewAccessor = _file.CreateViewAccessor(offset, sizeInBytes, MemoryMappedFileAccess.Read);

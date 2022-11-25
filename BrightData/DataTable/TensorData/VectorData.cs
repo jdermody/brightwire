@@ -84,8 +84,8 @@ namespace BrightData.DataTable.TensorData
 
         public override string ToString()
         {
-            var preview = String.Join("|", Math.Min(Consts.PreviewSize, Size).AsRange().Select(i => this[i]));
-            if (Size > Consts.PreviewSize)
+            var preview = String.Join("|", Math.Min(Consts.DefaultPreviewSize, Size).AsRange().Select(i => this[i]));
+            if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Vector Data ({Size}): {preview}";
         }

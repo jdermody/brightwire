@@ -6,11 +6,6 @@
     public class Consts
     {
         /// <summary>
-        /// Data table version
-        /// </summary>
-        public const int DataTableVersion = 1;
-
-        /// <summary>
         /// Default max distinct count
         /// </summary>
         public const uint MaxDistinct = 131072 * 4;
@@ -21,16 +16,9 @@
         public const uint MaxWriteCount = 100;
 
         /// <summary>
-        /// Default memory cache size
+        /// Default number of items to preview
         /// </summary>
-        //public const uint DefaultMemoryCacheSize = 1024 * 1048576;
-
-        /// <summary>
-        /// Number of rows to process before notifying about progress
-        /// </summary>
-        public const uint RowProcessingNotificationCadence = 1000;
-
-        public const int PreviewSize = 16;
+        public const int DefaultPreviewSize = 16;
 
         /// <summary>
         /// Minimum size to use parallel processing
@@ -42,7 +30,14 @@
         /// </summary>
         public const int MinimumSizeForVectorised = 64;
 
+        /// <summary>
+        /// Default in memory buffer size
+        /// </summary>
         public const int DefaultInMemoryBufferSize = 32768 * 32768;
+
+        /// <summary>
+        /// Default max number of distinct items
+        /// </summary>
         public const ushort DefaultMaxDistinctCount = 32768;
 
 #pragma warning disable 1591
@@ -92,11 +87,6 @@
         public const string DateTimeCreated               = "DateTimeCreated";
         public const string CustomColumnReaders           = "CustomColumnReaders";
 #pragma warning restore 1591
-
-        /// <summary>
-        /// Standard metadata
-        /// </summary>
-        public static readonly string[] SimpleMetaData = { ColumnIndex, Name, IsTarget };
 
         /// <summary>
         /// Standard metadata

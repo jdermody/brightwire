@@ -64,8 +64,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public override string ToString()
         {
             if (_data is not null) {
-                var preview = String.Join("|", _data.Take(Consts.PreviewSize));
-                if (Size > Consts.PreviewSize)
+                var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
+                if (Size > Consts.DefaultPreviewSize)
                     preview += "|...";
                 return $"Vector Info ({Size}): {preview}";
             } 

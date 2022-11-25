@@ -36,8 +36,8 @@ namespace ExampleCode.DataTableTrainers
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
             var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
             var columnConversions = featureColumns
-                .Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i))
-                .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.ConvertColumn(i)))
+                .Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i))
+                .Concat(targetColumns.Select(i => ColumnConversionOperation.ToBoolean.ConvertColumn(i)))
                 .ToArray();
             using var converted = table.Convert(columnConversions);
 

@@ -27,10 +27,10 @@ namespace ExampleCode.DataSet
                 using var table = context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
                 using var numericTable = table.Convert(
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric, 
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric, 
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric
                 );
                 using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
                 using var column = table.GetColumn(4);
@@ -50,12 +50,12 @@ namespace ExampleCode.DataSet
                 using var table = context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
                 using var numericTable = table.Convert(
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToDate);
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToDate);
                 using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
                 return new StockDataTrainer(normalised);
             }
@@ -268,7 +268,7 @@ namespace ExampleCode.DataSet
             // drop the first six columns (index and date features)
             using var filteredTable = completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i)).ToArray());
+            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
             using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
@@ -300,22 +300,22 @@ namespace ExampleCode.DataSet
             {
                 using var converted = table.Convert(
                     // convert numeric columns
-                    ColumnConversionType.ToNumeric.ConvertColumn(0), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(2), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(4), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(10),
-                    ColumnConversionType.ToNumeric.ConvertColumn(11),
-                    ColumnConversionType.ToNumeric.ConvertColumn(12),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(0), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(2), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(4), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(10),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(11),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(12),
 
                     // convert to categorical index
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(1),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(3),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(5),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(6),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(7),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(8),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(9),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(13),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(1),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(3),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(5),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(6),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(7),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(8),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(9),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(13),
 
                     table.CreateCustomColumnMutator<string, string>(14, AdjustString)
                 );

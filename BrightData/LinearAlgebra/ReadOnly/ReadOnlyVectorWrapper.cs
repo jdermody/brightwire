@@ -44,8 +44,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ITensorSegment Segment => _segment;
         public override string ToString()
         {
-            var preview = String.Join("|", _segment.Values.Take(Consts.PreviewSize));
-            if (Size > Consts.PreviewSize)
+            var preview = String.Join("|", _segment.Values.Take(Consts.DefaultPreviewSize));
+            if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Vector Info ({Size}): {preview}";
         }

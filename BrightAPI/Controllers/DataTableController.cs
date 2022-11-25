@@ -188,7 +188,7 @@ namespace BrightAPI.Controllers
                 return BadRequest();
 
             return await Transform(id, request, "Converted", (table, path) => {
-                var columnConversions = new ColumnConversionType[table.ColumnCount];
+                var columnConversions = new ColumnConversionOperation[table.ColumnCount];
                 for (uint i = 0; i < len; i++) {
                     if (i > table.ColumnCount)
                         throw new BadHttpRequestException($"Column index exceeded column count: {i}");
@@ -196,9 +196,9 @@ namespace BrightAPI.Controllers
                 }
 
                 // check if there is anything to convert
-                return columnConversions.All(x => x == ColumnConversionType.Unchanged) 
+                return columnConversions.All(x => x == ColumnConversionOperation.Unchanged) 
                     ? table 
-                    : table.Convert(path, columnConversions.Where(x => x != ColumnConversionType.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray())
+                    : table.Convert(path, columnConversions.Where(x => x != ColumnConversionOperation.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray())
                 ;
             });
         }

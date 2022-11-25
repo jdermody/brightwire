@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace BrightData.Buffer.ReadOnly
 {
+    /// <summary>
+    /// Read only buffer from memory block
+    /// </summary>
     public unsafe class ReadOnlyMemoryBasedBuffer : IReadOnlyBuffer
     {
         class Enumerator<T> : IEnumerator<T>, IEnumerable where T : unmanaged
@@ -88,7 +91,6 @@ namespace BrightData.Buffer.ReadOnly
             public IEnumerable<T> Enumerate() => new EnumerableBlock<T>(this);
             public IReadOnlyUnmanagedEnumerator<T> GetEnumerator() => new ReferenceEnumerator<T>(Pointer, Length);
         }
-
         class RandomAccessBlock<T> : ICanRandomlyAccessUnmanagedData<T> where T : unmanaged
         {
             readonly T* _memory;
@@ -113,23 +115,30 @@ namespace BrightData.Buffer.ReadOnly
 
         MemoryHandle _memory;
 
+        /// <summary>
+        /// Creates from a memory buffer
+        /// </summary>
+        /// <param name="memory"></param>
         public ReadOnlyMemoryBasedBuffer(ReadOnlyMemory<byte> memory)
         {
             memory.Pin();
             _memory = memory.Pin();
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _memory.Dispose();
         }
 
+        /// <inheritdoc />
         public ICanIterateData<T> GetIterator<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;
             return new IterableBlock<T>((T*)(ptr + offset), (int)(sizeInBytes / Unsafe.SizeOf<T>()));
         }
 
+        /// <inheritdoc />
         public ICanRandomlyAccessUnmanagedData<T> GetBlock<T>(long offset, long sizeInBytes) where T : unmanaged
         {
             var ptr = (byte*)_memory.Pointer;

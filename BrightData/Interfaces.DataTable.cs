@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace BrightData
 {
@@ -211,7 +210,7 @@ namespace BrightData
     /// <summary>
     /// Single column conversion options
     /// </summary>
-    public enum ColumnConversionType
+    public enum ColumnConversionOperation
     {
         /// <summary>
         /// Leave the column unchanged (nop)
@@ -339,6 +338,7 @@ namespace BrightData
         /// <summary>
         /// Gets a column transformer
         /// </summary>
+        /// <param name="context">Bright data context</param>
         /// <param name="fromType">Convert from column type</param>
         /// <param name="column">Column to convert</param>
         /// <param name="analysedMetaData">Function to produce analysed column meta data if needed</param>
@@ -434,6 +434,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="tempStreams">Temp stream provider</param>
+        /// <param name="rowCount">Number of rows</param>
         /// <param name="columns">Source column data</param>
         /// <returns></returns>
         IEnumerable<IOperation<ITypedSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);

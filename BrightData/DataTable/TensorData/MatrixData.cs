@@ -91,11 +91,11 @@ namespace BrightData.DataTable.TensorData
         public uint Size => ColumnCount * RowCount;
         public override string ToString()
         {
-            var preview = String.Join("|", Math.Min(Consts.PreviewSize, Size).AsRange().Select(i => {
+            var preview = String.Join("|", Math.Min(Consts.DefaultPreviewSize, Size).AsRange().Select(i => {
                 _data.Get(_startIndex + i, out var ret);
                 return ret;
             }));
-            if (Size > Consts.PreviewSize)
+            if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Matrix Data (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
