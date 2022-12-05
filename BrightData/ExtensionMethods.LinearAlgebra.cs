@@ -14,8 +14,7 @@ namespace BrightData
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="size">Size of vector</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
@@ -23,13 +22,21 @@ namespace BrightData
             ? new ReadOnlyVector(size, initializer)
             : new ReadOnlyVector(size)
         ;
+
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initializer">Callback to initialize each value (optional)</param>
+        /// <returns></returns>
         public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateReadOnlyVector(context, (uint)size, initializer);
 
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="size">Size of vector</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
@@ -37,13 +44,20 @@ namespace BrightData
             ? new ReadOnlyVector(size)
             : new ReadOnlyVector(size, _ => initialValue)
         ;
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initialValue">Initial value of each element</param>
+        /// <returns></returns>
         public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, float initialValue = 0f) => CreateReadOnlyVector(context, (uint)size, initialValue);
 
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
         public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new ReadOnlyVector(initialData);
@@ -51,7 +65,6 @@ namespace BrightData
         /// <summary>
         /// Creates a vector from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -66,8 +79,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
@@ -80,8 +92,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="initialValue">Initial value of each element</param>
@@ -94,7 +105,6 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -108,8 +118,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix from vectors (each will become a row)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
@@ -127,8 +136,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix from rows (each will become a row)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params float[][] rows)
@@ -146,8 +154,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params IReadOnlyVector[] columns)
@@ -165,8 +172,7 @@ namespace BrightData
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params float[][] columns)
@@ -184,16 +190,14 @@ namespace BrightData
         /// <summary>
         /// Creates a 3D tensor from matrices
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="slices"></param>
+        /// <param name="_"></param>
+        /// <param name="matrices"></param>
         /// <returns></returns>
         public static IReadOnlyTensor3D CreateReadOnlyTensor3D(this BrightDataContext _, params IReadOnlyMatrix[] matrices) => new ReadOnlyTensor3D(matrices);
 
         /// <summary>
         /// Create a 3D tensor from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -207,7 +211,6 @@ namespace BrightData
         /// <summary>
         /// Creates a 4D tensor from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -267,7 +270,6 @@ namespace BrightData
         /// <summary>
         /// Initialize a tensor using a callback
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="tensor"></param>
         /// <param name="initializer">Callback for each element</param>
         public static void Initialize(this ITensor tensor, Func<uint, float> initializer)
@@ -309,6 +311,12 @@ namespace BrightData
             return context.CreateReadOnlyVector(reader);
         }
 
+        /// <summary>
+        /// Reacts a float array from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         public static float[] LoadReadOnlyVectorAndThenGetArrayFrom(this BrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
@@ -408,6 +416,11 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Returns an array from a tensor segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment segment) => segment.GetArrayIfEasilyAvailable() ?? segment.ToNewArray();
     }
 }

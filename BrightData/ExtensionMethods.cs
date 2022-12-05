@@ -448,6 +448,13 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Enumerates all unique pairs of items within the array
+        /// [1, 2, 3] => [1,2], [1,3], [2,3]
+        /// </summary>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IEnumerable<(T First, T Second)> FindAllPairs<T>(this T[] items)
         {
             var len = items.Length;
@@ -461,6 +468,12 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Builds a table of the generic methods from a type
+        /// </summary>
+        /// <param name="type">Type to inspect</param>
+        /// <param name="bindingFlags">Method flags</param>
+        /// <returns></returns>
         public static Dictionary<string, MethodInfo> GetGenericMethods(
             this Type type, 
             BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
@@ -511,6 +524,13 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Writes unmanaged items to a stream as a byte array
+        /// </summary>
+        /// <param name="items">Unmanaged items to write</param>
+        /// <param name="stream">Destination stream</param>
+        /// <param name="tempBufferSize">Size of buffer</param>
+        /// <typeparam name="T"></typeparam>
         public static void WriteTo<T>(this IEnumerable<T> items, Stream stream, int tempBufferSize = 8192) where T: unmanaged
         {
             using var buffer = SpanOwner<T>.Allocate(tempBufferSize);
@@ -528,6 +548,11 @@ namespace BrightData
                 stream.Write(span[..index].AsBytes());
         }
 
+        /// <summary>
+        /// Finds the unique ranges of indices within a sequence
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
         public static IEnumerable<(uint First, uint Last)> FindDistinctContiguousRanges(this IEnumerable<uint> indices)
         {
             uint? prev = null, startRange = null, nextInRange = null;
@@ -553,19 +578,39 @@ namespace BrightData
                 yield return (startRange.Value, prev!.Value);
         }
 
+        /// <summary>
+        /// Creates a new table builder
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static BrightDataTableBuilder CreateTableBuilder(this BrightDataContext context) => new(context);
 
+        /// <summary>
+        /// Disposes a collection of disposables
+        /// </summary>
+        /// <param name="disposables"></param>
         public static void DisposeAll(this IEnumerable<IDisposable> disposables)
         {
             foreach(var item in disposables)
                 item.Dispose();
         }
 
+        /// <summary>
+        /// Converts a single object into a enumerator that will enumerate that object once
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">Item to enumerate (once)</param>
+        /// <returns></returns>
         public static IEnumerable<T> ToEnumerable<T>(this T obj)
         {
             yield return obj;
         }
 
+        /// <summary>
+        /// Extracts an array of floats
+        /// </summary>
+        /// <param name="spanOwner"></param>
+        /// <returns></returns>
         public static float[] ToArray(this IHaveSpanOfFloats spanOwner)
         {
             var temp = SpanOwner<float>.Empty;
@@ -579,11 +624,22 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Copies tensor values to another tensor
+        /// </summary>
+        /// <param name="source">Copy from</param>
+        /// <param name="target">Copy to</param>
         public static void CopyTo(this IHaveTensorSegment source, IHaveTensorSegment target)
         {
             source.Segment.CopyTo(target.Segment);
         }
 
+        /// <summary>
+        /// Attempts to parse a string into a date
+        /// </summary>
+        /// <param name="str">String that contains a valid date</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static DateTime ToDateTime(this string str)
         {
             if (DateTime.TryParse(str, out var ret))

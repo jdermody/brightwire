@@ -11,23 +11,34 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
+    /// <summary>
+    /// Linear algebra provider
+    /// </summary>
     public class LinearAlgebraProvider : IDisposable
     {
-        protected readonly ConcurrentStack<ConcurrentDictionary<IDisposable, bool>> _scope = new();
+        /// <summary>
+        /// A scope of disposable objects
+        /// </summary>
+        protected readonly ConcurrentStack<ConcurrentDictionary<IDisposable, bool>> Scope = new();
         bool _isPoppingScope = false;
 
-        public LinearAlgebraProvider(
-            BrightDataContext context
-        )
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        public LinearAlgebraProvider(BrightDataContext context)
         {
             Context = context;
             PushScope();
         }
 
+        /// <inheritdoc />
         ~LinearAlgebraProvider()
         {
             InternalDispose();
         }
+
+        /// <inheritdoc />
         public virtual void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -37,38 +48,84 @@ namespace BrightData.LinearAlgebra
         void InternalDispose()
         {
             _isPoppingScope = true;
-            foreach (var set in _scope) {
+            foreach (var set in Scope) {
                 foreach(var item in set.Keys)
                     item.Dispose();
             }
             _isPoppingScope = false;
-            _scope.Clear();
+            Scope.Clear();
         }
 
+        /// <summary>
+        /// Bright data context
+        /// </summary>
         public BrightDataContext Context { get; }
+
+        /// <summary>
+        /// Provider name
+        /// </summary>
         public virtual string ProviderName => "default";
 
+        /// <summary>
+        /// Type of vectors that will be created
+        /// </summary>
         public virtual Type VectorType { get; } = typeof(BrightVector);
+
+        /// <summary>
+        /// Type of matrices that will be created
+        /// </summary>
         public virtual Type MatrixType { get; } = typeof(BrightMatrix);
+
+        /// <summary>
+        /// Type of 3D tensors that will be created
+        /// </summary>
         public virtual Type Tensor3DType { get; } = typeof(BrightTensor3D);
+
+        /// <summary>
+        /// Type of 4D tensors that will be created
+        /// </summary>
         public virtual Type Tensor4DType { get; } = typeof(BrightTensor4D);
 
-        // scope
-        public void PushScope() => _scope.Push(new());
+        /// <summary>
+        /// Adds a new scope
+        /// </summary>
+        public void PushScope() => Scope.Push(new());
+
+        /// <summary>
+        /// Pops that last scope and disposes all objects within that scope
+        /// </summary>
         public virtual void PopScope()
         {
-            if (_scope.TryPop(out var set)) {
+            if (Scope.TryPop(out var set)) {
                 foreach(var item in set.Keys)
                     item.Dispose();
             }
         }
-        internal bool AddToScope(IDisposable obj) => _scope.First().TryAdd(obj, true);
-        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || (_scope.FirstOrDefault()?.TryRemove(new KeyValuePair<IDisposable, bool>(obj, true)) ?? false);
+        internal bool AddToScope(IDisposable obj) => Scope.First().TryAdd(obj, true);
+        internal bool RemoveFromScope(IDisposable obj) => _isPoppingScope || (Scope.FirstOrDefault()?.TryRemove(new KeyValuePair<IDisposable, bool>(obj, true)) ?? false);
 
-        // segment creation
-        public virtual ITensorSegment CreateSegment(float[] data) => new ArrayBasedTensorSegment(data);
+        /// <summary>
+        /// Creates a tensor segment from an array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment CreateSegment(params float[] data) => new ArrayBasedTensorSegment(data);
+
+        /// <summary>
+        /// Creates a tensor segment
+        /// </summary>
+        /// <param name="size">Segment size</param>
+        /// <param name="initialiseToZero">True to initialize the all values in the segment to zero</param>
+        /// <returns></returns>
         public virtual ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, initialiseToZero ? AllocationMode.Clear : AllocationMode.Default));
-        public virtual ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
+
+        /// <summary>
+        /// Creates a tensor segment
+        /// </summary>
+        /// <param name="size">Segment size</param>
+        /// <param name="initializer">Function to initialize each value in the segment</param>
+        /// <returns></returns>
+        public virtual ITensorSegment CreateSegment(uint size, Func<uint /* index */, float> initializer)
         {
             var ret = MemoryOwner<float>.Allocate((int)size, AllocationMode.Clear);
             var ptr = ret.Span;
@@ -76,6 +133,12 @@ namespace BrightData.LinearAlgebra
                 ptr[i] = initializer((uint)i);
             return new ArrayPoolTensorSegment(ret);
         }
+
+        /// <summary>
+        /// Creates a clone of the tensor segment
+        /// </summary>
+        /// <param name="segment">Segment to clone</param>
+        /// <returns></returns>
         public virtual ITensorSegment Clone(ITensorSegment segment)
         {
             var ret = CreateSegment(segment.Size, false);
@@ -83,26 +146,103 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        // vector creation
+        /// <summary>
+        /// Creates a vector from a tensor segment
+        /// </summary>
+        /// <param name="data">Tensor segment</param>
+        /// <returns></returns>
         public virtual IVector CreateVector(ITensorSegment data) => new BrightVector(data, this);
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        /// <param name="initialiseToZero">True to initialize each value to zero</param>
+        /// <returns></returns>
         public IVector CreateVector(uint size, bool initialiseToZero) => CreateVector(CreateSegment(size, initialiseToZero));
-        public IVector CreateVector(float[] data) => CreateVector(data.AsSpan());
-        public IVector CreateVector(uint size, float value) => CreateVector(size, i => value);
+
+        /// <summary>
+        /// Creates a vector from an array of floats
+        /// </summary>
+        /// <param name="data">Float array</param>
+        /// <returns></returns>
+        public IVector CreateVector(params float[] data) => CreateVector(data.AsSpan());
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        /// <param name="value">Initial value of each item in the vector</param>
+        /// <returns></returns>
+        public IVector CreateVector(uint size, float value) => CreateVector(size, _ => value);
+
+        /// <summary>
+        /// Creates a vector from a span of floats
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         public IVector CreateVector(ReadOnlySpan<float> span)
         {
             var segment = CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
             return CreateVector(segment);
         }
-        public IVector CreateVector(uint size, Func<uint, float> initializer) => CreateVector(CreateSegment(size, initializer));
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        /// <param name="initializer">Function to initialize each value in the vector</param>
+        /// <returns></returns>
+        public IVector CreateVector(uint size, Func<uint /* index */, float> initializer) => CreateVector(CreateSegment(size, initializer));
+
+        /// <summary>
+        /// Creates a new vector from an existing vector
+        /// </summary>
+        /// <param name="vector">Vector to clone</param>
+        /// <returns></returns>
         public IVector CreateVector(IVector vector) => CreateVector(Clone(vector.Segment));
+
+        /// <summary>
+        /// Creates a vector from a read only vector
+        /// </summary>
+        /// <param name="vector">Read only vector</param>
+        /// <returns></returns>
         public IVector CreateVector(IReadOnlyVector vector) => vector.Create(this);
+
+        /// <summary>
+        /// Creates a vector from an enumerable of floats
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public IVector CreateVector(IEnumerable<float> values) => CreateVector(values.ToArray().AsSpan());
 
-        // matrix creation
+        /// <summary>
+        /// Creates a matrix from a segment
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        /// <param name="data">Tensor segment</param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new BrightMatrix(data, rowCount, columnCount, this);
+
+        /// <summary>
+        /// Creates a matrix
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        /// <param name="initialiseToZero">True to initialize each value to zero</param>
+        /// <returns></returns>
         public IMatrix CreateMatrix(uint rowCount, uint columnCount, bool initialiseToZero) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount, initialiseToZero));
-        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
+
+        /// <summary>
+        /// Creates a matrix
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        /// <param name="initializer">Function to initialize each value in the matrix that will receive (row index, column index)</param>
+        /// <returns></returns>
+        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint /* row index */, uint /* column index */, float> initializer)
         {
             var segment = CreateSegment(rowCount * columnCount, false);
             var array = segment.GetArrayIfEasilyAvailable()!;
@@ -110,14 +250,54 @@ namespace BrightData.LinearAlgebra
                 array[i] = initializer(i % rowCount, i / rowCount);
             return CreateMatrix(rowCount, columnCount, segment);
         }
+
+        /// <summary>
+        /// Creates a new matrix from an existing matrix
+        /// </summary>
+        /// <param name="matrix">Matrix to clone</param>
+        /// <returns></returns>
         public IMatrix CreateMatrix(IMatrix matrix) => CreateMatrix(matrix.RowCount, matrix.ColumnCount, Clone(matrix.Segment));
+
+        /// <summary>
+        /// Creates a matrix from a read only matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrix(IReadOnlyMatrix matrix) => matrix.Create(this);
 
-        // create from rows
+        /// <summary>
+        /// Creates a matrix from the rows supplied as vectors
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRows(IVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as read only vectors
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRows(IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.Segment).ToArray());
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRows(IEnumerable<float[]> rows) => CreateMatrixFromRows(rows.ToArray().AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRows(float[][] rows) => CreateMatrixFromRows(rows.AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as vectors and then disposes each input vector
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRowsAndThenDisposeInput(IVector[] rows)
         {
             try {
@@ -128,7 +308,19 @@ namespace BrightData.LinearAlgebra
                     row.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as tensor segments
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromRows(ITensorSegment[] rows) => CreateMatrixFromRows(rows.AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as tensor segments
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> rows)
         {
             var columns = rows[0].Size;
@@ -137,6 +329,12 @@ namespace BrightData.LinearAlgebra
                 rows[i].CopyTo(ret.Row((uint)i));
             return ret;
         }
+
+        /// <summary>
+        /// Creates a matrix from rows supplied
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rows)
         {
             var columns = (uint)rows[0].Length;
@@ -149,11 +347,39 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        // create from columns
+        /// <summary>
+        /// Creates a matrix from the columns supplied as vectors
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumns(IVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied as read only vectors
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumns(IReadOnlyVector[] columns) => CreateMatrixFromColumns(columns.Select(v => v.Segment).ToArray());
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumns(IEnumerable<float[]> columns) => CreateMatrixFromColumns(columns.ToArray().AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumns(float[][] columns) => CreateMatrixFromColumns(columns.AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied as vectors and then disposes each input vector
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumnsAndThenDisposeInput(IVector[] columns)
         {
             try {
@@ -164,7 +390,19 @@ namespace BrightData.LinearAlgebra
                     column.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied as tensor segments
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IMatrix CreateMatrixFromColumns(ITensorSegment[] columns) => CreateMatrixFromColumns(columns.AsSpan());
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied as tensor segments
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> columns)
         {
             var rows = columns[0].Size;
@@ -173,6 +411,12 @@ namespace BrightData.LinearAlgebra
                 columns[i].CopyTo(ret.Column((uint)i));
             return ret;
         }
+        
+        /// <summary>
+        /// Creates a matrix from the columns supplied
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columns)
         {
             var rows = (uint)columns[0].Length;
@@ -757,7 +1001,7 @@ namespace BrightData.LinearAlgebra
         //    return ret;
         //}
 
-        public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularisation(coefficient);
+        public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularization(coefficient);
 
         public virtual (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
         {

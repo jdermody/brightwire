@@ -25,7 +25,7 @@ namespace BrightData
         public MetaData(MetaData? metaData = null, params string[] keys)
         {
             if (metaData != null) {
-                var md = (MetaData)metaData;
+                var md = metaData;
                 foreach (var item in keys) {
                     if(md._values.TryGetValue(item, out var val))
                         _values.Add(item, val);
@@ -58,7 +58,7 @@ namespace BrightData
         /// <param name="metadata">Other meta data store</param>
         public void CopyTo(MetaData metadata)
         {
-            var other = (MetaData)metadata;
+            var other = metadata;
             var keys = _orderedValues.ToList();
 
             foreach (var key in keys) {
@@ -75,10 +75,10 @@ namespace BrightData
         /// Copies the specified values to another meta data store
         /// </summary>
         /// <param name="metadata">Other meta data store</param>
-        /// <param name="keys">Values to copy</param>
+        /// <param name="keysToCopy">Values to copy</param>
         public void CopyTo(MetaData metadata, params string[] keysToCopy)
         {
-            var other = (MetaData) metadata;
+            var other = metadata;
             var keySet = new HashSet<string>(keysToCopy);
             var keys = _orderedValues.AsEnumerable().Where(k => keySet.Contains(k));
 
@@ -204,6 +204,10 @@ namespace BrightData
             _values[name] = value;
         }
 
+        /// <summary>
+        /// Writes meta data
+        /// </summary>
+        /// <param name="writer"></param>
         public void WriteTo(BinaryWriter writer)
         {
             var items = GetNonEmpty().ToList();

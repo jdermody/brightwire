@@ -13,7 +13,7 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Vectorised cosine distance
+        /// Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
         /// </summary>
         /// <param name="v1">First vector</param>
         /// <param name="v2">Second vector</param>
@@ -62,7 +62,7 @@ namespace BrightData
         /// <summary>
         /// Find the minimum value and index in a vector
         /// </summary>
-        /// <param name="vector">Vector to analyse</param>
+        /// <param name="vector">Vector to analyze</param>
         /// <returns>Tuple containing the minimum value and its index</returns>
         public static (float Value, uint Index) Minimum(this float[] vector)
         {

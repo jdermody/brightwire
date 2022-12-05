@@ -9,6 +9,13 @@ namespace BrightData.DataTable
 {
     public partial class BrightDataTable
     {
+        /// <summary>
+        /// Creates a column analyzer
+        /// </summary>
+        /// <param name="columnIndex">Column index</param>
+        /// <param name="writeCount">Number of items to write in metadata</param>
+        /// <param name="maxDistinctCount">Maximum number of distinct items to track</param>
+        /// <returns></returns>
         public IOperation<(uint, MetaData)> CreateColumnAnalyser(uint columnIndex, uint writeCount, uint maxDistinctCount)
         {
             var metaData = GetColumnMetaData(columnIndex);
@@ -43,6 +50,12 @@ namespace BrightData.DataTable
             );
         }
 
+        /// <summary>
+        /// Groups rows into buffers by the string values of specified column indices
+        /// </summary>
+        /// <param name="tempStreams">Temp stream provider</param>
+        /// <param name="groupByColumnIndices">Column indices on which to form the groups</param>
+        /// <returns></returns>
         public IOperation<(string Label, IHybridBuffer[] ColumnData)[]> GroupBy(IProvideTempStreams tempStreams, params uint[] groupByColumnIndices)
         {
             return new GroupByOperation(
@@ -55,7 +68,14 @@ namespace BrightData.DataTable
             );
         }
 
-        public IEnumerable<IOperation<ITypedSegment?>> MutateColumns(IProvideTempStreams temp, IEnumerable<(uint ColumnIndex, IConvertColumn Converter)> converters)
+        /// <summary>
+        /// Table operation that converts table columns (column count remains the same)
+        /// </summary>
+        /// <param name="temp">Temp stream provider</param>
+        /// <param name="converters">Column converters</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public IEnumerable<IOperation<ITypedSegment?>> ConvertColumns(IProvideTempStreams temp, IEnumerable<(uint ColumnIndex, IConvertColumn Converter)> converters)
         {
             var converterTable = converters.ToDictionary(d => d.ColumnIndex, d => d.Converter);
 
@@ -79,6 +99,12 @@ namespace BrightData.DataTable
             }
         }
 
+        /// <summary>
+        /// Table operation that combines or expands columns (column count changes)
+        /// </summary>
+        /// <param name="temp"></param>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public IEnumerable<IOperation<ITypedSegment?>> ReinterpretColumns(IProvideTempStreams temp, IEnumerable<IReinterpretColumns> columns)
         {
             var rowCount = RowCount;
@@ -97,17 +123,33 @@ namespace BrightData.DataTable
             }
         }
 
+        /// <summary>
+        /// Builds a new table from rows via a projection function
+        /// </summary>
+        /// <param name="projector">Function that takes a row and returns a new row (returning null will skip this row from the new table)</param>
+        /// <returns></returns>
         public IOperation<BrightDataTableBuilder?> Project(Func<object[], object[]?> projector)
         {
-            return new ProjectionOperation(RowCount, Context, GetAllRowData(true).Select(d => d.Data).GetEnumerator(), projector);
+            return new ProjectionOperation(RowCount, Context, GetAllRowData().Select(d => d.Data).GetEnumerator(), projector);
         }
 
+        /// <summary>
+        /// Bags the table rows into a new stream backed data table
+        /// </summary>
+        /// <param name="sampleCount"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public IOperation<Stream?> BagToStream(uint sampleCount, Stream stream)
         {
             var rowIndices = AllRowIndices.ToArray().Bag(sampleCount, Context.Random);
             return WriteRowsTo(stream, rowIndices);
         }
 
+        /// <summary>
+        /// Shuffles the table rows into a new stream backed data table
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public IOperation<Stream?> ShuffleToStream(Stream stream)
         {
             var rowIndices = AllRowIndices.Shuffle(Context.Random).ToArray();

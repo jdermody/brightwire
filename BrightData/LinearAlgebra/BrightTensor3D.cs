@@ -4,15 +4,28 @@ using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightData.LinearAlgebra
 {
+    /// <summary>
+    /// 3D tensor
+    /// </summary>
+    /// <typeparam name="LAP"></typeparam>
     public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D
         where LAP: LinearAlgebraProvider
     {
-        public BrightTensor3D(ITensorSegment data, uint depth, uint rowCount, uint columnCount, LAP lap) : base(data, lap)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">Tensor segment</param>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Rows in each matrix</param>
+        /// <param name="columns">Columns in each matrix</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <exception cref="ArgumentException"></exception>
+        public BrightTensor3D(ITensorSegment data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Depth = depth;
-            RowCount = rowCount;
-            ColumnCount = columnCount;
-            MatrixSize = rowCount * columnCount;
+            RowCount = rows;
+            ColumnCount = columns;
+            MatrixSize = rows * columns;
             TotalSize = MatrixSize * depth;
 #if  DEBUG
             if (data.Size != TotalSize)
@@ -20,15 +33,28 @@ namespace BrightData.LinearAlgebra
 #endif
         }
 
-        public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, _lap);
+        /// <inheritdoc />
+        public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
         ITensor3D IReadOnlyTensor3D.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
         IReadOnlyMatrix IReadOnlyTensor3D.GetReadOnlyMatrix(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
         TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
+
+        /// <inheritdoc />
         public uint Depth { get; private set; }
+
+        /// <inheritdoc />
         public uint RowCount { get; private set; }
+
+        /// <inheritdoc />
         public uint ColumnCount { get; private set; }
+
+        /// <inheritdoc />
         public uint MatrixSize { get; private set; }
+
+        /// <inheritdoc />
         public sealed override uint TotalSize { get; protected set; }
+
+        /// <inheritdoc />
         public sealed override uint[] Shape
         {
             get => new[] { ColumnCount, RowCount, Depth };
@@ -42,56 +68,128 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Returns a value from the tensor
+        /// </summary>
+        /// <param name="depth">Matrix index</param>
+        /// <param name="rowY">Row index</param>
+        /// <param name="columnX">Column index</param>
         public float this[int depth, int rowY, int columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+
+        /// <summary>
+        /// Returns a value from the tensor
+        /// </summary>
+        /// <param name="depth">Matrix index</param>
+        /// <param name="rowY">Row index</param>
+        /// <param name="columnX">Column index</param>
         public float this[uint depth, uint rowY, uint columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+
+        /// <summary>
+        /// Returns a value from the tensor
+        /// </summary>
+        /// <param name="depth">Matrix index</param>
+        /// <param name="rowY">Row index</param>
+        /// <param name="columnX">Column index</param>
         public float this[long depth, long rowY, long columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+
+        /// <summary>
+        /// Returns a value from the tensor
+        /// </summary>
+        /// <param name="depth">Matrix index</param>
+        /// <param name="rowY">Row index</param>
+        /// <param name="columnX">Column index</param>
         public float this[ulong depth, ulong rowY, ulong columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+
+        /// <inheritdoc />
         public IReadOnlyMatrix[] AllMatrices()
         {
             var ret = new IReadOnlyMatrix[Depth];
+            // ReSharper disable once InconsistentNaming
             var _this = (IReadOnlyTensor3D)this;
             for (uint i = 0; i < Depth; i++)
                 ret[i] = _this.GetReadOnlyMatrix(i);
             return ret;
         }
-        public IMatrix GetMatrix(uint index) => _lap.GetMatrix(this, index);
-        public ITensor3D AddPadding(uint padding) => _lap.AddPadding(this, padding);
-        public ITensor3D RemovePadding(uint padding) => _lap.RemovePadding(this, padding);
-        public IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
-        public (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => _lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
-        public ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
-        public ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => _lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
-        public IMatrix AddAllMatrices() => _lap.AddMatrices(this);
-        public ITensor3D MultiplyEachMatrixBy(IMatrix matrix) => _lap.Multiply(this, matrix);
-        public ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix matrix) => _lap.TransposeFirstAndMultiply(this, matrix);
-        public void AddToEachRow(IVector vector) => _lap.AddToEachRow(this, vector);
-        public void AddToEachColumn(IVector vector) => _lap.AddToEachColumn(this, vector);
-        public ITensor3D Multiply(ITensor4D other) => _lap.Multiply(this, other);
-        public ITensor3D TransposeAndMultiply(ITensor4D other) => _lap.TransposeSecondAndMultiply(this, other);
 
-        public ITensor3D TransposeThisAndMultiply(ITensor4D other) => _lap.TransposeFirstAndMultiply(this, other);
+        /// <inheritdoc />
+        public IMatrix GetMatrix(uint index) => Lap.GetMatrix(this, index);
+
+        /// <inheritdoc />
+        public ITensor3D AddPadding(uint padding) => Lap.AddPadding(this, padding);
+
+        /// <inheritdoc />
+        public ITensor3D RemovePadding(uint padding) => Lap.RemovePadding(this, padding);
+
+        /// <inheritdoc />
+        public IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
+
+        /// <inheritdoc />
+        public (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => Lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
+
+        /// <inheritdoc />
+        public ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+
+        /// <inheritdoc />
+        public ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+
+        /// <inheritdoc />
+        public IMatrix AddAllMatrices() => Lap.AddMatrices(this);
+
+        /// <inheritdoc />
+        public ITensor3D MultiplyEachMatrixBy(IMatrix matrix) => Lap.Multiply(this, matrix);
+
+        /// <inheritdoc />
+        public ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix matrix) => Lap.TransposeFirstAndMultiply(this, matrix);
+
+        /// <inheritdoc />
+        public void AddToEachRow(IVector vector) => Lap.AddToEachRow(this, vector);
+
+        /// <inheritdoc />
+        public void AddToEachColumn(IVector vector) => Lap.AddToEachColumn(this, vector);
+
+        /// <inheritdoc />
+        public ITensor3D Multiply(ITensor4D other) => Lap.Multiply(this, other);
+
+        /// <inheritdoc />
+        public ITensor3D TransposeAndMultiply(ITensor4D other) => Lap.TransposeSecondAndMultiply(this, other);
+
+        /// <inheritdoc />
+        public ITensor3D TransposeThisAndMultiply(ITensor4D other) => Lap.TransposeFirstAndMultiply(this, other);
+
+        /// <inheritdoc />
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
     }
 
+    /// <summary>
+    /// 3D tensor 
+    /// </summary>
     public class BrightTensor3D : BrightTensor3D<LinearAlgebraProvider>
     {
-        public BrightTensor3D(ITensorSegment data, uint depth, uint rows, uint columns, LinearAlgebraProvider computationUnit) : base(data, depth, rows, columns, computationUnit)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">Tensor segment</param>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Rows in each matrix</param>
+        /// <param name="columns">Columns in each matrix</param>
+        /// <param name="lap">Linear algebra provider</param>
+        public BrightTensor3D(ITensorSegment data, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, depth, rows, columns, lap)
         {
         }
     }

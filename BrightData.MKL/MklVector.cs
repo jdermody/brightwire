@@ -9,6 +9,6 @@ namespace BrightData.MKL
         {
         }
 
-        public override IVector Create(ITensorSegment segment) => new MklVector(segment, _lap);
+        public override IVector Create(ITensorSegment segment) => new MklVector(segment, Lap);
     }
 }

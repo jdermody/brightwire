@@ -848,6 +848,12 @@ namespace BrightData
         T Softmax();
 
         /// <summary>
+        /// Computes the softmax derivative of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        IMatrix SoftmaxDerivative();
+
+        /// <summary>
         /// Raises each element in this tensor by power
         /// </summary>
         /// <param name="power"></param>
@@ -920,6 +926,12 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         IMatrix SoftmaxDerivative();
+
+        /// <summary>
+        /// Returns all values in an array
+        /// </summary>
+        /// <returns></returns>
+        float[] ToArray();
     }
 
     /// <summary>
@@ -959,7 +971,20 @@ namespace BrightData
         /// <returns></returns>
         float this[ulong rowY, ulong columnX] { get; set; }
 
+        /// <summary>
+        /// Returns a row from the matrix
+        /// </summary>
+        /// <param name="index">Row index</param>
+        /// <param name="segment">Optional segment to use</param>
+        /// <returns></returns>
         TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
+
+        /// <summary>
+        /// Returns a column from the matrix
+        /// </summary>
+        /// <param name="index">Column index</param>
+        /// <param name="segment">Optional segment to use</param>
+        /// <returns></returns>
         TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
 
         /// <summary>

@@ -1,5 +1,8 @@
 ﻿namespace BrightData.LinearAlgebra
 {
+    /// <summary>
+    /// Array based linear algebra provider
+    /// </summary>
     public class ArrayBasedLinearAlgebraProvider : LinearAlgebraProvider
     {
         internal ArrayBasedLinearAlgebraProvider(BrightDataContext context) : base(context)

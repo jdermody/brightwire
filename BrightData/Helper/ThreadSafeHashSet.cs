@@ -17,21 +17,30 @@ namespace BrightData.Helper
         readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         readonly HashSet<T> _hashSet = new();
 
+        /// <summary>Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.</summary>
         ~ThreadSafeHashSet()
         {
             DisposeInternal();
         }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             DisposeInternal();
             GC.SuppressFinalize(this);
         }
+
         void DisposeInternal()
         {
             _hashSet.Clear();
             _lock.Dispose();
         }
 
+        /// <summary>
+        /// Adds a new item
+        /// </summary>
+        /// <param name="item">Item to add</param>
+        /// <returns></returns>
         public bool Add(T item)
         {
             _lock.EnterWriteLock();
@@ -44,6 +53,9 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// Clears all items
+        /// </summary>
         public void Clear()
         {
             _lock.EnterWriteLock();
@@ -56,6 +68,11 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// Checks if the set contains the specified item
+        /// </summary>
+        /// <param name="item">Item to find</param>
+        /// <returns></returns>
         public bool Contains(T item)
         {
             _lock.EnterReadLock();
@@ -68,6 +85,11 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// Removes an item
+        /// </summary>
+        /// <param name="item">Item to remove</param>
+        /// <returns>True if the item was removed</returns>
         public bool Remove(T item)
         {
             _lock.EnterWriteLock();
@@ -80,6 +102,9 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// The number of items in the set
+        /// </summary>
         public int Count
         {
             get
@@ -95,6 +120,10 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// Applies a callback to each item in the set
+        /// </summary>
+        /// <param name="callback"></param>
         public void ForEach(Action<T> callback)
         {
             _lock.EnterReadLock();
@@ -108,6 +137,11 @@ namespace BrightData.Helper
             }
         }
 
+        /// <summary>
+        /// Tries to pop an item from the set
+        /// </summary>
+        /// <param name="ret">Item that was removed</param>
+        /// <returns>True if there was an item to remove</returns>
         public bool TryPop([MaybeNullWhen(false)]out T ret)
         {
             _lock.EnterWriteLock();

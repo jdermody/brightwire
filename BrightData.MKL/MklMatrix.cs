@@ -13,6 +13,6 @@ namespace BrightData.MKL
         {
         }
 
-        public override IMatrix Create(ITensorSegment segment) => new MklMatrix(segment, RowCount, ColumnCount, _lap);
+        public override IMatrix Create(ITensorSegment segment) => new MklMatrix(segment, RowCount, ColumnCount, Lap);
     }
 }

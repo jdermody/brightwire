@@ -1216,7 +1216,7 @@ namespace BrightData
         {
             using var tempStream = dataTable.Context.CreateTempStreamProvider();
             var transformers = dataTable.GetColumnTransformers(tempStream, conversionParams);
-            var operations = dataTable.MutateColumns(tempStream, transformers);
+            var operations = dataTable.ConvertColumns(tempStream, transformers);
             var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
         }
@@ -1257,7 +1257,7 @@ namespace BrightData
                 .Where(c => !c.MetaData.IsCategorical() && c.Type.IsNumeric())
                 .Select(c => new ColumnNormalization(c.Index, type))
             );
-            var operations = dataTable.MutateColumns(tempStream, transformers);
+            var operations = dataTable.ConvertColumns(tempStream, transformers);
             var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
             return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
 

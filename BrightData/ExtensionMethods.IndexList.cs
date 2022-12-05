@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace BrightData
         /// <summary>
         /// Creates an index list from indices
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
         public static IndexList CreateIndexList(this BrightDataContext _, params uint[] indices) => IndexList.Create(indices);
@@ -19,7 +18,7 @@ namespace BrightData
         /// <summary>
         /// Creates an index list from indices
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="indices">Indices</param>
         /// <returns></returns>
         public static IndexList CreateIndexList(this BrightDataContext _, IEnumerable<uint> indices) => IndexList.Create(indices);
@@ -39,7 +38,7 @@ namespace BrightData
         /// <summary>
         /// Creates a weighted index list from weighted indices
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(indexList);
@@ -47,7 +46,7 @@ namespace BrightData
         /// <summary>
         /// Creates a weighted index list from weighted indices
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(indexList);
@@ -55,7 +54,7 @@ namespace BrightData
         /// <summary>
         /// Creates a weighted index list from weighted indices
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, IEnumerable<WeightedIndexList.Item> indexList) => WeightedIndexList.Create(indexList);
@@ -63,7 +62,7 @@ namespace BrightData
         /// <summary>
         /// Creates a weighted index list from a binary reader
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="reader">The binary reader</param>
         public static WeightedIndexList CreateWeightedIndexList(this BrightDataContext _, BinaryReader reader)
         {

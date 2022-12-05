@@ -13,7 +13,7 @@ namespace BrightData.Cuda
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
             var ret = new IReadOnlyVector[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = Column(i, segment).ToVectorInfo();
+                ret[i] = Column(i, segment).ToReadOnlyVector();
             return ret;
         }
 
@@ -22,7 +22,7 @@ namespace BrightData.Cuda
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
             var ret = new IReadOnlyVector[RowCount];
             for (uint i = 0; i < RowCount; i++)
-                ret[i] = Row(i, segment).ToVectorInfo();
+                ret[i] = Row(i, segment).ToReadOnlyVector();
             return ret;
         }
 
@@ -30,14 +30,14 @@ namespace BrightData.Cuda
         {
             var segment = (CudaTensorSegment)Segment;
             var ptr = segment.DeviceMemory.Offset(index * RowCount, RowCount);
-            return _lap.CreateVector(new CudaTensorSegment(ptr));
+            return Lap.CreateVector(new CudaTensorSegment(ptr));
         }
 
         public override IVector GetRowVector(uint index)
         {
             //return _lap.CreateVector(Row(index));
-            var segment = _lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
-            return _lap.CreateVector(segment);
+            var segment = Lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
+            return Lap.CreateVector(segment);
         }
     }
 }

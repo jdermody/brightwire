@@ -114,9 +114,9 @@ namespace BrightData
         /// Applies a callback to each item in the span
         /// </summary>
         /// <param name="segment">Vector</param>
-        /// <param name="transfomer">Callback</param>
+        /// <param name="transformer">Callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> TransformParallel(this ReadOnlySpan<float> segment, Func<float, float> transfomer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> TransformParallel(this ReadOnlySpan<float> segment, Func<float, float> transformer)
         {
             var size = segment.Length;
             var ret = Allocate(size);
@@ -127,20 +127,21 @@ namespace BrightData
                 var xp = xfp;
                 var zp = zfp;
                 if (size >= Consts.MinimumSizeForParallel)
-                    Parallel.For(0, size, i => array[i] = transfomer(xp[i]));
+                    Parallel.For(0, size, i => array[i] = transformer(xp[i]));
                 else {
                     for (uint i = 0; i < size; i++)
-                        *zp++ = transfomer(*xp++);
+                        *zp++ = transformer(*xp++);
                 }
             }
 
             return ret;
         }
 
+        ///
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TransformVectorised(
             this ReadOnlySpan<float> segment, 
-            ComputeVectorisedOne transfomer1, 
-            Func<float, float> transfomer2)
+            ComputeVectorisedOne transformer1, 
+            Func<float, float> transformer2)
         {
             var size = segment.Length;
             var ret = Allocate(size);
@@ -153,25 +154,25 @@ namespace BrightData
                 var numVectors = size / NumericsVectorSize;
                 nextIndex = numVectors * NumericsVectorSize;
                 for (var j = 0; j < numVectors; j++)
-                    transfomer1(leftVec[j], out resultVec[j]);
+                    transformer1(leftVec[j], out resultVec[j]);
             }
             for (; nextIndex < size; nextIndex++)
-                resultPtr[nextIndex] = transfomer2(segment[nextIndex]);
+                resultPtr[nextIndex] = transformer2(segment[nextIndex]);
 
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TransformParallelIndexed(this ReadOnlySpan<float> segment, Func<uint, float> transfomer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TransformParallelIndexed(this ReadOnlySpan<float> segment, Func<uint, float> transformer)
         {
             var size = segment.Length;
             var ret = Allocate(size);
             var array = ret.DangerousGetArray().Array!;
 
             if(size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, size, i => array[i] = transfomer((uint)i));
+                Parallel.For(0, size, i => array[i] = transformer((uint)i));
             else {
                 for (uint i = 0; i < size; i++)
-                    array[i] = transfomer(i);
+                    array[i] = transformer(i);
             }
             return ret;
         }

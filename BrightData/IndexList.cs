@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -19,15 +18,23 @@ namespace BrightData
         readonly uint[] _indices;
 
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
-        /// <param name="indices"></param>
-        public IndexList(uint[] indices)
+        /// <param name="indices">Initial indices</param>
+        public IndexList(params uint[] indices)
         {
             _indices = indices;
         }
 
+        /// <summary>
+        /// Current indices in list
+        /// </summary>
         public IReadOnlyList<uint> Indices => _indices;
+
+        /// <summary>
+        /// Indices as a span
+        /// </summary>
+        /// <returns></returns>
         public ReadOnlySpan<uint> AsSpan() => new(_indices);
 
         /// <summary>
@@ -173,8 +180,9 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts to a vector
+        /// Converts to a dense vector in which each set index is 1
         /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
         public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)

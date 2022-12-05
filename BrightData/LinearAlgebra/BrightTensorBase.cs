@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,28 +9,38 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
-    public abstract class BrightTensorBase<T, LAP> : ITensor<T>, IHaveSize
-        where T: ITensor
-        where LAP: LinearAlgebraProvider
+    /// <summary>
+    /// Base tensor type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="LAP"></typeparam>
+    public abstract class BrightTensorBase<T, LAP> : ITensor<T>
+        where T : ITensor
+        where LAP : LinearAlgebraProvider
     {
-        protected LAP _lap;
+        /// <summary>
+        /// Linear algebra provider
+        /// </summary>
+        protected LAP Lap;
 
         internal BrightTensorBase(ITensorSegment data, LAP lap)
         {
             Segment = data;
             Segment.AddRef();
 
-            _lap = lap;
-            _lap.AddToScope(this);
+            Lap = lap;
+            Lap.AddToScope(this);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            _lap.RemoveFromScope(this);
+            Lap.RemoveFromScope(this);
             Segment.Release();
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
             Shape.WriteTo(writer);
@@ -41,11 +50,12 @@ namespace BrightData.LinearAlgebra
                 writer.Write(span.AsBytes());
             }
             finally {
-                if(wasTempUsed)
+                if (wasTempUsed)
                     temp.Dispose();
             }
         }
 
+        /// <inheritdoc />
         public virtual void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var shape = reader.ReadStructArray<uint>();
@@ -53,46 +63,70 @@ namespace BrightData.LinearAlgebra
             var size = shape.Aggregate(1, (p, c) => p * (int)c);
             var data = reader.ReadBytes(size * sizeof(float));
 
-            _lap = (LAP)context.LinearAlgebraProvider;
-            _lap.AddToScope(this);
+            Lap = (LAP)context.LinearAlgebraProvider;
+            Lap.AddToScope(this);
 
-            Segment = _lap.CreateSegment((uint)size, false);
+            Segment = Lap.CreateSegment((uint)size, false);
             Segment.CopyFrom(MemoryMarshal.Cast<byte, float>(data));
             Segment.AddRef();
         }
 
+        /// <summary>
+        /// Creates a typed tensor from a tensor segment
+        /// </summary>
+        /// <param name="segment">Tensor segment</param>
+        /// <returns></returns>
         public abstract T Create(ITensorSegment segment);
+
+        /// <inheritdoc />
         public abstract uint TotalSize { get; protected set; }
         uint IHaveSize.Size => TotalSize;
-        public abstract uint[] Shape { get; protected set; }
-        public ITensorSegment Segment { get; private set; }
-        public BrightDataContext Context => _lap.Context;
-        public LinearAlgebraProvider LinearAlgebraProvider => _lap;
 
+        /// <inheritdoc />
+        public abstract uint[] Shape { get; protected set; }
+
+        /// <summary>
+        /// Underlying tensor segment
+        /// </summary>
+        public ITensorSegment Segment { get; private set; }
+
+        /// <inheritdoc />
+        public BrightDataContext Context => Lap.Context;
+
+        /// <inheritdoc />
+        public LinearAlgebraProvider LinearAlgebraProvider => Lap;
+
+        /// <inheritdoc />
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
 
-        public IVector Reshape() => _lap.CreateVector(Segment);
+        /// <inheritdoc />
+        public IVector Reshape() => Lap.CreateVector(Segment);
+
+        /// <inheritdoc />
         public IMatrix Reshape(uint? rows, uint? columns)
         {
             var shape = ResolveShape(TotalSize, rows, columns);
-            return _lap.CreateMatrix(shape[0], shape[1], Segment);
+            return Lap.CreateMatrix(shape[0], shape[1], Segment);
         }
+
+        /// <inheritdoc />
         public ITensor3D Reshape(uint? depth, uint? rows, uint? columns)
         {
             var shape = ResolveShape(TotalSize, depth, rows, columns);
-            return _lap.CreateTensor3D(shape[0], shape[1], shape[2], Segment);
+            return Lap.CreateTensor3D(shape[0], shape[1], shape[2], Segment);
         }
+
+        /// <inheritdoc />
         public ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = ResolveShape(TotalSize, count, depth, rows, columns);
-            return _lap.CreateTensor4D(shape[0], shape[1], shape[2], shape[3], Segment);
+            return Lap.CreateTensor4D(shape[0], shape[1], shape[2], shape[3], Segment);
         }
         static uint[] ResolveShape(uint total, params uint?[] shape)
         {
             uint nonNullTotal = 1;
             var hasFoundNull = false;
-            foreach (var item in shape)
-            {
+            foreach (var item in shape) {
                 if (item.HasValue)
                     nonNullTotal *= item.Value;
                 else if (!hasFoundNull)
@@ -110,15 +144,17 @@ namespace BrightData.LinearAlgebra
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
 
+        /// <inheritdoc />
         public T Map(Func<float, float> mutator)
         {
-            var ret = _lap.MapParallel(Segment, mutator);
+            var ret = Lap.MapParallel(Segment, mutator);
             return Create(ret);
         }
 
+        /// <inheritdoc />
         public void MapInPlace(Func<float, float> mutator)
         {
-            var ret = _lap.MapParallel(Segment, mutator);
+            var ret = Lap.MapParallel(Segment, mutator);
             try {
                 ret.CopyTo(Segment);
             }
@@ -127,64 +163,180 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        ITensor ITensor.Clone()                                                             => Create(_lap.Clone(Segment));
-        public T Clone()                                                                    => Create(_lap.Clone(Segment));
-        public void Clear()                                                                 => Segment.Clear();
-        public T Add(ITensor tensor)                                                        => Create(_lap.Add(Segment, tensor.Segment));
-        public T Add(ITensor tensor, float coefficient1, float coefficient2)                => Create(_lap.Add(Segment, tensor.Segment, coefficient1, coefficient2));
-        public T Add(float scalar)                                                          => Create(_lap.Add(Segment, scalar));
-        public void AddInPlace(ITensor tensor)                                              => _lap.AddInPlace(Segment, tensor.Segment);
-        public void AddInPlace(ITensor tensor, float coefficient1, float coefficient2)      => _lap.AddInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
-        public void AddInPlace(float scalar)                                                => _lap.AddInPlace(Segment, scalar);
-        public void MultiplyInPlace(float scalar)                                           => _lap.MultiplyInPlace(Segment, scalar);
-        public T Multiply(float scalar)                                                     => Create(_lap.Multiply(Segment, scalar));
-        public T Subtract(ITensor tensor)                                                   => Create(_lap.Subtract(Segment, tensor.Segment));
-        public T Subtract(ITensor tensor, float coefficient1, float coefficient2)           => Create(_lap.Subtract(Segment, tensor.Segment, coefficient1, coefficient2));
-        public void SubtractInPlace(ITensor tensor)                                         => _lap.SubtractInPlace(Segment, tensor.Segment);
-        public void SubtractInPlace(ITensor tensor, float coefficient1, float coefficient2) => _lap.SubtractInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
-        public T PointwiseMultiply(ITensor tensor)                                          => Create(_lap.PointwiseMultiply(Segment, tensor.Segment));
-        public void PointwiseMultiplyInPlace(ITensor tensor)                                => _lap.PointwiseMultiplyInPlace(Segment, tensor.Segment);
-        public T PointwiseDivide(ITensor tensor)                                            => Create(_lap.PointwiseDivide(Segment, tensor.Segment));
-        public void PointwiseDivideInPlace(ITensor tensor)                                  => _lap.PointwiseDivideInPlace(Segment, tensor.Segment);
-        public float DotProduct(ITensor tensor)                                             => _lap.DotProduct(Segment, tensor.Segment);
-        public T Sqrt()                                                                     => Create(_lap.Sqrt(Segment));
-        public uint? Search(float value, float tolerance)                                   => _lap.Search(Segment, value, tolerance);
-        public void ConstrainInPlace(float? minValue, float? maxValue)                      => _lap.ConstrainInPlace(Segment, minValue, maxValue);
-        public float Average()                                                              => _lap.Average(Segment);
-        public float L1Norm()                                                               => _lap.L1Norm(Segment);
-        public float L2Norm()                                                               => _lap.L2Norm(Segment);
-        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues()    => _lap.GetMinAndMaxValues(Segment);
-        public uint GetMinIndex()                                                           => _lap.GetMinIndex(Segment);
-        public uint GetMaxIndex()                                                           => _lap.GetMaxIndex(Segment);
-        public float GetMin()                                                               => _lap.GetMin(Segment);
-        public float GetMax()                                                               => _lap.GetMax(Segment);
-        public bool IsEntirelyFinite()                                                      => _lap.IsEntirelyFinite(Segment);
-        public T Reverse()                                                                  => Create(_lap.Reverse(Segment));
-        public IEnumerable<T> Split(uint blockCount)                                        => _lap.Split(Segment, blockCount).Select(Create);
-        public float CosineDistance(ITensor other)                                          => _lap.CosineDistance(Segment, other.Segment);
-        public float EuclideanDistance(ITensor other)                                       => _lap.EuclideanDistance(Segment, other.Segment);
-        public float MeanSquaredDistance(ITensor other)                                     => _lap.MeanSquaredDistance(Segment, other.Segment);
-        public float SquaredEuclideanDistance(ITensor other)                                => _lap.SquaredEuclideanDistance(Segment, other.Segment);
-        public float ManhattanDistance(ITensor other)                                       => _lap.ManhattanDistance(Segment, other.Segment);
-        public T Abs()                                                                      => Create(_lap.Abs(Segment));
-        public T Log()                                                                      => Create(_lap.Log(Segment));
-        public T Exp()                                                                      => Create(_lap.Exp(Segment));
-        public T Squared()                                                                  => Create(_lap.Squared(Segment));
-        public float StdDev(float? mean)                                                    => _lap.StdDev(Segment, mean);
-        public T Sigmoid()                                                                  => Create(_lap.Sigmoid(Segment));
-        public T SigmoidDerivative()                                                        => Create(_lap.SigmoidDerivative(Segment));
-        public T Tanh()                                                                     => Create(_lap.Tanh(Segment));
-        public T TanhDerivative()                                                           => Create(_lap.TanhDerivative(Segment));
-        public T Relu()                                                                     => Create(_lap.Relu(Segment));
-        public T ReluDerivative()                                                           => Create(_lap.ReluDerivative(Segment));
-        public T LeakyRelu()                                                                => Create(_lap.LeakyRelu(Segment));
-        public T LeakyReluDerivative()                                                      => Create(_lap.LeakyReluDerivative(Segment));
-        public T Softmax()                                                                  => Create(_lap.Softmax(Segment));
-        public IMatrix SoftmaxDerivative()                                                  => _lap.SoftmaxDerivative(Segment);
-        public T Pow(float power)                                                           => Create(_lap.Pow(Segment, power));
-        public void RoundInPlace(float lower, float upper)                                  => _lap.RoundInPlace(Segment, lower, upper);
-        public T CherryPick(uint[] indices)                                                 => Create(_lap.CherryPickIndices(Segment, indices));
-        public void L1RegularisationInPlace(float coefficient)                                     => _lap.L1Regularisation(Segment, coefficient);
-        public float Sum()                                                                  => _lap.Sum(Segment);
+        ITensor ITensor.Clone() => Create(Lap.Clone(Segment));
+
+        /// <inheritdoc />
+        public T Clone() => Create(Lap.Clone(Segment));
+
+        /// <inheritdoc />
+        public void Clear() => Segment.Clear();
+
+        /// <inheritdoc />
+        public T Add(ITensor tensor) => Create(Lap.Add(Segment, tensor.Segment));
+
+        /// <inheritdoc />
+        public T Add(ITensor tensor, float coefficient1, float coefficient2) => Create(Lap.Add(Segment, tensor.Segment, coefficient1, coefficient2));
+
+        /// <inheritdoc />
+        public T Add(float scalar) => Create(Lap.Add(Segment, scalar));
+
+        /// <inheritdoc />
+        public void AddInPlace(ITensor tensor) => Lap.AddInPlace(Segment, tensor.Segment);
+
+        /// <inheritdoc />
+        public void AddInPlace(ITensor tensor, float coefficient1, float coefficient2) => Lap.AddInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
+
+        /// <inheritdoc />
+        public void AddInPlace(float scalar) => Lap.AddInPlace(Segment, scalar);
+
+        /// <inheritdoc />
+        public void MultiplyInPlace(float scalar) => Lap.MultiplyInPlace(Segment, scalar);
+
+        /// <inheritdoc />
+        public T Multiply(float scalar) => Create(Lap.Multiply(Segment, scalar));
+
+        /// <inheritdoc />
+        public T Subtract(ITensor tensor) => Create(Lap.Subtract(Segment, tensor.Segment));
+
+        /// <inheritdoc />
+        public T Subtract(ITensor tensor, float coefficient1, float coefficient2) => Create(Lap.Subtract(Segment, tensor.Segment, coefficient1, coefficient2));
+
+        /// <inheritdoc />
+        public void SubtractInPlace(ITensor tensor) => Lap.SubtractInPlace(Segment, tensor.Segment);
+
+        /// <inheritdoc />
+        public void SubtractInPlace(ITensor tensor, float coefficient1, float coefficient2) => Lap.SubtractInPlace(Segment, tensor.Segment, coefficient1, coefficient2);
+
+        /// <inheritdoc />
+        public T PointwiseMultiply(ITensor tensor) => Create(Lap.PointwiseMultiply(Segment, tensor.Segment));
+
+        /// <inheritdoc />
+        public void PointwiseMultiplyInPlace(ITensor tensor) => Lap.PointwiseMultiplyInPlace(Segment, tensor.Segment);
+
+        /// <inheritdoc />
+        public T PointwiseDivide(ITensor tensor) => Create(Lap.PointwiseDivide(Segment, tensor.Segment));
+
+        /// <inheritdoc />
+        public void PointwiseDivideInPlace(ITensor tensor) => Lap.PointwiseDivideInPlace(Segment, tensor.Segment);
+
+        /// <inheritdoc />
+        public float DotProduct(ITensor tensor) => Lap.DotProduct(Segment, tensor.Segment);
+
+        /// <inheritdoc />
+        public T Sqrt() => Create(Lap.Sqrt(Segment));
+
+        /// <inheritdoc />
+        public uint? Search(float value, float tolerance) => Lap.Search(Segment, value, tolerance);
+
+        /// <inheritdoc />
+        public void ConstrainInPlace(float? minValue, float? maxValue) => Lap.ConstrainInPlace(Segment, minValue, maxValue);
+
+        /// <inheritdoc />
+        public float Average() => Lap.Average(Segment);
+
+        /// <inheritdoc />
+        public float L1Norm() => Lap.L1Norm(Segment);
+
+        /// <inheritdoc />
+        public float L2Norm() => Lap.L2Norm(Segment);
+
+        /// <inheritdoc />
+        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Lap.GetMinAndMaxValues(Segment);
+
+        /// <inheritdoc />
+        public uint GetMinIndex() => Lap.GetMinIndex(Segment);
+
+        /// <inheritdoc />
+        public uint GetMaxIndex() => Lap.GetMaxIndex(Segment);
+
+        /// <inheritdoc />
+        public float GetMin() => Lap.GetMin(Segment);
+
+        /// <inheritdoc />
+        public float GetMax() => Lap.GetMax(Segment);
+
+        /// <inheritdoc />
+        public bool IsEntirelyFinite() => Lap.IsEntirelyFinite(Segment);
+
+        /// <inheritdoc />
+        public T Reverse() => Create(Lap.Reverse(Segment));
+
+        /// <inheritdoc />
+        public IEnumerable<T> Split(uint blockCount) => Lap.Split(Segment, blockCount).Select(Create);
+
+        /// <inheritdoc />
+        public float CosineDistance(ITensor other) => Lap.CosineDistance(Segment, other.Segment);
+
+        /// <inheritdoc />
+        public float EuclideanDistance(ITensor other) => Lap.EuclideanDistance(Segment, other.Segment);
+
+        /// <inheritdoc />
+        public float MeanSquaredDistance(ITensor other) => Lap.MeanSquaredDistance(Segment, other.Segment);
+
+        /// <inheritdoc />
+        public float SquaredEuclideanDistance(ITensor other) => Lap.SquaredEuclideanDistance(Segment, other.Segment);
+
+        /// <inheritdoc />
+        public float ManhattanDistance(ITensor other) => Lap.ManhattanDistance(Segment, other.Segment);
+
+        /// <inheritdoc />
+        public T Abs() => Create(Lap.Abs(Segment));
+
+        /// <inheritdoc />
+        public T Log() => Create(Lap.Log(Segment));
+
+        /// <inheritdoc />
+        public T Exp() => Create(Lap.Exp(Segment));
+
+        /// <inheritdoc />
+        public T Squared() => Create(Lap.Squared(Segment));
+
+        /// <inheritdoc />
+        public float StdDev(float? mean) => Lap.StdDev(Segment, mean);
+
+        /// <inheritdoc />
+        public T Sigmoid() => Create(Lap.Sigmoid(Segment));
+
+        /// <inheritdoc />
+        public T SigmoidDerivative() => Create(Lap.SigmoidDerivative(Segment));
+
+        /// <inheritdoc />
+        public T Tanh() => Create(Lap.Tanh(Segment));
+
+        /// <inheritdoc />
+        public T TanhDerivative() => Create(Lap.TanhDerivative(Segment));
+
+        /// <inheritdoc />
+        public T Relu() => Create(Lap.Relu(Segment));
+
+        /// <inheritdoc />
+        public T ReluDerivative() => Create(Lap.ReluDerivative(Segment));
+
+        /// <inheritdoc />
+        public T LeakyRelu() => Create(Lap.LeakyRelu(Segment));
+
+        /// <inheritdoc />
+        public T LeakyReluDerivative() => Create(Lap.LeakyReluDerivative(Segment));
+
+        /// <inheritdoc />
+        public T Softmax() => Create(Lap.Softmax(Segment));
+
+        /// <inheritdoc />
+        public IMatrix SoftmaxDerivative() => Lap.SoftmaxDerivative(Segment);
+
+        /// <inheritdoc />
+        public T Pow(float power) => Create(Lap.Pow(Segment, power));
+
+        /// <inheritdoc />
+        public void RoundInPlace(float lower, float upper) => Lap.RoundInPlace(Segment, lower, upper);
+
+        /// <inheritdoc />
+        public T CherryPick(uint[] indices) => Create(Lap.CherryPickIndices(Segment, indices));
+
+        /// <inheritdoc />
+        public void L1RegularisationInPlace(float coefficient) => Lap.L1Regularisation(Segment, coefficient);
+
+        /// <inheritdoc />
+        public float Sum() => Lap.Sum(Segment);
     }
 }

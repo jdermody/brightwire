@@ -72,11 +72,11 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
         public IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
         public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
-            ? RowCount.AsRange().Select(i => Row(i).ToNewArray().ToVectorInfo()).ToArray()
+            ? RowCount.AsRange().Select(i => Row(i).ToNewArray().ToReadOnlyVector()).ToArray()
             : RowCount.AsRange().Select(GetRow).ToArray()
         ;
         public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
-            ? ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToVectorInfo()).ToArray()
+            ? ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToReadOnlyVector()).ToArray()
             : ColumnCount.AsRange().Select(GetColumn).ToArray()
         ;
         public override string ToString()

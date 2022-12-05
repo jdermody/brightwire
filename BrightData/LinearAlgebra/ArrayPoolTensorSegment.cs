@@ -7,24 +7,35 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
+    /// <summary>
+    /// A tensor segment that temporarily owns a buffer from an array pool
+    /// </summary>
     public class ArrayPoolTensorSegment : ITensorSegment
     {
         readonly MemoryOwner<float> _data;
         readonly float[] _array;
         int _refCount = 0;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="data">Rented buffer from pool</param>
         public ArrayPoolTensorSegment(MemoryOwner<float> data)
         {
             _data = data;
             _array = data.DangerousGetArray().Array!;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Release();
         }
 
+        /// <inheritdoc />
         public int AddRef() => Interlocked.Increment(ref _refCount);
+
+        /// <inheritdoc />
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
@@ -36,35 +47,47 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <inheritdoc />
         public bool IsValid { get; private set; } = true;
+
+        /// <inheritdoc />
         public uint Size => (uint)_data.Length;
+
+        /// <inheritdoc />
         public string SegmentType => "memory owner";
+
+        /// <inheritdoc />
         public bool IsWrapper => false;
 
+        /// <inheritdoc />
         public float this[int index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
+        /// <inheritdoc />
         public float this[uint index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
+        /// <inheritdoc />
         public float this[long index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
+        /// <inheritdoc />
         public float this[ulong index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
+        /// <inheritdoc />
         public IEnumerable<float> Values
         {
             get
@@ -73,9 +96,17 @@ namespace BrightData.LinearAlgebra
                     yield return _array[i];
             }
         }
+
+        /// <inheritdoc />
         public float[] GetArrayIfEasilyAvailable() => _array;
+
+        /// <inheritdoc />
         public float[] ToNewArray() => _data.Span.ToArray();
+
+        /// <inheritdoc />
         public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _data.Span : _data.Span[(int)targetOffset..]);
+
+        /// <inheritdoc />
         public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             var span = GetSpan(sourceOffset);
@@ -86,7 +117,10 @@ namespace BrightData.LinearAlgebra
                 segment.CopyFrom(span, targetOffset);
         }
 
+        /// <inheritdoc />
         public void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
+
+        /// <inheritdoc />
         public unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count)
         {
             fixed (float* ptr = &_array[sourceOffset]) {
@@ -98,6 +132,7 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <inheritdoc />
         public unsafe void Clear()
         {
             fixed (float* ptr = &_array[0]) {
@@ -105,15 +140,20 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <inheritdoc />
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return _array.AsSpan(0, (int)Size);
         }
 
+        /// <inheritdoc />
         public ReadOnlySpan<float> GetSpan(uint offset = 0) => _array.AsSpan((int)offset, (int)Size);
+
+        /// <inheritdoc />
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_array, 0, 1);
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var preview = String.Join("|", Values.Take(8));

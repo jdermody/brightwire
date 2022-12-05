@@ -103,6 +103,12 @@ namespace BrightData.Serialisation
             }
         }
 
+        /// <summary>
+        /// Writes an array of arrays to a binary writer
+        /// </summary>
+        /// <param name="arrayOfArrays"></param>
+        /// <param name="writer"></param>
+        /// <typeparam name="T"></typeparam>
         public static void WriteTo<T>(this T[][]? arrayOfArrays, BinaryWriter writer) where T : struct
         {
             writer.Write(arrayOfArrays?.Length ?? 0);
@@ -115,6 +121,12 @@ namespace BrightData.Serialisation
             }
         }
 
+        /// <summary>
+        /// Reads an array of arrays from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         public static T[][] ReadArrayOfArrays<T>(this BinaryReader reader) where T: struct
         {
             var count = reader.ReadInt32();

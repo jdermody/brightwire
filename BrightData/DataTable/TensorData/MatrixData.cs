@@ -60,11 +60,11 @@ namespace BrightData.DataTable.TensorData
         public IReadOnlyVector GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
         public IReadOnlyVector GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
         public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
-            ? RowCount.AsRange().Select(i => GetRow(i).ToArray().ToVectorInfo()).ToArray()
+            ? RowCount.AsRange().Select(i => GetRow(i).ToArray().ToReadOnlyVector()).ToArray()
             : RowCount.AsRange().Select(GetRow).ToArray()
         ;
         public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
-            ? ColumnCount.AsRange().Select(i => GetColumn(i).ToArray().ToVectorInfo()).ToArray()
+            ? ColumnCount.AsRange().Select(i => GetColumn(i).ToArray().ToReadOnlyVector()).ToArray()
             : ColumnCount.AsRange().Select(GetColumn).ToArray()
         ;
 

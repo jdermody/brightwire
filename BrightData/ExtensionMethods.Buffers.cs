@@ -88,18 +88,36 @@ namespace BrightData
             };
         }
 
+        /// <summary>
+        /// Copies all values from a tensor segment into a float buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="segment"></param>
         public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment segment)
         {
             for(uint i = 0, len = segment.Size; i < len; i++)
                 buffer.Add(segment[i]);
         }
 
+        /// <summary>
+        /// Copies all values from a span into a float buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="span"></param>
         public static void CopyFrom(this IHybridBuffer<float> buffer, ReadOnlySpan<float> span)
         {
             for(int i = 0, len = span.Length; i < len; i++)
                 buffer.Add(span[i]);
         }
 
+        /// <summary>
+        /// Creates a mutable typed segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context">Bright data context</param>
+        /// <param name="metaData">Segment meta data</param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static (ITypedSegment<T> Segment, IHybridBufferWithMetaData<T> Buffer) GetSegmentWithHybridBuffer<T>(this BrightDataContext context, MetaData metaData, IHybridBuffer<T> buffer) where T : notnull
         {
             var ret = new HybridBufferSegment<T>(context, typeof(T).GetBrightDataType(), metaData, buffer);
