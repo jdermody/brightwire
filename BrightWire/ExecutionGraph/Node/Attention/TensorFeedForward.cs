@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.Get3DTensor();
-            var depth = tensor.Depth;
+            var depth = tensor!.Depth;
             var output = new IMatrix[depth];
             Func<IBackpropagate>?[]? backProp = null;
 

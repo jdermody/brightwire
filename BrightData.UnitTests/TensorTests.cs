@@ -332,7 +332,7 @@ namespace BrightData.UnitTests
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
             if (calculateIndices) {
                 FloatMath.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
-                using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride);
+                using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
                 FloatMath.AreApproximatelyEqual(gpuReverseMaxPool, cpuReverseMaxPool);
             }
 
@@ -340,7 +340,7 @@ namespace BrightData.UnitTests
             var (mklMaxPool, mklIndices) = mklTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
             if (calculateIndices) {
                 FloatMath.AreApproximatelyEqual(mklIndices!, cpuIndices!);
-                using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices, rows, columns, filterWidth, filterHeight, xStride, yStride);
+                using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
                 FloatMath.AreApproximatelyEqual(mklReverseMaxPool, cpuReverseMaxPool);
             }
 

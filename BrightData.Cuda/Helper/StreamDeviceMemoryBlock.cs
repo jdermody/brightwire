@@ -17,15 +17,18 @@ namespace BrightData.Cuda.Helper
         readonly CUstream _stream;
         readonly bool _isStreamOwner;
 
-        public StreamDeviceMemoryBlock(CUstream stream, uint size, bool isStreamOwner)
+        public StreamDeviceMemoryBlock(CUstream stream, uint size, bool isStreamOwner) : base(Create(stream, size))
         {
             _stream = stream;
             _isStreamOwner = isStreamOwner;
+        }
 
+        static CudaDeviceVariable<float> Create(CUstream stream, uint size)
+        {
             var ptr = new CUdeviceptr();
             var sizeInBytes = size * sizeof(float);
             DriverAPINativeMethods.MemoryManagement.cuMemAllocAsync(ref ptr, sizeInBytes, stream).CheckResult();
-            _data = new CudaDeviceVariable<float>(ptr, false);
+            return new CudaDeviceVariable<float>(ptr, false);
         }
 
         protected override void OnDispose()

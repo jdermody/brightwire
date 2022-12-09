@@ -922,12 +922,6 @@ namespace BrightData
         void MapIndexedInPlace(Func<uint, float, float> mutator);
 
         /// <summary>
-        /// Calculates the softmax derivative of this vector
-        /// </summary>
-        /// <returns></returns>
-        IMatrix SoftmaxDerivative();
-
-        /// <summary>
         /// Returns all values in an array
         /// </summary>
         /// <returns></returns>

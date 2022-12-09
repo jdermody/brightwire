@@ -13,6 +13,11 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
+        /// Hardware dependent size of a numeric vector of floats
+        /// </summary>
+        public static readonly int NumericsVectorSize = Vector<float>.Count;
+
+        /// <summary>
         /// Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
         /// </summary>
         /// <param name="v1">First vector</param>
@@ -28,8 +33,8 @@ namespace BrightData
             if (length >= Consts.MinimumSizeForVectorised) {
                 var leftVec = MemoryMarshal.Cast<float, Vector<float>>(v1);
                 var rightVec = MemoryMarshal.Cast<float, Vector<float>>(v2);
-                var numVectors = length / SpanExtensions.NumericsVectorSize;
-                var nextIndex = numVectors * SpanExtensions.NumericsVectorSize;
+                var numVectors = length / NumericsVectorSize;
+                var nextIndex = numVectors * NumericsVectorSize;
                 Vector<float> ab = new(0f), aa = new(0f), bb = new(0f);
                 for (var i = 0; i < numVectors; i++) {
                     ab += leftVec[i] * rightVec[i];

@@ -865,7 +865,7 @@ namespace BrightData.Cuda
             throw new Exception("CUDA tensors can only be used with other CUDA tensors");
         }
 
-        public IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
+        public override IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
         {
             return new CudaMatrix(CreateSegment(rows * columns, initialiseToZero), rows, columns, this);
         }

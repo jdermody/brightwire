@@ -18,15 +18,18 @@ namespace BrightData.Cuda.Helper
     {
         readonly MemoryPool? _memoryPool = null;
 
-        public DeviceMemoryBlock(uint size)
+        public DeviceMemoryBlock(uint size) : base(Create(size))
+        {
+        }
+        static CudaDeviceVariable<float> Create(uint size)
         {
             var sizeInBytes = size * CudaProvider.FloatSize;
-	        var ptr = new CUdeviceptr();
-	        var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
+            var ptr = new CUdeviceptr();
+            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
             CudaProvider.CheckForError(result);
-            _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
+            return new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
         }
-        public DeviceMemoryBlock(MemoryPool? memoryPool, CudaDeviceVariable<float> data)
+        public DeviceMemoryBlock(MemoryPool? memoryPool, CudaDeviceVariable<float> data) : base(data)
         {
             _data = data;
             _memoryPool = memoryPool;

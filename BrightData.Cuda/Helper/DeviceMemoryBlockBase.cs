@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using BrightData.Helper;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
@@ -25,8 +22,9 @@ namespace BrightData.Cuda.Helper
         static readonly long _badDispose = -1;
         static readonly ThreadSafeHashSet<DeviceMemoryBlockBase> AllocatedBlocks = new();
 #endif
-        protected DeviceMemoryBlockBase()
+        protected DeviceMemoryBlockBase(CudaDeviceVariable<float> data)
         {
+            _data = data;
             Index = Interlocked.Increment(ref _nextIndex);
 #if DEBUG
             AllocatedBlocks.Add(this);

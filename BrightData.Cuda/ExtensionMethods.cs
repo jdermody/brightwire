@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,7 +49,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        public static bool IsCuda(this LinearAlgebraProvider lap, out CudaLinearAlgebraProvider cuda)
+        public static bool IsCuda(this LinearAlgebraProvider lap, [NotNullWhen(true)]out CudaLinearAlgebraProvider? cuda)
         {
             if (lap.ProviderName == CudaLinearAlgebraProvider.Name) {
                 cuda = (CudaLinearAlgebraProvider)lap;

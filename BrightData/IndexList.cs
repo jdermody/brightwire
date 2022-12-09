@@ -13,7 +13,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
+    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
     {
         readonly uint[] _indices;
 
@@ -83,6 +83,22 @@ namespace BrightData
         {
             return obj is IndexList other && Equals(other);
         }
+
+        /// <summary>
+        /// Checks for index list equality
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator ==(IndexList lhs, IndexList rhs) => lhs.Equals(rhs);
+
+        /// <summary>
+        /// Checks for index list inequality
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator !=(IndexList lhs, IndexList rhs) => !(lhs.Equals(rhs));
 
         /// <summary>
         /// Merges a sequence of index lists into a single index list
@@ -208,7 +224,29 @@ namespace BrightData
         /// <returns></returns>
         public bool HasIndex(uint index) => Indices.Contains(index);
 
-        // TODO: pearson similarity, overlap similarity
-        // use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
+        //public float PearsonSimilarity(IndexList other)
+        //{
+        //    var set = new HashSet<uint>(_indices);
+        //    var overlap = other.Indices.Where(set.Contains).Count();
+        //    float numerator = 2 * overlap;
+        //    float denominator = Count + other.Count;
+        //    if (denominator == 0)
+        //        return 0;
+        //    return numerator / denominator;
+        //}
+
+        /// <summary>
+        /// Calculates the overlap similarity between this and another index list
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public float OverlapSimilarity(IndexList other)
+        {
+            var set = new HashSet<uint>(_indices);
+            var overlap = other.Indices.Where(set.Contains).Count();
+            return (float)overlap / Math.Min(Count, other.Count);
+        }
+
+        // TODO: use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
     }
 }

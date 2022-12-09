@@ -233,7 +233,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="columnCount">Number of columns</param>
         /// <param name="initialiseToZero">True to initialize each value to zero</param>
         /// <returns></returns>
-        public IMatrix CreateMatrix(uint rowCount, uint columnCount, bool initialiseToZero) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount, initialiseToZero));
+        public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, bool initialiseToZero) => CreateMatrix(rowCount, columnCount, CreateSegment(rowCount * columnCount, initialiseToZero));
 
         /// <summary>
         /// Creates a matrix
@@ -429,13 +429,59 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        // 3D tensor creation
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rowCount">Rows in each matrix</param>
+        /// <param name="columnCount">Columns in each matrix</param>
+        /// <param name="data">Tensor segment</param>
+        /// <returns></returns>
         public virtual ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor3D(data, depth, rowCount, columnCount, this);
+
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rowCount">Rows in each matrix</param>
+        /// <param name="columnCount">Columns in each matrix</param>
+        /// <param name="initialiseToZero">True to initialize each value to zero</param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, bool initialiseToZero) => CreateTensor3D(depth, rowCount, columnCount, CreateSegment(depth * rowCount * columnCount, initialiseToZero));
+        
+        /// <summary>
+        /// Creates a 3D tensor from existing matrices
+        /// </summary>
+        /// <param name="matrices">Matrices that will form the 3D tensor</param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3D(params IMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
+
+        /// <summary>
+        /// Creates a 3D tensor from existing matrices
+        /// </summary>
+        /// <param name="matrices">Matrices that will form the 3D tensor</param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3D(params IReadOnlyMatrix[] matrices) => CreateTensor3D(matrices.AsSpan());
+
+        /// <summary>
+        /// Creates a 3D tensor from another 3D tensor (clone)
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3D(ITensor3D tensor) => CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
+
+        /// <summary>
+        /// Creates a 3D tensor from a read only 3D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3D(IReadOnlyTensor3D tensor) => CreateTensor3D(tensor.AllMatrices());
+
+        /// <summary>
+        /// Creates a 3D tensor from existing matrices and then disposes each matrix
+        /// </summary>
+        /// <param name="matrices"></param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3DAndThenDisposeInput(params IMatrix[] matrices)
         {
             try {
@@ -446,6 +492,12 @@ namespace BrightData.LinearAlgebra
                     item.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a 3D tensor from existing matrices and then disposes each matrix
+        /// </summary>
+        /// <param name="matrices"></param>
+        /// <returns></returns>
         public ITensor3D CreateTensor3DAndThenDisposeInput(Span<IMatrix> matrices)
         {
             try {
@@ -456,6 +508,14 @@ namespace BrightData.LinearAlgebra
                     item.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a 3D tensor from existing matrices
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="matrices"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public ITensor3D CreateTensor3D<T>(Span<T> matrices) where T : IReadOnlyMatrix
         {
             var first = matrices[0];
@@ -484,13 +544,61 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        // 4D tensor creation
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <param name="count">Number of 3D tensors</param>
+        /// <param name="depth">Number of matrices in each 3D tensor</param>
+        /// <param name="rowCount">Number of rows in each matrix</param>
+        /// <param name="columnCount">Number of columns in each matrix</param>
+        /// <param name="data">Tensor segment</param>
+        /// <returns></returns>
         public virtual ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new BrightTensor4D(data, count, depth, rowCount, columnCount, this);
+
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <param name="count">Number of 3D tensors</param>
+        /// <param name="depth">Number of matrices in each 3D tensor</param>
+        /// <param name="rowCount">Number of rows in each matrix</param>
+        /// <param name="columnCount">Number of columns in each matrix</param>
+        /// <param name="initialiseToZero">True to initialize each value to zero</param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, bool initialiseToZero) => CreateTensor4D(count, depth, rowCount, columnCount, CreateSegment(count * depth * rowCount * columnCount, initialiseToZero));
+
+        /// <summary>
+        /// Creates a 4D tensor from existing 3D tensors
+        /// </summary>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4D(params ITensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
+
+        /// <summary>
+        /// Creates a 4D tensor from existing 3D tensors
+        /// </summary>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4D(params IReadOnlyTensor3D[] tensors) => CreateTensor4D(tensors.AsSpan());
+
+        /// <summary>
+        /// Clones this 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4D(ITensor4D tensor) => CreateTensor4D(tensor.Count, tensor.Depth, tensor.RowCount, tensor.ColumnCount, Clone(tensor.Segment));
+
+        /// <summary>
+        /// Creates a 4D tensor from an existing 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4D(IReadOnlyTensor4D tensor) => tensor.Create(this);
+
+        /// <summary>
+        /// Creates a 4D tensor from existing 3D tensors and then disposes each 3D tensor
+        /// </summary>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4DAndThenDisposeInput(params ITensor3D[] tensors)
         {
             try {
@@ -501,6 +609,12 @@ namespace BrightData.LinearAlgebra
                     item.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a 4D tensor from existing 3D tensors and then disposes each 3D tensor
+        /// </summary>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
         public ITensor4D CreateTensor4DAndThenDisposeInput(Span<ITensor3D> tensors)
         {
             try {
@@ -511,6 +625,14 @@ namespace BrightData.LinearAlgebra
                     item.Dispose();
             }
         }
+
+        /// <summary>
+        /// Creates a 4D tensor from existing 3D tensors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public ITensor4D CreateTensor4D<T>(Span<T> tensors) where T: IReadOnlyTensor3D
         {
             var first = tensors[0];
@@ -538,6 +660,13 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Returns the size from both tensors (the size is expected to be the same)
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="tensor2"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Throws an exception if the tensors are a different size</exception>
         protected static uint GetSize(ITensorSegment tensor, ITensorSegment tensor2)
         {
             if (tensor.Size != tensor2.Size)
@@ -545,6 +674,8 @@ namespace BrightData.LinearAlgebra
             return tensor.Size;
         }
 
+
+#pragma warning disable CS1591
         public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => tensor.Add(tensor2);
         public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
         public virtual ITensorSegment Add(ITensorSegment tensor, float scalar) => tensor.Add(scalar);
@@ -680,7 +811,7 @@ namespace BrightData.LinearAlgebra
         unsafe IMatrix MultiplyWithThisTransposed(IMatrix transposedThis, IMatrix other)
         {
             var size = (int)other.RowCount;
-            var vectorSize = SpanExtensions.NumericsVectorSize;
+            var vectorSize = ExtensionMethods.NumericsVectorSize;
             var numVectors = size / vectorSize;
             var ceiling = numVectors * vectorSize;
 
@@ -1540,5 +1671,6 @@ namespace BrightData.LinearAlgebra
 
             return ret;
         }
+#pragma warning restore CS1591
     }
 }

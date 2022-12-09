@@ -2,64 +2,55 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
-using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
     /// <summary>
-    /// Extensions that work with a span of floats
+    /// Extensions that work with a span of numbers
     /// </summary>
     public static class SpanExtensions
     {
         /// <summary>
-        /// Hardware dependent size of a numeric vector of floats
-        /// </summary>
-        public static readonly int NumericsVectorSize = Vector<float>.Count;
-
-        /// <summary>
-        /// Callback to calculate a new vector of floats from two existing vectors
+        /// Callback to calculate a new vector of Ts from two existing vectors
         /// </summary>
         /// <param name="a">First input vector</param>
         /// <param name="b">Second input vector</param>
         /// <param name="r">Result (output) vector</param>
-        public delegate void ComputeVectorisedTwo(in Vector<float> a, in Vector<float> b, out Vector<float> r);
+        public delegate void ComputeVectorisedTwo<T>(in Vector<T> a, in Vector<T> b, out Vector<T> r) where T: unmanaged, INumber<T>;
 
         /// <summary>
-        /// Callback to calculate a new vector of floats from an existing vector
+        /// Callback to calculate a new vector of Ts from an existing vector
         /// </summary>
         /// <param name="a">Input vector</param>
         /// <param name="r">Result (output) vector</param>
-        public delegate void ComputeVectorisedOne(in Vector<float> a, out Vector<float> r);
+        public delegate void ComputeVectorisedOne<T>(in Vector<T> a, out Vector<T> r) where T: unmanaged, INumber<T>;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<float> Allocate(int size) => MemoryOwner<float>.Allocate(size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
         
         /// <summary>
-        /// Creates a new buffer from applying an operation to each pair of elements from two spans
+        /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
         /// </summary>
-        /// <param name="segment"></param>
-        /// <param name="other"></param>
-        /// <param name="func"></param>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="func">Function that computes a new value from a pair of values</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> ZipParallel(
-            this ReadOnlySpan<float> segment, 
-            ReadOnlySpan<float> other, 
-            Func<float, float, float> func
-        ) {
-            var size = segment.Length;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> ZipParallel<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other, 
+            Func<T, T, T> func
+        ) where T: unmanaged, INumber<T> {
+            var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
-            var ret = Allocate(size);
+            var ret = Allocate<T>(size);
             var array = ret.DangerousGetArray().Array!;
-            fixed (float* xfp = &MemoryMarshal.GetReference(segment))
-            fixed (float* yfp = &MemoryMarshal.GetReference(other))
-            fixed (float* zfp = &array[0]){
+            fixed (T* xfp = &MemoryMarshal.GetReference(span))
+            fixed (T* yfp = &MemoryMarshal.GetReference(other))
+            fixed (T* zfp = &array[0]){
                 var xp = xfp;
                 var yp = yfp;
                 var zp = zfp;
@@ -75,55 +66,60 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Applies a function across each pair of elements from two vectors
+        /// Applies a function across each pair of elements from this and another span
         /// </summary>
-        /// <param name="segment">First vector</param>
-        /// <param name="other">Second vector</param>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
         /// <param name="func1">Vector callback</param>
         /// <param name="func2">Element callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> ZipVectorised(
-            this ReadOnlySpan<float> segment, 
-            ReadOnlySpan<float> other, 
-            ComputeVectorisedTwo func1,
-            Func<float, float, float> func2)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> ZipVectorised<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other, 
+            ComputeVectorisedTwo<T> func1,
+            Func<T, T, T> func2
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
+            var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = Allocate(size);
+            var ret = Allocate<T>(size);
             var resultPtr = ret.Span;
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
-                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(segment);
-                var rightVec = MemoryMarshal.Cast<float, Vector<float>>(other);
-                var resultVec = MemoryMarshal.Cast<float, Vector<float>>(resultPtr);
-                var numVectors = size / NumericsVectorSize;
-                nextIndex = numVectors * NumericsVectorSize;
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var rightVec = MemoryMarshal.Cast<T, Vector<T>>(other);
+                var resultVec = MemoryMarshal.Cast<T, Vector<T>>(resultPtr);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
                 for (var j = 0; j < numVectors; j++)
                     func1(leftVec[j], rightVec[j], out resultVec[j]);
             }
             for (; nextIndex < size; nextIndex++)
-                resultPtr[nextIndex] = func2(segment[nextIndex], other[nextIndex]);
+                resultPtr[nextIndex] = func2(span[nextIndex], other[nextIndex]);
             return ret;
         }
 
         /// <summary>
         /// Applies a callback to each item in the span
         /// </summary>
-        /// <param name="segment">Vector</param>
+        /// <param name="span">Vector</param>
         /// <param name="transformer">Callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<float> TransformParallel(this ReadOnlySpan<float> segment, Func<float, float> transformer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> TransformParallel<T>(
+            this ReadOnlySpan<T> span, 
+            Func<T, T> transformer
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
-            var ret = Allocate(size);
+            var size = span.Length;
+            var ret = Allocate<T>(size);
             var array = ret.DangerousGetArray().Array!;
 
-            fixed (float* xfp = &MemoryMarshal.GetReference(segment))
-            fixed (float* zfp = &array[0]) {
+            fixed (T* xfp = &MemoryMarshal.GetReference(span))
+            fixed (T* zfp = &array[0]) {
                 var xp = xfp;
                 var zp = zfp;
                 if (size >= Consts.MinimumSizeForParallel)
@@ -137,35 +133,52 @@ namespace BrightData
             return ret;
         }
 
-        ///
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TransformVectorised(
-            this ReadOnlySpan<float> segment, 
-            ComputeVectorisedOne transformer1, 
-            Func<float, float> transformer2)
+        /// <summary>
+        /// Creates a new span from an existing span via a vectorization function
+        /// </summary>
+        /// <param name="span">Input buffer</param>
+        /// <param name="transformer1">Vectorized transformer</param>
+        /// <param name="transformer2">Sequential transformer</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> TransformVectorised<T>(
+            this ReadOnlySpan<T> span, 
+            ComputeVectorisedOne<T> transformer1, 
+            Func<T, T> transformer2
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
-            var ret = Allocate(size);
+            var size = span.Length;
+            var ret = Allocate<T>(size);
             var resultPtr = ret.Span;
 
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
-                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(segment);
-                var resultVec = MemoryMarshal.Cast<float, Vector<float>>(resultPtr);
-                var numVectors = size / NumericsVectorSize;
-                nextIndex = numVectors * NumericsVectorSize;
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var resultVec = MemoryMarshal.Cast<T, Vector<T>>(resultPtr);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
                 for (var j = 0; j < numVectors; j++)
                     transformer1(leftVec[j], out resultVec[j]);
             }
             for (; nextIndex < size; nextIndex++)
-                resultPtr[nextIndex] = transformer2(segment[nextIndex]);
+                resultPtr[nextIndex] = transformer2(span[nextIndex]);
 
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TransformParallelIndexed(this ReadOnlySpan<float> segment, Func<uint, float> transformer)
+        /// <summary>
+        /// Creates a new span from an existing span via a function (possibly executed in parallel) that receives an index and returns a new value
+        /// </summary>
+        /// <param name="span">Input span</param>
+        /// <param name="transformer">Transformation function (possibly executed in parallel)</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> TransformParallelIndexed<T>(
+            this ReadOnlySpan<T> span, 
+            Func<uint, T> transformer
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
-            var ret = Allocate(size);
+            var size = span.Length;
+            var ret = Allocate<T>(size);
             var array = ret.DangerousGetArray().Array!;
 
             if(size >= Consts.MinimumSizeForParallel)
@@ -177,14 +190,25 @@ namespace BrightData
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void Mutate(this Span<float> segment, ReadOnlySpan<float> other, Func<float, float, float> func)
+        /// <summary>
+        /// Updates a buffer by applying an update function that receives pairs of values from this and another span
+        /// </summary>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="func">Update function</param>
+        /// <exception cref="ArgumentException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void Mutate<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other, 
+            Func<T, T, T> func
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
+            var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
-            fixed (float* xfp = &MemoryMarshal.GetReference(segment))
-            fixed (float* yfp = &MemoryMarshal.GetReference(other)) {
+            fixed (T* xfp = &MemoryMarshal.GetReference(span))
+            fixed (T* yfp = &MemoryMarshal.GetReference(other)) {
                 var xp = xfp;
                 var yp = yfp;
                 if (size >= Consts.MinimumSizeForParallel)
@@ -198,36 +222,54 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateVectorised(
-            this Span<float> segment, 
-            ReadOnlySpan<float> other, 
-            ComputeVectorisedTwo func1, 
-            Func<float, float, float> func2)
+        /// <summary>
+        /// Updates a buffer by applying a vectorized transformation function to each pair of elements in this and another span
+        /// </summary>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="transformer1">Vectorized transformer</param>
+        /// <param name="transformer2">Sequential transformer</param>
+        /// <exception cref="ArgumentException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateVectorised<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other, 
+            ComputeVectorisedTwo<T> transformer1, 
+            Func<T, T, T> transformer2
+        )where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
+            var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
-                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(segment);
-                var rightVec = MemoryMarshal.Cast<float, Vector<float>>(other);
-                var numVectors = size / NumericsVectorSize;
-                nextIndex = numVectors * NumericsVectorSize;
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var rightVec = MemoryMarshal.Cast<T, Vector<T>>(other);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
 
                 for (var i = 0; i < numVectors; i++) {
-                    func1(leftVec[i], rightVec[i], out var temp);
+                    transformer1(leftVec[i], rightVec[i], out var temp);
                     leftVec[i] = temp;
                 }
             }
             for (; nextIndex < size; nextIndex++)
-                segment[nextIndex] = func2(segment[nextIndex], other[nextIndex]);
+                span[nextIndex] = transformer2(span[nextIndex], other[nextIndex]);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace(this Span<float> segment, Func<float, float> mutator)
+        /// <summary>
+        /// Updates a span in place by applying a mutation function (potentially called in parallel) to each element
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="mutator"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace<T>(
+            this Span<T> span, 
+            Func<T, T> mutator
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
-            fixed (float* xfp = &MemoryMarshal.GetReference(segment)) {
+            var size = span.Length;
+            fixed (T* xfp = &MemoryMarshal.GetReference(span)) {
                 var xp = xfp;
                 if (size >= Consts.MinimumSizeForParallel)
                     Parallel.For(0, size, i => xp[i] = mutator(xp[i]));
@@ -240,219 +282,404 @@ namespace BrightData
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlaceVectorised(
-            this Span<float> segment, 
-            ComputeVectorisedOne mutator1, 
-            Func<float, float> mutator2)
+        /// <summary>
+        /// Updates a span in place by applying a vectorization function to each value
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="mutator1"></param>
+        /// <param name="mutator2"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlaceVectorised<T>(
+            this Span<T> span, 
+            ComputeVectorisedOne<T> mutator1, 
+            Func<T, T> mutator2
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
+            var size = span.Length;
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
-                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(segment);
-                var numVectors = size / NumericsVectorSize;
-                nextIndex = numVectors * NumericsVectorSize;
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
                 for (var i = 0; i < numVectors; i++) {
                     mutator1(leftVec[i], out var temp);
                     leftVec[i] = temp;
                 }
             }
             for (; nextIndex < size; nextIndex++)
-                segment[nextIndex] = mutator2(segment[nextIndex]);
+                span[nextIndex] = mutator2(span[nextIndex]);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float Sum(this Span<float> span) => Sum((ReadOnlySpan<float>)span);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe float Sum(this ReadOnlySpan<float> span)
+        /// <summary>
+        /// Calculates the sum of all values in this span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static T Sum<T>(this Span<T> span) where T: unmanaged, INumber<T> => Sum((ReadOnlySpan<T>)span);
+
+        /// <summary>
+        /// Calculates the sum of all values in this span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static T Sum<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
         {
-            var result = 0f;
             var size = span.Length;
+            var nextIndex = 0;
+            var ret = default(T);
 
-            if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
-                fixed (float* pSource = &MemoryMarshal.GetReference(span)) {
-                    var vResult = Vector128<float>.Zero;
-
-                    var i = 0;
-                    var lastBlockIndex = size - (size % 4);
-                    while (i < lastBlockIndex) {
-                        vResult = Sse.Add(vResult, Sse.LoadVector128(pSource + i));
-                        i += 4;
-                    }
-
-                    vResult = Sse3.HorizontalAdd(vResult, vResult);
-                    vResult = Sse3.HorizontalAdd(vResult, vResult);
-                    result = vResult.ToScalar();
-
-                    while (i < size) {
-                        result += pSource[i];
-                        i++;
-                    }
-                }
+            if (size >= Consts.MinimumSizeForVectorised) {
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
+                for (var i = 0; i < numVectors; i++)
+                    ret += Vector.Sum(leftVec[i]);
             }
-            else {
-                foreach (var item in span)
-                    result += item;
-            }
-            return result;
+            for (; nextIndex < size; nextIndex++)
+                ret += span[nextIndex];
+            return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Add(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b, 
+        /// <summary>
+        /// Returns a new buffer that contains this span added to another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b, 
             (a, b) => a + b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Add(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2, float coefficient1, float coefficient2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 + b * coefficient2,
+
+        /// <summary>
+        /// Returns a new buffer that contains this span added to another span where each value is multiplied by coefficients
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
+        /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
+            this ReadOnlySpan<T> span,
+            ReadOnlySpan<T> other, 
+            T coefficient1, 
+            T coefficient2
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 + b * coefficient2,
             (a, b) => a * coefficient1 + b * coefficient2
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Add(this ReadOnlySpan<float> tensor, float scalar)
+
+        /// <summary>
+        /// Returns a new buffer that contains each value added to a scalar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
+            this ReadOnlySpan<T> span,
+            T scalar
+        )where T: unmanaged, INumber<T>
         {
-            var scalarVector = new Vector<float>(scalar);
+            var scalarVector = new Vector<T>(scalar);
             return TransformVectorised(
-                tensor, 
-                (in Vector<float> a, out Vector<float> r) => r = a + scalarVector, 
+                span, 
+                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this Span<float> target, ReadOnlySpan<float> other) => MutateVectorised(
-            target, 
+
+        /// <summary>
+        /// Adds another span to this span in place
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b, 
             (a, b) => a + b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this Span<float> target, ReadOnlySpan<float> other, float coefficient1, float coefficient2) => MutateVectorised(
-            target, 
+
+        /// <summary>
+        /// Adds another span to this span and applies coefficients to each value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
+        /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other, 
+            T coefficient1, 
+            T coefficient2
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = (a * coefficient1) + (b * coefficient2), 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = (a * coefficient1) + (b * coefficient2), 
             (a,b) => (a * coefficient1) + (b * coefficient2)
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace(this Span<float> target, float scalar)
+        /// <summary>
+        /// Adds a scalar to each value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="scalar"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
+            this Span<T> span, 
+            T scalar
+        ) where T: unmanaged, INumber<T>
         {
-            var scalarVector = new Vector<float>(scalar);
+            var scalarVector = new Vector<T>(scalar);
             MutateInPlaceVectorised(
-                target, 
-                (in Vector<float> a, out Vector<float> r) => r = a + scalarVector, 
+                span, 
+                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector, 
                 a => a + scalar
             );
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MultiplyInPlace(this Span<float> target, float scalar)
+
+        /// <summary>
+        /// Multiplies each value by a scalar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="scalar"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MultiplyInPlace<T>(
+            this Span<T> span, 
+            T scalar
+        ) where T: unmanaged, INumber<T>
         {
-            var scalarVector = new Vector<float>(scalar);
+            var scalarVector = new Vector<T>(scalar);
             MutateInPlaceVectorised(
-                target, 
-                (in Vector<float> a, out Vector<float> r) => r = a * scalarVector, 
+                span, 
+                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Multiply(this ReadOnlySpan<float> target, float scalar)
+        /// <summary>
+        /// Creates a new buffer that contains each value multiplied by a scalar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Multiply<T>(
+            this ReadOnlySpan<T> span, 
+            T scalar
+        ) where T: unmanaged, INumber<T>
         {
-            var scalarVector = new Vector<float>(scalar);
+            var scalarVector = new Vector<T>(scalar);
             return TransformVectorised(
-                target, 
-                (in Vector<float> a, out Vector<float> r) => r = a * scalarVector, 
+                span, 
+                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector, 
                 a => a * scalar
             );
         } 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Subtract(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b, 
+        /// <summary>
+        /// Creates a new buffer in which each value in another span is subtracted from the values in this span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Subtract<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b, 
             (a, b) => a - b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Subtract(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2, float coefficient1, float coefficient2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+
+        /// <summary>
+        /// Creates a new buffer in which each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
+        /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Subtract<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other, 
+            T coefficient1, 
+            T coefficient2
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this Span<float> target, ReadOnlySpan<float> other) => MutateVectorised(
-            target, 
+        /// <summary>
+        /// Subtracts another span from this span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b, 
             (a, b) => a - b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace(this Span<float> target, ReadOnlySpan<float> other, float coefficient1, float coefficient2) => MutateVectorised(
-            target, 
+
+        /// <summary>
+        /// Modifies this span so that each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
+        /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other, 
+            T coefficient1, 
+            T coefficient2
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2, 
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
-        public static MemoryOwner<float> PointwiseMultiply(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b, 
+        /// <summary>
+        /// Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <returns></returns>
+        public static MemoryOwner<T> PointwiseMultiply<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b, 
             (a, b) => a * b
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseMultiplyInPlace(this Span<float> target, ReadOnlySpan<float> other) => MutateVectorised(
-            target, 
+        /// <summary>
+        /// Modifies this span so that each value is multiplied by the pairwise value from another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseMultiplyInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b, 
             (a, b) => a * b
         );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> PointwiseDivide(this ReadOnlySpan<float> tensor1, ReadOnlySpan<float> tensor2) => ZipVectorised(
-            tensor1, 
-            tensor2, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b, 
-            (a, b) => a / b
-        );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseDivideInPlace(this Span<float> target, ReadOnlySpan<float> other) => MutateVectorised(
-            target, 
+        /// <summary>
+        /// Creates a new buffer in which each value in this span is divided by the pairwise value from another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> PointwiseDivide<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => ZipVectorised(
+            span, 
             other, 
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b, 
             (a, b) => a / b
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float DotProduct(this ReadOnlySpan<float> segment, ReadOnlySpan<float> other)
+        /// <summary>
+        /// Modifies this span so that each value in this span is divided by the pairwise value from another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseDivideInPlace<T>(
+            this Span<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T> => MutateVectorised(
+            span, 
+            other, 
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b, 
+            (a, b) => a / b
+        );
+
+        /// <summary>
+        /// Calculates the dot product between this span and another span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span">This span</param>
+        /// <param name="other">Other span</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static T DotProduct<T>(
+            this ReadOnlySpan<T> span, 
+            ReadOnlySpan<T> other
+        ) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
+            var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
-            var ret = 0f;
+            var ret = default(T);
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
-                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(segment);
-                var rightVec = MemoryMarshal.Cast<float, Vector<float>>(other);
-                var numVectors = size / NumericsVectorSize;
-                nextIndex = numVectors * NumericsVectorSize;
+                var vectorSize = Vector<T>.Count;
+                var leftVec = MemoryMarshal.Cast<T, Vector<T>>(span);
+                var rightVec = MemoryMarshal.Cast<T, Vector<T>>(other);
+                var numVectors = size / vectorSize;
+                nextIndex = numVectors * vectorSize;
                 for (var j = 0; j < numVectors; j++)
                     ret += Vector.Dot(leftVec[j], rightVec[j]);
             }
             for(; nextIndex < size; nextIndex++)
-                ret += segment[nextIndex] * other[nextIndex];
+                ret += span[nextIndex] * other[nextIndex];
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Sqrt(this ReadOnlySpan<float> tensor, float adjustment = FloatMath.AlmostZero)
+        /// <summary>
+        /// Modifies this span so that each value falls between the min and max values
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        public static void ConstrainInPlace<T>(
+            this Span<T> span, 
+            T? minValue, 
+            T? maxValue
+        ) where T: unmanaged, INumber<T>
         {
-            Vector<float> adjustmentVector = new(adjustment);
-            return TransformVectorised(tensor, 
-                (in Vector<float> a, out Vector<float> r) => r = Vector.SquareRoot(a + adjustmentVector), 
-                x => MathF.Sqrt(x + adjustment)
-            );
-        }
-
-        public static uint? Search(this ReadOnlySpan<float> segment, float value)
-        {
-            uint? ret = null;
-            Analyse(segment, (v, index) => {
-                if (Math.Abs(value - v) < FloatMath.AlmostZero)
-                    ret = index;
-            });
-            return ret;
-        }
-
-        public static void ConstrainInPlace(this Span<float> segment, float? minValue, float? maxValue)
-        {
-            MutateInPlace(segment, value => {
+            MutateInPlace(span, value => {
                 if (minValue.HasValue && value.CompareTo(minValue.Value) < 0)
                     return minValue.Value;
                 if (maxValue.HasValue && value.CompareTo(maxValue.Value) > 0)
@@ -461,192 +688,76 @@ namespace BrightData
             });
         }
 
-        public static float Average(this ReadOnlySpan<float> segment) => Sum(segment) / segment.Length;
-
-        public static float L1Norm(this ReadOnlySpan<float> segment)
+        /// <summary>
+        /// Checks if each value in this span is finite (not NaN or Infinity)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static bool IsEntirelyFinite<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
         {
-            using var abs = Abs(segment);
-            return Sum(abs.Span);
-        }
-
-        public static float L2Norm(this ReadOnlySpan<float> segment)
-        {
-            using var squared = Squared(segment);
-            return FloatMath.Sqrt(Sum(squared.Span));
-        }
-
-        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this ReadOnlySpan<float> segment)
-        {
-            var min = float.MaxValue;
-            var max = float.MinValue;
-            var minIndex = uint.MaxValue;
-            var maxIndex = uint.MaxValue;
-
-            for(uint i = 0, len = (uint)segment.Length; i < len; i++) {
-                var value = segment[(int)i];
-                if (value.CompareTo(max) > 0) {
-                    max = value;
-                    maxIndex = i;
-                }
-
-                if (value.CompareTo(min) < 0) {
-                    min = value;
-                    minIndex = i;
-                }
-            }
-
-            return (min, max, minIndex, maxIndex);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static bool IsEntirelyFinite(this ReadOnlySpan<float> segment)
-        {
-            for(int i = 0, len = segment.Length; i < len; i++) {
-                var v = segment[i];
-                if (float.IsNaN(v) || float.IsInfinity(v))
+            for(int i = 0, len = span.Length; i < len; i++) {
+                var v = span[i];
+                if (T.IsNaN(v) || T.IsInfinity(v))
                     return false;
             }
 
             return true;
         }
 
-        public static unsafe MemoryOwner<float> Reverse(this ReadOnlySpan<float> segment)
+        /// <summary>
+        /// Reverses the span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public static unsafe MemoryOwner<T> Reverse<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
         {
-            var len = segment.Length - 1;
-            fixed (float* fp = &MemoryMarshal.GetReference(segment)) {
+            var len = span.Length - 1;
+            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
                 var p = fp;
-                return TransformParallelIndexed(segment, i => p[len - i]);
+                return TransformParallelIndexed(span, i => p[len - i]);
             }
         }
 
-        public static float CosineDistance(this ReadOnlySpan<float> tensor, ReadOnlySpan<float> other)
-        {
-            var ab = DotProduct(tensor, other);
-            var aa = DotProduct(tensor, tensor);
-            var bb = DotProduct(other, other);
-            return 1f - ab / (FloatMath.Sqrt(aa) * FloatMath.Sqrt(bb));
-        }
-
-        public static float EuclideanDistance(this ReadOnlySpan<float> tensor, ReadOnlySpan<float> other)
-        {
-            using var distance = Subtract(tensor, other);
-            using var squared = Squared(distance.Span);
-            return FloatMath.Sqrt(Sum(squared.Span));
-        }
-
-        public static float MeanSquaredDistance(this ReadOnlySpan<float> tensor, ReadOnlySpan<float> other)
-        {
-            using var diff = Subtract(tensor, other);
-            var num = L2Norm(diff.Span);
-            return num * num / diff.Length;
-        }
-
-        public static float SquaredEuclideanDistance(this ReadOnlySpan<float> tensor, ReadOnlySpan<float> other)
-        {
-            using var diff = Subtract(tensor, other);
-            var num = L2Norm(diff.Span);
-            return num * num;
-        }
-
-        public static float ManhattanDistance(this ReadOnlySpan<float> tensor, ReadOnlySpan<float> other)
-        {
-            using var distance = Subtract(tensor, other);
-            using var squared = Abs(distance.Span);
-            return Sum(squared.Span);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Abs(this ReadOnlySpan<float> tensor) => TransformVectorised(tensor, 
-            (in Vector<float> a, out Vector<float> r) => r = Vector.Abs(a),
-            MathF.Abs
-        );
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Log(this ReadOnlySpan<float> tensor) => TransformParallel(tensor, MathF.Log);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Exp(this ReadOnlySpan<float> tensor) => TransformParallel(tensor, MathF.Exp);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Pow(this ReadOnlySpan<float> segment, float power) => TransformParallel(segment, v => FloatMath.Pow(v, power));
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Squared(this ReadOnlySpan<float> tensor) => TransformVectorised(
-            tensor, 
-            (in Vector<float> a, out Vector<float> r) => r = a * a, 
+        /// <summary>
+        /// Creates a new buffer in which each value in this span is squared
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Squared<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T> => TransformVectorised(
+            span, 
+            (in Vector<T> a, out Vector<T> r) => r = a * a, 
             a => a * a
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float StdDev(this ReadOnlySpan<float> segment, float? mean)
+        /// <summary>
+        /// Creates a new buffer from the specified indices
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="arrayIndices"></param>
+        /// <returns></returns>
+        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, uint[] arrayIndices) where T: unmanaged, INumber<T>
         {
-            var avg = mean ?? Average(segment);
-            var avgVector = new Vector<float>(avg);
-            using var result = TransformVectorised(
-                segment, 
-                (in Vector<float> a, out Vector<float> r) => {
-                    var s = a - avgVector;
-                    r = s * s;
-                }, a => {
-                    var s = a - avg;
-                    return s * s;
-                }
-            );
-            return FloatMath.Sqrt(Average(result.Span));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Sigmoid(float val) => 1.0f / (1.0f + MathF.Exp(-1.0f * val));
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float SigmoidDerivative(float val)
-        {
-            var sigmoid = Sigmoid(val);
-            return sigmoid * (1.0f - sigmoid);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Tanh(float val) => MathF.Tanh(val);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float TanhDerivative(float val) => 1.0f - MathF.Pow(Tanh(val), 2);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float Relu(float val) => (val <= 0) ? 0 : val;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float ReluDerivative(float val) => (val <= 0) ? 0f : 1;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyRelu(float val) => (val <= 0) ? 0.01f * val : val;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static float LeakyReluDerivative(float val) => (val <= 0) ? 0.01f : 1;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Sigmoid(this ReadOnlySpan<float> segment) => TransformParallel(segment, Sigmoid);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> SigmoidDerivative(this ReadOnlySpan<float> segment) => TransformParallel(segment, SigmoidDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Tanh(this ReadOnlySpan<float> segment) => TransformParallel(segment, Tanh);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> TanhDerivative(this ReadOnlySpan<float> segment) => TransformParallel(segment, TanhDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Relu(this ReadOnlySpan<float> segment) => TransformParallel(segment, Relu);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> ReluDerivative(this ReadOnlySpan<float> segment) => TransformParallel(segment, ReluDerivative);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> LeakyRelu(this ReadOnlySpan<float> segment) => TransformParallel(segment, LeakyRelu);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> LeakyReluDerivative(this ReadOnlySpan<float> segment) => TransformParallel(segment, LeakyReluDerivative);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<float> Softmax(this ReadOnlySpan<float> segment)
-        {
-            var (_, max, _, _) = GetMinAndMaxValues(segment);
-            var softmax = segment.TransformParallel(v => MathF.Exp(v - max));
-            var span = softmax.Span;
-            var sum = Sum(span);
-            if (FloatMath.IsNotZero(sum))
-                MultiplyInPlace(span, 1f / sum);
-            return softmax;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe IMatrix SoftmaxDerivative(this ReadOnlySpan<float> segment, LinearAlgebraProvider lap)
-        {
-            fixed (float* fp = &MemoryMarshal.GetReference(segment)) {
-                var p = fp;
-                return lap.CreateMatrix((uint)segment.Length, (uint)segment.Length, (x, y) => x == y
-                    ? p[x] * (1 - p[x])
-                    : -p[x] * p[y]
-                );
-            }
-        }
-
-        public static MemoryOwner<float> CherryPickIndices(this ReadOnlySpan<float> segment, uint[] arrayIndices)
-        {
-            var ret = MemoryOwner<float>.Allocate(arrayIndices.Length);
+            var ret = MemoryOwner<T>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;
             for (int i = 0, len = arrayIndices.Length; i < len; i++)
-                ptr[i] = segment[(int)arrayIndices[i]];
+                ptr[i] = span[(int)arrayIndices[i]];
             return ret;
         }
-        
-        public static void RoundInPlace(this Span<float> segment, float lower, float upper, float? mid)
-        {
-            var compareTo = mid ?? lower + (upper - lower) / 2;
-            MutateInPlace(segment, v => v >= compareTo ? upper : lower);
-        }
 
-        public static unsafe void Analyse(ReadOnlySpan<float> segment, Action<float, uint> analyser)
+        /// <summary>
+        /// Applies a callback (that might be executed in parallel) against each element in this span and its index
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="analyser">Callback that receives each value and its index</param>
+        public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged, INumber<T>
         {
-            var size = segment.Length;
-            fixed (float* fp = &MemoryMarshal.GetReference(segment)) {
+            var size = span.Length;
+            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
                 var p = fp;
                 if (size >= Consts.MinimumSizeForParallel)
                     Parallel.For(0, size, i => analyser(p[i], (uint)i));
@@ -655,32 +766,6 @@ namespace BrightData
                         analyser(*p++, i);
                 }
             }
-        }
-
-        public static void L1Regularisation(this Span<float> segment, float coefficient)
-        {
-            for (int i = 0, len = segment.Length; i < len; i++) {
-                var val = segment[i];
-                segment[i] = val - (val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient;
-            }
-        }
-
-        public static void Set(this Span<float> segment, Func<uint, float> getValue)
-        {
-            for (uint i = 0, len = (uint)segment.Length; i < len; i++)
-                segment[(int)i] = getValue(i);
-        }
-
-        public static void Set(this Span<float> segment, float value)
-        {
-            for (int i = 0, len = segment.Length; i < len; i++)
-                segment[i] = value;
-        }
-
-        public static void SetToRandom(this Span<float> segment, Random random)
-        {
-            for (int i = 0, len = segment.Length; i < len; i++)
-                segment[i] = Convert.ToSingle(random.NextDouble());
         }
     }
 }
