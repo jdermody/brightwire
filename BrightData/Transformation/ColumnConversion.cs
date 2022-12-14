@@ -22,7 +22,7 @@ namespace BrightData.Transformation
                 _converter = converter;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 var converted = _converter(input);
                 buffer.Add(converted);
@@ -44,7 +44,7 @@ namespace BrightData.Transformation
         {
             protected abstract TT Convert(string str);
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")));
                 return true;
@@ -60,7 +60,7 @@ namespace BrightData.Transformation
 
         class AnyToString<T> : IConvertColumn<T, string> where T : notnull
         {
-            public bool Convert(T input, IHybridBuffer<string> buffer, uint index)
+            public bool Convert(T input, ICompositeBuffer<string> buffer, uint index)
             {
                 buffer.Add(input.ToString() ?? throw new Exception("String was null"));
                 return true;
@@ -85,7 +85,7 @@ namespace BrightData.Transformation
 
             public Type From { get; } = typeof(TF);
             public Type To { get; } = typeof(TT);
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 if (_list.MoveNext()) {
                     buffer.Add(_list.Current);
@@ -134,7 +134,7 @@ namespace BrightData.Transformation
                 _tokeniser = tokeniser;
             }
 
-            public bool Convert(string input, IHybridBuffer<IndexList> buffer, uint index)
+            public bool Convert(string input, ICompositeBuffer<IndexList> buffer, uint index)
             {
                 var indexList = IndexList.Create(_tokeniser(input, _stringIndexer));
                 buffer.Add(indexList);
@@ -163,7 +163,7 @@ namespace BrightData.Transformation
                 _converter = StaticConverters.GetConverter<TF, TT>();
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 buffer.Add(_converter.Convert(input));
                 return true;
@@ -188,7 +188,7 @@ namespace BrightData.Transformation
                 _finalise = finalise;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 buffer.Add(_converter(input));
                 return true;
@@ -266,7 +266,7 @@ namespace BrightData.Transformation
 
                 // to numeric
                 case ColumnConversionOperation.ToNumeric: {
-                    var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount);
+                    var buffer = tempStreams.CreateCompositeStructBuffer<double>(inMemoryRowCount);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     uint index = 0;

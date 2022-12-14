@@ -3,14 +3,14 @@ using System.IO;
 using System.Text;
 using BrightData.Serialisation;
 
-namespace BrightData.Buffer.Hybrid
+namespace BrightData.Buffer.Composite
 {
-    internal class ObjectHybridBuffer<T> : HybridBufferBase<T>
+    internal class CompositeObjectBuffer<T> : CompositeBufferBase<T>
         where T : IAmSerializable
     {
         readonly BrightDataContext _context;
 
-        public ObjectHybridBuffer(BrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
+        public CompositeObjectBuffer(BrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
         {
             _context = context;
         }

@@ -63,7 +63,7 @@ Install-Package BrightData.Cuda
 
 ### Unsupervised
 * K Means clustering
-* Hierachical clustering
+* Hierarchical clustering
 * Non Negative Matrix Factorisation
 * Random Projection
 

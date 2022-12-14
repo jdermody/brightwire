@@ -86,7 +86,7 @@ namespace BrightWire
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
-            return data.Keys.HierachicalCluster(k)
+            return data.Keys.HierarchicalCluster(k)
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 

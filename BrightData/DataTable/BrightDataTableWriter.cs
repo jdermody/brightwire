@@ -45,11 +45,11 @@ namespace BrightData.DataTable
                     throw new Exception("Columns have different sizes");
             }
 
-            var stringTableWriter   = new Lazy<IHybridBuffer<string>>(()                 => _context.CreateHybridStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
-            var tensorWriter        = new Lazy<IHybridBuffer<float>>(()                  => _context.CreateHybridStructBuffer<float>(_tempStreams, _inMemoryBufferSize, 0));
-            var byteWriter          = new Lazy<IHybridBuffer<byte>>(()                   => _context.CreateHybridStructBuffer<byte>(_tempStreams, 0));
-            var indexWriter         = new Lazy<IHybridBuffer<uint>>(()                   => _context.CreateHybridStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, 0));
-            var weightedIndexWriter = new Lazy<IHybridBuffer<WeightedIndexList.Item>>(() => _context.CreateHybridStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, 0));
+            var stringTableWriter   = new Lazy<ICompositeBuffer<string>>(()                 => _context.CreateCompositeStringBuffer(_tempStreams, _inMemoryBufferSize, _maxUniqueItemCount));
+            var tensorWriter        = new Lazy<ICompositeBuffer<float>>(()                  => _context.CreateCompositeStructBuffer<float>(_tempStreams, _inMemoryBufferSize, 0));
+            var byteWriter          = new Lazy<ICompositeBuffer<byte>>(()                   => _context.CreateCompositeStructBuffer<byte>(_tempStreams, 0));
+            var indexWriter         = new Lazy<ICompositeBuffer<uint>>(()                   => _context.CreateCompositeStructBuffer<uint>(_tempStreams, _inMemoryBufferSize, 0));
+            var weightedIndexWriter = new Lazy<ICompositeBuffer<WeightedIndexList.Item>>(() => _context.CreateCompositeStructBuffer<WeightedIndexList.Item>(_tempStreams, _inMemoryBufferSize, 0));
 
             // write the header
             var headers = new BrightDataTable.Header[1];
@@ -177,7 +177,7 @@ namespace BrightData.DataTable
         void WriteStructs<T>(ICanEnumerateWithSize<T> buffer) where T : struct =>
             Write<T, T>(buffer, (item, ptr, index) => ptr[index] = item);
         delegate ReadOnlySpan<IT> GetArray<in T, IT>(T item) where IT : struct;
-        void WriteDataRange<T, IT>(ICanEnumerateWithSize<T> buffer, IHybridBuffer<IT> indices, GetArray<T, IT> getArray)
+        void WriteDataRange<T, IT>(ICanEnumerateWithSize<T> buffer, ICompositeBuffer<IT> indices, GetArray<T, IT> getArray)
             where T : notnull
             where IT : struct
         {
@@ -191,16 +191,16 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteIndexLists(ICanEnumerateWithSize<IndexList> buffer, IHybridBuffer<uint> indices) =>
+        void WriteIndexLists(ICanEnumerateWithSize<IndexList> buffer, ICompositeBuffer<uint> indices) =>
             WriteDataRange(buffer, indices, indexList => indexList.AsSpan());
-        void WriteWeightedIndexLists(ICanEnumerateWithSize<WeightedIndexList> buffer, IHybridBuffer<WeightedIndexList.Item> indices) =>
+        void WriteWeightedIndexLists(ICanEnumerateWithSize<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices) =>
             WriteDataRange(buffer, indices, indexList => indexList.AsSpan());
-        void WriteBinaryData(ICanEnumerateWithSize<BinaryData> buffer, IHybridBuffer<byte> indices) =>
+        void WriteBinaryData(ICanEnumerateWithSize<BinaryData> buffer, ICompositeBuffer<byte> indices) =>
             WriteDataRange(buffer, indices, indexList => indexList.Data);
 
         void WriteStringData(
             ICanEnumerateWithSize<string> buffer,
-            IHybridBuffer<string> indices)
+            ICompositeBuffer<string> indices)
         {
             Write<string, uint>(buffer, (item, ptr, index) => {
                 if (indices.DistinctItems is not null && indices.DistinctItems.TryGetValue(item, out var stringIndex))
@@ -212,7 +212,7 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteVectors(ICanEnumerateWithSize<IReadOnlyVector> buffer, IHybridBuffer<float> floats)
+        void WriteVectors(ICanEnumerateWithSize<IReadOnlyVector> buffer, ICompositeBuffer<float> floats)
         {
             Write<IReadOnlyVector, DataRangeColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
@@ -226,7 +226,7 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteMatrices(ICanEnumerateWithSize<IReadOnlyMatrix> buffer, IHybridBuffer<float> floats)
+        void WriteMatrices(ICanEnumerateWithSize<IReadOnlyMatrix> buffer, ICompositeBuffer<float> floats)
         {
             Write<IReadOnlyMatrix, MatrixColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
@@ -241,7 +241,7 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor3D> buffer, IHybridBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats)
         {
             Write<IReadOnlyTensor3D, Tensor3DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
@@ -257,7 +257,7 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor4D> buffer, IHybridBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats)
         {
             Write<IReadOnlyTensor4D, Tensor4DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];

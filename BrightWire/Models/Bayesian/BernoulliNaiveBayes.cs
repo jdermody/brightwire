@@ -49,7 +49,7 @@ namespace BrightWire.Models.Bayesian
             public string Label { get; set; } = "";
 
             /// <summary>
-            /// The log of the prior probablilty for this classification
+            /// The log of the prior probability for this classification
             /// </summary>
             public double Prior { get; set; }
 

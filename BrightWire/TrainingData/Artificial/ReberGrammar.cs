@@ -122,7 +122,7 @@ namespace BrightWire.TrainingData.Artificial
         /// Generates an unlimited number of reber sequences
         /// </summary>
         /// <param name="minlength">Minimum length of the sequences (optional)</param>
-        /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+        /// <param name="maxLength">Minimum length of the sequences (optional)</param>
         public IEnumerable<string> Get(int? minlength = null, int? maxLength = null)
         {
             while (true) {
@@ -139,7 +139,7 @@ namespace BrightWire.TrainingData.Artificial
 	    /// Generates an unlimited number of extended reber sequences
 	    /// </summary>
 	    /// <param name="minlength">Minimum length of the sequences (optional)</param>
-	    /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+	    /// <param name="maxLength">Minimum length of the sequences (optional)</param>
 	    public IEnumerable<string> GetExtended(int? minlength = null, int? maxLength = null)
         {
             while (true) {

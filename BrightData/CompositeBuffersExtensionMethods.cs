@@ -1,13 +1,13 @@
 ﻿using System;
-using BrightData.Buffer.Hybrid;
+using BrightData.Buffer.Composite;
 using BrightData.Helper;
 
 namespace BrightData
 {
     /// <summary>
-    /// Static methods to create hybrid buffers
+    /// Static methods to create composite buffers
     /// </summary>
-    public static class HybridBuffersExtensionMethods
+    public static class CompositeBuffersExtensionMethods
     {
         /// <summary>
         /// Creates a buffer to store structs
@@ -17,10 +17,10 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
             where T : struct
         {
-            return GenericActivator.Create<IHybridBuffer<T>>(typeof(StructHybridBuffer<>).MakeGenericType(typeof(T)),
+            return GenericActivator.Create<ICompositeBuffer<T>>(typeof(CompositeStructBuffer<>).MakeGenericType(typeof(T)),
                 tempStream,
                 bufferSize,
                 maxDistinct
@@ -35,9 +35,9 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridStructBuffer(this IProvideTempStreams tempStream, Type type, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer CreateCompositeStructBuffer(this IProvideTempStreams tempStream, Type type, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
-            return GenericActivator.Create<IHybridBuffer>(typeof(StructHybridBuffer<>).MakeGenericType(type),
+            return GenericActivator.Create<ICompositeBuffer>(typeof(CompositeStructBuffer<>).MakeGenericType(type),
                 tempStream,
                 bufferSize,
                 maxDistinct
@@ -51,9 +51,9 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static IHybridBuffer<string> CreateHybridStringBuffer(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
-            return GenericActivator.Create<IHybridBuffer<string>>(typeof(StringHybridBuffer),
+            return GenericActivator.Create<ICompositeBuffer<string>>(typeof(CompositeStringBuffer),
                 tempStream,
                 bufferSize,
                 maxDistinct
@@ -68,9 +68,9 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IProvideTempStreams tempStream, BrightDataContext context, uint bufferSize = 32768) where T : notnull
+        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this IProvideTempStreams tempStream, BrightDataContext context, uint bufferSize = 32768) where T : notnull
         {
-            return GenericActivator.Create<IHybridBuffer<T>>(typeof(ObjectHybridBuffer<>).MakeGenericType(typeof(T)),
+            return GenericActivator.Create<ICompositeBuffer<T>>(typeof(CompositeObjectBuffer<>).MakeGenericType(typeof(T)),
                 context,
                 tempStream,
                 bufferSize
@@ -85,9 +85,9 @@ namespace BrightData
         /// <param name="type"></param>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridObjectBuffer(this IProvideTempStreams tempStream, BrightDataContext context, Type type, uint bufferSize = 32768)
+        public static ICompositeBuffer CreateCompositeObjectBuffer(this IProvideTempStreams tempStream, BrightDataContext context, Type type, uint bufferSize = 32768)
         {
-            return GenericActivator.Create<IHybridBuffer>(typeof(ObjectHybridBuffer<>).MakeGenericType(type),
+            return GenericActivator.Create<ICompositeBuffer>(typeof(CompositeObjectBuffer<>).MakeGenericType(type),
                 context,
                 tempStream,
                 bufferSize

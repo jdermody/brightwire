@@ -321,12 +321,12 @@ namespace BrightData
         /// <param name="buffer"></param>
         /// <param name="index">Index within the buffer</param>
         /// <returns></returns>
-        bool Convert(TF input, IHybridBuffer<TT> buffer, uint index);
+        bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index);
     }
 
 
     /// <summary>
-    /// Informtion about a column transformation
+    /// Information about a column transformation
     /// </summary>
     public interface IColumnTransformationParam
     {

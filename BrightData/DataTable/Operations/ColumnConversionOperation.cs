@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BrightData.Buffer.Hybrid;
+using BrightData.Buffer.Composite;
 
 namespace BrightData.DataTable.Operations
 {
@@ -7,14 +7,14 @@ namespace BrightData.DataTable.Operations
     {
         readonly ICanEnumerateDisposable<FT> _input;
         readonly IConvertColumn<FT, TT>      _converter;
-        readonly HybridBufferSegment<TT>     _outputBuffer;
+        readonly CompositeBufferSegment<TT>     _outputBuffer;
         readonly IEnumerator<FT>             _enumerator;
 
         public ColumnConversionOperation(
             uint rowCount,
             ICanEnumerateDisposable<FT> input, 
             IConvertColumn<FT, TT> converter, 
-            HybridBufferSegment<TT> outputBuffer
+            CompositeBufferSegment<TT> outputBuffer
         ) : base(rowCount, null)
         {
             _input = input;

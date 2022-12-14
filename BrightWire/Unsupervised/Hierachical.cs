@@ -6,10 +6,10 @@ using BrightData;
 namespace BrightWire.Unsupervised
 {
     /// <summary>
-    /// Hierachical clustering
+    /// Hierarchical clustering
     /// https://en.wikipedia.org/wiki/Hierarchical_clustering
     /// </summary>
-    internal class Hierachical : IDisposable
+    internal class Hierarchical : IDisposable
     {
         class Centroid : IDisposable
         {
@@ -79,7 +79,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new();
         readonly List<Centroid> _centroid;
 
-        public Hierachical(uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierarchical(uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;

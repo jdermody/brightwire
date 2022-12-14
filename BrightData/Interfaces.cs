@@ -319,9 +319,9 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Hybrid buffers write first to memory but then to disk once it's cache is exhausted
+    /// Composite buffers write first to memory but then to disk once it's cache is exhausted
     /// </summary>
-    public interface IHybridBuffer : ICanEnumerate, IHaveSize
+    public interface ICompositeBuffer : ICanEnumerate, IHaveSize
     {
         /// <summary>
         /// Copies the buffer to a stream
@@ -348,10 +348,10 @@ namespace BrightData
 
 
     /// <summary>
-    /// Typed hybrid buffer
+    /// Typed composite buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerateWithSize<T>, IAcceptSequentialTypedData<T>
+    public interface ICompositeBuffer<T> : ICompositeBuffer, ICanEnumerateWithSize<T>, IAcceptSequentialTypedData<T>
         where T : notnull
     {
         /// <summary>
@@ -361,25 +361,25 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Hybrid buffer with metadata
+    /// Composite buffer with metadata
     /// </summary>
-    public interface IHybridBufferWithMetaData : IHybridBuffer, IHaveMetaData
+    public interface ICompositeBufferWithMetaData : ICompositeBuffer, IHaveMetaData
     {
     }
 
     /// <summary>
-    /// Typed hybrid buffer with metadata
+    /// Typed composite buffer with metadata
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHybridBufferWithMetaData<T> : IHybridBuffer<T>, IHaveMetaData
+    public interface ICompositeBufferWithMetaData<T> : ICompositeBuffer<T>, IHaveMetaData
         where T : notnull
     {
     }
 
     /// <summary>
-    /// Type of hybrid buffer
+    /// Type of composite buffer
     /// </summary>
-    public enum HybridBufferType : byte
+    public enum CompositeBufferType : byte
     {
         /// <summary>
         /// Unknown type

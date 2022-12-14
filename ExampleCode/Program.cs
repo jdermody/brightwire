@@ -19,14 +19,6 @@ namespace ExampleCode
     {
         const int RandomSeed = 0;
 
-        enum Outcome
-        {
-            Red,
-            Green,
-            Blue,
-            Yellow
-        }
-
         static void Main()
         {
             using var context = new BrightDataContext(null, RandomSeed);
@@ -42,26 +34,24 @@ namespace ExampleCode
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
             //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //Xor(context, useMkl);
-            //IrisClassification(context, useMkl);
-            //IrisClustering(context, useMkl);
-            //MarkovChains(context, useMkl);
-            //TextClustering(context, useMkl);
-            //IntegerAddition(context, useMkl);
+            Xor(context, useMkl);
+            IrisClassification(context, useMkl);
+            IrisClustering(context, useMkl);
+            MarkovChains(context, useMkl);
+            TextClustering(context, useMkl);
+            IntegerAddition(context, useMkl);
             ReberPrediction(context, useMkl);
-            //OneToMany(context, useMkl);
-            //ManyToOne(context, useMkl);
-            //SequenceToSequence(context, useMkl, useCuda);
-            //StockData(context, useMkl, useCuda);
-            //SimpleLinearTest(context, useMkl);
-            //PredictBicyclesWithLinearModel(context, useMkl);
-            //PredictBicyclesWithNeuralNetwork(context, useMkl);
-            //MultiLabelSingleClassifier(context, useMkl);
-            //MultiLabelMultiClassifiers(context, useMkl);
-            //MnistFeedForward(context, useMkl);
-            //MnistConvolutional(context, useMkl, useCuda);
-            //TrainIncomePrediction(context, useMkl);
-            //SentimentClassification(context, useMkl, useCuda);
+            OneToMany(context, useMkl);
+            ManyToOne(context, useMkl);
+            SequenceToSequence(context, useMkl, useCuda);
+            StockData(context, useMkl, useCuda);
+            PredictBicyclesWithNeuralNetwork(context, useMkl);
+            MultiLabelSingleClassifier(context, useMkl);
+            MultiLabelMultiClassifiers(context, useMkl);
+            MnistFeedForward(context, useMkl);
+            MnistConvolutional(context, useMkl, useCuda);
+            TrainIncomePrediction(context, useMkl);
+            SentimentClassification(context, useMkl, useCuda);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
@@ -93,7 +83,7 @@ namespace ExampleCode
         static void Xor(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.Xor().Train(4, 80, 0.5f, 4);
+            context.Xor().Train(4, 100, 0.5f, 4);
         }
 
         static void IrisClassification(BrightDataContext context, bool useMkl)
@@ -129,7 +119,7 @@ namespace ExampleCode
             WriteSeparator();
 
             Console.WriteLine();
-            Console.WriteLine("Hierachical...");
+            Console.WriteLine("Hierarchical...");
             WriteSeparator();
             Write(irisTable.HierarchicalCluster(3));
             WriteSeparator();
@@ -184,7 +174,7 @@ namespace ExampleCode
             textClustering.KMeans();
             textClustering.Nnmf();
             textClustering.RandomProjection();
-            //textClustering.LatentSemanticAnalysis();
+            textClustering.LatentSemanticAnalysis();
         }
 
         static void IntegerAddition(BrightDataContext context, bool useMkl)

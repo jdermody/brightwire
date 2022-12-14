@@ -674,7 +674,108 @@ namespace BrightData.LinearAlgebra
             return tensor.Size;
         }
 
+        /// <summary>
+        /// Applies a mapping function to each value in the segment to create a new segment (potentially in parallel)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="mapper">Mapping function that receives each value from the segment</param>
+        /// <returns></returns>
+        public ITensorSegment MapParallel(ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
+        {
+            var size = segment.Size;
+            var ret = CreateSegment(size, false);
 
+            if (size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    ret[i] = mapper(segment[i]);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Applies a mapping function to each value in the segment in place (potentially in parallel)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="mapper">Mapping function that receives each value from the segment</param>
+        public static void MapParallelInPlace(ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
+        {
+            var size = segment.Size;
+
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)segment.Size, i => segment[i] = mapper(segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    segment[i] = mapper(segment[i]);
+            }
+        }
+
+        /// <summary>
+        /// Applies a mapping function to each value in the segment to create a new segment (potentially in parallel)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
+        /// <returns></returns>
+        public ITensorSegment MapParallel(ITensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
+        {
+            var size = segment.Size;
+            var ret = CreateSegment(size, false);
+            
+            if(size >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, (int)size, i => ret[i] = mapper((uint)i, segment[i]));
+            else {
+                for (uint i = 0; i < size; i++)
+                    ret[i] = mapper(i, segment[i]);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Applies a mapping function to each value in the segment in place (potentially in parallel)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
+        public void MapParallelInPlace(ITensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
+        {
+            var ret = CreateSegment(segment.Size, false);
+            try {
+                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
+                ret.CopyTo(segment);
+            }
+            finally {
+                ret.Release();
+            }
+        }
+
+        /// <summary>
+        /// Creates a tensor from a tensor shape
+        /// </summary>
+        /// <param name="shape">Array containing the size of each dimension in the tensor</param>
+        /// <param name="segment">Tensor segment</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="NotImplementedException"></exception>
+        public ITensor CreateTensor(uint[] shape, ITensorSegment segment)
+        {
+            return shape.Length switch {
+                1 when shape[0] != segment.Size => throw new ArgumentException("Shape does not match segment size"),
+                1 => CreateVector(segment),
+
+                2 when shape[0] * shape[1] != segment.Size => throw new ArgumentException("Shape does not match segment size"),
+                2 => CreateMatrix(shape[1], shape[0], segment),
+
+                3 when shape[0] * shape[1] * shape[2] != segment.Size => throw new ArgumentException("Shape does not match segment size"),
+                3 => CreateTensor3D(shape[2], shape[1], shape[0], segment),
+
+                4 when shape[0] * shape[1] * shape[2] * shape[3] != segment.Size => throw new ArgumentException("Shape does not match segment size"),
+                4 => CreateTensor4D(shape[3], shape[2], shape[1], shape[0], segment),
+
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        // virtual tensor operations
 #pragma warning disable CS1591
         public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => tensor.Add(tensor2);
         public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
@@ -740,11 +841,6 @@ namespace BrightData.LinearAlgebra
             fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrix.Segment.GetSpan(ref temp, out var wasTempUsed)))
             fixed (float* retPtr = &MemoryMarshal.GetReference(ret.Segment.GetSpan())) {
                 CacheTranspose(matrixPtr, matrix.RowCount, matrix.ColumnCount, 0, matrix.RowCount, 0, matrix.ColumnCount, retPtr);
-                //Parallel.For(0, matrix.Segment.Size, ind => {
-                //    var i = (uint)(ind % rowCount);
-                //    var j = (uint)(ind / rowCount);
-                //    ret[j, i] = matrix[i, j];
-                //});
                 if (wasTempUsed)
                     temp.Dispose();
             }
@@ -767,28 +863,6 @@ namespace BrightData.LinearAlgebra
                 CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
             }
         }
-
-        //public virtual IMatrix OldMultiply(IMatrix matrix, IMatrix other)
-        //{
-        //    var rowCount = matrix.RowCount;
-        //    var ret = CreateMatrix(rowCount, other.ColumnCount);
-        //    var rows = matrix.AllRows();
-        //    var columns = other.AllColumns();
-            
-        //    //for (uint ind = 0; ind < matrix.RowCount * other.ColumnCount; ind++) {
-        //    Parallel.For(0, matrix.RowCount * other.ColumnCount, ind => {
-        //        var i = (uint)(ind % rowCount);
-        //        var j = (uint)(ind / rowCount);
-        //        var row = rows[i];
-        //        var column = columns[j];
-        //        var val = row.DotProduct(column);
-        //        ret[i, j] = val;
-        //    });
-        //    //}
-
-        //    // don't need to dispose the wrappers
-        //    return ret;
-        //}
 
         public virtual IVector Multiply(IMatrix matrix, IVector vector)
         {
@@ -890,85 +964,8 @@ namespace BrightData.LinearAlgebra
                     otherTemp.Dispose();
             }
 
-
-            //Parallel.For(0, rowCount * columnCount, ind => {
-            //for (int ind = 0; ind < rowCount * columnCount; ind++) {
-            //    var i = (uint)(ind % rowCount);
-            //    var j = (uint)(ind / rowCount);
-            //    var leftPtr = transposedThis.GetColumnSpan(i);
-            //    var rightPtr = other.GetColumnSpan(j);
-            //    var leftVec = MemoryMarshal.Cast<float, Vector<float>>(leftPtr);
-            //    var rightVec = MemoryMarshal.Cast<float, Vector<float>>(rightPtr);
-
-            //    var sum = 0f;
-            //    for (var x = 0; x < numVectors; x++) {
-            //        var result = Vector.Multiply(leftVec[x], rightVec[x]);
-            //        sum += Vector.Sum(result);
-            //    }
-
-            //    for (var y = ceiling; y < size; y++)
-            //        sum += leftPtr[y] * rightPtr[y];
-            //    ret[i, j] = sum;
-            //}
-            //});
             return ret;
         }
-
-        //protected unsafe IMatrix MultiplyWithOtherTransposed(IMatrix matrix, IMatrix transposedOther)
-        //{
-        //    var size = (int)matrix.ColumnCount;
-        //    var vectorSize = ExtensionMethods.NumericsVectorSize;
-        //    var numVectors = size / vectorSize;
-        //    var ceiling = numVectors * vectorSize;
-
-        //    var rowCount = matrix.RowCount;
-        //    var columnCount = transposedOther.RowCount;
-        //    var ret = CreateMatrix(rowCount, columnCount);
-
-        //    SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
-        //    var matrixSpan = matrix.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
-        //    var otherSpan = transposedOther.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
-        //    try {
-        //        var retSpan = ret.Segment.GetSpan();
-        //        var matrixColumnCount = (int)matrix.ColumnCount;
-        //        var otherColumnCount = (int)transposedOther.ColumnCount;
-        //        fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrixSpan))
-        //        fixed (float* otherPtr = &MemoryMarshal.GetReference(otherSpan))
-        //        fixed (float* retPtr = &MemoryMarshal.GetReference(retSpan)) {
-        //            var matrixPtr2 = matrixPtr;
-        //            var otherPtr2 = otherPtr;
-        //            var retPtr2 = retPtr;
-        //            Parallel.For(0, rowCount, i => {
-        //                var xPtr = &matrixPtr2[i * matrixColumnCount];
-        //                var xSpan = new ReadOnlySpan<float>(xPtr, matrixColumnCount);
-        //                var xVectors = MemoryMarshal.Cast<float, Vector<float>>(xSpan);
-        //                for (var j = 0; j < columnCount; j++) {
-        //                    var yPtr = &otherPtr2[j * otherColumnCount];
-        //                    var ySpan = new ReadOnlySpan<float>(yPtr, otherColumnCount);
-        //                    var yVectors = MemoryMarshal.Cast<float, Vector<float>>(ySpan);
-
-        //                    var sum = 0f;
-        //                    for (var z = 0; z < numVectors; z++) {
-        //                        var temp = Vector.Multiply(xVectors[z], yVectors[z]);
-        //                        sum += Vector.Sum(temp);
-        //                    }
-
-        //                    for (var z = ceiling; z < size; z++)
-        //                        sum += xSpan[z] * ySpan[z];
-        //                    retPtr2[i * columnCount + j] = sum;
-        //                }
-        //            });
-        //        }
-        //    }
-        //    finally {
-        //        if(wasMatrixTempUsed)
-        //            matrixTemp.Dispose();
-        //        if(wasOtherTempUsed)
-        //            otherTemp.Dispose();
-        //    }
-
-        //    return ret;
-        //}
 
         public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
@@ -1043,58 +1040,6 @@ namespace BrightData.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public ITensorSegment MapParallel(ITensorSegment segment, Func<float, float> mapper)
-        {
-            var size = segment.Size;
-            var ret = CreateSegment(size, false);
-
-            if (size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    ret[i] = mapper(segment[i]);
-            }
-            return ret;
-        }
-
-        public static void MapParallelInPlace(ITensorSegment segment, Func<float, float> mapper)
-        {
-            var size = segment.Size;
-
-            if(size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)segment.Size, i => segment[i] = mapper(segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    segment[i] = mapper(segment[i]);
-            }
-        }
-
-        public ITensorSegment MapParallel(ITensorSegment segment, Func<uint, float, float> mapper)
-        {
-            var size = segment.Size;
-            var ret = CreateSegment(size, false);
-            
-            if(size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)size, i => ret[i] = mapper((uint)i, segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    ret[i] = mapper(i, segment[i]);
-            }
-            return ret;
-        }
-
-        public void MapParallelInPlace(ITensorSegment segment, Func<uint, float, float> mapper)
-        {
-            var ret = CreateSegment(segment.Size, false);
-            try {
-                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
-                ret.CopyTo(segment);
-            }
-            finally {
-                ret.Release();
-            }
-        }
-
         public virtual void FeatureScaleNormalization(ITensorSegment segment)
         {
             var (min, max, _, _) = GetMinAndMaxValues(segment);
@@ -1124,13 +1069,6 @@ namespace BrightData.LinearAlgebra
             if (FloatMath.IsNotZero(norm))
                 MapParallelInPlace(segment, v => v / norm);
         }
-
-        //public ITensorSegment2 Batch(ITensorSegment2 segment, ITensorSegment2[] others, Func<ITensorSegment2, ITensorSegment2, float> getValue)
-        //{
-        //    var ret = CreateSegment((uint)others.Length);
-        //    Parallel.ForEach(others, (vec, _, ind) => ret[ind] = getValue(segment, vec));
-        //    return ret;
-        //}
 
         public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularization(coefficient);
 
@@ -1590,35 +1528,6 @@ namespace BrightData.LinearAlgebra
             }
 
             return ret;
-        }
-
-        public ITensor CreateTensor(uint[] shape, ITensorSegment segment)
-        {
-            if (shape.Length == 1) {
-                if (shape[0] != segment.Size)
-                    throw new ArgumentException("Shape does not match segment size");
-                return CreateVector(segment);
-            }
-
-            if (shape.Length == 2) {
-                if(shape[0] * shape[1] != segment.Size)
-                    throw new ArgumentException("Shape does not match segment size");
-                return CreateMatrix(shape[1], shape[0], segment);
-            }
-
-            if (shape.Length == 3) {
-                if(shape[0] * shape[1] * shape[2] != segment.Size)
-                    throw new ArgumentException("Shape does not match segment size");
-                return CreateTensor3D(shape[2], shape[1], shape[0], segment);
-            }
-
-            if (shape.Length == 4) {
-                if(shape[0] * shape[1] * shape[2] * shape[3] != segment.Size)
-                    throw new ArgumentException("Shape does not match segment size");
-                return CreateTensor4D(shape[3], shape[2], shape[1], shape[0], segment);
-            }
-
-            throw new NotImplementedException();
         }
 
         public virtual void BindThread()

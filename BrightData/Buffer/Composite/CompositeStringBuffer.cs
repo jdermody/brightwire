@@ -2,11 +2,11 @@
 using System.IO;
 using System.Text;
 
-namespace BrightData.Buffer.Hybrid
+namespace BrightData.Buffer.Composite
 {
-    internal class StringHybridBuffer : HybridBufferBase<string>
+    internal class CompositeStringBuffer : CompositeBufferBase<string>
     {
-        public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct)
+        public CompositeStringBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct)
             : base(tempStream, maxCount, maxDistinct)
         {
         }

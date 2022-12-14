@@ -2,12 +2,12 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace BrightData.Buffer.Hybrid
+namespace BrightData.Buffer.Composite
 {
-    internal class StructHybridBuffer<T> : HybridBufferBase<T>
+    internal class CompositeStructBuffer<T> : CompositeBufferBase<T>
         where T : struct
     {
-        public StructHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)
+        public CompositeStructBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)
         {
         }
 

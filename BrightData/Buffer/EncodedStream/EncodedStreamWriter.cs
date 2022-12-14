@@ -10,17 +10,17 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 namespace BrightData.Buffer.EncodedStream
 {
     /// <summary>
-    /// Writes hybrid buffers to binary writers, potentially encoding along the way
+    /// Writes composite buffers to binary writers, potentially encoding along the way
     /// </summary>
     public static class EncodedStreamWriter
     {
         /// <summary>
-        /// Writes the hybrid buffer to a stream
+        /// Writes the composite buffer to a stream
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="buffer">Buffer to write</param>
         /// <param name="stream">Stream to write to</param>
-        public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream) where T : notnull
+        public static void CopyTo<T>(ICompositeBuffer<T> buffer, Stream stream) where T : notnull
         {
             var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Size / 2;
             var writer = GetWriter(buffer, shouldEncode);
@@ -84,7 +84,7 @@ namespace BrightData.Buffer.EncodedStream
             internal static void WriteTo(uint stringTableCount, IEnumerable<string> stringTable, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)HybridBufferType.EncodedString);
+                writer.Write((byte)CompositeBufferType.EncodedString);
 
                 // write the length
                 writer.Write(stringTableCount);
@@ -130,7 +130,7 @@ namespace BrightData.Buffer.EncodedStream
             internal static void WriteTo(T[] keys, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)HybridBufferType.EncodedStruct);
+                writer.Write((byte)CompositeBufferType.EncodedStruct);
 
                 // write the length
                 writer.Write((uint)keys.Length);
@@ -164,7 +164,7 @@ namespace BrightData.Buffer.EncodedStream
             internal static void WriteTo(uint itemsCount, IEnumerable<T> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)HybridBufferType.Object);
+                writer.Write((byte)CompositeBufferType.Object);
 
                 // write the number of items
                 writer.Write(itemsCount);
@@ -192,7 +192,7 @@ namespace BrightData.Buffer.EncodedStream
             internal static void WriteTo(uint itemCount, IEnumerable<string> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)HybridBufferType.String);
+                writer.Write((byte)CompositeBufferType.String);
 
                 // write the number of items
                 writer.Write(itemCount);
@@ -221,7 +221,7 @@ namespace BrightData.Buffer.EncodedStream
             internal static void WriteTo(uint numItems, IEnumerable<T> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)HybridBufferType.Struct);
+                writer.Write((byte)CompositeBufferType.Struct);
 
                 // write the items
                 writer.Write(numItems);

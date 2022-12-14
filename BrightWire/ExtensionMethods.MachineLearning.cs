@@ -94,7 +94,7 @@ namespace BrightWire
         /// Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>
-        /// <param name="lap">Linear alegbra provider</param>
+        /// <param name="lap">Linear algebra provider</param>
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
@@ -105,14 +105,14 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
+        /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] HierachicalCluster(this IEnumerable<IVector> data, uint k)
+        public static IVector[][] HierarchicalCluster(this IEnumerable<IVector> data, uint k)
         {
-            using var clusterer = new Hierachical(k, data);
+            using var clusterer = new Hierarchical(k, data);
             clusterer.Cluster();
             return clusterer.Clusters;
         }

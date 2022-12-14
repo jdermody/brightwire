@@ -91,10 +91,10 @@ namespace BrightWire.Bayesian.Training
                         var analysis = metaData.GetFrequencyAnalysis();
                         var total = (double) analysis.Total;
                         if (total > 0) {
-                            var list = new List<NaiveBayes.CategorialProbability>();
+                            var list = new List<NaiveBayes.CategoricalProbability>();
                             foreach (var (label, value) in analysis.Frequency) {
                                 var categoryProbability = value / total;
-                                list.Add(new NaiveBayes.CategorialProbability {
+                                list.Add(new NaiveBayes.CategoricalProbability {
                                     Category = label,
                                     LogProbability = Math.Log(categoryProbability),
                                     Probability = categoryProbability

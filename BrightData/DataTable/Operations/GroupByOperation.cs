@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BrightData.DataTable.Operations
 {
-    internal class GroupByOperation : OperationBase<(string Label, IHybridBuffer[] ColumnData)[]>
+    internal class GroupByOperation : OperationBase<(string Label, ICompositeBuffer[] ColumnData)[]>
     {
         readonly BrightDataContext                   _context;
         readonly IProvideTempStreams                 _tempStreams;
@@ -12,7 +12,7 @@ namespace BrightData.DataTable.Operations
         readonly MetaData[]                          _columnMetaData;
         readonly ICanEnumerateDisposable[]           _columns;
         readonly IEnumerator<object>[]               _enumerators;
-        readonly Dictionary<string, IHybridBuffer[]> _groups = new();
+        readonly Dictionary<string, ICompositeBuffer[]> _groups = new();
         readonly object[]                            _row;
 
         public GroupByOperation(
@@ -53,7 +53,7 @@ namespace BrightData.DataTable.Operations
             // find the group by row
             var label = GetGroupLabel(_groupByColumnIndices, _row);
             if (!_groups.TryGetValue(label, out var groupBuffers))
-                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetColumnType().GetHybridBufferWithMetaData(x, _context, _tempStreams)).Cast<IHybridBuffer>().ToArray());
+                _groups.Add(label, groupBuffers = _columnMetaData.Select(x => x.GetColumnType().GetCompositeBufferWithMetaData(x, _context, _tempStreams)).Cast<ICompositeBuffer>().ToArray());
 
             // write the row into the group
             foreach(var (obj, buffer) in _row.Zip(groupBuffers))
@@ -64,7 +64,7 @@ namespace BrightData.DataTable.Operations
             columnIndices.Select(ci => row[ci].ToString() ?? throw new Exception("Cannot group by string when value is null"))
         ) ?? throw new Exception("No column indices");
 
-        protected override (string Label, IHybridBuffer[] ColumnData)[] GetResult(bool wasCancelled)
+        protected override (string Label, ICompositeBuffer[] ColumnData)[] GetResult(bool wasCancelled)
         {
             return _groups
                 .OrderBy(g => g.Key)

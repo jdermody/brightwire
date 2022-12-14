@@ -757,7 +757,7 @@ namespace BrightWire.ExecutionGraph
 		public ICreateGradientDescent L2(float lambda) => new L2RegularisationDescriptor(lambda);
 
 		/// <summary>
-		/// Creats a momentum gradient descent optimiser
+		/// Creates a momentum gradient descent optimiser
 		/// </summary>
 		/// <param name="momentum">Momentum parameter</param>
 		public ICreateTemplateBasedGradientDescent Momentum(float momentum = 0.9f) => new MomentumDescriptor(momentum);
@@ -943,7 +943,7 @@ namespace BrightWire.ExecutionGraph
 			public NodeBase SquareRootOf(string? name = null) => new SquareRootOfInput(name);
 
 			/// <summary>
-			/// Caclculates one minus graph input (1-x)
+			/// Calculates one minus graph input (1-x)
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>

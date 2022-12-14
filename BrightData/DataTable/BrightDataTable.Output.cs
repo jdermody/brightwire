@@ -81,8 +81,8 @@ namespace BrightData.DataTable
 
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData
-                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
-                .Cast<IHybridBuffer>()
+                .Select((m, ci) => ColumnTypes[ci].GetCompositeBufferWithMetaData(m, Context, tempStream))
+                .Cast<ICompositeBuffer>()
                 .ToArray()
             ;
 
@@ -108,8 +108,8 @@ namespace BrightData.DataTable
         {
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData
-                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
-                .Cast<IHybridBuffer>()
+                .Select((m, ci) => ColumnTypes[ci].GetCompositeBufferWithMetaData(m, Context, tempStream))
+                .Cast<ICompositeBuffer>()
                 .ToArray()
             ;
             var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;
@@ -137,8 +137,8 @@ namespace BrightData.DataTable
         {
             var tempStream = Context.CreateTempStreamProvider();
             var buffers = ColumnMetaData
-                .Select((m, ci) => ColumnTypes[ci].GetHybridBufferWithMetaData(m, Context, tempStream))
-                .Cast<IHybridBuffer>()
+                .Select((m, ci) => ColumnTypes[ci].GetCompositeBufferWithMetaData(m, Context, tempStream))
+                .Cast<ICompositeBuffer>()
                 .ToArray()
             ;
             var rowCount = rowIndices.Length > 0 ? (uint)rowIndices.Length : RowCount;

@@ -11,13 +11,13 @@ namespace BrightData.DataTable.Operations
         readonly IEnumerator<object>[] _enumerators;
         readonly Func<object[], T> _converter;
         readonly object[] _temp;
-        readonly IHybridBuffer<T> _outputBuffer;
+        readonly ICompositeBuffer<T> _outputBuffer;
 
         public ManyToOneColumnOperation(
             uint rowCount,
             ICanEnumerateDisposable[] input, 
             Func<object[], T> converter, 
-            IHybridBuffer<T> outputBuffer) : base(rowCount, null)
+            ICompositeBuffer<T> outputBuffer) : base(rowCount, null)
         {
             _input = input;
             _converter = converter;

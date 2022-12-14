@@ -10,7 +10,7 @@ namespace BrightData.DataTable.Operations
         readonly BrightDataContext               _context;
         readonly IEnumerator<BrightDataTableRow> _enumerator;
         readonly Predicate<BrightDataTableRow>?  _predicate;
-        readonly IHybridBuffer[]                 _buffers;
+        readonly ICompositeBuffer[]                 _buffers;
         readonly IProvideTempStreams             _tempStreams;
         readonly Stream                          _stream;
         readonly MetaData                        _tableMetaData;
@@ -19,7 +19,7 @@ namespace BrightData.DataTable.Operations
             BrightDataContext context,
             IEnumerator<BrightDataTableRow> data,
             Predicate<BrightDataTableRow>? predicate,
-            IHybridBuffer[] buffers,
+            ICompositeBuffer[] buffers,
             uint rowCount,
             IProvideTempStreams tempStreams,
             Stream stream,

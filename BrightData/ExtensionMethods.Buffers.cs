@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using BrightData.Buffer.Composite;
 using BrightData.Buffer.EncodedStream;
-using BrightData.Buffer.Hybrid;
 using BrightData.Helper;
 
 namespace BrightData
@@ -17,8 +17,8 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
-            tempStream.CreateHybridStructBuffer<T>(bufferSize, maxDistinct);
+        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
+            tempStream.CreateCompositeStructBuffer<T>(bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates a struct buffer
@@ -29,8 +29,8 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridStructBuffer(this BrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            tempStream.CreateHybridStructBuffer(type, bufferSize, maxDistinct);
+        public static ICompositeBuffer CreateCompositeStructBuffer(this BrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            tempStream.CreateCompositeStructBuffer(type, bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates a string buffer
@@ -40,8 +40,8 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static IHybridBuffer<string> CreateHybridStringBuffer(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            tempStream.CreateHybridStringBuffer(bufferSize, maxDistinct);
+        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            tempStream.CreateCompositeStringBuffer(bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates an object buffer
@@ -51,8 +51,8 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
-            tempStream.CreateHybridObjectBuffer<T>(context, bufferSize);
+        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
+            tempStream.CreateCompositeObjectBuffer<T>(context, bufferSize);
 
         /// <summary>
         /// Creates an object buffer
@@ -62,8 +62,8 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static IHybridBuffer CreateHybridObjectBuffer(this BrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
-            tempStream.CreateHybridObjectBuffer(context, type, bufferSize);
+        public static ICompositeBuffer CreateCompositeObjectBuffer(this BrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
+            tempStream.CreateCompositeObjectBuffer(context, type, bufferSize);
 
         /// <summary>
         /// Returns a reader that buffers items in memory
@@ -76,15 +76,15 @@ namespace BrightData
         public static ICanEnumerateWithSize<T> GetBufferReader<T>(this BrightDataContext context, BinaryReader reader, uint inMemorySize) where T : notnull
         {
             var stream = reader.BaseStream;
-            var type = (HybridBufferType)reader.ReadByte();
+            var type = (CompositeBufferType)reader.ReadByte();
 
             return type switch {
-                HybridBufferType.EncodedString => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize),
-                HybridBufferType.EncodedStruct => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
-                HybridBufferType.Object => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize),
-                HybridBufferType.String => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize),
-                HybridBufferType.Struct => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
-                _ => throw new NotImplementedException()
+                CompositeBufferType.EncodedString => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringDecoder(reader, stream, inMemorySize),
+                CompositeBufferType.EncodedStruct => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
+                CompositeBufferType.Object        => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize),
+                CompositeBufferType.String        => (ICanEnumerateWithSize<T>)new EncodedStreamReader.StringReader(reader, stream, inMemorySize),
+                CompositeBufferType.Struct        => GenericActivator.Create<ICanEnumerateWithSize<T>>(typeof(EncodedStreamReader.StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize),
+                _                                 => throw new NotImplementedException()
             };
         }
 
@@ -93,7 +93,7 @@ namespace BrightData
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="segment"></param>
-        public static void CopyFrom(this IHybridBuffer<float> buffer, ITensorSegment segment)
+        public static void CopyFrom(this ICompositeBuffer<float> buffer, ITensorSegment segment)
         {
             for(uint i = 0, len = segment.Size; i < len; i++)
                 buffer.Add(segment[i]);
@@ -104,7 +104,7 @@ namespace BrightData
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="span"></param>
-        public static void CopyFrom(this IHybridBuffer<float> buffer, ReadOnlySpan<float> span)
+        public static void CopyFrom(this ICompositeBuffer<float> buffer, ReadOnlySpan<float> span)
         {
             for(int i = 0, len = span.Length; i < len; i++)
                 buffer.Add(span[i]);
@@ -118,9 +118,9 @@ namespace BrightData
         /// <param name="metaData">Segment meta data</param>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static (ITypedSegment<T> Segment, IHybridBufferWithMetaData<T> Buffer) GetSegmentWithHybridBuffer<T>(this BrightDataContext context, MetaData metaData, IHybridBuffer<T> buffer) where T : notnull
+        public static (ITypedSegment<T> Segment, ICompositeBufferWithMetaData<T> Buffer) GetSegmentWithCompositeBuffer<T>(this BrightDataContext context, MetaData metaData, ICompositeBuffer<T> buffer) where T : notnull
         {
-            var ret = new HybridBufferSegment<T>(context, typeof(T).GetBrightDataType(), metaData, buffer);
+            var ret = new CompositeBufferSegment<T>(context, typeof(T).GetBrightDataType(), metaData, buffer);
             return (ret, ret);
         }
     }

@@ -331,7 +331,7 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Adds a max pooling convolutional layer
         /// </summary>
-        /// <param name="filterWidth">Width of max pooliing filter</param>
+        /// <param name="filterWidth">Width of max pooling filter</param>
         /// <param name="filterHeight">Height of max pooling filter</param>
         /// <param name="xStride">X stride</param>
         /// <param name="yStride">Y stride</param>

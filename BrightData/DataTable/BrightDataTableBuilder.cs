@@ -10,10 +10,10 @@ namespace BrightData.DataTable
     /// </summary>
     public class BrightDataTableBuilder : IDisposable, IHaveBrightDataContext
     {
-        readonly uint                _inMemoryBufferSize;
-        readonly ushort              _maxUniqueItemCount;
-        readonly IProvideTempStreams _tempStreams;
-        readonly List<IHybridBuffer> _columns = new();
+        readonly uint                   _inMemoryBufferSize;
+        readonly ushort                 _maxUniqueItemCount;
+        readonly IProvideTempStreams    _tempStreams;
+        readonly List<ICompositeBuffer> _columns = new();
 
         /// <summary>
         /// Creates a data table builder
@@ -57,7 +57,7 @@ namespace BrightData.DataTable
         /// <param name="type">New column type</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData AddColumn(BrightDataType type, string? name = null)
+        public ICompositeBufferWithMetaData AddColumn(BrightDataType type, string? name = null)
         {
             var columnMetaData = new MetaData();
             columnMetaData.Set(Consts.Name, DefaultColumnName(name, _columns.Count));
@@ -75,9 +75,9 @@ namespace BrightData.DataTable
         /// <param name="type">New column type</param>
         /// <param name="metaData">Column meta data</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData AddColumn(BrightDataType type, MetaData metaData)
+        public ICompositeBufferWithMetaData AddColumn(BrightDataType type, MetaData metaData)
         {
-            var buffer = type.GetHybridBufferWithMetaData(new MetaData(metaData, Consts.StandardMetaData), Context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
+            var buffer = type.GetCompositeBufferWithMetaData(new MetaData(metaData, Consts.StandardMetaData), Context, _tempStreams, _inMemoryBufferSize, _maxUniqueItemCount);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
             return buffer;
@@ -108,11 +108,11 @@ namespace BrightData.DataTable
         /// <typeparam name="T"></typeparam>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData<T> AddColumn<T>(string? name = null)
+        public ICompositeBufferWithMetaData<T> AddColumn<T>(string? name = null)
             where T : notnull
         {
             var type = typeof(T).GetBrightDataType();
-            return (IHybridBufferWithMetaData<T>)AddColumn(type, name);
+            return (ICompositeBufferWithMetaData<T>)AddColumn(type, name);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace BrightData.DataTable
         /// <param name="size">Size of the vector</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData<IReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
+        public ICompositeBufferWithMetaData<IReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
         {
             // TODO: add constraint
             return AddColumn<IReadOnlyVector>(name);
@@ -157,7 +157,7 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData<IReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<IReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
             // TODO: add constraint
             return AddColumn<IReadOnlyMatrix>(name);
@@ -171,7 +171,7 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData<IReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<IReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
             // TODO: add constraint
             return AddColumn<IReadOnlyTensor3D>(name);
@@ -186,7 +186,7 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public IHybridBufferWithMetaData<IReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<IReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
             // TODO: add constraint
             return AddColumn<IReadOnlyTensor4D>(name);

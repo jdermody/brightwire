@@ -56,7 +56,7 @@ namespace BrightData.DataTable
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="groupByColumnIndices">Column indices on which to form the groups</param>
         /// <returns></returns>
-        public IOperation<(string Label, IHybridBuffer[] ColumnData)[]> GroupBy(IProvideTempStreams tempStreams, params uint[] groupByColumnIndices)
+        public IOperation<(string Label, ICompositeBuffer[] ColumnData)[]> GroupBy(IProvideTempStreams tempStreams, params uint[] groupByColumnIndices)
         {
             return new GroupByOperation(
                 Context,
@@ -85,7 +85,7 @@ namespace BrightData.DataTable
                         throw new ArgumentException($"Column types did not agree [{ci}]: Expected {ColumnTypes[ci].GetType()} instead of {converter.From}");
 
                     var columnReader = GetColumnReader(ci, RowCount);
-                    var outputBuffer = converter.To.GetBrightDataType().GetHybridBufferWithMetaData(ColumnMetaData[ci], Context, temp);
+                    var outputBuffer = converter.To.GetBrightDataType().GetCompositeBufferWithMetaData(ColumnMetaData[ci], Context, temp);
                     var operation = GenericActivator.Create<IOperation<ITypedSegment?>>(typeof(ColumnConversionOperation<,>).MakeGenericType(converter.From, converter.To),
                         RowCount,
                         columnReader,

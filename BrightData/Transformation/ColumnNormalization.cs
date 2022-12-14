@@ -24,7 +24,7 @@ namespace BrightData.Transformation
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
-            public bool Convert(T input, IHybridBuffer<float> buffer, uint index)
+            public bool Convert(T input, ICompositeBuffer<float> buffer, uint index)
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
@@ -60,7 +60,7 @@ namespace BrightData.Transformation
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
-            public bool Convert(T input, IHybridBuffer<double> buffer, uint index)
+            public bool Convert(T input, ICompositeBuffer<double> buffer, uint index)
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);

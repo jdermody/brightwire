@@ -28,35 +28,35 @@ namespace BrightData.Transformation
                 if (!String.IsNullOrWhiteSpace(Name))
                     metaData.SetName(Name);
                 metaData.SetType(NewType);
-                var outputBuffer = NewType.GetHybridBufferWithMetaData(metaData, context, tempStreams);
+                var outputBuffer = NewType.GetCompositeBufferWithMetaData(metaData, context, tempStreams);
 
                 if (NewType == BrightDataType.IndexList)
                     yield return new ManyToOneColumnOperation<IndexList>(
                         rowCount,
                         sourceColumns, 
                         obj => ToIndexList(context , obj),
-                        (IHybridBuffer<IndexList>)outputBuffer
+                        (ICompositeBuffer<IndexList>)outputBuffer
                     );
                 else if (NewType == BrightDataType.WeightedIndexList)
                     yield return new ManyToOneColumnOperation<WeightedIndexList>(
                         rowCount,
                         sourceColumns, 
                         obj => ToWeightedIndexList(context , obj),
-                        (IHybridBuffer<WeightedIndexList>)outputBuffer
+                        (ICompositeBuffer<WeightedIndexList>)outputBuffer
                     );
                 else if (NewType == BrightDataType.Vector)
                     yield return new ManyToOneColumnOperation<IReadOnlyVector>(
                         rowCount,
                         sourceColumns, 
                         obj => ToVector(context , obj),
-                        (IHybridBuffer<IReadOnlyVector>)outputBuffer
+                        (ICompositeBuffer<IReadOnlyVector>)outputBuffer
                     );
                 else if (NewType == BrightDataType.String)
                     yield return new ManyToOneColumnOperation<string>(
                         rowCount,
                         sourceColumns,
                         ToString,
-                        (IHybridBuffer<string>)outputBuffer
+                        (ICompositeBuffer<string>)outputBuffer
                     );
                 else
                     throw new NotImplementedException();
@@ -93,51 +93,5 @@ namespace BrightData.Transformation
         }
 
         static string ToString(object[] vals) => String.Join('|', vals.Select(Convert.ToString));
-
-        //class ManyToOne<T> : ISingleTypeTableSegment where T : notnull
-        //{
-        //    readonly IHybridBuffer<T> _buffer;
-
-        //    public ManyToOne(
-        //        BrightDataContext context,
-        //        IProvideTempStreams tempStreams,
-        //        string name,
-        //        uint newColumnIndex,
-        //        ISingleTypeTableSegment[] sourceColumns,
-        //        Func<BrightDataContext, object[], T> converter
-        //    )
-        //    {
-        //        Index = newColumnIndex;
-        //        Size = sourceColumns.First().Size;
-        //        MetaData.SetType(BrightDataType.IndexList);
-        //        MetaData.Set(Consts.Index, newColumnIndex);
-        //        MetaData.Set(Consts.Name, name);
-        //        _buffer = (IHybridBuffer<T>)MetaData.GetGrowableSegment(SingleType, context, tempStreams);
-
-        //        // fill the buffer
-        //        var len = sourceColumns.Length;
-        //        var buffer = new object[len];
-        //        var enumerators = sourceColumns.Select(c => c.Enumerate().GetEnumerator()).ToList();
-        //        var ct = context.CancellationToken;
-        //        while (enumerators.All(e => e.MoveNext()) && !ct.IsCancellationRequested) {
-        //            for (var i = 0; i < len; i++)
-        //                buffer[i] = enumerators[i].Current;
-        //            _buffer.Add(converter(context, buffer));
-        //        }
-        //    }
-
-        //    public MetaData MetaData { get; } = new MetaData();
-        //    public uint Index { get; }
-        //    public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
-
-        //    public void Dispose()
-        //    {
-        //        // nop
-        //    }
-
-        //    public BrightDataType SingleType { get; } = BrightDataType.IndexList;
-        //    public IEnumerable<object> Enumerate() => _buffer.Enumerate();
-        //    public uint Size { get; }
-        //}
     }
 }

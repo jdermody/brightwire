@@ -1,25 +1,25 @@
-﻿using BrightData.Buffer.EncodedStream;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.Buffer.EncodedStream;
 
-namespace BrightData.Buffer.Hybrid
+namespace BrightData.Buffer.Composite
 {
     /// <summary>
-    /// Hybrid buffers write to disk after their in memory cache is exhausted
+    /// Composite buffers write to disk after their in memory cache is exhausted
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal abstract class HybridBufferBase<T> : IHybridBuffer<T> where T : notnull
+    internal abstract class CompositeBufferBase<T> : ICompositeBuffer<T> where T : notnull
     {
-        readonly uint _maxCount;
+        readonly uint                _maxCount;
         readonly IProvideTempStreams _tempStream;
-        readonly string _id;
-        protected readonly List<T> _tempBuffer;
-        readonly ushort _maxDistinct = 0;
+        readonly string              _id;
+        protected readonly List<T>   _tempBuffer;
+        readonly ushort              _maxDistinct = 0;
 
-        protected HybridBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
+        protected CompositeBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
         {
             _id = Guid.NewGuid().ToString("n");
             _tempStream = tempStream;
@@ -47,7 +47,7 @@ namespace BrightData.Buffer.Hybrid
             ++Size;
         }
 
-        protected ReadOnlySpan<T> GetTempBuffer() => CollectionsMarshal.AsSpan(_tempBuffer);//((Span<T>)_tempBuffer)[.._index];
+        protected ReadOnlySpan<T> GetTempBuffer() => CollectionsMarshal.AsSpan(_tempBuffer);
 
         public IEnumerable<T> Values
         {

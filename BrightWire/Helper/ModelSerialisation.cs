@@ -207,17 +207,17 @@ namespace BrightWire.Helper
             model.Type = (NaiveBayes.ColumnType)reader.ReadByte();
             model.Variance = reader.ReadDouble();
             model.Mean = reader.ReadDouble();
-            model.Probability = reader.ReadArray<NaiveBayes.CategorialProbability>(context);
+            model.Probability = reader.ReadArray<NaiveBayes.CategoricalProbability>(context);
         }
 
-        public static void WriteTo(NaiveBayes.CategorialProbability model, BinaryWriter writer)
+        public static void WriteTo(NaiveBayes.CategoricalProbability model, BinaryWriter writer)
         {
             model.Category.WriteTo(writer);
             model.LogProbability.WriteTo(writer);
             model.Probability.WriteTo(writer);
         }
 
-        public static void ReadFrom(BrightDataContext _, BinaryReader reader, NaiveBayes.CategorialProbability model)
+        public static void ReadFrom(BrightDataContext _, BinaryReader reader, NaiveBayes.CategoricalProbability model)
         {
             model.Category = reader.ReadString();
             model.LogProbability = reader.ReadDouble();

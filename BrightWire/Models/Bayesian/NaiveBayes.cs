@@ -55,7 +55,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of categories within the column and their probability (categorical only)
             /// </summary>
-            public CategorialProbability[] Probability { get; set; } = Array.Empty<CategorialProbability>();
+            public CategoricalProbability[] Probability { get; set; } = Array.Empty<CategoricalProbability>();
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -67,7 +67,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A category and its associated log probability
         /// </summary>
-        public class CategorialProbability : IAmSerializable
+        public class CategoricalProbability : IAmSerializable
         {
             /// <summary>
             /// The category label

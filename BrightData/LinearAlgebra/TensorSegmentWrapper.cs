@@ -125,12 +125,12 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetoffset)
+        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper) {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
                 if (array is not null && stride == 1) {
-                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetoffset);
+                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetOffset);
                     return;
                 }
             }
@@ -139,7 +139,7 @@ namespace BrightData.LinearAlgebra
             var span = tempBuffer.Span;
             for(var i = 0; i < Size; i++)
                 span[i] = this[i + sourceOffset];
-            segment.CopyFrom(span, targetoffset);
+            segment.CopyFrom(span, targetOffset);
         }
 
         /// <inheritdoc />

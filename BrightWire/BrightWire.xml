@@ -828,7 +828,7 @@
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.Momentum(System.Single)">
             <summary>
-            Creats a momentum gradient descent optimiser
+            Creates a momentum gradient descent optimiser
             </summary>
             <param name="momentum">Momentum parameter</param>
         </member>
@@ -1004,7 +1004,7 @@
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.GraphOperationProvider.OneMinusInput(System.String)">
             <summary>
-            Caclculates one minus graph input (1-x)
+            Calculates one minus graph input (1-x)
             </summary>
             <param name="name"></param>
             <returns></returns>
@@ -2010,7 +2010,7 @@
             <summary>
             Adds a max pooling convolutional layer
             </summary>
-            <param name="filterWidth">Width of max pooliing filter</param>
+            <param name="filterWidth">Width of max pooling filter</param>
             <param name="filterHeight">Height of max pooling filter</param>
             <param name="xStride">X stride</param>
             <param name="yStride">Y stride</param>
@@ -2264,7 +2264,7 @@
             <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
             <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable)">
             <summary>
             Classifies each row of the data table
             </summary>
@@ -2353,14 +2353,14 @@
             Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
             <param name="data">The training data</param>
-            <param name="lap">Linear alegbra provider</param>
+            <param name="lap">Linear algebra provider</param>
             <param name="k">The number of clusters</param>
             <param name="maxIterations">The maximum number of iterations</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.HierachicalCluster(System.Collections.Generic.IEnumerable{BrightData.IVector},System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(System.Collections.Generic.IEnumerable{BrightData.IVector},System.UInt32)">
             <summary>
-            Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
+            Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
             </summary>
             <param name="data">The list of vectors to cluster</param>
             <param name="k">The number of clusters to find</param>
@@ -2759,7 +2759,7 @@
             <summary>
             Creates a graph context
             </summary>
-            <param name="executionContext">Graph execution cointext</param>
+            <param name="executionContext">Graph execution context</param>
             <param name="sequence">Mini batch sequence</param>
             <param name="learningContext">Learning context (null if executing without training)</param>
             <returns></returns>
@@ -3007,7 +3007,7 @@
             </summary>
             <param name="dataSource">Segment source to process</param>
             <param name="batchSize">Initial size of each mini batch</param>
-            <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+            <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
             <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
             <returns></returns>
         </member>
@@ -3712,7 +3712,7 @@
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Prior">
             <summary>
-            The log of the prior probablilty for this classification
+            The log of the prior probability for this classification
             </summary>
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.MissingProbability">
@@ -3807,7 +3807,7 @@
         </member>
         <member name="M:BrightWire.Models.Bayesian.MarkovModelObservation2`1.Equals(System.Object)">
             <summary>
-            Equals overide
+            Equals override
             </summary>
             <param name="obj"></param>
             <returns></returns>
@@ -4037,30 +4037,30 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
-        <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability">
+        <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability">
             <summary>
             A category and its associated log probability
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Category">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Category">
             <summary>
             The category label
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.LogProbability">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.LogProbability">
             <summary>
             The natural log of the category's probability
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Probability">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Probability">
             <summary>
             The category's probability
             </summary>
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.WriteTo(System.IO.BinaryWriter)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary">
@@ -4614,14 +4614,14 @@
             Generates an unlimited number of reber sequences
             </summary>
             <param name="minlength">Minimum length of the sequences (optional)</param>
-            <param name="maxLength">Mimimum length of the sequences (optional)</param>
+            <param name="maxLength">Minimum length of the sequences (optional)</param>
         </member>
         <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetExtended(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Generates an unlimited number of extended reber sequences
             </summary>
             <param name="minlength">Minimum length of the sequences (optional)</param>
-            <param name="maxLength">Mimimum length of the sequences (optional)</param>
+            <param name="maxLength">Minimum length of the sequences (optional)</param>
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.SequenceGenerator">
             <summary>
@@ -4903,9 +4903,9 @@
             https://en.wikipedia.org/wiki/Random_forest
             </summary>
         </member>
-        <member name="T:BrightWire.Unsupervised.Hierachical">
+        <member name="T:BrightWire.Unsupervised.Hierarchical">
             <summary>
-            Hierachical clustering
+            Hierarchical clustering
             https://en.wikipedia.org/wiki/Hierarchical_clustering
             </summary>
         </member>

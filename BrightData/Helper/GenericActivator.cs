@@ -55,7 +55,7 @@ namespace BrightData.Helper
         }
 
         /// <summary>
-        /// Creates a new unitialized object (constructor is not invoked)
+        /// Creates a new uninitialized object (constructor is not invoked)
         /// </summary>
         /// <typeparam name="T">Type to create</typeparam>
         /// <returns></returns>
@@ -65,7 +65,7 @@ namespace BrightData.Helper
         }
 
         /// <summary>
-        /// Creates a new unitialized object (constructor is not invoked)
+        /// Creates a new uninitialized object (constructor is not invoked)
         /// </summary>
         /// <param name="type">Type to create</param>
         /// <typeparam name="T">Type to return (created object cast to this type)</typeparam>

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Analysis;
-using BrightData.Buffer.Hybrid;
+using BrightData.Buffer.Composite;
 using BrightData.Buffer.InMemory;
 using BrightData.DataTable;
 using BrightData.Helper;
@@ -345,7 +345,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Parse CSV into a column oriented data table using hybrid buffers
+        /// Parse CSV into a column oriented data table using composite buffers
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="reader">CSV</param>
@@ -370,7 +370,7 @@ namespace BrightData
             var userNotification = context.UserNotifications;
             var parser = new CsvParser(reader, delimiter);
             using var tempStreams = context.CreateTempStreamProvider();
-            var columns = new List<HybridBufferSegment<string>>();
+            var columns = new List<CompositeBufferSegment<string>>();
             var isFirst = hasHeader;
             uint rowCount = 0;
 
@@ -398,10 +398,10 @@ namespace BrightData
 
                 var cols = row.Count;
                 for (var i = columns.Count; i < cols; i++) {
-                    var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
+                    var buffer = context.CreateCompositeStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     var columnMetaData = new MetaData();
                     columnMetaData.Set(Consts.ColumnIndex, (uint)i);
-                    columns.Add(new HybridBufferSegment<string>(context, BrightDataType.String, columnMetaData, buffer));
+                    columns.Add(new CompositeBufferSegment<string>(context, BrightDataType.String, columnMetaData, buffer));
                 }
 
                 for (var i = 0; i < cols; i++) {
@@ -555,7 +555,7 @@ namespace BrightData
         /// <param name="bufferSize">In memory cache size</param>
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IHybridBufferWithMetaData GetHybridBufferWithMetaData(
+        public static ICompositeBufferWithMetaData GetCompositeBufferWithMetaData(
             this BrightDataType type, 
             MetaData metaData, 
             BrightDataContext context, 
@@ -566,16 +566,16 @@ namespace BrightData
         {
             var columnType = GetDataType(type);
 
-            IHybridBuffer buffer;
+            ICompositeBuffer buffer;
             if (type.IsBlittable())
-                buffer = context.CreateHybridStructBuffer(GetDataType(type), tempStream, bufferSize, maxDistinct);
+                buffer = context.CreateCompositeStructBuffer(GetDataType(type), tempStream, bufferSize, maxDistinct);
             else if (type == BrightDataType.String)
-                buffer = context.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
+                buffer = context.CreateCompositeStringBuffer(tempStream, bufferSize, maxDistinct);
             else
-                buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize);
+                buffer = context.CreateCompositeObjectBuffer(GetDataType(type), tempStream, bufferSize);
 
-            var segmentType = typeof(HybridBufferSegment<>).MakeGenericType(columnType);
-            return GenericActivator.Create<IHybridBufferWithMetaData>(segmentType,
+            var segmentType = typeof(CompositeBufferSegment<>).MakeGenericType(columnType);
+            return GenericActivator.Create<ICompositeBufferWithMetaData>(segmentType,
                 context,
                 type,
                 new MetaData(metaData, Consts.StandardMetaData),

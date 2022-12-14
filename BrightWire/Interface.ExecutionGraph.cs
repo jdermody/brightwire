@@ -301,7 +301,7 @@ namespace BrightWire
         /// <summary>
         /// Creates a graph context
         /// </summary>
-        /// <param name="executionContext">Graph execution cointext</param>
+        /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequence">Mini batch sequence</param>
         /// <param name="learningContext">Learning context (null if executing without training)</param>
         /// <returns></returns>
@@ -558,7 +558,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataSource">Segment source to process</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
-        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
         /// <returns></returns>
         IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
