@@ -19,7 +19,6 @@ namespace BrightData.Cuda
 	/// </summary>
     public unsafe class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
-        readonly BrightDataContext _context;
         readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = new();
         const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
@@ -161,9 +160,17 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed = false;
 
+		/// <summary>
+		/// Constructor - tries to find most relevant CUDA kernel if none specified
+		/// </summary>
+		/// <param name="context">Bright data context</param>
+		/// <param name="cudaKernelPath">Path to CUDA kernel (optional)</param>
+		/// <param name="cudaDirectory">Path to directory that contains CUDA kernel (optional)</param>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="Exception"></exception>
 		public CudaProvider(BrightDataContext context, string? cudaKernelPath, string? cudaDirectory)
         {
-            _context = context;
+            DataContext = context;
             _cuda = new CudaContext();
 
             if (cudaKernelPath == null) {
@@ -255,6 +262,10 @@ namespace BrightData.Cuda
             _scale                  = _kernel.LoadFunction("Scale");
         }
 
+		/// <summary>
+		/// Dispose
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && !_disposed) {
@@ -273,19 +284,44 @@ namespace BrightData.Cuda
 			}
 		}
 
-		public void Dispose()
+        /// <inheritdoc />
+        public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
         }
 
-        public string Name { get; } = "Cuda";
-        BrightDataContext IHaveBrightDataContext.Context => _context;
-        public BrightDataContext DataContext => _context;
+        BrightDataContext IHaveBrightDataContext.Context => DataContext;
+
+        /// <summary>
+        /// Bright data context
+        /// </summary>
+        public BrightDataContext DataContext { get; }
+
+		/// <summary>
+		/// CUDA context
+		/// </summary>
         internal CudaContext Context => _cuda;
+
+
+        /// <summary>
+        /// CUDA BLAS provider
+        /// </summary>
         public CudaBlas Blas => _blas.Value;
+
+		/// <summary>
+		/// CUDA Solver
+		/// </summary>
         public CudaSolveDense Solver => _solver.Value;
+
+		/// <summary>
+		/// Total device memory
+		/// </summary>
 		public long TotalMemory => _cuda.GetTotalDeviceMemorySize();
+
+		/// <summary>
+		/// Free device memory
+		/// </summary>
 		public long FreeMemory => _cuda.GetFreeDeviceMemorySize();
 
         static int GetBlockCount(int size, int blockSize)
@@ -311,7 +347,7 @@ namespace BrightData.Cuda
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
 			}
 			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
@@ -330,7 +366,7 @@ namespace BrightData.Cuda
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2)), minGridSize));
 			}
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
@@ -344,7 +380,7 @@ namespace BrightData.Cuda
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/3)), minGridSize));
 			}
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
@@ -623,7 +659,7 @@ namespace BrightData.Cuda
 			Invoke(_constrain, stream, size, a.DevicePointer, size, min, max, ai);
 		}
         
-        public void RoundInPlace(IDeviceMemoryPtr a, uint size, float lower, float upper, float mid, uint ai = 1, CUstream* stream = null)
+        internal void RoundInPlace(IDeviceMemoryPtr a, uint size, float lower, float upper, float mid, uint ai = 1, CUstream* stream = null)
         {
             Invoke(_roundInPlace, stream, size, a.DevicePointer, size, lower, upper, mid, ai);
         }
@@ -833,7 +869,7 @@ namespace BrightData.Cuda
 			var ret = Allocate(outputMatrixSize * depth * count, stream, true);
 			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count, stream, true) : null;
 			var convolutions = GetConvolutions(rows, columns, filterWidth, filterHeight, xStride, yStride);
-			var size = (uint)convolutions.Count * depth * count;
+			var size = convolutions.Count * depth * count;
 
             Invoke(_tensorMaxPool, stream, size,
                 size,
@@ -912,7 +948,7 @@ namespace BrightData.Cuda
 		) {
 			var convolutions = GetConvolutions(rows, columns, filterWidth, filterHeight, xStride, yStride);
 			var filterSize = filterWidth * filterHeight;
-			var outputRows = (uint)convolutions.Count;
+			var outputRows = convolutions.Count;
 			var outputColumns = filterSize * depth;
 			var ret = Allocate(outputRows * outputColumns * count, stream, true);
 
@@ -995,138 +1031,17 @@ namespace BrightData.Cuda
             return ret;
         }
 
-        //      public IFloatVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
-
-        //      public IFloatVector CreateVector(uint length, bool setToZero = false)
-        //{
-        //	var data = Allocate(length, setToZero);
-        //	return new CudaVector(this, data, true);
-        //}
-
-        //public IFloatVector CreateVector(uint length, Func<uint, float> init)
-        //{
-        //	using var data = MemoryOwner<float>.Allocate((int)length);
-        //          var dataArray = data.DangerousGetArray().Array!;
-        //	for (uint i = 0; i < length; i++)
-        //              dataArray[i] = init(i);
-        //	var ptr = Allocate(length);
-        //	ptr.CopyToDevice(dataArray);
-
-        //	return new CudaVector(this, ptr, true);
-        //}
-
-        
-
-        //public IFloatMatrix CreateMatrixFromRows(IFloatVector[] vectorRows)
-        //{
-        //	var rows = (uint)vectorRows.Length;
-        //	var columns = vectorRows[0].Count;
-
-        //	var ret = Allocate(rows * columns);
-        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
-        //		devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-        //              CopyToMatrixRows(rows, columns, devicePtr, ret);
-        //          }
-        //	return new CudaMatrix(this, rows, columns, ret, true);
-        //}
-
-        public void CopyToMatrixRows(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to, CUstream* stream = null)
+        internal void CopyToMatrixRows(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to, CUstream* stream = null)
         {
             InvokeMatrix(_copyToMatrixRows, stream, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
         }
 
-        //public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
-        //{
-        //	var columns = (uint)vectorColumns.Length;
-        //	var rows = vectorColumns[0].Count;
-
-        //	var ret = Allocate(rows * columns);
-        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
-        //		devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-        //              CopyToMatrixColumns(rows, columns, devicePtr, ret);
-        //          }
-        //	return new CudaMatrix(this, rows, columns, ret, true);
-        //}
-
-        public void CopyToMatrixColumns(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to, CUstream* stream = null)
+        internal void CopyToMatrixColumns(uint rows, uint columns, CudaDeviceVariable<CUdeviceptr> from, IDeviceMemoryPtr to, CUstream* stream = null)
         {
             InvokeMatrix(_copyToMatrixColumns, stream, rows, columns, from.DevicePointer, to.DevicePointer, rows, columns);
         }
 
-        //public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
-        //{
-        //	var size = rows * columns;
-        //	using var data = SpanOwner<float>.Allocate((int)size);
-        //          var dataArray = data.DangerousGetArray().Array!;
-        //	for (uint j = 0; j < columns; j++) {
-        //		for (uint i = 0; i < rows; i++) {
-        //                  dataArray[j * rows + i] = init(i, j);
-        //		}
-        //	}
-        //	var ptr = Allocate(size);
-        //	ptr.CopyToDevice(dataArray);
-        //	return new CudaMatrix(this, rows, columns, ptr, true);
-        //}
-
-        //public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
-        //{
-        //	var data = Allocate(rows * columns * depth, setToZero);
-        //	return new Cuda3DTensor(this, rows, columns, depth, data, true);
-        //}
-
-        //public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
-        //{
-        //	var depth = (uint)matrices.Length;
-        //	var first = matrices[0];
-        //	var rows = first.RowCount;
-        //	var columns = first.ColumnCount;
-        //	var outputRows = rows * columns;
-        //	var outputColumns = depth;
-
-        //	var ret = Allocate(rows * columns * depth);
-        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-        //		devicePtr.CopyToDevice(matrices.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-        //		InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
-        //	}
-        //	return new Cuda3DTensor(this, rows, columns, depth, ret, true);
-        //}
-
-        //public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
-        //{
-        //	var data = Allocate(rows * columns * depth * count, setToZero);
-        //	return new Cuda4DTensor(this, rows, columns, depth, count, data, true);
-        //}
-
-        //public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
-        //{
-        //	var count = (uint)tensors.Length;
-        //	var first = tensors[0];
-        //	var rows = first.RowCount;
-        //	var columns = first.ColumnCount;
-        //	var depth = first.Depth;
-        //	var outputRows = rows * columns * depth;
-        //	var outputColumns = count;
-
-        //	var ret = Allocate(rows * columns * depth * count);
-        //	using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(count)) {
-        //		devicePtr.CopyToDevice(tensors.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
-        //		InvokeMatrix(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
-        //	}
-        //	return new Cuda4DTensor(this, rows, columns, depth, count, ret, true);
-        //}
-
-        //public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
-        //{
-        //	var first = tensors[0];
-        //	var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Length);
-        //	var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Length, data, true);
-
-        //	for (int i = 0; i < tensors.Length; i++)
-        //		ret.GetTensorAt((uint)i).Data = tensors[i];
-        //	return ret;
-        //}
-
-        public IDeviceMemoryPtr Allocate(uint size, CUstream* stream = null, bool setToZero = false)
+        internal IDeviceMemoryPtr Allocate(uint size, CUstream* stream = null, bool setToZero = false)
         {
             IDeviceMemoryPtr ret;
             if (stream is null) {
@@ -1145,18 +1060,19 @@ namespace BrightData.Cuda
             return ret;
 		}
 
-		public void BindThread()
+        /// <inheritdoc />
+        public void BindThread()
 		{
 			_cuda.SetCurrent();
 		}
 
-		public IDeviceMemoryPtr Offset(IDeviceMemoryPtr ptr, SizeT offsetByElements, SizeT size)
+        internal IDeviceMemoryPtr Offset(IDeviceMemoryPtr ptr, SizeT offsetByElements, SizeT size)
 		{
 			var offsetPtr = ptr.DevicePointer.Pointer + (offsetByElements * FloatSize);
 			return new PtrToMemory(ptr, new CUdeviceptr(offsetPtr), size * FloatSize);
 		}
 
-		public IDeviceMemoryPtr OffsetByBlock(IDeviceMemoryPtr ptr, SizeT offsetIndex, SizeT blockSize)
+        internal IDeviceMemoryPtr OffsetByBlock(IDeviceMemoryPtr ptr, SizeT offsetIndex, SizeT blockSize)
 		{
 			return Offset(ptr, blockSize * offsetIndex, blockSize);
 		}

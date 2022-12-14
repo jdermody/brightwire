@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 using var softmaxErrorMatrix = lap.CreateMatrixFromRows(softmaxError);
                 using var softmaxErrorMatrix2 = softmaxErrorMatrix.Reshape(null, 1);
                 var attentionError = softmaxErrorMatrix2.TransposeThisAndMultiply(_inputMatrix);
-                learningContext.AddError(ErrorType.Default, _source, attentionError);
+                learningContext.AddError(NodeErrorType.Default, _source, attentionError);
                 softmaxError.DisposeAll();
 
                 return left.AsGraphData();
@@ -175,7 +175,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, sequenceSize, inputMatrix, softmax));
         }
 
-        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
             _updater.Update(_attention, (IMatrix)delta, context);
         }

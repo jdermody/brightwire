@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using BrightData.Helper;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
+    /// <inheritdoc />
     public abstract unsafe class DeviceMemoryBlockBase : IDeviceMemoryPtr
     {
+        /// <summary>
+        /// CUDA device variable
+        /// </summary>
         protected CudaDeviceVariable<float> _data;
         bool _disposed = false;
         int _refCount = 0;
@@ -22,6 +23,10 @@ namespace BrightData.Cuda.Helper
         static readonly long _badDispose = -1;
         static readonly ThreadSafeHashSet<DeviceMemoryBlockBase> AllocatedBlocks = new();
 #endif
+        /// <summary>
+        /// Creates a wrapper from an existing CUDA device block
+        /// </summary>
+        /// <param name="data"></param>
         protected DeviceMemoryBlockBase(CudaDeviceVariable<float> data)
         {
             _data = data;
@@ -49,10 +54,23 @@ namespace BrightData.Cuda.Helper
         }
 #endif
 
+        /// <inheritdoc />
         public int AddRef() => Interlocked.Increment(ref _refCount);
+
+        /// <summary>
+        /// Block unique index
+        /// </summary>
         public long Index { get; }
+
+        /// <inheritdoc />
         public bool IsValid => !_disposed;
+
+        /// <summary>
+        /// Called when the block has been disposed
+        /// </summary>
         protected abstract void OnDispose();
+
+        /// <inheritdoc />
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
@@ -70,11 +88,19 @@ namespace BrightData.Cuda.Helper
             return ret;
         }
 
+        /// <inheritdoc />
         public uint Size => _data.Size;
+
+        /// <inheritdoc />
         public void Dispose() => Release();
 
+        /// <inheritdoc />
         public CudaDeviceVariable<float> DeviceVariable => _data;
+
+        /// <inheritdoc />
         public CUdeviceptr DevicePointer => _data.DevicePointer;
+
+        /// <inheritdoc />
         public virtual void CopyToDevice(float[] source)
         {
             fixed (float* ptr = &source[0]) {
@@ -83,12 +109,14 @@ namespace BrightData.Cuda.Helper
             //_data.CopyToDevice(source);
         }
 
+        /// <inheritdoc />
         public virtual void CopyToDevice(IDeviceMemoryPtr source)
         {
             DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoD_v2(DevicePointer, source.DevicePointer, Math.Min(Size, source.Size) * sizeof(float)).CheckResult();
             //_data.CopyToDevice(source.DeviceVariable);
         }
 
+        /// <inheritdoc />
         public virtual void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource = 0)
         {
             fixed (float* p = &MemoryMarshal.GetReference(span))
@@ -99,18 +127,21 @@ namespace BrightData.Cuda.Helper
             }
         }
 
+        /// <inheritdoc />
         public virtual void CopyToDevice(float* ptr, uint sourceOffset, uint targetOffset, uint size)
         {
             DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyHtoD_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)(ptr + sourceOffset), size * sizeof(float)).CheckResult();
             //DeviceVariable.CopyToDevice((IntPtr)ptr, sourceOffset, targetOffset, (int)size * sizeof(float));
         }
 
+        /// <inheritdoc />
         public virtual void CopyToHost(float[] target)
         {
             DriverAPINativeMethods.SynchronousMemcpy_v2.cuMemcpyDtoH_v2(target, DevicePointer, Math.Min(Size, target.Length) * sizeof(float));
             //_data.CopyToHost(target);
         }
 
+        /// <inheritdoc />
         public virtual void CopyToHost(ArraySegment<float> target)
         {
             fixed (float* p = &target.Array![0]) {
@@ -120,6 +151,7 @@ namespace BrightData.Cuda.Helper
             //_data.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
         }
 
+        /// <inheritdoc />
         public virtual void Clear()
         {
             DriverAPINativeMethods.Memset.cuMemsetD8_v2(DevicePointer, 0, Size * sizeof(float));
@@ -129,12 +161,14 @@ namespace BrightData.Cuda.Helper
             //    DriverAPINativeMethods.Memset.cuMemsetD16_v2(DevicePointer, 0, Size).CheckResult();
         }
 
+        /// <inheritdoc />
         public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)
         {
             var offsetPtr = _data.DevicePointer.Pointer + (offsetInFloats * sizeof(float));
             return new PtrToMemory(this, new CUdeviceptr(offsetPtr), size * sizeof(float));
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var valid = IsValid ? "" : " (invalid)";

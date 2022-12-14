@@ -1,32 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.Helper;
-using BrightData.LinearAlgebra;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+﻿using BrightData.LinearAlgebra;
 using MKLNET;
+// ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 
 namespace BrightData.MKL
 {
+    /// <summary>
+    /// Linear algebra provider that uses the Intel MKL library
+    /// </summary>
     public class MklLinearAlgebraProvider : LinearAlgebraProvider
     {
+        /// <inheritdoc />
         public MklLinearAlgebraProvider(BrightDataContext context) : base(context)
         {
             Vml.SetMode(VmlMode.EP | VmlMode.FTZDAZ_ON | VmlMode.ERRMODE_EXCEPT);
         }
 
+        /// <inheritdoc />
         public override string ProviderName => "mkl";
+
+        /// <inheritdoc />
         public override Type VectorType { get; } = typeof(MklVector);
+
+        /// <inheritdoc />
         public override Type MatrixType { get; } = typeof(MklMatrix);
+
+        /// <inheritdoc />
         public override Type Tensor3DType { get; } = typeof(MklTensor3D);
+
+        /// <inheritdoc />
         public override Type Tensor4DType { get; } = typeof(MklTensor4D);
 
+        /// <inheritdoc />
         public override IVector CreateVector(ITensorSegment data) => new MklVector(data, this);
+
+        /// <inheritdoc />
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new MklMatrix(data, rowCount, columnCount, this);
+
+        /// <inheritdoc />
         public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new MklTensor3D(data, depth, rowCount, columnCount, this);
+
+        /// <inheritdoc />
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
         ITensorSegment Apply(ITensorSegment tensor, ITensorSegment tensor2, bool initialiseToZero, Action<int, float[], float[], float[]> mkl)
@@ -116,9 +129,17 @@ namespace BrightData.MKL
             Blas.scal((int)tensor.Size, coefficient, result.GetArrayIfEasilyAvailable()!, 0, 1);
             return result;
         }
+
+        /// <inheritdoc />
         public override float DotProduct(ITensorSegment tensor, ITensorSegment tensor2) => ApplyUnderlying(tensor, tensor2, Blas.dot);
+
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => ApplyUnderlying(tensor, tensor2, false, Vml.Add);
+
+        /// <inheritdoc />
         public override ITensorSegment Abs(ITensorSegment tensor) => ApplyUnderlying(tensor, false, Vml.Abs);
+
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor);
@@ -126,8 +147,13 @@ namespace BrightData.MKL
             return ret;
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Multiply(ITensorSegment target, float scalar) => Clone(target, scalar);
+
+        /// <inheritdoc />
         public override void MultiplyInPlace(ITensorSegment target, float scalar) => ApplyUnderlying(target, (n, a, o, s) => Blas.scal(n, scalar, a, o, s));
+
+        /// <inheritdoc />
         public override IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
             int rowsA = (int)matrix.RowCount, 
@@ -155,6 +181,7 @@ namespace BrightData.MKL
             return CreateMatrix(matrix.RowCount, other.ColumnCount, ret);
         }
 
+        /// <inheritdoc />
         public override IMatrix Transpose(IMatrix matrix)
         {
             var rows = (int)matrix.RowCount;
@@ -176,6 +203,7 @@ namespace BrightData.MKL
             return CreateMatrix(matrix.ColumnCount, matrix.RowCount, ret);
         }
 
+        /// <inheritdoc />
         public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
             int rowsA = (int)matrix.RowCount, 
@@ -204,6 +232,7 @@ namespace BrightData.MKL
             return CreateMatrix(matrix.ColumnCount, other.ColumnCount, ret);
         }
 
+        /// <inheritdoc />
         public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
             int rowsA = (int)matrix.RowCount, 
@@ -231,6 +260,7 @@ namespace BrightData.MKL
             return CreateMatrix(matrix.RowCount, other.RowCount, ret);
         }
 
+        /// <inheritdoc />
         public override (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
         {
             var rows = (int)matrix.RowCount;
@@ -258,6 +288,9 @@ namespace BrightData.MKL
                 cols,
                 rWork.GetArrayIfEasilyAvailable()!
             );
+            if (ret != 0)
+                throw new Exception("Failed to compute SVD");
+
             return (
                 CreateMatrix((uint)rows, (uint)rows, u),
                 CreateVector(s),
@@ -265,56 +298,74 @@ namespace BrightData.MKL
             );
         }
 
+        /// <inheritdoc />
         public override float L1Norm(ITensorSegment segment) => ApplyUnderlying(segment, Blas.asum);
+
+        /// <inheritdoc />
         public override float L2Norm(ITensorSegment segment) => ApplyUnderlying(segment, Blas.nrm2);
+
+        /// <inheritdoc />
         public override ITensorSegment Exp(ITensorSegment tensor) => ApplyUnderlying(tensor, false, Vml.Exp);
+
+        /// <inheritdoc />
         public override ITensorSegment Tanh(ITensorSegment tensor) => ApplyUnderlying(tensor, false, Vml.Tanh);
+
+        /// <inheritdoc />
         public override ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Mul);
+
+        /// <inheritdoc />
         public override ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Div);
 
-        public override ITensorSegment Sqrt(ITensorSegment tensor)
-        {
-            // need to adjust zeros
-            return base.Sqrt(tensor);
-        }
-
+        /// <inheritdoc />
         public override ITensorSegment Log(ITensorSegment tensor) => ApplyUnderlying(tensor, false, Vml.Ln);
+
+        /// <inheritdoc />
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Sub);
+
+        /// <inheritdoc />
         public override ITensorSegment Squared(ITensorSegment tensor) => ApplyUnderlying(tensor, false, Vml.Sqr);
 
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, float scalar) => Apply(tensor, false, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var ret = ApplyUnderlying(target, other, false, Vml.Add);
             ret.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2, y, yo, ys, coefficient1, x, xo, xs));
         }
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, float scalar)
         {
             using var ret = Apply(target, false, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
             ret.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public override void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = PointwiseDivide(target, other);
             temp.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public override void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = PointwiseMultiply(target, other);
             temp.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Pow(ITensorSegment tensor, float power) => ApplyUnderlying(tensor, false, (n, x, xo, xs, r, ro, rs) => Vml.Powx(n, x, xo, xs, power, r, ro, rs));
 
+        /// <inheritdoc />
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor1);
@@ -322,12 +373,14 @@ namespace BrightData.MKL
             return ret;
         }
 
+        /// <inheritdoc />
         public override void SubtractInPlace(ITensorSegment target, ITensorSegment other)
         {
             using var temp = Subtract(target, other);
             temp.CopyTo(target);
         }
 
+        /// <inheritdoc />
         public override void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2 * -1, y, yo, ys, coefficient1, x, xo, xs));

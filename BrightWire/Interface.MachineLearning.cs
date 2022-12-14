@@ -3,7 +3,6 @@ using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using BrightData.DataTable;
-using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
@@ -148,7 +147,13 @@ namespace BrightWire
 		/// </summary>
 		uint RowCount { get; }
 
-        void AddError(ErrorType errorType, NodeBase fromNode, ITensor error);
+		/// <summary>
+		/// Adds an error to the node
+		/// </summary>
+		/// <param name="errorType">Error type</param>
+		/// <param name="fromNode">The node that created the error</param>
+		/// <param name="error">Error</param>
+        void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -441,60 +446,7 @@ namespace BrightWire
 		float[] Predict(float[][] input);
 	}
 
-	/// <summary>
-	/// A logistic regression trainer
-	/// </summary>
-	//public interface ILogisticRegressionTrainer
-	//{
-	//	/// <summary>
-	//	/// Trains a model using gradient descent
-	//	/// </summary>
-	//	/// <param name="iterations">Number of training epochs</param>
-	//	/// <param name="learningRate">The training rate</param>
-	//	/// <param name="lambda">Regularisation lambda</param>
-	//	/// <param name="costCallback">Callback with current cost - False to stop training</param>
-	//	/// <returns></returns>
-	//	LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
-
-	//	/// <summary>
-	//	/// Computes the cost of the specified parameters
-	//	/// </summary>
-	//	/// <param name="theta">The model parameters</param>
-	//	/// <param name="lambda">Regularisation lambda</param>
-	//	/// <returns></returns>
-	//	float ComputeCost(IVector theta, float lambda);
-	//}
-
-	///// <summary>
-	///// Trainer for linear regression models
-	///// </summary>
-	//public interface ILinearRegressionTrainer
-	//{
-	//	// <summary>
-	//	// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
-	//	// </summary>
-	//	// <returns></returns>
-	//	//LinearRegression Solve();
-
-	//	/// <summary>
-	//	/// Solves the model using gradient descent
-	//	/// </summary>
-	//	/// <param name="iterations">Number of training epochs</param>
-	//	/// <param name="learningRate">The training rate</param>
-	//	/// <param name="lambda">Regularisation lambda</param>
-	//	/// <param name="costCallback">Callback with current cost - False to stop training</param>
-	//	/// <returns>A trained model</returns>
-	//	LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
-
-	//	/// <summary>
-	//	/// Computes the cost of the specified parameters
-	//	/// </summary>
-	//	/// <param name="theta">The model parameters</param>
-	//	/// <param name="lambda">Regularisation lambda</param>
-	//	float ComputeCost(IVector theta, float lambda);
-	//}
-
-	/// <summary>
+    /// <summary>
 	/// Encodes index lists to dense vectors
 	/// </summary>
 	public interface IIndexListEncoder
@@ -557,10 +509,24 @@ namespace BrightWire
         IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(BrightDataTable table);
 	}
 
-    public enum ErrorType
+    /// <summary>
+    /// Node error type
+    /// </summary>
+    public enum NodeErrorType
     {
+		/// <summary>
+		/// Default error
+		/// </summary>
 		Default = 0,
+
+		/// <summary>
+		/// Error in node bias
+		/// </summary>
 		Bias,
+
+		/// <summary>
+		/// Error in node weights
+		/// </summary>
 		Weight
     }
 }

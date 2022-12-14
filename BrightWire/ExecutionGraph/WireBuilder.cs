@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
@@ -7,7 +6,6 @@ using BrightWire.ExecutionGraph.Node.Attention;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.ExecutionGraph.Node.Layer;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
@@ -479,7 +477,8 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="encoderName">Name of encoder node (must be same size as decoder)</param>
         /// <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
-        /// <param name="encoderDecoderSize">Node size</param>
+        /// <param name="encoderSize">Size of the encoder</param>
+        /// <param name="decoderSize">Size of the decoder</param>
         /// <param name="name">Optional name to give the node</param>
         public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderSize, uint decoderSize, string? name = null)
         {

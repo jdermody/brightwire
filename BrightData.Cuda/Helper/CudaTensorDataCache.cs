@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.DataTable;
 using ManagedCuda;
-using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
+    /// <summary>
+    /// Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
+    /// </summary>
     public class CudaTensorDataCache : IDisposable
     {
         readonly IDeviceMemoryPtr _data;
@@ -177,6 +176,11 @@ namespace BrightData.Cuda.Helper
             }
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="table"></param>
         public CudaTensorDataCache(CudaLinearAlgebraProvider lap, BrightDataTable table)
         {
             // copy entire tensor block into CUDA device
@@ -204,6 +208,7 @@ namespace BrightData.Cuda.Helper
             table.SetCustomColumnReaders(columnReaders);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             GC.SuppressFinalize(this);

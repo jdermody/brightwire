@@ -38,8 +38,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.AddError(ErrorType.Bias, _source, es);
-                learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
+                learningContext.AddError(NodeErrorType.Bias, _source, es);
+                learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
@@ -67,11 +67,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             Weight.Dispose();
         }
 
-        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
-            if(type == ErrorType.Bias)
+            if(type == NodeErrorType.Bias)
                 UpdateBias((IMatrix)delta, context);
-            else if (type == ErrorType.Weight)
+            else if (type == NodeErrorType.Weight)
                 UpdateWeights((IMatrix)delta, context);
             else
                 throw new NotImplementedException();

@@ -49,8 +49,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     rowSums.MultiplyInPlace(1f / feedForwardError.ColumnCount);
                     var weightUpdate = rowSums.Reshape(null, 1);
 
-                    learningContext.AddError(ErrorType.Bias, _source, feedForwardError2.Reshape(null, 1));
-                    learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
+                    learningContext.AddError(NodeErrorType.Bias, _source, feedForwardError2.Reshape(null, 1));
+                    learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
                 }
 
                 return left.AsGraphData();
@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _layer = layer;
         }
 
-        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

@@ -2,12 +2,15 @@
 
 namespace BrightData.Cuda
 {
+    /// <inheritdoc />
     public class CudaMatrix : BrightMatrix<CudaLinearAlgebraProvider>
     {
+        /// <inheritdoc />
         public CudaMatrix(ITensorSegment data, uint rows, uint columns, CudaLinearAlgebraProvider lap) : base(data, rows, columns, lap)
         {
         }
 
+        /// <inheritdoc />
         public override IReadOnlyVector[] AllColumns(bool makeCopy)
         {
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
@@ -17,6 +20,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IReadOnlyVector[] AllRows(bool makeCopy)
         {
             var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
@@ -26,6 +30,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IVector GetColumnVector(uint index)
         {
             var segment = (CudaTensorSegment)Segment;
@@ -33,6 +38,7 @@ namespace BrightData.Cuda
             return Lap.CreateVector(new CudaTensorSegment(ptr));
         }
 
+        /// <inheritdoc />
         public override IVector GetRowVector(uint index)
         {
             //return _lap.CreateVector(Row(index));

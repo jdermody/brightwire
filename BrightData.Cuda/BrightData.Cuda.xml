@@ -4,10 +4,483 @@
         <name>BrightData.Cuda</name>
     </assembly>
     <members>
+        <member name="T:BrightData.Cuda.CudaLinearAlgebraProvider">
+            <summary>
+            CUDA linear algebra provider
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.#ctor(BrightData.BrightDataContext,BrightData.Cuda.CudaProvider)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="cuda">CUDA provider</param>
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.Name">
+            <summary>
+            CUDA provider name
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.VectorType">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.MatrixType">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.Tensor3DType">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.Tensor4DType">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaLinearAlgebraProvider.Provider">
+            <summary>
+            CUDA provider
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(System.Single[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(System.UInt32,System.Func{System.UInt32,System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateVector(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateTensor3D(System.UInt32,System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateTensor4D(System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Clone(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Add(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ConstrainInPlace(BrightData.ITensorSegment,System.Nullable{System.Single},System.Nullable{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CosineDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.LeakyReluDerivative(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseMultiply(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Multiply(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.L2Norm(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseDivide(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.L1Norm(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetMinAndMaxValues(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetMin(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetMax(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.IsEntirelyFinite(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Reverse(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MeanSquaredDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SquaredEuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.EuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ManhattanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Average(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Abs(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Log(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Squared(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sigmoid(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SigmoidDerivative(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Tanh(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.TanhDerivative(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Exp(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Relu(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ReluDerivative(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.LeakyRelu(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Softmax(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SoftmaxDerivative(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Pow(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sqrt(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RoundInPlace(BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseMultiplyInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Split(BrightData.ITensorSegment,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Search(BrightData.ITensorSegment,System.Single,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ColumnSums(BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetDiagonal(BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Multiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RowSums(BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Transpose(BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.TransposeSecondAndMultiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Svd(BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.EuclideanNormalization(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FeatureScaleNormalization(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ManhattanNormalization(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.StandardNormalization(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SplitAtColumn(BrightData.IMatrix,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SplitAtRow(BrightData.IMatrix,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ConcatColumns(BrightData.IMatrix,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ConcatRows(BrightData.IMatrix,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetNewMatrixFromColumns(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetNewMatrixFromRows(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.ITensorSegment})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{System.Single[]})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{BrightData.ITensorSegment})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{System.Single[]})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.L1Regularisation(BrightData.ITensorSegment,System.Single)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddToEachColumn(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddToEachRow(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiplyEachColumnWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiplyEachRowWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(BrightData.IVector[],System.Collections.Generic.IReadOnlyList{BrightData.IVector},BrightData.DistanceMetric)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.BindThread">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sum(BrightData.ITensorSegment)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddMatrices(BrightData.ITensor3D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddPadding(BrightData.ITensor3D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddPadding(BrightData.ITensor4D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddToEachRow(BrightData.ITensor3D,BrightData.IVector)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.AddToEachColumn(BrightData.ITensor3D,BrightData.IVector)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ColumnSums(BrightData.ITensor4D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RowSums(BrightData.ITensor4D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetMatrix(BrightData.ITensor3D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetTensor(BrightData.ITensor4D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Im2Col(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Im2Col(BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MaxPool(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MaxPool(BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Multiply(BrightData.ITensor3D,BrightData.IMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RemovePadding(BrightData.ITensor3D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RemovePadding(BrightData.ITensor4D,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ReverseIm2Col(BrightData.ITensor3D,BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ReverseIm2Col(BrightData.ITensor4D,BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ReverseMaxPool(BrightData.ITensor3D,BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ReverseMaxPool(BrightData.ITensor4D,BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.ITensor3D,BrightData.ITensor4D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiSoftmax(System.ArraySegment{BrightData.ITensorSegment})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiSoftmaxDerivative(BrightData.ITensorSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SoftmaxDerivativePerRow(BrightData.IMatrix,BrightData.ITensorSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Multiply(BrightData.IMatrix,BrightData.IVector)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Cuda.CudaMatrix">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.AllColumns(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.AllRows(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.GetColumnVector(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.GetRowVector(System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Cuda.CudaProvider">
             <summary>
             Manages the bright wire cuda kernels and implements the cuda linear algebra provider
             </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.#ctor(BrightData.BrightDataContext,System.String,System.String)">
+            <summary>
+            Constructor - tries to find most relevant CUDA kernel if none specified
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="cudaKernelPath">Path to CUDA kernel (optional)</param>
+            <param name="cudaDirectory">Path to directory that contains CUDA kernel (optional)</param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.Dispose(System.Boolean)">
+            <summary>
+            Dispose
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.DataContext">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.Context">
+            <summary>
+            CUDA context
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.Blas">
+            <summary>
+            CUDA BLAS provider
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.Solver">
+            <summary>
+            CUDA Solver
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.TotalMemory">
+            <summary>
+            Total device memory
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.CudaProvider.FreeMemory">
+            <summary>
+            Free device memory
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.BindThread">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Cuda.CudaTensor3D">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaTensor3D.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Cuda.CudaTensor4D">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaTensor4D.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.ExtensionMethods">
             <summary>
@@ -21,10 +494,145 @@
             <param name="context"></param>
             <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
         </member>
+        <member name="M:BrightData.Cuda.ExtensionMethods.UseCuda(BrightData.BrightDataContext,System.String)">
+            <summary>
+            Use a CUDA linear algebra provider in this bright data context
+            </summary>
+            <param name="context"></param>
+            <param name="cudaKernelPath">Path to CUDA kernel (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Cuda.ExtensionMethods.IsCuda(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightData.Cuda.CudaLinearAlgebraProvider@)">
+            <summary>
+            Returns the CUDA linear algebra provider used by the bright data context (if any)
+            </summary>
+            <param name="lap"></param>
+            <param name="cuda"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Cuda.Helper.CudaTensorDataCache">
+            <summary>
+            Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.#ctor(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.DataTable.BrightDataTable)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="lap"></param>
+            <param name="table"></param>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Dispose">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlock">
             <summary>
             Maintains a cache of available device memory
             </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlock.#ctor(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlock.#ctor(BrightData.Cuda.Helper.MemoryPool,ManagedCuda.CudaDeviceVariable{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlock.OnDispose">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlockBase">
+            <inheritdoc />
+        </member>
+        <member name="F:BrightData.Cuda.Helper.DeviceMemoryBlockBase._data">
+            <summary>
+            CUDA device variable
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.#ctor(ManagedCuda.CudaDeviceVariable{System.Single})">
+            <summary>
+            Creates a wrapper from an existing CUDA device block
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.AddRef">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Index">
+            <summary>
+            Block unique index
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.Helper.DeviceMemoryBlockBase.IsValid">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.OnDispose">
+            <summary>
+            Called when the block has been disposed
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Release">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.Helper.DeviceMemoryBlockBase.DeviceVariable">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Cuda.Helper.DeviceMemoryBlockBase.DevicePointer">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToDevice(System.Single[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToDevice(BrightData.Cuda.IDeviceMemoryPtr)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToDevice(System.ReadOnlySpan{System.Single},System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToDevice(System.Single*,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToHost(System.Single[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.CopyToHost(System.ArraySegment{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.Offset(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.DeviceMemoryBlockBase.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Cuda.Helper.MemoryPool">
+            <summary>
+            Maintains a memory pool for CUDA blocks
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.MemoryPool.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.Helper.MemoryPool.GetPtr(System.UInt32)">
+            <summary>
+            Gets a new or existing CUDA memory block
+            </summary>
+            <param name="sizeInBytes"></param>
+            <returns></returns>
+            <exception cref="T:ManagedCuda.CudaException"></exception>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.MemoryPool.Recycle(System.UInt32,ManagedCuda.BasicTypes.CUdeviceptr)">
+            <summary>
+            Recycles a memory block (for reuse)
+            </summary>
+            <param name="sizeInBytes"></param>
+            <param name="ptr"></param>
         </member>
         <member name="T:BrightData.Cuda.Helper.PtrToMemory">
             <summary>
@@ -55,6 +663,69 @@
             <summary>
             Wrapper for a device memory pointer
             </summary>
+        </member>
+        <member name="P:BrightData.Cuda.IDeviceMemoryPtr.DeviceVariable">
+            <summary>
+            CUDA device variable - float array
+            </summary>
+        </member>
+        <member name="P:BrightData.Cuda.IDeviceMemoryPtr.DevicePointer">
+            <summary>
+            CUDA device pointer
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToDevice(System.Single[])">
+            <summary>
+            Copies from the array to the device (in this block)
+            </summary>
+            <param name="source"></param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToDevice(BrightData.Cuda.IDeviceMemoryPtr)">
+            <summary>
+            Copies from an existing block to the device (in this block)
+            </summary>
+            <param name="source"></param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToDevice(System.ReadOnlySpan{System.Single},System.UInt32)">
+            <summary>
+            Copies from the span to the device (in this block)
+            </summary>
+            <param name="span"></param>
+            <param name="targetOffset">Offset in this block to copy to</param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToDevice(System.Single*,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Copies from a pointer to the device (in this block)
+            </summary>
+            <param name="ptr">Pointer to float buffer</param>
+            <param name="sourceOffset">Offset from pointer to copy from</param>
+            <param name="targetOffset">Offset in this block to copy to</param>
+            <param name="sizeInFloats">Number of floats to copy to the device</param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToHost(System.Single[])">
+            <summary>
+            Copies from the device to an array
+            </summary>
+            <param name="target">Array to copy to</param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.CopyToHost(System.ArraySegment{System.Single})">
+            <summary>
+            Copies from the device to an array segment
+            </summary>
+            <param name="target">Array segment to copy to</param>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.Clear">
+            <summary>
+            Sets each value in the block to zero
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.IDeviceMemoryPtr.Offset(System.UInt32,System.UInt32)">
+            <summary>
+            Gets a new pointer, offset from this block
+            </summary>
+            <param name="offsetInFloats">Offset to return</param>
+            <param name="size">Size of the block</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

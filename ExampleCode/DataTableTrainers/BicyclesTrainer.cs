@@ -8,11 +8,8 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class BicyclesTrainer : DataTableTrainer
     {
-        readonly BrightDataContext _context;
-
-        public BicyclesTrainer(BrightDataContext context, BrightDataTable table) : base(table)
+        public BicyclesTrainer(BrightDataTable table) : base(table)
         {
-            _context = context;
         }
 
         //public void TrainLinearModel()

@@ -116,6 +116,10 @@ namespace BrightWire.ExecutionGraph
 			return ret ?? SimpleGradientDescent;
 		}
 
+		/// <summary>
+		/// Returns an object that can initialize weights in the graph
+		/// </summary>
+		/// <returns></returns>
 		public IWeightInitialisation GetWeightInitialisation()
 		{
 			var propertySet = CurrentPropertySet;
@@ -236,7 +240,7 @@ namespace BrightWire.ExecutionGraph
 					return new WeightedIndexListDataTableAdapter(dataTable, null, featureColumns);
 			}
 
-			// default adapator
+			// default adapter
 			return new DefaultDataTableAdapter(dataTable, null, null, featureColumns);
 		}
 

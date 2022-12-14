@@ -145,7 +145,7 @@ namespace ExampleCode.DataSet
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
 
-            return new ReberSequenceTrainer(context, ReberGrammar.GetOneHot(context, sequences.Take(500)));
+            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, sequences.Take(500)));
         }
 
         public static SequenceToSequenceTrainer OneToMany(this BrightDataContext context)
@@ -274,7 +274,7 @@ namespace ExampleCode.DataSet
             using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
 
             ret.SetTargetColumn(ret.ColumnCount-1);
-            return new BicyclesTrainer(context, ret);
+            return new BicyclesTrainer(ret);
         }
 
         public static EmotionsTrainer Emotions(this BrightDataContext context)
@@ -283,7 +283,7 @@ namespace ExampleCode.DataSet
             var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
             var test = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
             var training = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
-            return new EmotionsTrainer(context, table, training, test);
+            return new EmotionsTrainer(table, training, test);
         }
 
         public static AdultTrainer Adult(this BrightDataContext context)

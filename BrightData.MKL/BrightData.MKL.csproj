@@ -14,6 +14,7 @@
     <PackageIcon>bw_favicon.png</PackageIcon>
     <Copyright>Copyright © Jack Dermody 2016-2022</Copyright>
     <Description>MKL provider for Bright Data - allows optimised linear algebra on Intel CPUs</Description>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

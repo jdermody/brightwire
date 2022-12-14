@@ -84,7 +84,6 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Executes the graph
         /// </summary>
-        /// <param name="ct">Cancellation token</param>
         /// <param name="signal">Initial data</param>
         /// <param name="context">Context</param>
         /// <param name="channel"></param>
@@ -352,7 +351,14 @@ namespace BrightWire.ExecutionGraph.Node
             _output.Remove(wire);
         }
 
-        public virtual void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
+        /// <summary>
+        /// Applies an error to this node
+        /// </summary>
+        /// <param name="type">Error type</param>
+        /// <param name="delta"></param>
+        /// <param name="context"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
             throw new NotImplementedException();
         }

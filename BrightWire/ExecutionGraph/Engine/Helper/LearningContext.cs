@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class NodeError
         {
-            public NodeError(NodeBase node, ErrorType errorType, ITensor error)
+            public NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
             {
                 Node = node;
                 ErrorType = errorType;
@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
 
             public NodeBase Node { get; }
-            public ErrorType ErrorType { get; }
+            public NodeErrorType ErrorType { get; }
             public ITensor Error { get; }
         }
 
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void AddError(ErrorType errorType, NodeBase fromNode, ITensor error)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
         {
             if (!_updatesDisabled.Contains(fromNode))
                 _nodeError.Add(new NodeError(fromNode, errorType, error));

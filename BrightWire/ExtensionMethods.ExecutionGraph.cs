@@ -203,6 +203,11 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Returns the linear algebra provider associated from this graph context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

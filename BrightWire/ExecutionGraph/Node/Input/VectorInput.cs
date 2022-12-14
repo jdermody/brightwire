@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.AddError(ErrorType.Default, _source, columnSums);
+                learningContext.AddError(NodeErrorType.Default, _source, columnSums);
                 return errorSignal;
             }
         }
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-        public override void ApplyError(ErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
             var array = delta.Segment.GetLocalOrNewArray();
             for (uint j = 0; j < _data.Length; j++)

@@ -53,7 +53,7 @@ namespace BrightWire
         /// <summary>
         /// Classifies each row in the data table
         /// </summary>
-        /// <param name="convertible"></param>
+        /// <param name="dataTable"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
         public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
@@ -71,7 +71,6 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this BrightDataTable dataTable)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider;
             return dataTable.GetVectorisedFeatures()
                 .Select((r, i) => (Vector: r.Numeric, RowIndex: (uint) i, r.Label));
         }
@@ -153,7 +152,6 @@ namespace BrightWire
         /// <returns></returns>
         public static BrightDataTable CreateSequentialWindow(this BrightDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider;
             var builder = new BrightDataTableBuilder(dataTable.Context);
             var hasAddedColumns = false;
             var context = dataTable.Context;

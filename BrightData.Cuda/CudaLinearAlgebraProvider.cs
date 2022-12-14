@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -15,13 +12,22 @@ using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
+    /// <summary>
+    /// CUDA linear algebra provider
+    /// </summary>
     public unsafe class CudaLinearAlgebraProvider : LinearAlgebraProvider
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="cuda">CUDA provider</param>
         public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : base(context)
         {
             Provider = cuda ?? context.CreateCudaProvider();
         }
 
+        /// <inheritdoc />
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -37,21 +43,43 @@ namespace BrightData.Cuda
             Provider.Dispose();
         }
 
+        /// <summary>
+        /// CUDA provider name
+        /// </summary>
         public static string Name => "cuda";
+
+        /// <inheritdoc />
         public override string ProviderName => Name;
+
+        /// <inheritdoc />
         public override Type VectorType { get; } = typeof(CudaVector);
+
+        /// <inheritdoc />
         public override Type MatrixType { get; } = typeof(CudaMatrix);
+
+        /// <inheritdoc />
         public override Type Tensor3DType { get; } = typeof(CudaTensor3D);
+
+        /// <inheritdoc />
         public override Type Tensor4DType { get; } = typeof(CudaTensor4D);
+
+        /// <summary>
+        /// CUDA provider
+        /// </summary>
         public CudaProvider Provider { get; }
 
-        public override ITensorSegment CreateSegment(float[] data)
+        /// <inheritdoc />
+        public override ITensorSegment CreateSegment(params float[] data)
         {
             var deviceMemory = Provider.Allocate((uint)data.Length);
             deviceMemory.CopyToDevice(data);
             return new CudaTensorSegment(deviceMemory);
         }
+
+        /// <inheritdoc />
         public override ITensorSegment CreateSegment(uint size, bool initialiseToZero) => new CudaTensorSegment(Provider.Allocate(size, null, initialiseToZero));
+
+        /// <inheritdoc />
         public override ITensorSegment CreateSegment(uint size, Func<uint, float> initializer)
         {
             using var buffer = SpanOwner<float>.Allocate((int)size);
@@ -65,11 +93,20 @@ namespace BrightData.Cuda
                 return new CudaTensorSegment(deviceMemory);
             }
         }
+
+        /// <inheritdoc />
         public override IVector CreateVector(ITensorSegment data) => new CudaVector(OptionallyCopyToDevice(data), this);
+
+        /// <inheritdoc />
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, ITensorSegment data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
+
+        /// <inheritdoc />
         public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor3D(data, depth, rowCount, columnCount, this);
+
+        /// <inheritdoc />
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, ITensorSegment data) => new CudaTensor4D(data, count, depth, rowCount, columnCount, this);
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var size = rowCount * columnCount;
@@ -87,6 +124,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Clone(ITensorSegment segment)
         {
             if (CudaTensorSegment.IsCuda(segment, out var cudaSegment)) {
@@ -126,6 +164,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override float DotProduct(ITensorSegment tensor, ITensorSegment tensor2)
         {
             return Provider.Blas.Dot(
@@ -136,6 +175,7 @@ namespace BrightData.Cuda
             );
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, float scalar)
         {
             var ret = (CudaTensorSegment)CreateSegment(tensor.Size, false);
@@ -144,6 +184,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2)
         {
             var size = GetSize(tensor, tensor2);
@@ -153,18 +194,21 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             Provider.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             Provider.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor, tensor2);
@@ -174,29 +218,34 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override void AddInPlace(ITensorSegment target, float scalar)
         {
             Provider.VectorAddInPlace(GetDeviceMemoryPtr(target), target.Size, scalar);
         }
 
+        /// <inheritdoc />
         public override void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue)
         {
             var ptr = GetDeviceMemoryPtr(segment);
             Provider.Constrain(ptr, segment.Size, minValue ?? float.MinValue, maxValue ?? float.MaxValue);
         }
 
+        /// <inheritdoc />
         public override float CosineDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return Provider.CosineDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment LeakyReluDerivative(ITensorSegment tensor)
         {
             var ret = Provider.LeakyReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size);
             return new CudaTensorSegment(ret);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
@@ -204,18 +253,21 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override void SubtractInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
             Provider.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
+        /// <inheritdoc />
         public override void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             Provider.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Multiply(ITensorSegment target, float scalar)
         {
             var ret = (CudaTensorSegment)CreateSegment(target.Size, false);
@@ -224,8 +276,10 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override float L2Norm(ITensorSegment segment) => Provider.Blas.Norm2(GetDeviceVariable(segment), 1);
 
+        /// <inheritdoc />
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
@@ -235,6 +289,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2)
         {
             var size = GetSize(tensor1, tensor2);
@@ -242,6 +297,7 @@ namespace BrightData.Cuda
             return new CudaTensorSegment(ret);
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor1, tensor2);
@@ -251,6 +307,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override float L1Norm(ITensorSegment segment)
         {
             var abs = Abs(segment);
@@ -262,6 +319,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment segment)
         {
             //var buffer = MemoryOwner<float>.Allocate((int)ptr.Size);
@@ -276,19 +334,24 @@ namespace BrightData.Cuda
             var minIndex = (uint)Provider.Blas.Min(GetDeviceVariable(segment), 1) - 1;
             return (min, max, minIndex, maxIndex);
         }
-        public override float GetMin(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
-        public override float GetMax(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
-        //public override uint GetMinIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Min(GetDeviceVariable(segment), 1) - 1;
-        //public override uint GetMaxIndex(ITensorSegment2 segment) => (uint)_cuda.Blas.Max(GetDeviceVariable(segment), 1) - 1;
 
+        /// <inheritdoc />
+        public override float GetMin(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
+
+        /// <inheritdoc />
+        public override float GetMax(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
+
+        /// <inheritdoc />
         public override bool IsEntirelyFinite(ITensorSegment segment) => Provider.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
 
+        /// <inheritdoc />
         public override ITensorSegment Reverse(ITensorSegment segment)
         {
             var ret = Provider.Reverse(GetDeviceMemoryPtr(segment), segment.Size);
             return new CudaTensorSegment(ret);
         }
 
+        /// <inheritdoc />
         public override float MeanSquaredDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
@@ -302,6 +365,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override float SquaredEuclideanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var temp = Subtract(tensor, other);
@@ -314,31 +378,57 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override float EuclideanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return Provider.EuclideanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
+        /// <inheritdoc />
         public override float ManhattanDistance(ITensorSegment tensor, ITensorSegment other)
         {
             var size = GetSize(tensor, other);
             return Provider.ManhattanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
+        /// <inheritdoc />
         public override float Average(ITensorSegment segment) => Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size) / segment.Size;
+
+        /// <inheritdoc />
         public override ITensorSegment Abs(ITensorSegment tensor) => new CudaTensorSegment(Provider.Abs(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment Log(ITensorSegment tensor) => new CudaTensorSegment(Provider.Log(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment Squared(ITensorSegment tensor) => PointwiseMultiply(tensor, tensor);
+
+        /// <inheritdoc />
         public override ITensorSegment Sigmoid(ITensorSegment tensor) => new CudaTensorSegment(Provider.Sigmoid(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment SigmoidDerivative(ITensorSegment tensor) => new CudaTensorSegment(Provider.SigmoidDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment Tanh(ITensorSegment tensor) => new CudaTensorSegment(Provider.TanH(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment TanhDerivative(ITensorSegment tensor) => new CudaTensorSegment(Provider.TanHDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment Exp(ITensorSegment tensor) => new CudaTensorSegment(Provider.Exp(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment Relu(ITensorSegment tensor) => new CudaTensorSegment(Provider.Relu(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment ReluDerivative(ITensorSegment tensor) => new CudaTensorSegment(Provider.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+
+        /// <inheritdoc />
         public override ITensorSegment LeakyRelu(ITensorSegment tensor) => new CudaTensorSegment(Provider.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
 
+        /// <inheritdoc />
         public override ITensorSegment Softmax(ITensorSegment tensor) => Softmax(GetDeviceMemoryPtr(tensor), 1);
         ITensorSegment Softmax(IDeviceMemoryPtr ptr, uint stride)
         {
@@ -350,6 +440,7 @@ namespace BrightData.Cuda
             return new CudaTensorSegment(softmax);
         }
 
+        /// <inheritdoc />
         public override IMatrix SoftmaxDerivative(ITensorSegment tensor) => SoftmaxDerivative(GetDeviceMemoryPtr(tensor), 1);
         IMatrix SoftmaxDerivative(IDeviceMemoryPtr ptr, uint stride)
         {
@@ -357,8 +448,13 @@ namespace BrightData.Cuda
             return CreateMatrix(ptr.Size, ptr.Size, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override ITensorSegment Pow(ITensorSegment tensor, float power) => new CudaTensorSegment(Provider.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
+
+        /// <inheritdoc />
         public override ITensorSegment Sqrt(ITensorSegment tensor) => new CudaTensorSegment(Provider.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, 1e-8f));
+
+        /// <inheritdoc />
         public override void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
@@ -368,11 +464,13 @@ namespace BrightData.Cuda
             temp.Release();
         }
 
+        /// <inheritdoc />
         public override void RoundInPlace(ITensorSegment tensor, float lower, float upper)
         {
             Provider.RoundInPlace(GetDeviceMemoryPtr(tensor), tensor.Size, lower, upper, lower + (upper - lower) / 2);
         }
 
+        /// <inheritdoc />
         public override void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other)
         {
             var size = GetSize(target, other);
@@ -382,11 +480,13 @@ namespace BrightData.Cuda
             temp.Release();
         }
 
+        /// <inheritdoc />
         public override void MultiplyInPlace(ITensorSegment target, float scalar)
         {
             Provider.ScaleInPlace(GetDeviceMemoryPtr(target), target.Size, scalar);
         }
 
+        /// <inheritdoc />
         public override IEnumerable<ITensorSegment> Split(ITensorSegment segment, uint blockCount)
         {
             var blockSize = segment.Size / blockCount;
@@ -398,28 +498,33 @@ namespace BrightData.Cuda
             });
         }
 
+        /// <inheritdoc />
         public override float StdDev(ITensorSegment tensor, float? mean)
         {
             return Provider.FindStdDev(GetDeviceMemoryPtr(tensor), tensor.Size, mean ?? Average(tensor));
         }
 
+        /// <inheritdoc />
         public override uint? Search(ITensorSegment segment, float value, float tolerance)
         {
             return base.Search(segment, value, tolerance);
         }
 
+        /// <inheritdoc />
         public override IVector ColumnSums(IMatrix matrix)
         {
             var ret = Provider.SumColumns(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount, null);
             return CreateVector(new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IVector GetDiagonal(IMatrix matrix)
         {
             var ret = Provider.Diagonal(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount);
             return CreateVector(new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix Multiply(IMatrix matrix, IMatrix other)
         {
             var ret = Provider.Allocate(matrix.RowCount * other.ColumnCount);
@@ -444,12 +549,14 @@ namespace BrightData.Cuda
             return CreateMatrix(matrix.RowCount, other.ColumnCount, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IVector RowSums(IMatrix matrix)
         {
             var ret = Provider.SumRows(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount, null);
             return CreateVector(new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix Transpose(IMatrix matrix)
         {
             var ret = Provider.Allocate(matrix.RowCount * matrix.ColumnCount);
@@ -472,6 +579,7 @@ namespace BrightData.Cuda
             return CreateMatrix(matrix.ColumnCount, matrix.RowCount, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
         {
             var ret = Provider.Allocate(matrix.RowCount * other.RowCount);
@@ -496,6 +604,7 @@ namespace BrightData.Cuda
             return CreateMatrix(matrix.RowCount, other.RowCount, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
             var ret = Provider.Allocate(matrix.ColumnCount * other.ColumnCount);
@@ -520,6 +629,7 @@ namespace BrightData.Cuda
             return CreateMatrix(matrix.ColumnCount, other.ColumnCount, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
         {
             var solver = Provider.Solver;
@@ -580,12 +690,14 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices)
         {
             var data = Provider.VectorCopy(GetDeviceMemoryPtr(tensor), indices);
             return new CudaTensorSegment(data);
         }
 
+        /// <inheritdoc />
         public override void EuclideanNormalization(ITensorSegment segment)
         {
             var norm = L2Norm(segment);
@@ -593,6 +705,7 @@ namespace BrightData.Cuda
                 Multiply(segment, 1f / norm);
         }
 
+        /// <inheritdoc />
         public override void FeatureScaleNormalization(ITensorSegment segment)
         {
             var ptr = GetDeviceMemoryPtr(segment);
@@ -602,6 +715,7 @@ namespace BrightData.Cuda
                 Provider.Normalise(ptr, segment.Size, min, range);
         }
 
+        /// <inheritdoc />
         public override void ManhattanNormalization(ITensorSegment segment)
         {
             var norm = L1Norm(segment);
@@ -609,6 +723,7 @@ namespace BrightData.Cuda
                 Multiply(segment, 1f / norm);
         }
 
+        /// <inheritdoc />
         public override void StandardNormalization(ITensorSegment segment)
         {
             var mean = Average(segment);
@@ -617,6 +732,7 @@ namespace BrightData.Cuda
                 Provider.Normalise(GetDeviceMemoryPtr(segment), segment.Size, mean, stdDev);
         }
 
+        /// <inheritdoc />
         public override (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
         {
             var size = matrix.ColumnCount - columnIndex;
@@ -626,6 +742,7 @@ namespace BrightData.Cuda
             return (CreateMatrix(matrix.RowCount, columnIndex, new CudaTensorSegment(ret1)), CreateMatrix(matrix.RowCount, size, new CudaTensorSegment(ret2)));
         }
 
+        /// <inheritdoc />
         public override (IMatrix Top, IMatrix Bottom) SplitAtRow(IMatrix matrix, uint rowIndex)
         {
             var size = matrix.RowCount - rowIndex;
@@ -635,6 +752,7 @@ namespace BrightData.Cuda
             return (CreateMatrix(rowIndex, matrix.ColumnCount, new CudaTensorSegment(ret1)), CreateMatrix(size, matrix.ColumnCount, new CudaTensorSegment(ret2)));
         }
 
+        /// <inheritdoc />
         public override IMatrix ConcatColumns(IMatrix top, IMatrix bottom)
         {
             Debug.Assert(top.ColumnCount == bottom.ColumnCount);
@@ -644,6 +762,7 @@ namespace BrightData.Cuda
             return CreateMatrix(size, top.ColumnCount, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix ConcatRows(IMatrix left, IMatrix right)
         {
             Debug.Assert(left.RowCount == right.RowCount);
@@ -653,6 +772,7 @@ namespace BrightData.Cuda
             return CreateMatrix(left.RowCount, size, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix GetNewMatrixFromColumns(IMatrix matrix, IEnumerable<uint> columnIndices)
         {
             uint offset = 0;
@@ -665,6 +785,7 @@ namespace BrightData.Cuda
             return CreateMatrix(matrix.RowCount, (uint)indices.Count, new CudaTensorSegment(ret));
         }
 
+        /// <inheritdoc />
         public override IMatrix GetNewMatrixFromRows(IMatrix matrix, IEnumerable<uint> rowIndices)
         {
             int offset = 0;
@@ -694,6 +815,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
         {
             var allAreCuda = true;
@@ -732,6 +854,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columnSpan)
         {
             var columns = (uint)columnSpan.Length;
@@ -749,6 +872,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> vectorRows)
         {
             var allAreCuda = true;
@@ -788,6 +912,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rowSpan)
         {
             var rows = (uint)rowSpan.Length;
@@ -805,26 +930,31 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override void L1Regularisation(ITensorSegment segment, float coefficient)
         {
             Provider.L1Regularisation(GetDeviceMemoryPtr(segment), segment.Size, coefficient);
         }
 
+        /// <inheritdoc />
         public override void AddToEachColumn(IMatrix matrix, ITensorSegment segment)
         {
             Provider.AddToEachColumn(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
+        /// <inheritdoc />
         public override void AddToEachRow(IMatrix matrix, ITensorSegment segment)
         {
             Provider.AddToEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
+        /// <inheritdoc />
         public override void MultiplyEachColumnWith(IMatrix matrix, ITensorSegment segment)
         {
             Provider.MultiplyByEachColumn(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
         }
 
+        /// <inheritdoc />
         public override void MultiplyEachRowWith(IMatrix matrix, ITensorSegment segment)
         {
             Provider.MultiplyByEachRow(GetDeviceMemoryPtr(matrix.Segment), GetDeviceMemoryPtr(segment), matrix.RowCount, matrix.ColumnCount);
@@ -865,11 +995,13 @@ namespace BrightData.Cuda
             throw new Exception("CUDA tensors can only be used with other CUDA tensors");
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
         {
             return new CudaMatrix(CreateSegment(rows * columns, initialiseToZero), rows, columns, this);
         }
 
+        /// <inheritdoc />
         public override IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
         {
             if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))
@@ -895,7 +1027,7 @@ namespace BrightData.Cuda
                         columns,
                         size
                     );
-                    using var ones = CreateMatrix(rows, columns, (i, j) => 1f);
+                    using var ones = CreateMatrix(rows, columns, (_, _) => 1f);
                     using var vectorMagnitude = new CudaMatrix(new CudaTensorSegment(aa), rows, columns, this);
                     using var vectorSqrt = vectorMagnitude.Sqrt();
                     using var compareToMagnitude = new CudaMatrix(new CudaTensorSegment(bb), rows, columns, this);
@@ -927,6 +1059,7 @@ namespace BrightData.Cuda
             return matrix;
         }
 
+        /// <inheritdoc />
         public override void BindThread()
         {
             Provider.BindThread();
@@ -942,11 +1075,13 @@ namespace BrightData.Cuda
             return new(ret);
         }
 
+        /// <inheritdoc />
         public override float Sum(ITensorSegment segment)
         {
             return Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size);
         }
 
+        /// <inheritdoc />
         public override IMatrix AddMatrices(ITensor3D tensor)
         {
             var matrixSize = tensor.MatrixSize;
@@ -960,18 +1095,21 @@ namespace BrightData.Cuda
             return new CudaMatrix(ret, tensor.RowCount, tensor.ColumnCount, this);
         }
 
+        /// <inheritdoc />
         public override ITensor3D AddPadding(ITensor3D tensor, uint padding)
         {
             var (ret, rows, cols) = Provider.TensorAddPadding(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, padding);
             return new CudaTensor3D(new CudaTensorSegment(ret), tensor.Depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override ITensor4D AddPadding(ITensor4D tensor, uint padding)
         {
             var (ret, rows, cols) = Provider.TensorAddPadding(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, padding);
             return new CudaTensor4D(new CudaTensorSegment(ret), tensor.Count, tensor.Depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override void AddToEachRow(ITensor3D tensor, IVector vector)
         {
             for (uint i = 0, len = tensor.Depth; i < len; i++) {
@@ -980,6 +1118,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override void AddToEachColumn(ITensor3D tensor, IVector vector)
         {
             for (uint i = 0, len = tensor.Depth; i < len; i++) {
@@ -988,6 +1127,7 @@ namespace BrightData.Cuda
             }
         }
 
+        /// <inheritdoc />
         public override IVector ColumnSums(ITensor4D tensor)
         {
             uint matrixSize = tensor.MatrixSize, tensorSize = tensor.TensorSize, depth = tensor.Depth, count = tensor.Count;
@@ -1005,6 +1145,7 @@ namespace BrightData.Cuda
             return new CudaVector(ret, this);
         }
 
+        /// <inheritdoc />
         public override IVector RowSums(ITensor4D tensor)
         {
             uint matrixSize = tensor.MatrixSize, tensorSize = tensor.TensorSize, depth = tensor.Depth, count = tensor.Count;
@@ -1022,30 +1163,35 @@ namespace BrightData.Cuda
             return new CudaVector(ret, this);
         }
 
+        /// <inheritdoc />
         public override IMatrix GetMatrix(ITensor3D tensor, uint index)
         {
             var ptr = Provider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.MatrixSize);
             return new CudaMatrix(new CudaTensorSegment(ptr), tensor.RowCount, tensor.ColumnCount, this);
         }
 
+        /// <inheritdoc />
         public override ITensor3D GetTensor(ITensor4D tensor, uint index)
         {
             var ptr = Provider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.TensorSize);
             return new CudaTensor3D(new CudaTensorSegment(ptr), tensor.Depth, tensor.RowCount, tensor.ColumnCount, this);
         }
 
+        /// <inheritdoc />
         public override IMatrix Im2Col(ITensor3D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, columns, _) = Provider.TensorIm2Col(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, filterWidth, filterHeight, xStride, yStride);
             return new CudaMatrix(new CudaTensorSegment(ptr), rows, columns, this);
         }
 
+        /// <inheritdoc />
         public override ITensor3D Im2Col(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, columns, depth) = Provider.TensorIm2Col(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, filterWidth, filterHeight, xStride, yStride);
             return new CudaTensor3D(new CudaTensorSegment(ptr), depth, rows, columns, this);
         }
 
+        /// <inheritdoc />
         public override (ITensor3D Result, ITensor3D? Indices) MaxPool(ITensor3D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var (ptr, indices, rows, cols) = Provider.TensorMaxPool(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, filterWidth, filterHeight, xStride, yStride, saveIndices);
@@ -1054,6 +1200,7 @@ namespace BrightData.Cuda
             return (ret, indexTensor);
         }
 
+        /// <inheritdoc />
         public override (ITensor4D Result, ITensor4D? Indices) MaxPool(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var (ptr, indices, rows, cols) = Provider.TensorMaxPool(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, filterWidth, filterHeight, xStride, yStride, saveIndices);
@@ -1062,6 +1209,7 @@ namespace BrightData.Cuda
             return (ret, indexTensor);
         }
 
+        /// <inheritdoc />
         public override ITensor3D Multiply(ITensor3D tensor, IMatrix matrix)
         {
             var ptr = GetDeviceMemoryPtr(tensor.Segment);
@@ -1094,113 +1242,54 @@ namespace BrightData.Cuda
             return output;
         }
 
-        //public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix matrix)
-        //{
-        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
-        //    uint rowsA = tensor.RowCount, columnsArowsB = tensor.ColumnCount, columnsB = matrix.ColumnCount;
-        //    float alpha = 1.0f, beta = 0.0f;
-        //    var outputPtr = Provider.Allocate(tensor.RowCount * columnsB * tensor.Depth);
-        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, tensor.RowCount, columnsB, this);
-
-        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
-        //        Operation.Transpose,
-        //        Operation.NonTranspose,
-        //        (int)rowsA,
-        //        (int)columnsB,
-        //        (int)columnsArowsB,
-        //        ref alpha,
-        //        ptr.DevicePointer,
-        //        (int)rowsA,
-        //        tensor.MatrixSize,
-        //        GetDeviceMemoryPtr(matrix.Segment).DevicePointer,
-        //        (int)columnsArowsB,
-        //        0,
-        //        ref beta,
-        //        outputPtr.DevicePointer,
-        //        (int)rowsA,
-        //        tensor.RowCount * columnsB,
-        //        (int)tensor.Depth
-        //    );
-        //    if (status != CublasStatus.Success)
-        //        throw new CudaBlasException(status);
-        //    return output;
-        //}
-
+        /// <inheritdoc />
         public override ITensor3D RemovePadding(ITensor3D tensor, uint padding)
         {
             var (ptr, rows, cols) = Provider.TensorRemovePadding(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, padding);
             return new CudaTensor3D(new CudaTensorSegment(ptr), tensor.Depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override ITensor4D RemovePadding(ITensor4D tensor, uint padding)
         {
             var (ptr, rows, cols) = Provider.TensorRemovePadding(GetDeviceMemoryPtr(tensor.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, padding);
             return new CudaTensor4D(new CudaTensorSegment(ptr), tensor.Count, tensor.Depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override ITensor3D ReverseIm2Col(ITensor3D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, cols, depth, _) = Provider.TensorReverseIm2Col(GetDeviceMemoryPtr(tensor.Segment), GetDeviceMemoryPtr(filter.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
             return new CudaTensor3D(new CudaTensorSegment(ptr), depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override ITensor4D ReverseIm2Col(ITensor4D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, cols, depth, count) = Provider.TensorReverseIm2Col(GetDeviceMemoryPtr(tensor.Segment), GetDeviceMemoryPtr(filter.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
             return new CudaTensor4D(new CudaTensorSegment(ptr), count, depth, rows, cols, this);
         }
 
+        /// <inheritdoc />
         public override ITensor3D ReverseMaxPool(ITensor3D tensor, ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ptr = Provider.TensorReverseMaxPool(GetDeviceMemoryPtr(tensor.Segment), GetDeviceMemoryPtr(indices.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, 1, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
             return new CudaTensor3D(new CudaTensorSegment(ptr), tensor.Depth, outputRows, outputColumns, this);
         }
 
+        /// <inheritdoc />
         public override ITensor4D ReverseMaxPool(ITensor4D tensor, ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ptr = Provider.TensorReverseMaxPool(GetDeviceMemoryPtr(tensor.Segment), GetDeviceMemoryPtr(indices.Segment), tensor.RowCount, tensor.ColumnCount, tensor.Depth, tensor.Count, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
             return new CudaTensor4D(new CudaTensorSegment(ptr), tensor.Count, tensor.Depth, outputRows, outputColumns, this);
         }
 
-        //public override ITensor3D Multiply(ITensor3D tensor, ITensor4D other)
-        //{
-        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
-        //    var ptr2 = GetDeviceMemoryPtr(other.Segment);
-        //    uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
-        //    float alpha = 1.0f, beta = 0.0f;
-        //    var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
-        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
-
-        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
-        //        Operation.NonTranspose,
-        //        Operation.NonTranspose,
-        //        (int)columnsA,
-        //        (int)columnsB,
-        //        (int)rowsB,
-        //        ref alpha,
-        //        ptr.DevicePointer,
-        //        (int)rowsA,
-        //        tensor.MatrixSize,
-        //        ptr2.DevicePointer,
-        //        (int)rowsB,
-        //        blockSize2,
-        //        ref beta,
-        //        outputPtr.DevicePointer,
-        //        (int)columnsA,
-        //        tensor.ColumnCount * columnsB,
-        //        (int)tensor.Depth
-        //    );
-        //    if (status != CublasStatus.Success)
-        //        throw new CudaBlasException(status);
-
-        //    return output;
-        //}
-
+        /// <inheritdoc />
         public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, ITensor4D other)
         {
             var ptr = GetDeviceMemoryPtr(tensor.Segment);
             var ptr2 = GetDeviceMemoryPtr(other.Segment);
-            uint rowsA = tensor.RowCount, columnsArowsB = tensor.ColumnCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
+            uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
             float alpha = 1.0f, beta = 0.0f;
             var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
             var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
@@ -1230,40 +1319,7 @@ namespace BrightData.Cuda
             return output;
         }
 
-        //public override ITensor3D TransposeSecondAndMultiply(ITensor3D tensor, ITensor4D other)
-        //{
-        //    var ptr = GetDeviceMemoryPtr(tensor.Segment);
-        //    var ptr2 = GetDeviceMemoryPtr(other.Segment);
-        //    uint rowsA = tensor.RowCount, columnsA = tensor.ColumnCount, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
-        //    float alpha = 1.0f, beta = 0.0f;
-        //    var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
-        //    var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
-
-        //    var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
-        //        Operation.NonTranspose,
-        //        Operation.Transpose,
-        //        (int)columnsA,
-        //        (int)columnsB,
-        //        (int)rowsB,
-        //        ref alpha,
-        //        ptr.DevicePointer,
-        //        (int)rowsA,
-        //        tensor.MatrixSize,
-        //        ptr2.DevicePointer,
-        //        (int)rowsB,
-        //        blockSize2,
-        //        ref beta,
-        //        outputPtr.DevicePointer,
-        //        (int)columnsA,
-        //        tensor.ColumnCount * columnsB,
-        //        (int)tensor.Depth
-        //    );
-        //    if (status != CublasStatus.Success)
-        //        throw new CudaBlasException(status);
-
-        //    return output;
-        //}
-
+        /// <inheritdoc />
         public override ITensorSegment[] MultiSoftmax(ArraySegment<ITensorSegment> segments)
         {
             var index = 0;
@@ -1275,6 +1331,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IMatrix[] MultiSoftmaxDerivative(ITensorSegment[] segments)
         {
             var index = 0;
@@ -1286,6 +1343,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override ITensorSegment[] SoftmaxDerivativePerRow(IMatrix matrix, ITensorSegment[] rows)
         {
             uint size = rows[0].Size, rowCount = matrix.RowCount;
@@ -1320,6 +1378,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IVector Multiply(IMatrix matrix, IVector vector)
         {
             var (ptr, stride) = GetDeviceMemory(vector.Segment);

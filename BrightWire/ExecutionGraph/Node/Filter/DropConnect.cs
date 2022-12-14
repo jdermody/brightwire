@@ -35,8 +35,8 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.AddError(ErrorType.Bias, _source, es);
-                learningContext.AddError(ErrorType.Weight, _source, weightUpdate);
+                learningContext.AddError(NodeErrorType.Bias, _source, es);
+                learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }

@@ -17,9 +17,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
         }
 
-        protected ITensorSegment GetSegment(uint rowIndex, uint columnIndex, ICanRandomlyAccessData segment)
+        /// <summary>
+        /// Returns a tensor segment from a segment provider
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <param name="columnIndex"></param>
+        /// <param name="segmentProvider"></param>
+        /// <returns></returns>
+        protected ITensorSegment GetSegment(uint rowIndex, uint columnIndex, ICanRandomlyAccessData segmentProvider)
         {
-            return ((IHaveTensorSegment)segment[columnIndex]).Segment;
+            return ((IHaveTensorSegment)segmentProvider[columnIndex]).Segment;
         }
 
         /// <inheritdoc />

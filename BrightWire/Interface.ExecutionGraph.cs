@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
@@ -43,6 +42,10 @@ namespace BrightWire
         /// <returns></returns>
         IMatrix GetMatrix();
 
+        /// <summary>
+        /// Gets the signal as a 3D tensor
+        /// </summary>
+        /// <returns></returns>
         ITensor3D? Get3DTensor();
 
         /// <summary>
@@ -217,81 +220,6 @@ namespace BrightWire
         /// <returns></returns>
         IEnumerable<(string Name, IGraphData Data)> GetData(string type);
     }
-
-    /// <summary>
-    /// Graph execution context
-    /// </summary>
-    //public interface IGraphExecutionContext : IDisposable
-    //{
-    //    /// <summary>
-    //    /// Writes to a named memory slot
-    //    /// </summary>
-    //    /// <param name="slotName">Slot name</param>
-    //    /// <param name="memory">Segment</param>
-    //    void SetMemory(string slotName, IMatrix memory);
-
-    //    /// <summary>
-    //    /// Reads from a named memory slot
-    //    /// </summary>
-    //    /// <param name="slotName">Slot name</param>
-    //    /// <returns></returns>
-    //    IMatrix GetMemory(string slotName);
-
-    //    /// <summary>
-    //    /// Gets the next queued graph operation (if any)
-    //    /// </summary>
-    //    /// <returns></returns>
-    //    IGraphOperation? GetNextOperation();
-
-    //    /// <summary>
-    //    /// Adds a list of graph operations to the queue
-    //    /// </summary>
-    //    /// <param name="operationList">List of operations</param>
-    //    void Add(IEnumerable<IGraphOperation> operationList);
-
-    //    /// <summary>
-    //    /// Linear algebra provider
-    //    /// </summary>
-    //    LinearAlgebraProvider LinearAlgebraProvider { get; }
-
-    //    /// <summary>
-    //    /// How many operations remain queued
-    //    /// </summary>
-    //    int RemainingOperationCount { get; }
-
-    //    /// <summary>
-    //    /// Registers a continuation that will be executed after the current sequence has been processed in full
-    //    /// </summary>
-    //    /// <param name="sequence">Sequence index</param>
-    //    /// <param name="callback">Continuation</param>
-    //    void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext, CancellationToken> callback);
-
-    //    /// <summary>
-    //    /// Registers an additional mini batch to execute after the current mini batch has completed
-    //    /// </summary>
-    //    /// <param name="miniBatch">Mini batch to execute</param>
-    //    /// <param name="data">Initial data</param>
-    //    /// <param name="startCallback">Callback when starting the batch</param>
-    //    /// <param name="endCallback">Callback when ending the batch</param>
-    //    void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData, CancellationToken> startCallback, Action<IGraphSequenceContext[]> endCallback);
-
-    //    /// <summary>
-    //    /// True if there are registered continuations or additional mini batches to execute
-    //    /// </summary>
-    //    bool HasContinuations { get; }
-
-    //    /// <summary>
-    //    /// Execute any registered continuation for this context
-    //    /// </summary>
-    //    /// <param name="context">Context with an associated IMiniBatchSequence</param>
-    //    void Continue(IGraphSequenceContext context);
-
-    //    /// <summary>
-    //    /// Executes any additionally registered mini batches
-    //    /// </summary>
-    //    /// <param name="learningContext">Learning context (null if executing without training)</param>
-    //    IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext);
-    //}
 
     /// <summary>
     /// A type that can create a graph context
@@ -600,12 +528,13 @@ namespace BrightWire
     public interface IGraphTrainingEngine : IGraphEngine
     {
         /// <summary>
-	    /// Executes a training epoch on the graph
-	    /// </summary>
-	    /// <param name="executionContext">Graph execution context</param>
-	    /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
-	    /// <returns>Graph training error</returns>
-	    void Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null, CancellationToken ct = default);
+        /// Executes a training epoch on the graph
+        /// </summary>
+        /// <param name="executionContext">Graph execution context</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
+        /// <param name="ct"></param>
+        /// <returns>Graph training error</returns>
+        void Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null, CancellationToken ct = default);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -718,7 +647,21 @@ namespace BrightWire
         /// <param name="context">Graph learning context</param>
         void UpdateWeights(IMatrix delta, ILearningContext context);
 
+        /// <summary>
+        /// Updates the bias
+        /// </summary>
+        /// <param name="delta"></param>
+        /// <param name="context"></param>
         void UpdateBias(IMatrix delta, ILearningContext context);
+
+        /// <summary>
+        /// Executes the feed forward node
+        /// </summary>
+        /// <param name="signal"></param>
+        /// <param name="channel"></param>
+        /// <param name="context"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
         (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source);
     }
 

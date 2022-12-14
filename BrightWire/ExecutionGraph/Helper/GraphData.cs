@@ -1,6 +1,4 @@
 ﻿using BrightData;
-using System.Diagnostics;
-using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
@@ -147,7 +145,7 @@ namespace BrightWire.ExecutionGraph.Helper
     }
 
     /// <summary>
-    /// Graph data adaptor for 4D tensors
+    /// Graph data adapter for 4D tensors
     /// </summary>
     internal class Tensor4DGraphData : IGraphData
     {
@@ -179,16 +177,23 @@ namespace BrightWire.ExecutionGraph.Helper
 
     }
 
+    /// <summary>
+    /// Graph extension methods
+    /// </summary>
     public static class GraphHelperMethods
     {
-        public static IMatrix ReshapeAsMatrix(this ITensor3D tensor)
-        {
-            return tensor.Reshape(null, tensor.Depth);
-        }
+        /// <summary>
+        /// Reshapes the 3D tensor as a matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static IMatrix ReshapeAsMatrix(this ITensor3D tensor) => tensor.Reshape(null, tensor.Depth);
 
-        public static IMatrix ReshapeAsMatrix(this ITensor4D tensor)
-        {
-            return tensor.Reshape(null, tensor.Count);
-        }
+        /// <summary>
+        /// Reshapes the 4D tensor as a matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static IMatrix ReshapeAsMatrix(this ITensor4D tensor) => tensor.Reshape(null, tensor.Count);
     }
 }

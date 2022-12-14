@@ -41,6 +41,12 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <summary>
+        /// Use a CUDA linear algebra provider in this bright data context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cudaKernelPath">Path to CUDA kernel (optional)</param>
+        /// <returns></returns>
         public static CudaLinearAlgebraProvider UseCuda(this BrightDataContext context, string? cudaKernelPath = null)
         {
             var provider = CreateCudaProvider(context, cudaKernelPath);
@@ -49,6 +55,12 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <summary>
+        /// Returns the CUDA linear algebra provider used by the bright data context (if any)
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="cuda"></param>
+        /// <returns></returns>
         public static bool IsCuda(this LinearAlgebraProvider lap, [NotNullWhen(true)]out CudaLinearAlgebraProvider? cuda)
         {
             if (lap.ProviderName == CudaLinearAlgebraProvider.Name) {

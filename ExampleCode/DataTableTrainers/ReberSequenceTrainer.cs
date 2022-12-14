@@ -4,18 +4,14 @@ using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
-using MathNet.Numerics.Distributions;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class ReberSequenceTrainer : DataTableTrainer
     {
-        readonly BrightDataContext _context;
-
-        public ReberSequenceTrainer(BrightDataContext context, BrightDataTable dataTable) : base(dataTable)
+        public ReberSequenceTrainer(BrightDataTable dataTable) : base(dataTable)
         {
-            _context = context;
         }
 
         public IGraphExecutionEngine TrainSimpleRecurrent()
@@ -129,6 +125,7 @@ namespace ExampleCode.DataTableTrainers
                 Console.Write("B");
 
                 uint index = 0, eCount = 0;
+                var context = engine.LinearAlgebraProvider.Context;
                 var executionContext = engine.CreateExecutionContext();
                 var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart);
                 if (result != null) {
@@ -139,8 +136,8 @@ namespace ExampleCode.DataTableTrainers
                             .Where(d => d.Item1 >= 0.1f)
                             .ToList();
 
-                        var distribution = new Categorical(next.Select(d => d.Item1).ToArray());
-                        var nextIndex = next[distribution.Sample()].j;
+                        var distribution = context.CreateCategoricalDistribution(next.Select(d => (float)d.Item1));
+                        var nextIndex = next[(int)distribution.Sample()].j;
                         sb.Append(ReberGrammar.GetChar(nextIndex));
                         if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
                             break;

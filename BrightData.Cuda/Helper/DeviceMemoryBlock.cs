@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
-using BrightData.Helper;
-using ManagedCuda;
+﻿using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
@@ -18,9 +10,11 @@ namespace BrightData.Cuda.Helper
     {
         readonly MemoryPool? _memoryPool = null;
 
+        /// <inheritdoc />
         public DeviceMemoryBlock(uint size) : base(Create(size))
         {
         }
+
         static CudaDeviceVariable<float> Create(uint size)
         {
             var sizeInBytes = size * CudaProvider.FloatSize;
@@ -29,12 +23,15 @@ namespace BrightData.Cuda.Helper
             CudaProvider.CheckForError(result);
             return new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
         }
+
+        /// <inheritdoc />
         public DeviceMemoryBlock(MemoryPool? memoryPool, CudaDeviceVariable<float> data) : base(data)
         {
             _data = data;
             _memoryPool = memoryPool;
         }
 
+        /// <inheritdoc />
         protected override void OnDispose()
         {
             _memoryPool?.Recycle(_data.SizeInBytes, _data.DevicePointer);

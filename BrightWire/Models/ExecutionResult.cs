@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 
 namespace BrightWire.Models
 {
@@ -14,10 +11,11 @@ namespace BrightWire.Models
 		readonly IMiniBatchSequence _miniBatch;
 
         /// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="miniBatch">The mini batch sequence</param>
-		/// <param name="output">The mini batch output</param>
+        /// Constructor
+        /// </summary>
+        /// <param name="miniBatch">The mini batch sequence</param>
+        /// <param name="output">The mini batch output</param>
+        /// <param name="wantInputInExecutionResults">True to save graph inputs in the execution results</param>
         public ExecutionResult(IMiniBatchSequence miniBatch, IMatrix output, bool wantInputInExecutionResults)
         {
             _miniBatch = miniBatch;

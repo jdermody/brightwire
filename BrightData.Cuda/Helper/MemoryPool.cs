@@ -9,14 +9,14 @@ using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
+    /// <summary>
+    /// Maintains a memory pool for CUDA blocks
+    /// </summary>
     public class MemoryPool : IDisposable
     {
         readonly ConcurrentDictionary<uint, ConcurrentStack<CUdeviceptr>> _memoryPool = new();
 
-        public MemoryPool()
-        {
-        }
-
+        /// <inheritdoc />
         public void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -26,6 +26,12 @@ namespace BrightData.Cuda.Helper
             }
         }
 
+        /// <summary>
+        /// Gets a new or existing CUDA memory block
+        /// </summary>
+        /// <param name="sizeInBytes"></param>
+        /// <returns></returns>
+        /// <exception cref="CudaException"></exception>
         public CUdeviceptr GetPtr(uint sizeInBytes)
         {
             CUdeviceptr ret;
@@ -41,10 +47,12 @@ namespace BrightData.Cuda.Helper
             return ret;
         }
 
-        public void Recycle(uint sizeInBytes, CUdeviceptr ptr)
-        {
-            GetBlock(sizeInBytes).Push(ptr);
-        }
+        /// <summary>
+        /// Recycles a memory block (for reuse)
+        /// </summary>
+        /// <param name="sizeInBytes"></param>
+        /// <param name="ptr"></param>
+        public void Recycle(uint sizeInBytes, CUdeviceptr ptr) => GetBlock(sizeInBytes).Push(ptr);
 
         ConcurrentStack<CUdeviceptr> GetBlock(uint sizeInBytes) => _memoryPool.AddOrUpdate(sizeInBytes, _ => new(), (_, existing) => existing);
     }
