@@ -4495,7 +4495,7 @@
             Indicates that the type can create a readonly span of floats
             </summary>
         </member>
-        <member name="M:BrightData.IHaveSpanOfFloats.GetFloatSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.IHaveSpanOfFloats.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <summary>
             Returns a span of floats
             </summary>
@@ -5831,7 +5831,7 @@
             Sets each value within the segment to zero
             </summary>
         </member>
-        <member name="M:BrightData.ITensorSegment.GetSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.ITensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <summary>
             Returns a span from the current segment
             </summary>
@@ -6653,7 +6653,7 @@
             <param name="segment">Optional segment to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.GetRowSpan(System.UInt32,Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
+        <member name="M:BrightData.IMatrix.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
             <summary>
             Returns a row as a span
             </summary>
@@ -7195,7 +7195,7 @@
         <member name="M:BrightData.LinearAlgebra.ArrayBasedTensorSegment.Clear">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.ArrayBasedTensorSegment.GetSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.ArrayBasedTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ArrayBasedTensorSegment.GetSpan(System.UInt32)">
@@ -7215,7 +7215,7 @@
             A tensor segment that temporarily owns a buffer from an array pool
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.#ctor(Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner{System.Single})">
+        <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.#ctor(CommunityToolkit.HighPerformance.Buffers.MemoryOwner{System.Single})">
             <summary>
             Constructor
             </summary>
@@ -7278,7 +7278,7 @@
         <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.Clear">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.GetSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ArrayPoolTensorSegment.GetSpan(System.UInt32)">
@@ -7355,7 +7355,7 @@
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Column(System.UInt32,BrightData.ITensorSegment)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetRowSpan(System.UInt32,Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetColumnSpan(System.UInt32)">
@@ -7775,7 +7775,7 @@
         <member name="P:BrightData.LinearAlgebra.BrightTensorBase`2.LinearAlgebraProvider">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetFloatSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.Reshape">
@@ -8637,7 +8637,7 @@
         <member name="M:BrightData.LinearAlgebra.TensorSegmentWrapper.Clear">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.TensorSegmentWrapper.GetSpan(Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.TensorSegmentWrapper.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.TensorSegmentWrapper.GetSpan(System.UInt32)">

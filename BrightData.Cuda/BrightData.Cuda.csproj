@@ -134,7 +134,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

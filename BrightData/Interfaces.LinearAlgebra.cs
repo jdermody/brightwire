@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {

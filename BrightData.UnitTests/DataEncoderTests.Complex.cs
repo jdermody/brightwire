@@ -139,7 +139,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeBinaryData()
         {
-            Encode(new BinaryData(new byte[] { 1, 2, 3 }), options => options.ComparingByMembers<BinaryData>());
+            Encode(new BinaryData(new byte[] { 1, 2, 3 }), options => options.ComparingByValue<BinaryData>());
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace BrightData.UnitTests
             EncodeArray(new[] {
                 new BinaryData(new byte[] { 1, 2, 3 }),
                 new BinaryData(new byte[] { 2, 3, 4 })
-            }, options => options.ComparingByMembers<BinaryData>());
+            }, options => options.ComparingByValue<BinaryData>());
         }
     }
 }

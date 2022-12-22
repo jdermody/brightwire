@@ -8,7 +8,7 @@ using BrightData.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
-using Microsoft.Toolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {

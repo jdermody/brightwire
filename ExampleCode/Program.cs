@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
+using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
@@ -19,18 +20,24 @@ namespace ExampleCode
         static void Main()
         {
             using var context = new BrightDataContext(null, RandomSeed);
-            bool useCuda = false, useMkl = false;
+            bool useCuda = true, useMkl = true;
 
-            // IMPORTANT: uncomment below if you have an Intel CPU
-            useMkl = true;
+            // IMPORTANT: comment the following line to disable MKL (for example if you do not have an Intel CPU)
+            // ALSO: check the mkl.net nuget package version is correct for your OS (default for ExampleCode is Windows x64)
+            //useMkl = false;
 
-            // IMPORTANT: uncomment below to use CUDA (if you have a NVIDA GPU and installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit)
-            useCuda = true;
+            // IMPORTANT: comment the following line to disable CUDA (for example if you have a do not have an NVIDA GPU)
+            // ALSO: make sure you have installed CUDA toolkit from https://developer.nvidia.com/cuda-toolkit
+            //useCuda = false;
 
             // IMPORTANT: set where to save training data files
-            context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
+            context.Set(
+                "DataFileDirectory", 
+                new DirectoryInfo(@"c:\data")
+            );
 
             //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+
             Xor(context, useMkl);
             IrisClassification(context, useMkl);
             IrisClustering(context, useMkl);
@@ -145,7 +152,7 @@ namespace ExampleCode
         {
             Start(context, useMkl, useCuda);
             using var mnist = context.Mnist();
-            mnist.TrainConvolutionalNeuralNetwork(1024, 1);
+            mnist.TrainConvolutionalNeuralNetwork();
         }
 
         static void SentimentClassification(BrightDataContext context, bool useMkl, bool useCuda)

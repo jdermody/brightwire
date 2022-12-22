@@ -80,22 +80,22 @@ namespace BrightData.MKL
             return result;
         }
 
-        float Apply(ITensorSegment tensor, Func<int, float[], float> mkl)
+        static float Apply(ITensorSegment tensor, Func<int, float[], float> mkl)
         {
             return mkl((int)tensor.Size, tensor.GetLocalOrNewArray());
         }
-        float ApplyUnderlying(ITensorSegment tensor, Func<int, float[], int, int, float> mkl)
+        static float ApplyUnderlying(ITensorSegment tensor, Func<int, float[], int, int, float> mkl)
         {
             var underlying = tensor.GetUnderlyingArray();
             return mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride);
         }
 
-        float Apply(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], float[], float> mkl)
+        static float Apply(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], float[], float> mkl)
         {
             var size = GetSize(tensor, tensor2);
             return mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
         }
-        float ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], int, int, float[], int, int, float> mkl)
+        static float ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Func<int, float[], int, int, float[], int, int, float> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
@@ -103,12 +103,12 @@ namespace BrightData.MKL
             return mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride);
         }
 
-        void Apply(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], float[]> mkl)
+        static void Apply(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], float[]> mkl)
         {
             var size = GetSize(tensor, tensor2);
             mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
         }
-        void ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], int, int, float[], int, int> mkl)
+        static void ApplyUnderlying(ITensorSegment tensor, ITensorSegment tensor2, Action<int, float[], int, int, float[], int, int> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
@@ -116,7 +116,7 @@ namespace BrightData.MKL
             mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride);
         }
 
-        void ApplyUnderlying(ITensorSegment tensor, Action<int, float[], int, int> mkl)
+        static void ApplyUnderlying(ITensorSegment tensor, Action<int, float[], int, int> mkl)
         {
             var underlying = tensor.GetUnderlyingArray();
             mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride);

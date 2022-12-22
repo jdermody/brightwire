@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
-using Microsoft.Toolkit.HighPerformance.Buffers;
-using Microsoft.Toolkit.HighPerformance.Helpers;
+using CommunityToolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Helpers;
 
 namespace BrightData
 {

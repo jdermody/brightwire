@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using BrightData.Buffer;
 using BrightData.Buffer.ReadOnly;
 using FluentAssertions;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 using Xunit;
 
 namespace BrightData.UnitTests
