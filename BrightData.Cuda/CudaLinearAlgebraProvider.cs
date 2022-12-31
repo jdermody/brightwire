@@ -452,7 +452,7 @@ namespace BrightData.Cuda
         public override ITensorSegment Pow(ITensorSegment tensor, float power) => new CudaTensorSegment(Provider.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
 
         /// <inheritdoc />
-        public override ITensorSegment Sqrt(ITensorSegment tensor) => new CudaTensorSegment(Provider.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, 1e-8f));
+        public override ITensorSegment Sqrt(ITensorSegment tensor, float adjustment = FloatMath.AlmostZero) => new CudaTensorSegment(Provider.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, adjustment));
 
         /// <inheritdoc />
         public override void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other)
@@ -691,45 +691,10 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices)
+        public override ITensorSegment CherryPickIndices(ITensorSegment tensor, params uint[] indices)
         {
             var data = Provider.VectorCopy(GetDeviceMemoryPtr(tensor), indices);
             return new CudaTensorSegment(data);
-        }
-
-        /// <inheritdoc />
-        public override void EuclideanNormalization(ITensorSegment segment)
-        {
-            var norm = L2Norm(segment);
-            if (FloatMath.IsNotZero(norm))
-                Multiply(segment, 1f / norm);
-        }
-
-        /// <inheritdoc />
-        public override void FeatureScaleNormalization(ITensorSegment segment)
-        {
-            var ptr = GetDeviceMemoryPtr(segment);
-            var (min, max) = Provider.FindMinAndMax(ptr, segment.Size);
-            var range = max - min;
-            if (FloatMath.IsNotZero(range))
-                Provider.Normalise(ptr, segment.Size, min, range);
-        }
-
-        /// <inheritdoc />
-        public override void ManhattanNormalization(ITensorSegment segment)
-        {
-            var norm = L1Norm(segment);
-            if (FloatMath.IsNotZero(norm))
-                Multiply(segment, 1f / norm);
-        }
-
-        /// <inheritdoc />
-        public override void StandardNormalization(ITensorSegment segment)
-        {
-            var mean = Average(segment);
-            var stdDev = StdDev(segment, mean);
-            if (FloatMath.IsNotZero(stdDev))
-                Provider.Normalise(GetDeviceMemoryPtr(segment), segment.Size, mean, stdDev);
         }
 
         /// <inheritdoc />

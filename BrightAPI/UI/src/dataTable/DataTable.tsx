@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { DataTableGrid } from '../common/DataTableGrid';
 import { Splitter } from '../common/Splitter';
+import { useCloseCurrentPanel } from '../hooks/closeCurrentPanel';
 import { ColumnConversionType, DataTableInfoModel, NamedItemModel, NewColumnFromExistingColumnsModel, NormalizationType, RangeModel } from '../models';
 import { dataTablesChangeState } from '../state/dataTablesState';
 import { webClientState } from '../state/webClientState';
@@ -77,6 +78,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
     const [canCompleteOperation, setCanCompleteOperation] = useState(true);
     const [rowGroups, setRowGroups] = useState<RangeModel[]>([]);
     const [columnGroups, setColumnGroups] = useState<NewColumnFromExistingColumnsModel[]>([]);
+    const onClose = useCloseCurrentPanel();
 
     useEffect(() => {
         webClient.getDataTableInfo(id).then(setDataTableInfo);
@@ -232,9 +234,7 @@ export const DataTable = ({id, openDataTable}: DataTableProps) => {
                 </Navbar.Group>
                 <Navbar.Group align={Alignment.RIGHT}>
                     <div className="info">{dataTableInfo.rowCount.toLocaleString()} row{dataTableInfo.rowCount > 1 ? 's' : ''}</div>
-                    <Button icon="cross" large={false} onClick={() => {
-                        // setIsOpen(false);
-                    }} />
+                    <Button icon="cross" large={false} onClick={onClose} />
                 </Navbar.Group>
             </Navbar> : <Navbar>
                 <Navbar.Group align={Alignment.LEFT}>

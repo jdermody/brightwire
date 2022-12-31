@@ -775,63 +775,420 @@ namespace BrightData.LinearAlgebra
             };
         }
 
-        // virtual tensor operations
-#pragma warning disable CS1591
+        /// <summary>
+        /// Adds two tensors into a new tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="tensor2"></param>
+        /// <returns></returns>
         public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2) => tensor.Add(tensor2);
-        public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
-        public virtual ITensorSegment Add(ITensorSegment tensor, float scalar) => tensor.Add(scalar);
-        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other) => target.AddInPlace(other);
-        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.AddInPlace(other, coefficient1, coefficient2);
-        public virtual void AddInPlace(ITensorSegment target, float scalar) => target.AddInPlace(scalar);
-        public virtual void MultiplyInPlace(ITensorSegment target, float scalar) => target.MultiplyInPlace(scalar);
-        public virtual ITensorSegment Multiply(ITensorSegment target, float scalar) => target.Multiply(scalar);
-        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.Subtract(tensor2);
-        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.Subtract(tensor2, coefficient1, coefficient2);
-        public virtual void SubtractInPlace(ITensorSegment target, ITensorSegment other) => target.SubtractInPlace(other);
-        public virtual void SubtractInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.SubtractInPlace(other, coefficient1, coefficient2);
-        public virtual ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseMultiply(tensor2);
-        public virtual void PointwiseMultiplyInPlace(ITensorSegment target, ITensorSegment other) => target.PointwiseMultiplyInPlace(other);
-        public virtual ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseDivide(tensor2);
-        public virtual void PointwiseDivideInPlace(ITensorSegment target, ITensorSegment other) => target.PointwiseDivideInPlace(other);
-        public virtual float DotProduct(ITensorSegment tensor, ITensorSegment tensor2) => tensor.DotProduct(tensor2);
-        public virtual ITensorSegment Sqrt(ITensorSegment tensor) => tensor.Sqrt();
-        public virtual uint? Search(ITensorSegment segment, float value, float tolerance) => segment.Search(value, tolerance);
-        public virtual void ConstrainInPlace(ITensorSegment segment, float? minValue, float? maxValue) => segment.ConstrainInPlace(minValue, maxValue);
-        public virtual float Average(ITensorSegment segment) => segment.Average();
-        public virtual float L1Norm(ITensorSegment segment) => segment.L1Norm();
-        public virtual float L2Norm(ITensorSegment segment) => segment.L2Norm();
-        public virtual (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment segment) => segment.GetMinAndMaxValues();
-        public virtual uint GetMinIndex(ITensorSegment segment) => GetMinAndMaxValues(segment).MinIndex;
-        public virtual uint GetMaxIndex(ITensorSegment segment) => GetMinAndMaxValues(segment).MaxIndex;
-        public virtual float GetMin(ITensorSegment segment) => GetMinAndMaxValues(segment).Min;
-        public virtual float GetMax(ITensorSegment segment) => GetMinAndMaxValues(segment).Max;
-        public virtual bool IsEntirelyFinite(ITensorSegment segment) => segment.IsEntirelyFinite();
-        public virtual ITensorSegment Reverse(ITensorSegment segment) => segment.Reverse();
-        public virtual IEnumerable<ITensorSegment> Split(ITensorSegment segment, uint blockCount) => segment.Split(blockCount);
-        public virtual float CosineDistance(ITensorSegment tensor, ITensorSegment other) => tensor.CosineDistance(other);
-        public virtual float EuclideanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.EuclideanDistance(other);
-        public virtual float MeanSquaredDistance(ITensorSegment tensor, ITensorSegment other) => tensor.MeanSquaredDistance(other);
-        public virtual float SquaredEuclideanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.SquaredEuclideanDistance(other);
-        public virtual float ManhattanDistance(ITensorSegment tensor, ITensorSegment other) => tensor.ManhattanDistance(other);
-        public virtual ITensorSegment Abs(ITensorSegment tensor) => tensor.Abs();
-        public virtual ITensorSegment Log(ITensorSegment tensor) => tensor.Log();
-        public virtual ITensorSegment Exp(ITensorSegment tensor) => tensor.Exp();
-        public virtual ITensorSegment Squared(ITensorSegment tensor) => tensor.Squared();
-        public virtual float StdDev(ITensorSegment tensor, float? mean) => tensor.StdDev(mean);
-        public virtual ITensorSegment Sigmoid(ITensorSegment tensor) => tensor.Sigmoid();
-        public virtual ITensorSegment SigmoidDerivative(ITensorSegment tensor) => tensor.SigmoidDerivative();
-        public virtual ITensorSegment Tanh(ITensorSegment tensor) => tensor.Tanh();
-        public virtual ITensorSegment TanhDerivative(ITensorSegment tensor) => tensor.TanhDerivative();
-        public virtual ITensorSegment Relu(ITensorSegment tensor) => tensor.Relu();
-        public virtual ITensorSegment ReluDerivative(ITensorSegment tensor) => tensor.ReluDerivative();
-        public virtual ITensorSegment LeakyRelu(ITensorSegment tensor) => tensor.LeakyRelu();
-        public virtual ITensorSegment LeakyReluDerivative(ITensorSegment tensor) => tensor.LeakyReluDerivative();
-        public virtual ITensorSegment Softmax(ITensorSegment tensor) => tensor.Softmax();
-        public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor) => tensor.SoftmaxDerivative(this);
-        public virtual ITensorSegment Pow(ITensorSegment tensor, float power) => tensor.Pow(power);
-        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper) => tensor.RoundInPlace(lower, upper);
-        public virtual ITensorSegment CherryPickIndices(ITensorSegment tensor, uint[] indices) => tensor.CherryPickIndices(indices);
 
+        /// <summary>
+        /// Adds two tensors into a new tensor and applies coefficients to each element in the two tensors
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="tensor2"></param>
+        /// <param name="coefficient1"></param>
+        /// <param name="coefficient2"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Add(ITensorSegment tensor, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor.Add(tensor2, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Creates a new tensor from adding a scalar to each element in the tensor 
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Add(ITensorSegment tensor, float scalar) => tensor.Add(scalar);
+
+        /// <summary>
+        /// Adds another tensor to the first tensor which will be modified in place
+        /// </summary>
+        /// <param name="target">First tensor</param>
+        /// <param name="other">Other tensor</param>
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other) => target.AddInPlace(other);
+
+        /// <summary>
+        /// Adds another tensor to the first tensor and applies coefficients to each element in each tensor
+        /// </summary>
+        /// <param name="target">First tensor</param>
+        /// <param name="other">Other tensor</param>
+        /// <param name="coefficient1">Coefficient applied to each element of the first tensor</param>
+        /// <param name="coefficient2">Coefficient applied to each element of the other tensor</param>
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.AddInPlace(other, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Adds a scalar to each element of this tensor - modified in place
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="scalar"></param>
+        public virtual void AddInPlace(ITensorSegment target, float scalar) => target.AddInPlace(scalar);
+
+        /// <summary>
+        /// Multiplies each element of the tensor by a scalar - modified in place
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="scalar"></param>
+        public virtual void MultiplyInPlace(ITensorSegment target, float scalar) => target.MultiplyInPlace(scalar);
+
+        /// <summary>
+        /// Creates a new tensor by multiplying each element of the tensor with a scalar
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Multiply(ITensorSegment target, float scalar) => target.Multiply(scalar);
+
+        /// <summary>
+        /// Subtracts the second tensor from the first tensor into a new tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.Subtract(tensor2);
+
+        /// <summary>
+        /// Subtracts the second tensor from the first tensor into a new tensor and applies coefficients to each value in each tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
+        /// <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
+        /// <returns></returns>
+        public virtual ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.Subtract(tensor2, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Subtracts the second tensor from the first tensor - first tensor modified in place
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.SubtractInPlace(tensor2);
+
+        /// <summary>
+        /// Subtracts the second tensor from the first tensor and applies coefficient to each value in the tensors - first tensor modified in place
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
+        /// <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
+        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.SubtractInPlace(tensor2, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Creates a new tensor by multiplying each element in the first tensor with the corresponding value in the second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual ITensorSegment PointwiseMultiply(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseMultiply(tensor2);
+
+        /// <summary>
+        /// Multiplies each element in the first tensor with the corresponding value in the second tensor - first tensor modified in place
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        public virtual void PointwiseMultiplyInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseMultiplyInPlace(tensor2);
+        
+        /// <summary>
+        /// Creates a new tensor by dividing each element in the first tensor with the corresponding value in the second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual ITensorSegment PointwiseDivide(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseDivide(tensor2);
+
+        /// <summary>
+        /// Dividing each element in the first tensor with the corresponding value in the second tensor - first tensor is modified in place
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        public virtual void PointwiseDivideInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.PointwiseDivideInPlace(tensor2);
+
+        /// <summary>
+        /// Calculates the dot product of the first with the second tensor
+        /// </summary>
+        /// <param name="tensor1"></param>
+        /// <param name="tensor2"></param>
+        /// <returns></returns>
+        public virtual float DotProduct(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.DotProduct(tensor2);
+
+        /// <summary>
+        /// Creates a new tensor that contains the square root of each value in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="adjustment">A small value to add to each value in case of zeros</param>
+        /// <returns></returns>
+        public virtual ITensorSegment Sqrt(ITensorSegment tensor, float adjustment = FloatMath.AlmostZero) => tensor.Sqrt(adjustment);
+
+        /// <summary>
+        /// Finds the index (if any) of the first element with a matching value
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="value"></param>
+        /// <param name="tolerance"></param>
+        /// <returns></returns>
+        public virtual uint? Search(ITensorSegment tensor, float value, float tolerance = FloatMath.AlmostZero) => tensor.Search(value, tolerance);
+
+        /// <summary>
+        /// Constrains each value in this tensor to lie between the min and max values (if supplied)
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        public virtual void ConstrainInPlace(ITensorSegment tensor, float? minValue, float? maxValue) => tensor.ConstrainInPlace(minValue, maxValue);
+
+        /// <summary>
+        /// Finds the average of the values in the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual float Average(ITensorSegment tensor) => tensor.Average();
+
+        /// <summary>
+        /// Finds the L1 norm (manhattan distance) of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual float L1Norm(ITensorSegment tensor) => tensor.L1Norm();
+
+        /// <summary>
+        /// Finds the L2 norm (euclidean distance) of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual float L2Norm(ITensorSegment tensor) => tensor.L2Norm();
+
+        /// <summary>
+        /// Finds the minimum and maximum values of the tensor (and their corresponding indices)
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment tensor) => tensor.GetMinAndMaxValues();
+
+        /// <summary>
+        /// Finds the index of the minimum value of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual uint GetMinIndex(ITensorSegment tensor) => GetMinAndMaxValues(tensor).MinIndex;
+
+        /// <summary>
+        /// Finds the index of the maximum value of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual uint GetMaxIndex(ITensorSegment tensor) => GetMinAndMaxValues(tensor).MaxIndex;
+
+        /// <summary>
+        /// Finds the minimum value of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual float GetMin(ITensorSegment tensor) => GetMinAndMaxValues(tensor).Min;
+
+        /// <summary>
+        /// Finds the maximum value of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual float GetMax(ITensorSegment tensor) => GetMinAndMaxValues(tensor).Max;
+
+        /// <summary>
+        /// Checks if the tensor is entirely finite (not NaN or Infinity)
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual bool IsEntirelyFinite(ITensorSegment tensor) => tensor.IsEntirelyFinite();
+
+        /// <summary>
+        /// Reverse the order of the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Reverse(ITensorSegment tensor) => tensor.Reverse();
+
+        /// <summary>
+        /// Splits the tensor into separate (contiguous) sub tensors
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="blockCount">Number of blocks to split into</param>
+        /// <returns></returns>
+        public virtual IEnumerable<ITensorSegment> Split(ITensorSegment tensor, uint blockCount) => tensor.Split(blockCount);
+
+        /// <summary>
+        /// Finds the cosine distance between the first and second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual float CosineDistance(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.CosineDistance(tensor2);
+
+        /// <summary>
+        /// Finds the euclidean distance between the first and second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual float EuclideanDistance(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.EuclideanDistance(tensor2);
+
+        /// <summary>
+        /// Finds the mean squared distance between the first and second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual float MeanSquaredDistance(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.MeanSquaredDistance(tensor2);
+
+        /// <summary>
+        /// Finds the squared euclidean distance between the first and second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual float SquaredEuclideanDistance(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.SquaredEuclideanDistance(tensor2);
+
+        /// <summary>
+        /// Finds the manhattan distance between the first and second tensor
+        /// </summary>
+        /// <param name="tensor1">First tensor</param>
+        /// <param name="tensor2">Second tensor</param>
+        /// <returns></returns>
+        public virtual float ManhattanDistance(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.ManhattanDistance(tensor2);
+
+        /// <summary>
+        /// Creates a new tensor that contains the absolute value of each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Abs(ITensorSegment tensor) => tensor.Abs();
+
+        /// <summary>
+        /// Creates a new tensor that contains the natural logarithm of each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Log(ITensorSegment tensor) => tensor.Log();
+
+        /// <summary>
+        /// Creates a new tensor that contains the exponent of each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Exp(ITensorSegment tensor) => tensor.Exp();
+
+        /// <summary>
+        /// Creates a new tensor that contains the square of each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Squared(ITensorSegment tensor) => tensor.Squared();
+
+        /// <summary>
+        /// Finds the standard deviation of each element in the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="mean">Precalculated mean of the tensor or null to calculate</param>
+        /// <returns></returns>
+        public virtual float StdDev(ITensorSegment tensor, float? mean) => tensor.StdDev(mean);
+
+        /// <summary>
+        /// Creates a new tensor that contains the sigmoid function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Sigmoid(ITensorSegment tensor) => tensor.Sigmoid();
+
+        /// <summary>
+        /// Creates a new tensor that contains the derivative of the sigmoid function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment SigmoidDerivative(ITensorSegment tensor) => tensor.SigmoidDerivative();
+
+        /// <summary>
+        /// Creates a new tensor that contains the tanh function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Tanh(ITensorSegment tensor) => tensor.Tanh();
+
+        /// <summary>
+        /// Creates a new tensor that contains the derivative of the tanh function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment TanhDerivative(ITensorSegment tensor) => tensor.TanhDerivative();
+
+        /// <summary>
+        /// Creates a new tensor that contains the relu function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Relu(ITensorSegment tensor) => tensor.Relu();
+
+        /// <summary>
+        /// Creates a new tensor that contains the derivative of the relu function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment ReluDerivative(ITensorSegment tensor) => tensor.ReluDerivative();
+
+        /// <summary>
+        /// Creates a new tensor that contains the leaky relu function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment LeakyRelu(ITensorSegment tensor) => tensor.LeakyRelu();
+
+        /// <summary>
+        /// Creates a new tensor that contains the derivative of the leaky relu function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment LeakyReluDerivative(ITensorSegment tensor) => tensor.LeakyReluDerivative();
+
+        /// <summary>
+        /// Creates a new tensor that contains the softmax function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Softmax(ITensorSegment tensor) => tensor.Softmax();
+
+        /// <summary>
+        /// Creates a new tensor that contains the derivative of the softmax function applied to each element in this tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor) => tensor.SoftmaxDerivative(this);
+
+        /// <summary>
+        /// Creates a new tensor that each element of the tensor raised to the specified power
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="power"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment Pow(ITensorSegment tensor, float power) => tensor.Pow(power);
+
+        /// <summary>
+        /// Rounds each element in the tensor to be either the lower or the upper parameter depending on its distance
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="lower"></param>
+        /// <param name="upper"></param>
+        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper) => tensor.RoundInPlace(lower, upper);
+
+        /// <summary>
+        /// Returns a new tensor with only the supplied indices
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="indices"></param>
+        /// <returns></returns>
+        public virtual ITensorSegment CherryPickIndices(ITensorSegment tensor, params uint[] indices) => tensor.CherryPickIndices(indices);
+
+        /// <summary>
+        /// Calculate the matrix transpose
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public virtual unsafe IMatrix Transpose(IMatrix matrix)
         {
             var columnCount = matrix.ColumnCount;
@@ -864,6 +1221,12 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Multiplies the matrix with a vector
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="vector"></param>
+        /// <returns></returns>
         public virtual IVector Multiply(IMatrix matrix, IVector vector)
         {
             using var temp = vector.Reshape(null, 1);
@@ -871,14 +1234,21 @@ namespace BrightData.LinearAlgebra
             return temp2.Reshape();
         }
 
-        public virtual IMatrix Multiply(IMatrix matrix, IMatrix other)
+        /// <summary>
+        /// Matrix multiplication
+        /// </summary>
+        /// <param name="matrix1"></param>
+        /// <param name="matrix2"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public virtual IMatrix Multiply(IMatrix matrix1, IMatrix matrix2)
         {
-            if (matrix.ColumnCount != other.RowCount)
+            if (matrix1.ColumnCount != matrix2.RowCount)
                 throw new Exception("Matrix sizes do not agree");
 
             // transpose so that we can can get contiguous vectors
-            using var transposedThis = Transpose(matrix);
-            return MultiplyWithThisTransposed(transposedThis, other);
+            using var transposedThis = Transpose(matrix1);
+            return MultiplyWithThisTransposed(transposedThis, matrix2);
             //return OldMultiply(matrix, other);
         }
 
@@ -967,14 +1337,28 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
+        /// <summary>
+        /// Transposes the second matrix and then multiplies the first with the second matrix
+        /// </summary>
+        /// <param name="matrix1"></param>
+        /// <param name="matrix2"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public virtual IMatrix TransposeSecondAndMultiply(IMatrix matrix1, IMatrix matrix2)
         {
-            if (matrix.ColumnCount != other.ColumnCount)
+            if (matrix1.ColumnCount != matrix2.ColumnCount)
                 throw new Exception("Matrix sizes do not agree");
-            using var transposed = other.Transpose();
-            return Multiply(matrix, transposed);
+            using var transposed = matrix2.Transpose();
+            return Multiply(matrix1, transposed);
         }
 
+        /// <summary>
+        /// Transposes the first matrix and then multiplies with the second matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public virtual IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
         {
             if (matrix.RowCount != other.RowCount)
@@ -982,6 +1366,12 @@ namespace BrightData.LinearAlgebra
             return MultiplyWithThisTransposed(matrix, other);
         }
 
+        /// <summary>
+        /// Returns the matrix diagonal
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public virtual IVector GetDiagonal(IMatrix matrix)
         {
             if(matrix.RowCount != matrix.ColumnCount)
@@ -989,18 +1379,33 @@ namespace BrightData.LinearAlgebra
             return CreateVector(matrix.RowCount, i => matrix[i, i]);
         }
 
+        /// <summary>
+        /// Returns the sum of each row
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public virtual IVector RowSums(IMatrix matrix)
         {
             var rows = matrix.AllRows(false);
             return CreateVector(matrix.RowCount, i => rows[i].Segment.Sum());
         }
 
+        /// <summary>
+        /// Returns the sum of each column
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public virtual IVector ColumnSums(IMatrix matrix)
         {
             var columns = matrix.AllColumns(false);
             return CreateVector(matrix.ColumnCount, i => columns[i].Segment.Sum());
         }
 
+        /// <summary>
+        /// Returns the sum of each matrix column
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public virtual IVector ColumnSums(ITensor4D tensor)
         {
             IVector? ret = null;
@@ -1018,6 +1423,11 @@ namespace BrightData.LinearAlgebra
             return ret ?? CreateVector(tensor.ColumnCount, true);
         }
 
+        /// <summary>
+        /// Returns the sum of each matrix row
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public virtual IVector RowSums(ITensor4D tensor)
         {
             IVector? ret = null;
@@ -1035,43 +1445,30 @@ namespace BrightData.LinearAlgebra
             return ret ?? CreateVector(tensor.ColumnCount, true);
         }
 
+        /// <summary>
+        /// Calculates the singular value decomposition of the matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public virtual (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
         {
             throw new NotImplementedException();
         }
 
-        public virtual void FeatureScaleNormalization(ITensorSegment segment)
-        {
-            var (min, max, _, _) = GetMinAndMaxValues(segment);
-            var range = max - min;
-            if (FloatMath.IsNotZero(range))
-                MapParallelInPlace(segment, v => (v - min) / range);
-        }
-
-        public virtual void StandardNormalization(ITensorSegment segment)
-        {
-            var mean = Average(segment);
-            var stdDev = StdDev(segment, mean);
-            if (FloatMath.IsNotZero(stdDev))
-                MapParallelInPlace(segment, v => (v - mean) / stdDev);
-        }
-
-        public virtual void EuclideanNormalization(ITensorSegment segment)
-        {
-            var norm = L2Norm(segment);
-            if (FloatMath.IsNotZero(norm))
-                MapParallelInPlace(segment, v => v / norm);
-        }
-
-        public virtual void ManhattanNormalization(ITensorSegment segment)
-        {
-            var norm = L1Norm(segment);
-            if (FloatMath.IsNotZero(norm))
-                MapParallelInPlace(segment, v => v / norm);
-        }
-
+        /// <summary>
+        /// In place L1 regularization of the tensor
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="coefficient"></param>
         public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularization(coefficient);
 
+        /// <summary>
+        /// Splits the matrix at the specified column index into two sub matrices
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         public virtual (IMatrix Left, IMatrix Right) SplitAtColumn(IMatrix matrix, uint columnIndex)
         {
             var ret1 = CreateMatrix(matrix.RowCount, columnIndex, (x, y) => matrix[x, y]);
@@ -1079,6 +1476,12 @@ namespace BrightData.LinearAlgebra
             return (ret1, ret2);
         }
 
+        /// <summary>
+        /// Splits the matrix at the specified row index into two sub matrices
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="rowIndex"></param>
+        /// <returns></returns>
         public virtual (IMatrix Top, IMatrix Bottom) SplitAtRow(IMatrix matrix, uint rowIndex)
         {
             var ret1 = CreateMatrix(rowIndex, matrix.ColumnCount, (x, y) => matrix[x, y]);
@@ -1086,6 +1489,12 @@ namespace BrightData.LinearAlgebra
             return (ret1, ret2);
         }
 
+        /// <summary>
+        /// Concatenates the two matrices (column count must agree)
+        /// </summary>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
+        /// <returns></returns>
         public virtual IMatrix ConcatColumns(IMatrix top, IMatrix bottom)
         {
             Debug.Assert(top.ColumnCount == bottom.ColumnCount);
@@ -1095,6 +1504,12 @@ namespace BrightData.LinearAlgebra
             });
         }
 
+        /// <summary>
+        /// Concatenates the two matrices (row count must agree)
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public virtual IMatrix ConcatRows(IMatrix left, IMatrix right)
         {
             Debug.Assert(left.RowCount == right.RowCount);
@@ -1104,6 +1519,12 @@ namespace BrightData.LinearAlgebra
             });
         }
 
+        /// <summary>
+        /// Applies zero padding to the each matrix in the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         public virtual ITensor3D AddPadding(ITensor3D tensor, uint padding)
         {
             var newRows = tensor.RowCount + padding * 2;
@@ -1124,6 +1545,12 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Removes padding from each matrix in a tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         public virtual ITensor3D RemovePadding(ITensor3D tensor, uint padding)
         {
             var newRows = tensor.RowCount - padding * 2;
@@ -1140,6 +1567,15 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Applies the convolutional operator the 3D tensor to obtain a matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
         public virtual IMatrix Im2Col(ITensor3D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(tensor.ColumnCount, tensor.RowCount, filterWidth, filterHeight, xStride, yStride);
@@ -1163,6 +1599,60 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Reverses a previous Im2Col operation
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filter"></param>
+        /// <param name="outputRows"></param>
+        /// <param name="outputColumns"></param>
+        /// <param name="outputDepth"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
+        public virtual ITensor3D ReverseIm2Col(ITensor3D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        {
+            var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
+            using var temp = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (var i = 0; i < outputDepth; i++)
+                ptr[i] = CreateMatrix(outputRows, outputColumns, true);
+            for (uint k = 0; k < tensor.Depth; k++) {
+                using var slice = tensor.GetMatrix(k);
+                var filters = filter.GetColumn(k).Segment.Split(outputDepth).ToArray();
+
+                foreach (var (cx, cy) in convolutions) {
+                    var errorY = cy / xStride;
+                    var errorX = cx / yStride;
+                    if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
+                        var error = slice[errorY, errorX];
+                        for (uint y = 0; y < filterHeight; y++) {
+                            for (uint x = 0; x < filterWidth; x++) {
+                                var filterIndex = (filterWidth - x - 1) * filterHeight + (filterHeight - y - 1);
+                                for (uint z = 0; z < outputDepth; z++)
+                                    ptr[(int)z][cy + y, cx + x] += filters[z][filterIndex] * error;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return CreateTensor3DAndThenDisposeInput(ptr);
+        }
+
+        /// <summary>
+        /// Calculates the max pooling operator of the 3D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <param name="saveIndices"></param>
+        /// <returns></returns>
         public virtual (ITensor3D Result, ITensor3D? Indices) MaxPool(ITensor3D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var newColumns = (tensor.ColumnCount - filterWidth) / xStride + 1;
@@ -1211,6 +1701,18 @@ namespace BrightData.LinearAlgebra
             );
         }
 
+        /// <summary>
+        /// Calculates a reverse max pool operation
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="indices"></param>
+        /// <param name="outputRows"></param>
+        /// <param name="outputColumns"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
         public virtual ITensor3D ReverseMaxPool(ITensor3D tensor, ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
@@ -1237,37 +1739,11 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
-        public virtual ITensor3D ReverseIm2Col(ITensor3D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
-        {
-            var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-            using var temp = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Default);
-            var ptr = temp.Span;
-
-            for (var i = 0; i < outputDepth; i++)
-                ptr[i] = CreateMatrix(outputRows, outputColumns, true);
-            for (uint k = 0; k < tensor.Depth; k++) {
-                using var slice = tensor.GetMatrix(k);
-                var filters = filter.GetColumn(k).Segment.Split(outputDepth).ToArray();
-
-                foreach (var (cx, cy) in convolutions) {
-                    var errorY = cy / xStride;
-                    var errorX = cx / yStride;
-                    if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
-                        var error = slice[errorY, errorX];
-                        for (uint y = 0; y < filterHeight; y++) {
-                            for (uint x = 0; x < filterWidth; x++) {
-                                var filterIndex = (filterWidth - x - 1) * filterHeight + (filterHeight - y - 1);
-                                for (uint z = 0; z < outputDepth; z++)
-                                    ptr[(int)z][cy + y, cx + x] += filters[z][filterIndex] * error;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return CreateTensor3DAndThenDisposeInput(ptr);
-        }
-
+        /// <summary>
+        /// Creates the pointwise sum of each matrix within the 3D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
         public virtual IMatrix AddMatrices(ITensor3D tensor)
         {
             var ret = CreateMatrix(tensor.RowCount, tensor.ColumnCount, true);
@@ -1280,6 +1756,12 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Multiplies each sub matrix within the 3D tensor with another matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public virtual ITensor3D Multiply(ITensor3D tensor, IMatrix other)
         {
             using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
@@ -1292,6 +1774,12 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Transposes each sub matrix within the 3D tensor and then multiplies them with another matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public virtual ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix other)
         {
             using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Depth, AllocationMode.Default);
@@ -1304,6 +1792,11 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Adds a vector to each row of each matrix within the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="vector"></param>
         public virtual void AddToEachRow(ITensor3D tensor, IVector vector)
         {
             for (uint k = 0; k < tensor.Depth; k++) {
@@ -1314,6 +1807,11 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Adds a vector to each column of each matrix within the tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="vector"></param>
         public virtual void AddToEachColumn(ITensor3D tensor, IVector vector)
         {
             for (uint k = 0; k < tensor.Depth; k++) {
@@ -1324,6 +1822,12 @@ namespace BrightData.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Multiplies each sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public virtual ITensor3D Multiply(ITensor3D tensor, ITensor4D other)
         {
             Debug.Assert(other.Count == tensor.Depth);
@@ -1341,6 +1845,12 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Multiplies each transposed sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public virtual ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, ITensor4D other)
         {
             Debug.Assert(other.Count == tensor.Depth);
@@ -1358,6 +1868,12 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Multiplies each sub matrix within the 3D tensor with the transposed reshaped matrix from each sub 3D tensor within the 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public virtual ITensor3D TransposeSecondAndMultiply(ITensor3D tensor, ITensor4D other)
         {
             Debug.Assert(other.Count == tensor.Depth);
@@ -1375,6 +1891,12 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Adds padding to each sub matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         public virtual ITensor4D AddPadding(ITensor4D tensor, uint padding)
         {
             using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
@@ -1388,6 +1910,12 @@ namespace BrightData.LinearAlgebra
             return CreateTensor4DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Removes padding from each sub matrix
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         public virtual ITensor4D RemovePadding(ITensor4D tensor, uint padding)
         {
             using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
@@ -1401,6 +1929,16 @@ namespace BrightData.LinearAlgebra
             return CreateTensor4DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Applies a max pooling operation to the 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <param name="saveIndices"></param>
+        /// <returns></returns>
         public virtual (ITensor4D Result, ITensor4D? Indices) MaxPool(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var indexList = saveIndices 
@@ -1420,6 +1958,18 @@ namespace BrightData.LinearAlgebra
             return (CreateTensor4DAndThenDisposeInput(ptr), indexList != null ? CreateTensor4DAndThenDisposeInput(indexList) : null);
         }
 
+        /// <summary>
+        /// Reverses a max pooling operation
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="indices"></param>
+        /// <param name="outputRows"></param>
+        /// <param name="outputColumns"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
         public virtual ITensor4D ReverseMaxPool(ITensor4D tensor, ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
@@ -1435,6 +1985,15 @@ namespace BrightData.LinearAlgebra
             return CreateTensor4DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Convolutional operation applied to each sub tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
         public virtual ITensor3D Im2Col(ITensor4D tensor, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var temp = SpanOwner<IMatrix>.Allocate((int)tensor.Count, AllocationMode.Default);
@@ -1448,6 +2007,19 @@ namespace BrightData.LinearAlgebra
             return CreateTensor3DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Reverses the convolutional operator on each sub tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="filter"></param>
+        /// <param name="outputRows"></param>
+        /// <param name="outputColumns"></param>
+        /// <param name="outputDepth"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="xStride"></param>
+        /// <param name="yStride"></param>
+        /// <returns></returns>
         public virtual ITensor4D ReverseIm2Col(ITensor4D tensor, IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             using var temp = SpanOwner<ITensor3D>.Allocate((int)tensor.Count, AllocationMode.Default);
@@ -1461,50 +2033,101 @@ namespace BrightData.LinearAlgebra
             return CreateTensor4DAndThenDisposeInput(ptr);
         }
 
+        /// <summary>
+        /// Returns a sub matrix from the 3D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public virtual IMatrix GetMatrix(ITensor3D tensor, uint index)
         {
             var segment = new TensorSegmentWrapper(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
             return CreateMatrix(tensor.RowCount, tensor.ColumnCount, segment);
         }
 
+        /// <summary>
+        /// Returns a sub tensor from the 4D tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public virtual ITensor3D GetTensor(ITensor4D tensor, uint index)
         {
             var segment = new TensorSegmentWrapper(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
             return CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, segment);
         }
 
+        /// <summary>
+        /// Returns a new matrix from the specified row indices
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="rowIndices"></param>
+        /// <returns></returns>
         public virtual IMatrix GetNewMatrixFromRows(IMatrix matrix, IEnumerable<uint> rowIndices)
         {
             var ret = CreateMatrixFromRows(rowIndices.Select(matrix.GetRow).ToArray());
             return ret;
         }
 
+        /// <summary>
+        /// Returns a new matrix from the specified column indices
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         public virtual IMatrix GetNewMatrixFromColumns(IMatrix matrix, IEnumerable<uint> columnIndices)
         {
             var ret = CreateMatrixFromColumns(columnIndices.Select(matrix.GetColumn).ToArray());
             return ret;
         }
 
+        /// <summary>
+        /// Adds a tensor to each row of the matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="segment"></param>
         public virtual void AddToEachRow(IMatrix matrix, ITensorSegment segment)
         {
             matrix.MapIndexedInPlace((_, k, v) => v + segment[k]);
         }
 
+        /// <summary>
+        /// Adds a tensor to each column of the matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="segment"></param>
         public virtual void AddToEachColumn(IMatrix matrix, ITensorSegment segment)
         {
             matrix.MapIndexedInPlace((j, _, v) => v + segment[j]);
         }
 
+        /// <summary>
+        /// Multiplies each row of the matrix with the tensor
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="segment"></param>
         public virtual void MultiplyEachRowWith(IMatrix matrix, ITensorSegment segment)
         {
             matrix.MapIndexedInPlace((_, k, v) => v * segment[k]);
         }
 
+        /// <summary>
+        /// Multiplies each column of the matrix with the tensor
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="segment"></param>
         public virtual void MultiplyEachColumnWith(IMatrix matrix, ITensorSegment segment)
         {
             matrix.MapIndexedInPlace((j, _, v) => v * segment[j]);
         }
 
+        /// <summary>
+        /// Finds the distance between each pair of vectors
+        /// </summary>
+        /// <param name="vectors">First set of vectors</param>
+        /// <param name="compareTo">Second set of vectors</param>
+        /// <param name="distanceMetric">Distance metric</param>
+        /// <returns>Matrix with the rows corresponding to the first set and columns corresponding to the second set and each element containing the distance</returns>
         public virtual IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
         {
             var rows = (uint)compareTo.Count;
@@ -1530,13 +2153,26 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Binds a new thread to this provider
+        /// </summary>
         public virtual void BindThread()
         {
             // nop
         }
 
+        /// <summary>
+        /// Returns the sum of values in the tensor
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
         public virtual float Sum(ITensorSegment segment) => segment.Sum();
 
+        /// <summary>
+        /// Calculates the softmax of a set of tensors
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
         public virtual ITensorSegment[] MultiSoftmax(ArraySegment<ITensorSegment> segments)
         {
             var len = segments.Count;
@@ -1549,7 +2185,12 @@ namespace BrightData.LinearAlgebra
             }
             return ret;
         }
-
+        
+        /// <summary>
+        /// Calculates the softmax derivative of a set of tensors
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
         public virtual IMatrix[] MultiSoftmaxDerivative(ITensorSegment[] segments)
         {
             var len = segments.Length;
@@ -1563,6 +2204,12 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
+        /// <summary>
+        /// Computes the per row softmax derivative
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public virtual ITensorSegment[] SoftmaxDerivativePerRow(IMatrix matrix, ITensorSegment[] rows)
         {
             var derivatives = MultiSoftmaxDerivative(rows);
@@ -1580,6 +2227,5 @@ namespace BrightData.LinearAlgebra
 
             return ret;
         }
-#pragma warning restore CS1591
     }
 }

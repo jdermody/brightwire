@@ -589,7 +589,7 @@ namespace BrightData
         /// Creates a new tensor segment that contains the square root of each value in this tensor segment
         /// </summary>
         /// <param name="tensor">This tensor</param>
-        /// <param name="adjustment">A non zero value to use in place of zero</param>
+        /// <param name="adjustment">A small value to add to each value in case of zeros</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ITensorSegment Sqrt(this ITensorSegment tensor, float adjustment = FloatMath.AlmostZero)
