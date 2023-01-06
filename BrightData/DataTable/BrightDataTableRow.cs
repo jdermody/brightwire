@@ -5,7 +5,7 @@ using System.Linq;
 namespace BrightData.DataTable
 {
     /// <summary>
-    /// A row in data table
+    /// A row in a data table
     /// </summary>
     public class BrightDataTableRow : ICanRandomlyAccessData
     {

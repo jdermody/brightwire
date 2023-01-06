@@ -26,7 +26,7 @@ namespace BrightData.DataTable
             uint inMemoryBufferSize = Consts.DefaultInMemoryBufferSize, 
             ushort maxUniqueItemCount = Consts.DefaultMaxDistinctCount)
         {
-            Context            = context;
+            Context             = context;
             _inMemoryBufferSize = inMemoryBufferSize;
             _maxUniqueItemCount = maxUniqueItemCount;
             _tempStreams        = context.CreateTempStreamProvider();

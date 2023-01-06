@@ -5,6 +5,10 @@ using BrightData.Serialisation;
 
 namespace BrightData.Buffer.Composite
 {
+    /// <summary>
+    /// A composite buffer of objects (that implement IAmSerializable)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class CompositeObjectBuffer<T> : CompositeBufferBase<T>
         where T : IAmSerializable
     {

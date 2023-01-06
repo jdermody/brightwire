@@ -13,8 +13,8 @@ namespace BrightData.Transformation
 
         class NormalizeToFloat<T> : IConvertColumn<T, float>, INormalize where T: struct
         {
-            readonly ICanConvert<T, double> _convertToDouble;
-            readonly NormalizeTransformation _normalize;
+            readonly ICanConvert<T, double>     _convertToDouble;
+            readonly NormalizeTransformation    _normalize;
             readonly ICanConvert<double, float> _convertToFloat;
 
             public NormalizeToFloat(NormalizationType type, MetaData analysedMetaData)
@@ -51,7 +51,7 @@ namespace BrightData.Transformation
         }
         class NormalizeToDouble<T> : IConvertColumn<T, double>, INormalize where T: struct
         {
-            readonly ICanConvert<T, double> _convertToDouble;
+            readonly ICanConvert<T, double>  _convertToDouble;
             readonly NormalizeTransformation _normalize;
 
             public NormalizeToDouble(NormalizationType type, MetaData analysedMetaData)

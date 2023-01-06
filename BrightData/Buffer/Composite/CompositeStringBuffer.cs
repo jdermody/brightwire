@@ -4,6 +4,9 @@ using System.Text;
 
 namespace BrightData.Buffer.Composite
 {
+    /// <summary>
+    /// A composite buffer of strings
+    /// </summary>
     internal class CompositeStringBuffer : CompositeBufferBase<string>
     {
         public CompositeStringBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct)

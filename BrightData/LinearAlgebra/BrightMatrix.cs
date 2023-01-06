@@ -277,24 +277,6 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows) => Lap.SoftmaxDerivativePerRow(this, rows);
 
-        //public ITensorSegment[] SoftmaxDerivativePerRow(IVector[] rows)
-        //{
-        //    var ret = new ITensorSegment[RowCount];
-        //    var derivative = _lap.MultiSoftmaxDerivative(new ArraySegment<ITensorSegment>(rows.Select(x => x.Segment).ToArray()));
-        //    for (uint i = 0, len = RowCount; i < len; i++) {
-        //        var row = Row(i);
-        //        using var softmaxDerivative = derivative[i];
-        //        var segments = (IMatrixSegments)softmaxDerivative;
-        //        ret[i] = _lap.CreateSegment(row.Size, true);
-        //        for (uint j = 0; j < row.Size; j++) {
-        //            var otherRow = segments.Row(j);
-        //            var val = row.DotProduct(otherRow);
-        //            ret[i][j] = val;
-        //        }
-        //    }
-
-        //    return ret;
-        //}
 
         /// <inheritdoc />
         public override string ToString()

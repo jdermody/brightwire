@@ -34,10 +34,8 @@ namespace BrightData.DataTable
             _writeStructs = methods[nameof(WriteStructs)];
         }
 
-        public Stream Write(
-            MetaData tableMetaData, 
-            ITypedSegment[] columnSegments
-        ) {
+        public Stream Write(MetaData tableMetaData, ITypedSegment[] columnSegments)
+        {
             // check that all columns have the same number of rows
             var firstColumn = columnSegments.First();
             foreach (var otherColumn in columnSegments.Skip(1)) {

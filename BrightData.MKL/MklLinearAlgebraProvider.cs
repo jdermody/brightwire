@@ -386,12 +386,14 @@ namespace BrightData.MKL
             ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2 * -1, y, yo, ys, coefficient1, x, xo, xs));
         }
 
+        /// <inheritdoc />
         public override ITensor3D Multiply(ITensor3D tensor, IMatrix other)
         {
             // TODO: gemm_batch_strided
             return base.Multiply(tensor, other);
         }
 
+        /// <inheritdoc />
         public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix other)
         {
             // TODO: gemm_batch_strided

@@ -4,6 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Buffer.Composite
 {
+    /// <summary>
+    /// A composite buffer of structs
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class CompositeStructBuffer<T> : CompositeBufferBase<T>
         where T : struct
     {
