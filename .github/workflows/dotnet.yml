@@ -24,5 +24,6 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+# unit tests require CUDA so can't run on git hub
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal
