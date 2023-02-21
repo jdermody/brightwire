@@ -22,19 +22,16 @@ namespace ExampleCode
             using var context = new BrightDataContext(null, RandomSeed);
             bool useCuda = true, useMkl = true;
 
-            // IMPORTANT: comment the following line to disable MKL (for example if you do not have an Intel CPU)
+            // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)
             // ALSO: check the mkl.net nuget package version is correct for your OS (default for ExampleCode is Windows x64)
             //useMkl = false;
 
-            // IMPORTANT: comment the following line to disable CUDA (for example if you have a do not have an NVIDA GPU)
+            // IMPORTANT: uncomment the following line to disable CUDA (for example if you have a do not have an NVIDA GPU)
             // ALSO: make sure you have installed CUDA toolkit from https://developer.nvidia.com/cuda-toolkit
             //useCuda = false;
 
             // IMPORTANT: set where to save training data files
-            context.Set(
-                "DataFileDirectory", 
-                new DirectoryInfo(@"c:\data")
-            );
+            context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
             //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
 
@@ -107,12 +104,11 @@ namespace ExampleCode
             Start(context, useMkl);
             var iris = context.Iris();
 
-            // select only the first three columns (ignore the training label)
-            var irisTable = iris.Table.Value.CopyColumnsToNewTable(null, 3.AsRange().ToArray());
+            var irisTable = iris.Table.Value;
 
             void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {
-                var clusters = items.Select(c => c.Select(r => iris.Labels[r.RowIndex]).GroupAndCount().Format());
+                var clusters = items.Select(c => c.Select(r => r.Label).GroupAndCount().Format());
                 foreach (var cluster in clusters)
                     Console.WriteLine(cluster);
             }
@@ -190,7 +186,7 @@ namespace ExampleCode
         static void ReberPrediction(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var reber = context.ReberSequencePrediction();
+            var reber = context.ReberSequencePrediction(extended: true, minLength:null, maxLength:10);
             var engine = reber.TrainGru();
             ReberSequenceTrainer.GenerateSequences(engine);
         }
@@ -211,7 +207,7 @@ namespace ExampleCode
 
         static void SequenceToSequence(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useMkl, useCuda);
+            Start(context, useMkl, false);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }

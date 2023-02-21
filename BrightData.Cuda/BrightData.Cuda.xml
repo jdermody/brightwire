@@ -200,7 +200,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Pow(BrightData.ITensorSegment,System.Single)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sqrt(BrightData.ITensorSegment)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sqrt(BrightData.ITensorSegment,System.Single)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
@@ -249,18 +249,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.EuclideanNormalization(BrightData.ITensorSegment)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FeatureScaleNormalization(BrightData.ITensorSegment)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ManhattanNormalization(BrightData.ITensorSegment)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.StandardNormalization(BrightData.ITensorSegment)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.SplitAtColumn(BrightData.IMatrix,System.UInt32)">

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.Helper;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
@@ -62,19 +63,21 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 8);
 
             // build the network
-            const int hiddenLayerSize = 40, trainingIterations = 50;
+            const int hiddenLayerSize = 40, trainingIterations = 25;
             graph.Connect(engine)
                 .AddGru(hiddenLayerSize, "layer1")
+                .AddRecurrentBridge("layer1", "layer2")
+                .AddGru(hiddenLayerSize, "layer2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.TanhActivation())
+                .Add(graph.LeakyReluActivation())
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(15, 0.1f);
-            engine.LearningContext.ScheduleLearningRate(30, 0.03f);
+            //engine.LearningContext.ScheduleLearningRate(50, 0.1f);
+            //engine.LearningContext.ScheduleLearningRate(60, 0.03f);
             var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
@@ -83,7 +86,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var graph = _context.CreateGraphFactory();
 
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -95,16 +98,16 @@ namespace ExampleCode.DataTableTrainers
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var learningRate = 0.01f;
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 16);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
             // build the network
-            const int hiddenLayerSize = 32, trainingIterations = 50;
+            const int hiddenLayerSize = 50, trainingIterations = 50;
             graph.Connect(engine)
                 .AddLstm(hiddenLayerSize, "encoder1")
-                .AddRecurrentBridge("encoder1", "encoder2")
-                .AddLstm(hiddenLayerSize, "encoder2")
+                //.AddRecurrentBridge("encoder1", "encoder2")
+                //.AddLstm(hiddenLayerSize, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.TanhActivation())
+                .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()
             ;
 
@@ -135,6 +138,8 @@ namespace ExampleCode.DataTableTrainers
                             .Select((v, j) => ((double) v, j))
                             .Where(d => d.Item1 >= 0.1f)
                             .ToList();
+                        if (!next.Any())
+                            break;
 
                         var distribution = context.CreateCategoricalDistribution(next.Select(d => (float)d.Item1));
                         var nextIndex = next[(int)distribution.Sample()].j;

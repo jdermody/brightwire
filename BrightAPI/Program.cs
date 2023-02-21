@@ -26,7 +26,7 @@ if (builder.Environment.IsDevelopment()) {
 }
 
 // connect to database
-var keepAliveConnection = new SqliteConnection("DataSource=:memory:");
+var keepAliveConnection = new SqliteConnection(builder.Configuration["DBConnection"]);
 keepAliveConnection.Open();
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -35,7 +35,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 // create the bright data context
 builder.Services.AddSingleton(new BrightDataContext());
-builder.Services.AddSingleton(new TempFileManager(@"C:\temp"));
+builder.Services.AddSingleton(new TempFileManager(builder.Configuration["TempFileDirectory"]));
 builder.Services.AddScoped<DatabaseManager>();
 
 var app = builder.Build();
@@ -59,13 +59,34 @@ using(var scope = app.Services.CreateScope())
     var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
     dataContext.Database.EnsureCreated();
 
-    // load a test file
-    if (File.Exists(@"c:\data\iris.csv")) {
-        var fileData = File.ReadAllText(@"c:\data\iris.csv");
-        var context = scope.ServiceProvider.GetRequiredService<BrightDataContext>();
-        var tempFileManaher = scope.ServiceProvider.GetRequiredService<TempFileManager>();
-        var dataTable = DataTableController.CreateDataTableFromCsv(new DatabaseManager(dataContext), context, tempFileManaher, false, ',', 5, new[] { "C1", "C2", "C3", "C4", "C5" }, "iris.csv", fileData).Result;
+    // auto load data files
+    var initialDataFiles = app.Configuration.GetSection("InitialDataFiles");
+    foreach (var dataFile in initialDataFiles.GetChildren()) {
+        var path = dataFile["Path"];
+        var columns = dataFile.GetSection("Columns").GetChildren().Select(x => x.Value ?? "").ToArray();
+        var separator = dataFile["Separator"]?[0];
+        var name = dataFile["Name"];
+        var hasHeader = dataFile["HasHeader"] == "True";
+        var targetIndex = dataFile["Target"];
+
+        if (File.Exists(path)) {
+            var fileData = File.ReadAllText(path);
+            var context = scope.ServiceProvider.GetRequiredService<BrightDataContext>();
+            var tempFileManager = scope.ServiceProvider.GetRequiredService<TempFileManager>();
+            var dataTable = DataTableController.CreateDataTableFromCsv(
+                new DatabaseManager(dataContext), 
+                context, 
+                tempFileManager, 
+                hasHeader, 
+                separator ?? ',', 
+                targetIndex is null ? null : uint.Parse(targetIndex), 
+                columns, 
+                name, 
+                fileData
+            ).Result;
+        }
     }
+    
 }
 
 app.Run();

@@ -19,7 +19,7 @@ namespace ExampleCode.DataSet
 {
     internal static class SimpleDataSets
     {
-        public static IrisTrainer Iris(this BrightDataContext context)
+        public static DataTableTrainer Iris(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try
@@ -34,7 +34,7 @@ namespace ExampleCode.DataSet
                 );
                 using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
                 using var column = table.GetColumn(4);
-                return new IrisTrainer(normalized, column.ToArray<string>());
+                return new DataTableTrainer(normalized);
             }
             finally
             {
@@ -144,8 +144,8 @@ namespace ExampleCode.DataSet
             var sequences = extended
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
-
-            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, sequences.Take(500)));
+            var trainingData = sequences.Take(2000).ToArray();
+            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, trainingData));
         }
 
         public static SequenceToSequenceTrainer OneToMany(this BrightDataContext context)

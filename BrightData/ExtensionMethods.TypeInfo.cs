@@ -17,25 +17,26 @@ namespace BrightData
         /// <param name="canRepeat"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch {
-            BrightDataType.BinaryData => new FieldSpecification<BinaryData>(name, canRepeat),
-            BrightDataType.Boolean => new FieldSpecification<bool>(name, canRepeat),
-            BrightDataType.SByte => new FieldSpecification<byte>(name, canRepeat),
-            BrightDataType.Short => new FieldSpecification<short>(name, canRepeat),
-            BrightDataType.Int => new FieldSpecification<int>(name, canRepeat),
-            BrightDataType.Long => new FieldSpecification<long>(name, canRepeat),
-            BrightDataType.Float => new FieldSpecification<float>(name, canRepeat),
-            BrightDataType.Double => new FieldSpecification<double>(name, canRepeat),
-            BrightDataType.Decimal => new FieldSpecification<decimal>(name, canRepeat),
-            BrightDataType.String => new FieldSpecification<string>(name, canRepeat),
-            BrightDataType.Date => new FieldSpecification<DateTime>(name, canRepeat),
-            BrightDataType.IndexList => new FieldSpecification<IndexList>(name, canRepeat),
+        public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch 
+        {
+            BrightDataType.BinaryData        => new FieldSpecification<BinaryData>(name, canRepeat),
+            BrightDataType.Boolean           => new FieldSpecification<bool>(name, canRepeat),
+            BrightDataType.SByte             => new FieldSpecification<byte>(name, canRepeat),
+            BrightDataType.Short             => new FieldSpecification<short>(name, canRepeat),
+            BrightDataType.Int               => new FieldSpecification<int>(name, canRepeat),
+            BrightDataType.Long              => new FieldSpecification<long>(name, canRepeat),
+            BrightDataType.Float             => new FieldSpecification<float>(name, canRepeat),
+            BrightDataType.Double            => new FieldSpecification<double>(name, canRepeat),
+            BrightDataType.Decimal           => new FieldSpecification<decimal>(name, canRepeat),
+            BrightDataType.String            => new FieldSpecification<string>(name, canRepeat),
+            BrightDataType.Date              => new FieldSpecification<DateTime>(name, canRepeat),
+            BrightDataType.IndexList         => new FieldSpecification<IndexList>(name, canRepeat),
             BrightDataType.WeightedIndexList => new FieldSpecification<WeightedIndexList>(name, canRepeat),
-            BrightDataType.Vector => new FieldSpecification<IReadOnlyVector>(name, canRepeat),
-            BrightDataType.Matrix => new FieldSpecification<IReadOnlyMatrix>(name, canRepeat),
-            BrightDataType.Tensor3D => new FieldSpecification<IReadOnlyTensor3D>(name, canRepeat),
-            BrightDataType.Tensor4D => new FieldSpecification<IReadOnlyTensor4D>(name, canRepeat),
-            _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
+            BrightDataType.Vector            => new FieldSpecification<IReadOnlyVector>(name, canRepeat),
+            BrightDataType.Matrix            => new FieldSpecification<IReadOnlyMatrix>(name, canRepeat),
+            BrightDataType.Tensor3D          => new FieldSpecification<IReadOnlyTensor3D>(name, canRepeat),
+            BrightDataType.Tensor4D          => new FieldSpecification<IReadOnlyTensor4D>(name, canRepeat),
+            _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 
         /// <summary>

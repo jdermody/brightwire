@@ -23,8 +23,8 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public LinearAlgebraProvider LinearAlgebraProvider { get; }
-        public ExecutionGraphModel Graph { get; }
-        public IDataSource? DataSource { get; }
-        public NodeBase Start { get; }
+        public ExecutionGraphModel Graph { get; } = null!;
+        public IDataSource? DataSource { get; } = null!;
+        public NodeBase Start { get; } = null!;
     }
 }

@@ -104,7 +104,8 @@ namespace BrightData.DataTable
         {
             var readers = GetColumnReaders();
             foreach (var ri in rowIndices) {
-                yield return new BrightDataTableRow(this, readers, ri);
+                if(ri < RowCount)
+                    yield return new BrightDataTableRow(this, readers, ri);
             }
         }
 
@@ -117,7 +118,8 @@ namespace BrightData.DataTable
         {
             var readers = GetColumnReaders();
             foreach (var ri in AllOrSpecifiedRowIndices(rowIndices)) {
-                yield return new BrightDataTableRow(this, readers, ri);
+                if(ri < RowCount)
+                    yield return new BrightDataTableRow(this, readers, ri);
             }
         }
 

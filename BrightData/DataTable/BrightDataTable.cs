@@ -359,6 +359,21 @@ namespace BrightData.DataTable
         /// </summary>
         public string LastRow => RowCount > 0 ? GetRow(RowCount-1).ToString() : "No data";
 
+        /// <summary>
+        /// Returns the head of the table
+        /// </summary>
+        public string[] Head => RowCount > 0 ? GetRows(10.AsRange()).Select(x => x.ToString()).ToArray() : Array.Empty<string>();
+
+        /// <summary>
+        /// Returns the tail of the table
+        /// </summary>
+        public string[] Tail => RowCount > 10 
+            ? GetRows((RowCount - 10).AsRange()).Select(x => x.ToString()).ToArray() 
+            : RowCount > 0
+                ? GetRows(RowCount.AsRange()).Select(x => x.ToString()).ToArray() 
+                : Array.Empty<string>()
+        ;
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", _columns.Select((_, i) => $"[{ColumnTypes[i]}]: {GetColumnMetaData((uint)i)}"));
     }

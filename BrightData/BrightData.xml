@@ -472,6 +472,23 @@
         <member name="M:BrightData.Buffer.Composite.CompositeBufferSegment`1.CopyTo(System.IO.Stream)">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Buffer.Composite.CompositeObjectBuffer`1">
+            <summary>
+            A composite buffer of objects (that implement IAmSerializable)
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Buffer.Composite.CompositeStringBuffer">
+            <summary>
+            A composite buffer of strings
+            </summary>
+        </member>
+        <member name="T:BrightData.Buffer.Composite.CompositeStructBuffer`1">
+            <summary>
+            A composite buffer of structs
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightData.Buffer.EncodedStream.EncodedStreamReader">
             <summary>
             Reads from potentially encoded storage
@@ -577,60 +594,6 @@
         </member>
         <member name="M:BrightData.Buffer.ReadOnly.ReadOnlyMemoryBasedBuffer.GetBlock``1(System.Int64,System.Int64)">
             <inheritdoc />
-        </member>
-        <member name="T:BrightData.CompositeBuffersExtensionMethods">
-            <summary>
-            Static methods to create composite buffers
-            </summary>
-        </member>
-        <member name="M:BrightData.CompositeBuffersExtensionMethods.CreateCompositeStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store structs
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="tempStream"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.CompositeBuffersExtensionMethods.CreateCompositeStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store structs
-            </summary>
-            <param name="tempStream"></param>
-            <param name="type"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.CompositeBuffersExtensionMethods.CreateCompositeStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
-            <summary>
-            Creates a buffer to store strings
-            </summary>
-            <param name="tempStream"></param>
-            <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.CompositeBuffersExtensionMethods.CreateCompositeObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.UInt32)">
-            <summary>
-            Creates a buffer to store objects
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="tempStream"></param>
-            <param name="context"></param>
-            <param name="bufferSize"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.CompositeBuffersExtensionMethods.CreateCompositeObjectBuffer(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.Type,System.UInt32)">
-            <summary>
-            Creates a buffer to store objects
-            </summary>
-            <param name="tempStream"></param>
-            <param name="context"></param>
-            <param name="type"></param>
-            <param name="bufferSize"></param>
-            <returns></returns>
         </member>
         <member name="T:BrightData.Consts">
             <summary>
@@ -949,6 +912,16 @@
             Returns the last row as a string
             </summary>
         </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.Head">
+            <summary>
+            Returns the head of the table
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.Tail">
+            <summary>
+            Returns the tail of the table
+            </summary>
+        </member>
         <member name="M:BrightData.DataTable.BrightDataTable.ToString">
             <inheritdoc />
         </member>
@@ -1234,7 +1207,7 @@
         </member>
         <member name="T:BrightData.DataTable.BrightDataTableRow">
             <summary>
-            A row in data table
+            A row in a data table
             </summary>
         </member>
         <member name="M:BrightData.DataTable.BrightDataTableRow.Dispose">
@@ -1613,6 +1586,55 @@
             </summary>
             <param name="items"></param>
             <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <param name="tempStream"></param>
+            <param name="type"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store strings
+            </summary>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.UInt32)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tempStream"></param>
+            <param name="context"></param>
+            <param name="bufferSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeObjectBuffer(BrightData.IProvideTempStreams,BrightData.BrightDataContext,System.Type,System.UInt32)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <param name="tempStream"></param>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="bufferSize"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateCompositeStructBuffer``1(BrightData.BrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
@@ -3527,7 +3549,7 @@
             Creates a new tensor segment that contains the square root of each value in this tensor segment
             </summary>
             <param name="tensor">This tensor</param>
-            <param name="adjustment">A non zero value to use in place of zero</param>
+            <param name="adjustment">A small value to add to each value in case of zeros</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Search(BrightData.ITensorSegment,System.Single,System.Single)">
@@ -8550,6 +8572,840 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
             <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Adds two tensors into a new tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="tensor2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Adds two tensors into a new tensor and applies coefficients to each element in the two tensors
+            </summary>
+            <param name="tensor"></param>
+            <param name="tensor2"></param>
+            <param name="coefficient1"></param>
+            <param name="coefficient2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor from adding a scalar to each element in the tensor 
+            </summary>
+            <param name="tensor"></param>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Adds another tensor to the first tensor which will be modified in place
+            </summary>
+            <param name="target">First tensor</param>
+            <param name="other">Other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Adds another tensor to the first tensor and applies coefficients to each element in each tensor
+            </summary>
+            <param name="target">First tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="coefficient1">Coefficient applied to each element of the first tensor</param>
+            <param name="coefficient2">Coefficient applied to each element of the other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Adds a scalar to each element of this tensor - modified in place
+            </summary>
+            <param name="target"></param>
+            <param name="scalar"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Multiplies each element of the tensor by a scalar - modified in place
+            </summary>
+            <param name="target"></param>
+            <param name="scalar"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor by multiplying each element of the tensor with a scalar
+            </summary>
+            <param name="target"></param>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Subtracts the second tensor from the first tensor into a new tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Subtracts the second tensor from the first tensor into a new tensor and applies coefficients to each value in each tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
+            <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Subtracts the second tensor from the first tensor - first tensor modified in place
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Subtracts the second tensor from the first tensor and applies coefficient to each value in the tensors - first tensor modified in place
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
+            <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiply(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor by multiplying each element in the first tensor with the corresponding value in the second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiplyInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Multiplies each element in the first tensor with the corresponding value in the second tensor - first tensor modified in place
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivide(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor by dividing each element in the first tensor with the corresponding value in the second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Dividing each element in the first tensor with the corresponding value in the second tensor - first tensor is modified in place
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the dot product of the first with the second tensor
+            </summary>
+            <param name="tensor1"></param>
+            <param name="tensor2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sqrt(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor that contains the square root of each value in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="adjustment">A small value to add to each value in case of zeros</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Search(BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Finds the index (if any) of the first element with a matching value
+            </summary>
+            <param name="tensor"></param>
+            <param name="value"></param>
+            <param name="tolerance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ConstrainInPlace(BrightData.ITensorSegment,System.Nullable{System.Single},System.Nullable{System.Single})">
+            <summary>
+            Constrains each value in this tensor to lie between the min and max values (if supplied)
+            </summary>
+            <param name="tensor"></param>
+            <param name="minValue"></param>
+            <param name="maxValue"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Average(BrightData.ITensorSegment)">
+            <summary>
+            Finds the average of the values in the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Norm(BrightData.ITensorSegment)">
+            <summary>
+            Finds the L1 norm (manhattan distance) of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L2Norm(BrightData.ITensorSegment)">
+            <summary>
+            Finds the L2 norm (euclidean distance) of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinAndMaxValues(BrightData.ITensorSegment)">
+            <summary>
+            Finds the minimum and maximum values of the tensor (and their corresponding indices)
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinIndex(BrightData.ITensorSegment)">
+            <summary>
+            Finds the index of the minimum value of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMaxIndex(BrightData.ITensorSegment)">
+            <summary>
+            Finds the index of the maximum value of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMin(BrightData.ITensorSegment)">
+            <summary>
+            Finds the minimum value of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMax(BrightData.ITensorSegment)">
+            <summary>
+            Finds the maximum value of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.IsEntirelyFinite(BrightData.ITensorSegment)">
+            <summary>
+            Checks if the tensor is entirely finite (not NaN or Infinity)
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Reverse(BrightData.ITensorSegment)">
+            <summary>
+            Reverse the order of the tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Split(BrightData.ITensorSegment,System.UInt32)">
+            <summary>
+            Splits the tensor into separate (contiguous) sub tensors
+            </summary>
+            <param name="tensor"></param>
+            <param name="blockCount">Number of blocks to split into</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CosineDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Finds the cosine distance between the first and second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.EuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Finds the euclidean distance between the first and second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MeanSquaredDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Finds the mean squared distance between the first and second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SquaredEuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Finds the squared euclidean distance between the first and second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ManhattanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Finds the manhattan distance between the first and second tensor
+            </summary>
+            <param name="tensor1">First tensor</param>
+            <param name="tensor2">Second tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Abs(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the absolute value of each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Log(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the natural logarithm of each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Exp(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the exponent of each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Squared(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the square of each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
+            <summary>
+            Finds the standard deviation of each element in the tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="mean">Precalculated mean of the tensor or null to calculate</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sigmoid(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the sigmoid function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SigmoidDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the derivative of the sigmoid function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Tanh(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the tanh function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TanhDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the derivative of the tanh function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Relu(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the relu function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReluDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the derivative of the relu function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyRelu(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the leaky relu function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyReluDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the derivative of the leaky relu function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Softmax(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the softmax function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor that contains the derivative of the softmax function applied to each element in this tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Pow(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor that each element of the tensor raised to the specified power
+            </summary>
+            <param name="tensor"></param>
+            <param name="power"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RoundInPlace(BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Rounds each element in the tensor to be either the lower or the upper parameter depending on its distance
+            </summary>
+            <param name="tensor"></param>
+            <param name="lower"></param>
+            <param name="upper"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
+            <summary>
+            Returns a new tensor with only the supplied indices
+            </summary>
+            <param name="tensor"></param>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Transpose(BrightData.IMatrix)">
+            <summary>
+            Calculate the matrix transpose
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.IMatrix,BrightData.IVector)">
+            <summary>
+            Multiplies the matrix with a vector
+            </summary>
+            <param name="matrix"></param>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <summary>
+            Matrix multiplication
+            </summary>
+            <param name="matrix1"></param>
+            <param name="matrix2"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeSecondAndMultiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <summary>
+            Transposes the second matrix and then multiplies the first with the second matrix
+            </summary>
+            <param name="matrix1"></param>
+            <param name="matrix2"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.IMatrix,BrightData.IMatrix)">
+            <summary>
+            Transposes the first matrix and then multiplies with the second matrix
+            </summary>
+            <param name="matrix"></param>
+            <param name="other"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetDiagonal(BrightData.IMatrix)">
+            <summary>
+            Returns the matrix diagonal
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RowSums(BrightData.IMatrix)">
+            <summary>
+            Returns the sum of each row
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ColumnSums(BrightData.IMatrix)">
+            <summary>
+            Returns the sum of each column
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ColumnSums(BrightData.ITensor4D)">
+            <summary>
+            Returns the sum of each matrix column
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RowSums(BrightData.ITensor4D)">
+            <summary>
+            Returns the sum of each matrix row
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Svd(BrightData.IMatrix)">
+            <summary>
+            Calculates the singular value decomposition of the matrix
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Regularisation(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            In place L1 regularization of the tensor
+            </summary>
+            <param name="segment"></param>
+            <param name="coefficient"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SplitAtColumn(BrightData.IMatrix,System.UInt32)">
+            <summary>
+            Splits the matrix at the specified column index into two sub matrices
+            </summary>
+            <param name="matrix"></param>
+            <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SplitAtRow(BrightData.IMatrix,System.UInt32)">
+            <summary>
+            Splits the matrix at the specified row index into two sub matrices
+            </summary>
+            <param name="matrix"></param>
+            <param name="rowIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ConcatColumns(BrightData.IMatrix,BrightData.IMatrix)">
+            <summary>
+            Concatenates the two matrices (column count must agree)
+            </summary>
+            <param name="top"></param>
+            <param name="bottom"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ConcatRows(BrightData.IMatrix,BrightData.IMatrix)">
+            <summary>
+            Concatenates the two matrices (row count must agree)
+            </summary>
+            <param name="left"></param>
+            <param name="right"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddPadding(BrightData.ITensor3D,System.UInt32)">
+            <summary>
+            Applies zero padding to the each matrix in the tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="padding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RemovePadding(BrightData.ITensor3D,System.UInt32)">
+            <summary>
+            Removes padding from each matrix in a tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="padding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Im2Col(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Applies the convolutional operator the 3D tensor to obtain a matrix
+            </summary>
+            <param name="tensor"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseIm2Col(BrightData.ITensor3D,BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Reverses a previous Im2Col operation
+            </summary>
+            <param name="tensor"></param>
+            <param name="filter"></param>
+            <param name="outputRows"></param>
+            <param name="outputColumns"></param>
+            <param name="outputDepth"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MaxPool(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <summary>
+            Calculates the max pooling operator of the 3D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <param name="saveIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseMaxPool(BrightData.ITensor3D,BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Calculates a reverse max pool operation
+            </summary>
+            <param name="tensor"></param>
+            <param name="indices"></param>
+            <param name="outputRows"></param>
+            <param name="outputColumns"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddMatrices(BrightData.ITensor3D)">
+            <summary>
+            Creates the pointwise sum of each matrix within the 3D tensor
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensor3D,BrightData.IMatrix)">
+            <summary>
+            Multiplies each sub matrix within the 3D tensor with another matrix
+            </summary>
+            <param name="tensor"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.ITensor3D,BrightData.IMatrix)">
+            <summary>
+            Transposes each sub matrix within the 3D tensor and then multiplies them with another matrix
+            </summary>
+            <param name="tensor"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachRow(BrightData.ITensor3D,BrightData.IVector)">
+            <summary>
+            Adds a vector to each row of each matrix within the tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="vector"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachColumn(BrightData.ITensor3D,BrightData.IVector)">
+            <summary>
+            Adds a vector to each column of each matrix within the tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="vector"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensor3D,BrightData.ITensor4D)">
+            <summary>
+            Multiplies each sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.ITensor3D,BrightData.ITensor4D)">
+            <summary>
+            Multiplies each transposed sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeSecondAndMultiply(BrightData.ITensor3D,BrightData.ITensor4D)">
+            <summary>
+            Multiplies each sub matrix within the 3D tensor with the transposed reshaped matrix from each sub 3D tensor within the 4D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddPadding(BrightData.ITensor4D,System.UInt32)">
+            <summary>
+            Adds padding to each sub matrix
+            </summary>
+            <param name="tensor"></param>
+            <param name="padding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RemovePadding(BrightData.ITensor4D,System.UInt32)">
+            <summary>
+            Removes padding from each sub matrix
+            </summary>
+            <param name="tensor"></param>
+            <param name="padding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MaxPool(BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <summary>
+            Applies a max pooling operation to the 4D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <param name="saveIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseMaxPool(BrightData.ITensor4D,BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Reverses a max pooling operation
+            </summary>
+            <param name="tensor"></param>
+            <param name="indices"></param>
+            <param name="outputRows"></param>
+            <param name="outputColumns"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Im2Col(BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Convolutional operation applied to each sub tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseIm2Col(BrightData.ITensor4D,BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Reverses the convolutional operator on each sub tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="filter"></param>
+            <param name="outputRows"></param>
+            <param name="outputColumns"></param>
+            <param name="outputDepth"></param>
+            <param name="filterWidth"></param>
+            <param name="filterHeight"></param>
+            <param name="xStride"></param>
+            <param name="yStride"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMatrix(BrightData.ITensor3D,System.UInt32)">
+            <summary>
+            Returns a sub matrix from the 3D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetTensor(BrightData.ITensor4D,System.UInt32)">
+            <summary>
+            Returns a sub tensor from the 4D tensor
+            </summary>
+            <param name="tensor"></param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetNewMatrixFromRows(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Returns a new matrix from the specified row indices
+            </summary>
+            <param name="matrix"></param>
+            <param name="rowIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetNewMatrixFromColumns(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Returns a new matrix from the specified column indices
+            </summary>
+            <param name="matrix"></param>
+            <param name="columnIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachRow(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <summary>
+            Adds a tensor to each row of the matrix
+            </summary>
+            <param name="matrix"></param>
+            <param name="segment"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachColumn(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <summary>
+            Adds a tensor to each column of the matrix
+            </summary>
+            <param name="matrix"></param>
+            <param name="segment"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachRowWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <summary>
+            Multiplies each row of the matrix with the tensor
+            </summary>
+            <param name="matrix"></param>
+            <param name="segment"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachColumnWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+            <summary>
+            Multiplies each column of the matrix with the tensor
+            </summary>
+            <param name="matrix"></param>
+            <param name="segment"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.FindDistances(BrightData.IVector[],System.Collections.Generic.IReadOnlyList{BrightData.IVector},BrightData.DistanceMetric)">
+            <summary>
+            Finds the distance between each pair of vectors
+            </summary>
+            <param name="vectors">First set of vectors</param>
+            <param name="compareTo">Second set of vectors</param>
+            <param name="distanceMetric">Distance metric</param>
+            <returns>Matrix with the rows corresponding to the first set and columns corresponding to the second set and each element containing the distance</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.BindThread">
+            <summary>
+            Binds a new thread to this provider
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sum(BrightData.ITensorSegment)">
+            <summary>
+            Returns the sum of values in the tensor
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmax(System.ArraySegment{BrightData.ITensorSegment})">
+            <summary>
+            Calculates the softmax of a set of tensors
+            </summary>
+            <param name="segments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmaxDerivative(BrightData.ITensorSegment[])">
+            <summary>
+            Calculates the softmax derivative of a set of tensors
+            </summary>
+            <param name="segments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivativePerRow(BrightData.IMatrix,BrightData.ITensorSegment[])">
+            <summary>
+            Computes the per row softmax derivative
+            </summary>
+            <param name="matrix"></param>
+            <param name="rows"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.TensorSegmentWrapper">
             <summary>

@@ -99,10 +99,10 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this BrightDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            var data = dataTable.GetRowsAsLabeledFeatures()
-                .ToDictionary(d => d.Vector);
-            return data.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric)
-                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
+            var data = dataTable.GetRowsAsLabeledFeatures().ToDictionary(d => d.Vector, x => (x.RowIndex, x.Label));
+            var clusters = data.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric);
+            var ret = clusters.Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
+            return ret;
         }
 
         /// <summary>
