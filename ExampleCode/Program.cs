@@ -33,26 +33,26 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
 
-            Xor(context, useMkl);
-            IrisClassification(context, useMkl);
-            IrisClustering(context, useMkl);
-            MarkovChains(context, useMkl);
-            TextClustering(context, useMkl);
-            IntegerAddition(context, useMkl);
-            ReberPrediction(context, useMkl);
-            OneToMany(context, useMkl);
-            ManyToOne(context, useMkl);
-            SequenceToSequence(context, useMkl, useCuda);
-            StockData(context, useMkl, useCuda);
-            PredictBicyclesWithNeuralNetwork(context, useMkl);
-            MultiLabelSingleClassifier(context, useMkl);
-            MultiLabelMultiClassifiers(context, useMkl);
-            MnistFeedForward(context, useMkl);
-            MnistConvolutional(context, useMkl, useCuda);
-            TrainIncomePrediction(context, useMkl);
-            SentimentClassification(context, useMkl, useCuda);
+            //Xor(context, useMkl);
+            //IrisClassification(context, useMkl);
+            //IrisClustering(context, useMkl);
+            //MarkovChains(context, useMkl);
+            //TextClustering(context, useMkl);
+            //IntegerAddition(context, useMkl);
+            //ReberPrediction(context, useMkl);
+            //OneToMany(context, useMkl);
+            //ManyToOne(context, useMkl);
+            //SequenceToSequence(context, useMkl, useCuda);
+            //StockData(context, useMkl, useCuda);
+            //PredictBicyclesWithNeuralNetwork(context, useMkl);
+            //MultiLabelSingleClassifier(context, useMkl);
+            //MultiLabelMultiClassifiers(context, useMkl);
+            //MnistFeedForward(context, useMkl);
+            //MnistConvolutional(context, useMkl, useCuda);
+            //TrainIncomePrediction(context, useMkl);
+            //SentimentClassification(context, useMkl, useCuda);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
@@ -186,8 +186,8 @@ namespace ExampleCode
         static void ReberPrediction(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var reber = context.ReberSequencePrediction(extended: true, minLength:null, maxLength:10);
-            var engine = reber.TrainGru();
+            var reber = context.ReberSequencePrediction(extended: true, minLength:10, maxLength:10);
+            var engine = reber.TrainLstm();
             ReberSequenceTrainer.GenerateSequences(engine);
         }
 

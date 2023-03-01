@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.CudaBlas;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda

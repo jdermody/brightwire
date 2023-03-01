@@ -1,5 +1,5 @@
-﻿using ManagedCuda;
-using ManagedCuda.BasicTypes;
+﻿
+using BrightData.Cuda.CudaToolkit;
 
 namespace BrightData.Cuda.Helper
 {

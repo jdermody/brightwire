@@ -61,23 +61,24 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
+            var learningRate = 0.01f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
             // build the network
-            const int hiddenLayerSize = 40, trainingIterations = 25;
+            const int hiddenLayerSize = 30, trainingIterations = 50;
             graph.Connect(engine)
                 .AddGru(hiddenLayerSize, "layer1")
-                .AddRecurrentBridge("layer1", "layer2")
-                .AddGru(hiddenLayerSize, "layer2")
+                //.AddRecurrentBridge("layer1", "layer2")
+                //.AddGru(hiddenLayerSize, "layer2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.LeakyReluActivation())
+                .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()
             ;
 
-            //engine.LearningContext.ScheduleLearningRate(50, 0.1f);
-            //engine.LearningContext.ScheduleLearningRate(60, 0.03f);
+            engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
+            engine.LearningContext.ScheduleLearningRate(30, learningRate / 9);
             var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
@@ -86,12 +87,12 @@ namespace ExampleCode.DataTableTrainers
         {
             var graph = _context.CreateGraphFactory();
 
-            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // configure the network properties
             graph.CurrentPropertySet
-                .Use(graph.GradientDescent.Adam)
-                .Use(graph.GaussianWeightInitialisation(true, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
+                .Use(graph.GradientDescent.RmsProp)
+                .Use(graph.WeightInitialisation.Xavier)
             ;
 
             // create the engine
@@ -101,7 +102,7 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
             // build the network
-            const int hiddenLayerSize = 50, trainingIterations = 50;
+            const int hiddenLayerSize = 30, trainingIterations = 50;
             graph.Connect(engine)
                 .AddLstm(hiddenLayerSize, "encoder1")
                 //.AddRecurrentBridge("encoder1", "encoder2")
@@ -111,7 +112,8 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(25, learningRate / 3);
+            engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
+            engine.LearningContext.ScheduleLearningRate(30, learningRate / 9);
             var model = engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }

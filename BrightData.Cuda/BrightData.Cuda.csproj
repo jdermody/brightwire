@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <Description>Cuda provider for Bright Data - allows GPU computation on NVIDIA GPUs</Description>
-    <Copyright>Copyright © Jack Dermody 2016-2022</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageTags>cuda gpu</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
@@ -109,28 +109,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="managed-cuda\CudaBlas.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-    <None Include="managed-cuda\CudaSolve.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-    <None Include="managed-cuda\ManagedCuda.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="managed-cuda\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -139,18 +117,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CudaBlas.netCore">
-      <HintPath>managed-cuda\CudaBlas.netCore.dll</HintPath>
-    </Reference>
-    <Reference Include="CudaSolve.netCore">
-      <HintPath>managed-cuda\CudaSolve.netCore.dll</HintPath>
-    </Reference>
-    <Reference Include="ManagedCuda.netCore">
-      <HintPath>managed-cuda\ManagedCuda.netCore.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

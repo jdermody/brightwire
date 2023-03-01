@@ -1438,10 +1438,12 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMatrix SoftmaxDerivative(this ITensorSegment segment, LinearAlgebraProvider lap)
         {
-            return lap.CreateMatrix(segment.Size, segment.Size, (x, y) => x == y
-                ? segment[x] * (1 - segment[x])
-                : -segment[x] * segment[y]
-            );
+            return lap.CreateMatrix(segment.Size, segment.Size, (x, y) => {
+                var xVal = segment[x];
+                return x == y
+                    ? xVal * (1 - xVal)
+                    : -xVal * segment[y];
+            });
         }
 
         /// <summary>

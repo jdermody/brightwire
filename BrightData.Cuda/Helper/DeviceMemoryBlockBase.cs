@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.Helper;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
+using Math = System.Math;
 
 namespace BrightData.Cuda.Helper
 {

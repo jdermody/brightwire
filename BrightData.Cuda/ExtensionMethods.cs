@@ -4,10 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.LinearAlgebra;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.CudaBlas;
 
 namespace BrightData.Cuda
 {

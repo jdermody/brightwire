@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BrightData.Numerics</name>
+    </assembly>
+    <members>
+        <member name="T:BrightData.Numerics.ExtensionMethods">
+            <summary>
+            Extension methods
+            </summary>
+        </member>
+        <member name="M:BrightData.Numerics.ExtensionMethods.UseNumericsLinearAlgebra(BrightData.IBrightDataContext)">
+            <summary>
+            Creates a linear algebra provider that runs on the CPU
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:BrightData.Numerics.Numerics3DTensor">
+            <summary>
+            3D Tensor that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.Numerics4DTensor">
+            <summary>
+            4D Tensor that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.NumericsMatrix">
+            <summary>
+            Matrix that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.NumericsProvider">
+            <summary>
+            Creates vectors, matrices and tensors using the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.#ctor(BrightData.IBrightDataContext)">
+            <summary>
+            
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateVector(System.UInt32,System.Func{System.UInt32,System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateMatrixFromRows(BrightData.IFloatVector[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateMatrixFromColumns(BrightData.IFloatVector[])">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Numerics.NumericsProvider.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Numerics.NumericsProvider.Context">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateVector(System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateMatrix(System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Create3DTensor(System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Create4DTensor(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateMatrix(System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateMatrix(BrightData.LinearAlgebra.Matrix{System.Single})">
+            <summary>
+            Creates a float matrix
+            </summary>
+            <param name="matrix"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Create3DTensor(BrightData.IFloatMatrix[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Create4DTensor(BrightData.LinearAlgebra.Tensor3D{System.Single}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.Create4DTensor(BrightData.I3DFloatTensor[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.PushLayer">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.PopLayer">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Numerics.NumericsProvider.IsGpu">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CalculateDistances(BrightData.IFloatVector[],System.Collections.Generic.IReadOnlyList{BrightData.IFloatVector},BrightData.DistanceMetric)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Numerics.NumericsProvider.CreateVector(BrightData.ITensorSegment{System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Numerics.NumericsVector">
+            <summary>
+            Vector that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+    </members>
+</doc>

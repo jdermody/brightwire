@@ -2218,7 +2218,6 @@ namespace BrightData.LinearAlgebra
             var ret = new ITensorSegment[matrix.RowCount];
             for (uint i = 0; i < matrix.RowCount; i++) {
                 using var derivative = derivatives[i];
-                //using var row = matrix.GetRowVector(i);
                 using var row = transposed.GetColumnVector(i);
                 using var sm = derivative.Multiply(row);
                 ret[i] = sm.Segment;

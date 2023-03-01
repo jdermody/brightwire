@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.CudaBlas;
-using ManagedCuda.CudaSolve;
-using ManagedCuda.VectorTypes;
+using Math = BrightData.Cuda.CudaToolkit.Math;
 
 namespace BrightData.Cuda
 {
@@ -195,7 +192,7 @@ namespace BrightData.Cuda
             _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new(() => {
                 var ret = new CudaBlas(_defaultStream.Stream, AtomicsMode.Allowed) {
-                    MathMode = ManagedCuda.CudaBlas.Math.TF32TensorOpMath
+                    MathMode = Math.TF32TensorOpMath
                 };
                 return ret;
             });

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.DataTable;
-using ManagedCuda;
 
 namespace BrightData.Cuda.Helper
 {

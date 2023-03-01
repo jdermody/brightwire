@@ -11,7 +11,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
-    <Copyright>Copyright © Jack Dermody 2016-2022</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageTags>machinelearning</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>

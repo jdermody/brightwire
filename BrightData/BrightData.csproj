@@ -12,9 +12,9 @@
     <Company />
     <Product>Bright ML</Product>
     <Description>Bright data is a performance oriented data table and linear algebra library that supports both CPU and GPU computation</Description>
-    <Copyright>Copyright © Jack Dermody 2016-2022</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

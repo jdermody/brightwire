@@ -267,7 +267,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public ITensorSegment[] SoftmaxPerRow()
         {
-            var segments = SpanOwner<ITensorSegment>.Allocate((int)RowCount);
+            using var segments = SpanOwner<ITensorSegment>.Allocate((int)RowCount);
             var ptr = segments.Span;
             for (var i = 0; i < RowCount; i++)
                 ptr[i] = Row((uint)i);

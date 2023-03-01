@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
+using BrightData.Cuda.CudaToolkit;
 
 namespace BrightData.Cuda.Helper
 {

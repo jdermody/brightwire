@@ -111,14 +111,6 @@
 	<value name="MeanSquared" value="3" summary="Means Square Error" />
 	<value name="SquaredEuclidean" value="4" summary="Square Euclidean" />
 </enum>
-<enum name="BrightWire.ErrorType">
-	<summary>
-		
-	</summary>
-	<value name="Default" value="0" summary="" />
-	<value name="Bias" value="1" summary="" />
-	<value name="Weight" value="2" summary="" />
-</enum>
 <enum name="BrightWire.GaussianVarianceCalibration">
 	<summary>
 		Gaussian weight initialisation type
@@ -142,6 +134,14 @@
 	<value name="Standard" value="0" summary="Standard batch type (non sequential batches have a single standard sequence item)" />
 	<value name="SequenceStart" value="1" summary="Start of a sequence" />
 	<value name="SequenceEnd" value="2" summary="End of a sequence" />
+</enum>
+<enum name="BrightWire.NodeErrorType">
+	<summary>
+		Node error type
+	</summary>
+	<value name="Default" value="0" summary="Default error" />
+	<value name="Bias" value="1" summary="Error in node bias" />
+	<value name="Weight" value="2" summary="Error in node weights" />
 </enum>
 <enum name="BrightData.NormalizationType">
 	<summary>
@@ -710,12 +710,12 @@
 				<param type="BrightWire.ILearningContext" name="context" summary="Graph learning context" />
 			</method>
 	<method type="System.Void" name="UpdateBias">
-		<summary></summary>
+		<summary>Updates the bias</summary>
 				<param type="BrightData.IMatrix" name="delta" summary="" />
 				<param type="BrightWire.ILearningContext" name="context" summary="" />
 			</method>
 	<method type="(BrightWire.ExecutionGraph.Node.NodeBase FromNode, BrightWire.IGraphData Output, System.Func&lt;BrightWire.IBackpropagate&gt; BackProp)" name="ForwardSingleStep">
-		<summary></summary>
+		<summary>Executes the feed forward node</summary>
 				<param type="BrightWire.IGraphData" name="signal" summary="" />
 				<param type="System.UInt32" name="channel" summary="" />
 				<param type="BrightWire.IGraphContext" name="context" summary="" />
@@ -812,7 +812,7 @@
 		<summary>Gets the signal as a matrix</summary>
 			</method>
 	<method type="BrightData.ITensor3D" name="Get3DTensor">
-		<summary></summary>
+		<summary>Gets the signal as a 3D tensor</summary>
 			</method>
 	<method type="BrightData.ITensor4D" name="Get4DTensor">
 		<summary>Gets the signal as a 4D tensor</summary>
@@ -999,7 +999,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</summary>
 		<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetFloatSpan">
 		<summary>Returns a span of floats</summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Optional temporary memory buffer" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Optional temporary memory buffer" />
 				<param type="System.Boolean" name="wasTempUsed" summary="True if the memory buffer was used" />
 			</method>
 </interface>
@@ -1080,10 +1080,10 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 		<summary>The total number of rows per epoch</summary>
 	</property>
 	<method type="System.Void" name="AddError">
-		<summary></summary>
-				<param type="BrightWire.ErrorType" name="errorType" summary="" />
-				<param type="BrightWire.ExecutionGraph.Node.NodeBase" name="fromNode" summary="" />
-				<param type="BrightData.ITensor" name="error" summary="" />
+		<summary>Adds an error to the node</summary>
+				<param type="BrightWire.NodeErrorType" name="errorType" summary="Error type" />
+				<param type="BrightWire.ExecutionGraph.Node.NodeBase" name="fromNode" summary="The node that created the error" />
+				<param type="BrightData.ITensor" name="error" summary="Error" />
 			</method>
 	<method type="System.Void" name="ApplyUpdates">
 		<summary>Apply any deferred updates</summary>
@@ -1204,7 +1204,7 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetRowSpan">
 		<summary>Returns a row as a span</summary>
 				<param type="System.UInt32" name="rowY" summary="Row index" />
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Temporary buffer in which to write the contiguous row values" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Temporary buffer in which to write the contiguous row values" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetColumnSpan">
 		<summary>Returns a column as a span</summary>
@@ -2217,7 +2217,7 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan">
 		<summary>Returns a span from the current segment</summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Optional buffer that might be needed when creating the span" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="Optional buffer that might be needed when creating the span" />
 				<param type="System.Boolean" name="wasTempUsed" summary="True if the buffer was used" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan">
@@ -2426,7 +2426,7 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
 		<summary></summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
 				<param type="System.Boolean" name="wasTempUsed" summary="" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
@@ -2449,7 +2449,7 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 	</summary>
 	<method type="System.Void" name="ArrayPoolTensorSegment" is-static="false">
 		<summary>Constructor</summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;System.Single&gt;" name="data" summary="Rented buffer from pool" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;System.Single&gt;" name="data" summary="Rented buffer from pool" />
 			</method>
 	<method type="System.Void" name="Dispose" is-static="false">
 		<summary></summary>
@@ -2520,7 +2520,7 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
 		<summary></summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
 				<param type="System.Boolean" name="wasTempUsed" summary="" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
@@ -2814,6 +2814,12 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<property type="System.String" name="LastRow">
 		<summary>Returns the last row as a string</summary>
 	</property>
+	<property type="System.String[]" name="Head">
+		<summary>Returns the head of the table</summary>
+	</property>
+	<property type="System.String[]" name="Tail">
+		<summary>Returns the tail of the table</summary>
+	</property>
 	<method type="System.String" name="ToString" is-static="false">
 		<summary></summary>
 			</method>
@@ -3021,7 +3027,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 </class>
 <class name="BrightData.DataTable.BrightDataTableRow" base="" is-static="false" is-abstract="false">
 	<summary>
-		A row in data table
+		A row in a data table
 	</summary>
 	<method type="System.Void" name="Dispose" is-static="false">
 		<summary></summary>
@@ -3100,7 +3106,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetRowSpan" is-static="false">
 		<summary></summary>
 				<param type="System.UInt32" name="rowIndex" summary="" />
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetColumnSpan" is-static="false">
 		<summary></summary>
@@ -3543,7 +3549,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	</property>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetFloatSpan" is-static="false">
 		<summary></summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
 				<param type="System.Boolean" name="wasTempUsed" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="Reshape" is-static="false">
@@ -4272,11 +4278,6 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>Maximum date (null if none)</summary>
 	</property>
 </class>
-<class name="BrightWire.Helper.DebugHelpers" base="" is-static="true" is-abstract="false">
-	<summary>
-		Helper classes useful when debugging BW
-	</summary>
-</class>
 <class name="BrightWire.Models.TreeBased.DecisionTree" base="" is-static="false" is-abstract="false">
 	<summary>
 		A decision tree model
@@ -4500,7 +4501,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Constructor</summary>
 				<param type="BrightWire.IMiniBatchSequence" name="miniBatch" summary="The mini batch sequence" />
 				<param type="BrightData.IMatrix" name="output" summary="The mini batch output" />
-				<param type="System.Boolean" name="wantInputInExecutionResults" summary="" />
+				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to save graph inputs in the execution results" />
 			</method>
 	<property type="BrightData.IReadOnlyVector[]" name="Output">
 		<summary>The list of output rows</summary>
@@ -4651,6 +4652,38 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<summary>
 		
 	</summary>
+	<method type="BrightData.ICompositeBuffer&lt;T&gt;" name="CreateCompositeStructBuffer" is-static="true">
+		<summary>Creates a buffer to store structs</summary>
+				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
+				<param type="System.UInt32" name="bufferSize" summary="" />
+				<param type="System.UInt16" name="maxDistinct" summary="" />
+			</method>
+	<method type="BrightData.ICompositeBuffer" name="CreateCompositeStructBuffer" is-static="true">
+		<summary>Creates a buffer to store structs</summary>
+				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
+				<param type="System.Type" name="type" summary="" />
+				<param type="System.UInt32" name="bufferSize" summary="" />
+				<param type="System.UInt16" name="maxDistinct" summary="" />
+			</method>
+	<method type="BrightData.ICompositeBuffer&lt;System.String&gt;" name="CreateCompositeStringBuffer" is-static="true">
+		<summary>Creates a buffer to store strings</summary>
+				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
+				<param type="System.UInt32" name="bufferSize" summary="" />
+				<param type="System.UInt16" name="maxDistinct" summary="" />
+			</method>
+	<method type="BrightData.ICompositeBuffer&lt;T&gt;" name="CreateCompositeObjectBuffer" is-static="true">
+		<summary>Creates a buffer to store objects</summary>
+				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
+				<param type="System.UInt32" name="bufferSize" summary="" />
+			</method>
+	<method type="BrightData.ICompositeBuffer" name="CreateCompositeObjectBuffer" is-static="true">
+		<summary>Creates a buffer to store objects</summary>
+				<param type="BrightData.IProvideTempStreams" name="tempStream" summary="" />
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
+				<param type="System.Type" name="type" summary="" />
+				<param type="System.UInt32" name="bufferSize" summary="" />
+			</method>
 	<method type="BrightData.ICompositeBuffer&lt;T&gt;" name="CreateCompositeStructBuffer" is-static="true">
 		<summary>Creates a struct buffer</summary>
 				<param type="BrightData.BrightDataContext" name="_" summary="" />
@@ -5727,11 +5760,6 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 		<summary>Returns an array from a tensor segment</summary>
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
-</class>
-<class name="BrightData.ExtensionMethods" base="" is-static="true" is-abstract="false">
-	<summary>
-		
-	</summary>
 	<method type="BrightData.ITensorSegment" name="ZipParallel" is-static="true">
 		<summary>Creates a new tensor segment from each pairwise combination of this and another tensor segment (in parallel)</summary>
 				<param type="BrightData.ITensorSegment" name="segment" summary="This tensor" />
@@ -5885,7 +5913,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 	<method type="BrightData.ITensorSegment" name="Sqrt" is-static="true">
 		<summary>Creates a new tensor segment that contains the square root of each value in this tensor segment</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="This tensor" />
-				<param type="System.Single" name="adjustment" summary="A non zero value to use in place of zero" />
+				<param type="System.Single" name="adjustment" summary="A small value to add to each value in case of zeros" />
 			</method>
 	<method type="System.Nullable&lt;System.UInt32&gt;" name="Search" is-static="true">
 		<summary>Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance</summary>
@@ -6284,7 +6312,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="GetLinearAlgebraProvider" is-static="true">
-		<summary></summary>
+		<summary>Returns the linear algebra provider associated from this graph context</summary>
 				<param type="BrightWire.IGraphContext" name="context" summary="" />
 			</method>
 </class>
@@ -6556,9 +6584,9 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 		Graph engine execution context
 	</summary>
 	<method type="System.Void" name="GraphExecutionContext" is-static="false">
-		<summary></summary>
-				<param type="BrightWire.IGraphEngine" name="graphEngine" summary="" />
-				<param type="System.Boolean" name="wantInputInExecutionResults" summary="" />
+		<summary>Constructor</summary>
+				<param type="BrightWire.IGraphEngine" name="graphEngine" summary="Graph engine" />
+				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to save the graph input in the execution results" />
 			</method>
 	<method type="System.Void" name="Dispose" is-static="false">
 		<summary></summary>
@@ -6567,51 +6595,51 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 		<summary></summary>
 	</property>
 	<method type="System.Void" name="Add" is-static="false">
-		<summary></summary>
+		<summary>Adds graph operations to the queue</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;BrightWire.IGraphOperation&gt;" name="operations" summary="" />
 			</method>
 	<method type="System.Void" name="RegisterContinuation" is-static="false">
-		<summary></summary>
+		<summary>Registers a continuation that will be executed after the current sequence has been processed in full</summary>
 				<param type="BrightWire.IMiniBatchSequence" name="sequence" summary="" />
 				<param type="System.Action&lt;BrightWire.IGraphContext&gt;" name="callback" summary="" />
 			</method>
 	<method type="System.Void" name="RegisterAdditionalMiniBatch" is-static="false">
-		<summary></summary>
-				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="" />
-				<param type="BrightWire.IGraphData" name="data" summary="" />
-				<param type="System.Action&lt;BrightWire.IGraphContext, BrightWire.IGraphData&gt;" name="start" summary="" />
-				<param type="System.Action&lt;BrightWire.IGraphContext[]&gt;" name="end" summary="" />
+		<summary>Registers an additional mini batch to execute after the current mini batch has completed</summary>
+				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="Mini batch to execute" />
+				<param type="BrightWire.IGraphData" name="data" summary="Initial data" />
+				<param type="System.Action&lt;BrightWire.IGraphContext, BrightWire.IGraphData&gt;" name="start" summary="Callback when starting the batch" />
+				<param type="System.Action&lt;BrightWire.IGraphContext[]&gt;" name="end" summary="Callback when ending the batch" />
 			</method>
 	<property type="System.Int32" name="RemainingOperationCount">
-		<summary></summary>
+		<summary>Count of remaining operations in queue</summary>
 	</property>
 	<property type="System.Boolean" name="HasContinuations">
-		<summary></summary>
+		<summary>True if there are registered continuations or additional mini batches that still need to execute</summary>
 	</property>
 	<property type="System.Boolean" name="WantInputInExecutionResults">
-		<summary></summary>
+		<summary>True if the input to the graph will be stored in the execution results</summary>
 	</property>
 	<method type="System.Void" name="Continue" is-static="false">
-		<summary></summary>
+		<summary>Checks if execution should continue from a remaining continuation</summary>
 				<param type="BrightWire.IGraphContext" name="context" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;(BrightWire.IGraphContext Context, System.Action&lt;BrightWire.IGraphContext[]&gt; Callback)&gt;" name="ExecuteAdditionalMiniBatch" is-static="false">
-		<summary></summary>
+		<summary>Executes any additional mini batches</summary>
 				<param type="BrightWire.ILearningContext" name="learningContext" summary="" />
 			</method>
 	<method type="System.Boolean" name="HasMemory" is-static="false">
-		<summary></summary>
+		<summary>Checks if a named memory slot is in use</summary>
 				<param type="System.String" name="index" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="GetMemory" is-static="false">
-		<summary></summary>
+		<summary>Returns a named memory slot</summary>
 				<param type="System.String" name="index" summary="" />
 			</method>
 	<method type="BrightWire.IGraphOperation" name="GetNextOperation" is-static="false">
-		<summary></summary>
+		<summary>Pops the next pending graph operation (if any)</summary>
 			</method>
 	<method type="System.Void" name="SetMemory" is-static="false">
-		<summary></summary>
+		<summary>Sets a named memory slot</summary>
 				<param type="System.String" name="index" summary="" />
 				<param type="BrightData.IMatrix" name="memory" summary="" />
 			</method>
@@ -6646,7 +6674,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="BrightData.IMatrix" name="weight" summary="" />
 			</method>
 	<method type="BrightWire.IWeightInitialisation" name="GetWeightInitialisation" is-static="false">
-		<summary></summary>
+		<summary>Returns an object that can initialize weights in the graph</summary>
 			</method>
 	<method type="BrightWire.IGraphTrainingEngine" name="CreateTrainingEngine" is-static="false">
 		<summary>Creates a graph training engine</summary>
@@ -6960,14 +6988,14 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 </class>
 <class name="BrightWire.ExecutionGraph.Helper.GraphHelperMethods" base="" is-static="true" is-abstract="false">
 	<summary>
-		
+		Graph extension methods
 	</summary>
 	<method type="BrightData.IMatrix" name="ReshapeAsMatrix" is-static="true">
-		<summary></summary>
+		<summary>Reshapes the 3D tensor as a matrix</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="ReshapeAsMatrix" is-static="true">
-		<summary></summary>
+		<summary>Reshapes the 4D tensor as a matrix</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 			</method>
 </class>
@@ -7361,390 +7389,355 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="BrightData.ITensorSegment" name="segment" summary="Tensor segment" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Add" is-static="false">
-		<summary></summary>
+		<summary>Adds two tensors into a new tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Add" is-static="false">
-		<summary></summary>
+		<summary>Adds two tensors into a new tensor and applies coefficients to each element in the two tensors</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
 				<param type="System.Single" name="coefficient1" summary="" />
 				<param type="System.Single" name="coefficient2" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Add" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor from adding a scalar to each element in the tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.Single" name="scalar" summary="" />
 			</method>
 	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Adds another tensor to the first tensor which will be modified in place</summary>
+				<param type="BrightData.ITensorSegment" name="target" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="other" summary="Other tensor" />
 			</method>
 	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
+		<summary>Adds another tensor to the first tensor and applies coefficients to each element in each tensor</summary>
+				<param type="BrightData.ITensorSegment" name="target" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="other" summary="Other tensor" />
+				<param type="System.Single" name="coefficient1" summary="Coefficient applied to each element of the first tensor" />
+				<param type="System.Single" name="coefficient2" summary="Coefficient applied to each element of the other tensor" />
 			</method>
 	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
+		<summary>Adds a scalar to each element of this tensor - modified in place</summary>
 				<param type="BrightData.ITensorSegment" name="target" summary="" />
 				<param type="System.Single" name="scalar" summary="" />
 			</method>
 	<method type="System.Void" name="MultiplyInPlace" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each element of the tensor by a scalar - modified in place</summary>
 				<param type="BrightData.ITensorSegment" name="target" summary="" />
 				<param type="System.Single" name="scalar" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Multiply" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor by multiplying each element of the tensor with a scalar</summary>
 				<param type="BrightData.ITensorSegment" name="target" summary="" />
 				<param type="System.Single" name="scalar" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Subtract" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor1" summary="" />
-				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
+		<summary>Subtracts the second tensor from the first tensor into a new tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Subtract" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor1" summary="" />
-				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
+		<summary>Subtracts the second tensor from the first tensor into a new tensor and applies coefficients to each value in each tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
+				<param type="System.Single" name="coefficient1" summary="Coefficient to apply to each element in the first tensor" />
+				<param type="System.Single" name="coefficient2" summary="Coefficient to apply to each element in the second tensor" />
 			</method>
 	<method type="System.Void" name="SubtractInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Subtracts the second tensor from the first tensor - first tensor modified in place</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Void" name="SubtractInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
+		<summary>Subtracts the second tensor from the first tensor and applies coefficient to each value in the tensors - first tensor modified in place</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
+				<param type="System.Single" name="coefficient1" summary="Coefficient to apply to each element in the first tensor" />
+				<param type="System.Single" name="coefficient2" summary="Coefficient to apply to each element in the second tensor" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="PointwiseMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor1" summary="" />
-				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
+		<summary>Creates a new tensor by multiplying each element in the first tensor with the corresponding value in the second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Void" name="PointwiseMultiplyInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Multiplies each element in the first tensor with the corresponding value in the second tensor - first tensor modified in place</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="PointwiseDivide" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor1" summary="" />
-				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
+		<summary>Creates a new tensor by dividing each element in the first tensor with the corresponding value in the second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Void" name="PointwiseDivideInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="target" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Dividing each element in the first tensor with the corresponding value in the second tensor - first tensor is modified in place</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Single" name="DotProduct" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
+		<summary>Calculates the dot product of the first with the second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="" />
 				<param type="BrightData.ITensorSegment" name="tensor2" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Sqrt" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the square root of each value in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
+				<param type="System.Single" name="adjustment" summary="A small value to add to each value in case of zeros" />
 			</method>
 	<method type="System.Nullable&lt;System.UInt32&gt;" name="Search" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the index (if any) of the first element with a matching value</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.Single" name="value" summary="" />
 				<param type="System.Single" name="tolerance" summary="" />
 			</method>
 	<method type="System.Void" name="ConstrainInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Constrains each value in this tensor to lie between the min and max values (if supplied)</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.Nullable&lt;System.Single&gt;" name="minValue" summary="" />
 				<param type="System.Nullable&lt;System.Single&gt;" name="maxValue" summary="" />
 			</method>
 	<method type="System.Single" name="Average" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the average of the values in the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Single" name="L1Norm" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the L1 norm (manhattan distance) of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Single" name="L2Norm" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the L2 norm (euclidean distance) of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="(System.Single Min, System.Single Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxValues" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the minimum and maximum values of the tensor (and their corresponding indices)</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.UInt32" name="GetMinIndex" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the index of the minimum value of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.UInt32" name="GetMaxIndex" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the index of the maximum value of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Single" name="GetMin" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the minimum value of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Single" name="GetMax" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Finds the maximum value of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Boolean" name="IsEntirelyFinite" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Checks if the tensor is entirely finite (not NaN or Infinity)</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Reverse" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
+		<summary>Reverse the order of the tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.ITensorSegment&gt;" name="Split" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
-				<param type="System.UInt32" name="blockCount" summary="" />
+		<summary>Splits the tensor into separate (contiguous) sub tensors</summary>
+				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
+				<param type="System.UInt32" name="blockCount" summary="Number of blocks to split into" />
 			</method>
 	<method type="System.Single" name="CosineDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Finds the cosine distance between the first and second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Single" name="EuclideanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Finds the euclidean distance between the first and second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Single" name="MeanSquaredDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Finds the mean squared distance between the first and second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Single" name="SquaredEuclideanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Finds the squared euclidean distance between the first and second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="System.Single" name="ManhattanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="BrightData.ITensorSegment" name="other" summary="" />
+		<summary>Finds the manhattan distance between the first and second tensor</summary>
+				<param type="BrightData.ITensorSegment" name="tensor1" summary="First tensor" />
+				<param type="BrightData.ITensorSegment" name="tensor2" summary="Second tensor" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Abs" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the absolute value of each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Log" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the natural logarithm of each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Exp" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the exponent of each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Squared" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the square of each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="System.Single" name="StdDev" is-static="false">
-		<summary></summary>
+		<summary>Finds the standard deviation of each element in the tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="" />
+				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="Precalculated mean of the tensor or null to calculate" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Sigmoid" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the sigmoid function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="SigmoidDerivative" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the derivative of the sigmoid function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Tanh" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the tanh function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="TanhDerivative" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the derivative of the tanh function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Relu" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the relu function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="ReluDerivative" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the derivative of the relu function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="LeakyRelu" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the leaky relu function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="LeakyReluDerivative" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the derivative of the leaky relu function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Softmax" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the softmax function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="SoftmaxDerivative" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that contains the derivative of the softmax function applied to each element in this tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Pow" is-static="false">
-		<summary></summary>
+		<summary>Creates a new tensor that each element of the tensor raised to the specified power</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.Single" name="power" summary="" />
 			</method>
 	<method type="System.Void" name="RoundInPlace" is-static="false">
-		<summary></summary>
+		<summary>Rounds each element in the tensor to be either the lower or the upper parameter depending on its distance</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.Single" name="lower" summary="" />
 				<param type="System.Single" name="upper" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="CherryPickIndices" is-static="false">
-		<summary></summary>
+		<summary>Returns a new tensor with only the supplied indices</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
 				<param type="System.UInt32[]" name="indices" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="Transpose" is-static="false">
-		<summary></summary>
+		<summary>Calculate the matrix transpose</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="Multiply" is-static="false">
-		<summary></summary>
+		<summary>Multiplies the matrix with a vector</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.IVector" name="vector" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="Multiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="matrix" summary="" />
-				<param type="BrightData.IMatrix" name="other" summary="" />
+		<summary>Matrix multiplication</summary>
+				<param type="BrightData.IMatrix" name="matrix1" summary="" />
+				<param type="BrightData.IMatrix" name="matrix2" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="TransposeSecondAndMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="matrix" summary="" />
-				<param type="BrightData.IMatrix" name="other" summary="" />
+		<summary>Transposes the second matrix and then multiplies the first with the second matrix</summary>
+				<param type="BrightData.IMatrix" name="matrix1" summary="" />
+				<param type="BrightData.IMatrix" name="matrix2" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="TransposeFirstAndMultiply" is-static="false">
-		<summary></summary>
+		<summary>Transposes the first matrix and then multiplies with the second matrix</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.IMatrix" name="other" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="GetDiagonal" is-static="false">
-		<summary></summary>
+		<summary>Returns the matrix diagonal</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="RowSums" is-static="false">
-		<summary></summary>
+		<summary>Returns the sum of each row</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
-		<summary></summary>
+		<summary>Returns the sum of each column</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
-		<summary></summary>
+		<summary>Returns the sum of each matrix column</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.IVector" name="RowSums" is-static="false">
-		<summary></summary>
+		<summary>Returns the sum of each matrix row</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 			</method>
 	<method type="(BrightData.IMatrix U, BrightData.IVector S, BrightData.IMatrix VT)" name="Svd" is-static="false">
-		<summary></summary>
+		<summary>Calculates the singular value decomposition of the matrix</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 			</method>
-	<method type="System.Void" name="FeatureScaleNormalization" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="StandardNormalization" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="EuclideanNormalization" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="ManhattanNormalization" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensorSegment" name="segment" summary="" />
-			</method>
 	<method type="System.Void" name="L1Regularisation" is-static="false">
-		<summary></summary>
+		<summary>In place L1 regularization of the tensor</summary>
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 				<param type="System.Single" name="coefficient" summary="" />
 			</method>
 	<method type="(BrightData.IMatrix Left, BrightData.IMatrix Right)" name="SplitAtColumn" is-static="false">
-		<summary></summary>
+		<summary>Splits the matrix at the specified column index into two sub matrices</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="" />
 			</method>
 	<method type="(BrightData.IMatrix Top, BrightData.IMatrix Bottom)" name="SplitAtRow" is-static="false">
-		<summary></summary>
+		<summary>Splits the matrix at the specified row index into two sub matrices</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="System.UInt32" name="rowIndex" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="ConcatColumns" is-static="false">
-		<summary></summary>
+		<summary>Concatenates the two matrices (column count must agree)</summary>
 				<param type="BrightData.IMatrix" name="top" summary="" />
 				<param type="BrightData.IMatrix" name="bottom" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="ConcatRows" is-static="false">
-		<summary></summary>
+		<summary>Concatenates the two matrices (row count must agree)</summary>
 				<param type="BrightData.IMatrix" name="left" summary="" />
 				<param type="BrightData.IMatrix" name="right" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="AddPadding" is-static="false">
-		<summary></summary>
+		<summary>Applies zero padding to the each matrix in the tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="System.UInt32" name="padding" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="RemovePadding" is-static="false">
-		<summary></summary>
+		<summary>Removes padding from each matrix in a tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="System.UInt32" name="padding" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="Im2Col" is-static="false">
-		<summary></summary>
+		<summary>Applies the convolutional operator the 3D tensor to obtain a matrix</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="(BrightData.ITensor3D Result, BrightData.ITensor3D Indices)" name="MaxPool" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor3D" name="tensor" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-				<param type="System.Boolean" name="saveIndices" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="ReverseMaxPool" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor3D" name="tensor" summary="" />
-				<param type="BrightData.ITensor3D" name="indices" summary="" />
-				<param type="System.UInt32" name="outputRows" summary="" />
-				<param type="System.UInt32" name="outputColumns" summary="" />
 				<param type="System.UInt32" name="filterWidth" summary="" />
 				<param type="System.UInt32" name="filterHeight" summary="" />
 				<param type="System.UInt32" name="xStride" summary="" />
 				<param type="System.UInt32" name="yStride" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="ReverseIm2Col" is-static="false">
-		<summary></summary>
+		<summary>Reverses a previous Im2Col operation</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.IMatrix" name="filter" summary="" />
 				<param type="System.UInt32" name="outputRows" summary="" />
@@ -7755,57 +7748,77 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="System.UInt32" name="xStride" summary="" />
 				<param type="System.UInt32" name="yStride" summary="" />
 			</method>
+	<method type="(BrightData.ITensor3D Result, BrightData.ITensor3D Indices)" name="MaxPool" is-static="false">
+		<summary>Calculates the max pooling operator of the 3D tensor</summary>
+				<param type="BrightData.ITensor3D" name="tensor" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+				<param type="System.Boolean" name="saveIndices" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="ReverseMaxPool" is-static="false">
+		<summary>Calculates a reverse max pool operation</summary>
+				<param type="BrightData.ITensor3D" name="tensor" summary="" />
+				<param type="BrightData.ITensor3D" name="indices" summary="" />
+				<param type="System.UInt32" name="outputRows" summary="" />
+				<param type="System.UInt32" name="outputColumns" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
 	<method type="BrightData.IMatrix" name="AddMatrices" is-static="false">
-		<summary></summary>
+		<summary>Creates the pointwise sum of each matrix within the 3D tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="Multiply" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each sub matrix within the 3D tensor with another matrix</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.IMatrix" name="other" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="TransposeFirstAndMultiply" is-static="false">
-		<summary></summary>
+		<summary>Transposes each sub matrix within the 3D tensor and then multiplies them with another matrix</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.IMatrix" name="other" summary="" />
 			</method>
 	<method type="System.Void" name="AddToEachRow" is-static="false">
-		<summary></summary>
+		<summary>Adds a vector to each row of each matrix within the tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.IVector" name="vector" summary="" />
 			</method>
 	<method type="System.Void" name="AddToEachColumn" is-static="false">
-		<summary></summary>
+		<summary>Adds a vector to each column of each matrix within the tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.IVector" name="vector" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="Multiply" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.ITensor4D" name="other" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="TransposeFirstAndMultiply" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each transposed sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.ITensor4D" name="other" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="TransposeSecondAndMultiply" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each sub matrix within the 3D tensor with the transposed reshaped matrix from each sub 3D tensor within the 4D tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="BrightData.ITensor4D" name="other" summary="" />
 			</method>
 	<method type="BrightData.ITensor4D" name="AddPadding" is-static="false">
-		<summary></summary>
+		<summary>Adds padding to each sub matrix</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="System.UInt32" name="padding" summary="" />
 			</method>
 	<method type="BrightData.ITensor4D" name="RemovePadding" is-static="false">
-		<summary></summary>
+		<summary>Removes padding from each sub matrix</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="System.UInt32" name="padding" summary="" />
 			</method>
 	<method type="(BrightData.ITensor4D Result, BrightData.ITensor4D Indices)" name="MaxPool" is-static="false">
-		<summary></summary>
+		<summary>Applies a max pooling operation to the 4D tensor</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="System.UInt32" name="filterWidth" summary="" />
 				<param type="System.UInt32" name="filterHeight" summary="" />
@@ -7814,7 +7827,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="System.Boolean" name="saveIndices" summary="" />
 			</method>
 	<method type="BrightData.ITensor4D" name="ReverseMaxPool" is-static="false">
-		<summary></summary>
+		<summary>Reverses a max pooling operation</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="BrightData.ITensor4D" name="indices" summary="" />
 				<param type="System.UInt32" name="outputRows" summary="" />
@@ -7825,7 +7838,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="System.UInt32" name="yStride" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="Im2Col" is-static="false">
-		<summary></summary>
+		<summary>Convolutional operation applied to each sub tensor</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="System.UInt32" name="filterWidth" summary="" />
 				<param type="System.UInt32" name="filterHeight" summary="" />
@@ -7833,7 +7846,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="System.UInt32" name="yStride" summary="" />
 			</method>
 	<method type="BrightData.ITensor4D" name="ReverseIm2Col" is-static="false">
-		<summary></summary>
+		<summary>Reverses the convolutional operator on each sub tensor</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="BrightData.IMatrix" name="filter" summary="" />
 				<param type="System.UInt32" name="outputRows" summary="" />
@@ -7845,68 +7858,68 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="System.UInt32" name="yStride" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="GetMatrix" is-static="false">
-		<summary></summary>
+		<summary>Returns a sub matrix from the 3D tensor</summary>
 				<param type="BrightData.ITensor3D" name="tensor" summary="" />
 				<param type="System.UInt32" name="index" summary="" />
 			</method>
 	<method type="BrightData.ITensor3D" name="GetTensor" is-static="false">
-		<summary></summary>
+		<summary>Returns a sub tensor from the 4D tensor</summary>
 				<param type="BrightData.ITensor4D" name="tensor" summary="" />
 				<param type="System.UInt32" name="index" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="GetNewMatrixFromRows" is-static="false">
-		<summary></summary>
+		<summary>Returns a new matrix from the specified row indices</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="rowIndices" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="GetNewMatrixFromColumns" is-static="false">
-		<summary></summary>
+		<summary>Returns a new matrix from the specified column indices</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="columnIndices" summary="" />
 			</method>
 	<method type="System.Void" name="AddToEachRow" is-static="false">
-		<summary></summary>
+		<summary>Adds a tensor to each row of the matrix</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
 	<method type="System.Void" name="AddToEachColumn" is-static="false">
-		<summary></summary>
+		<summary>Adds a tensor to each column of the matrix</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
 	<method type="System.Void" name="MultiplyEachRowWith" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each row of the matrix with the tensor</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
 	<method type="System.Void" name="MultiplyEachColumnWith" is-static="false">
-		<summary></summary>
+		<summary>Multiplies each column of the matrix with the tensor</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="FindDistances" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IVector[]" name="vectors" summary="" />
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightData.IVector&gt;" name="compareTo" summary="" />
-				<param type="BrightData.DistanceMetric" name="distanceMetric" summary="" />
+		<summary>Finds the distance between each pair of vectors</summary>
+				<param type="BrightData.IVector[]" name="vectors" summary="First set of vectors" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightData.IVector&gt;" name="compareTo" summary="Second set of vectors" />
+				<param type="BrightData.DistanceMetric" name="distanceMetric" summary="Distance metric" />
 			</method>
 	<method type="System.Void" name="BindThread" is-static="false">
-		<summary></summary>
+		<summary>Binds a new thread to this provider</summary>
 			</method>
 	<method type="System.Single" name="Sum" is-static="false">
-		<summary></summary>
+		<summary>Returns the sum of values in the tensor</summary>
 				<param type="BrightData.ITensorSegment" name="segment" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment[]" name="MultiSoftmax" is-static="false">
-		<summary></summary>
+		<summary>Calculates the softmax of a set of tensors</summary>
 				<param type="System.ArraySegment&lt;BrightData.ITensorSegment&gt;" name="segments" summary="" />
 			</method>
 	<method type="BrightData.IMatrix[]" name="MultiSoftmaxDerivative" is-static="false">
-		<summary></summary>
+		<summary>Calculates the softmax derivative of a set of tensors</summary>
 				<param type="BrightData.ITensorSegment[]" name="segments" summary="" />
 			</method>
 	<method type="BrightData.ITensorSegment[]" name="SoftmaxDerivativePerRow" is-static="false">
-		<summary></summary>
+		<summary>Computes the per row softmax derivative</summary>
 				<param type="BrightData.IMatrix" name="matrix" summary="" />
 				<param type="BrightData.ITensorSegment[]" name="rows" summary="" />
 			</method>
@@ -8373,8 +8386,8 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 				<param type="BrightWire.ExecutionGraph.Node.NodeBase" name="directDescendant" summary="" />
 			</method>
 	<method type="System.Void" name="ApplyError" is-static="false">
-		<summary></summary>
-				<param type="BrightWire.ErrorType" name="type" summary="" />
+		<summary>Applies an error to this node</summary>
+				<param type="BrightWire.NodeErrorType" name="type" summary="Error type" />
 				<param type="BrightData.ITensor" name="delta" summary="" />
 				<param type="BrightWire.ILearningContext" name="context" summary="" />
 			</method>
@@ -8838,31 +8851,31 @@ Double not or punctuation stops the not mode</summary>
 	<summary>
 		Extensions that work with a span of numbers
 	</summary>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="ZipParallel" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="ZipParallel" is-static="true">
 		<summary>Creates a new span of numbers from applying an operation to each pair of elements from this and another span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 				<param type="System.Func&lt;T, T, T&gt;" name="func" summary="Function that computes a new value from a pair of values" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="ZipVectorised" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="ZipVectorised" is-static="true">
 		<summary>Applies a function across each pair of elements from this and another span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 				<param type="BrightData.SpanExtensions.ComputeVectorisedTwo&lt;T&gt;" name="func1" summary="Vector callback" />
 				<param type="System.Func&lt;T, T, T&gt;" name="func2" summary="Element callback" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformParallel" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformParallel" is-static="true">
 		<summary>Applies a callback to each item in the span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="Vector" />
 				<param type="System.Func&lt;T, T&gt;" name="transformer" summary="Callback" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformVectorised" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformVectorised" is-static="true">
 		<summary>Creates a new span from an existing span via a vectorization function</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="Input buffer" />
 				<param type="BrightData.SpanExtensions.ComputeVectorisedOne&lt;T&gt;" name="transformer1" summary="Vectorized transformer" />
 				<param type="System.Func&lt;T, T&gt;" name="transformer2" summary="Sequential transformer" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformParallelIndexed" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="TransformParallelIndexed" is-static="true">
 		<summary>Creates a new span from an existing span via a function (possibly executed in parallel) that receives an index and returns a new value</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="Input span" />
 				<param type="System.Func&lt;System.UInt32, T&gt;" name="transformer" summary="Transformation function (possibly executed in parallel)" />
@@ -8899,19 +8912,19 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Calculates the sum of all values in this span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
 		<summary>Returns a new buffer that contains this span added to another span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
 		<summary>Returns a new buffer that contains this span added to another span where each value is multiplied by coefficients</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 				<param type="T" name="coefficient1" summary="Coefficient to apply to each value in this span" />
 				<param type="T" name="coefficient2" summary="Coefficient to apply to each value in the other span" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Add" is-static="true">
 		<summary>Returns a new buffer that contains each value added to a scalar</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 				<param type="T" name="scalar" summary="" />
@@ -8938,17 +8951,17 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.Span&lt;T&gt;" name="span" summary="" />
 				<param type="T" name="scalar" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Multiply" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Multiply" is-static="true">
 		<summary>Creates a new buffer that contains each value multiplied by a scalar</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 				<param type="T" name="scalar" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Subtract" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Subtract" is-static="true">
 		<summary>Creates a new buffer in which each value in another span is subtracted from the values in this span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Subtract" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Subtract" is-static="true">
 		<summary>Creates a new buffer in which each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
@@ -8967,7 +8980,7 @@ Double not or punctuation stops the not mode</summary>
 				<param type="T" name="coefficient1" summary="Coefficient to apply to each value in this span" />
 				<param type="T" name="coefficient2" summary="Coefficient to apply to each value in the other span" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="PointwiseMultiply" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="PointwiseMultiply" is-static="true">
 		<summary>Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
@@ -8977,7 +8990,7 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.Span&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="PointwiseDivide" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="PointwiseDivide" is-static="true">
 		<summary>Creates a new buffer in which each value in this span is divided by the pairwise value from another span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="This span" />
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="other" summary="Other span" />
@@ -9002,15 +9015,15 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Checks if each value in this span is finite (not NaN or Infinity)</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Reverse" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Reverse" is-static="true">
 		<summary>Reverses the span</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Squared" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="Squared" is-static="true">
 		<summary>Creates a new buffer in which each value in this span is squared</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 			</method>
-	<method type="Microsoft.Toolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="CherryPickIndices" is-static="true">
+	<method type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;T&gt;" name="CherryPickIndices" is-static="true">
 		<summary>Creates a new buffer from the specified indices</summary>
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="span" summary="" />
 				<param type="System.UInt32[]" name="arrayIndices" summary="" />
@@ -9418,7 +9431,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
 		<summary></summary>
-				<param type="Microsoft.Toolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
 				<param type="System.Boolean" name="wasTempUsed" summary="" />
 			</method>
 	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
@@ -9752,8 +9765,8 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Adds a self attention node</summary>
 				<param type="System.String" name="encoderName" summary="Name of encoder node (must be same size as decoder)" />
 				<param type="System.String" name="decoderName" summary="Name of decoder node (must be same size as encoder)" />
-				<param type="System.UInt32" name="encoderSize" summary="" />
-				<param type="System.UInt32" name="decoderSize" summary="" />
+				<param type="System.UInt32" name="encoderSize" summary="Size of the encoder" />
+				<param type="System.UInt32" name="decoderSize" summary="Size of the decoder" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="JoinInputWithMemory" is-static="false">

@@ -6,9 +6,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.Helper;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
