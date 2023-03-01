@@ -27,8 +27,6 @@
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />
     <None Remove="cuda\brightwire.ptx" />
-    <None Remove="cuda\brightwire_35.ptx" />
-    <None Remove="cuda\brightwire_37.ptx" />
     <None Remove="cuda\brightwire_50.ptx" />
     <None Remove="cuda\brightwire_52.ptx" />
     <None Remove="cuda\brightwire_53.ptx" />
@@ -42,14 +40,6 @@
 	<None Remove="cuda\brightwire_86.ptx" />
 	<None Remove="cuda\brightwire_87.ptx" />
     <Content Include="cuda\brightwire.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_35.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_37.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
