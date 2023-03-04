@@ -25,10 +25,10 @@ namespace BrightData.Cuda
 		class KernelExecution
 		{
 			readonly CUfunction _function;
-			readonly dim3 _block;
-			readonly dim3 _thread;
+			readonly Dim3 _block;
+			readonly Dim3 _thread;
 
-			public KernelExecution(CUfunction function, dim3 block, dim3 thread)
+			public KernelExecution(CUfunction function, Dim3 block, Dim3 thread)
 			{
 				_function = function;
 				_block = block;
@@ -46,7 +46,7 @@ namespace BrightData.Cuda
 					paramList[i] = handleList[i].AddrOfPinnedObject();
 				}
 
-				var result = DriverAPINativeMethods.Launch.cuLaunchKernel(_function,
+				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(_function,
 					_block.x, _block.y, _block.z,
 					_thread.x, _thread.y, _thread.z,
 					sharedMemSize,
@@ -75,22 +75,22 @@ namespace BrightData.Cuda
 			public CUfunction LoadFunction(string name)
 			{
 				var ret = new CUfunction();
-				if (DriverAPINativeMethods.ModuleManagement.cuModuleGetFunction(ref ret, _module, name) != CUResult.Success)
+				if (DriverApiNativeMethods.ModuleManagement.cuModuleGetFunction(ref ret, _module, name) != CuResult.Success)
 					throw new ArgumentException("Function not found", name);
 				return ret;
 			}
 
-			public static KernelExecution CreateExecution(CUfunction function, dim3 block, dim3 thread)
+			public static KernelExecution CreateExecution(CUfunction function, Dim3 block, Dim3 thread)
 			{
 				return new(function, block, thread);
 			}
 		}
 
 		readonly CudaContext _cuda;
-		readonly Lazy<CudaBlas> _blas;
-		readonly Lazy<CudaSolveDense> _solver = new();
+		readonly Lazy<CudaBlasHandle> _blas;
+        readonly Lazy<CusolverDnHandle> _solver;
 		readonly KernelModule _kernel;
-        readonly CudaStream _defaultStream;
+        readonly CUstream _defaultStream = new();
         readonly MemoryPool _memoryPool;
 
         internal readonly CUfunction
@@ -174,9 +174,13 @@ namespace BrightData.Cuda
                 if (String.IsNullOrWhiteSpace(cudaDirectory))
                     throw new ArgumentException("No kernel path or directory was passed");
 
-                var info = _cuda.GetDeviceInfo();
-                var kernelName = $"brightwire_{info.ComputeCapability.Major}{info.ComputeCapability.Minor}.ptx";
-                //var kernelName = $"brightwire.ptx";
+                int computeCapabilityMinor = 0, computeCapabilityMajor = 0;
+                if(DriverApiNativeMethods.DeviceManagement.cuDeviceGetAttribute(ref computeCapabilityMajor, CuDeviceAttribute.ComputeCapabilityMajor, _cuda.Device) != CuResult.Success)
+                    throw new Exception("Unable to get major version from CUDA device");
+                if (DriverApiNativeMethods.DeviceManagement.cuDeviceGetAttribute(ref computeCapabilityMinor, CuDeviceAttribute.ComputeCapabilityMinor, _cuda.Device) != CuResult.Success)
+                    throw new Exception("Unable to get minor version from CUDA device");
+
+                var kernelName = $"brightwire_{computeCapabilityMajor}{computeCapabilityMinor}.ptx";
                 cudaKernelPath = Path.Combine(cudaDirectory, kernelName);
 
 				// try the default kernel
@@ -187,13 +191,23 @@ namespace BrightData.Cuda
             }
 
             _memoryPool = new MemoryPool();
-            _defaultStream = new CudaStream(CUStreamFlags.Default);
+            if (DriverApiNativeMethods.Streams.cuStreamCreate(ref _defaultStream, CuStreamFlags.Default) != CuResult.Success)
+                throw new Exception("Unable to create CUDA stream");
 
             _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new(() => {
-                var ret = new CudaBlas(_defaultStream.Stream, AtomicsMode.Allowed) {
-                    MathMode = Math.TF32TensorOpMath
-                };
+                var ret = new CudaBlasHandle();
+                if (CudaBlasNativeMethods.cublasCreate_v2(ref ret) != CublasStatus.Success)
+                    throw new Exception("Unable to create CUDA BLAS");
+                CudaBlasNativeMethods.cublasSetStream_v2(ret, _defaultStream);
+                CudaBlasNativeMethods.cublasSetMathMode(ret, Math.Tf32TensorOpMath);
+                CudaBlasNativeMethods.cublasSetAtomicsMode(ret, AtomicsMode.Allowed);
+                return ret;
+            });
+            _solver = new(() => {
+                var ret = new CusolverDnHandle();
+                if (CudaSolveNativeMethods.Dense.cusolverDnCreate(ref ret) != CusolverStatus.Success)
+                    throw new Exception("Unable to create CUDA solver");
                 return ret;
             });
             _cuda.SetCurrent();
@@ -271,10 +285,10 @@ namespace BrightData.Cuda
                 _convolutionDataCache.Clear();
 
 				if(_blas.IsValueCreated)
-				    _blas.Value.Dispose();
-				if(_solver.IsValueCreated)
-					_solver.Value.Dispose();
-                _defaultStream.Dispose();
+                    CudaBlasNativeMethods.cublasDestroy_v2(_blas.Value);
+                if(_solver.IsValueCreated)
+                    CudaSolveNativeMethods.Dense.cusolverDnDestroy(_solver.Value);
+                DriverApiNativeMethods.Streams.cuStreamDestroy_v2(_defaultStream);
                 _memoryPool.Dispose();
 				_cuda.Dispose();
                 _disposed = true;
@@ -304,12 +318,12 @@ namespace BrightData.Cuda
         /// <summary>
         /// CUDA BLAS provider
         /// </summary>
-        public CudaBlas Blas => _blas.Value;
+        public CudaBlasHandle Blas => _blas.Value;
 
 		/// <summary>
 		/// CUDA Solver
 		/// </summary>
-        public CudaSolveDense Solver => _solver.Value;
+        public CusolverDnHandle Solver => _solver.Value;
 
 		/// <summary>
 		/// Total device memory
@@ -326,14 +340,14 @@ namespace BrightData.Cuda
 			return (size / blockSize) + 1;
 		}
 
-		internal static void CheckForError(CUResult result)
+		internal static void CheckForError(CuResult result)
 		{
-			if (result != CUResult.Success) {
+			if (result != CuResult.Success) {
 				string errorName = "", errorDesc = "";
 				IntPtr errorNamePtr = IntPtr.Zero, errorDescPtr = IntPtr.Zero;
-				if (DriverAPINativeMethods.ErrorHandling.cuGetErrorName(result, ref errorNamePtr) == CUResult.Success && errorNamePtr != IntPtr.Zero)
+				if (DriverApiNativeMethods.ErrorHandling.cuGetErrorName(result, ref errorNamePtr) == CuResult.Success && errorNamePtr != IntPtr.Zero)
 					errorName = Marshal.PtrToStringUni(errorNamePtr) ?? "Unknown error";
-				if(DriverAPINativeMethods.ErrorHandling.cuGetErrorString(result, ref errorDescPtr) == CUResult.Success && errorDescPtr != IntPtr.Zero)
+				if(DriverApiNativeMethods.ErrorHandling.cuGetErrorString(result, ref errorDescPtr) == CuResult.Success && errorDescPtr != IntPtr.Zero)
 					errorDesc = Marshal.PtrToStringUni(errorDescPtr) ?? "??";
 					
 				throw new Exception($"{result}: {errorName}-{errorDesc}");
@@ -344,47 +358,47 @@ namespace BrightData.Cuda
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
+				DriverApiNativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
 			}
 			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
 			var execution = KernelModule.CreateExecution(function, (int)gridSize, data.BlockSize);
-			execution.Run(stream is not null ? *stream : _defaultStream.Stream, 0, param);
+			execution.Run(stream is not null ? *stream : _defaultStream, 0, param);
 		}
 
         void InvokeManual(CUfunction function, CUstream* stream, uint size, params object[] param)
 		{
 			var gridSize = GetBlockCount((int)size, N);
 			var execution = KernelModule.CreateExecution(function, gridSize, N);
-			execution.Run(stream is not null ? *stream : _defaultStream.Stream, 0, param);
+			execution.Run(stream is not null ? *stream : _defaultStream, 0, param);
 		}
 
         internal void InvokeMatrix(CUfunction function, CUstream* stream, uint rows, uint columns, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
+				DriverApiNativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2)), minGridSize));
 			}
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
-			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
+			var execution = KernelModule.CreateExecution(function, new Dim3((int)gridSizeRows, (int)gridSizeCols), new Dim3(data.BlockSize, data.BlockSize));
 			
-			execution.Run(stream is not null ? *stream : _defaultStream.Stream, 0, param);
+			execution.Run(stream is not null ? *stream : _defaultStream, 0, param);
 		}
 
         internal void InvokeTensor(CUfunction function, CUstream* stream, uint rows, uint columns, uint depth, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
-				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
+				DriverApiNativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, _ => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/3)), minGridSize));
 			}
 			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
-			var execution = KernelModule.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
-			execution.Run(stream is not null ? *stream : _defaultStream.Stream, 0, param);
+			var execution = KernelModule.CreateExecution(function, new Dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new Dim3(data.BlockSize, data.BlockSize, data.BlockSize));
+			execution.Run(stream is not null ? *stream : _defaultStream, 0, param);
 		}
 
 		internal bool IsFinite(IDeviceMemoryPtr a, uint size, uint ai = 1, CUstream* stream = null)
@@ -392,8 +406,9 @@ namespace BrightData.Cuda
 			var temp = Allocate(size, stream);
 			try {
 				Invoke(_isFinite, stream, size, a.DevicePointer, temp.DevicePointer, size, ai);
-				var sum = Blas.AbsoluteSum(temp.DeviceVariable, 1);
-				return FloatMath.IsZero(sum);
+                float sum = 0;
+                CudaBlasNativeMethods.cublasSasum_v2(_blas.Value, temp.DeviceVariable.Size, temp.DeviceVariable.DevicePointer, 1, ref sum);
+                return FloatMath.IsZero(sum);
 			}
 			finally {
 				temp.Release();

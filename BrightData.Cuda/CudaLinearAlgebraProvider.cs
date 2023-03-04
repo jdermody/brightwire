@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
@@ -165,12 +166,9 @@ namespace BrightData.Cuda
         /// <inheritdoc />
         public override float DotProduct(ITensorSegment tensor, ITensorSegment tensor2)
         {
-            return Provider.Blas.Dot(
-                GetDeviceVariable(tensor),
-                1,
-                GetDeviceVariable(tensor2),
-                1
-            );
+            float ret = 0;
+            CudaBlasNativeMethods.cublasSdot_v2_64(Provider.Blas, tensor.Size, GetDeviceMemoryPtr(tensor).DevicePointer, 1, GetDeviceMemoryPtr(tensor2).DevicePointer, 1, ref ret);
+            return ret;
         }
 
         /// <inheritdoc />
@@ -188,7 +186,9 @@ namespace BrightData.Cuda
             var size = GetSize(tensor, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor2));
-            Provider.Blas.Axpy(1.0f, GetDeviceVariable(tensor), 1, ret.DeviceMemory.DeviceVariable, 1);
+
+            float alpha = 1;
+            CudaBlasNativeMethods.cublasSaxpy_v2_64(Provider.Blas, size, ref alpha, GetDeviceMemoryPtr(tensor).DevicePointer, 1, ret.DeviceMemory.DevicePointer, 1);
             return ret;
         }
 
@@ -275,7 +275,12 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float L2Norm(ITensorSegment segment) => Provider.Blas.Norm2(GetDeviceVariable(segment), 1);
+        public override float L2Norm(ITensorSegment segment) // => Provider.Blas.Norm2(GetDeviceVariable(segment), 1);
+        {
+            var result = 0f;
+            CudaBlasNativeMethods.cublasSnrm2_v2(Provider.Blas, (int)segment.Size, GetDeviceMemoryPtr(segment).DevicePointer, 1, ref result);
+            return result;
+        }
 
         /// <inheritdoc />
         public override ITensorSegment Subtract(ITensorSegment tensor1, ITensorSegment tensor2)
@@ -283,7 +288,8 @@ namespace BrightData.Cuda
             var size = GetSize(tensor1, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(tensor1));
-            Provider.Blas.Axpy(-1.0f, GetDeviceVariable(tensor2), 1, ret.DeviceMemory.DeviceVariable, 1);
+            var alpha = -1f;
+            CudaBlasNativeMethods.cublasSaxpy_v2(Provider.Blas, (int)size, ref alpha, GetDeviceMemoryPtr(tensor2).DevicePointer, 1, ret.DeviceMemory.DevicePointer, 1);
             return ret;
         }
 
@@ -328,9 +334,13 @@ namespace BrightData.Cuda
             // TODO: fix absolute values regarding indices
             var ptr = GetDeviceMemoryPtr(segment);
             var (min, max) = Provider.FindMinAndMax(ptr, segment.Size);
-            var maxIndex = (uint)Provider.Blas.Max(ptr.DeviceVariable, 1) - 1;
-            var minIndex = (uint)Provider.Blas.Min(GetDeviceVariable(segment), 1) - 1;
-            return (min, max, minIndex, maxIndex);
+
+            int minIndex = 0, maxIndex = 0;
+            var blas = Provider.Blas;
+            var size = (int)segment.Size;
+            CudaBlasNativeMethods.cublasIdamin_v2(blas, size, ptr.DevicePointer, 1, ref minIndex);
+            CudaBlasNativeMethods.cublasIsamax_v2(blas, size, ptr.DevicePointer, 1, ref maxIndex);
+            return (min, max, (uint)minIndex - 1, (uint)maxIndex - 1);
         }
 
         /// <inheritdoc />
@@ -529,7 +539,7 @@ namespace BrightData.Cuda
             int rowsA = (int)matrix.RowCount, columnsArowsB = (int)matrix.ColumnCount, columnsB = (int)other.ColumnCount;
 
             float alpha = 1.0f, beta = 0.0f;
-            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas.CublasHandle,
+            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas,
                 Operation.NonTranspose,
                 Operation.NonTranspose,
                 rowsA,
@@ -559,7 +569,7 @@ namespace BrightData.Cuda
         {
             var ret = Provider.Allocate(matrix.RowCount * matrix.ColumnCount);
             float alpha = 1.0f, beta = 0.0f;
-            CudaBlasNativeMethods.cublasSgeam(Provider.Blas.CublasHandle,
+            CudaBlasNativeMethods.cublasSgeam(Provider.Blas,
                 Operation.Transpose,
                 Operation.NonTranspose,
                 (int)matrix.ColumnCount,
@@ -584,7 +594,7 @@ namespace BrightData.Cuda
             int rowsA = (int)matrix.RowCount, columnsArowsB = (int)matrix.ColumnCount, rowsB = (int)other.RowCount;
 
             float alpha = 1.0f, beta = 0.0f;
-            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas.CublasHandle,
+            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas,
                 Operation.NonTranspose,
                 Operation.Transpose,
                 rowsA,
@@ -609,7 +619,7 @@ namespace BrightData.Cuda
             int rowsA = (int)matrix.RowCount, columnsA = (int)matrix.ColumnCount, columnsB = (int)other.ColumnCount, rowsB = (int)other.RowCount;
 
             float alpha = 1.0f, beta = 0.0f;
-            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas.CublasHandle,
+            CudaBlasNativeMethods.cublasSgemm_v2(Provider.Blas,
                 Operation.Transpose,
                 Operation.NonTranspose,
                 columnsA,
@@ -635,7 +645,8 @@ namespace BrightData.Cuda
             var columns = matrix.ColumnCount;
 
             // find the size of the required buffer
-            var bufferSize = solver.GesvdBufferSizeFloat((int)rows, (int)columns);
+            var bufferSize = 0;
+            CudaSolveNativeMethods.Dense.cusolverDnSgesvd_bufferSize(solver, (int)rows, (int)columns, ref bufferSize);
             var mn = System.Math.Min(rows, columns);
 
             // allocate output buffers
@@ -651,22 +662,22 @@ namespace BrightData.Cuda
                 try {
                     using var devInfo = new CudaDeviceVariable<int>(1);
                     a.CopyToDevice(GetDeviceMemoryPtr(matrix.Segment));
-                    solver.Gesvd(
-                        'A',
+                    CudaSolveNativeMethods.Dense.cusolverDnSgesvd(solver,
+                    'A',
                         'A',
                         (int)rows,
                         (int)columns,
-                        a.DeviceVariable,
+                        a.DevicePointer,
                         (int)rows,
-                        s.DeviceVariable,
-                        u.DeviceVariable,
+                        s.DevicePointer,
+                        u.DevicePointer,
                         (int)rows,
-                        vt.DeviceVariable,
+                        vt.DevicePointer,
                         (int)columns,
-                        buffer.DeviceVariable,
+                        buffer.DevicePointer,
                         bufferSize,
-                        rwork.DeviceVariable,
-                        devInfo
+                        rwork.DevicePointer,
+                        devInfo.DevicePointer
                     );
                     return (
                         CreateMatrix(rows, rows, new CudaTensorSegment(u)),
@@ -755,7 +766,7 @@ namespace BrightData.Cuda
             var indices = rowIndices.ToList();
             var ret = Provider.Allocate(matrix.ColumnCount * (uint)indices.Count);
             foreach (var item in indices) {
-                CudaBlasNativeMethods.cublasScopy_v2(Provider.Blas.CublasHandle,
+                CudaBlasNativeMethods.cublasScopy_v2(Provider.Blas,
                     n: (int)matrix.ColumnCount,
                     x: GetDeviceMemoryPtr(matrix.Segment).DevicePointer + (item * CudaProvider.FloatSize),
                     incx: (int)matrix.RowCount,
@@ -1032,7 +1043,7 @@ namespace BrightData.Cuda
         {
             var ptr = GetDeviceMemoryPtr(segment);
             var ret = Provider.Allocate(size);
-            var status = CudaBlasNativeMethods.cublasScopy_v2(Provider.Blas.CublasHandle, (int)size, ptr.DevicePointer + (offset * CudaProvider.FloatSize), (int)stride, ret.DevicePointer, 1);
+            var status = CudaBlasNativeMethods.cublasScopy_v2(Provider.Blas, (int)size, ptr.DevicePointer + (offset * CudaProvider.FloatSize), (int)stride, ret.DevicePointer, 1);
             if (status != CublasStatus.Success)
                 throw new CudaBlasException(status);
             return new(ret);
@@ -1181,7 +1192,7 @@ namespace BrightData.Cuda
             var outputPtr = Provider.Allocate(tensor.RowCount * columnsB * tensor.Depth);
             var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, tensor.RowCount, columnsB, this);
 
-            var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
+            var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas,
                 Operation.NonTranspose,
                 Operation.NonTranspose,
                 (int)rowsA,
@@ -1257,7 +1268,7 @@ namespace BrightData.Cuda
             var outputPtr = Provider.Allocate(tensor.ColumnCount * columnsB * tensor.Depth);
             var output = new CudaTensor3D(new CudaTensorSegment(outputPtr), tensor.Depth, columnsB, tensor.ColumnCount, this);
 
-            var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas.CublasHandle,
+            var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(Provider.Blas,
                 Operation.Transpose,
                 Operation.NonTranspose,
                 (int)columnsA,
@@ -1321,7 +1332,7 @@ namespace BrightData.Cuda
 
                 float alpha = 1.0f, beta = 0f;
                 var result = singleBlock.Offset(i * size, size);
-                CudaBlasNativeMethods.cublasSgemv_v2(Provider.Blas.CublasHandle,
+                CudaBlasNativeMethods.cublasSgemv_v2(Provider.Blas,
                     Operation.NonTranspose,
                     (int)size,
                     (int)size,
@@ -1350,7 +1361,7 @@ namespace BrightData.Cuda
             float alpha = 1.0f, beta = 0f;
 
             var result = Provider.Allocate((uint)size);
-            CudaBlasNativeMethods.cublasSgemv_v2(Provider.Blas.CublasHandle,
+            CudaBlasNativeMethods.cublasSgemv_v2(Provider.Blas,
                 Operation.NonTranspose,
                 size,
                 size,

@@ -12,7 +12,7 @@ namespace BrightData.Cuda.Helper
         public StreamWrapper()
         {
             var stream = new CUstream();
-            DriverAPINativeMethods.Streams.cuStreamCreate(ref stream, CUStreamFlags.Default).CheckResult();
+            DriverApiNativeMethods.Streams.cuStreamCreate(ref stream, CuStreamFlags.Default).CheckResult();
             Stream = stream;
         }
         public CUstream Stream { get; }
@@ -21,8 +21,8 @@ namespace BrightData.Cuda.Helper
 
         public void Dispose()
         {
-            DriverAPINativeMethods.Streams.cuStreamSynchronize(Stream).CheckResult();
-            DriverAPINativeMethods.Streams.cuStreamDestroy_v2(Stream).CheckResult();
+            DriverApiNativeMethods.Streams.cuStreamSynchronize(Stream).CheckResult();
+            DriverApiNativeMethods.Streams.cuStreamDestroy_v2(Stream).CheckResult();
         }
     }
 }

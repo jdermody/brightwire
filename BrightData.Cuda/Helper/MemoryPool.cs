@@ -21,7 +21,7 @@ namespace BrightData.Cuda.Helper
             GC.SuppressFinalize(this);
             foreach (var block in _memoryPool.Values) {
                 foreach (var ptr in block)
-                    DriverAPINativeMethods.MemoryManagement.cuMemFree_v2(ptr);
+                    DriverApiNativeMethods.MemoryManagement.cuMemFree_v2(ptr);
             }
         }
 
@@ -40,8 +40,8 @@ namespace BrightData.Cuda.Helper
             }
 
             ret = new CUdeviceptr();
-            var status = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ret, sizeInBytes);
-            if (status != CUResult.Success)
+            var status = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref ret, sizeInBytes);
+            if (status != CuResult.Success)
                 throw new CudaException(status);
             return ret;
         }

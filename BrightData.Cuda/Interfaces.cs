@@ -27,7 +27,7 @@ namespace BrightData.Cuda
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    public interface IDeviceMemoryPtr : ICountReferences, IHaveSize, IDisposable
+    internal interface IDeviceMemoryPtr : ICountReferences, IHaveSize, IDisposable
     {
         /// <summary>
         /// CUDA device variable - float array

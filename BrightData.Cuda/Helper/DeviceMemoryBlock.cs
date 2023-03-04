@@ -6,7 +6,7 @@ namespace BrightData.Cuda.Helper
     /// <summary>
 	/// Maintains a cache of available device memory
 	/// </summary>
-    public class DeviceMemoryBlock : DeviceMemoryBlockBase
+    internal class DeviceMemoryBlock : DeviceMemoryBlockBase
     {
         readonly MemoryPool? _memoryPool = null;
 
@@ -19,7 +19,7 @@ namespace BrightData.Cuda.Helper
         {
             var sizeInBytes = size * CudaProvider.FloatSize;
             var ptr = new CUdeviceptr();
-            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
+            var result = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
             CudaProvider.CheckForError(result);
             return new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
         }

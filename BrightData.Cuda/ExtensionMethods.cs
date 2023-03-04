@@ -70,9 +70,9 @@ namespace BrightData.Cuda
             return false;
         }
 
-        internal static void CheckResult(this CUResult result)
+        internal static void CheckResult(this CuResult result)
         {
-            if (result != CUResult.Success)
+            if (result != CuResult.Success)
                 throw new CudaException(result);
         }
 
