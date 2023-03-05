@@ -1,5 +1,6 @@
 ﻿
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
@@ -18,7 +19,7 @@ namespace BrightData.Cuda.Helper
         static CudaDeviceVariable<float> Create(uint size)
         {
             var sizeInBytes = size * CudaProvider.FloatSize;
-            var ptr = new CUdeviceptr();
+            var ptr = new CuDevicePtr();
             var result = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
             CudaProvider.CheckForError(result);
             return new CudaDeviceVariable<float>(ptr, true, sizeInBytes);

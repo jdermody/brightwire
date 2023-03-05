@@ -1,5 +1,5 @@
 ﻿using System;
-using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda
 {
@@ -37,7 +37,7 @@ namespace BrightData.Cuda
         /// <summary>
         /// CUDA device pointer
         /// </summary>
-        CUdeviceptr DevicePointer { get; }
+        CuDevicePtr DevicePointer { get; }
 
         /// <summary>
         /// Copies from the array to the device (in this block)

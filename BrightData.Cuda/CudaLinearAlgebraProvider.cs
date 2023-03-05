@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -579,7 +580,7 @@ namespace BrightData.Cuda
                 (int)matrix.RowCount,
 
                 ref beta,
-                new CUdeviceptr(0),
+                new CuDevicePtr(0),
                 (int)matrix.ColumnCount,
                 ret.DevicePointer,
                 (int)matrix.ColumnCount
@@ -778,10 +779,10 @@ namespace BrightData.Cuda
             return CreateMatrix((uint)indices.Count, matrix.ColumnCount, new CudaTensorSegment(ret));
         }
 
-        static CUdeviceptr[] GetDevicePointers(List<CudaTensorSegment> segments)
+        static CuDevicePtr[] GetDevicePointers(List<CudaTensorSegment> segments)
         {
             var len = segments.Count;
-            var ret = new CUdeviceptr[len];
+            var ret = new CuDevicePtr[len];
             for (var i = 0; i < len; i++) {
                 var segment = segments[i];
                 ret[i] = segment.DeviceMemory.DevicePointer;
@@ -809,7 +810,7 @@ namespace BrightData.Cuda
             if (allAreCuda) {
                 var devicePointers = GetDevicePointers(cudaSegmentList);
                 var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
-                using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns);
+                using var devicePtr = new CudaDeviceVariable<CuDevicePtr>(columns);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
                 return CreateMatrix(rows, columns, ret);
@@ -866,7 +867,7 @@ namespace BrightData.Cuda
             if (allAreCuda) {
                 var devicePointers = GetDevicePointers(cudaSegmentList);
                 var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
-                using var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows);
+                using var devicePtr = new CudaDeviceVariable<CuDevicePtr>(rows);
                 devicePtr.CopyToDevice(devicePointers);
                 Provider.CopyToMatrixRows(rows, columns, devicePtr, ret.DeviceMemory);
                 return CreateMatrix(rows, columns, ret);
@@ -1044,7 +1045,7 @@ namespace BrightData.Cuda
             var ptr = GetDeviceMemoryPtr(segment);
             var ret = Provider.Allocate(size);
             var status = CudaBlasNativeMethods.cublasScopy_v2(Provider.Blas, (int)size, ptr.DevicePointer + (offset * CudaProvider.FloatSize), (int)stride, ret.DevicePointer, 1);
-            if (status != CublasStatus.Success)
+            if (status != CuBlasStatus.Success)
                 throw new CudaBlasException(status);
             return new(ret);
         }
@@ -1211,7 +1212,7 @@ namespace BrightData.Cuda
                 tensor.RowCount * columnsB,
                 (int)tensor.Depth
             );
-            if (status != CublasStatus.Success)
+            if (status != CuBlasStatus.Success)
                 throw new CudaBlasException(status);
             return output;
         }
@@ -1287,7 +1288,7 @@ namespace BrightData.Cuda
                 tensor.ColumnCount * columnsB,
                 (int)tensor.Depth
             );
-            if (status != CublasStatus.Success)
+            if (status != CuBlasStatus.Success)
                 throw new CudaBlasException(status);
 
             return output;

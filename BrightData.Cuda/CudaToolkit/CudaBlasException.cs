@@ -5,27 +5,27 @@ namespace BrightData.Cuda.CudaToolkit
 {
     internal class CudaBlasException : Exception
     {
-        public CublasStatus CudaBlasError { get; set; }
+        public CuBlasStatus CudaBlasError { get; set; }
 
-        static string GetErrorMessageFromCuResult(CublasStatus error)
+        static string GetErrorMessageFromCuResult(CuBlasStatus error)
         {
             var message = error switch {
-                CublasStatus.Success => "Any CUBLAS operation is successful.",
-                CublasStatus.NotInitialized => "The CUBLAS library was not initialized.",
-                CublasStatus.AllocFailed => "Resource allocation failed.",
-                CublasStatus.InvalidValue => "An invalid numerical value was used as an argument.",
-                CublasStatus.ArchMismatch => "An absent device architectural feature is required.",
-                CublasStatus.MappingError => "An access to GPU memory space failed.",
-                CublasStatus.ExecutionFailed => "An access to GPU memory space failed.",
-                CublasStatus.InternalError => "An internal operation failed.",
-                CublasStatus.NotSupported => "Error: Not supported.",
+                CuBlasStatus.Success => "Any CUBLAS operation is successful.",
+                CuBlasStatus.NotInitialized => "The CUBLAS library was not initialized.",
+                CuBlasStatus.AllocFailed => "Resource allocation failed.",
+                CuBlasStatus.InvalidValue => "An invalid numerical value was used as an argument.",
+                CuBlasStatus.ArchMismatch => "An absent device architectural feature is required.",
+                CuBlasStatus.MappingError => "An access to GPU memory space failed.",
+                CuBlasStatus.ExecutionFailed => "An access to GPU memory space failed.",
+                CuBlasStatus.InternalError => "An internal operation failed.",
+                CuBlasStatus.NotSupported => "Error: Not supported.",
                 _ => string.Empty
             };
 
             return error + ": " + message;
         }
 
-        public CudaBlasException(CublasStatus error)
+        public CudaBlasException(CuBlasStatus error)
             : base(GetErrorMessageFromCuResult(error))
         {
             CudaBlasError = error;

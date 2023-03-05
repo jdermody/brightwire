@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
-namespace BrightData.Cuda.CudaToolkit
+namespace BrightData.Cuda.CudaToolkit.Types
 {
     internal class CudaContext : IDisposable
     {
-        readonly CUdevice _device;
-        readonly bool     _isContextOwner;
-        CUcontext         _context;
-        bool              _isDisposed;
+        readonly CuDevice _device;
+        readonly bool _isContextOwner;
+        CuContext _context;
+        bool _isDisposed;
 
         public CudaContext() : this(0, CuCtxFlags.SchedAuto, true)
         {
@@ -20,7 +18,8 @@ namespace BrightData.Cuda.CudaToolkit
             var deviceCount = 0;
             var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
 
-            if (res == CuResult.ErrorNotInitialized) {
+            if (res == CuResult.ErrorNotInitialized)
+            {
                 res = DriverApiNativeMethods.cuInit(CuInitializationFlags.None);
                 if (res != CuResult.Success)
                     throw new CudaException(res);
@@ -32,7 +31,8 @@ namespace BrightData.Cuda.CudaToolkit
             else if (res != CuResult.Success)
                 throw new CudaException(res);
 
-            if (deviceCount == 0) {
+            if (deviceCount == 0)
+            {
                 throw new CudaException(CuResult.ErrorNoDevice, "Cuda initialization error: There is no device supporting CUDA", null);
             }
 
@@ -42,31 +42,37 @@ namespace BrightData.Cuda.CudaToolkit
             if (res != CuResult.Success)
                 throw new CudaException(res);
 
-            if (!createNew) {
+            if (!createNew)
+            {
                 res = DriverApiNativeMethods.ContextManagement.cuCtxGetCurrent(ref _context);
                 if (res != CuResult.Success)
                     throw new CudaException(res);
 
-                if (_context.Pointer == IntPtr.Zero) {
+                if (_context.Pointer == IntPtr.Zero)
+                {
                     createNew = true;
                 }
-                else {
-                    var deviceCheck = new CUdevice();
+                else
+                {
+                    var deviceCheck = new CuDevice();
                     res = DriverApiNativeMethods.ContextManagement.cuCtxGetDevice(ref deviceCheck);
 
                     if (res != CuResult.Success)
                         throw new CudaException(res);
 
-                    if (deviceCheck != _device) {
+                    if (deviceCheck != _device)
+                    {
                         createNew = true;
                     }
-                    else {
+                    else
+                    {
                         _isContextOwner = false;
                     }
                 }
             }
 
-            if (createNew) {
+            if (createNew)
+            {
                 res = DriverApiNativeMethods.ContextManagement.cuCtxCreate_v2(ref _context, flags, _device);
                 if (res != CuResult.Success)
                     throw new CudaException(res);
@@ -87,18 +93,21 @@ namespace BrightData.Cuda.CudaToolkit
 
         protected virtual void Dispose(bool fDisposing)
         {
-            if (fDisposing && !_isDisposed) {
-                if (_isContextOwner) {
-                    var res = DriverApiNativeMethods.ContextManagement.cuCtxDestroy_v2(_context);
+            if (fDisposing && !_isDisposed)
+            {
+                if (_isContextOwner)
+                {
+                    DriverApiNativeMethods.ContextManagement.cuCtxDestroy_v2(_context);
                 }
+
                 _isDisposed = true;
             }
         }
 
         public void Synchronize()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxSynchronize();
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -106,8 +115,8 @@ namespace BrightData.Cuda.CudaToolkit
 
         public void PushContext()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxPushCurrent_v2(_context);
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -115,8 +124,8 @@ namespace BrightData.Cuda.CudaToolkit
 
         public void PopContext()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxPopCurrent_v2(ref _context);
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -125,37 +134,37 @@ namespace BrightData.Cuda.CudaToolkit
         public void SetCurrent()
         {
             if (_isDisposed)
-                throw new ObjectDisposedException(this.ToString());
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxSetCurrent(_context);
             if (res != CuResult.Success)
                 throw new CudaException(res);
         }
 
-        public void SetSharedMemConfig(CUsharedconfig config)
+        public void SetSharedMemConfig(CuSharedConfig config)
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxSetSharedMemConfig(config);
             if (res != CuResult.Success)
                 throw new CudaException(res);
         }
 
-        public CUsharedconfig GetSharedMemConfig()
+        public CuSharedConfig GetSharedMemConfig()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
-            var config = new CUsharedconfig();
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
+            var config = new CuSharedConfig();
             var res = DriverApiNativeMethods.ContextManagement.cuCtxGetSharedMemConfig(ref config);
             if (res != CuResult.Success)
                 throw new CudaException(res);
             return config;
         }
 
-        public CUmodule LoadModule(string modulePath)
+        public CuModule LoadModule(string modulePath)
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
-            var hcuModule = new CUmodule();
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
+            var hcuModule = new CuModule();
             var res = DriverApiNativeMethods.ModuleManagement.cuModuleLoad(ref hcuModule, modulePath);
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -164,62 +173,62 @@ namespace BrightData.Cuda.CudaToolkit
 
         public SizeT GetTotalDeviceMemorySize()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             SizeT size = 0, free = 0;
             var res = DriverApiNativeMethods.MemoryManagement.cuMemGetInfo_v2(ref free, ref size);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
             return size;
         }
 
         public SizeT GetFreeDeviceMemorySize()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             SizeT size = 0, free = 0;
             var res = DriverApiNativeMethods.MemoryManagement.cuMemGetInfo_v2(ref free, ref size);
 
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
             return free;
         }
 
         public bool DeviceCanAccessPeer(CudaContext peerContext)
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var canAccessPeer = 0;
             var res = DriverApiNativeMethods.CudaPeerAccess.cuDeviceCanAccessPeer(ref canAccessPeer, _device, peerContext.Device);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
             return canAccessPeer != 0;
         }
 
         public CuFuncCache GetCacheConfig()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var cache = new CuFuncCache();
             var res = DriverApiNativeMethods.ContextManagement.cuCtxGetCacheConfig(ref cache);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
             return cache;
         }
 
         public void SetCacheConfig(CuFuncCache cacheConfig)
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             var res = DriverApiNativeMethods.ContextManagement.cuCtxSetCacheConfig(cacheConfig);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
         }
 
         public Version GetDeviceComputeCapability()
         {
-            if (_isDisposed) 
-                throw new ObjectDisposedException(this.ToString());
+            if (_isDisposed)
+                throw new ObjectDisposedException(ToString());
             int major = 0, minor = 0;
             var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGetAttribute(ref minor, CuDeviceAttribute.ComputeCapabilityMinor, _device);
             if (res != CuResult.Success)
@@ -259,7 +268,8 @@ namespace BrightData.Cuda.CudaToolkit
             var driverVersion = 0;
             var res = DriverApiNativeMethods.cuDriverGetVersion(ref driverVersion);
 
-            if (res == CuResult.ErrorNotInitialized) {
+            if (res == CuResult.ErrorNotInitialized)
+            {
                 res = DriverApiNativeMethods.cuInit(CuInitializationFlags.None);
                 if (res != CuResult.Success)
                     throw new CudaException(res);
@@ -278,7 +288,8 @@ namespace BrightData.Cuda.CudaToolkit
         {
             var deviceCount = 0;
             var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
-            if (res == CuResult.ErrorNotInitialized) {
+            if (res == CuResult.ErrorNotInitialized)
+            {
                 res = DriverApiNativeMethods.cuInit(CuInitializationFlags.None);
                 if (res != CuResult.Success)
                     throw new CudaException(res);
@@ -296,28 +307,29 @@ namespace BrightData.Cuda.CudaToolkit
         public static void EnablePeerAccess(CudaContext peerContext)
         {
             var res = DriverApiNativeMethods.CudaPeerAccess.cuCtxEnablePeerAccess(peerContext.Context, 0);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
         }
 
         public static void DisablePeerAccess(CudaContext peerContext)
         {
             var res = DriverApiNativeMethods.CudaPeerAccess.cuCtxDisablePeerAccess(peerContext.Context);
-            if (res != CuResult.Success) 
+            if (res != CuResult.Success)
                 throw new CudaException(res);
         }
 
-        public static CUdevice GetCUdevice(int deviceId)
+        public static CuDevice GetCUdevice(int deviceId)
         {
             var deviceCount = GetDeviceCount();
-            if (deviceCount == 0) {
+            if (deviceCount == 0)
+            {
                 throw new CudaException(CuResult.ErrorNoDevice, "Cuda initialization error: There is no device supporting CUDA", null);
             }
 
             if (deviceId < 0 || deviceId > deviceCount - 1)
                 throw new ArgumentOutOfRangeException(nameof(deviceId), deviceId, "The device ID is not in the range [0.." + (deviceCount - 1).ToString() + "]");
 
-            var device = new CUdevice();
+            var device = new CuDevice();
             var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGet(ref device, deviceId);
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -325,7 +337,7 @@ namespace BrightData.Cuda.CudaToolkit
             return device;
         }
 
-        public static void ProfilerInitialize(string configFile, string outputFile, CUoutputMode outputMode)
+        public static void ProfilerInitialize(string configFile, string outputFile, CuOutputMode outputMode)
         {
             var res = DriverApiNativeMethods.Profiling.cuProfilerInitialize(configFile, outputFile, outputMode);
             if (res != CuResult.Success)
@@ -353,8 +365,8 @@ namespace BrightData.Cuda.CudaToolkit
                 throw new CudaException(res);
         }
 
-        public CUcontext Context => _context;
-        public CUdevice Device => _device;
+        public CuContext Context => _context;
+        public CuDevice Device => _device;
         public int DeviceId { get; }
 
         public CuCtxFlags Flags
@@ -375,7 +387,7 @@ namespace BrightData.Cuda.CudaToolkit
         {
             get
             {
-                if (_isDisposed) throw new ObjectDisposedException(this.ToString());
+                if (_isDisposed) throw new ObjectDisposedException(ToString());
                 ulong id = 0;
                 var res = DriverApiNativeMethods.ContextManagement.cuCtxGetId(_context, ref id);
 

@@ -236,7 +236,6 @@ namespace BrightAPI.Controllers
                 return BadRequest();
 
             return await Transform(id, request, "Reinterpreted", (table, path) => {
-                var outputColumnIndices = new HashSet<uint>();
                 var reinterpretColumns = new IReinterpretColumns[request.Columns.Length];
                 var index = 0;
                 foreach (var column in request.Columns) {

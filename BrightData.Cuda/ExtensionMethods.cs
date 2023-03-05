@@ -76,9 +76,9 @@ namespace BrightData.Cuda
                 throw new CudaException(result);
         }
 
-        internal static void CheckResult(this CublasStatus result)
+        internal static void CheckResult(this CuBlasStatus result)
         {
-            if (result != CublasStatus.Success)
+            if (result != CuBlasStatus.Success)
                 throw new CudaBlasException(result);
         }
     }

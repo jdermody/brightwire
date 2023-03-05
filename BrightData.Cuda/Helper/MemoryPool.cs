@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
@@ -13,7 +14,7 @@ namespace BrightData.Cuda.Helper
     /// </summary>
     public class MemoryPool : IDisposable
     {
-        readonly ConcurrentDictionary<uint, ConcurrentStack<CUdeviceptr>> _memoryPool = new();
+        readonly ConcurrentDictionary<uint, ConcurrentStack<CuDevicePtr>> _memoryPool = new();
 
         /// <inheritdoc />
         public void Dispose()
@@ -31,15 +32,15 @@ namespace BrightData.Cuda.Helper
         /// <param name="sizeInBytes"></param>
         /// <returns></returns>
         /// <exception cref="CudaException"></exception>
-        public CUdeviceptr GetPtr(uint sizeInBytes)
+        public CuDevicePtr GetPtr(uint sizeInBytes)
         {
-            CUdeviceptr ret;
+            CuDevicePtr ret;
             if (_memoryPool.TryGetValue(sizeInBytes, out var block)) {
                 if (block.TryPop(out ret))
                     return ret;
             }
 
-            ret = new CUdeviceptr();
+            ret = new CuDevicePtr();
             var status = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref ret, sizeInBytes);
             if (status != CuResult.Success)
                 throw new CudaException(status);
@@ -51,8 +52,8 @@ namespace BrightData.Cuda.Helper
         /// </summary>
         /// <param name="sizeInBytes"></param>
         /// <param name="ptr"></param>
-        public void Recycle(uint sizeInBytes, CUdeviceptr ptr) => GetBlock(sizeInBytes).Push(ptr);
+        public void Recycle(uint sizeInBytes, CuDevicePtr ptr) => GetBlock(sizeInBytes).Push(ptr);
 
-        ConcurrentStack<CUdeviceptr> GetBlock(uint sizeInBytes) => _memoryPool.AddOrUpdate(sizeInBytes, _ => new(), (_, existing) => existing);
+        ConcurrentStack<CuDevicePtr> GetBlock(uint sizeInBytes) => _memoryPool.AddOrUpdate(sizeInBytes, _ => new(), (_, existing) => existing);
     }
 }

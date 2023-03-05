@@ -1,1770 +1,1905 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.CudaToolkit
 {
     internal static class CudaSolveNativeMethods
     {
         internal const string CuSolveApiDllName = "cusolver64_11.dll";
+
         public static class Dense
         {
             static Dense()
             {
                 DriverApiNativeMethods.Init();
             }
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCreate(ref CusolverDnHandle handle);
+            public static extern CuSolverStatus cusolverDnCreate(ref CuSolverDnHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDestroy(CusolverDnHandle handle);
+            public static extern CuSolverStatus cusolverDnDestroy(CuSolverDnHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSetStream(CusolverDnHandle handle, CUstream streamId);
+            public static extern CuSolverStatus cusolverDnSetStream(CuSolverDnHandle handle, CuStream streamId);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnGetStream(CusolverDnHandle handle, ref CUstream sreamId);
+            public static extern CuSolverStatus cusolverDnGetStream(CuSolverDnHandle handle, ref CuStream sreamId);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotrf_bufferSize(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSpotrf_bufferSize(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotrf_bufferSize(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDpotrf_bufferSize(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotrf_bufferSize(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCpotrf_bufferSize(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotrf_bufferSize(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZpotrf_bufferSize(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSpotrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDpotrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCpotrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZpotrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotrs(CusolverDnHandle handle, FillMode uplo, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSpotrs(CuSolverDnHandle handle, FillMode uplo, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotrs(CusolverDnHandle handle, FillMode uplo, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDpotrs(CuSolverDnHandle handle, FillMode uplo, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotrs(CusolverDnHandle handle, FillMode uplo, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCpotrs(CuSolverDnHandle handle, FillMode uplo, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotrs(CusolverDnHandle handle, FillMode uplo, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZpotrs(CuSolverDnHandle handle, FillMode uplo, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgetrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSgetrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgetrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDgetrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgetrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCgetrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgetrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZgetrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgetrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, CUdeviceptr devIpiv, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSgetrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, CuDevicePtr devIpiv, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgetrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, CUdeviceptr devIpiv, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDgetrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, CuDevicePtr devIpiv, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgetrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, CUdeviceptr devIpiv, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCgetrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, CuDevicePtr devIpiv, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgetrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr workspace, CUdeviceptr devIpiv, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZgetrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr workspace, CuDevicePtr devIpiv, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSlaswp(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
+            public static extern CuSolverStatus cusolverDnSlaswp(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, int k1, int k2, CuDevicePtr devIpiv, int incx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDlaswp(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
+            public static extern CuSolverStatus cusolverDnDlaswp(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, int k1, int k2, CuDevicePtr devIpiv, int incx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnClaswp(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
+            public static extern CuSolverStatus cusolverDnClaswp(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, int k1, int k2, CuDevicePtr devIpiv, int incx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZlaswp(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
+            public static extern CuSolverStatus cusolverDnZlaswp(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, int k1, int k2, CuDevicePtr devIpiv, int incx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgetrs(CusolverDnHandle handle, Operation trans, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr devIpiv, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSgetrs(CuSolverDnHandle handle, Operation trans, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr devIpiv, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgetrs(CusolverDnHandle handle, Operation trans, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr devIpiv, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDgetrs(CuSolverDnHandle handle, Operation trans, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr devIpiv, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgetrs(CusolverDnHandle handle, Operation trans, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr devIpiv, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCgetrs(CuSolverDnHandle handle, Operation trans, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr devIpiv, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgetrs(CusolverDnHandle handle, Operation trans, int n, int nrhs, CUdeviceptr a, int lda, CUdeviceptr devIpiv, CUdeviceptr b, int ldb, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZgetrs(CuSolverDnHandle handle, Operation trans, int n, int nrhs, CuDevicePtr a, int lda, CuDevicePtr devIpiv, CuDevicePtr b, int ldb, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgeqrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSgeqrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgeqrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDgeqrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgeqrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCgeqrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgeqrf(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr workspace, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZgeqrf(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr workspace, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSormqr(CusolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSormqr(CuSolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDormqr(CusolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDormqr(CuSolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCunmqr(CusolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCunmqr(CuSolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZunmqr(CusolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZunmqr(CuSolverDnHandle handle, SideMode side, Operation trans, int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgeqrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSgeqrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgeqrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDgeqrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgeqrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCgeqrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgeqrf_bufferSize(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZgeqrf_bufferSize(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSormqr_bufferSize(CusolverDnHandle handle, SideMode side, Operation trans,
-                int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSormqr_bufferSize(CuSolverDnHandle handle, SideMode side, Operation trans,
+                int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDormqr_bufferSize(CusolverDnHandle handle, SideMode side, Operation trans,
-                int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDormqr_bufferSize(CuSolverDnHandle handle, SideMode side, Operation trans,
+                int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCunmqr_bufferSize(CusolverDnHandle handle, SideMode side, Operation trans,
-                int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCunmqr_bufferSize(CuSolverDnHandle handle, SideMode side, Operation trans,
+                int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZunmqr_bufferSize(CusolverDnHandle handle, SideMode side, Operation trans,
-                int m, int n, int k, CUdeviceptr a, int lda, CUdeviceptr tau, CUdeviceptr c, int ldc, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZunmqr_bufferSize(CuSolverDnHandle handle, SideMode side, Operation trans,
+                int m, int n, int k, CuDevicePtr a, int lda, CuDevicePtr tau, CuDevicePtr c, int ldc, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgqr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgqr_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgqr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgqr_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungqr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungqr_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungqr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungqr_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgqr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgqr(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgqr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgqr(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungqr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungqr(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungqr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungqr(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgebrd(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tauq, CUdeviceptr taup, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSgebrd(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tauq, CuDevicePtr taup, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgebrd(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tauq, CUdeviceptr taup, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDgebrd(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tauq, CuDevicePtr taup, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgebrd(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tauq, CUdeviceptr taup, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCgebrd(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tauq, CuDevicePtr taup, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgebrd(CusolverDnHandle handle, int m, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tauq, CUdeviceptr taup, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZgebrd(CuSolverDnHandle handle, int m, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tauq, CuDevicePtr taup, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytrd_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSsytrd_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytrd_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDsytrd_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytrd(CusolverDnHandle handle, char uplo, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tau, CUdeviceptr work, int lwork, CUdeviceptr info);
+            public static extern CuSolverStatus cusolverDnSsytrd(CuSolverDnHandle handle, char uplo, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tau, CuDevicePtr work, int lwork, CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytrd(CusolverDnHandle handle, char uplo, int n, CUdeviceptr a, int lda, CUdeviceptr d, CUdeviceptr e, CUdeviceptr tau, CUdeviceptr work, int lwork, CUdeviceptr info);
+            public static extern CuSolverStatus cusolverDnDsytrd(CuSolverDnHandle handle, char uplo, int n, CuDevicePtr a, int lda, CuDevicePtr d, CuDevicePtr e, CuDevicePtr tau, CuDevicePtr work, int lwork, CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChetrd_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnChetrd_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhetrd_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZhetrd_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChetrd(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnChetrd(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhetrd(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZhetrd(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr d,
-                CUdeviceptr e,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr d,
+                CuDevicePtr e,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgebrd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSgebrd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgebrd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDgebrd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgebrd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCgebrd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgebrd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZgebrd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSgesvd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDgesvd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCgesvd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvd_bufferSize(CusolverDnHandle handle, int m, int n, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZgesvd_bufferSize(CuSolverDnHandle handle, int m, int n, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvd(CusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CUdeviceptr a, int lda, CUdeviceptr s, CUdeviceptr u, int ldu, CUdeviceptr vt, int ldvt, CUdeviceptr work, int lwork, CUdeviceptr rwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSgesvd(CuSolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CuDevicePtr a, int lda, CuDevicePtr s, CuDevicePtr u, int ldu, CuDevicePtr vt, int ldvt, CuDevicePtr work, int lwork, CuDevicePtr rwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvd(CusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CUdeviceptr a, int lda, CUdeviceptr s, CUdeviceptr u, int ldu, CUdeviceptr vt, int ldvt, CUdeviceptr work, int lwork, CUdeviceptr rwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDgesvd(CuSolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CuDevicePtr a, int lda, CuDevicePtr s, CuDevicePtr u, int ldu, CuDevicePtr vt, int ldvt, CuDevicePtr work, int lwork, CuDevicePtr rwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvd(CusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CUdeviceptr a, int lda, CUdeviceptr s, CUdeviceptr u, int ldu, CUdeviceptr vt, int ldvt, CUdeviceptr work, int lwork, CUdeviceptr rwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCgesvd(CuSolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CuDevicePtr a, int lda, CuDevicePtr s, CuDevicePtr u, int ldu, CuDevicePtr vt, int ldvt, CuDevicePtr work, int lwork, CuDevicePtr rwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvd(CusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CUdeviceptr a, int lda, CUdeviceptr s, CUdeviceptr u, int ldu, CUdeviceptr vt, int ldvt, CUdeviceptr work, int lwork, CUdeviceptr rwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZgesvd(CuSolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char jobu, [MarshalAs(UnmanagedType.I1)] char jobvt, int m, int n, CuDevicePtr a, int lda, CuDevicePtr s, CuDevicePtr u, int ldu, CuDevicePtr vt, int ldvt, CuDevicePtr work, int lwork, CuDevicePtr rwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr ipiv, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnSsytrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr ipiv, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr ipiv, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnDsytrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr ipiv, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCsytrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr ipiv, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnCsytrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr ipiv, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZsytrf(CusolverDnHandle handle, FillMode uplo, int n, CUdeviceptr a, int lda, CUdeviceptr ipiv, CUdeviceptr work, int lwork, CUdeviceptr devInfo);
+            public static extern CuSolverStatus cusolverDnZsytrf(CuSolverDnHandle handle, FillMode uplo, int n, CuDevicePtr a, int lda, CuDevicePtr ipiv, CuDevicePtr work, int lwork, CuDevicePtr devInfo);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytrf_bufferSize(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnSsytrf_bufferSize(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytrf_bufferSize(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnDsytrf_bufferSize(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCsytrf_bufferSize(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnCsytrf_bufferSize(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZsytrf_bufferSize(CusolverDnHandle handle, int n, CUdeviceptr a, int lda, ref int lwork);
+            public static extern CuSolverStatus cusolverDnZsytrf_bufferSize(CuSolverDnHandle handle, int n, CuDevicePtr a, int lda, ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgbr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgbr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgbr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgbr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungbr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungbr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungbr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungbr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgbr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgbr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgbr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgbr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungbr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungbr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungbr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungbr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 int m,
                 int n,
                 int k,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgtr_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgtr_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungtr_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungtr_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSorgtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSorgtr(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDorgtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDorgtr(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCungtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCungtr(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZungtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZungtr(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr work,
+                CuDevicePtr tau,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSormtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSormtr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDormtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDormtr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCunmtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCunmtr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZunmtr_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZunmtr_bufferSize(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSormtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSormtr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDormtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDormtr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCunmtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCunmtr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZunmtr(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZunmtr(
+                CuSolverDnHandle handle,
                 SideMode side,
                 FillMode uplo,
                 Operation trans,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr tau,
-                CUdeviceptr c,
+                CuDevicePtr tau,
+                CuDevicePtr c,
                 int ldc,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevd(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevd(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevd(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevd(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevd(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevd(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevd(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevd(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsygvd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsygvd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnChegvd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZhegvd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvd(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsygvd(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvd(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsygvd(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvd(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnChegvd(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvd(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZhegvd(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
-            [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsCreate(ref CusolverDnIrsParams paramsPtr);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsDestroy(CusolverDnIrsParams parameters);
+            public static extern CuSolverStatus cusolverDnIRSParamsCreate(ref CuSolverDnIrsParams paramsPtr);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetRefinementSolver(
-                CusolverDnIrsParams parameters, CusolverIrsRefinement refinementSolver);
+            public static extern CuSolverStatus cusolverDnIRSParamsDestroy(CuSolverDnIrsParams parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetSolverMainPrecision(
-                CusolverDnIrsParams parameters, CusolverPrecType solverMainPrecision);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetRefinementSolver(
+                CuSolverDnIrsParams parameters, CuSolverIrsRefinement refinementSolver);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetSolverLowestPrecision(
-                CusolverDnIrsParams parameters, CusolverPrecType solverLowestPrecision);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetSolverMainPrecision(
+                CuSolverDnIrsParams parameters, CuSolverPrecType solverMainPrecision);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetSolverPrecisions(
-                CusolverDnIrsParams parameters, CusolverPrecType solverMainPrecision, CusolverPrecType solverLowestPrecision);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetSolverLowestPrecision(
+                CuSolverDnIrsParams parameters, CuSolverPrecType solverLowestPrecision);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetTol(CusolverDnIrsParams parameters, double val);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetSolverPrecisions(
+                CuSolverDnIrsParams parameters, CuSolverPrecType solverMainPrecision, CuSolverPrecType solverLowestPrecision);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetTolInner(CusolverDnIrsParams parameters, double val);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetTol(CuSolverDnIrsParams parameters, double val);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetMaxIters(CusolverDnIrsParams parameters, int maxiters);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetTolInner(CuSolverDnIrsParams parameters, double val);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsSetMaxItersInner(CusolverDnIrsParams parameters, int maxitersInner);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetMaxIters(CuSolverDnIrsParams parameters, int maxiters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsGetMaxIters(CusolverDnIrsParams parameters, ref int maxiters);
+            public static extern CuSolverStatus cusolverDnIRSParamsSetMaxItersInner(CuSolverDnIrsParams parameters, int maxitersInner);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsEnableFallback(CusolverDnIrsParams parameters);
+            public static extern CuSolverStatus cusolverDnIRSParamsGetMaxIters(CuSolverDnIrsParams parameters, ref int maxiters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSParamsDisableFallback(CusolverDnIrsParams parameters);
+            public static extern CuSolverStatus cusolverDnIRSParamsEnableFallback(CuSolverDnIrsParams parameters);
+
+            [DllImport(CuSolveApiDllName)]
+            public static extern CuSolverStatus cusolverDnIRSParamsDisableFallback(CuSolverDnIrsParams parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosDestroy(
-                CusolverDnIrsInfos infos);
+            public static extern CuSolverStatus cusolverDnIRSInfosDestroy(
+                CuSolverDnIrsInfos infos);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosCreate(
-                ref CusolverDnIrsInfos infosPtr);
+            public static extern CuSolverStatus cusolverDnIRSInfosCreate(
+                ref CuSolverDnIrsInfos infosPtr);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosGetNiters(
-                CusolverDnIrsInfos infos,
+            public static extern CuSolverStatus cusolverDnIRSInfosGetNiters(
+                CuSolverDnIrsInfos infos,
                 ref int niters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosGetOuterNiters(
-                CusolverDnIrsInfos infos,
+            public static extern CuSolverStatus cusolverDnIRSInfosGetOuterNiters(
+                CuSolverDnIrsInfos infos,
                 ref int outerNiters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosGetMaxIters(
-                CusolverDnIrsInfos infos,
+            public static extern CuSolverStatus cusolverDnIRSInfosGetMaxIters(
+                CuSolverDnIrsInfos infos,
                 ref int maxiters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosRequestResidual(
-                CusolverDnIrsInfos infos);
+            public static extern CuSolverStatus cusolverDnIRSInfosRequestResidual(
+                CuSolverDnIrsInfos infos);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSInfosGetResidualHistory(
-                CusolverDnIrsInfos infos,
+            public static extern CuSolverStatus cusolverDnIRSInfosGetResidualHistory(
+                CuSolverDnIrsInfos infos,
                 ref IntPtr residualHistory);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZZgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZZgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZCgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZCgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZKgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZKgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZEgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZEgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZYgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZYgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCCgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCCgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCEgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCEgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCKgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCKgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCYgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCYgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDDgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDDgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDSgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDSgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDHgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDHgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDBgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDBgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDXgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDXgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSSgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSSgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSHgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSHgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSBgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSBgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSXgesv(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSXgesv(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZZgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZZgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZCgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZCgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZKgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZKgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZEgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZEgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZYgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZYgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCCgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCCgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCKgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCKgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCEgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCEgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCYgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCYgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDDgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDDgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDSgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDSgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDHgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDHgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDBgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDBgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDXgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDXgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSSgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSSgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSHgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSHgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSBgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSBgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSXgesv_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSXgesv_bufferSize(
+                CuSolverDnHandle handle,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dipiv,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dipiv,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZZgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZZgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZCgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZCgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZKgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZKgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZEgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZEgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZYgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZYgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCCgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCCgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCKgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCKgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCEgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCEgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCYgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCYgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDDgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDDgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDSgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDSgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDHgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDHgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDBgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDBgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDXgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDXgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSSgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSSgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSHgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSHgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSBgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSBgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSXgels(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSXgels(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int iter,
-                CUdeviceptr dInfo);
-            [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZZgels_bufferSize(
-                CusolverDnHandle handle,
-                int m,
-                int n,
-                int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZCgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZZgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZKgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZCgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZEgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZKgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZYgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZEgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCCgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZYgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCKgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCCgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCEgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCKgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCYgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCEgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDDgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCYgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDSgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDDgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDHgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDSgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDBgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDHgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDXgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDBgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSSgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDXgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSHgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSSgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSBgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSHgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSXgels_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSBgels_bufferSize(
+                CuSolverDnHandle handle,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, ref SizeT lworkBytes);
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSXgesv(
-                CusolverDnHandle handle,
-                CusolverDnIrsParams gesvIrsParameters,
-                CusolverDnIrsInfos gesvIrsInfos,
+            public static extern CuSolverStatus cusolverDnSXgels_bufferSize(
+                CuSolverDnHandle handle,
+                int m,
+                int n,
+                int nrhs,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, ref SizeT lworkBytes);
+
+            [DllImport(CuSolveApiDllName)]
+            public static extern CuSolverStatus cusolverDnIRSXgesv(
+                CuSolverDnHandle handle,
+                CuSolverDnIrsParams gesvIrsParameters,
+                CuSolverDnIrsInfos gesvIrsInfos,
                 int n, int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int niters,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSXgesv_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnIrsParams parameters,
+            public static extern CuSolverStatus cusolverDnIRSXgesv_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnIrsParams parameters,
                 int n, int nrhs,
                 ref SizeT lworkBytes);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSXgels(
-                CusolverDnHandle handle,
-                CusolverDnIrsParams gelsIrsParams,
-                CusolverDnIrsInfos gelsIrsInfos,
+            public static extern CuSolverStatus cusolverDnIRSXgels(
+                CuSolverDnHandle handle,
+                CuSolverDnIrsParams gelsIrsParams,
+                CuSolverDnIrsInfos gelsIrsInfos,
                 int m,
                 int n,
                 int nrhs,
-                CUdeviceptr dA, int ldda,
-                CUdeviceptr dB, int lddb,
-                CUdeviceptr dX, int lddx,
-                CUdeviceptr dWorkspace, SizeT lworkBytes,
+                CuDevicePtr dA, int ldda,
+                CuDevicePtr dB, int lddb,
+                CuDevicePtr dX, int lddx,
+                CuDevicePtr dWorkspace, SizeT lworkBytes,
                 ref int niters,
-                CUdeviceptr dInfo);
+                CuDevicePtr dInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnIRSXgels_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnIrsParams parameters,
+            public static extern CuSolverStatus cusolverDnIRSXgels_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnIrsParams parameters,
                 int m,
                 int n,
                 int nrhs,
@@ -1772,814 +1907,814 @@ namespace BrightData.Cuda.CudaToolkit
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotrfBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSpotrfBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr aarray,
+                CuDevicePtr aarray,
                 int lda,
-                CUdeviceptr infoArray,
+                CuDevicePtr infoArray,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotrfBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDpotrfBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr aarray,
+                CuDevicePtr aarray,
                 int lda,
-                CUdeviceptr infoArray,
+                CuDevicePtr infoArray,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotrfBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCpotrfBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr aarray,
+                CuDevicePtr aarray,
                 int lda,
-                CUdeviceptr infoArray,
+                CuDevicePtr infoArray,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotrfBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZpotrfBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr aarray,
+                CuDevicePtr aarray,
                 int lda,
-                CUdeviceptr infoArray,
+                CuDevicePtr infoArray,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotrsBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSpotrsBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
                 int nrhs,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotrsBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDpotrsBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
                 int nrhs,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotrsBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCpotrsBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
                 int nrhs,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotrsBatched(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZpotrsBatched(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
                 int nrhs,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 int batchSize);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSpotri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDpotri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCpotri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZpotri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSpotri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSpotri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDpotri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDpotri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCpotri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCpotri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZpotri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZpotri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXtrtri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXtrtri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 DiagType diag,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXtrtri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXtrtri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 DiagType diag,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSlauum_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSlauum_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDlauum_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDlauum_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnClauum_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnClauum_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZlauum_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZlauum_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSlauum(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSlauum(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDlauum(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDlauum(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnClauum(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnClauum(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZlauum(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZlauum(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr devInfo);
+                CuDevicePtr devInfo);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsytrs_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXsytrs_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsytrs(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXsytrs(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSsytri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDsytri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCsytri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCsytri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZsytri_bufferSize(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZsytri_bufferSize(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsytri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnSsytri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
-                CUdeviceptr work,
+                CuDevicePtr ipiv,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsytri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnDsytri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
-                CUdeviceptr work,
+                CuDevicePtr ipiv,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCsytri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnCsytri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
-                CUdeviceptr work,
+                CuDevicePtr ipiv,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZsytri(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnZsytri(
+                CuSolverDnHandle handle,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr ipiv,
-                CUdeviceptr work,
+                CuDevicePtr ipiv,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSsyevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnDsyevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnCheevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnZheevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevdx(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSsyevdx(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevdx(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnDsyevdx(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevdx(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnCheevdx(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevdx(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnZheevdx(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSsygvdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnDsygvdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnChegvdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnZhegvdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvdx(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSsygvdx(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvdx(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnDsygvdx(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvdx(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnChegvdx(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 float vl,
                 float vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvdx(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnZhegvdx(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
                 double vl,
                 double vu,
                 int il,
                 int iu,
                 ref int meig,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCreateSyevjInfo(
+            public static extern CuSolverStatus cusolverDnCreateSyevjInfo(
                 ref SyevjInfo info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDestroySyevjInfo(
+            public static extern CuSolverStatus cusolverDnDestroySyevjInfo(
                 SyevjInfo info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevjSetTolerance(
+            public static extern CuSolverStatus cusolverDnXsyevjSetTolerance(
                 SyevjInfo info,
                 double tolerance);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevjSetMaxSweeps(
+            public static extern CuSolverStatus cusolverDnXsyevjSetMaxSweeps(
                 SyevjInfo info,
                 int maxSweeps);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevjSetSortEig(
+            public static extern CuSolverStatus cusolverDnXsyevjSetSortEig(
                 SyevjInfo info,
                 int sortEig);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevjGetResidual(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXsyevjGetResidual(
+                CuSolverDnHandle handle,
                 SyevjInfo info,
                 ref double residual);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevjGetSweeps(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXsyevjGetSweeps(
+                CuSolverDnHandle handle,
                 SyevjInfo info,
                 ref int executedSweeps);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters,
                 int batchSize
@@ -2587,651 +2722,651 @@ namespace BrightData.Cuda.CudaToolkit
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters,
                 int batchSize
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters,
                 int batchSize
             );
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsyevj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsyevj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsyevj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsyevj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCheevj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCheevj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZheevj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZheevj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsygvj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsygvj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnChegvj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZhegvj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 ref int lwork,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSsygvj(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSsygvj(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDsygvj(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDsygvj(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnChegvj(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnChegvj(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZhegvj(
-                CusolverDnHandle handle,
-                CusolverEigType itype,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZhegvj(
+                CuSolverDnHandle handle,
+                CuSolverEigType itype,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 int ldb,
-                CUdeviceptr w,
-                CUdeviceptr work,
+                CuDevicePtr w,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 SyevjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCreateGesvdjInfo(
+            public static extern CuSolverStatus cusolverDnCreateGesvdjInfo(
                 ref GesvdjInfo info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDestroyGesvdjInfo(
+            public static extern CuSolverStatus cusolverDnDestroyGesvdjInfo(
                 GesvdjInfo info);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdjSetTolerance(
+            public static extern CuSolverStatus cusolverDnXgesvdjSetTolerance(
                 GesvdjInfo info,
                 double tolerance);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdjSetMaxSweeps(
+            public static extern CuSolverStatus cusolverDnXgesvdjSetMaxSweeps(
                 GesvdjInfo info,
                 int maxSweeps);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdjSetSortEig(
+            public static extern CuSolverStatus cusolverDnXgesvdjSetSortEig(
                 GesvdjInfo info,
                 int sortSvd);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdjGetResidual(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXgesvdjGetResidual(
+                CuSolverDnHandle handle,
                 GesvdjInfo info,
                 ref double residual);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdjGetSweeps(
-                CusolverDnHandle handle,
+            public static extern CuSolverStatus cusolverDnXgesvdjGetSweeps(
+                CuSolverDnHandle handle,
                 GesvdjInfo info,
                 ref int executedSweeps);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdjBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdjBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdjBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdjBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters,
                 int batchSize);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdj_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdj_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
                 ref int lwork,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdj(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdj(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int econ,
                 int m,
                 int n,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 int lda,
-                CUdeviceptr s,
-                CUdeviceptr u,
+                CuDevicePtr s,
+                CuDevicePtr u,
                 int ldu,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 int ldv,
-                CUdeviceptr work,
+                CuDevicePtr work,
                 int lwork,
-                CUdeviceptr info,
+                CuDevicePtr info,
                 GesvdjInfo parameters);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdaStridedBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdaStridedBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
                 ref int lwork,
@@ -3240,21 +3375,21 @@ namespace BrightData.Cuda.CudaToolkit
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdaStridedBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdaStridedBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
                 ref int lwork,
@@ -3263,21 +3398,21 @@ namespace BrightData.Cuda.CudaToolkit
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdaStridedBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdaStridedBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
                 ref int lwork,
@@ -3285,21 +3420,21 @@ namespace BrightData.Cuda.CudaToolkit
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdaStridedBatched_bufferSize(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdaStridedBatched_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
                 ref int lwork,
@@ -3308,293 +3443,293 @@ namespace BrightData.Cuda.CudaToolkit
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSgesvdaStridedBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSgesvdaStridedBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
-                CUdeviceptr dWork,
+                CuDevicePtr dWork,
                 int lwork,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 double[] hRNrmF,
                 int batchSize);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDgesvdaStridedBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnDgesvdaStridedBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
-                CUdeviceptr dWork,
+                CuDevicePtr dWork,
                 int lwork,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 double[] hRNrmF,
                 int batchSize);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCgesvdaStridedBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnCgesvdaStridedBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
-                CUdeviceptr dWork,
+                CuDevicePtr dWork,
                 int lwork,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 double[] hRNrmF,
                 int batchSize);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnZgesvdaStridedBatched(
-                CusolverDnHandle handle,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnZgesvdaStridedBatched(
+                CuSolverDnHandle handle,
+                CuSolverEigMode jobz,
                 int rank,
                 int m,
                 int n,
-                CUdeviceptr dA,
+                CuDevicePtr dA,
                 int lda,
                 long strideA,
-                CUdeviceptr dS,
+                CuDevicePtr dS,
                 long strideS,
-                CUdeviceptr dU,
+                CuDevicePtr dU,
                 int ldu,
                 long strideU,
-                CUdeviceptr dV,
+                CuDevicePtr dV,
                 int ldv,
                 long strideV,
-                CUdeviceptr dWork,
+                CuDevicePtr dWork,
                 int lwork,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 double[] hRNrmF,
                 int batchSize);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnCreateParams(
-                ref CusolverDnParams parameters);
+            public static extern CuSolverStatus cusolverDnCreateParams(
+                ref CuSolverDnParams parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnDestroyParams(
-                CusolverDnParams parameters);
+            public static extern CuSolverStatus cusolverDnDestroyParams(
+                CuSolverDnParams parameters);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnSetAdvOptions(
-                CusolverDnParams parameters,
-                CusolverDnFunction function,
-                CusolverAlgMode algo);
+            public static extern CuSolverStatus cusolverDnSetAdvOptions(
+                CuSolverDnParams parameters,
+                CuSolverDnFunction function,
+                CuSolverAlgMode algo);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnPotrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnPotrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytes);
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnPotrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnPotrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
-                CUdeviceptr pBuffer,
+                CuDevicePtr pBuffer,
                 SizeT workspaceInBytes,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnPotrs(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnPotrs(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnGeqrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnGeqrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeTau,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytes);
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnGeqrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnGeqrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeTau,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 CudaDataType computeType,
-                CUdeviceptr pBuffer,
+                CuDevicePtr pBuffer,
                 SizeT workspaceInBytes,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnGetrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnGetrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytes);
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnGetrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnGetrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType computeType,
-                CUdeviceptr pBuffer,
+                CuDevicePtr pBuffer,
                 SizeT workspaceInBytes,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnGetrs(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnGetrs(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 Operation trans,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnSyevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSyevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytes);
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnSyevd(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnSyevd(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
-                CUdeviceptr pBuffer,
+                CuDevicePtr pBuffer,
                 SizeT workspaceInBytes,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnSyevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSyevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 IntPtr vl,
                 IntPtr vu,
@@ -3602,22 +3737,22 @@ namespace BrightData.Cuda.CudaToolkit
                 long iu,
                 ref long hMeig,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytes);
 
 
             [DllImport(CuSolveApiDllName)]
             [Obsolete("Deprecated in Cuda version 11.1")]
-            public static extern CusolverStatus cusolverDnSyevdx(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnSyevdx(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 IntPtr vl,
                 IntPtr vu,
@@ -3625,175 +3760,181 @@ namespace BrightData.Cuda.CudaToolkit
                 long iu,
                 ref long meig64,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
-                CUdeviceptr pBuffer,
+                CuDevicePtr pBuffer,
                 SizeT workspaceInBytes,
-                CUdeviceptr info);
+                CuDevicePtr info);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXpotrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXpotrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXpotrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXpotrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXpotrs(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXpotrs(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 FillMode uplo,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgeqrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgeqrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeTau,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgeqrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgeqrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeTau,
-                CUdeviceptr tau,
+                CuDevicePtr tau,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgetrf_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgetrf_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgetrf(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgetrf(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgetrs(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgetrs(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 Operation trans,
                 long n,
                 long nrhs,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
-                CUdeviceptr ipiv,
+                CuDevicePtr ipiv,
                 CudaDataType dataTypeB,
-                CUdeviceptr b,
+                CuDevicePtr b,
                 long ldb,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnXsyevd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevd(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnXsyevd(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevdx_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnXsyevdx_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 IntPtr vl,
                 IntPtr vu,
@@ -3801,21 +3942,21 @@ namespace BrightData.Cuda.CudaToolkit
                 long iu,
                 ref long hMeig,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXsyevdx(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
-                CusolverEigRange range,
+            public static extern CuSolverStatus cusolverDnXsyevdx(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
+                CuSolverEigRange range,
                 FillMode uplo,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 IntPtr vl,
                 IntPtr vu,
@@ -3823,116 +3964,118 @@ namespace BrightData.Cuda.CudaToolkit
                 long iu,
                 ref long meig64,
                 CudaDataType dataTypeW,
-                CUdeviceptr w,
+                CuDevicePtr w,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvd_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgesvd_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 sbyte jobu,
                 sbyte jobvt,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeS,
-                CUdeviceptr s,
+                CuDevicePtr s,
                 CudaDataType dataTypeU,
-                CUdeviceptr u,
+                CuDevicePtr u,
                 long ldu,
                 CudaDataType dataTypeVt,
-                CUdeviceptr vt,
+                CuDevicePtr vt,
                 long ldvt,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvd(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgesvd(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 sbyte jobu,
                 sbyte jobvt,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeS,
-                CUdeviceptr s,
+                CuDevicePtr s,
                 CudaDataType dataTypeU,
-                CUdeviceptr u,
+                CuDevicePtr u,
                 long ldu,
                 CudaDataType dataTypeVt,
-                CUdeviceptr vt,
+                CuDevicePtr vt,
                 long ldvt,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr info);
+                CuDevicePtr info);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdp_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnXgesvdp_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 int econ,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeS,
-                CUdeviceptr s,
+                CuDevicePtr s,
                 CudaDataType dataTypeU,
-                CUdeviceptr u,
+                CuDevicePtr u,
                 long ldu,
                 CudaDataType dataTypeV,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 long ldv,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
                 ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdp(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
-                CusolverEigMode jobz,
+            public static extern CuSolverStatus cusolverDnXgesvdp(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
+                CuSolverEigMode jobz,
                 int econ,
                 long m,
                 long n,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeS,
-                CUdeviceptr s,
+                CuDevicePtr s,
                 CudaDataType dataTypeU,
-                CUdeviceptr u,
+                CuDevicePtr u,
                 long ldu,
                 CudaDataType dataTypeV,
-                CUdeviceptr v,
+                CuDevicePtr v,
                 long ldv,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr dInfo,
+                CuDevicePtr dInfo,
                 ref double hErrSigma);
 
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdr_bufferSize(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgesvdr_bufferSize(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 sbyte jobu,
                 sbyte jobv,
                 long m,
@@ -3941,15 +4084,15 @@ namespace BrightData.Cuda.CudaToolkit
                 long p,
                 long niters,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeSrand,
-                CUdeviceptr srand,
+                CuDevicePtr srand,
                 CudaDataType dataTypeUrand,
-                CUdeviceptr urand,
+                CuDevicePtr urand,
                 long ldUrand,
                 CudaDataType dataTypeVrand,
-                CUdeviceptr vrand,
+                CuDevicePtr vrand,
                 long ldVrand,
                 CudaDataType computeType,
                 ref SizeT workspaceInBytesOnDevice,
@@ -3957,9 +4100,9 @@ namespace BrightData.Cuda.CudaToolkit
             );
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverDnXgesvdr(
-                CusolverDnHandle handle,
-                CusolverDnParams parameters,
+            public static extern CuSolverStatus cusolverDnXgesvdr(
+                CuSolverDnHandle handle,
+                CuSolverDnParams parameters,
                 sbyte jobu,
                 sbyte jobv,
                 long m,
@@ -3968,116 +4111,147 @@ namespace BrightData.Cuda.CudaToolkit
                 long p,
                 long niters,
                 CudaDataType dataTypeA,
-                CUdeviceptr a,
+                CuDevicePtr a,
                 long lda,
                 CudaDataType dataTypeSrand,
-                CUdeviceptr srand,
+                CuDevicePtr srand,
                 CudaDataType dataTypeUrand,
-                CUdeviceptr urand,
+                CuDevicePtr urand,
                 long ldUrand,
                 CudaDataType dataTypeVrand,
-                CUdeviceptr vrand,
+                CuDevicePtr vrand,
                 long ldVrand,
                 CudaDataType computeType,
-                CUdeviceptr bufferOnDevice,
+                CuDevicePtr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
                 byte[] bufferOnHost,
                 SizeT workspaceInBytesOnHost,
-                CUdeviceptr dInfo
+                CuDevicePtr dInfo
             );
         }
+
         public static class Sparse
         {
             static Sparse()
             {
                 DriverApiNativeMethods.Init();
             }
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpCreate(ref CusolverSpHandle handle);
+            public static extern CuSolverStatus cusolverSpCreate(ref CuSolverSpHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDestroy(CusolverSpHandle handle);
+            public static extern CuSolverStatus cusolverSpDestroy(CuSolverSpHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpSetStream(CusolverSpHandle handle, CUstream streamId);
+            public static extern CuSolverStatus cusolverSpSetStream(CuSolverSpHandle handle, CuStream streamId);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpGetStream(CusolverSpHandle handle, ref CUstream streamId);
+            public static extern CuSolverStatus cusolverSpGetStream(CuSolverSpHandle handle, ref CuStream streamId);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrissymHost(CusolverSpHandle handle, int m, int nnzA, CusparseMatDescr descrA, int[] csrRowPtrA, int[] csrEndPtrA, int[] csrColIndA, ref int issym);
+            public static extern CuSolverStatus cusolverSpXcsrissymHost(CuSolverSpHandle handle, int m, int nnzA, CuSparseMatDescriptor descrA, int[] csrRowPtrA, int[] csrEndPtrA, int[] csrColIndA, ref int issym);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsvluHost(CusolverSpHandle handle, int n, int nnzA, CusparseMatDescr descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpScsrlsvluHost(CuSolverSpHandle handle, int n, int nnzA, CuSparseMatDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsvluHost(CusolverSpHandle handle, int n, int nnzA, CusparseMatDescr descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpDcsrlsvluHost(CuSolverSpHandle handle, int n, int nnzA, CuSparseMatDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsvqr(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpScsrlsvqr(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr b, float tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsvqr(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpDcsrlsvqr(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr b, double tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpCcsrlsvqr(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpCcsrlsvqr(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr b, float tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpZcsrlsvqr(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpZcsrlsvqr(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr b, double tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsvqrHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpScsrlsvqrHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsvqrHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpDcsrlsvqrHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsvcholHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, float[] csrVal, int[] csrRowPtr, int[] csrColInd, float[] b, float tol, int reorder, float[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpScsrlsvcholHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, float[] csrVal, int[] csrRowPtr, int[] csrColInd, float[] b, float tol, int reorder, float[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsvcholHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, double[] csrVal, int[] csrRowPtr, int[] csrColInd, double[] b, double tol, int reorder, double[] x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpDcsrlsvcholHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, double[] csrVal, int[] csrRowPtr, int[] csrColInd, double[] b, double tol, int reorder, double[] x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsvchol(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpScsrlsvchol(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrVal, CuDevicePtr csrRowPtr, CuDevicePtr csrColInd, CuDevicePtr b, float tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsvchol(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpDcsrlsvchol(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrVal, CuDevicePtr csrRowPtr, CuDevicePtr csrColInd, CuDevicePtr b, double tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpCcsrlsvchol(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpCcsrlsvchol(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrVal, CuDevicePtr csrRowPtr, CuDevicePtr csrColInd, CuDevicePtr b, float tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpZcsrlsvchol(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
+            public static extern CuSolverStatus cusolverSpZcsrlsvchol(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrVal, CuDevicePtr csrRowPtr, CuDevicePtr csrColInd, CuDevicePtr b, double tol, int reorder, CuDevicePtr x, ref int singularity);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrlsqvqrHost(CusolverSpHandle handle, int m, int n, int nnz, CusparseMatDescr descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, ref int rankA, float[] x, int[] p, ref float minNorm);
+            public static extern CuSolverStatus cusolverSpScsrlsqvqrHost(CuSolverSpHandle handle, int m, int n, int nnz, CuSparseMatDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, ref int rankA, float[] x, int[] p, ref float minNorm);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrlsqvqrHost(CusolverSpHandle handle, int m, int n, int nnz, CusparseMatDescr descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, ref int rankA, double[] x, int[] p, ref double minNorm);
+            public static extern CuSolverStatus cusolverSpDcsrlsqvqrHost(CuSolverSpHandle handle, int m, int n, int nnz, CuSparseMatDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, ref int rankA, double[] x, int[] p, ref double minNorm);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsreigvsiHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float mu0, float[] x0, int maxite, float tol, ref float mu, float[] x);
+            public static extern CuSolverStatus cusolverSpScsreigvsiHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float mu0, float[] x0, int maxite, float tol, ref float mu, float[] x);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsreigvsiHost(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double mu0, double[] x0, int maxite, double tol, ref double mu, double[] x);
+            public static extern CuSolverStatus cusolverSpDcsreigvsiHost(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double mu0, double[] x0, int maxite, double tol, ref double mu, double[] x);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsreigvsi(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, float mu0, CUdeviceptr x0, int maxite, float tol, ref float mu, CUdeviceptr x);
+            public static extern CuSolverStatus cusolverSpScsreigvsi(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, float mu0, CuDevicePtr x0, int maxite, float tol, ref float mu, CuDevicePtr x);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsreigvsi(CusolverSpHandle handle, int m, int nnz, CusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, double mu0, CUdeviceptr x0, int maxite, double tol, ref double mu, CUdeviceptr x);
+            public static extern CuSolverStatus cusolverSpDcsreigvsi(CuSolverSpHandle handle, int m, int nnz, CuSparseMatDescriptor descrA, CuDevicePtr csrValA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, double mu0, CuDevicePtr x0, int maxite, double tol, ref double mu, CuDevicePtr x);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrsymrcmHost(CusolverSpHandle handle, int n, int nnzA, CusparseMatDescr descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p);
+            public static extern CuSolverStatus cusolverSpXcsrsymrcmHost(CuSolverSpHandle handle, int n, int nnzA, CuSparseMatDescriptor descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrsymmdqHost(
-                CusolverSpHandle handle,
+            public static extern CuSolverStatus cusolverSpXcsrsymmdqHost(
+                CuSolverSpHandle handle,
                 int n,
                 int nnzA,
-                CusparseMatDescr descrA,
+                CuSparseMatDescriptor descrA,
                 int[] csrRowPtrA,
                 int[] csrColIndA,
                 int[] p);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrsymamdHost(
-                CusolverSpHandle handle,
+            public static extern CuSolverStatus cusolverSpXcsrsymamdHost(
+                CuSolverSpHandle handle,
                 int n,
                 int nnzA,
-                CusparseMatDescr descrA,
+                CuSparseMatDescriptor descrA,
                 int[] csrRowPtrA,
                 int[] csrColIndA,
                 int[] p);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrmetisndHost(
-                CusolverSpHandle handle,
+            public static extern CuSolverStatus cusolverSpXcsrmetisndHost(
+                CuSolverSpHandle handle,
                 int n,
                 int nnzA,
-                CusparseMatDescr descrA,
+                CuSparseMatDescriptor descrA,
                 int[] csrRowPtrA,
                 int[] csrColIndA,
                 long[] options,
                 int[] p);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpScsrzfdHost(
-                CusolverSpHandle handle,
+            public static extern CuSolverStatus cusolverSpScsrzfdHost(
+                CuSolverSpHandle handle,
                 int n,
                 int nnz,
-                CusparseMatDescr descrA,
+                CuSparseMatDescriptor descrA,
                 float[] csrValA,
                 int[] csrRowPtrA,
                 int[] csrColIndA,
@@ -4085,86 +4259,114 @@ namespace BrightData.Cuda.CudaToolkit
                 ref int numnz);
 
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpDcsrzfdHost(
-                CusolverSpHandle handle,
+            public static extern CuSolverStatus cusolverSpDcsrzfdHost(
+                CuSolverSpHandle handle,
                 int n,
                 int nnz,
-                CusparseMatDescr descrA,
+                CuSparseMatDescriptor descrA,
                 double[] csrValA,
                 int[] csrRowPtrA,
                 int[] csrColIndA,
                 int[] p,
                 ref int numnz);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrperm_bufferSizeHost(CusolverSpHandle handle, int m, int n, int nnzA, CusparseMatDescr descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p, int[] q, ref SizeT bufferSizeInBytes);
+            public static extern CuSolverStatus cusolverSpXcsrperm_bufferSizeHost(CuSolverSpHandle handle, int m, int n, int nnzA, CuSparseMatDescriptor descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p, int[] q, ref SizeT bufferSizeInBytes);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverSpXcsrpermHost(CusolverSpHandle handle, int m, int n, int nnzA, CusparseMatDescr descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p, int[] q, int[] map, byte[] pBuffer);
+            public static extern CuSolverStatus cusolverSpXcsrpermHost(CuSolverSpHandle handle, int m, int n, int nnzA, CuSparseMatDescriptor descrA, int[] csrRowPtrA, int[] csrColIndA, int[] p, int[] q, int[] map, byte[] pBuffer);
         }
+
         public static class Refactorization
         {
             static Refactorization()
             {
                 DriverApiNativeMethods.Init();
             }
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfCreate(ref CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfCreate(ref CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfDestroy(CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfDestroy(CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfGetMatrixFormat(CusolverRfHandle handle, ref MatrixFormat format, ref UnitDiagonal diag);
+            public static extern CuSolverStatus cusolverRfGetMatrixFormat(CuSolverRfHandle handle, ref MatrixFormat format, ref UnitDiagonal diag);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetMatrixFormat(CusolverRfHandle handle, MatrixFormat format, UnitDiagonal diag);
+            public static extern CuSolverStatus cusolverRfSetMatrixFormat(CuSolverRfHandle handle, MatrixFormat format, UnitDiagonal diag);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetNumericProperties(CusolverRfHandle handle, double zero, double boost);
+            public static extern CuSolverStatus cusolverRfSetNumericProperties(CuSolverRfHandle handle, double zero, double boost);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfGetNumericProperties(CusolverRfHandle handle, ref double zero, ref double boost);
+            public static extern CuSolverStatus cusolverRfGetNumericProperties(CuSolverRfHandle handle, ref double zero, ref double boost);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfGetNumericBoostReport(CusolverRfHandle handle, ref NumericBoostReport report);
+            public static extern CuSolverStatus cusolverRfGetNumericBoostReport(CuSolverRfHandle handle, ref NumericBoostReport report);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetAlgs(CusolverRfHandle handle, Factorization factAlg, TriangularSolve solveAlg);
+            public static extern CuSolverStatus cusolverRfSetAlgs(CuSolverRfHandle handle, Factorization factAlg, TriangularSolve solveAlg);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfGetAlgs(CusolverRfHandle handle, ref Factorization factAlg, ref TriangularSolve solveAlg);
+            public static extern CuSolverStatus cusolverRfGetAlgs(CuSolverRfHandle handle, ref Factorization factAlg, ref TriangularSolve solveAlg);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfGetResetValuesFastMode(CusolverRfHandle handle, ref ResetValuesFastMode fastMode);
+            public static extern CuSolverStatus cusolverRfGetResetValuesFastMode(CuSolverRfHandle handle, ref ResetValuesFastMode fastMode);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetResetValuesFastMode(CusolverRfHandle handle, ResetValuesFastMode fastMode);
+            public static extern CuSolverStatus cusolverRfSetResetValuesFastMode(CuSolverRfHandle handle, ResetValuesFastMode fastMode);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetupHost(int n, int nnzA, int[] hCsrRowPtrA, int[] hCsrColIndA, double[] hCsrValA, int nnzL, int[] hCsrRowPtrL, int[] hCsrColIndL, double[] hCsrValL, int nnzU, int[] hCsrRowPtrU, int[] hCsrColIndU, double[] hCsrValU, int[] hP, int[] hQ, CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfSetupHost(int n, int nnzA, int[] hCsrRowPtrA, int[] hCsrColIndA, double[] hCsrValA, int nnzL, int[] hCsrRowPtrL, int[] hCsrColIndL, double[] hCsrValL, int nnzU, int[] hCsrRowPtrU, int[] hCsrColIndU, double[] hCsrValU, int[] hP, int[] hQ, CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSetupDevice(int n, int nnzA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr csrValA, int nnzL,
-                CUdeviceptr csrRowPtrL, CUdeviceptr csrColIndL, CUdeviceptr csrValL, int nnzU, CUdeviceptr csrRowPtrU, CUdeviceptr csrColIndU, CUdeviceptr csrValU,
-                CUdeviceptr p, CUdeviceptr q, CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfSetupDevice(int n, int nnzA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr csrValA, int nnzL,
+                CuDevicePtr csrRowPtrL, CuDevicePtr csrColIndL, CuDevicePtr csrValL, int nnzU, CuDevicePtr csrRowPtrU, CuDevicePtr csrColIndU, CuDevicePtr csrValU,
+                CuDevicePtr p, CuDevicePtr q, CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfResetValues(int n, int nnzA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr csrValA,
-                CUdeviceptr p, CUdeviceptr q, CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfResetValues(int n, int nnzA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr csrValA,
+                CuDevicePtr p, CuDevicePtr q, CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfAnalyze(CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfAnalyze(CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfRefactor(CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfRefactor(CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfAccessBundledFactorsDevice(CusolverRfHandle handle, ref int nnzM, ref CUdeviceptr mp, ref CUdeviceptr mi, ref CUdeviceptr mx);
+            public static extern CuSolverStatus cusolverRfAccessBundledFactorsDevice(CuSolverRfHandle handle, ref int nnzM, ref CuDevicePtr mp, ref CuDevicePtr mi, ref CuDevicePtr mx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfExtractBundledFactorsHost(CusolverRfHandle handle, ref int hNnzM, ref IntPtr hMp, ref IntPtr hMi, ref IntPtr hMx);
+            public static extern CuSolverStatus cusolverRfExtractBundledFactorsHost(CuSolverRfHandle handle, ref int hNnzM, ref IntPtr hMp, ref IntPtr hMi, ref IntPtr hMx);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfExtractSplitFactorsHost(CusolverRfHandle handle, ref int hNnzL, ref IntPtr hCsrRowPtrL, ref IntPtr hCsrColIndL, ref IntPtr hCsrValL, ref int hNnzU, ref IntPtr hCsrRowPtrU, ref IntPtr hCsrColIndU, ref IntPtr hCsrValU);
+            public static extern CuSolverStatus cusolverRfExtractSplitFactorsHost(CuSolverRfHandle handle, ref int hNnzL, ref IntPtr hCsrRowPtrL, ref IntPtr hCsrColIndL, ref IntPtr hCsrValL, ref int hNnzU, ref IntPtr hCsrRowPtrU, ref IntPtr hCsrColIndU, ref IntPtr hCsrValU);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfSolve(CusolverRfHandle handle, CUdeviceptr p, CUdeviceptr q, int nrhs, double[] temp, int ldt, double[] xf, int ldxf);
+            public static extern CuSolverStatus cusolverRfSolve(CuSolverRfHandle handle, CuDevicePtr p, CuDevicePtr q, int nrhs, double[] temp, int ldt, double[] xf, int ldxf);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchSetupHost(int batchSize, int n, int nnzA, int[] hCsrRowPtrA, int[] hCsrColIndA, IntPtr[] hCsrValAArray, int nnzL,
-                int[] hCsrRowPtrL, int[] hCsrColIndL, double[] hCsrValL, int nnzU, int[] hCsrRowPtrU, int[] hCsrColIndU, double[] hCsrValU, int[] hP, int[] hQ, CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfBatchSetupHost(int batchSize, int n, int nnzA, int[] hCsrRowPtrA, int[] hCsrColIndA, IntPtr[] hCsrValAArray, int nnzL,
+                int[] hCsrRowPtrL, int[] hCsrColIndL, double[] hCsrValL, int nnzU, int[] hCsrRowPtrU, int[] hCsrColIndU, double[] hCsrValU, int[] hP, int[] hQ, CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchResetValues(int batchSize, int n, int nnzA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr[] csrValAArray,
-                CUdeviceptr p, CUdeviceptr q, CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfBatchResetValues(int batchSize, int n, int nnzA, CuDevicePtr csrRowPtrA, CuDevicePtr csrColIndA, CuDevicePtr[] csrValAArray,
+                CuDevicePtr p, CuDevicePtr q, CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchAnalyze(CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfBatchAnalyze(CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchRefactor(CusolverRfHandle handle);
+            public static extern CuSolverStatus cusolverRfBatchRefactor(CuSolverRfHandle handle);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchSolve(CusolverRfHandle handle, CUdeviceptr p, CUdeviceptr q, int nrhs, double[] temp,
+            public static extern CuSolverStatus cusolverRfBatchSolve(CuSolverRfHandle handle, CuDevicePtr p, CuDevicePtr q, int nrhs, double[] temp,
                 int ldt, IntPtr[] xfArray, int ldxf);
+
             [DllImport(CuSolveApiDllName)]
-            public static extern CusolverStatus cusolverRfBatchZeroPivot(CusolverRfHandle handle, int[] position);
+            public static extern CuSolverStatus cusolverRfBatchZeroPivot(CuSolverRfHandle handle, int[] position);
         }
     }
-    
 }

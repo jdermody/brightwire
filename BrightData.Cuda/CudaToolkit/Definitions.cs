@@ -1,72 +1,17 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.CudaToolkit
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUfunction
-    {
-        public IntPtr Pointer;
-        public CUmodule GetModule()
-        {
-            var temp = new CUmodule();
-            var res = DriverApiNativeMethods.FunctionManagement.cuFuncGetModule(ref temp, this);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUstream
-    {
-        public IntPtr Pointer;
-        public static CUstream NullStream
-        {
-            get
-            {
-                var s = new CUstream();
-                s.Pointer = 0;
-                return s;
-            }
-        }
-        public static CUstream LegacyStream
-        {
-            get
-            {
-                var s = new CUstream();
-                s.Pointer = 1;
-                return s;
-            }
-        }
-        public static CUstream StreamPerThread
-        {
-            get
-            {
-                var s = new CUstream();
-                s.Pointer = 2;
-                return s;
-            }
-        }
-        public ulong Id
-        {
-            get
-            {
-                ulong ret = 0;
-                var res = DriverApiNativeMethods.Streams.cuStreamGetId(this, ref ret);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-    }
-    public enum CuResult
+    internal enum CuResult
     {
         Success = 0,
         ErrorInvalidValue = 1,
         ErrorOutOfMemory = 2,
         ErrorNotInitialized = 3,
-        ErrorDeinitialized = 4,
+        ErrorUninitialized = 4,
         ErrorProfilerDisabled = 5,
         [Obsolete("deprecated as of CUDA 5.0")]
         ErrorProfilerNotInitialized = 6,
@@ -159,310 +104,8 @@ namespace BrightData.Cuda.CudaToolkit
         ErrorInvalidClusterSize = 912,
         ErrorUnknown = 999,
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUdevice
-    {
-        public int Pointer;
-        public void SetMemoryPool(CUmemoryPool memPool)
-        {
-            var res = DriverApiNativeMethods.DeviceManagement.cuDeviceSetMemPool(this, memPool);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUmemoryPool GetMemoryPool()
-        {
-            var ret = new CUmemoryPool();
-            DriverApiNativeMethods.DeviceManagement.cuDeviceGetDefaultMemPool(ref ret, this);
-            return ret;
-        }
-        public CUmemoryPool GetDefaultMemoryPool()
-        {
-            var ret = new CUmemoryPool();
-            DriverApiNativeMethods.DeviceManagement.cuDeviceGetDefaultMemPool(ref ret, this);
-            return ret;
-        }
-        public CUuuid Uuid
-        {
-            get
-            {
-                var uuid = new CUuuid();
-                var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGetUuid_v2(ref uuid, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return uuid;
-            }
-        }
-        public bool GetExecAffinitySupport(CUexecAffinityType type)
-        {
-            var pi = 0;
-            var res = DriverApiNativeMethods.DeviceManagement.cuDeviceGetExecAffinitySupport(ref pi, type, this);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return pi > 0;
-        }
-        public void GraphMemTrim()
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuDeviceGraphMemTrim(this);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetGraphMemAttribute(CUgraphMemAttribute attr, ulong value)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuDeviceSetGraphMemAttribute(this, attr, ref value);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public ulong GetGraphMemAttribute(CUgraphMemAttribute attr)
-        {
-            ulong value = 0;
-            var res = DriverApiNativeMethods.GraphManagment.cuDeviceGetGraphMemAttribute(this, attr, ref value);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return value;
-        }
-        public static bool operator ==(CUdevice src, CUdevice value)
-        {
-            return src.Pointer == value.Pointer;
-        }
-        public static bool operator !=(CUdevice src, CUdevice value)
-        {
-            return src.Pointer != value.Pointer;
-        }
-        public override bool Equals(object? obj)
-        {
-            if (!(obj is CUdevice)) return false;
-
-            var value = (CUdevice)obj;
-
-            return this.Pointer.Equals(value.Pointer);
-        }
-        public override int GetHashCode()
-        {
-            return Pointer.GetHashCode();
-        }
-        public override string ToString()
-        {
-            return Pointer.ToString();
-        }
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SizeT
-    {
-        UIntPtr value;
-        public SizeT(int value)
-        {
-            this.value = new UIntPtr((uint)value);
-        }
-        public SizeT(uint value)
-        {
-            this.value = new UIntPtr(value);
-        }
-        public SizeT(long value)
-        {
-            this.value = new UIntPtr((ulong)value);
-        }
-        public SizeT(ulong value)
-        {
-            this.value = new UIntPtr(value);
-        }
-        public SizeT(UIntPtr value)
-        {
-            this.value = value;
-        }
-        public SizeT(IntPtr value)
-        {
-            this.value = new UIntPtr((ulong)value.ToInt64());
-        }
-        public static implicit operator int(SizeT t)
-        {
-            return (int)t.value.ToUInt32();
-        }
-        public static implicit operator uint(SizeT t)
-        {
-            return (t.value.ToUInt32());
-        }
-        public static implicit operator long(SizeT t)
-        {
-            return (long)t.value.ToUInt64();
-        }
-        public static implicit operator ulong(SizeT t)
-        {
-            return (t.value.ToUInt64());
-        }
-        public static implicit operator UIntPtr(SizeT t)
-        {
-            return t.value;
-        }
-        public static implicit operator IntPtr(SizeT t)
-        {
-            return new IntPtr((long)t.value.ToUInt64());
-        }
-        public static implicit operator SizeT(int value)
-        {
-            return new SizeT(value);
-        }
-        public static implicit operator SizeT(uint value)
-        {
-            return new SizeT(value);
-        }
-        public static implicit operator SizeT(long value)
-        {
-            return new SizeT(value);
-        }
-        public static implicit operator SizeT(ulong value)
-        {
-            return new SizeT(value);
-        }
-        public static implicit operator SizeT(IntPtr value)
-        {
-            return new SizeT(value);
-        }
-        public static implicit operator SizeT(UIntPtr value)
-        {
-            return new SizeT(value);
-        }
-        public static bool operator !=(SizeT val1, SizeT val2)
-        {
-            return (val1.value != val2.value);
-        }
-        public static bool operator ==(SizeT val1, SizeT val2)
-        {
-            return (val1.value == val2.value);
-        }
-        public static SizeT operator +(SizeT val1, SizeT val2)
-        {
-            return new SizeT(val1.value.ToUInt64() + val2.value.ToUInt64());
-        }
-        public static SizeT operator +(SizeT val1, int val2)
-        {
-            return new SizeT(val1.value.ToUInt64() + (ulong)val2);
-        }
-        public static SizeT operator +(int val1, SizeT val2)
-        {
-            return new SizeT((ulong)val1 + val2.value.ToUInt64());
-        }
-        public static SizeT operator +(uint val1, SizeT val2)
-        {
-            return new SizeT(val1 + val2.value.ToUInt64());
-        }
-        public static SizeT operator +(SizeT val1, uint val2)
-        {
-            return new SizeT(val1.value.ToUInt64() + val2);
-        }
-        public static SizeT operator -(SizeT val1, SizeT val2)
-        {
-            return new SizeT(val1.value.ToUInt64() - val2.value.ToUInt64());
-        }
-        public static SizeT operator -(SizeT val1, int val2)
-        {
-            return new SizeT(val1.value.ToUInt64() - (ulong)val2);
-        }
-        public static SizeT operator -(int val1, SizeT val2)
-        {
-            return new SizeT((ulong)val1 - val2.value.ToUInt64());
-        }
-        public static SizeT operator -(SizeT val1, uint val2)
-        {
-            return new SizeT(val1.value.ToUInt64() - val2);
-        }
-        public static SizeT operator -(uint val1, SizeT val2)
-        {
-            return new SizeT(val1 - val2.value.ToUInt64());
-        }
-        public static SizeT operator *(SizeT val1, SizeT val2)
-        {
-            return new SizeT(val1.value.ToUInt64() * val2.value.ToUInt64());
-        }
-        public static SizeT operator *(SizeT val1, int val2)
-        {
-            return new SizeT(val1.value.ToUInt64() * (ulong)val2);
-        }
-        public static SizeT operator *(int val1, SizeT val2)
-        {
-            return new SizeT((ulong)val1 * val2.value.ToUInt64());
-        }
-        public static SizeT operator *(SizeT val1, uint val2)
-        {
-            return new SizeT(val1.value.ToUInt64() * val2);
-        }
-        public static SizeT operator *(uint val1, SizeT val2)
-        {
-            return new SizeT(val1 * val2.value.ToUInt64());
-        }
-        public static SizeT operator /(SizeT val1, SizeT val2)
-        {
-            return new SizeT(val1.value.ToUInt64() / val2.value.ToUInt64());
-        }
-        public static SizeT operator /(SizeT val1, int val2)
-        {
-            return new SizeT(val1.value.ToUInt64() / (ulong)val2);
-        }
-        public static SizeT operator /(int val1, SizeT val2)
-        {
-            return new SizeT((ulong)val1 / val2.value.ToUInt64());
-        }
-        public static SizeT operator /(SizeT val1, uint val2)
-        {
-            return new SizeT(val1.value.ToUInt64() / val2);
-        }
-        public static SizeT operator /(uint val1, SizeT val2)
-        {
-            return new SizeT(val1 / val2.value.ToUInt64());
-        }
-        public static bool operator >(SizeT val1, SizeT val2)
-        {
-            return val1.value.ToUInt64() > val2.value.ToUInt64();
-        }
-        public static bool operator >(SizeT val1, int val2)
-        {
-            return val1.value.ToUInt64() > (ulong)val2;
-        }
-        public static bool operator >(int val1, SizeT val2)
-        {
-            return (ulong)val1 > val2.value.ToUInt64();
-        }
-        public static bool operator >(SizeT val1, uint val2)
-        {
-            return val1.value.ToUInt64() > val2;
-        }
-        public static bool operator >(uint val1, SizeT val2)
-        {
-            return val1 > val2.value.ToUInt64();
-        }
-        public static bool operator <(SizeT val1, SizeT val2)
-        {
-            return val1.value.ToUInt64() < val2.value.ToUInt64();
-        }
-        public static bool operator <(SizeT val1, int val2)
-        {
-            return val1.value.ToUInt64() < (ulong)val2;
-        }
-        public static bool operator <(int val1, SizeT val2)
-        {
-            return (ulong)val1 < val2.value.ToUInt64();
-        }
-        public static bool operator <(SizeT val1, uint val2)
-        {
-            return val1.value.ToUInt64() < val2;
-        }
-        public static bool operator <(uint val1, SizeT val2)
-        {
-            return val1 < val2.value.ToUInt64();
-        }
-        public override bool Equals(object? obj) => obj is SizeT sizeT && value.Equals(sizeT.value);
-        public override string ToString()
-        {
-            if (IntPtr.Size == 4)
-                return this.value.ToUInt32().ToString();
-            else
-                return this.value.ToUInt64().ToString();
-        }
-        public override int GetHashCode()
-        {
-            return this.value.GetHashCode();
-        }
-    }
-    public enum CublasStatus
+    
+    internal enum CuBlasStatus
     {
         Success = 0,
         NotInitialized = 1,
@@ -476,7 +119,7 @@ namespace BrightData.Cuda.CudaToolkit
         LicenseError = 16
     }
     [Flags]
-    public enum CUmemAllocationHandleType
+    public enum CuMemAllocationHandleType
     {
         None = 0,
         PosixFileDescriptor = 0x1,
@@ -484,9 +127,9 @@ namespace BrightData.Cuda.CudaToolkit
         Win32Kmt = 0x4
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUcontext
+    public struct CuContext
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     public enum CuMemoryType : uint
     {
@@ -498,290 +141,16 @@ namespace BrightData.Cuda.CudaToolkit
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaPointerAttributeP2PTokens
     {
-        ulong p2pToken;
-        uint vaSpaceToken;
+        readonly ulong p2pToken;
+        readonly uint vaSpaceToken;
     }
+    
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUdeviceptr
+    public struct CuMemoryPool
     {
-        public SizeT Pointer;
-        public static implicit operator ulong(CUdeviceptr src)
-        {
-            return src.Pointer;
-        }
-        public static explicit operator CUdeviceptr(SizeT src)
-        {
-            var udeviceptr = new CUdeviceptr();
-            udeviceptr.Pointer = src;
-            return udeviceptr;
-        }
-        public static CUdeviceptr operator +(CUdeviceptr src, SizeT value)
-        {
-            var udeviceptr = new CUdeviceptr();
-            udeviceptr.Pointer = src.Pointer + value;
-            return udeviceptr;
-        }
-        public static CUdeviceptr operator -(CUdeviceptr src, SizeT value)
-        {
-            var udeviceptr = new CUdeviceptr();
-            udeviceptr.Pointer = src.Pointer - value;
-            return udeviceptr;
-        }
-        public static bool operator ==(CUdeviceptr src, CUdeviceptr value)
-        {
-            return src.Pointer == value.Pointer;
-        }
-        public static bool operator !=(CUdeviceptr src, CUdeviceptr value)
-        {
-            return src.Pointer != value.Pointer;
-        }
-
-        public override bool Equals(object? obj) => obj is CUdeviceptr value && Pointer.Equals(value.Pointer);
-        public override int GetHashCode() => base.GetHashCode();
-        public override string ToString()
-        {
-            return Pointer.ToString();
-        }
-        public CUdeviceptr(SizeT pointer)
-        {
-            Pointer = pointer;
-        }
-        public CUcontext AttributeContext
-        {
-            get
-            {
-                var ret = new CUcontext();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.Context, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public CuMemoryType AttributeMemoryType
-        {
-            get
-            {
-                var ret = new CuMemoryType();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.MemoryType, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public CUdeviceptr AttributeDevicePointer
-        {
-            get
-            {
-                var ret = new CUdeviceptr();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.DevicePointer, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public IntPtr AttributeHostPointer
-        {
-            get
-            {
-                var ret = new IntPtr();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.HostPointer, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public CudaPointerAttributeP2PTokens AttributeP2PTokens
-        {
-            get
-            {
-                var ret = new CudaPointerAttributeP2PTokens();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.P2PTokens, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public bool AttributeSyncMemops
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.SyncMemops, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-            set
-            {
-                var val = value ? 1 : 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerSetAttribute(ref val, CuPointerAttribute.SyncMemops, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-            }
-        }
-        public ulong AttributeBufferId
-        {
-            get
-            {
-                ulong ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.BufferId, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public bool AttributeIsManaged
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.IsManaged, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-        }
-        public int AttributeDeviceOrdinal
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.DeviceOrdinal, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public bool AttributeIsLegacyCudaIpcCapable
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.IsLegacyCudaIpcCapable, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-        }
-        public CUdeviceptr AttributeRangeStartAddr
-        {
-            get
-            {
-                var ret = new CUdeviceptr();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.RangeStartAddr, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public SizeT AttributeRangeSize
-        {
-            get
-            {
-                ulong ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.RangeSize, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public bool AttributeMapped
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.Mapped, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-        }
-        public CUmemAllocationHandleType AttributeAllowedHandleTypes
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.AllowedHandleTypes, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return (CUmemAllocationHandleType)ret;
-            }
-        }
-        public bool AttributeIsGpuDirectRdmaCapable
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.IsGpuDirectRdmaCapable, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-        }
-        public bool AttributeAccessFlags
-        {
-            get
-            {
-                var ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.AccessFlags, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret != 0;
-            }
-        }
-        public CUmemoryPool AttributeMempoolHandle
-        {
-            get
-            {
-                var temp = new IntPtr();
-                var ret = new CUmemoryPool();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref temp, CuPointerAttribute.MempoolHandle, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                ret.Pointer = temp;
-                return ret;
-            }
-        }
-        public SizeT AttributeMappingSize
-        {
-            get
-            {
-                ulong ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.MappingSize, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public IntPtr AttributeBaseAddr
-        {
-            get
-            {
-                var ret = new IntPtr();
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.BaseAddr, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-        public ulong AttributeMemoryBlockId
-        {
-            get
-            {
-                ulong ret = 0;
-                var res = DriverApiNativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CuPointerAttribute.MemoryBlockId, this);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
+        public nint Pointer;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemoryPool
-    {
-        public IntPtr Pointer;
-    }
-    public enum CuPointerAttribute
+    internal enum CuPointerAttribute
     {
         Context = 1,
         MemoryType = 2,
@@ -805,25 +174,25 @@ namespace BrightData.Cuda.CudaToolkit
         MemoryBlockId = 20
     }
     [Flags]
-    public enum CuStreamFlags : uint
+    internal enum CuStreamFlags : uint
     {
         None = 0,
         Default = 0x0,
         NonBlocking = 0x1,
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUevent
+    internal struct CuEvent
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public delegate void CUstreamCallback(CUstream hStream, CuResult status, IntPtr userData);
+    internal delegate void CuStreamCallback(CuStream hStream, CuResult status, nint userData);
     [Flags]
-    public enum CuStreamAddCallbackFlags
+    internal enum CuStreamAddCallbackFlags
     {
         None = 0x0,
     }
     [Flags]
-    public enum CUstreamWaitValueFlags
+    internal enum CuStreamWaitValueFlags
     {
         Geq = 0x0,
         Eq = 0x1,
@@ -832,66 +201,50 @@ namespace BrightData.Cuda.CudaToolkit
         Flush = 1 << 30
     }
     [Flags]
-    public enum CUstreamWriteValueFlags
+    internal enum CuStreamWriteValueFlags
     {
         Default = 0x0,
         NoMemoryBarrier = 0x1
     }
-    public enum CUstreamAttrId
+    internal enum CuStreamAttrId
     {
         AccessPolicyWindow = 1,
         SynchronizationPolicy = 3
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CUstreamAttrValue
+    internal struct CuStreamAttrValue
     {
-        [FieldOffset(0)] public CUaccessPolicyWindow accessPolicyWindow;
-        [FieldOffset(0)] public CUsynchronizationPolicy syncPolicy;
+        [FieldOffset(0)] public CuAccessPolicyWindow accessPolicyWindow;
+        [FieldOffset(0)] public CuSynchronizationPolicy syncPolicy;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUaccessPolicyWindow
+    internal struct CuAccessPolicyWindow
     {
-        public IntPtr base_ptr;
+        public nint base_ptr;
         public SizeT num_bytes;
         public float hitRatio;
-        public CUaccessProperty hitProp;
-        public CUaccessProperty missProp;
+        public CuAccessProperty hitProp;
+        public CuAccessProperty missProp;
     }
-    public enum CUsynchronizationPolicy
+    internal enum CuSynchronizationPolicy
     {
         Auto = 1,
         Spin = 2,
         Yield = 3,
         BlockingSync = 4
     }
-    public enum CUaccessProperty
+    internal enum CuAccessProperty
     {
         Normal = 0,
         Streaming = 1,
         Persisting = 2
     }
-    public enum CUmoduleLoadingMode
+    internal enum CuModuleLoadingMode
     {
         EagerLoading = 0x1,
         LazyLoading = 0x2,
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUmodule
-    {
-        public IntPtr Pointer;
-        public static CUmoduleLoadingMode GetLoadingMode
-        {
-            get
-            {
-                var ret = new CUmoduleLoadingMode();
-                var res = DriverApiNativeMethods.ModuleManagement.cuModuleGetLoadingMode(ref ret);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-                return ret;
-            }
-        }
-    }
-    public enum CUmemPoolAttribute
+    internal enum CuMemPoolAttribute
     {
         ReuseFollowEventDependencies = 1,
         ReuseAllowOpportunistic,
@@ -902,12 +255,12 @@ namespace BrightData.Cuda.CudaToolkit
         UsedMemCurrent,
         UsedMemHigh
     }
-    public enum CUexecAffinityType
+    internal enum CuExecAffinityType
     {
         SmCount = 0,
         Max
     }
-    public enum CUgraphMemAttribute
+    internal enum CuGraphMemAttribute
     {
         UsedMemCurrent,
         UsedMemHigh,
@@ -915,12 +268,12 @@ namespace BrightData.Cuda.CudaToolkit
         ReservedMemHigh
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUuuid
+    internal struct CuUuid
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.I1)]
         public byte[] bytes;
     }
-    public enum CUlaunchAttributeId
+    internal enum CuLaunchAttributeId
     {
         Ignore = 0,
         AccessPolicyWindow = 1,
@@ -934,13 +287,13 @@ namespace BrightData.Cuda.CudaToolkit
         MemSyncDomainMap = 9,
         MemSyncDomain = 10
     }
-    public struct CUlaunchAttribute
+    internal struct CuLaunchAttribute
     {
-        public CUlaunchAttributeId Id;
+        public CuLaunchAttributeId Id;
         public int Pad;
-        public CUlaunchAttributeValue Value;
+        public CuLaunchAttributeValue Value;
     }
-    public struct CUlaunchConfig
+    internal struct CuLaunchConfig
     {
         public uint GridDimX;
         public uint GridDimY;
@@ -949,259 +302,69 @@ namespace BrightData.Cuda.CudaToolkit
         public uint BlockDimY;
         public uint BlockDimZ;
         public uint SharedMemBytes;
-        public CUstream HStream;
-        public CUlaunchAttribute[]? Attrs;
+        public CuStream HStream;
+        public CuLaunchAttribute[]? Attrs;
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CUlaunchAttributeValue
+    internal struct CuLaunchAttributeValue
     {
         [StructLayout(LayoutKind.Sequential)]
-        public struct ClusterDim
+        internal struct ClusterDim
         {
             public uint x;
             public uint y;
             public uint z;
         }
         [StructLayout(LayoutKind.Sequential)]
-        public struct ProgrammaticEvent
+        internal struct ProgrammaticEvent
         {
-            public CUevent event_;
+            public CuEvent event_;
             public int flags;
             public int triggerAtBlockStart;
         }
-        [FieldOffset(0)] CUaccessPolicyWindow accessPolicyWindow;
-        [FieldOffset(0)] int cooperative;
-        [FieldOffset(0)] CUsynchronizationPolicy syncPolicy;
-        [FieldOffset(0)] ClusterDim clusterDim;
-        [FieldOffset(0)] CUclusterSchedulingPolicy clusterSchedulingPolicyPreference;
-        [FieldOffset(0)] int programmaticStreamSerializationAllowed;
-        [FieldOffset(0)] ProgrammaticEvent programmaticEvent;
-        [FieldOffset(0)] int priority;
-        [FieldOffset(0)] CUlaunchMemSyncDomainMap memSyncDomainMap;
-        [FieldOffset(0)] CUlaunchMemSyncDomain memSyncDomain;
+        [FieldOffset(0)] readonly CuAccessPolicyWindow accessPolicyWindow;
+        [FieldOffset(0)] readonly int cooperative;
+        [FieldOffset(0)] readonly CuSynchronizationPolicy syncPolicy;
+        [FieldOffset(0)] readonly ClusterDim clusterDim;
+        [FieldOffset(0)] readonly CuClusterSchedulingPolicy clusterSchedulingPolicyPreference;
+        [FieldOffset(0)] readonly int programmaticStreamSerializationAllowed;
+        [FieldOffset(0)] readonly ProgrammaticEvent programmaticEvent;
+        [FieldOffset(0)] readonly int priority;
+        [FieldOffset(0)] readonly CuLaunchMemSyncDomainMap memSyncDomainMap;
+        [FieldOffset(0)] readonly CuLaunchMemSyncDomain memSyncDomain;
         [FieldOffset(60)] public int pad;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUlaunchMemSyncDomainMap
+    internal struct CuLaunchMemSyncDomainMap
     {
         public byte default_;
         public byte remote;
     }
-    public enum CUlaunchMemSyncDomain
+    internal enum CuLaunchMemSyncDomain
     {
         Default = 0,
         Remote = 1
     }
-    public enum CUclusterSchedulingPolicy
+    internal enum CuClusterSchedulingPolicy
     {
         Default = 0,
         Spread = 1,
         LoadBalancing = 2
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUlibrary
+    internal struct CuLibrary
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUkernel
-    {
-        public IntPtr Pointer;
-        public static explicit operator CUfunction(CUkernel cukernel)
-        {
-            var ret = new CUfunction();
-            ret.Pointer = cukernel.Pointer;
-            return ret;
-        }
-        public CUfunction GetCUfunction()
-        {
-            var ret = new CUfunction();
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetFunction(ref ret, this);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return ret;
-        }
-        public int GetMaxThreadsPerBlock(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.MaxThreadsPerBlock, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public int GetSharedMemory(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.SharedSizeBytes, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public int GetConstMemory(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.ConstSizeBytes, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public int GetLocalMemory(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.LocalSizeBytes, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public int GetRegisters(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.NumRegs, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public Version GetPtxVersion(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.PtxVersion, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return new Version(temp / 10, temp % 10);
-        }
-        public Version GetBinaryVersion(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.BinaryVersion, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return new Version(temp / 10, temp % 10);
-        }
-        public bool GetCacheModeCa(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.CacheModeCa, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp != 0;
-        }
-        public int GetMaxDynamicSharedSizeBytes(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.MaxDynamicSharedSizeBytes, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public void SetMaxDynamicSharedSizeBytes(int size, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.MaxDynamicSharedSizeBytes, size, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUsharedCarveout GetPreferredSharedMemoryCarveout(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.PreferredSharedMemoryCarveout, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return (CUsharedCarveout)temp;
-        }
-        public void SetPreferredSharedMemoryCarveout(CUsharedCarveout value, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.PreferredSharedMemoryCarveout, (int)value, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public bool GetClusterSizeMustBeSet(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.ClusterSizeMustBeSet, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp != 0;
-        }
-        public int GetRequiredClusterWidth(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.RequiredClusterWidth, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public void SetRequiredClusterWidth(int value, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.RequiredClusterWidth, value, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public int GetRequiredClusterHeight(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.RequiredClusterHeight, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public void SetRequiredClusterHeight(int value, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.RequiredClusterHeight, value, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public int GetRequiredClusterDepth(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.RequiredClusterDepth, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
-        public void SetRequiredClusterDepth(int value, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.RequiredClusterDepth, value, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public bool GetNonPortableClusterSizeAllowed(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.NonPortableClusterSizeAllowed, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp != 0;
-        }
-        public CUclusterSchedulingPolicy GetClusterSchedulingPolicyPreference(CUdevice device)
-        {
-            var temp = 0;
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CuFunctionAttribute.ClusterSchedulingPolicyPreference, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return (CUclusterSchedulingPolicy)temp;
-        }
-        public void SetClusterSchedulingPolicyPreference(CUclusterSchedulingPolicy value, CUdevice device)
-        {
-            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetAttribute(CuFunctionAttribute.ClusterSchedulingPolicyPreference, (int)value, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetCacheConfig(CuFuncCache config, CUdevice device)
-        {
-            CuResult res;
-            res = DriverApiNativeMethods.LibraryManagement.cuKernelSetCacheConfig(this, config, device);
-            
-            if (res != CuResult.Success)
-                throw new CudaException(res);
-        }
-    }
-    public enum CuFuncCache
+    
+    internal enum CuFuncCache
     {
         PreferNone = 0x00,
         PreferShared = 0x01,
         PreferL1 = 0x02,
         PreferEqual = 0x03
     }
-    public enum CuFunctionAttribute
+    internal enum CuFunctionAttribute
     {
         MaxThreadsPerBlock = 0,
         SharedSizeBytes = 1,
@@ -1221,100 +384,92 @@ namespace BrightData.Cuda.CudaToolkit
         ClusterSchedulingPolicyPreference = 15,
         Max
     }
-    public enum CUsharedCarveout
+    internal enum CuSharedCarveout
     {
         Default = -1,
         MaxShared = 100,
         MaxL1 = 0
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaMemCpy2D
+    internal struct CudaMemCpy2D
     {
         public SizeT srcXInBytes;
         public SizeT srcY;
         public CuMemoryType srcMemoryType;
-        public IntPtr srcHost;
-        public CUdeviceptr srcDevice;
-        public CUarray srcArray;
+        public nint srcHost;
+        public CuDevicePtr srcDevice;
+        public CuArray srcArray;
         public SizeT srcPitch;
         public SizeT dstXInBytes;
         public SizeT dstY;
         public CuMemoryType dstMemoryType;
-        public IntPtr dstHost;
-        public CUdeviceptr dstDevice;
-        public CUarray dstArray;
+        public nint dstHost;
+        public CuDevicePtr dstDevice;
+        public CuArray dstArray;
         public SizeT dstPitch;
         public SizeT WidthInBytes;
         public SizeT Height;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUarray
+    internal struct CuArray
     {
-        public IntPtr Pointer;
-        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
-        {
-            var temp = new CudaArrayMemoryRequirements();
-            var res = DriverApiNativeMethods.ArrayManagement.cuArrayGetMemoryRequirements(ref temp, this, device);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return temp;
-        }
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaArrayMemoryRequirements
+    internal struct CudaArrayMemoryRequirements
     {
         public SizeT size;
         public SizeT alignment;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.U4)]
-        uint[] reserved;
+        readonly uint[] reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemPoolPtrExportData
+    internal struct CuMemPoolPtrExportData
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
-        byte[] reserved;
+        readonly byte[] reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemPoolProps
+    internal struct CuMemPoolProps
     {
-        public CUmemAllocationType allocType;
-        public CUmemAllocationHandleType handleTypes;
-        public CUmemLocation location;
-        public IntPtr win32SecurityAttributes;
+        public CuMemAllocationType allocType;
+        public CuMemAllocationHandleType handleTypes;
+        public CuMemLocation location;
+        public nint win32SecurityAttributes;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
-        byte[] reserved;
+        readonly byte[] reserved;
     }
-    public enum CUmemAllocationType
+    internal enum CuMemAllocationType
     {
         Invalid = 0x0,
         Pinned = 0x1
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemLocation
+    internal struct CuMemLocation
     {
-        public CUmemLocationType type;
+        public CuMemLocationType type;
         public int id;
     }
-    public enum CUmemLocationType
+    internal enum CuMemLocationType
     {
         Invalid = 0x0,
         Device = 0x1
     }
     [Flags]
-    public enum CUmemAccessFlags
+    internal enum CuMemAccessFlags
     {
         ProtNone = 0x1,
         ProtRead = 0x2,
         ProtReadWrite = 0x3
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemAccessDesc
+    internal struct CuMemAccessDesc
     {
-        public CUmemLocation location;
-        public CUmemAccessFlags flags;
+        public CuMemLocation location;
+        public CuMemAccessFlags flags;
     }
-    public enum CujitOption
+    internal enum CuJitOption
     {
         MaxRegisters = 0,
         ThreadsPerBlock = 1,
@@ -1359,20 +514,20 @@ namespace BrightData.Cuda.CudaToolkit
         OptimizeUnusedDeviceVariables = 29,
         PositionIndependentCode = 30,
     }
-    public enum CUlibraryOption
+    internal enum CuLibraryOption
     {
         HostUniversalFunctionAndDataTable = 0,
         BinaryIsPreserved = 1,
         NumOptions
     }
     [Flags]
-    public enum CuEventRecordFlags : uint
+    internal enum CuEventRecordFlags : uint
     {
         Default = 0x0,
         External = 0x1
     }
     [Flags]
-    public enum CuEventFlags
+    internal enum CuEventFlags
     {
         Default = 0,
         BlockingSync = 1,
@@ -1380,9 +535,9 @@ namespace BrightData.Cuda.CudaToolkit
         InterProcess = 4
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaLaunchParams
+    internal struct CudaLaunchParams
     {
-        public CUfunction function;
+        public CuFunction function;
         public uint gridDimX;
         public uint gridDimY;
         public uint gridDimZ;
@@ -1390,29 +545,29 @@ namespace BrightData.Cuda.CudaToolkit
         public uint blockDimY;
         public uint blockDimZ;
         public uint sharedMemBytes;
-        public CUstream hStream;
-        public IntPtr kernelParams;
+        public CuStream hStream;
+        public nint kernelParams;
     }
     [Flags]
-    public enum CudaCooperativeLaunchMultiDeviceFlags
+    internal enum CudaCooperativeLaunchMultiDeviceFlags
     {
         None = 0,
         NoPreLaunchSync = 0x01,
         NoPostLaunchSync = 0x02,
     }
-    public enum CUsharedconfig
+    internal enum CuSharedConfig
     {
         DefaultBankSize = 0x00,
         FourByteBankSize = 0x01,
         EightByteBankSize = 0x02
     }
-    public delegate SizeT DelCUoccupancyB2DSize(int aBlockSize);
-    public enum CUoccupancyFlags
+    internal delegate SizeT DelCuOccupancyB2DSize(int aBlockSize);
+    internal enum CuOccupancyFlags
     {
         Default = 0,
         DisableCachingOverride = 1
     }
-    public enum Operation
+    internal enum Operation
     {
         NonTranspose = 0,
         Transpose = 1,
@@ -1423,9 +578,9 @@ namespace BrightData.Cuda.CudaToolkit
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaBlasHandle
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public enum CudaDataType
+    internal enum CudaDataType
     {
         CudaR16F = 2,
         CudaC16F = 6,
@@ -1456,33 +611,33 @@ namespace BrightData.Cuda.CudaToolkit
         CudaR64U = 26,
         CudaC64U = 27
     }
-    public enum FillMode
+    internal enum FillMode
     {
         Lower = 0,
         Upper = 1,
         Full = 2
     }
-    public enum DiagType
+    internal enum DiagType
     {
         NonUnit = 0,
         Unit = 1
     }
-    public enum SideMode
+    internal enum SideMode
     {
         Left = 0,
         Right = 1
     }
-    public enum PointerMode
+    internal enum PointerMode
     {
         Host = 0,
         Device = 1
     }
-    public enum AtomicsMode
+    internal enum AtomicsMode
     {
         NotAllowed = 0,
         Allowed = 1
     }
-    public enum GemmAlgo
+    internal enum GemmAlgo
     {
         Default = -1,
         Algo0 = 0,
@@ -1527,7 +682,7 @@ namespace BrightData.Cuda.CudaToolkit
         Algo14TensorOp = 114,
         Algo15TensorOp = 115
     }
-    public enum Math
+    internal enum Math
     {
         DefaultMath = 0,
         [Obsolete("deprecated, same effect as using CUBLAS_COMPUTE_32F_FAST_16F, will be removed in a future release")]
@@ -1536,7 +691,7 @@ namespace BrightData.Cuda.CudaToolkit
         Tf32TensorOpMath = 3,
         DisallowReducedPrecisionReduction = 16
     }
-    public enum ComputeType
+    internal enum ComputeType
     {
         Compute16F = 64,
         Compute16FPedantic = 65,
@@ -1550,7 +705,7 @@ namespace BrightData.Cuda.CudaToolkit
         Compute32I = 72,
         Compute32IPedantic = 73,
     }
-    public enum DataType
+    internal enum DataType
     {
         CudaR16F = 2,
         CudaC16F = 6,
@@ -1563,175 +718,61 @@ namespace BrightData.Cuda.CudaToolkit
         CudaR8U = 8,
         CudaC8U = 9
     }
+    internal delegate void CublasLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
     [StructLayout(LayoutKind.Sequential)]
-#pragma warning disable CS8981
-    public struct Half
-#pragma warning restore CS8981
+    internal struct CuSparseMatDescriptor
     {
-        ushort x;
-        public Half(float f)
-        {
-            x = __float2half(f).x;
-        }
-        public Half(double d)
-        {
-            x = __double2half(d).x;
-        }
-        public Half(Half h16)
-        {
-            x = h16.x;
-        }
-
-        static ushort __internal_float2half(float f, out uint sign, out uint remainder)
-        {
-            var ftemp = new[] { f };
-            var x = new uint[1];
-            uint u = 0;
-            uint result = 0;
-            System.Buffer.BlockCopy(ftemp, 0, x, 0, sizeof(float));
-
-            u = (x[0] & 0x7fffffffU);
-            sign = ((x[0] >> 16) & 0x8000U);
-            if (u >= 0x7f800000U) {
-                remainder = 0U;
-                result = ((u == 0x7f800000U) ? (sign | 0x7c00U) : 0x7fffU);
-            }
-            else if (u > 0x477fefffU) {
-                remainder = 0x80000000U;
-                result = (sign | 0x7bffU);
-            }
-            else if (u >= 0x38800000U) {
-                remainder = u << 19;
-                u -= 0x38000000U;
-                result = (sign | (u >> 13));
-            }
-            else if (u < 0x33000001U) {
-                remainder = u;
-                result = sign;
-            }
-            else {
-                var exponent = u >> 23;
-                var shift = 0x7eU - exponent;
-                var mantissa = (u & 0x7fffffU);
-                mantissa |= 0x800000U;
-                remainder = mantissa << (32 - (int)shift);
-                result = (sign | (mantissa >> (int)shift));
-            }
-
-            return (ushort)(result);
-        }
-
-        static Half __double2half(double x)
-        {
-            ulong absx;
-            var ux = new ulong[1];
-            var xa = new[] { x };
-            System.Buffer.BlockCopy(xa, 0, ux, 0, sizeof(double));
-
-            absx = (ux[0] & 0x7fffffffffffffffUL);
-            if ((absx >= 0x40f0000000000000UL) || (absx <= 0x3e60000000000000UL)) {
-                return __float2half((float)x);
-            }
-            var shifterBits = ux[0] & 0x7ff0000000000000UL;
-            if (absx >= 0x3f10000000000000UL) {
-                shifterBits += 42ul << 52;
-            }
-
-            else {
-                shifterBits = ((42ul - 14 + 1023) << 52);
-            }
-            shifterBits |= 1ul << 51;
-            var shifterBitsArr = new[] { shifterBits };
-            var shifter = new double[1];
-
-            System.Buffer.BlockCopy(shifterBitsArr, 0, shifter, 0, sizeof(double));
-
-            var xShiftRound = x + shifter[0];
-            var xShiftRoundArr = new[] { xShiftRound };
-            var xShiftRoundBits = new ulong[1];
-
-            System.Buffer.BlockCopy(xShiftRoundArr, 0, xShiftRoundBits, 0, sizeof(double));
-            xShiftRoundBits[0] &= 0x7ffffffffffffffful;
-
-            System.Buffer.BlockCopy(xShiftRoundBits, 0, xShiftRoundArr, 0, sizeof(double));
-
-            var xRounded = xShiftRound - shifter[0];
-            var xRndFlt = (float)xRounded;
-            var res = __float2half(xRndFlt);
-            return res;
-        }
-
-        static Half __float2half(float a)
-        {
-            var r = new Half {
-                x = __internal_float2half(a, out _, out var remainder)
-            };
-            if ((remainder > 0x80000000U) || ((remainder == 0x80000000U) && ((r.x & 0x1U) != 0U))) {
-                r.x++;
-            }
-
-            return r;
-        }
-        public override string ToString()
-        {
-            return x.ToString();
-        }
-    }
-    public delegate void CublasLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CusparseMatDescr
-    {
-        public IntPtr Handle;
+        public nint Handle;
     }
     [Flags]
-    public enum CuInitializationFlags : uint
+    internal enum CuInitializationFlags : uint
     {
         None = 0
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CudaExternalSemaphoreWaitParams
+    internal struct CudaExternalSemaphoreWaitParams
     {
         [StructLayout(LayoutKind.Explicit)]
-        public struct Parameters
+        internal struct Parameters
         {
             [StructLayout(LayoutKind.Sequential)]
-            public struct Fence
+            internal struct Fence
             {
                 public ulong value;
             }
             [FieldOffset(0)] public Fence fence;
             [StructLayout(LayoutKind.Sequential)]
-            public struct NvSciSync
+            internal struct NvSciSync
             {
-                public IntPtr fence;
+                public nint fence;
             }
             [FieldOffset(8)] public NvSciSync nvSciSync;
             [StructLayout(LayoutKind.Sequential)]
-            public struct KeyedMutex
+            internal struct KeyedMutex
             {
                 public ulong key;
                 public uint timeoutMs;
             }
             [FieldOffset(16)] public KeyedMutex keyedMutex;
 
-            [FieldOffset(20)] uint reserved;
+            [FieldOffset(20)] readonly uint reserved;
         }
         [FieldOffset(0)] public Parameters parameters;
         [FieldOffset(72)] public uint flags;
 
-        [FieldOffset(136)] uint reserved;
+        [FieldOffset(136)] readonly uint reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
     internal struct CudaMemAllocNodeParamsInternal
     {
-        public CUmemPoolProps poolProps;
-        public IntPtr accessDescs;
+        public CuMemPoolProps poolProps;
+        public nint accessDescs;
         public SizeT accessDescCount;
         public SizeT bytesize;
-        public CUdeviceptr dptr;
+        public CuDevicePtr dptr;
     }
 
-    internal struct CUlaunchConfigInternal
+    internal struct CuLaunchConfigInternal
     {
         public uint GridDimX;
         public uint GridDimY;
@@ -1740,211 +781,27 @@ namespace BrightData.Cuda.CudaToolkit
         public uint BlockDimY;
         public uint BlockDimZ;
         public uint SharedMemBytes;
-        public CUstream HStream;
-        public IntPtr Attrs;
+        public CuStream HStream;
+        public nint Attrs;
         public uint NumAttrs;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct CUgraphNode
+    internal class CudaBatchMemOpNodeParams
     {
-        public IntPtr Pointer;
-        public CUgraphNodeType Type
-        {
-            get
-            {
-                var type = new CUgraphNodeType();
-                var res = DriverApiNativeMethods.GraphManagment.cuGraphNodeGetType(this, ref type);
-                if (res != CuResult.Success) throw new CudaException(res);
-                return type;
-            }
-        }
-        public void SetParameters(CudaHostNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphHostNodeSetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaKernelNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphKernelNodeSetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaMemCpy3D nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphMemcpyNodeSetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaMemsetNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphMemsetNodeSetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaExtSemSignalNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphExternalSemaphoresSignalNodeSetParams(this, nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaExtSemWaitNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphExternalSemaphoresWaitNodeSetParams(this, nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void SetParameters(CudaBatchMemOpNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphBatchMemOpNodeSetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaHostNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphHostNodeGetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaKernelNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphKernelNodeGetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaMemCpy3D nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphMemcpyNodeGetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaMemsetNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphMemsetNodeGetParams(this, ref nodeParams);
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(CudaExtSemSignalNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphExternalSemaphoresSignalNodeGetParams(this, nodeParams);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(CudaExtSemWaitNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphExternalSemaphoresWaitNodeGetParams(this, nodeParams);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaMemAllocNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphMemAllocNodeGetParams(this, ref nodeParams);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CUdeviceptr nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphMemFreeNodeGetParams(this, ref nodeParams);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public void GetParameters(ref CudaBatchMemOpNodeParams nodeParams)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.CuGraphBatchMemOpNodeGetParams(this, ref nodeParams);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUgraphNode[]? GetDependencies()
-        {
-            var numNodes = new SizeT();
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphNodeGetDependencies(this, null, ref numNodes);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-
-            if (numNodes > 0) {
-                var nodes = new CUgraphNode[numNodes];
-                res = DriverApiNativeMethods.GraphManagment.cuGraphNodeGetDependencies(this, nodes, ref numNodes);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-
-                return nodes;
-            }
-
-            return null;
-        }
-        public CUgraphNode[]? GetDependentNodes()
-        {
-            var numNodes = new SizeT();
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphNodeGetDependentNodes(this, null, ref numNodes);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-
-            if (numNodes > 0) {
-                var nodes = new CUgraphNode[numNodes];
-                res = DriverApiNativeMethods.GraphManagment.cuGraphNodeGetDependentNodes(this, nodes, ref numNodes);
-                
-                if (res != CuResult.Success) throw new CudaException(res);
-
-                return nodes;
-            }
-
-            return null;
-        }
-        public void CuGraphKernelNodeCopyAttributes(CUgraphNode dst)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphKernelNodeCopyAttributes(dst, this);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUkernelNodeAttrValue GetAttribute(CUkernelNodeAttrId attr)
-        {
-            var value = new CUkernelNodeAttrValue();
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphKernelNodeGetAttribute(this, attr, ref value);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return value;
-        }
-        public void SetAttribute(CUkernelNodeAttrId attr, CUkernelNodeAttrValue value)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphKernelNodeSetAttribute(this, attr, ref value);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUevent GetRecordEvent()
-        {
-            var eventOut = new CUevent();
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphEventRecordNodeGetEvent(this, ref eventOut);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return eventOut;
-        }
-        public void SetRecordEvent(CUevent @event)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphEventRecordNodeSetEvent(this, @event);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-        public CUevent GetWaitEvent()
-        {
-            var eventOut = new CUevent();
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphEventWaitNodeGetEvent(this, ref eventOut);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-            return eventOut;
-        }
-        public void SetWaitEvent(CUevent @event)
-        {
-            var res = DriverApiNativeMethods.GraphManagment.cuGraphEventWaitNodeSetEvent(this, @event);
-            
-            if (res != CuResult.Success) throw new CudaException(res);
-        }
-    }
-    public class CudaBatchMemOpNodeParams
-    {
-        public CUcontext Ctx;
-        public CUstreamBatchMemOpParams[]? ParamArray;
+        public CuContext Ctx;
+        public CuStreamBatchMemOpParams[]? ParamArray;
         public uint Flags;
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CUstreamBatchMemOpParams
+    internal struct CuStreamBatchMemOpParams
     {
-        [FieldOffset(0)] public CUstreamBatchMemOpType operation;
-        [FieldOffset(0)] public CUstreamMemOpWaitValueParams waitValue;
-        [FieldOffset(0)] public CUstreamMemOpWriteValueParams writeValue;
-        [FieldOffset(0)] public CUstreamMemOpFlushRemoteWritesParams flushRemoteWrites;
-        [FieldOffset(0)] public CUstreamMemOpMemoryBarrierParams memoryBarrier;
-        [FieldOffset(5 * 8)] ulong pad;
+        [FieldOffset(0)] public CuStreamBatchMemOpType operation;
+        [FieldOffset(0)] public CuStreamMemOpWaitValueParams waitValue;
+        [FieldOffset(0)] public CuStreamMemOpWriteValueParams writeValue;
+        [FieldOffset(0)] public CuStreamMemOpFlushRemoteWritesParams flushRemoteWrites;
+        [FieldOffset(0)] public CuStreamMemOpMemoryBarrierParams memoryBarrier;
+        [FieldOffset(5 * 8)] readonly ulong pad;
     }
-    public enum CUstreamBatchMemOpType
+    internal enum CuStreamBatchMemOpType
     {
         WaitValue32 = 1,
         WriteValue32 = 2,
@@ -1954,116 +811,114 @@ namespace BrightData.Cuda.CudaToolkit
         FlushRemoteWrites = 3
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUstreamMemOpWaitValueParams
+    internal struct CuStreamMemOpWaitValueParams
     {
-        public CUstreamBatchMemOpType operation;
-        public CUdeviceptr address;
-        public Cuuint3264Union value;
+        public CuStreamBatchMemOpType operation;
+        public CuDevicePtr address;
+        public CuUint3264Union value;
         public uint flags;
-        public CUdeviceptr alias;
+        public CuDevicePtr alias;
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct Cuuint3264Union
+    internal struct CuUint3264Union
     {
         [FieldOffset(0)] public uint value;
         [FieldOffset(0)] public ulong value64;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUstreamMemOpWriteValueParams
+    internal struct CuStreamMemOpWriteValueParams
     {
-        public CUstreamBatchMemOpType operation;
-        public CUdeviceptr address;
-        public Cuuint3264Union value;
+        public CuStreamBatchMemOpType operation;
+        public CuDevicePtr address;
+        public CuUint3264Union value;
         public uint flags;
-        public CUdeviceptr alias;
+        public CuDevicePtr alias;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaMemAllocNodeParams
+    internal struct CudaMemAllocNodeParams
     {
-        public CUmemPoolProps poolProps;
-        public CUmemAccessDesc[] accessDescs;
+        public CuMemPoolProps poolProps;
+        public CuMemAccessDesc[] accessDescs;
         public SizeT bytesize;
-        public CUdeviceptr dptr;
+        public CuDevicePtr dptr;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaHostNodeParams
+    internal struct CudaHostNodeParams
     {
         public CUhostFn fn;
-        public IntPtr userData;
+        public nint userData;
     }
-    public delegate void CUhostFn(IntPtr userData);
+    internal delegate void CUhostFn(nint userData);
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUstreamMemOpFlushRemoteWritesParams
+    internal struct CuStreamMemOpFlushRemoteWritesParams
     {
-        public CUstreamBatchMemOpType operation;
+        public CuStreamBatchMemOpType operation;
         public uint flags;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUstreamMemOpMemoryBarrierParams
+    internal struct CuStreamMemOpMemoryBarrierParams
     {
-        public CUstreamBatchMemOpType operation;
+        public CuStreamBatchMemOpType operation;
         public uint flags;
     }
-    public class CudaExtSemWaitNodeParams
+    internal class CudaExtSemWaitNodeParams
     {
-        public CUexternalSemaphore[]? ExtSemArray;
+        public CuExternalSemaphore[]? ExtSemArray;
         public CudaExternalSemaphoreWaitParams[]? ParamsArray;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUexternalSemaphore
+    internal struct CuExternalSemaphore
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public class CudaExtSemSignalNodeParams
+    internal class CudaExtSemSignalNodeParams
     {
-        public CUexternalSemaphore[]? ExtSemArray;
+        public CuExternalSemaphore[]? ExtSemArray;
         public CudaExternalSemaphoreSignalParams[]? ParamsArray;
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CudaExternalSemaphoreSignalParams
+    internal struct CudaExternalSemaphoreSignalParams
     {
         [StructLayout(LayoutKind.Explicit)]
-        public struct Parameters
+        internal struct Parameters
         {
             [StructLayout(LayoutKind.Sequential)]
-            public struct Fence
+            internal struct Fence
             {
                 public ulong value;
             }
             [FieldOffset(0)] public Fence fence;
             [StructLayout(LayoutKind.Sequential)]
-            public struct NvSciSync
+            internal struct NvSciSync
             {
-                public IntPtr fence;
+                public nint fence;
             }
             [FieldOffset(8)] public NvSciSync nvSciSync;
             [StructLayout(LayoutKind.Sequential)]
-            public struct KeyedMutex
+            internal struct KeyedMutex
             {
                 public ulong key;
             }
             [FieldOffset(16)] public KeyedMutex keyedMutex;
-            [FieldOffset(68)]
-            uint reserved;
+            [FieldOffset(68)] readonly uint reserved;
         }
         [FieldOffset(0)] public Parameters parameters;
         [FieldOffset(72)] public uint flags;
 
-        [FieldOffset(136)]
-        uint reserved;
+        [FieldOffset(136)] readonly uint reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaMemCpy3D
+    internal struct CudaMemCpy3D
     {
         public SizeT srcXInBytes;
         public SizeT srcY;
         public SizeT srcZ;
         public SizeT srcLOD;
         public CuMemoryType srcMemoryType;
-        public IntPtr srcHost;
-        public CUdeviceptr srcDevice;
-        public CUarray srcArray;
-        public IntPtr reserved0;
+        public nint srcHost;
+        public CuDevicePtr srcDevice;
+        public CuArray srcArray;
+        public nint reserved0;
         public SizeT srcPitch;
         public SizeT srcHeight;
         public SizeT dstXInBytes;
@@ -2071,10 +926,10 @@ namespace BrightData.Cuda.CudaToolkit
         public SizeT dstZ;
         public SizeT dstLOD;
         public CuMemoryType dstMemoryType;
-        public IntPtr dstHost;
-        public CUdeviceptr dstDevice;
-        public CUarray dstArray;
-        public IntPtr reserved1;
+        public nint dstHost;
+        public CuDevicePtr dstDevice;
+        public CuArray dstArray;
+        public nint reserved1;
         public SizeT dstPitch;
         public SizeT dstHeight;
         public SizeT WidthInBytes;
@@ -2084,7 +939,7 @@ namespace BrightData.Cuda.CudaToolkit
     [StructLayout(LayoutKind.Sequential)]
     internal struct CudaMemsetNodeParams
     {
-        public CUdeviceptr dst;
+        public CuDevicePtr dst;
         public SizeT pitch;
         public uint value;
         public uint elementSize;
@@ -2092,18 +947,19 @@ namespace BrightData.Cuda.CudaToolkit
         public SizeT height;
         public static CudaMemsetNodeParams Init<T>(CudaDeviceVariable<T> deviceVariable, uint value) where T : struct
         {
-            var para = new CudaMemsetNodeParams();
-            para.dst = deviceVariable.DevicePointer;
-            para.pitch = deviceVariable.SizeInBytes;
-            para.value = value;
-            para.elementSize = deviceVariable.TypeSize;
-            para.width = deviceVariable.SizeInBytes;
-            para.height = 1;
+            var para = new CudaMemsetNodeParams {
+                dst = deviceVariable.DevicePointer,
+                pitch = deviceVariable.SizeInBytes,
+                value = value,
+                elementSize = deviceVariable.TypeSize,
+                width = deviceVariable.SizeInBytes,
+                height = 1
+            };
 
             return para;
         }
     }
-    public enum CUgraphNodeType
+    internal enum CuGraphNodeType
     {
         Kernel = 0,
         Memcpy = 1,
@@ -2120,9 +976,9 @@ namespace BrightData.Cuda.CudaToolkit
         BatchMemOp = 12
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaKernelNodeParams
+    internal struct CudaKernelNodeParams
     {
-        public CUfunction func;
+        public CuFunction func;
         public uint gridDimX;
         public uint gridDimY;
         public uint gridDimZ;
@@ -2130,46 +986,46 @@ namespace BrightData.Cuda.CudaToolkit
         public uint blockDimY;
         public uint blockDimZ;
         public uint sharedMemBytes;
-        public IntPtr kernelParams;
-        public IntPtr extra;
-        CUkernel kern;
-        CUcontext ctx;
+        public nint kernelParams;
+        public nint extra;
+        readonly CuKernel kern;
+        readonly CuContext ctx;
     }
-    public enum CUkernelNodeAttrId
+    internal enum CuKernelNodeAttrId
     {
         AccessPolicyWindow = 1,
         Cooperative = 2
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CUkernelNodeAttrValue
+    internal struct CuKernelNodeAttrValue
     {
-        [FieldOffset(0)] public CUaccessPolicyWindow accessPolicyWindow;
+        [FieldOffset(0)] public CuAccessPolicyWindow accessPolicyWindow;
         [FieldOffset(0)] public int cooperative;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUgraph
+    internal struct CuGraph
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     internal struct CudaBatchMemOpNodeParamsInternal
     {
-        public CUcontext Ctx;
+        public CuContext Ctx;
         public uint Count;
-        public IntPtr ParamArray;
+        public nint ParamArray;
         public uint Flags;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUuserObject
+    internal struct CuUserObject
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct Luid
+    internal struct Luid
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8, ArraySubType = UnmanagedType.I1)]
         public byte[] bytes;
     }
-    public enum CuArrayFormat
+    internal enum CuArrayFormat
     {
         UnsignedInt8 = 0x01,
         UnsignedInt16 = 0x02,
@@ -2207,7 +1063,7 @@ namespace BrightData.Cuda.CudaToolkit
         Bc7UNorm = 0x9d,
         Bc7UNormSrgb = 0x9e
     }
-    public enum CuDeviceAttribute
+    internal enum CuDeviceAttribute
     {
         MaxThreadsPerBlock = 1,
         MaxBlockDimX = 2,
@@ -2343,19 +1199,19 @@ namespace BrightData.Cuda.CudaToolkit
         Max
     }
     [Flags]
-    public enum NvSciSyncAttr
+    internal enum NvSciSyncAttr
     {
         Signal = 0x01,
         Wait = 0x02,
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUipcEventHandle
+    internal struct CuIpcEventHandle
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.I1)]
         public byte[] reserved;
     }
     [Flags]
-    public enum CuCtxFlags
+    internal enum CuCtxFlags
     {
         SchedAuto = 0,
         SchedSpin = 1,
@@ -2368,15 +1224,15 @@ namespace BrightData.Cuda.CudaToolkit
         FlagsMask = 0x1f
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUtexref
+    internal struct CuTexRef
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmipmappedArray
+    internal struct CuMipMappedArray
     {
-        public IntPtr Pointer;
-        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
+        public nint Pointer;
+        public CudaArrayMemoryRequirements GetMemoryRequirements(CuDevice device)
         {
             var temp = new CudaArrayMemoryRequirements();
             var res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayGetMemoryRequirements(ref temp, this, device);
@@ -2385,30 +1241,13 @@ namespace BrightData.Cuda.CudaToolkit
             return temp;
         }
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUgraphicsResource
-    {
-        public IntPtr Pointer;
-    }
-    [Flags]
-    public enum CuGraphicsMapResourceFlags
-    {
-        None = 0,
-        ReadOnly = 1,
-        WriteDiscard = 2
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUtexObject
-    {
-        public ulong Pointer;
-    }
-    public enum CUstreamCaptureStatus
+    internal enum CuStreamCaptureStatus
     {
         None = 0,
         Active = 1,
         Invalidated = 2
     }
-    public enum CuLimit
+    internal enum CuLimit
     {
         StackSize = 0,
         PrintfFifoSize = 1,
@@ -2419,24 +1258,12 @@ namespace BrightData.Cuda.CudaToolkit
         PersistingL2CacheSize = 0x06
     }
     [Flags]
-    public enum CtxEnablePeerAccessFlags : uint
+    internal enum CtxEnablePeerAccessFlags : uint
     {
         None = 0
     }
-    public enum CuAddressMode
-    {
-        Wrap = 0,
-        Clamp = 1,
-        Mirror = 2,
-        Border = 3
-    }
-    public enum CuFilterMode
-    {
-        Point = 0,
-        Linear = 1
-    }
     [Flags]
-    public enum CuMemHostRegisterFlags
+    internal enum CuMemHostRegisterFlags
     {
         None = 0,
         Portable = 1,
@@ -2445,49 +1272,49 @@ namespace BrightData.Cuda.CudaToolkit
         ReadOnly = 0x08
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUsurfref
+    internal struct CuSurfRef
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 64)]
-    public struct CUtensorMap
+    internal struct CuTensorMap
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U8)]
         public ulong[] opaque;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUgraphExec
+    internal struct CuGraphExec
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUipcMemHandle
+    internal struct CuIpcMemHandle
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.I1)]
         public byte[] reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUexecAffinityParam
+    internal struct CuExecAffinityParam
     {
-        CUexecAffinityType type;
-        CUexecAffinityParamUnion param;
+        readonly CuExecAffinityType type;
+        readonly CuExecAffinityParamUnion param;
     }
     [StructLayout(LayoutKind.Explicit)]
-    public struct CUexecAffinityParamUnion
+    internal struct CuExecAffinityParamUnion
     {
-        [FieldOffset(0)] public CUexecAffinitySmCount smCount;
+        [FieldOffset(0)] public CuExecAffinitySmCount smCount;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUexecAffinitySmCount
+    internal struct CuExecAffinitySmCount
     {
         public uint val;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUlinkState
+    internal struct CulinkState
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public enum CujitInputType
+    internal enum CuJitInputType
     {
         Cubin = 0,
         Ptx,
@@ -2498,14 +1325,14 @@ namespace BrightData.Cuda.CudaToolkit
         Nvvm
     }
     [Flags]
-    public enum CuMemHostAllocFlags
+    internal enum CuMemHostAllocFlags
     {
         None = 0,
         Portable = 1,
         DeviceMap = 2,
         WriteCombined = 4
     }
-    public enum CUmemAdvise
+    internal enum CuMemAdvise
     {
         SetReadMostly = 1,
         UnsetReadMostly = 2,
@@ -2514,7 +1341,7 @@ namespace BrightData.Cuda.CudaToolkit
         SetAccessedBy = 5,
         UnsetAccessedBy = 6
     }
-    public enum CUmemRangeAttribute
+    internal enum CuMemRangeAttribute
     {
         ReadMostly = 1,
         PreferredLocation = 2,
@@ -2522,54 +1349,54 @@ namespace BrightData.Cuda.CudaToolkit
         LastPrefetchLocation = 4
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemAllocationProp
+    internal struct CuMemAllocationProp
     {
-        public CUmemAllocationType type;
-        public CUmemAllocationHandleType requestedHandleTypes;
-        public CUmemLocation location;
-        public IntPtr win32HandleMetaData;
+        public CuMemAllocationType type;
+        public CuMemAllocationHandleType requestedHandleTypes;
+        public CuMemLocation location;
+        public nint win32HandleMetaData;
         public AllocFlags allocFlags;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct AllocFlags
+    internal struct AllocFlags
     {
-        public CUmemAllocationCompType compressionType;
+        public CuMemAllocationCompType compressionType;
         public byte gpuDirectRDMACapable;
-        public CUmemCreateUsage usage;
+        public CuMemCreateUsage usage;
 
-        byte reserved0;
-        byte reserved1;
-        byte reserved2;
-        byte reserved3;
+        readonly byte reserved0;
+        readonly byte reserved1;
+        readonly byte reserved2;
+        readonly byte reserved3;
     }
-    public enum CUmemAllocationCompType : byte
+    internal enum CuMemAllocationCompType : byte
     {
         None = 0x0,
         Generic = 0x1
     }
-    public enum CUmemCreateUsage : ushort
+    internal enum CuMemCreateUsage : ushort
     {
         None = 0x0,
         TilePool = 0x1
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUmemGenericAllocationHandle
+    internal struct CuMemGenericAllocationHandle
     {
         public ulong Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUarrayMapInfo
+    internal struct CuArrayMapInfo
     {
         [StructLayout(LayoutKind.Explicit)]
-        public struct Resource
+        internal struct Resource
         {
-            [FieldOffset(0)] public CUmipmappedArray mipmap;
-            [FieldOffset(0)] public CUarray array;
+            [FieldOffset(0)] public CuMipMappedArray mipmap;
+            [FieldOffset(0)] public CuArray array;
         }
         [StructLayout(LayoutKind.Explicit)]
-        public struct Subresource
+        internal struct SubResource
         {
-            public struct SparseLevel
+            internal struct SparseLevel
             {
                 public uint Level;
                 public uint Layer;
@@ -2580,55 +1407,50 @@ namespace BrightData.Cuda.CudaToolkit
                 public uint ExtentHeight;
                 public uint ExtentDepth;
             }
-            public struct Miptail
+            internal struct MipTail
             {
                 public uint Layer;
                 public ulong Offset;
                 public ulong Size;
             }
             [FieldOffset(0)] public SparseLevel sparseLevel;
-            [FieldOffset(0)] public Miptail miptail;
+            [FieldOffset(0)] public MipTail mipTail;
         }
         public CuResourceType resourceType;
         public Resource resource;
-        public CUarraySparseSubresourceType subresourceType;
-        public Subresource subresource;
-        public CUmemOperationType memOperationType;
-        public CUmemHandleType memHandleType;
-        public CUmemGenericAllocationHandle memHandle;
+        public CuArraySparseSubResourceType subResourceType;
+        public SubResource subResource;
+        public CuMemOperationType memOperationType;
+        public CuMemHandleType memHandleType;
+        public CuMemGenericAllocationHandle memHandle;
         public ulong offset;
         public uint deviceBitMask;
         public uint flags;
         public uint reserved0;
         public uint reserved1;
     }
-    public enum CuResourceType
+    internal enum CuResourceType
     {
         Array = 0x00,
-        MipmappedArray = 0x01,
+        MipMappedArray = 0x01,
         Linear = 0x02,
         Pitch2D = 0x03
     }
-    public enum CUmemOperationType
+    internal enum CuMemOperationType
     {
         Map = 1,
         Unmap = 2
     }
-    public enum CUmemHandleType
+    internal enum CuMemHandleType
     {
         Generic = 0
     }
-    public enum CUarraySparseSubresourceType
+    internal enum CuArraySparseSubResourceType
     {
         SparseLevel = 0,
         MipTail = 1
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUexternalMemory
-    {
-        public IntPtr Pointer;
-    }
-    public enum CUtensorMapDataType
+    internal enum CuTensorMapDataType
     {
         UInt8 = 0,
         UInt16,
@@ -2645,17 +1467,17 @@ namespace BrightData.Cuda.CudaToolkit
         TFloat32Ftz
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaMemCpy3DPeer
+    internal struct CudaMemCpy3DPeer
     {
         public SizeT srcXInBytes;
         public SizeT srcY;
         public SizeT srcZ;
         public SizeT srcLOD;
         public CuMemoryType srcMemoryType;
-        public IntPtr srcHost;
-        public CUdeviceptr srcDevice;
-        public CUarray srcArray;
-        public CUcontext srcContext;
+        public nint srcHost;
+        public CuDevicePtr srcDevice;
+        public CuArray srcArray;
+        public CuContext srcContext;
         public SizeT srcPitch;
         public SizeT srcHeight;
         public SizeT dstXInBytes;
@@ -2663,39 +1485,39 @@ namespace BrightData.Cuda.CudaToolkit
         public SizeT dstZ;
         public SizeT dstLOD;
         public CuMemoryType dstMemoryType;
-        public IntPtr dstHost;
-        public CUdeviceptr dstDevice;
-        public CUarray dstArray;
-        public CUcontext dstContext;
+        public nint dstHost;
+        public CuDevicePtr dstDevice;
+        public CuArray dstArray;
+        public CuContext dstContext;
         public SizeT dstPitch;
         public SizeT dstHeight;
         public SizeT WidthInBytes;
         public SizeT Height;
         public SizeT Depth;
     }
-    public enum CUmemRangeHandleType
+    internal enum CuMemRangeHandleType
     {
         DmaBufFd = 0x1,
         Max = 0x7FFFFFFF,
     }
-    public enum CuCtxAttachFlags
+    internal enum CuCtxAttachFlags
     {
         None = 0
     }
-    public enum CUmemAttachFlags
+    internal enum CuMemAttachFlags
     {
         Global = 1,
         Host = 2,
         Single = 4
     }
     [Flags]
-    public enum CUmemAllocationGranularityFlags
+    internal enum CuMemAllocationGranularityFlags
     {
         Minimum = 0x0,
         Recommended = 0x1
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaArrayDescriptor
+    internal struct CudaArrayDescriptor
     {
         public SizeT Width;
         public SizeT Height;
@@ -2703,27 +1525,27 @@ namespace BrightData.Cuda.CudaToolkit
         public uint NumChannels;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaArraySparseProperties
+    internal struct CudaArraySparseProperties
     {
         [StructLayout(LayoutKind.Sequential)]
-        public struct TileExtent
+        internal struct TileExtent
         {
             public uint width;
             public uint height;
             public uint depth;
         }
         public TileExtent tileExtent;
-        public uint miptailFirstLevel;
-        public ulong miptailSize;
+        public uint mipTailFirstLevel;
+        public ulong mipTailSize;
         public CuArraySparsePropertiesFlags flags;
 
-        uint reserved0;
-        uint reserved1;
-        uint reserved2;
-        uint reserved3;
+        readonly uint reserved0;
+        readonly uint reserved1;
+        readonly uint reserved2;
+        readonly uint reserved3;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaArray3DDescriptor
+    internal struct CudaArray3DDescriptor
     {
         public SizeT Width;
         public SizeT Height;
@@ -2732,32 +1554,13 @@ namespace BrightData.Cuda.CudaToolkit
         public uint NumChannels;
         public CudaArray3DFlags Flags;
     }
-    public enum CuTexRefSetArrayFlags
-    {
-        None = 0,
-        OverrideFormat = 1
-    }
-    [Flags]
-    public enum CuTexRefSetFlags
-    {
-        None = 0,
-        ReadAsInteger = 1,
-        NormalizedCoordinates = 2,
-        SRgb = 0x10,
-        DisableTrilinearOptimization = 0x20,
-        SeamlessCubeMap = 0x40
-    }
-    public enum CuSurfRefSetFlags
-    {
-        None = 0
-    }
-    public enum CUstreamCaptureMode
+    internal enum CuStreamCaptureMode
     {
         Global = 0,
         Local = 1,
         Relaxed = 2
     }
-    public enum CUdeviceP2PAttribute
+    internal enum CuDeviceP2PAttribute
     {
         PerformanceRank = 0x01,
         AccessSupported = 0x02,
@@ -2766,226 +1569,19 @@ namespace BrightData.Cuda.CudaToolkit
         AccessAccessSupported = 0x04,
         CudaArrayAccessAccessSupported = 0x04
     }
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct CudaResourceDesc
-    {
-        public CudaResourceDesc(CudaMipmappedArray var)
-        {
-            resType = CuResourceType.MipmappedArray;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.linear = new CudaResourceDescLinear();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.hMipmappedArray = var.CuMipmappedArray;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<float> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.Float;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<int> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.SignedInt32;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<short> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.SignedInt16;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<sbyte> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.SignedInt8;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<byte> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.UnsignedInt8;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<ushort> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.UnsignedInt16;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaDeviceVariable<uint> var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = new CudaResourceDescLinear();
-
-            res.linear.devPtr = var.DevicePointer;
-            res.linear.format = CuArrayFormat.UnsignedInt32;
-            res.linear.numChannels = 1;
-            res.linear.sizeInBytes = var.SizeInBytes;
-        }
-        public CudaResourceDesc(CudaResourceDescLinear var)
-        {
-            resType = CuResourceType.Linear;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.pitch2D = new CudaResourceDescPitch2D();
-            res.linear = var;
-        }
-        public CudaResourceDesc(CudaResourceDescPitch2D var)
-        {
-            resType = CuResourceType.Pitch2D;
-            flags = 0;
-            res = new CudaResourceDescUnion();
-            res.hArray = new CUarray();
-            res.hMipmappedArray = new CUmipmappedArray();
-            res.linear = new CudaResourceDescLinear();
-            res.pitch2D = var;
-        }
-        public CuResourceType resType;
-        public CudaResourceDescUnion res;
-        public uint flags;
-    }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct CudaResourceDescUnion
-    {
-        [FieldOffset(0)] public CUarray hArray;
-        [FieldOffset(0)] public CUmipmappedArray hMipmappedArray;
-        [FieldOffset(0)] public CudaResourceDescLinear linear;
-        [FieldOffset(0)] public CudaResourceDescPitch2D pitch2D;
-        [FieldOffset(31 * 4)] int reserved;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CudaResourceDescLinear
-    {
-        public CUdeviceptr devPtr;
-        public CuArrayFormat format;
-        public uint numChannels;
-        public SizeT sizeInBytes;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CudaResourceDescPitch2D
-    {
-        public CUdeviceptr devPtr;
-        public CuArrayFormat format;
-        public uint numChannels;
-        public SizeT width;
-        public SizeT height;
-        public SizeT pitchInBytes;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CudaResourceViewDesc
-    {
-        public CUresourceViewFormat format;
-        public SizeT width;
-        public SizeT height;
-        public SizeT depth;
-        public uint firstMipmapLevel;
-        public uint lastMipmapLevel;
-        public uint firstLayer;
-        public uint lastLayer;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.I4)]
-        int[] _reserved;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CUsurfObject
-    {
-        public ulong Pointer;
-    }
-    public enum CUoutputMode
+    internal enum CuOutputMode
     {
         KeyValuePair = 0x00,
         Csv = 0x01
     }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct CudaExternalMemoryHandleDesc
-    {
-        [FieldOffset(0)] public CUexternalMemoryHandleType type;
-        [FieldOffset(8)] public HandleUnion handle;
-        [FieldOffset(24)] public ulong size;
-        [FieldOffset(32)] public CudaExternalMemory flags;
-        [FieldOffset(100)] uint reserved;
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CudaExternalMemoryBufferDesc
-    {
-        public ulong offset;
-        public ulong size;
-        public uint flags;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U4)]
-        uint[] reserved;
-    }
     [Flags]
-    public enum CuArraySparsePropertiesFlags : uint
+    internal enum CuArraySparsePropertiesFlags : uint
     {
         None = 0,
-        SingleMiptail = 0x1
+        SingleMipTail = 0x1
     }
     [Flags]
-    public enum CudaArray3DFlags
+    internal enum CudaArray3DFlags
     {
         None = 0,
         [Obsolete("Since CUDA Version 4.0. Use <Layered> instead")]
@@ -2999,125 +1595,33 @@ namespace BrightData.Cuda.CudaToolkit
         Sparse = 0x40,
         DeferredMapping = 0x80
     }
-    public enum CUtensorMapInterleave
+    internal enum CuTensorMapInterleave
     {
         None = 0,
         Interleave16B,
         Interleave32B
     }
-    public enum CUtensorMapSwizzle
+    internal enum CuTensorMapSwizzle
     {
         None = 0,
         Swizzle32B,
         Swizzle64B,
         Swizzle128B
     }
-    public enum CUtensorMapL2Promotion
+    internal enum CuTensorMapL2Promotion
     {
         None = 0,
         L264B,
         L2128B,
         L2256B
     }
-    public class CudaMipmappedArray : IDisposable
-    {
-        CUmipmappedArray _mipmappedArray;
-        CudaArray3DDescriptor _arrayDescriptor;
-        CuResult _res;
-        bool _disposed;
-        bool _isOwner;
-        public CudaMipmappedArray(CudaArray3DDescriptor descriptor, uint numMipmapLevels)
-        {
-            _mipmappedArray = new CUmipmappedArray();
-            _arrayDescriptor = descriptor;
-
-            _res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayCreate(ref _mipmappedArray, ref _arrayDescriptor, numMipmapLevels);
-            
-            if (_res != CuResult.Success) throw new CudaException(_res);
-            _isOwner = true;
-        }
-        public CudaMipmappedArray(CuArrayFormat format, SizeT width, SizeT height, SizeT depth, CudaMipmappedArrayNumChannels numChannels, CudaArray3DFlags flags, uint numMipmapLevels)
-        {
-            _mipmappedArray = new CUmipmappedArray();
-            _arrayDescriptor = new CudaArray3DDescriptor();
-            _arrayDescriptor.Width = width;
-            _arrayDescriptor.Height = height;
-            _arrayDescriptor.Depth = depth;
-            _arrayDescriptor.NumChannels = (uint)numChannels;
-            _arrayDescriptor.Flags = flags;
-            _arrayDescriptor.Format = format;
-
-
-            _res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayCreate(ref _mipmappedArray, ref _arrayDescriptor, numMipmapLevels);
-            
-            if (_res != CuResult.Success) throw new CudaException(_res);
-            _isOwner = true;
-        }
-        public CudaMipmappedArray(CUmipmappedArray handle, CuArrayFormat format, CudaMipmappedArrayNumChannels numChannels)
-        {
-            _mipmappedArray = handle;
-            _arrayDescriptor = new CudaArray3DDescriptor();
-            _arrayDescriptor.Format = format;
-            _arrayDescriptor.NumChannels = (uint)numChannels;
-            _isOwner = false;
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool fDisposing)
-        {
-            if (fDisposing && !_disposed) {
-                if (_isOwner) {
-                    _res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayDestroy(_mipmappedArray);
-                }
-
-                _disposed = true;
-            }
-        }
-        public CUarray GetLevelAsCuArray(uint level)
-        {
-            var array = new CUarray();
-
-            _res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayGetLevel(ref array, _mipmappedArray, level);
-            
-            if (_res != CuResult.Success)
-                throw new CudaException(_res);
-
-            return array;
-        }
-        public CudaArraySparseProperties GetSparseProperties()
-        {
-            var sparseProperties = new CudaArraySparseProperties();
-
-            _res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayGetSparseProperties(ref sparseProperties, _mipmappedArray);
-            
-            if (_res != CuResult.Success)
-                throw new CudaException(_res);
-
-            return sparseProperties;
-        }
-        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
-        {
-            return _mipmappedArray.GetMemoryRequirements(device);
-        }
-        public CUmipmappedArray CuMipmappedArray => _mipmappedArray;
-        public CudaArray3DDescriptor Array3DDescriptor => _arrayDescriptor;
-        public SizeT Depth => _arrayDescriptor.Depth;
-        public SizeT Height => _arrayDescriptor.Height;
-        public SizeT Width => _arrayDescriptor.Width;
-        public CudaArray3DFlags Flags => _arrayDescriptor.Flags;
-        public CuArrayFormat Format => _arrayDescriptor.Format;
-        public uint NumChannels => _arrayDescriptor.NumChannels;
-        public bool IsOwner => _isOwner;
-    }
-    public enum CUtensorMapFloatOoBfill
+    
+    internal enum CuTensorMapFloatOoBfill
     {
         None = 0,
         NanRequestZeroFma
     }
-    public enum CUresourceViewFormat
+    internal enum CuResourceViewFormat
     {
         None = 0x00,
         Uint1X8 = 0x01,
@@ -3155,62 +1659,33 @@ namespace BrightData.Cuda.CudaToolkit
         SignedBc6H = 0x21,
         UnsignedBc7 = 0x22
     }
-    public enum CUexternalMemoryHandleType
-    {
-        OpaqueFd = 1,
-        OpaqueWin32 = 2,
-        OpaqueWin32Kmt = 3,
-        D3D12Heap = 4,
-        D3D12Resource = 5,
-        D3D11Resource = 6,
-        D3D11ResourceKmt = 7,
-        NvSciBuf = 8
-    }
     [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
-    public struct HandleUnion
+    internal struct HandleUnion
     {
         [FieldOffset(0)] public int fd;
         [FieldOffset(0)] public Win32Handle win32;
-        [FieldOffset(0)] public IntPtr nvSciBufObject;
+        [FieldOffset(0)] public nint nvSciBufObject;
     }
     [Flags]
-    public enum CudaExternalMemory
+    internal enum CudaExternalMemory
     {
         Nothing = 0x0,
         Dedicated = 0x01,
     }
-    public enum CudaMipmappedArrayNumChannels
+    internal enum CudaMipMappedArrayNumChannels
     {
         One = 1,
         Two = 2,
         Four = 4
     }
     [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
-    public struct Win32Handle
+    internal struct Win32Handle
     {
-        [FieldOffset(0)] public IntPtr handle;
+        [FieldOffset(0)] public nint handle;
         [FieldOffset(8)] [MarshalAs(UnmanagedType.LPStr)]
         public string name;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CudaExternalMemoryMipmappedArrayDesc
-    {
-        public ulong offset;
-        public CudaArray3DDescriptor arrayDesc;
-        public uint numLevels;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U4)]
-        uint[] reserved;
-    }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct CudaExternalSemaphoreHandleDesc
-    {
-        [FieldOffset(0)] public CUexternalSemaphoreHandleType type;
-        [FieldOffset(8)] public HandleUnion handle;
-        [FieldOffset(32)] public uint flags;
-        [FieldOffset(92)] uint reserved;
-    }
-    public enum CUexternalSemaphoreHandleType
+    internal enum CuExternalSemaphoreHandleType
     {
         OpaqueFd = 1,
         OpaqueWin32 = 2,
@@ -3224,7 +1699,7 @@ namespace BrightData.Cuda.CudaToolkit
         TimelineSemaphoreWin32 = 10
     }
     [Flags]
-    public enum CUgraphInstantiateFlags : ulong
+    internal enum CuGraphInstantiateFlags : ulong
     {
         None = 0,
         AutoFreeOnLaunch = 1,
@@ -3236,18 +1711,18 @@ namespace BrightData.Cuda.CudaToolkit
     internal struct CudaGraphInstantiateParams
     {
         public ulong flags;
-        public CUstream hUploadStream;
-        public CUgraphNode hErrNode_out;
-        public CUgraphInstantiateResult result_out;
+        public CuStream hUploadStream;
+        public CuGraphNode hErrNode_out;
+        public CuGraphInstantiateResult result_out;
     }
     [StructLayout(LayoutKind.Sequential)]
-    internal struct CUgraphExecUpdateResultInfo
+    internal struct CuGraphExecUpdateResultInfo
     {
-        public CUgraphExecUpdateResult result;
-        public CUgraphNode errorNode;
-        public CUgraphNode errorFromNode;
+        public CuGraphExecUpdateResult result;
+        public CuGraphNode errorNode;
+        public CuGraphNode errorFromNode;
     }
-    public enum CUgraphExecUpdateResult
+    internal enum CuGraphExecUpdateResult
     {
         Success = 0x0,
         Error = 0x1,
@@ -3259,7 +1734,7 @@ namespace BrightData.Cuda.CudaToolkit
         ErrorUnsupportedFunctionChange = 0x7,
         ErrorAttributesChanged = 0x8
     }
-    public enum CUgraphInstantiateResult
+    internal enum CuGraphInstantiateResult
     {
         Success = 0,
         Error = 1,
@@ -3268,7 +1743,7 @@ namespace BrightData.Cuda.CudaToolkit
         MultipleCtxsNotSupported = 4
     }
     [Flags]
-    public enum CUgraphDebugDotFlags
+    internal enum CuGraphDebugDotFlags
     {
         None = 0,
         Verbose = 1 << 0,
@@ -3288,260 +1763,18 @@ namespace BrightData.Cuda.CudaToolkit
         ExtraTopoInfo = 1 << 14
     }
     [Flags]
-    public enum CUuserObjectFlags
+    internal enum CuUserObjectFlags
     {
         None = 0,
         NoDestructorSync = 1
     }
     [Flags]
-    public enum CUuserObjectRetainFlags
+    internal enum CuUserObjectRetainFlags
     {
         None = 0,
         Move = 1
     }
-    public enum CUflushGpuDirectRdmaWritesTarget
-    {
-        CurrentCtx = 0
-    }
-    public enum CUflushGpuDirectRdmaWritesScope
-    {
-        WritesToOwner = 100,
-        WritesToAllDevices = 200
-    }
-    public interface ICudaVectorType
-    {
-        uint Size { get; }
-    }
-    public interface ICudaVectorTypeForArray
-    {
-        uint GetChannelNumber();
-        CuArrayFormat GetCuArrayFormat();
-    }
-    public enum CugpuDirectRdmaWritesOrdering
-    {
-        None = 0,
-        Owner = 100,
-        AllDevices = 200
-    }
-    [Flags]
-    public enum CUflushGpuDirectRdmaWritesOptions
-    {
-        None = 0,
-        Host = 1 << 0,
-        Memops = 1 << 1
-    }
-    public enum CuComputeMode
-    {
-        Default = 0,
-        Prohibited = 2,
-        ExclusiveProcess = 2
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Dim3
-    {
-        public uint x;
-        public uint y;
-        public uint z;
-        public static Dim3 Add(Dim3 src, Dim3 value)
-        {
-            var ret = new Dim3(src.x + value.x, src.y + value.y, src.z + value.z);
-            return ret;
-        }
-        public static Dim3 Add(Dim3 src, uint value)
-        {
-            var ret = new Dim3(src.x + value, src.y + value, src.z + value);
-            return ret;
-        }
-        public static Dim3 Add(uint src, Dim3 value)
-        {
-            var ret = new Dim3(src + value.x, src + value.y, src + value.z);
-            return ret;
-        }
-        public static Dim3 Subtract(Dim3 src, Dim3 value)
-        {
-            var ret = new Dim3(src.x - value.x, src.y - value.y, src.z - value.z);
-            return ret;
-        }
-        public static Dim3 Subtract(Dim3 src, uint value)
-        {
-            var ret = new Dim3(src.x - value, src.y - value, src.z - value);
-            return ret;
-        }
-        public static Dim3 Subtract(uint src, Dim3 value)
-        {
-            var ret = new Dim3(src - value.x, src - value.y, src - value.z);
-            return ret;
-        }
-        public static Dim3 Multiply(Dim3 src, Dim3 value)
-        {
-            var ret = new Dim3(src.x * value.x, src.y * value.y, src.z * value.z);
-            return ret;
-        }
-        public static Dim3 Multiply(Dim3 src, uint value)
-        {
-            var ret = new Dim3(src.x * value, src.y * value, src.z * value);
-            return ret;
-        }
-        public static Dim3 Multiply(uint src, Dim3 value)
-        {
-            var ret = new Dim3(src * value.x, src * value.y, src * value.z);
-            return ret;
-        }
-        public static Dim3 Divide(Dim3 src, Dim3 value)
-        {
-            var ret = new Dim3(src.x / value.x, src.y / value.y, src.z / value.z);
-            return ret;
-        }
-        public static Dim3 Divide(Dim3 src, uint value)
-        {
-            var ret = new Dim3(src.x / value, src.y / value, src.z / value);
-            return ret;
-        }
-        public static Dim3 Divide(uint src, Dim3 value)
-        {
-            var ret = new Dim3(src / value.x, src / value.y, src / value.z);
-            return ret;
-        }
-        public static Dim3 operator +(Dim3 src, Dim3 value)
-        {
-            return Add(src, value);
-        }
-        public static Dim3 operator +(Dim3 src, uint value)
-        {
-            return Add(src, value);
-        }
-        public static Dim3 operator +(uint src, Dim3 value)
-        {
-            return Add(src, value);
-        }
-        public static Dim3 operator -(Dim3 src, Dim3 value)
-        {
-            return Subtract(src, value);
-        }
-        public static Dim3 operator -(Dim3 src, uint value)
-        {
-            return Subtract(src, value);
-        }
-        public static Dim3 operator -(uint src, Dim3 value)
-        {
-            return Subtract(src, value);
-        }
-        public static Dim3 operator *(Dim3 src, Dim3 value)
-        {
-            return Multiply(src, value);
-        }
-        public static Dim3 operator *(Dim3 src, uint value)
-        {
-            return Multiply(src, value);
-        }
-        public static Dim3 operator *(uint src, Dim3 value)
-        {
-            return Multiply(src, value);
-        }
-        public static Dim3 operator /(Dim3 src, Dim3 value)
-        {
-            return Divide(src, value);
-        }
-        public static Dim3 operator /(Dim3 src, uint value)
-        {
-            return Divide(src, value);
-        }
-        public static Dim3 operator /(uint src, Dim3 value)
-        {
-            return Divide(src, value);
-        }
-        public static bool operator ==(Dim3 src, Dim3 value)
-        {
-            return src.Equals(value);
-        }
-        public static bool operator !=(Dim3 src, Dim3 value)
-        {
-            return !(src == value);
-        }
-        public static implicit operator Dim3(int value)
-        {
-            return new Dim3(value);
-        }
-        public static implicit operator Dim3(uint value)
-        {
-            return new Dim3(value);
-        }
-        public override bool Equals(object? obj)
-        {
-            if (obj is not Dim3 value) 
-                return false;
-
-            var ret = true;
-            ret &= this.x == value.x;
-            ret &= this.y == value.y;
-            ret &= this.z == value.z;
-            return ret;
-        }
-        public bool Equals(Dim3 value)
-        {
-            var ret = true;
-            ret &= this.x == value.x;
-            ret &= this.y == value.y;
-            ret &= this.z == value.z;
-            return ret;
-        }
-        public override int GetHashCode()
-        {
-            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
-        }
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.CurrentCulture, "({0}; {1}; {2})", this.x, this.y, this.z);
-        }
-        public Dim3(uint xValue, uint yValue, uint zValue)
-        {
-            this.x = xValue;
-            this.y = yValue;
-            this.z = zValue;
-        }
-        public Dim3(uint xValue, uint yValue)
-        {
-            this.x = xValue;
-            this.y = yValue;
-            this.z = 1;
-        }
-        public Dim3(uint val)
-        {
-            this.x = val;
-            this.y = 1;
-            this.z = 1;
-        }
-        public Dim3(int xValue, int yValue, int zValue)
-        {
-            this.x = (uint)xValue;
-            this.y = (uint)yValue;
-            this.z = (uint)zValue;
-        }
-        public Dim3(int xValue, int yValue)
-        {
-            this.x = (uint)xValue;
-            this.y = (uint)yValue;
-            this.z = 1;
-        }
-        public Dim3(int val)
-        {
-            this.x = (uint)val;
-            this.y = 1;
-            this.z = 1;
-        }
-        public static Dim3 Min(Dim3 aValue, Dim3 bValue)
-        {
-            return new Dim3(System.Math.Min(aValue.x, bValue.x), System.Math.Min(aValue.y, bValue.y), System.Math.Min(aValue.z, bValue.z));
-        }
-        public static Dim3 Max(Dim3 aValue, Dim3 bValue)
-        {
-            return new Dim3(System.Math.Max(aValue.x, bValue.x), System.Math.Max(aValue.y, bValue.y), System.Math.Max(aValue.z, bValue.z));
-        }
-        public static uint SizeOf => (uint)Marshal.SizeOf(typeof(Dim3));
-        public uint Size => (uint)Marshal.SizeOf(this);
-    }
-
-    public enum CusolverStatus
+    internal enum CuSolverStatus
     {
         Success = 0,
         NotInititialized = 1,
@@ -3555,39 +1788,38 @@ namespace BrightData.Cuda.CudaToolkit
         NotSupported = 9,
         ZeroPivot = 10,
         InvalidLicense = 11,
-        CusolverStatusIrsParamsNotInitialized = 12,
-        CusolverStatusIrsParamsInvalid = 13,
-
-        CusolverStatusIrsParamsInvalidPrec = 14,
-        CusolverStatusIrsParamsInvalidRefine = 15,
-        CusolverStatusIrsParamsInvalidMaxiter = 16,
-        CusolverStatusIrsInternalError = 20,
-        CusolverStatusIrsNotSupported = 21,
-        CusolverStatusIrsOutOfRange = 22,
-        CusolverStatusIrsNrhsNotSupportedForRefineGmres = 23,
-        CusolverStatusIrsInfosNotInitialized = 25,
-        CusolverStatusIrsInfosNotDestroyed = 26,
-        CusolverStatusIrsMatrixSingular = 30,
-        CusolverStatusInvalidWorkspace = 31
+        CuSolverStatusIrsParamsNotInitialized = 12,
+        CuSolverStatusIrsParamsInvalid = 13,
+        CuSolverStatusIrsParamsInvalidPrec = 14,
+        CuSolverStatusIrsParamsInvalidRefine = 15,
+        CuSolverStatusIrsParamsInvalidMaxiter = 16,
+        CuSolverStatusIrsInternalError = 20,
+        CuSolverStatusIrsNotSupported = 21,
+        CuSolverStatusIrsOutOfRange = 22,
+        CuSolverStatusIrsNrhsNotSupportedForRefineGmres = 23,
+        CuSolverStatusIrsInfosNotInitialized = 25,
+        CuSolverStatusIrsInfosNotDestroyed = 26,
+        CuSolverStatusIrsMatrixSingular = 30,
+        CuSolverStatusInvalidWorkspace = 31
     }
-    public enum CusolverEigType
+    internal enum CuSolverEigType
     {
         Type1 = 1,
         Type2 = 2,
         Type3 = 3
     }
-    public enum CusolverEigMode
+    internal enum CuSolverEigMode
     {
         NoVector = 0,
         Vector = 1
     }
-    public enum CusolverEigRange
+    internal enum CuSolverEigRange
     {
         All = 1001,
         I = 1002,
         V = 1003,
     }
-    public enum CusolverIrsRefinement
+    internal enum CuSolverIrsRefinement
     {
         NotSet = 1100,
         None = 1101,
@@ -3602,7 +1834,7 @@ namespace BrightData.Cuda.CudaToolkit
         PrecSht = 1152,
     }
 
-    public enum CusolverPrecType
+    internal enum CuSolverPrecType
     {
         CusolverR8I = 1201,
         CusolverR8U = 1202,
@@ -3622,7 +1854,7 @@ namespace BrightData.Cuda.CudaToolkit
         CusolverCAp = 1218,
     }
 
-    public enum CusolverAlgMode
+    internal enum CuSolverAlgMode
     {
         CusolverAlg0 = 0,
         CusolverAlg1 = 1,
@@ -3630,80 +1862,80 @@ namespace BrightData.Cuda.CudaToolkit
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverDnHandle
+    public struct CuSolverDnHandle
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct SyevjInfo
+    internal struct SyevjInfo
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct GesvdjInfo
+    internal struct GesvdjInfo
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverDnIrsParams
+    internal struct CuSolverDnIrsParams
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverDnIrsInfos
+    internal struct CuSolverDnIrsInfos
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverDnParams
+    internal struct CuSolverDnParams
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public enum CusolverDnFunction
+    internal enum CuSolverDnFunction
     {
-        CusolverdnGetrf = 0,
-        CusolverdnPotrf = 1
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverSpHandle
-    {
-        public IntPtr Pointer;
+        CuSolverdnGetrf = 0,
+        CuSolverdnPotrf = 1
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CusolverRfHandle
+    internal struct CuSolverSpHandle
     {
-        public IntPtr Pointer;
+        public nint Pointer;
     }
-    public enum ResetValuesFastMode
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CuSolverRfHandle
+    {
+        public nint Pointer;
+    }
+    internal enum ResetValuesFastMode
     {
         Off = 0,
         On = 1
     }
-    public enum MatrixFormat
+    internal enum MatrixFormat
     {
         Csr = 0,
         Csc = 1
     }
-    public enum UnitDiagonal
+    internal enum UnitDiagonal
     {
         StoredL = 0,
         StoredU = 1,
         AssumedL = 2,
         AssumedU = 3
     }
-    public enum Factorization
+    internal enum Factorization
     {
         Alg0 = 0,
         Alg1 = 1,
         Alg2 = 2,
     }
-    public enum TriangularSolve
+    internal enum TriangularSolve
     {
         Alg1 = 1,
         Alg2 = 2,
         Alg3 = 3
     }
-    public enum NumericBoostReport
+    internal enum NumericBoostReport
     {
         NotUsed = 0,
         Used = 1

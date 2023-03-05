@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.DataTable;
 
 namespace BrightData.Cuda.Helper

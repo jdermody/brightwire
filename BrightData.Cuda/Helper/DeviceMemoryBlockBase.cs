@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Helper;
 using Math = System.Math;
 
@@ -101,7 +102,7 @@ namespace BrightData.Cuda.Helper
         public CudaDeviceVariable<float> DeviceVariable => _data;
 
         /// <inheritdoc />
-        public CUdeviceptr DevicePointer => _data.DevicePointer;
+        public CuDevicePtr DevicePointer => _data.DevicePointer;
 
         /// <inheritdoc />
         public virtual void CopyToDevice(float[] source)
@@ -168,7 +169,7 @@ namespace BrightData.Cuda.Helper
         public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)
         {
             var offsetPtr = _data.DevicePointer.Pointer + (offsetInFloats * sizeof(float));
-            return new PtrToMemory(this, new CUdeviceptr(offsetPtr), size * sizeof(float));
+            return new PtrToMemory(this, new CuDevicePtr(offsetPtr), size * sizeof(float));
         }
 
         /// <inheritdoc />

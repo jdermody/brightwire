@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
@@ -13,7 +13,7 @@ namespace BrightData.Cuda.Helper
         readonly CudaDeviceVariable<float> _ptr;
         bool                               _addedReference = false;
 
-        public PtrToMemory(IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
+        public PtrToMemory(IDeviceMemoryPtr rootBlock, CuDevicePtr ptr, SizeT size)
         {
             _ptr       = new CudaDeviceVariable<float>(ptr, false, size);
 	        _rootBlock = rootBlock;
@@ -26,7 +26,7 @@ namespace BrightData.Cuda.Helper
         }
 
         public CudaDeviceVariable<float> DeviceVariable => _ptr;
-        public CUdeviceptr DevicePointer => _ptr.DevicePointer;
+        public CuDevicePtr DevicePointer => _ptr.DevicePointer;
         public uint Size => _ptr.Size;
 
         public void CopyToHost(ArraySegment<float> target) => _ptr.CopyToHost(target.Array, 0, target.Offset, target.Count * sizeof(float));
@@ -39,7 +39,7 @@ namespace BrightData.Cuda.Helper
         public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)
         {
             var offsetPtr = _ptr.DevicePointer.Pointer + (offsetInFloats * sizeof(float));
-            return new PtrToMemory(_rootBlock, new CUdeviceptr(offsetPtr), size * sizeof(float));
+            return new PtrToMemory(_rootBlock, new CuDevicePtr(offsetPtr), size * sizeof(float));
         }
 
         public void CopyToDevice(float[] source)

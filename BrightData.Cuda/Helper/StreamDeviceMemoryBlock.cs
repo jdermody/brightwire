@@ -7,24 +7,25 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Helper;
 
 namespace BrightData.Cuda.Helper
 {
     internal unsafe class StreamDeviceMemoryBlock : DeviceMemoryBlockBase
     {
-        readonly CUstream _stream;
+        readonly CuStream _stream;
         readonly bool _isStreamOwner;
 
-        public StreamDeviceMemoryBlock(CUstream stream, uint size, bool isStreamOwner) : base(Create(stream, size))
+        public StreamDeviceMemoryBlock(CuStream stream, uint size, bool isStreamOwner) : base(Create(stream, size))
         {
             _stream = stream;
             _isStreamOwner = isStreamOwner;
         }
 
-        static CudaDeviceVariable<float> Create(CUstream stream, uint size)
+        static CudaDeviceVariable<float> Create(CuStream stream, uint size)
         {
-            var ptr = new CUdeviceptr();
+            var ptr = new CuDevicePtr();
             var sizeInBytes = size * sizeof(float);
             DriverApiNativeMethods.MemoryManagement.cuMemAllocAsync(ref ptr, sizeInBytes, stream).CheckResult();
             return new CudaDeviceVariable<float>(ptr, false);

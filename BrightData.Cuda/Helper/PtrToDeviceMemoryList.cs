@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Linq;
-using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
     internal class PtrToDeviceMemoryList : IDisposable
     {
-		readonly CudaDeviceVariable<CUdeviceptr> _ptr;
+		readonly CudaDeviceVariable<CuDevicePtr> _ptr;
 
 	    public PtrToDeviceMemoryList(IHaveDeviceMemory[] list)
 	    {
-		    _ptr = new CudaDeviceVariable<CUdeviceptr>(list.Length);
+		    _ptr = new CudaDeviceVariable<CuDevicePtr>(list.Length);
 		    _ptr.CopyToDevice(list.Select(d => d.Memory.DevicePointer).ToArray());
 	    }
 
-        public CUdeviceptr DevicePointer => _ptr.DevicePointer;
+        public CuDevicePtr DevicePointer => _ptr.DevicePointer;
 
 	    public void Dispose()
 	    {

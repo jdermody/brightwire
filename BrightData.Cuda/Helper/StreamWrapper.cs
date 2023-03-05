@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
@@ -11,11 +12,11 @@ namespace BrightData.Cuda.Helper
     {
         public StreamWrapper()
         {
-            var stream = new CUstream();
+            var stream = new CuStream();
             DriverApiNativeMethods.Streams.cuStreamCreate(ref stream, CuStreamFlags.Default).CheckResult();
             Stream = stream;
         }
-        public CUstream Stream { get; }
+        public CuStream Stream { get; }
 
         public IDeviceMemoryPtr AllocateMasterBlock(uint size) => new StreamDeviceMemoryBlock(Stream, size, true);
 

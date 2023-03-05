@@ -47,7 +47,7 @@ namespace BrightData.Cuda.CudaToolkit
                 CuResult.ErrorInvalidValue                => "This indicates that one or more of the parameters passed to the API call is not within an acceptable range of values.",
                 CuResult.ErrorOutOfMemory                 => "The API call failed because it was unable to allocate enough memory to perform the requested operation.",
                 CuResult.ErrorNotInitialized              => "The CUDA driver API is not yet initialized. Call cuInit(Flags) before any other driver API call.",
-                CuResult.ErrorDeinitialized               => "This indicates that the CUDA driver is in the process of shutting down.",
+                CuResult.ErrorUninitialized               => "This indicates that the CUDA driver is in the process of shutting down.",
                 CuResult.ErrorProfilerDisabled            => "This indicates profiling APIs are called while application is running in visual profiler mode.",
                 CuResult.ErrorStubLibrary                 => "This indicates that the CUDA driver that the application has loaded is a stub library. Applications that run with the stub rather than a real driver loaded will result in CUDA API returning this error.",
                 CuResult.ErrorDeviceUnavailable           => "This indicates that requested CUDA device is unavailable at the current time. Devices are often unavailable due to use of ::CU_COMPUTEMODE_EXCLUSIVE_PROCESS or ::CU_COMPUTEMODE_PROHIBITED.",
