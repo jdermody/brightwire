@@ -48,8 +48,8 @@ namespace BrightData.Cuda
 				}
 
 				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(_function,
-					_block.x, _block.y, _block.z,
-					_thread.x, _thread.y, _thread.z,
+					_block.X, _block.Y, _block.Z,
+					_thread.X, _thread.Y, _thread.Z,
 					sharedMemSize,
                     stream,
 					paramList,
@@ -94,7 +94,7 @@ namespace BrightData.Cuda
         readonly CuStream _defaultStream = new();
         readonly MemoryPool _memoryPool;
 
-        internal readonly CuFunction
+        readonly CuFunction
 			_pointwiseMultiply,
 			_addInPlace,
 			_subtractInPlace,
@@ -388,7 +388,7 @@ namespace BrightData.Cuda
 			execution.Run(stream is not null ? *stream : _defaultStream, 0, param);
 		}
 
-        internal void InvokeTensor(CuFunction function, CuStream* stream, uint rows, uint columns, uint depth, params object[] param)
+        private void InvokeTensor(CuFunction function, CuStream* stream, uint rows, uint columns, uint depth, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
@@ -1042,6 +1042,33 @@ namespace BrightData.Cuda
             if (!_convolutionDataCache.TryGetValue(list, out var ret))
                 _convolutionDataCache.Add(list, ret = new ConvolutionsData(this, list));
             return ret;
+        }
+
+        internal void MultiCosine(uint size, uint columns, uint rows, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr aa, CuDevicePtr ret, CuDevicePtr bb)
+        {
+            InvokeTensor(_multiCosine, null, size, columns, rows,
+                vectorPtr,
+                compareToPtr,
+                aa,
+                ret,
+                bb,
+                rows,
+                columns,
+                size
+            );
+        }
+
+        internal void CalculateDistances(uint size, uint columns, uint rows, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr ret, DistanceMetric distanceMetric)
+        {
+            InvokeTensor(_calculateDistance, null, size, columns, rows,
+                vectorPtr,
+                compareToPtr,
+                ret,
+                rows,
+                columns,
+                size,
+                (uint)distanceMetric
+            );
         }
 
         internal void CopyToMatrixRows(uint rows, uint columns, CudaDeviceVariable<CuDevicePtr> from, IDeviceMemoryPtr to, CuStream* stream = null)

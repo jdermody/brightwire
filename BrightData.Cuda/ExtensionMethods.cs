@@ -15,10 +15,10 @@ namespace BrightData.Cuda
     public static class ExtensionMethods
     {
         /// <summary>
-        /// Creates a linear alebra provider that runs on the GPU
+        /// Creates a linear algebra provider that runs on the GPU
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
+        /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatibility)</param>
         public static CudaProvider CreateCudaProvider(this BrightDataContext context, string? cudaKernelPath = null)
         {
             if (cudaKernelPath != null && !File.Exists(cudaKernelPath))

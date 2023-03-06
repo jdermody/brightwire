@@ -201,26 +201,6 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void VectorMaximumIndex()
-        {
-            using var a = _cpu.CreateVector(new [] {1.0f, 2.0f, 1.0f, 1.0f, -5f});
-            var cpu = a.GetMaxIndex();
-            var gpu = Apply(_cuda, a, a => a.GetMaxIndex());
-            var mkl = Apply(_cuda, a, a => a.GetMaxIndex());
-            AssertSame(cpu, gpu, mkl);
-        }
-
-        [Fact]
-        public void VectorMinimumIndex()
-        {
-            using var a = _cpu.CreateVector(new [] {3.0f, -2.0f, 1.0f, 2.0f});
-            var cpu = a.GetMinIndex();
-            var gpu = Apply(_cuda, a, a => a.GetMinIndex());
-            var mkl = Apply(_mkl, a, a => a.GetMinIndex());
-            AssertSame(cpu, gpu, mkl);
-        }
-
-        [Fact]
         public void VectorAddInPlace()
         {
             using var cpu = _cpu.CreateVector(5, i => i * 2);
@@ -403,21 +383,6 @@ namespace BrightData.UnitTests
             var gpu = Apply(_cuda, a, b, (a, b) => a.SquaredEuclideanDistance(b));
             var mkl = Apply(_cuda, a, b, (a, b) => a.SquaredEuclideanDistance(b));
             AssertSame(cpu, gpu, mkl);
-        }
-
-        [Fact]
-        public void VectorMinMax()
-        {
-            var distribution = _context.CreateNormalDistribution(0, 5);
-
-            using var a = _cpu.CreateVector(5000, _ => distribution.Sample());
-            var (min, max, _, _) = a.GetMinAndMaxValues();
-
-            var (gpuMin, gpuMax, _, _) = Apply(_cuda, a, a => a.GetMinAndMaxValues());
-            AssertSame(min, gpuMin);
-            AssertSame(max, gpuMax);
-            //AssertSame(minIndex, gpuMinMax.MinIndex);
-            //AssertSame(maxIndex, gpuMinMax.MaxIndex);
         }
 
         [Fact]

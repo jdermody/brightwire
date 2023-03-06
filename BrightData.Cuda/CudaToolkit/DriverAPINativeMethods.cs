@@ -717,18 +717,19 @@ namespace BrightData.Cuda.CudaToolkit
             public static extern CuResult cuLaunchHostFunc(CuStream hStream, CUhostFn fn, IntPtr userData);
             public static CuResult CuLaunchKernelEx(ref CuLaunchConfig config, CuFunction f, IntPtr[] kernelParams, IntPtr[] extra)
             {
-                var retVal = CuResult.ErrorInvalidValue;
-                var conf = new CuLaunchConfigInternal();
-                conf.GridDimX = config.GridDimX;
-                conf.GridDimY = config.GridDimY;
-                conf.GridDimZ = config.GridDimZ;
-                conf.BlockDimX = config.BlockDimX;
-                conf.BlockDimY = config.BlockDimY;
-                conf.BlockDimZ = config.BlockDimZ;
-                conf.SharedMemBytes = config.SharedMemBytes;
-                conf.HStream = config.HStream;
-                conf.NumAttrs = 0;
-                conf.Attrs = IntPtr.Zero;
+                CuResult retVal;
+                var conf = new CuLaunchConfigInternal {
+                    GridDimX = config.GridDimX,
+                    GridDimY = config.GridDimY,
+                    GridDimZ = config.GridDimZ,
+                    BlockDimX = config.BlockDimX,
+                    BlockDimY = config.BlockDimY,
+                    BlockDimZ = config.BlockDimZ,
+                    SharedMemBytes = config.SharedMemBytes,
+                    HStream = config.HStream,
+                    NumAttrs = 0,
+                    Attrs = IntPtr.Zero
+                };
 
                 try {
                     var arraySize = 0;
@@ -913,18 +914,19 @@ namespace BrightData.Cuda.CudaToolkit
             public static extern CuResult cuOccupancyAvailableDynamicSMemPerBlock(ref SizeT dynamicSmemSize, CuFunction func, int numBlocks, int blockSize);
             public static CuResult CuOccupancyMaxPotentialClusterSize(ref int clusterSize, CuFunction func, ref CuLaunchConfig config)
             {
-                var retVal = CuResult.ErrorInvalidValue;
-                var conf = new CuLaunchConfigInternal();
-                conf.GridDimX = config.GridDimX;
-                conf.GridDimY = config.GridDimY;
-                conf.GridDimZ = config.GridDimZ;
-                conf.BlockDimX = config.BlockDimX;
-                conf.BlockDimY = config.BlockDimY;
-                conf.BlockDimZ = config.BlockDimZ;
-                conf.SharedMemBytes = config.SharedMemBytes;
-                conf.HStream = config.HStream;
-                conf.NumAttrs = 0;
-                conf.Attrs = IntPtr.Zero;
+                CuResult retVal;
+                var conf = new CuLaunchConfigInternal {
+                    GridDimX = config.GridDimX,
+                    GridDimY = config.GridDimY,
+                    GridDimZ = config.GridDimZ,
+                    BlockDimX = config.BlockDimX,
+                    BlockDimY = config.BlockDimY,
+                    BlockDimZ = config.BlockDimZ,
+                    SharedMemBytes = config.SharedMemBytes,
+                    HStream = config.HStream,
+                    NumAttrs = 0,
+                    Attrs = IntPtr.Zero
+                };
 
                 try {
                     var arraySize = 0;
@@ -961,18 +963,19 @@ namespace BrightData.Cuda.CudaToolkit
             static extern CuResult cuOccupancyMaxPotentialClusterSizeInternal(ref int clusterSize, CuFunction func, ref CuLaunchConfigInternal config);
             public static CuResult CuOccupancyMaxActiveClusters(ref int numClusters, CuFunction func, ref CuLaunchConfig config)
             {
-                var retVal = CuResult.ErrorInvalidValue;
-                var conf = new CuLaunchConfigInternal();
-                conf.GridDimX = config.GridDimX;
-                conf.GridDimY = config.GridDimY;
-                conf.GridDimZ = config.GridDimZ;
-                conf.BlockDimX = config.BlockDimX;
-                conf.BlockDimY = config.BlockDimY;
-                conf.BlockDimZ = config.BlockDimZ;
-                conf.SharedMemBytes = config.SharedMemBytes;
-                conf.HStream = config.HStream;
-                conf.NumAttrs = 0;
-                conf.Attrs = IntPtr.Zero;
+                CuResult retVal;
+                var conf = new CuLaunchConfigInternal {
+                    GridDimX = config.GridDimX,
+                    GridDimY = config.GridDimY,
+                    GridDimZ = config.GridDimZ,
+                    BlockDimX = config.BlockDimX,
+                    BlockDimY = config.BlockDimY,
+                    BlockDimZ = config.BlockDimZ,
+                    SharedMemBytes = config.SharedMemBytes,
+                    HStream = config.HStream,
+                    NumAttrs = 0,
+                    Attrs = IntPtr.Zero
+                };
 
                 try {
                     var arraySize = 0;
@@ -1007,9 +1010,9 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             static extern CuResult cuOccupancyMaxActiveClustersInternal(ref int numClusters, CuFunction func, ref CuLaunchConfigInternal config);
         }
-        public static class GraphManagment
+        public static class GraphManagement
         {
-            static GraphManagment()
+            static GraphManagement()
             {
                 DriverApiNativeMethods.Init();
             }
@@ -1062,8 +1065,7 @@ namespace BrightData.Cuda.CudaToolkit
                 var extSemPtr = IntPtr.Zero;
                 var paramsPtr = IntPtr.Zero;
                 var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
                     var arraySize = 0;
@@ -1076,7 +1078,6 @@ namespace BrightData.Cuda.CudaToolkit
                     }
 
                     var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
-
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -1089,8 +1090,8 @@ namespace BrightData.Cuda.CudaToolkit
                     Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
 
                     for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
+                        Marshal.StructureToPtr(nodeParams.ExtSemArray![i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.ParamsArray![i], paramsPtr + (paramsSize * i), false);
                     }
 
                     retVal = cuGraphAddExternalSemaphoresSignalNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, mainPtr);
@@ -1121,10 +1122,10 @@ namespace BrightData.Cuda.CudaToolkit
             {
                 var mainPtr = IntPtr.Zero;
 
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
-                    var arraySize = 0;
+                    const int arraySize = 0;
                     var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
@@ -1142,8 +1143,8 @@ namespace BrightData.Cuda.CudaToolkit
                     var ptr2 = Marshal.ReadIntPtr(mainPtr + IntPtr.Size);
 
                     for (var i = 0; i < length; i++) {
-                        array1[i] = (CuExternalSemaphore)Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CuExternalSemaphore));
-                        array2[i] = (CudaExternalSemaphoreSignalParams)Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreSignalParams));
+                        array1[i] = (CuExternalSemaphore)(Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CuExternalSemaphore)) ?? throw new InvalidOperationException());
+                        array2[i] = (CudaExternalSemaphoreSignalParams)(Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreSignalParams)) ?? throw new InvalidOperationException());
                     }
 
                     paramsOut.ExtSemArray = array1;
@@ -1168,12 +1169,11 @@ namespace BrightData.Cuda.CudaToolkit
                 var extSemPtr = IntPtr.Zero;
                 var paramsPtr = IntPtr.Zero;
                 var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
                     var arraySize = 0;
-                    if (nodeParams.ExtSemArray != null && nodeParams.ParamsArray != null) {
+                    if (nodeParams is { ExtSemArray: { }, ParamsArray: { } }) {
                         if (nodeParams.ExtSemArray.Length != nodeParams.ParamsArray.Length) {
                             return CuResult.ErrorInvalidValue;
                         }
@@ -1182,7 +1182,6 @@ namespace BrightData.Cuda.CudaToolkit
                     }
 
                     var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
-
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -1195,8 +1194,8 @@ namespace BrightData.Cuda.CudaToolkit
                     Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
 
                     for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
+                        Marshal.StructureToPtr(nodeParams.ExtSemArray![i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.ParamsArray![i], paramsPtr + (paramsSize * i), false);
                     }
 
                     retVal = cuGraphExternalSemaphoresSignalNodeSetParamsInternal(hNode, mainPtr);
@@ -1228,21 +1227,18 @@ namespace BrightData.Cuda.CudaToolkit
                 var extSemPtr = IntPtr.Zero;
                 var paramsPtr = IntPtr.Zero;
                 var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
                     var arraySize = 0;
-                    if (nodeParams.ExtSemArray != null && nodeParams.ParamsArray != null) {
+                    if (nodeParams is { ExtSemArray: { }, ParamsArray: { } }) {
                         if (nodeParams.ExtSemArray.Length != nodeParams.ParamsArray.Length) {
                             return CuResult.ErrorInvalidValue;
                         }
-
                         arraySize = nodeParams.ExtSemArray.Length;
                     }
 
                     var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
-
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -1255,8 +1251,8 @@ namespace BrightData.Cuda.CudaToolkit
                     Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
 
                     for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
+                        Marshal.StructureToPtr(nodeParams.ExtSemArray![i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.ParamsArray![i], paramsPtr + (paramsSize * i), false);
                     }
 
                     retVal = cuGraphAddExternalSemaphoresWaitNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, mainPtr);
@@ -1286,11 +1282,10 @@ namespace BrightData.Cuda.CudaToolkit
             public static CuResult CuGraphExternalSemaphoresWaitNodeGetParams(CuGraphNode hNode, CudaExtSemWaitNodeParams paramsOut)
             {
                 var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
-                    var arraySize = 0;
+                    const int arraySize = 0;
                     var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
@@ -1299,7 +1294,6 @@ namespace BrightData.Cuda.CudaToolkit
                     Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
 
                     retVal = cuGraphExternalSemaphoresWaitNodeGetParamsInternal(hNode, mainPtr);
-
                     var length = Marshal.ReadInt32(mainPtr + 2 * IntPtr.Size);
 
                     var array1 = new CuExternalSemaphore[length];
@@ -1308,8 +1302,8 @@ namespace BrightData.Cuda.CudaToolkit
                     var ptr2 = Marshal.ReadIntPtr(mainPtr + IntPtr.Size);
 
                     for (var i = 0; i < length; i++) {
-                        array1[i] = (CuExternalSemaphore)Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CuExternalSemaphore));
-                        array2[i] = (CudaExternalSemaphoreWaitParams)Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreWaitParams));
+                        array1[i] = (CuExternalSemaphore)(Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CuExternalSemaphore)) ?? throw new InvalidOperationException());
+                        array2[i] = (CudaExternalSemaphoreWaitParams)(Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreWaitParams)) ?? throw new InvalidOperationException());
                     }
 
                     paramsOut.ExtSemArray = array1;
@@ -1334,12 +1328,11 @@ namespace BrightData.Cuda.CudaToolkit
                 var extSemPtr = IntPtr.Zero;
                 var paramsPtr = IntPtr.Zero;
                 var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
 
                 try {
                     var arraySize = 0;
-                    if (nodeParams.ExtSemArray != null && nodeParams.ParamsArray != null) {
+                    if (nodeParams is { ExtSemArray: { }, ParamsArray: { } }) {
                         if (nodeParams.ExtSemArray.Length != nodeParams.ParamsArray.Length) {
                             return CuResult.ErrorInvalidValue;
                         }
@@ -1361,8 +1354,8 @@ namespace BrightData.Cuda.CudaToolkit
                     Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
 
                     for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
+                        Marshal.StructureToPtr(nodeParams.ExtSemArray![i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.ParamsArray![i], paramsPtr + (paramsSize * i), false);
                     }
 
                     retVal = cuGraphExternalSemaphoresWaitNodeSetParamsInternal(hNode, mainPtr);
@@ -1388,65 +1381,24 @@ namespace BrightData.Cuda.CudaToolkit
             }
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphExternalSemaphoresWaitNodeSetParams")]
             static extern CuResult cuGraphExternalSemaphoresWaitNodeSetParamsInternal(CuGraphNode hNode, IntPtr nodeParams);
-            public static CuResult CuGraphAddBatchMemOpNode(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaBatchMemOpNodeParams nodeParams)
-            {
-                var retVal = CuResult.ErrorInvalidValue;
-                var parameters = new CudaBatchMemOpNodeParamsInternal();
-                parameters.Ctx = nodeParams.Ctx;
-                parameters.Count = 0;
-                parameters.ParamArray = IntPtr.Zero;
-                parameters.Flags = nodeParams.Flags;
-
-                try {
-                    var arraySize = 0;
-                    if (nodeParams.ParamArray != null) {
-                        arraySize = nodeParams.ParamArray.Length;
-                        parameters.Count = (uint)arraySize;
-                    }
-
-                    var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
-
-                    if (arraySize > 0) {
-                        parameters.ParamArray = Marshal.AllocHGlobal(arraySize * paramsSize);
-                    }
-
-                    for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ParamArray[i], parameters.ParamArray + (paramsSize * i), false);
-                    }
-
-                    retVal = cuGraphAddBatchMemOpNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, ref parameters);
-                }
-                catch {
-                    retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
-                    if (parameters.ParamArray != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(parameters.ParamArray);
-                    }
-                }
-
-                return retVal;
-            }
 
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphAddBatchMemOpNode")]
-            static extern CuResult cuGraphAddBatchMemOpNodeInternal(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaBatchMemOpNodeParamsInternal nodeParams);
+            public static extern CuResult cuGraphAddBatchMemOpNodeInternal(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaBatchMemOpNodeParamsInternal nodeParams);
             public static CuResult CuGraphBatchMemOpNodeGetParams(CuGraphNode hNode, ref CudaBatchMemOpNodeParams nodeParamsOut)
             {
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
                 var parameters = new CudaBatchMemOpNodeParamsInternal();
 
                 try {
                     retVal = cuGraphBatchMemOpNodeGetParamsInternal(hNode, ref parameters);
-
                     var arraySize = (int)parameters.Count;
-
                     var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
 
                     if (arraySize > 0) {
                         nodeParamsOut.ParamArray = new CuStreamBatchMemOpParams[arraySize];
 
                         for (var i = 0; i < arraySize; i++) {
-                            nodeParamsOut.ParamArray[i] = (CuStreamBatchMemOpParams)Marshal.PtrToStructure(parameters.ParamArray + (paramsSize * i), typeof(CuStreamBatchMemOpParams));
+                            nodeParamsOut.ParamArray[i] = (CuStreamBatchMemOpParams)(Marshal.PtrToStructure(parameters.ParamArray + (paramsSize * i), typeof(CuStreamBatchMemOpParams)) ?? throw new InvalidOperationException());
                         }
                     }
 
@@ -1456,8 +1408,6 @@ namespace BrightData.Cuda.CudaToolkit
                 catch {
                     retVal = CuResult.ErrorInvalidValue;
                 }
-                finally {
-                }
 
                 return retVal;
             }
@@ -1466,12 +1416,13 @@ namespace BrightData.Cuda.CudaToolkit
             static extern CuResult cuGraphBatchMemOpNodeGetParamsInternal(CuGraphNode hNode, ref CudaBatchMemOpNodeParamsInternal nodeParamsOut);
             public static CuResult CuGraphBatchMemOpNodeSetParams(CuGraphNode hNode, ref CudaBatchMemOpNodeParams nodeParams)
             {
-                var retVal = CuResult.ErrorInvalidValue;
-                var parameters = new CudaBatchMemOpNodeParamsInternal();
-                parameters.Ctx = nodeParams.Ctx;
-                parameters.Count = 0;
-                parameters.ParamArray = IntPtr.Zero;
-                parameters.Flags = nodeParams.Flags;
+                CuResult retVal;
+                var parameters = new CudaBatchMemOpNodeParamsInternal {
+                    Ctx = nodeParams.Ctx,
+                    Count = 0,
+                    ParamArray = IntPtr.Zero,
+                    Flags = nodeParams.Flags
+                };
 
                 try {
                     var arraySize = 0;
@@ -1481,13 +1432,12 @@ namespace BrightData.Cuda.CudaToolkit
                     }
 
                     var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
-
                     if (arraySize > 0) {
                         parameters.ParamArray = Marshal.AllocHGlobal(arraySize * paramsSize);
                     }
 
                     for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ParamArray[i], parameters.ParamArray + (paramsSize * i), false);
+                        Marshal.StructureToPtr(nodeParams.ParamArray![i], parameters.ParamArray + (paramsSize * i), false);
                     }
 
                     retVal = cuGraphBatchMemOpNodeSetParamsInternal(hNode, ref parameters);
@@ -1506,109 +1456,25 @@ namespace BrightData.Cuda.CudaToolkit
 
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphBatchMemOpNodeSetParams")]
             static extern CuResult cuGraphBatchMemOpNodeSetParamsInternal(CuGraphNode hNode, ref CudaBatchMemOpNodeParamsInternal nodeParams);
-            public static CuResult CuGraphExecBatchMemOpNodeSetParams(CuGraphExec hGraphExec, CuGraphNode hNode, ref CudaBatchMemOpNodeParams nodeParams)
-            {
-                var retVal = CuResult.ErrorInvalidValue;
-                var parameters = new CudaBatchMemOpNodeParamsInternal();
-                parameters.Ctx = nodeParams.Ctx;
-                parameters.Count = 0;
-                parameters.ParamArray = IntPtr.Zero;
-                parameters.Flags = nodeParams.Flags;
-
-                try {
-                    var arraySize = 0;
-                    if (nodeParams.ParamArray != null) {
-                        arraySize = nodeParams.ParamArray.Length;
-                        parameters.Count = (uint)arraySize;
-                    }
-
-                    var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
-
-                    if (arraySize > 0) {
-                        parameters.ParamArray = Marshal.AllocHGlobal(arraySize * paramsSize);
-                    }
-
-                    for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ParamArray[i], parameters.ParamArray + (paramsSize * i), false);
-                    }
-
-                    retVal = cuGraphExecBatchMemOpNodeSetParamsInternal(hGraphExec, hNode, ref parameters);
-                }
-                catch {
-                    retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
-                    if (parameters.ParamArray != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(parameters.ParamArray);
-                    }
-                }
-
-                return retVal;
-            }
-
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphExecBatchMemOpNodeSetParams")]
-            static extern CuResult cuGraphExecBatchMemOpNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, ref CudaBatchMemOpNodeParamsInternal nodeParams);
-            public static CuResult CuGraphAddMemAllocNode(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaMemAllocNodeParams nodeParams)
-            {
-                var retVal = CuResult.ErrorInvalidValue;
-                var parameters = new CudaMemAllocNodeParamsInternal();
-                parameters.poolProps = nodeParams.poolProps;
-                parameters.dptr = nodeParams.dptr;
-                parameters.bytesize = nodeParams.bytesize;
-                parameters.accessDescCount = 0;
-                parameters.accessDescs = IntPtr.Zero;
-
-                try {
-                    var arraySize = 0;
-                    if (nodeParams.accessDescs != null) {
-                        arraySize = nodeParams.accessDescs.Length;
-                        parameters.accessDescCount = (uint)arraySize;
-                    }
-
-                    var paramsSize = Marshal.SizeOf(typeof(CuMemAccessDesc));
-
-                    if (arraySize > 0) {
-                        parameters.accessDescs = Marshal.AllocHGlobal(arraySize * paramsSize);
-                    }
-
-                    for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.accessDescs[i], parameters.accessDescs + (paramsSize * i), false);
-                    }
-
-                    retVal = cuGraphAddMemAllocNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, ref parameters);
-                    nodeParams.dptr = parameters.dptr;
-                }
-                catch {
-                    retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
-                    if (parameters.accessDescs != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(parameters.accessDescs);
-                    }
-                }
-
-                return retVal;
-            }
-
+            public static extern CuResult cuGraphExecBatchMemOpNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, ref CudaBatchMemOpNodeParamsInternal nodeParams);
             [DllImport(CudaDriverApiDllName)]
-            static extern CuResult cuGraphAddMemAllocNodeInternal(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaMemAllocNodeParamsInternal nodeParams);
+            public static extern CuResult cuGraphAddMemAllocNodeInternal(ref CuGraphNode phGraphNode, CuGraph hGraph, CuGraphNode[] dependencies, SizeT numDependencies, ref CudaMemAllocNodeParamsInternal nodeParams);
             public static CuResult CuGraphMemAllocNodeGetParams(CuGraphNode hNode, ref CudaMemAllocNodeParams paramsOut)
             {
-                var retVal = CuResult.ErrorInvalidValue;
+                CuResult retVal;
                 var parameters = new CudaMemAllocNodeParamsInternal();
 
                 try {
                     retVal = cuGraphMemAllocNodeGetParamsInternal(hNode, ref parameters);
-
                     var arraySize = (int)parameters.accessDescCount;
-
                     var paramsSize = Marshal.SizeOf(typeof(CuMemAccessDesc));
 
                     if (arraySize > 0) {
                         paramsOut.accessDescs = new CuMemAccessDesc[arraySize];
 
                         for (var i = 0; i < arraySize; i++) {
-                            paramsOut.accessDescs[i] = (CuMemAccessDesc)Marshal.PtrToStructure(parameters.accessDescs + (paramsSize * i), typeof(CuMemAccessDesc));
+                            paramsOut.accessDescs[i] = (CuMemAccessDesc)(Marshal.PtrToStructure(parameters.accessDescs + (paramsSize * i), typeof(CuMemAccessDesc)) ?? throw new InvalidOperationException());
                         }
                     }
 
@@ -1618,8 +1484,6 @@ namespace BrightData.Cuda.CudaToolkit
                 }
                 catch {
                     retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
                 }
 
                 return retVal;
@@ -1679,126 +1543,10 @@ namespace BrightData.Cuda.CudaToolkit
             public static extern CuResult cuGraphExecEventRecordNodeSetEvent(CuGraphExec hGraphExec, CuGraphNode hNode, CuEvent @event);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGraphExecEventWaitNodeSetEvent(CuGraphExec hGraphExec, CuGraphNode hNode, CuEvent @event);
-            public static CuResult CuGraphExecExternalSemaphoresSignalNodeSetParams(CuGraphExec hGraphExec, CuGraphNode hNode, CudaExtSemSignalNodeParams nodeParams)
-            {
-                var extSemPtr = IntPtr.Zero;
-                var paramsPtr = IntPtr.Zero;
-                var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
-
-                try {
-                    var arraySize = 0;
-                    if (nodeParams.ExtSemArray != null && nodeParams.ParamsArray != null) {
-                        if (nodeParams.ExtSemArray.Length != nodeParams.ParamsArray.Length) {
-                            return CuResult.ErrorInvalidValue;
-                        }
-
-                        arraySize = nodeParams.ExtSemArray.Length;
-                    }
-
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
-
-                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
-
-                    if (arraySize > 0) {
-                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
-                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
-                    }
-
-                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
-                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
-                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
-
-                    for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
-                    }
-
-                    retVal = cuGraphExecExternalSemaphoresSignalNodeSetParamsInternal(hGraphExec, hNode, mainPtr);
-                }
-                catch {
-                    retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
-                    if (mainPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(mainPtr);
-                    }
-
-                    if (extSemPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(extSemPtr);
-                    }
-
-                    if (paramsPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(paramsPtr);
-                    }
-                }
-
-                return retVal;
-            }
-
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphExecExternalSemaphoresSignalNodeSetParams")]
-            static extern CuResult cuGraphExecExternalSemaphoresSignalNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, IntPtr nodeParams);
-            public static CuResult CuGraphExecExternalSemaphoresWaitNodeSetParams(CuGraphExec hGraphExec, CuGraphNode hNode, CudaExtSemWaitNodeParams nodeParams)
-            {
-                var extSemPtr = IntPtr.Zero;
-                var paramsPtr = IntPtr.Zero;
-                var mainPtr = IntPtr.Zero;
-
-                var retVal = CuResult.ErrorInvalidValue;
-
-                try {
-                    var arraySize = 0;
-                    if (nodeParams.ExtSemArray != null && nodeParams.ParamsArray != null) {
-                        if (nodeParams.ExtSemArray.Length != nodeParams.ParamsArray.Length) {
-                            return CuResult.ErrorInvalidValue;
-                        }
-
-                        arraySize = nodeParams.ExtSemArray.Length;
-                    }
-
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
-
-                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
-
-                    if (arraySize > 0) {
-                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
-                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
-                    }
-
-                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
-                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
-                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
-
-                    for (var i = 0; i < arraySize; i++) {
-                        Marshal.StructureToPtr(nodeParams.ExtSemArray[i], extSemPtr + (IntPtr.Size * i), false);
-                        Marshal.StructureToPtr(nodeParams.ParamsArray[i], paramsPtr + (paramsSize * i), false);
-                    }
-
-                    retVal = cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(hGraphExec, hNode, mainPtr);
-                }
-                catch {
-                    retVal = CuResult.ErrorInvalidValue;
-                }
-                finally {
-                    if (mainPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(mainPtr);
-                    }
-
-                    if (extSemPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(extSemPtr);
-                    }
-
-                    if (paramsPtr != IntPtr.Zero) {
-                        Marshal.FreeHGlobal(paramsPtr);
-                    }
-                }
-
-                return retVal;
-            }
-
+            public static extern CuResult cuGraphExecExternalSemaphoresSignalNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, IntPtr nodeParams);
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuGraphExecExternalSemaphoresWaitNodeSetParams")]
-            static extern CuResult cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, IntPtr nodeParams);
+            public static extern CuResult cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(CuGraphExec hGraphExec, CuGraphNode hNode, IntPtr nodeParams);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGraphNodeSetEnabled(CuGraphExec hGraphExec, CuGraphNode hNode, uint isEnabled);
             [DllImport(CudaDriverApiDllName)]
@@ -1822,8 +1570,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGraphDebugDotPrint(CuGraph hGraph, [MarshalAs(UnmanagedType.LPStr)] string path, CuGraphDebugDotFlags flags);
             [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuUserObjectCreate(ref CuUserObject objectOut, IntPtr ptr, CUhostFn destroy,
-                uint initialRefcount, CuUserObjectFlags flags);
+            public static extern CuResult cuUserObjectCreate(ref CuUserObject objectOut, IntPtr ptr, CUhostFn destroy, uint initialRefcount, CuUserObjectFlags flags);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuUserObjectRetain(CuUserObject obj, uint count);
             [DllImport(CudaDriverApiDllName)]
@@ -1833,9 +1580,9 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGraphReleaseUserObject(CuGraph graph, CuUserObject obj, uint count);
         }
-        public static class TensorCoreManagment
+        public static class TensorCoreManagement
         {
-            static TensorCoreManagment()
+            static TensorCoreManagement()
             {
                 DriverApiNativeMethods.Init();
             }

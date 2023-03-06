@@ -34,11 +34,8 @@ namespace BrightData.Cuda.Helper
         /// <exception cref="CudaException"></exception>
         public CuDevicePtr GetPtr(uint sizeInBytes)
         {
-            CuDevicePtr ret;
-            if (_memoryPool.TryGetValue(sizeInBytes, out var block)) {
-                if (block.TryPop(out ret))
-                    return ret;
-            }
+            if (_memoryPool.TryGetValue(sizeInBytes, out var block) && block.TryPop(out var ret))
+                return ret;
 
             ret = new CuDevicePtr();
             var status = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref ret, sizeInBytes);

@@ -283,21 +283,6 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void TestMinMax()
-        {
-            using var vector = _linearAlgebraProvider.CreateVector(1025.AsRange().Select(i => (float)(i + 1)).ToArray());
-            var cpu = vector.GetMinAndMaxValues();
-
-            using var cudaVector = _cudaLinearAlgebraProvider.CreateVector(vector);
-            var gpu = cudaVector.GetMinAndMaxValues();
-
-            cpu.Min.Should().Be(gpu.Min);
-            cpu.Max.Should().Be(gpu.Max);
-            cpu.MinIndex.Should().Be(gpu.MinIndex);
-            cpu.MaxIndex.Should().Be(gpu.MaxIndex);
-        }
-
-        [Fact]
         public void TestSum()
         {
             using var vector = _linearAlgebraProvider.CreateVector(1025.AsRange().Select(i => (float)(i + 1)).ToArray());

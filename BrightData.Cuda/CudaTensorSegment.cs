@@ -8,7 +8,7 @@ namespace BrightData.Cuda
 {
     internal class CudaTensorSegment : ITensorSegment
     {
-        static readonly string CudaSegmentType = "cuda";
+        const string CudaSegmentType = "cuda";
 
         public CudaTensorSegment(IDeviceMemoryPtr data)
         {

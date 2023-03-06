@@ -325,32 +325,6 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment segment)
-        {
-            //var buffer = MemoryOwner<float>.Allocate((int)ptr.Size);
-            //using var temp = new ArrayPoolTensorSegment(buffer);
-            //ptr.CopyToHost(buffer.DangerousGetArray());
-            //return segment.GetMinAndMaxValues();
-
-            // TODO: fix absolute values regarding indices
-            var ptr = GetDeviceMemoryPtr(segment);
-            var (min, max) = Provider.FindMinAndMax(ptr, segment.Size);
-
-            int minIndex = 0, maxIndex = 0;
-            var blas = Provider.Blas;
-            var size = (int)segment.Size;
-            CudaBlasNativeMethods.cublasIdamin_v2(blas, size, ptr.DevicePointer, 1, ref minIndex);
-            CudaBlasNativeMethods.cublasIsamax_v2(blas, size, ptr.DevicePointer, 1, ref maxIndex);
-            return (min, max, (uint)minIndex - 1, (uint)maxIndex - 1);
-        }
-
-        /// <inheritdoc />
-        public override float GetMin(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Min;
-
-        /// <inheritdoc />
-        public override float GetMax(ITensorSegment segment) => Provider.FindMinAndMax(GetDeviceMemoryPtr(segment), segment.Size).Max;
-
-        /// <inheritdoc />
         public override bool IsEntirelyFinite(ITensorSegment segment) => Provider.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
 
         /// <inheritdoc />
@@ -938,13 +912,11 @@ namespace BrightData.Cuda
         static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
         internal static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment segment)
         {
-            if (segment is CudaTensorSegment cudaSegment) {
-                if (!segment.IsValid)
-                    throw new Exception("CUDA tensor was not valid");
-                return cudaSegment.DeviceMemory;
-            }
-
-            throw new Exception("CUDA tensors can only be used with other CUDA tensors");
+            if (segment is not CudaTensorSegment cudaSegment) 
+                throw new Exception("CUDA tensors can only be used with other CUDA tensors");
+            if (!segment.IsValid)
+                throw new Exception("CUDA tensor was not valid");
+            return cudaSegment.DeviceMemory;
         }
         internal static (IDeviceMemoryPtr Ptr, uint Stride) GetDeviceMemory(ITensorSegment segment)
         {
@@ -992,15 +964,12 @@ namespace BrightData.Cuda
                 if (distanceMetric == DistanceMetric.Cosine) {
                     var aa = Provider.Allocate(rows * columns, null, true);
                     var bb = Provider.Allocate(rows * columns, null, true);
-                    Provider.InvokeTensor(Provider._multiCosine, null, size, columns, rows,
+                    Provider.MultiCosine(size, columns, rows,
                         vectorPtr.DevicePointer,
                         compareToPtr.DevicePointer,
                         aa.DevicePointer,
                         ret.DevicePointer,
-                        bb.DevicePointer,
-                        rows,
-                        columns,
-                        size
+                        bb.DevicePointer
                     );
                     using var ones = CreateMatrix(rows, columns, (_, _) => 1f);
                     using var vectorMagnitude = new CudaMatrix(new CudaTensorSegment(aa), rows, columns, this);
@@ -1013,14 +982,11 @@ namespace BrightData.Cuda
                     return ones.Subtract(distance);
                 }
 
-                Provider.InvokeTensor(Provider._calculateDistance, null, size, columns, rows,
+                Provider.CalculateDistances(size, columns, rows,
                     vectorPtr.DevicePointer,
                     compareToPtr.DevicePointer,
                     ret.DevicePointer,
-                    rows,
-                    columns,
-                    size,
-                    (uint)distanceMetric
+                    distanceMetric
                 );
             }
 
