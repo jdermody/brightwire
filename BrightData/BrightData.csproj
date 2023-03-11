@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
+	<PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -23,12 +22,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>C:\code\brightwire\BrightData\BrightData.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.1.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
@@ -43,5 +42,4 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
 </Project>

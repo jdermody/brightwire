@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Cuda.Helper;
@@ -38,7 +37,7 @@ namespace BrightData.Cuda
                 foreach (var item in block.Keys)
                     trackedBlocks.Add(((CudaTensorSegment)((ITensor)item).Segment).DeviceMemory);
             }
-            DeviceMemoryBlock.FindLeakedBlocks(trackedBlocks);
+            DeviceMemoryBlockBase.FindLeakedBlocks(trackedBlocks);
 #endif
             Provider.Dispose();
         }
@@ -488,7 +487,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override uint? Search(ITensorSegment segment, float value, float tolerance)
+        public override uint? Search(ITensorSegment segment, float value, float tolerance = FloatMath.AlmostZero)
         {
             return base.Search(segment, value, tolerance);
         }

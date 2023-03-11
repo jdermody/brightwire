@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Helper;

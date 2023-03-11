@@ -1,8 +1,4 @@
-﻿using System;
-using BrightData;
-using BrightWire;
-
-namespace ExampleCode.DataTableTrainers
+﻿namespace ExampleCode.DataTableTrainers
 {
     //internal class LinearTrainer : DataTableTrainer
     //{

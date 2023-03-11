@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;

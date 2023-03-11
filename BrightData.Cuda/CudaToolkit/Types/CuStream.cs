@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace BrightData.Cuda.CudaToolkit.Types
 {
@@ -15,8 +10,9 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             get
             {
-                var s = new CuStream();
-                s.Pointer = 0;
+                var s = new CuStream {
+                    Pointer = 0
+                };
                 return s;
             }
         }
@@ -24,8 +20,9 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             get
             {
-                var s = new CuStream();
-                s.Pointer = 1;
+                var s = new CuStream {
+                    Pointer = 1
+                };
                 return s;
             }
         }
@@ -33,8 +30,9 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             get
             {
-                var s = new CuStream();
-                s.Pointer = 2;
+                var s = new CuStream {
+                    Pointer = 2
+                };
                 return s;
             }
         }

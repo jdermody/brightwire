@@ -65,7 +65,7 @@ namespace BrightData.Cuda.CudaToolkit
         internal static void Init()
         {
         }
-        public static Version Version => new Version(12, 0);
+        public static Version Version => new(12, 0);
         [DllImport(CudaDriverApiDllName)]
         public static extern CuResult cuInit(CuInitializationFlags flags);
         [DllImport(CudaDriverApiDllName)]
@@ -698,7 +698,7 @@ namespace BrightData.Cuda.CudaToolkit
                 uint sharedMemBytes,
                 CuStream hStream,
                 IntPtr[] kernelParams,
-                IntPtr[] extra);
+                IntPtr[]? extra);
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuLaunchCooperativeKernel")]
             public static extern CuResult cuLaunchCooperativeKernel(CuFunction f,
                 uint gridDimX,

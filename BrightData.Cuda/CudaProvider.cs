@@ -21,9 +21,8 @@ namespace BrightData.Cuda
         const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);
-        internal const int UIntSize = sizeof(uint);
 
-		class KernelExecution
+        class KernelExecution
 		{
 			readonly CuFunction _function;
 			readonly Dim3 _block;
@@ -91,7 +90,7 @@ namespace BrightData.Cuda
 		readonly Lazy<CudaBlasHandle> _blas;
         readonly Lazy<CuSolverDnHandle> _solver;
 		readonly KernelModule _kernel;
-        readonly CuStream _defaultStream = new();
+        readonly CuStream _defaultStream;
         readonly MemoryPool _memoryPool;
 
         readonly CuFunction
@@ -156,7 +155,7 @@ namespace BrightData.Cuda
 			_scale
 		;
 		readonly ConcurrentDictionary<CuFunction, (int BlockSize, int MinGridSize)> _blockSize = new();
-		bool _disposed = false;
+		bool _disposed;
 
 		/// <summary>
 		/// Constructor - tries to find most relevant CUDA kernel if none specified

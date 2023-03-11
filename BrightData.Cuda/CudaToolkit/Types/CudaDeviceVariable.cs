@@ -132,8 +132,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr, source, aSizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr, source, aSizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -141,8 +140,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public void CopyToDevice(CuDevicePtr source, SizeT offsetSrc, SizeT offsetDest, SizeT sizeInBytes)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr + offsetDest, source + offsetSrc, sizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr + offsetDest, source + offsetSrc, sizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -151,8 +149,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = MinSize(source.Size) * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr, source.DevicePointer, aSizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr, source.DevicePointer, aSizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -160,8 +157,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public void CopyToDevice(CudaDeviceVariable<T> source, SizeT offsetSrc, SizeT offsetDest, SizeT sizeInBytes)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr + offsetDest, source.DevicePointer + offsetSrc, sizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoD_v2(_devPtr + offsetDest, source.DevicePointer + offsetSrc, sizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -249,9 +245,8 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
             var ptr = new IntPtr(source.ToInt64() + (long)offsetSrc);
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr + offsetDest, ptr, sizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr + offsetDest, ptr, sizeInBytes);
 
 
             if (res != CuResult.Success)
@@ -261,8 +256,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr + offsetDest, source, _size * _typeSize);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr + offsetDest, source, _size * _typeSize);
 
 
             if (res != CuResult.Success)
@@ -272,8 +266,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr, source, _size * _typeSize);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(_devPtr, source, _size * _typeSize);
 
 
             if (res != CuResult.Success)
@@ -383,8 +376,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(dest, _devPtr, _size * _typeSize);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(dest, _devPtr, _size * _typeSize);
 
 
             if (res != CuResult.Success)
@@ -394,8 +386,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(dest, _devPtr + offsetSrc, _size * _typeSize);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(dest, _devPtr + offsetSrc, _size * _typeSize);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -404,9 +395,8 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
 
-            CuResult res;
             var ptr = new IntPtr(dest.ToInt64() + (long)offsetDest);
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(ptr, _devPtr + offsetSrc, sizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(ptr, _devPtr + offsetSrc, sizeInBytes);
 
 
             if (res != CuResult.Success)
@@ -435,8 +425,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr, source, aSizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr, source, aSizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -445,8 +434,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = MinSize(source.Size) * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr, source.DevicePointer, aSizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr, source.DevicePointer, aSizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -454,8 +442,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public void AsyncCopyToDevice(CuDevicePtr source, SizeT offsetSrc, SizeT offsetDest, SizeT sizeInBytes, CuStream stream)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr + offsetDest, source + offsetSrc, sizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr + offsetDest, source + offsetSrc, sizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -463,8 +450,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public void AsyncCopyToDevice(CudaDeviceVariable<T> source, SizeT offsetSrc, SizeT offsetDest, SizeT sizeInBytes, CuStream stream)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr + offsetDest, source.DevicePointer + offsetSrc, sizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(_devPtr + offsetDest, source.DevicePointer + offsetSrc, sizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -472,8 +458,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public void Memset(byte aValue)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
-            CuResult res;
-            res = DriverApiNativeMethods.Memset.cuMemsetD8_v2(_devPtr, aValue, _size * _typeSize);
+            var res = DriverApiNativeMethods.Memset.cuMemsetD8_v2(_devPtr, aValue, _size * _typeSize);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -482,8 +467,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyPeer(_devPtr, destCtx.Context, source, sourceCtx.Context, aSizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyPeer(_devPtr, destCtx.Context, source, sourceCtx.Context, aSizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -492,8 +476,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyPeer(_devPtr, destCtx.Context, source.DevicePointer, sourceCtx.Context, aSizeInBytes);
+            var res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyPeer(_devPtr, destCtx.Context, source.DevicePointer, sourceCtx.Context, aSizeInBytes);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -502,8 +485,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyPeerAsync(_devPtr, destCtx.Context, source, sourceCtx.Context, aSizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyPeerAsync(_devPtr, destCtx.Context, source, sourceCtx.Context, aSizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -512,8 +494,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
             var aSizeInBytes = _size * _typeSize;
-            CuResult res;
-            res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyPeerAsync(_devPtr, destCtx.Context, source.DevicePointer, sourceCtx.Context, aSizeInBytes, stream);
+            var res = DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyPeerAsync(_devPtr, destCtx.Context, source.DevicePointer, sourceCtx.Context, aSizeInBytes, stream);
 
             if (res != CuResult.Success)
                 throw new CudaException(res);
@@ -580,21 +561,9 @@ namespace BrightData.Cuda.CudaToolkit.Types
                     throw new CudaException(res);
             }
         }
-        public CuDevicePtr DevicePointer
-        {
-            get { return _devPtr; }
-        }
-        public SizeT SizeInBytes
-        {
-            get { return _size * _typeSize; }
-        }
-        public SizeT TypeSize
-        {
-            get { return _typeSize; }
-        }
-        public SizeT Size
-        {
-            get { return _size; }
-        }
+        public CuDevicePtr DevicePointer => _devPtr;
+        public SizeT SizeInBytes => _size * _typeSize;
+        public SizeT TypeSize => _typeSize;
+        public SizeT Size => _size;
     }
 }

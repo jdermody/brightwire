@@ -9,6 +9,6 @@ namespace BrightAPI.Database
         {
         }
 
-        public DbSet<DataTable> DataTables { get; set; }
+        public DbSet<DataTable> DataTables { get; set; } = null!;
     }
 }

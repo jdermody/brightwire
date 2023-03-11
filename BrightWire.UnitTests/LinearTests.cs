@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using BrightData;
-using BrightData.UnitTests.Helper;
-using FluentAssertions;
-using Xunit;
+﻿using BrightData.UnitTests.Helper;
 
 namespace BrightWire.UnitTests
 {

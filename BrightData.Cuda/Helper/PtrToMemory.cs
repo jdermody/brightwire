@@ -29,7 +29,7 @@ namespace BrightData.Cuda.Helper
         public CuDevicePtr DevicePointer => _ptr.DevicePointer;
         public uint Size => _ptr.Size;
 
-        public void CopyToHost(ArraySegment<float> target) => _ptr.CopyToHost(target.Array, 0, target.Offset, target.Count * sizeof(float));
+        public void CopyToHost(ArraySegment<float> target) => _ptr.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
 
         public void Clear()
         {

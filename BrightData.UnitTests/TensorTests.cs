@@ -362,7 +362,7 @@ namespace BrightData.UnitTests
             var normalDistribution = _context.CreateNormalDistribution(0, 1);
             using var cpuTensor = _cpu.CreateTensor3D(depth.AsRange().Select(_ => _cpu.CreateMatrix(inputHeight, inputWidth, (_, _) => Convert.ToSingle(normalDistribution.Sample()))).ToArray());
             using var im2Col = cpuTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
-            using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => (float)normalDistribution.Sample());
+            using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => normalDistribution.Sample());
             using var output = im2Col.Multiply(cpuFilter);
 
             var matrixList = new IMatrix[output.ColumnCount];
@@ -918,9 +918,9 @@ namespace BrightData.UnitTests
 
             var normalDistribution = _context.CreateNormalDistribution(0, 1);
             var data = Enumerable.Range(0, count)
-                .Select(_ => CheckCreateTensor(rows, columns, depth, (_, _, _) => (float)normalDistribution.Sample())).ToArray();
+                .Select(_ => CheckCreateTensor(rows, columns, depth, (_, _, _) => normalDistribution.Sample())).ToArray();
             using var cpuTensor = _cpu.CreateTensor4D(data);
-            using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => (float)normalDistribution.Sample());
+            using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => normalDistribution.Sample());
 
             using var gpuTensor = _cuda.CreateTensor4D(data);
             using var gpuFilter = _cuda.CreateMatrix(cpuFilter);

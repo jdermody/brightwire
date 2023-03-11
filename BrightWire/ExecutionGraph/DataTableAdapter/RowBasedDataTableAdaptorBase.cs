@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter

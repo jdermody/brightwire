@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightData;
 using BrightWire;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 

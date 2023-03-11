@@ -12,7 +12,7 @@ namespace BrightData.UnitTests.Helper
         public CudaBase()
         {
             _cudaProvider = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
-            _cuda = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cudaProvider);
+            _cuda = new CudaLinearAlgebraProvider(_context, _cudaProvider);
         }
 
         public override void Dispose()

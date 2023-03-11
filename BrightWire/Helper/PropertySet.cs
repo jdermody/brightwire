@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using BrightData;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.Helper
@@ -9,10 +8,10 @@ namespace BrightWire.Helper
     /// </summary>
     internal class PropertySet : IPropertySet
     {
-        public const string WeightInitialisationLabel = "bw:weight-initialisation";
-        public const string GradientDescentLabel = "bw:gradient-descent";
+        public const string WeightInitialisationLabel              = "bw:weight-initialisation";
+        public const string GradientDescentLabel                   = "bw:gradient-descent";
         public const string TemplateGradientDescentDescriptorLabel = "bw:template-gradient-descent-descriptor";
-        public const string GradientDescentDescriptorLabel = "bw:gradient-descent-descriptor";
+        public const string GradientDescentDescriptorLabel         = "bw:gradient-descent-descriptor";
 
         readonly Dictionary<string, object> _data = new();
 

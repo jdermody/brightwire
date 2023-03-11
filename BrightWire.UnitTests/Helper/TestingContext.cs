@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;

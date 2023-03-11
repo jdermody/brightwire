@@ -23,8 +23,8 @@ namespace BrightData.Cuda.Helper
         static long _nextIndex = 0;
 
 #if DEBUG
-        static readonly long _badAlloc = -1;
-        static readonly long _badDispose = -1;
+        const long _badAlloc = -1;
+        const long _badDispose = -1;
         static readonly ThreadSafeHashSet<DeviceMemoryBlockBase> AllocatedBlocks = new();
 #endif
         /// <summary>

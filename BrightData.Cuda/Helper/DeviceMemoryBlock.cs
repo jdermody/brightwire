@@ -9,7 +9,7 @@ namespace BrightData.Cuda.Helper
 	/// </summary>
     internal class DeviceMemoryBlock : DeviceMemoryBlockBase
     {
-        readonly MemoryPool? _memoryPool = null;
+        readonly MemoryPool? _memoryPool;
 
         /// <inheritdoc />
         public DeviceMemoryBlock(uint size) : base(Create(size))

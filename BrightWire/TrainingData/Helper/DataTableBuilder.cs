@@ -8,8 +8,8 @@ namespace BrightWire.TrainingData.Helper
     /// </summary>
     public static class DataTableBuilder
     {
-        static readonly string Input = "Input";
-        static readonly string Target = "Target";
+        const string Input = "Input";
+        const string Target = "Target";
 
         /// <summary>
         /// Creates a data table builder with one feature matrix column and one target matrix column

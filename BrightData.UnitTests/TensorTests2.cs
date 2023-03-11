@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using BrightData.Cuda;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -37,7 +33,7 @@ namespace BrightData.UnitTests
             _linearAlgebraProvider     = new LinearAlgebraProvider(_context);
             _mklLinearAlgebraProvider  = new MklLinearAlgebraProvider(_context);
             _cudaProvider              = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
-            _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, (CudaProvider)_cudaProvider);
+            _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, _cudaProvider);
         }
 
         public override void Dispose()

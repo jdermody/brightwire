@@ -569,36 +569,6 @@ namespace BrightData
         /// <returns></returns>
         float L2Norm();
 
-        ///// <summary>
-        ///// Finds the minimum and maximum values (and those indices) from this tensor
-        ///// </summary>
-        ///// <returns></returns>
-        //(float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues();
-
-        ///// <summary>
-        ///// Returns the index of the minimum value from this tensor
-        ///// </summary>
-        ///// <returns></returns>
-        //uint GetMinIndex();
-
-        ///// <summary>
-        ///// Returns the index of the maximum value from this tensor
-        ///// </summary>
-        ///// <returns></returns>
-        //uint GetMaxIndex();
-
-        ///// <summary>
-        ///// Returns the minimum value from this tensor
-        ///// </summary>
-        ///// <returns></returns>
-        //float GetMin();
-
-        ///// <summary>
-        ///// Returns the maximum value from this tensor
-        ///// </summary>
-        ///// <returns></returns>
-        //float GetMax();
-
         /// <summary>
         /// Checks if the tensor is entirely finite (does not contain NAN or Infinity)
         /// </summary>

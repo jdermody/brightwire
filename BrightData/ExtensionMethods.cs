@@ -323,7 +323,7 @@ namespace BrightData
         /// <param name="separator">Group separator</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string Format<T>(this IEnumerable<(T Item, uint Count)> items, char separator = ';') where T: notnull =>
+        public static string Format<T>(this IEnumerable<(T Item, uint Count)> items, char separator = ';') =>
             String.Join(separator, items.Select(i => $"{i.Item}: {i.Count}"));
 
         /// <summary>

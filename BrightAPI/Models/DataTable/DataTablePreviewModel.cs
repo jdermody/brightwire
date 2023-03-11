@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BrightData;
-
-namespace BrightAPI.Models.DataTable
+﻿namespace BrightAPI.Models.DataTable
 {
     public class DataTablePreviewModel
     {

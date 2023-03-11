@@ -82,17 +82,17 @@ namespace BrightWire.Models
             /// <summary>
             /// The source node id
             /// </summary>
-            public string FromId { get; set; } = "";
+            public string FromId { get; internal set; } = "";
 
             /// <summary>
             /// The target node id
             /// </summary>
-            public string ToId { get; set; } = "";
+            public string ToId { get; internal set; } = "";
 
             /// <summary>
             /// The channel on the target node to send the source node's output
             /// </summary>
-            public uint InputChannel { get; set; }
+            public uint InputChannel { get; internal set; }
 
             /// <inheritdoc />
 	        public override string ToString()

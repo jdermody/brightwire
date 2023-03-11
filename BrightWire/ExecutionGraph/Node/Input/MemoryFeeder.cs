@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input

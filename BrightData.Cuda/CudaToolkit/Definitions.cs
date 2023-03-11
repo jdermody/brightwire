@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using BrightData.Cuda.CudaToolkit.Types;
 
@@ -1658,13 +1657,6 @@ namespace BrightData.Cuda.CudaToolkit
         UnsignedBc6H = 0x20,
         SignedBc6H = 0x21,
         UnsignedBc7 = 0x22
-    }
-    [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
-    internal struct HandleUnion
-    {
-        [FieldOffset(0)] public int fd;
-        [FieldOffset(0)] public Win32Handle win32;
-        [FieldOffset(0)] public nint nvSciBufObject;
     }
     [Flags]
     internal enum CudaExternalMemory

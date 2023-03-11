@@ -1,5 +1,4 @@
-﻿using BrightData;
-using BrightWire;
+﻿using BrightWire;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers

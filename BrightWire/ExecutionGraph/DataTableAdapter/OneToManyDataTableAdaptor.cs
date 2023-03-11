@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using BrightData.LinearAlgebra;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter

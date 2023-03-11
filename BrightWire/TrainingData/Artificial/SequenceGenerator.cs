@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.LinearAlgebra;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -136,6 +135,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             while (true)
                 yield return NextSequence();
+            // ReSharper disable once IteratorNeverReturns
         }
 
         /// <summary>

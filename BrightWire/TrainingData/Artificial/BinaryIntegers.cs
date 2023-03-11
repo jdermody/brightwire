@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 

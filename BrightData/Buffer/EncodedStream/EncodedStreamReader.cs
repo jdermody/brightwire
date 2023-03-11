@@ -148,7 +148,7 @@ namespace BrightData.Buffer.EncodedStream
 #endif
             }
 
-            IEnumerable<object> ICanEnumerate.Values => Values.Cast<object>();
+            IEnumerable<object> ICanEnumerate.Values => Values;
             public IEnumerable<string> Values => _reader.Values.Select(i => _stringTable[i]);
             public uint Size => _reader.Size;
             public void WriteTo(BinaryWriter writer)

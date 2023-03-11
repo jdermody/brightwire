@@ -3,7 +3,7 @@
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// 4D tensor
+    /// Row major 4D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
     public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D

@@ -1,6 +1,5 @@
 ﻿using System;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using FluentAssertions;
 
 namespace BrightData.UnitTests.Helper

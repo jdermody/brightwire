@@ -4,7 +4,6 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
-using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 

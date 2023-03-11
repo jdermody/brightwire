@@ -1,5 +1,4 @@
-﻿using BrightData;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BrightAPI.Models.DataTable.Requests
 {

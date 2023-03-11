@@ -1,6 +1,5 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
-using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {

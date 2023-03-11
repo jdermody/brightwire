@@ -5,7 +5,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// 3D tensor
+    /// Row major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
     public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D

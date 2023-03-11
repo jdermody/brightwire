@@ -5,7 +5,6 @@ using System.Linq;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Cuda.Helper;
-using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;

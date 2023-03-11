@@ -240,7 +240,7 @@ namespace BrightAPI.Controllers
                 var index = 0;
                 foreach (var column in request.Columns) {
                     if(column.ColumnIndices.Any(x => x > table.ColumnCount))
-                        throw new BadHttpRequestException($"Column index exceeded column count");
+                        throw new BadHttpRequestException("Column index exceeded column count");
 
                     reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name);
                 }

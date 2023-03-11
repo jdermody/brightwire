@@ -240,20 +240,15 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public float L2Norm() => Lap.L2Norm(Segment);
 
-        /// <inheritdoc />
-        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Lap.GetMinAndMaxValues(Segment);
+        //public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Lap.GetMinAndMaxValues(Segment);
 
-        /// <inheritdoc />
-        public uint GetMinIndex() => Lap.GetMinIndex(Segment);
+        //public uint GetMinIndex() => Lap.GetMinIndex(Segment);
 
-        /// <inheritdoc />
-        public uint GetMaxIndex() => Lap.GetMaxIndex(Segment);
+        //public uint GetMaxIndex() => Lap.GetMaxIndex(Segment);
 
-        /// <inheritdoc />
-        public float GetMin() => Lap.GetMin(Segment);
+        //public float GetMin() => Lap.GetMin(Segment);
 
-        /// <inheritdoc />
-        public float GetMax() => Lap.GetMax(Segment);
+        //public float GetMax() => Lap.GetMax(Segment);
 
         /// <inheritdoc />
         public bool IsEntirelyFinite() => Lap.IsEntirelyFinite(Segment);

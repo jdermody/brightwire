@@ -1,6 +1,5 @@
 ﻿using System;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 

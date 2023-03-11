@@ -188,8 +188,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         }
         public void SetCacheConfig(CuFuncCache config, CuDevice device)
         {
-            CuResult res;
-            res = DriverApiNativeMethods.LibraryManagement.cuKernelSetCacheConfig(this, config, device);
+            var res = DriverApiNativeMethods.LibraryManagement.cuKernelSetCacheConfig(this, config, device);
             if (res != CuResult.Success)
                 throw new CudaException(res);
         }

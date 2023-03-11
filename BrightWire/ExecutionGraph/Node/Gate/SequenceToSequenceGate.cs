@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;

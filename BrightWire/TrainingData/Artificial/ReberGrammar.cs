@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
@@ -133,6 +132,7 @@ namespace BrightWire.TrainingData.Artificial
 		            continue;
 	            yield return ret;
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
 	    /// <summary>
@@ -150,6 +150,7 @@ namespace BrightWire.TrainingData.Artificial
 		            continue;
 	            yield return ret;
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         string GenerateExtended()

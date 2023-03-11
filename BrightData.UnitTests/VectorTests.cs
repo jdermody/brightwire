@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
@@ -631,7 +629,7 @@ namespace BrightData.UnitTests
         public void VectorSoftMax()
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
-            using var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            using var a = _cpu.CreateVector(128, _ => distribution.Sample());
             using var cpu = a.Softmax();
 
             using var gpu = Apply(_cuda, a, a => a.Softmax());
@@ -643,7 +641,7 @@ namespace BrightData.UnitTests
         public void VectorSoftMaxDerivative()
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
-            using var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            using var a = _cpu.CreateVector(128, _ => distribution.Sample());
             using var cpu = a.SoftmaxDerivative();
 
             using var gpuA = _cuda.CreateVector(a);
@@ -658,7 +656,7 @@ namespace BrightData.UnitTests
         public void VectorReverse()
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
-            var a = _cpu.CreateVector(128, _ => (float)distribution.Sample());
+            var a = _cpu.CreateVector(128, _ => distribution.Sample());
             var cpu = a.Reverse();
 
             using var gpu = Apply(_cuda, a, a => a.Reverse());
@@ -696,7 +694,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestFinite()
         {
-            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f});
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f);
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -709,7 +707,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestFinite2()
         {
-            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f, float.Epsilon});
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f, float.Epsilon);
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -722,7 +720,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite()
         {
-            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NaN});
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NaN);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -735,7 +733,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite2()
         {
-            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NegativeInfinity});
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NegativeInfinity);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -748,7 +746,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite3()
         {
-            var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.PositiveInfinity});
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.PositiveInfinity);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector);
@@ -761,7 +759,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestRoundInPlace()
         {
-            using var cpu = _cpu.CreateVector(new [] {0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f});
+            using var cpu = _cpu.CreateVector(0.5f, 0.75f, 1f, 1.5f, 0.25f, 0.1f, 0f, -1f);
             using var gpu = _cuda.CreateVector(cpu);
             using var mkl = _mkl.CreateVector(cpu);
 

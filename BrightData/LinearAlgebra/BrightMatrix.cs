@@ -8,7 +8,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// Matrix type
+    /// Row major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
     public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix

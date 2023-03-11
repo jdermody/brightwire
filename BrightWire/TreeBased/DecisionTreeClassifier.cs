@@ -21,7 +21,7 @@ namespace BrightWire.TreeBased
         public IEnumerable<string> ClassifyInternal(BrightDataTableRow row)
         {
             var p = _tree.Root;
-            while(p != null) {
+            while(true) {
                 if (p.ColumnIndex.HasValue) {
                     string? findChild;
                     if(p.Split.HasValue) {

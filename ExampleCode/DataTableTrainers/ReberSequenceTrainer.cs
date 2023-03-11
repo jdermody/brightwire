@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.Helper;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using BrightDataTable = BrightData.DataTable.BrightDataTable;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;

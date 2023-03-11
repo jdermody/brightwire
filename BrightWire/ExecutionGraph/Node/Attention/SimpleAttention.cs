@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightData.Serialisation;
-using BrightWire.ExecutionGraph.Node.Layer;
 
 namespace BrightWire.ExecutionGraph.Node.Attention
 {
