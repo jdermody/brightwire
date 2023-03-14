@@ -106,7 +106,6 @@ namespace BrightData.DataTable
                 if(offset == 0)
                     return Array.Empty<string>();
 
-                // TODO: think about on demand loading
                 lock (_stream) {
                     _stream.Seek(_header.StringOffset, SeekOrigin.Begin);
                     using var reader2 = new BinaryReader(_stream, Encoding.UTF8, true);

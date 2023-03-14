@@ -239,6 +239,32 @@ namespace BrightData
         public float CosineSimilarity(WeightedIndexList other) => Dot(other) / (Magnitude * other.Magnitude);
 
         /// <summary>
+        /// Calculates the euclidean distance between this and another weighted index list
+        /// </summary>
+        /// <param name="other">Other list to compare</param>
+        /// <returns></returns>
+        public float EuclideanDistance(WeightedIndexList other)
+        {
+            var data = new Dictionary<uint /* index */, (float Weight1, float Weight2)>();
+            foreach (var item in _indices)
+                data[item.Index] = (item.Weight, 0f);
+
+            foreach (var item in other._indices) {
+                var index = item.Index;
+                if (data.TryGetValue(index, out var pair))
+                    data[index] = (pair.Item1, item.Weight);
+                else
+                    data[index] = (0f, item.Weight);
+            }
+
+            return MathF.Sqrt(data.Values
+                .Select(pair => pair.Item1 - pair.Item2)
+                .Select(diff => diff * diff)
+                .Sum()
+            );
+        }
+
+        /// <summary>
         /// Returns the index with the highest weight
         /// </summary>
         public float GetMaxWeight() => Indices.Any()

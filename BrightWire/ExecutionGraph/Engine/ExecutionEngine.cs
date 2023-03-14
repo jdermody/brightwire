@@ -140,7 +140,6 @@ namespace BrightWire.ExecutionGraph.Engine
             executionContext.Add(provider.GetMiniBatches(1/*, mb => Execute(executionContext, mb)*/));
 
             IGraphContext? context = null;
-            // TODO: check that there is a single operation?
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
                 context = Execute(executionContext, operation).Single();
@@ -207,7 +206,6 @@ namespace BrightWire.ExecutionGraph.Engine
             executionContext.Add(provider.GetMiniBatches(1));
 
             IGraphContext? context = null;
-            // TODO: check that there is a single operation?
             while (executionContext.GetNextOperation() is { } operation) {
                 context = Execute(executionContext, operation).Single();
             }

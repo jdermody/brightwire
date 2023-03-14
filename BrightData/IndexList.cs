@@ -224,17 +224,6 @@ namespace BrightData
         /// <returns></returns>
         public bool HasIndex(uint index) => Indices.Contains(index);
 
-        //public float PearsonSimilarity(IndexList other)
-        //{
-        //    var set = new HashSet<uint>(_indices);
-        //    var overlap = other.Indices.Where(set.Contains).Count();
-        //    float numerator = 2 * overlap;
-        //    float denominator = Count + other.Count;
-        //    if (denominator == 0)
-        //        return 0;
-        //    return numerator / denominator;
-        //}
-
         /// <summary>
         /// Calculates the overlap similarity between this and another index list
         /// </summary>

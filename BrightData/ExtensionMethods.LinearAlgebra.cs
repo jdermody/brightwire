@@ -1730,5 +1730,50 @@ namespace BrightData
 
             public void Invoke(int i) => _segment[i] = _action(_segment[i]);
         }
+
+        /// <summary>
+        /// Calculates the pearson correlation coefficient metric between two tensor segments
+        /// https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="DivideByZeroException"></exception>
+        public static double? PearsonCorrelationCoefficient(this ITensorSegment x, ITensorSegment y)
+        {
+            var size = x.Size;
+            if (size != y.Size)
+                throw new ArgumentException("The segments must have the same length.");
+
+            // calculate the means of x and y
+            var xMean = x.Average();
+            var yMean = y.Average();
+
+            // calculate the numerator and denominator of the Pearson similarity formula
+            var numerator = 0f;
+            var denominatorX = 0f;
+            var denominatorY = 0f;
+
+            for (var i = 0; i < size; i++) {
+                // get the deviations from the means
+                var xDeviation = x[i] - xMean;
+                var yDeviation = y[i] - yMean;
+
+                // update the numerator and denominator
+                numerator += xDeviation * yDeviation;
+                denominatorX += xDeviation * xDeviation;
+                denominatorY += yDeviation * yDeviation;
+            }
+
+            // calculate the Pearson similarity
+            var denominator = MathF.Sqrt(denominatorX * denominatorY);
+    
+            // check if the denominator is zero
+            if (denominator == 0)
+                throw new DivideByZeroException("The standard deviations of x and y are zero.");
+
+            return numerator / denominator;
+        }
     }
 }
