@@ -6,7 +6,7 @@ using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.CudaToolkit
 {
-    internal static class DriverApiNativeMethods
+    internal static partial class DriverApiNativeMethods
     {
         internal const string CudaDriverApiDllName = "nvcuda";
         internal const string CublasApiDllName = "cublas64_12";
@@ -66,20 +66,22 @@ namespace BrightData.Cuda.CudaToolkit
         {
         }
         public static Version Version => new(12, 0);
-        [DllImport(CudaDriverApiDllName)]
-        public static extern CuResult cuInit(CuInitializationFlags flags);
-        [DllImport(CudaDriverApiDllName)]
-        public static extern CuResult cuDriverGetVersion(ref int driverVersion);
-        public static class DeviceManagement
+
+        [LibraryImport(CudaDriverApiDllName)]
+        public static partial CuResult cuInit(CuInitializationFlags flags);
+        [LibraryImport(CudaDriverApiDllName)]
+        public static partial CuResult cuDriverGetVersion(ref int driverVersion);
+
+        public static partial class DeviceManagement
         {
             static DeviceManagement()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuDeviceGet(ref CuDevice device, int ordinal);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuDeviceGetCount(ref int count);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuDeviceGet(ref CuDevice device, int ordinal);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuDeviceGetCount(ref int count);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuDeviceGetName([Out] byte[] name, int len, CuDevice dev);
             [DllImport(CudaDriverApiDllName)]
@@ -92,8 +94,8 @@ namespace BrightData.Cuda.CudaToolkit
             public static extern CuResult cuDeviceTotalMem_v2(ref SizeT bytes, CuDevice dev);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuDeviceGetTexture1DLinearMaxWidth(ref SizeT maxWidthInElements, CuArrayFormat format, uint numChannels, CuDevice dev);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuDeviceGetAttribute(ref int pi, CuDeviceAttribute attrib, CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuDeviceGetAttribute(ref int pi, CuDeviceAttribute attrib, CuDevice dev);
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuDeviceGetNvSciSyncAttributes(IntPtr nvSciSyncAttrList, CuDevice dev, NvSciSyncAttr flags);
             [DllImport(CudaDriverApiDllName)]
@@ -119,68 +121,68 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuDeviceGetExecAffinitySupport(ref int pi, CuExecAffinityType type, CuDevice dev);
         }
-        public static class ContextManagement
+        public static partial class ContextManagement
         {
             static ContextManagement()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxCreate_v2(ref CuContext pctx, CuCtxFlags flags, CuDevice dev);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxCreate_v3(ref CuContext pctx, CuExecAffinityParam[] paramsArray, int numParams, CuCtxFlags flags, CuDevice dev);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxDestroy_v2(CuContext ctx);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxCreate_v2(ref CuContext pctx, CuCtxFlags flags, CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxCreate_v3(ref CuContext pctx, CuExecAffinityParam[] paramsArray, int numParams, CuCtxFlags flags, CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxDestroy_v2(CuContext ctx);
             [DllImport(CudaDriverApiDllName)]
             [Obsolete(CudaObsolet92)]
             public static extern CuResult cuCtxAttach(ref CuContext pctx, CuCtxAttachFlags flags);
             [DllImport(CudaDriverApiDllName)]
             [Obsolete(CudaObsolet92)]
             public static extern CuResult cuCtxDetach([In] CuContext ctx);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxPushCurrent_v2([In] CuContext ctx);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxPopCurrent_v2(ref CuContext pctx);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxSetCurrent([In] CuContext ctx);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetCurrent(ref CuContext pctx);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetDevice(ref CuDevice device);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxSynchronize();
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetApiVersion(CuContext ctx, ref uint version);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetCacheConfig(ref CuFuncCache pconfig);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxSetCacheConfig(CuFuncCache config);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetSharedMemConfig(ref CuSharedConfig pConfig);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxSetSharedMemConfig(CuSharedConfig config);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetStreamPriorityRange(ref int leastPriority, ref int greatestPriority);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxResetPersistingL2Cache();
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetExecAffinity(ref CuExecAffinityParam pExecAffinity, CuExecAffinityType type);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetFlags(ref CuCtxFlags flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuCtxGetId(CuContext ctx, ref ulong ctxId);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuDevicePrimaryCtxRetain(ref CuContext pctx, CuDevice dev);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxRelease_v2")]
-            public static extern CuResult cuDevicePrimaryCtxRelease(CuDevice dev);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
-            public static extern CuResult cuDevicePrimaryCtxSetFlags(CuDevice dev, CuCtxFlags flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuDevicePrimaryCtxGetState(CuDevice dev, ref CuCtxFlags flags, ref int active);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxReset_v2")]
-            public static extern CuResult cuDevicePrimaryCtxReset(CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxPushCurrent_v2(CuContext ctx);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxPopCurrent_v2(ref CuContext pctx);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxSetCurrent(CuContext ctx);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetCurrent(ref CuContext pctx);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetDevice(ref CuDevice device);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxSynchronize();
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetApiVersion(CuContext ctx, ref uint version);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetCacheConfig(ref CuFuncCache pconfig);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxSetCacheConfig(CuFuncCache config);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetSharedMemConfig(ref CuSharedConfig pConfig);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxSetSharedMemConfig(CuSharedConfig config);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetStreamPriorityRange(ref int leastPriority, ref int greatestPriority);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxResetPersistingL2Cache();
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetExecAffinity(ref CuExecAffinityParam pExecAffinity, CuExecAffinityType type);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetFlags(ref CuCtxFlags flags);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuCtxGetId(CuContext ctx, ref ulong ctxId);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuDevicePrimaryCtxRetain(ref CuContext pctx, CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxRelease_v2")]
+            public static partial CuResult cuDevicePrimaryCtxRelease(CuDevice dev);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
+            public static partial CuResult cuDevicePrimaryCtxSetFlags(CuDevice dev, CuCtxFlags flags);
+            [LibraryImport(CudaDriverApiDllName)]
+            public static partial CuResult cuDevicePrimaryCtxGetState(CuDevice dev, ref CuCtxFlags flags, ref int active);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuDevicePrimaryCtxReset_v2")]
+            public static partial CuResult cuDevicePrimaryCtxReset(CuDevice dev);
         }
-        public static class ModuleManagement
+        public static partial class ModuleManagement
         {
             static ModuleManagement()
             {
@@ -220,7 +222,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuModuleGetLoadingMode(ref CuModuleLoadingMode mode);
         }
-        public static class LibraryManagement
+        public static partial class LibraryManagement
         {
             static LibraryManagement()
             {
@@ -259,364 +261,201 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuKernelSetCacheConfig(CuKernel kernel, CuFuncCache config, CuDevice dev);
         }
-        public static class MemoryManagement
+        public static partial class MemoryManagement
         {
             static MemoryManagement()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetInfo_v2(ref SizeT free, ref SizeT total);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAlloc_v2(ref CuDevicePtr dptr, SizeT bytesize);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAllocPitch_v2(ref CuDevicePtr dptr, ref SizeT pPitch, SizeT widthInBytes, SizeT height, uint elementSizeBytes);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemFree_v2(CuDevicePtr dptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetAddressRange_v2(ref CuDevicePtr pbase, ref SizeT psize, CuDevicePtr dptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAllocHost_v2(ref IntPtr pp, SizeT bytesize);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemFreeHost(IntPtr p);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemHostAlloc(ref IntPtr pp, SizeT bytesize, CuMemHostAllocFlags flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemHostGetDevicePointer_v2(ref CuDevicePtr pdptr, IntPtr p, int flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemHostGetFlags(ref CuMemHostAllocFlags pFlags, IntPtr p);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemHostRegister_v2")]
-            public static extern CuResult cuMemHostRegister(IntPtr p, SizeT byteSize, CuMemHostRegisterFlags flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemHostUnregister(IntPtr p);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref CuContext data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref CuMemoryType data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref CuDevicePtr data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref IntPtr data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref CudaPointerAttributeP2PTokens data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref int data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttribute(ref ulong data, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemPrefetchAsync")]
-            public static extern CuResult cuMemPrefetchAsync(CuDevicePtr devPtr, SizeT count, CuDevice dstDevice, CuStream hStream);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAdvise(CuDevicePtr devPtr, SizeT count, CuMemAdvise advice, CuDevice device);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemRangeGetAttribute(IntPtr data, SizeT dataSize, CuMemRangeAttribute attribute, CuDevicePtr devPtr, SizeT count);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemRangeGetAttributes([In, Out] IntPtr[] data, [In, Out] SizeT[] dataSizes, [In, Out] CuMemRangeAttribute[] attributes, SizeT numAttributes, CuDevicePtr devPtr, SizeT count);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAllocManaged(ref CuDevicePtr dptr, SizeT bytesize, CuMemAttachFlags flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerSetAttribute(ref int value, CuPointerAttribute attribute, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuPointerGetAttributes(uint numAttributes, [In, Out] CuPointerAttribute[] attributes, IntPtr data, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAddressReserve(ref CuDevicePtr ptr, SizeT size, SizeT alignment, CuDevicePtr addr, ulong flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemAddressFree(CuDevicePtr ptr, SizeT size);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemCreate(ref CuMemGenericAllocationHandle handle, SizeT size, ref CuMemAllocationProp prop, ulong flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemRelease(CuMemGenericAllocationHandle handle);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemMap(CuDevicePtr ptr, SizeT size, SizeT offset, CuMemGenericAllocationHandle handle, ulong flags);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "pcuMemMapArrayAsync")]
-            public static extern CuResult pcuMemMapArrayAsync(CuArrayMapInfo[] mapInfoList, uint count, CuStream hStream);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemUnmap(CuDevicePtr ptr, SizeT size);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemSetAccess(CuDevicePtr ptr, SizeT size, CuMemAccessDesc[] desc, SizeT count);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetAccess(ref ulong flags, ref CuMemLocation location, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemExportToShareableHandle(IntPtr shareableHandle, CuMemGenericAllocationHandle handle, CuMemAllocationHandleType handleType, ulong flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemImportFromShareableHandle(ref CuMemGenericAllocationHandle handle, IntPtr osHandle, CuMemAllocationHandleType shHandleType);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetAllocationGranularity(ref SizeT granularity, ref CuMemAllocationProp prop, CuMemAllocationGranularityFlags option);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetAllocationPropertiesFromHandle(ref CuMemAllocationProp prop, CuMemGenericAllocationHandle handle);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemRetainAllocationHandle(ref CuMemGenericAllocationHandle handle, IntPtr addr);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemFreeAsync")]
-            public static extern CuResult cuMemFreeAsync(CuDevicePtr dptr, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemAllocAsync")]
-            public static extern CuResult cuMemAllocAsync(ref CuDevicePtr dptr, SizeT bytesize, CuStream hStream);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolTrimTo(CuMemoryPool pool, SizeT minBytesToKeep);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolSetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref int value);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolSetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref ulong value);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolGetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref int value);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolGetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref ulong value);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolSetAccess(CuMemoryPool pool, CuMemAccessDesc[] map, SizeT count);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolGetAccess(ref CuMemAccessFlags flags, CuMemoryPool memPool, ref CuMemLocation location);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolCreate(ref CuMemoryPool pool, ref CuMemPoolProps poolProps);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolDestroy(CuMemoryPool pool);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemAllocFromPoolAsync")]
-            public static extern CuResult cuMemAllocFromPoolAsync(ref CuDevicePtr dptr, SizeT bytesize, CuMemoryPool pool, CuStream hStream);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolExportToShareableHandle(ref IntPtr handleOut, CuMemoryPool pool, CuMemAllocationHandleType handleType, ulong flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolImportFromShareableHandle(
-                ref CuMemoryPool poolOut,
-                IntPtr handle,
-                CuMemAllocationHandleType handleType,
-                ulong flags);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolExportPointer(ref CuMemPoolPtrExportData shareDataOut, CuDevicePtr ptr);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemPoolImportPointer(ref CuDevicePtr ptrOut, CuMemoryPool pool, ref CuMemPoolPtrExportData shareData);
-            [DllImport(CudaDriverApiDllName)]
-            public static extern CuResult cuMemGetHandleForAddressRange(IntPtr handle, CuDevicePtr dptr, SizeT size, CuMemRangeHandleType handleType, ulong flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetInfo_v2(ref SizeT free, ref SizeT total);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAlloc_v2(ref CuDevicePtr dptr, SizeT bytesize);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAllocPitch_v2(ref CuDevicePtr dptr, ref SizeT pPitch, SizeT widthInBytes, SizeT height, uint elementSizeBytes);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemFree_v2(CuDevicePtr dptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetAddressRange_v2(ref CuDevicePtr pbase, ref SizeT psize, CuDevicePtr dptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAllocHost_v2(ref IntPtr pp, SizeT bytesize);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemFreeHost(IntPtr p);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemHostAlloc(ref IntPtr pp, SizeT bytesize, CuMemHostAllocFlags flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemHostGetDevicePointer_v2(ref CuDevicePtr pdptr, IntPtr p, int flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemHostGetFlags(ref CuMemHostAllocFlags pFlags, IntPtr p);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemHostRegister_v2")] public static partial CuResult cuMemHostRegister(IntPtr p, SizeT byteSize, CuMemHostRegisterFlags flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemHostUnregister(IntPtr p);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref CuContext data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref CuMemoryType data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref CuDevicePtr data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref IntPtr data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref CudaPointerAttributeP2PTokens data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref int data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttribute(ref ulong data, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemPrefetchAsync")] public static partial CuResult cuMemPrefetchAsync(CuDevicePtr devPtr, SizeT count, CuDevice dstDevice, CuStream hStream); 
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAdvise(CuDevicePtr devPtr, SizeT count, CuMemAdvise advice, CuDevice device);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemRangeGetAttribute(IntPtr data, SizeT dataSize, CuMemRangeAttribute attribute, CuDevicePtr devPtr, SizeT count);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemRangeGetAttributes(IntPtr[] data, SizeT[] dataSizes, CuMemRangeAttribute[] attributes, SizeT numAttributes, CuDevicePtr devPtr, SizeT count);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAllocManaged(ref CuDevicePtr dptr, SizeT bytesize, CuMemAttachFlags flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerSetAttribute(ref int value, CuPointerAttribute attribute, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuPointerGetAttributes(uint numAttributes, CuPointerAttribute[] attributes, IntPtr data, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAddressReserve(ref CuDevicePtr ptr, SizeT size, SizeT alignment, CuDevicePtr addr, ulong flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemAddressFree(CuDevicePtr ptr, SizeT size);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemCreate(ref CuMemGenericAllocationHandle handle, SizeT size, ref CuMemAllocationProp prop, ulong flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemRelease(CuMemGenericAllocationHandle handle);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemMap(CuDevicePtr ptr, SizeT size, SizeT offset, CuMemGenericAllocationHandle handle, ulong flags);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "pcuMemMapArrayAsync")] public static partial CuResult pcuMemMapArrayAsync(CuArrayMapInfo[] mapInfoList, uint count, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemUnmap(CuDevicePtr ptr, SizeT size);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemSetAccess(CuDevicePtr ptr, SizeT size, CuMemAccessDesc[] desc, SizeT count);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetAccess(ref ulong flags, ref CuMemLocation location, CuDevicePtr ptr);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemExportToShareableHandle(IntPtr shareableHandle, CuMemGenericAllocationHandle handle, CuMemAllocationHandleType handleType, ulong flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemImportFromShareableHandle(ref CuMemGenericAllocationHandle handle, IntPtr osHandle, CuMemAllocationHandleType shHandleType);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetAllocationGranularity(ref SizeT granularity, ref CuMemAllocationProp prop, CuMemAllocationGranularityFlags option);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetAllocationPropertiesFromHandle(ref CuMemAllocationProp prop, CuMemGenericAllocationHandle handle);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemRetainAllocationHandle(ref CuMemGenericAllocationHandle handle, IntPtr addr);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemFreeAsync")] public static partial CuResult cuMemFreeAsync(CuDevicePtr dptr, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemAllocAsync")] public static partial CuResult cuMemAllocAsync(ref CuDevicePtr dptr, SizeT bytesize, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolTrimTo(CuMemoryPool pool, SizeT minBytesToKeep);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolSetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref int value);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolSetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref ulong value);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolGetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref int value);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolGetAttribute(CuMemoryPool pool, CuMemPoolAttribute attr, ref ulong value);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolSetAccess(CuMemoryPool pool, CuMemAccessDesc[] map, SizeT count);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolGetAccess(ref CuMemAccessFlags flags, CuMemoryPool memPool, ref CuMemLocation location);
+            [DllImport(CudaDriverApiDllName)] public static extern CuResult cuMemPoolCreate(ref CuMemoryPool pool, ref CuMemPoolProps poolProps);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolDestroy(CuMemoryPool pool);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemAllocFromPoolAsync")] public static partial CuResult cuMemAllocFromPoolAsync(ref CuDevicePtr dptr, SizeT bytesize, CuMemoryPool pool, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolExportToShareableHandle(ref IntPtr handleOut, CuMemoryPool pool, CuMemAllocationHandleType handleType, ulong flags);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemPoolImportFromShareableHandle(ref CuMemoryPool poolOut, IntPtr handle, CuMemAllocationHandleType handleType, ulong flags);
+            [DllImport(CudaDriverApiDllName)] public static extern CuResult cuMemPoolExportPointer(ref CuMemPoolPtrExportData shareDataOut, CuDevicePtr ptr);
+            [DllImport(CudaDriverApiDllName)] public static extern CuResult cuMemPoolImportPointer(ref CuDevicePtr ptrOut, CuMemoryPool pool, ref CuMemPoolPtrExportData shareData);
+            [LibraryImport(CudaDriverApiDllName)] public static partial CuResult cuMemGetHandleForAddressRange(IntPtr handle, CuDevicePtr dptr, SizeT size, CuMemRangeHandleType handleType, ulong flags);
         }
-        public static class SynchronousMemcpyV2
+        public static partial class SynchronousMemcpyV2
         {
             static SynchronousMemcpyV2()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy")]
-            public static extern CuResult cuMemcpy(CuDevicePtr dst, CuDevicePtr src, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyPeer")]
-            public static extern CuResult cuMemcpyPeer(CuDevicePtr dstDevice, CuContext dstContext, CuDevicePtr srcDevice, CuContext srcContext, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DPeer")]
-            public static extern CuResult cuMemcpy3DPeer(ref CudaMemCpy3DPeer pCopy);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] Dim3[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] byte[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] sbyte[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ushort[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] short[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] uint[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] int[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ulong[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] long[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] float[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] double[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref Dim3 srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref byte srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref sbyte srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref ushort srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref short srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref uint srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref int srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref ulong srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref long srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref float srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] ref double srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")]
-            public static extern CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, [In] IntPtr srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] Dim3[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] byte[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] sbyte[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] ushort[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] short[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] uint[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] int[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] ulong[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] long[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] float[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] double[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref Dim3 dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref byte dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref sbyte dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref ushort dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref short dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref uint dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref int dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref ulong dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref long dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref float dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2(ref double dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")]
-            public static extern CuResult cuMemcpyDtoH_v2([Out] IntPtr dstHost, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoD_v2")]
-            public static extern CuResult cuMemcpyDtoD_v2(CuDevicePtr dstDevice, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoA_v2")]
-            public static extern CuResult cuMemcpyDtoA_v2(CuArray dstArray, SizeT dstOffset, CuDevicePtr srcDevice, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoD_v2")]
-            public static extern CuResult cuMemcpyAtoD_v2(CuDevicePtr dstDevice, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] Dim3[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] byte[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] sbyte[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] ushort[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] short[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] uint[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] int[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] ulong[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] long[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] float[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] double[] srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")]
-            public static extern CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, [In] IntPtr srcHost, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] Dim3[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] byte[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] sbyte[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] ushort[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] short[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] uint[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] int[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] ulong[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] long[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] float[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] double[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")]
-            public static extern CuResult cuMemcpyAtoH_v2([Out] IntPtr dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoA_v2")]
-            public static extern CuResult cuMemcpyAtoA_v2(CuArray dstArray, SizeT dstOffset, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2D_v2")]
-            public static extern CuResult cuMemcpy2D_v2(ref CudaMemCpy2D pCopy);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2DUnaligned_v2")]
-            public static extern CuResult cuMemcpy2DUnaligned_v2(ref CudaMemCpy2D pCopy);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3D_v2")]
-            public static extern CuResult cuMemcpy3D_v2(ref CudaMemCpy3D pCopy);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy")] public static partial CuResult cuMemcpy(CuDevicePtr dst, CuDevicePtr src, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyPeer")] public static partial CuResult cuMemcpyPeer(CuDevicePtr dstDevice, CuContext dstContext, CuDevicePtr srcDevice, CuContext srcContext, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DPeer")] public static partial CuResult cuMemcpy3DPeer(ref CudaMemCpy3DPeer pCopy);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, Dim3[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, byte[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, sbyte[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ushort[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, short[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, uint[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, int[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ulong[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, long[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, float[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, double[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref Dim3 srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref byte srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref sbyte srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref ushort srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref short srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref uint srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref int srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref ulong srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref long srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref float srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, ref double srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoD_v2")] public static partial CuResult cuMemcpyHtoD_v2(CuDevicePtr dstDevice, IntPtr srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(Dim3[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(byte[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(sbyte[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ushort[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(short[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(uint[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(int[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ulong[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(long[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(float[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(double[] dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref Dim3 dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref byte dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref sbyte dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref ushort dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref short dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref uint dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref int dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref ulong dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref long dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref float dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(ref double dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoH_v2")] public static partial CuResult cuMemcpyDtoH_v2(IntPtr dstHost, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoD_v2")] public static partial CuResult cuMemcpyDtoD_v2(CuDevicePtr dstDevice, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoA_v2")] public static partial CuResult cuMemcpyDtoA_v2(CuArray dstArray, SizeT dstOffset, CuDevicePtr srcDevice, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoD_v2")] public static partial CuResult cuMemcpyAtoD_v2(CuDevicePtr dstDevice, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, Dim3[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, byte[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, sbyte[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, ushort[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, short[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, uint[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, int[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, ulong[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, long[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, float[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, double[] srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoA_v2")] public static partial CuResult cuMemcpyHtoA_v2(CuArray dstArray, SizeT dstOffset, IntPtr srcHost, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(Dim3[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(byte[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(sbyte[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(ushort[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(short[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(uint[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(int[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(ulong[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(long[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(float[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(double[] dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoH_v2")] public static partial CuResult cuMemcpyAtoH_v2(IntPtr dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoA_v2")] public static partial CuResult cuMemcpyAtoA_v2(CuArray dstArray, SizeT dstOffset, CuArray srcArray, SizeT srcOffset, SizeT byteCount);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2D_v2")] public static partial CuResult cuMemcpy2D_v2(ref CudaMemCpy2D pCopy);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2DUnaligned_v2")] public static partial CuResult cuMemcpy2DUnaligned_v2(ref CudaMemCpy2D pCopy);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3D_v2")] public static partial CuResult cuMemcpy3D_v2(ref CudaMemCpy3D pCopy);
         }
-        public static class AsynchronousMemcpyV2
+        public static partial class AsynchronousMemcpyV2
         {
             static AsynchronousMemcpyV2()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAsync")]
-            public static extern CuResult cuMemcpyAsync(CuDevicePtr dst, CuDevicePtr src, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyPeerAsync")]
-            public static extern CuResult cuMemcpyPeerAsync(CuDevicePtr dstDevice, CuContext dstContext, CuDevicePtr srcDevice, CuContext srcContext, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DPeerAsync")]
-            public static extern CuResult cuMemcpy3DPeerAsync(ref CudaMemCpy3DPeer pCopy, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoDAsync_v2")]
-            public static extern CuResult cuMemcpyHtoDAsync_v2(CuDevicePtr dstDevice, [In] IntPtr srcHost, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoHAsync_v2")]
-            public static extern CuResult cuMemcpyDtoHAsync_v2([Out] IntPtr dstHost, CuDevicePtr srcDevice, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoDAsync_v2")]
-            public static extern CuResult cuMemcpyDtoDAsync_v2(CuDevicePtr dstDevice, CuDevicePtr srcDevice, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoAAsync_v2")]
-            public static extern CuResult cuMemcpyHtoAAsync_v2(CuArray dstArray, SizeT dstOffset, [In] IntPtr srcHost, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoHAsync_v2")]
-            public static extern CuResult cuMemcpyAtoHAsync_v2([Out] IntPtr dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2DAsync_v2")]
-            public static extern CuResult cuMemcpy2DAsync_v2(ref CudaMemCpy2D pCopy, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DAsync_v2")]
-            public static extern CuResult cuMemcpy3DAsync_v2(ref CudaMemCpy3D pCopy, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAsync")] public static partial CuResult cuMemcpyAsync(CuDevicePtr dst, CuDevicePtr src, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyPeerAsync")] public static partial CuResult cuMemcpyPeerAsync(CuDevicePtr dstDevice, CuContext dstContext, CuDevicePtr srcDevice, CuContext srcContext, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DPeerAsync")] public static partial CuResult cuMemcpy3DPeerAsync(ref CudaMemCpy3DPeer pCopy, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoDAsync_v2")] public static partial CuResult cuMemcpyHtoDAsync_v2(CuDevicePtr dstDevice, IntPtr srcHost, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoHAsync_v2")] public static partial CuResult cuMemcpyDtoHAsync_v2(IntPtr dstHost, CuDevicePtr srcDevice, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyDtoDAsync_v2")] public static partial CuResult cuMemcpyDtoDAsync_v2(CuDevicePtr dstDevice, CuDevicePtr srcDevice, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyHtoAAsync_v2")] public static partial CuResult cuMemcpyHtoAAsync_v2(CuArray dstArray, SizeT dstOffset, IntPtr srcHost, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpyAtoHAsync_v2")] public static partial CuResult cuMemcpyAtoHAsync_v2(IntPtr dstHost, CuArray srcArray, SizeT srcOffset, SizeT byteCount, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy2DAsync_v2")] public static partial CuResult cuMemcpy2DAsync_v2(ref CudaMemCpy2D pCopy, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemcpy3DAsync_v2")] public static partial CuResult cuMemcpy3DAsync_v2(ref CudaMemCpy3D pCopy, CuStream hStream);
         }
-        public static class Memset
+        public static partial class Memset
         {
             static Memset()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD8_v2")]
-            public static extern CuResult cuMemsetD8_v2(CuDevicePtr dstDevice, byte b, SizeT n);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD16_v2")]
-            public static extern CuResult cuMemsetD16_v2(CuDevicePtr dstDevice, ushort us, SizeT n);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD32_v2")]
-            public static extern CuResult cuMemsetD32_v2(CuDevicePtr dstDevice, uint ui, SizeT n);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D8_v2")]
-            public static extern CuResult cuMemsetD2D8_v2(CuDevicePtr dstDevice, SizeT dstPitch, byte b, SizeT width, SizeT height);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D16_v2")]
-            public static extern CuResult cuMemsetD2D16_v2(CuDevicePtr dstDevice, SizeT dstPitch, ushort us, SizeT width, SizeT height);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D32_v2")]
-            public static extern CuResult cuMemsetD2D32_v2(CuDevicePtr dstDevice, SizeT dstPitch, uint ui, SizeT width, SizeT height);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD8_v2")] public static partial CuResult cuMemsetD8_v2(CuDevicePtr dstDevice, byte b, SizeT n);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD16_v2")] public static partial CuResult cuMemsetD16_v2(CuDevicePtr dstDevice, ushort us, SizeT n);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD32_v2")] public static partial CuResult cuMemsetD32_v2(CuDevicePtr dstDevice, uint ui, SizeT n);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D8_v2")] public static partial CuResult cuMemsetD2D8_v2(CuDevicePtr dstDevice, SizeT dstPitch, byte b, SizeT width, SizeT height);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D16_v2")] public static partial CuResult cuMemsetD2D16_v2(CuDevicePtr dstDevice, SizeT dstPitch, ushort us, SizeT width, SizeT height);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D32_v2")] public static partial CuResult cuMemsetD2D32_v2(CuDevicePtr dstDevice, SizeT dstPitch, uint ui, SizeT width, SizeT height);
         }
-        public static class MemsetAsync
+        public static partial class MemsetAsync
         {
             static MemsetAsync()
             {
                 DriverApiNativeMethods.Init();
             }
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD8Async")]
-            public static extern CuResult cuMemsetD8Async(CuDevicePtr dstDevice, byte b, SizeT n, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD16Async")]
-            public static extern CuResult cuMemsetD16Async(CuDevicePtr dstDevice, ushort us, SizeT n, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD32Async")]
-            public static extern CuResult cuMemsetD32Async(CuDevicePtr dstDevice, uint ui, SizeT n, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D8Async")]
-            public static extern CuResult cuMemsetD2D8Async(CuDevicePtr dstDevice, SizeT dstPitch, byte b, SizeT width, SizeT height, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D16Async")]
-            public static extern CuResult cuMemsetD2D16Async(CuDevicePtr dstDevice, SizeT dstPitch, ushort us, SizeT width, SizeT height, CuStream hStream);
-            [DllImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D32Async")]
-            public static extern CuResult cuMemsetD2D32Async(CuDevicePtr dstDevice, SizeT dstPitch, uint ui, SizeT width, SizeT height, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD8Async")] public static partial CuResult cuMemsetD8Async(CuDevicePtr dstDevice, byte b, SizeT n, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD16Async")] public static partial CuResult cuMemsetD16Async(CuDevicePtr dstDevice, ushort us, SizeT n, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD32Async")] public static partial CuResult cuMemsetD32Async(CuDevicePtr dstDevice, uint ui, SizeT n, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D8Async")] public static partial CuResult cuMemsetD2D8Async(CuDevicePtr dstDevice, SizeT dstPitch, byte b, SizeT width, SizeT height, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D16Async")] public static partial CuResult cuMemsetD2D16Async(CuDevicePtr dstDevice, SizeT dstPitch, ushort us, SizeT width, SizeT height, CuStream hStream);
+            [LibraryImport(CudaDriverApiDllName, EntryPoint = "cuMemsetD2D32Async")] public static partial CuResult cuMemsetD2D32Async(CuDevicePtr dstDevice, SizeT dstPitch, uint ui, SizeT width, SizeT height, CuStream hStream);
         }
-        public static class FunctionManagement
+        public static partial class FunctionManagement
         {
             static FunctionManagement()
             {
@@ -639,7 +478,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuFuncGetModule(ref CuModule hmod, CuFunction hfunc);
         }
-        public static class ArrayManagement
+        public static partial class ArrayManagement
         {
             static ArrayManagement()
             {
@@ -672,7 +511,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuMipmappedArrayGetMemoryRequirements(ref CudaArrayMemoryRequirements memoryRequirements, CuMipMappedArray mipmap, CuDevice device);
         }
-        public static class Launch
+        public static partial class Launch
         {
             static Launch()
             {
@@ -765,7 +604,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuLaunchKernelEx")]
             static extern CuResult cuLaunchKernelExInternal(ref CuLaunchConfigInternal config, CuFunction f, IntPtr[] kernelParams, IntPtr[] extra);
         }
-        public static class Events
+        public static partial class Events
         {
             static Events()
             {
@@ -796,7 +635,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuStreamBatchMemOp_v2")]
             public static extern CuResult cuStreamBatchMemOp(CuStream stream, uint count, CuStreamBatchMemOpParams[] paramArray, uint flags);
         }
-        public static class Streams
+        public static partial class Streams
         {
             static Streams()
             {
@@ -846,7 +685,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName, EntryPoint = "cuStreamGetId")]
             public static extern CuResult cuStreamGetId(CuStream hStream, ref ulong streamId);
         }
-        public static class Limits
+        public static partial class Limits
         {
             static Limits()
             {
@@ -857,7 +696,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuCtxGetLimit(ref SizeT pvalue, CuLimit limit);
         }
-        public static class CudaPeerAccess
+        public static partial class CudaPeerAccess
         {
             static CudaPeerAccess()
             {
@@ -872,7 +711,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuDeviceGetP2PAttribute(ref int value, CuDeviceP2PAttribute attrib, CuDevice srcDevice, CuDevice dstDevice);
         }
-        public static class Profiling
+        public static partial class Profiling
         {
             static Profiling()
             {
@@ -885,7 +724,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuProfilerStop();
         }
-        public static class ErrorHandling
+        public static partial class ErrorHandling
         {
             static ErrorHandling()
             {
@@ -896,7 +735,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGetErrorName(CuResult error, ref IntPtr pStr);
         }
-        public static class Occupancy
+        public static partial class Occupancy
         {
             static Occupancy()
             {
@@ -1010,7 +849,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             static extern CuResult cuOccupancyMaxActiveClustersInternal(ref int numClusters, CuFunction func, ref CuLaunchConfigInternal config);
         }
-        public static class GraphManagement
+        public static partial class GraphManagement
         {
             static GraphManagement()
             {
@@ -1580,7 +1419,7 @@ namespace BrightData.Cuda.CudaToolkit
             [DllImport(CudaDriverApiDllName)]
             public static extern CuResult cuGraphReleaseUserObject(CuGraph graph, CuUserObject obj, uint count);
         }
-        public static class TensorCoreManagement
+        public static partial class TensorCoreManagement
         {
             static TensorCoreManagement()
             {

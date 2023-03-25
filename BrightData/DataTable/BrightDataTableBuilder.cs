@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -146,8 +147,9 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public ICompositeBufferWithMetaData<IReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
         {
-            // TODO: add constraint
-            return AddColumn<IReadOnlyVector>(name);
+            var ret = AddColumn<IReadOnlyVector>(name);
+            ret.ConstraintValidator = vector => vector.Size == size;
+            return ret;
         }
 
         /// <summary>
@@ -159,8 +161,9 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public ICompositeBufferWithMetaData<IReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
-            // TODO: add constraint
-            return AddColumn<IReadOnlyMatrix>(name);
+            var ret = AddColumn<IReadOnlyMatrix>(name);
+            ret.ConstraintValidator = matrix => matrix.RowCount == rows && matrix.ColumnCount == columns;
+            return ret;
         }
 
         /// <summary>
@@ -173,8 +176,9 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public ICompositeBufferWithMetaData<IReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
-            // TODO: add constraint
-            return AddColumn<IReadOnlyTensor3D>(name);
+            var ret = AddColumn<IReadOnlyTensor3D>(name);
+            ret.ConstraintValidator = tensor => tensor.RowCount == rows && tensor.ColumnCount == columns && tensor.Depth == depth;
+            return ret;
         }
 
         /// <summary>
@@ -188,8 +192,9 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public ICompositeBufferWithMetaData<IReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
-            // TODO: add constraint
-            return AddColumn<IReadOnlyTensor4D>(name);
+            var ret = AddColumn<IReadOnlyTensor4D>(name);
+            ret.ConstraintValidator = tensor => tensor.RowCount == rows && tensor.ColumnCount == columns && tensor.Depth == depth && tensor.Count == count;
+            return ret;
         }
     }
 }

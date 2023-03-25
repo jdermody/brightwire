@@ -202,8 +202,8 @@ namespace BrightData.UnitTests
         [Fact]
         public void TensorMaxPool()
         {
-            const uint filterWidth = 2, filterHeight = 2, xstride = 2, ystride = 2, inputWidth = 4, inputHeight = 4;
-            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(inputHeight, inputWidth, false)).ToArray());
+            const uint filterWidth = 2, filterHeight = 2, xStride = 2, yStride = 2, inputWidth = 4, inputHeight = 4;
+            using var cpuTensor = _cpu.CreateTensor3D(Enumerable.Range(0, 2).Select(_ => _cpu.CreateMatrix(inputHeight, inputWidth, true)).ToArray());
             cpuTensor[0, 0, 0] = 1f;
             cpuTensor[0, 3, 0] = 2f;
             cpuTensor[0, 0, 3] = 3f;
@@ -214,16 +214,16 @@ namespace BrightData.UnitTests
             cpuTensor[1, 1, 2] = 3f;
             cpuTensor[1, 2, 2] = 4f;
 
-            var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
-            using var cpu = cpuMaxPool.ReverseMaxPool(cpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
+            var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+            using var cpu = cpuMaxPool.ReverseMaxPool(cpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xStride, yStride);
             
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor);
-            var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
-            using var gpu = gpuMaxPool.ReverseMaxPool(gpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
+            var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+            using var gpu = gpuMaxPool.ReverseMaxPool(gpuIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xStride, yStride);
 
             using var mklTensor = _mkl.CreateTensor3D(cpuTensor);
-            var (mklMaxPool, mklIndex) = mklTensor.MaxPool(filterWidth, filterHeight, xstride, ystride, true);
-            using var mkl = mklMaxPool.ReverseMaxPool(mklIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xstride, ystride);
+            var (mklMaxPool, mklIndex) = mklTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+            using var mkl = mklMaxPool.ReverseMaxPool(mklIndex!, inputHeight, inputWidth, filterWidth, filterHeight, xStride, yStride);
             try {
                 AssertSame(cpuTensor, cpu);
                 AssertSame(cpuMaxPool, gpuMaxPool, mklMaxPool);

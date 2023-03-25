@@ -1105,13 +1105,13 @@ namespace BrightData.Cuda
 			_cuda.SetCurrent();
 		}
 
-        internal IDeviceMemoryPtr Offset(IDeviceMemoryPtr ptr, SizeT offsetByElements, SizeT size)
+        internal static IDeviceMemoryPtr Offset(IDeviceMemoryPtr ptr, SizeT offsetByElements, SizeT size)
 		{
 			var offsetPtr = ptr.DevicePointer.Pointer + (offsetByElements * FloatSize);
 			return new PtrToMemory(ptr, new CuDevicePtr(offsetPtr), size * FloatSize);
 		}
 
-        internal IDeviceMemoryPtr OffsetByBlock(IDeviceMemoryPtr ptr, SizeT offsetIndex, SizeT blockSize)
+        internal static IDeviceMemoryPtr OffsetByBlock(IDeviceMemoryPtr ptr, SizeT offsetIndex, SizeT blockSize)
 		{
 			return Offset(ptr, blockSize * offsetIndex, blockSize);
 		}

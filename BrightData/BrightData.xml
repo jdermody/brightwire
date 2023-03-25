@@ -457,21 +457,6 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Buffer.Composite.CompositeBufferSegment`1.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Buffer.Composite.CompositeBufferSegment`1.MetaData">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Buffer.Composite.CompositeBufferSegment`1.SegmentType">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Buffer.Composite.CompositeBufferSegment`1.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Buffer.Composite.CompositeBufferSegment`1.CopyTo(System.IO.Stream)">
-            <inheritdoc />
-        </member>
         <member name="T:BrightData.Buffer.Composite.CompositeObjectBuffer`1">
             <summary>
             A composite buffer of objects (that implement IAmSerializable)
@@ -3920,6 +3905,17 @@
             <param name="context"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.PearsonCorrelationCoefficient(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the pearson correlation coefficient metric between two tensor segments
+            https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.DivideByZeroException"></exception>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IHaveTensorSegment)">
             <summary>
             Returns the index with the minimum value from this tensor segment
@@ -4810,6 +4806,11 @@
         <member name="P:BrightData.ICompositeBuffer`1.DistinctItems">
             <summary>
             (Optional) set of the distinct items in the buffer
+            </summary>
+        </member>
+        <member name="P:BrightData.ICompositeBuffer`1.ConstraintValidator">
+            <summary>
+            A function that will be called to validate any constraints when items are added to the buffer
             </summary>
         </member>
         <member name="T:BrightData.ICompositeBufferWithMetaData">
@@ -6267,36 +6268,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensor.GetMinAndMaxValues">
-            <summary>
-            Finds the minimum and maximum values (and those indices) from this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ITensor.GetMinIndex">
-            <summary>
-            Returns the index of the minimum value from this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ITensor.GetMaxIndex">
-            <summary>
-            Returns the index of the maximum value from this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ITensor.GetMin">
-            <summary>
-            Returns the minimum value from this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ITensor.GetMax">
-            <summary>
-            Returns the maximum value from this tensor
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ITensor.IsEntirelyFinite">
             <summary>
             Checks if the tensor is entirely finite (does not contain NAN or Infinity)
@@ -7314,7 +7285,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.BrightMatrix`1">
             <summary>
-            Matrix type
+            Row major matrix type
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
@@ -7492,7 +7463,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.BrightTensor3D`1">
             <summary>
-            3D tensor
+            Row major 3D tensor
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
@@ -7628,7 +7599,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.BrightTensor4D`1">
             <summary>
-            4D tensor
+            Row major 4D tensor
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
@@ -7891,21 +7862,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.L2Norm">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetMinAndMaxValues">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetMinIndex">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetMaxIndex">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetMin">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetMax">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.IsEntirelyFinite">
@@ -10299,6 +10255,13 @@
         <member name="M:BrightData.WeightedIndexList.CosineSimilarity(BrightData.WeightedIndexList)">
             <summary>
             Cosine similarity between this and another weighted index list
+            </summary>
+            <param name="other">Other list to compare</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.EuclideanDistance(BrightData.WeightedIndexList)">
+            <summary>
+            Calculates the euclidean distance between this and another weighted index list
             </summary>
             <param name="other">Other list to compare</param>
             <returns></returns>

@@ -32,8 +32,13 @@ namespace BrightData.Buffer.Composite
             }
         }
 
+        public Predicate<T>? ConstraintValidator { get; set; } = null;
+
         public void Add(T item)
         {
+            if (!ConstraintValidator?.Invoke(item) == false)
+                throw new InvalidOperationException($"Failed to add item to buffer as it failed validation: {item}");
+
             if (_tempBuffer.Count == _maxCount) {
                 var stream = _tempStream.Get(_id);
                 stream.Seek(0, SeekOrigin.End);

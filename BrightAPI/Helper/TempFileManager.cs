@@ -11,6 +11,7 @@
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             foreach (var tempPath in _tempPaths.Where(File.Exists))
                 File.Delete(tempPath);
         }

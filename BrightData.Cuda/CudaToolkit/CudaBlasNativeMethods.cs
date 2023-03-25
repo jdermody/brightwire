@@ -4,7 +4,7 @@ using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.CudaToolkit
 {
-    internal static class CudaBlasNativeMethods
+    internal static partial class CudaBlasNativeMethods
     {
         internal const string CublasApiDllName = "cublas64_12";
 
@@ -13,139 +13,74 @@ namespace BrightData.Cuda.CudaToolkit
             DriverApiNativeMethods.Init();
         }
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCreate_v2(ref CudaBlasHandle handle);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCreate_v2(ref CudaBlasHandle handle);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDestroy_v2(CudaBlasHandle handle);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDestroy_v2(CudaBlasHandle handle);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetVersion_v2(CudaBlasHandle handle, ref int version);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetVersion_v2(CudaBlasHandle handle, ref int version);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetWorkspace_v2(CudaBlasHandle handle, CuDevicePtr workspace, SizeT workspaceSizeInBytes);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetWorkspace_v2(CudaBlasHandle handle, CuDevicePtr workspace, SizeT workspaceSizeInBytes);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetStream_v2(CudaBlasHandle handle, CuStream streamId);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetStream_v2(CudaBlasHandle handle, CuStream streamId);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetStream_v2(CudaBlasHandle handle, ref CuStream streamId);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetStream_v2(CudaBlasHandle handle, ref CuStream streamId);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetPointerMode_v2(CudaBlasHandle handle, ref PointerMode mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetPointerMode_v2(CudaBlasHandle handle, ref PointerMode mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetPointerMode_v2(CudaBlasHandle handle, PointerMode mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetPointerMode_v2(CudaBlasHandle handle, PointerMode mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetAtomicsMode(CudaBlasHandle handle, ref AtomicsMode mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetAtomicsMode(CudaBlasHandle handle, ref AtomicsMode mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetAtomicsMode(CudaBlasHandle handle, AtomicsMode mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetAtomicsMode(CudaBlasHandle handle, AtomicsMode mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetMathMode(CudaBlasHandle handle, ref Math mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetMathMode(CudaBlasHandle handle, ref Math mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetMathMode(CudaBlasHandle handle, Math mode);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetMathMode(CudaBlasHandle handle, Math mode);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetSmCountTarget(CudaBlasHandle handle, ref int smCountTarget);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetSmCountTarget(CudaBlasHandle handle, ref int smCountTarget);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetSmCountTarget(CudaBlasHandle handle, int smCountTarget);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetSmCountTarget(CudaBlasHandle handle, int smCountTarget);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasLoggerConfigure(int logIsOn, int logToStdOut, int logToStdErr, [MarshalAs(UnmanagedType.LPStr)] string logFileName);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasLoggerConfigure(int logIsOn, int logToStdOut, int logToStdErr, [MarshalAs(UnmanagedType.LPStr)] string logFileName);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetLoggerCallback(CublasLogCallback userCallback);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetLoggerCallback(CublasLogCallback userCallback);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetLoggerCallback(ref CublasLogCallback userCallback);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetVector(int n, int elemSize, [In] IntPtr x, int incx, CuDevicePtr devicePtr, int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetVector(int n, int elemSize, [In] CuDevicePtr x, int incx, IntPtr y, int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetMatrix(int rows, int cols, int elemSize, [In] IntPtr a, int lda, CuDevicePtr b, int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetMatrix(int rows, int cols, int elemSize, [In] CuDevicePtr a, int lda, IntPtr b, int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetVectorAsync(int n, int elemSize, [In] IntPtr hostPtr, int incx, CuDevicePtr devicePtr, int incy, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetVectorAsync(int n, int elemSize, [In] CuDevicePtr devicePtr, int incx, IntPtr hostPtr, int incy, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetMatrixAsync(int rows, int cols, int elemSize, [In] IntPtr a, int lda, CuDevicePtr b, int ldb, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetMatrixAsync(int rows, int cols, int elemSize, [In] CuDevicePtr a, int lda, IntPtr b, int ldb, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCopyEx(CudaBlasHandle handle,
-            int n,
-            [In] CuDevicePtr x,
-            CudaDataType xType,
-            int incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScopy_v2(CudaBlasHandle handle,
-            int n,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDcopy_v2(CudaBlasHandle handle,
-            int n,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCcopy_v2(CudaBlasHandle handle,
-            int n,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZcopy_v2(CudaBlasHandle handle,
-            int n,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSswap_v2(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDswap_v2(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCswap_v2(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZswap_v2(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            int incx,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSwapEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetLoggerCallback(ref CublasLogCallback userCallback);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetVector(int n, int elemSize, IntPtr x, int incx, CuDevicePtr devicePtr, int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetVector(int n, int elemSize, CuDevicePtr x, int incx, IntPtr y, int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetMatrix(int rows, int cols, int elemSize, IntPtr a, int lda, CuDevicePtr b, int ldb);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetMatrix(int rows, int cols, int elemSize, CuDevicePtr a, int lda, IntPtr b, int ldb);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetVectorAsync(int n, int elemSize, IntPtr hostPtr, int incx, CuDevicePtr devicePtr, int incy, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetVectorAsync(int n, int elemSize, CuDevicePtr devicePtr, int incx, IntPtr hostPtr, int incy, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetMatrixAsync(int rows, int cols, int elemSize, IntPtr a, int lda, CuDevicePtr b, int ldb, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetMatrixAsync(int rows, int cols, int elemSize, CuDevicePtr a, int lda, IntPtr b, int ldb, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCopyEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -153,8 +88,73 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasNrm2Ex(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScopy_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDcopy_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCcopy_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZcopy_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSswap_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDswap_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCswap_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZswap_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSwapEx(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
+            CudaDataType xType,
+            int incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasNrm2Ex(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -162,20 +162,8 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotEx(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            CudaDataType xType,
-            int incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            int incy,
-            IntPtr result,
-            CudaDataType resultType,
-            CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotcEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -186,48 +174,60 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotcEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
+            CudaDataType xType,
+            int incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            int incy,
+            IntPtr result,
+            CudaDataType resultType,
+            CudaDataType executionType);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSnrm2_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
             int incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDnrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScnrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDznrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDznrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdot_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdot_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScalEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScalEx(CudaBlasHandle handle,
             int n,
             IntPtr alpha,
             CudaDataType alphaType,
@@ -235,32 +235,32 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType xType,
             int incx,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSscal_v2(CudaBlasHandle handle,
             int n,
-            [In] ref float alpha,
+            ref float alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDscal_v2(CudaBlasHandle handle,
             int n,
-            [In] ref double alpha,
+            ref double alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsscal_v2(CudaBlasHandle handle,
             int n,
-            [In] ref float alpha,
+            ref float alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdscal_v2(CudaBlasHandle handle,
             int n,
-            [In] ref double alpha,
+            ref double alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAxpyEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAxpyEx(CudaBlasHandle handle,
             int n,
             IntPtr alpha,
             CudaDataType alphaType,
@@ -271,156 +271,156 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType yType,
             int incy,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
+            ref float alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
+            ref double alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIamaxEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIamaxEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             int incx,
             ref int result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref int result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIaminEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIaminEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             int incx,
             ref int result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAsumEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAsumEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             CudaDataType xType,
             int incx,
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDzasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDzasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] ref float c,
-            [In] ref float s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrot_v2(CudaBlasHandle handle,
+            ref float c,
+            ref float s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] ref double c,
-            [In] ref double s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsrot_v2(CudaBlasHandle handle,
+            ref double c,
+            ref double s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] ref float c,
-            [In] ref float s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdrot_v2(CudaBlasHandle handle,
+            ref float c,
+            ref float s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] ref double c,
-            [In] ref double s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotEx(CudaBlasHandle handle,
+            ref double c,
+            ref double s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -432,20 +432,20 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
             ref float a,
             ref float b,
             ref float c,
             ref float s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotg_v2(CudaBlasHandle handle,
             ref double a,
             ref double b,
             ref double c,
             ref double s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotgEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotgEx(CudaBlasHandle handle,
             IntPtr a,
             IntPtr b,
             CudaDataType abType,
@@ -453,26 +453,26 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             float[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotm_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             double[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -483,24 +483,24 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr param,
             CudaDataType paramType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
             ref float d1,
             ref float d2,
             ref float x1,
-            [In] ref float y1,
+            ref float y1,
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             float[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotmg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotmg_v2(CudaBlasHandle handle,
             ref double d1,
             ref double d2,
             ref double x1,
-            [In] ref double y1,
+            ref double y1,
             [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             double[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmgEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmgEx(CudaBlasHandle handle,
             IntPtr d1,
             CudaDataType d1Type,
             IntPtr d2,
@@ -513,8 +513,8 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType paramType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasNrm2Ex(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasNrm2Ex(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -522,20 +522,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotEx(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr x,
-            CudaDataType xType,
-            int incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            int incy,
-            CuDevicePtr result,
-            CudaDataType resultType,
-            CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotcEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -546,80 +534,92 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotcEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
+            CudaDataType xType,
+            int incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            int incy,
+            CuDevicePtr result,
+            CudaDataType resultType,
+            CudaDataType executionType);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSnrm2_v2(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDnrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScnrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScnrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDznrm2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDznrm2_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdot_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdot_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdotu_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdotu_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdotc_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdotc_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdotu_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdotu_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdotc_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdotc_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScalEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScalEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr alpha,
             CudaDataType alphaType,
@@ -627,44 +627,44 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType xType,
             int incx,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdscal_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdscal_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAxpyEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAxpyEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr alpha,
             CudaDataType alphaType,
@@ -675,190 +675,190 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType yType,
             int incy,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZaxpy_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZaxpy_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamax_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamax_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIamaxEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIamaxEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             int incx,
             CuDevicePtr result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamin_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamin_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIaminEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIaminEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             int incx,
             CuDevicePtr result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAsumEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAsumEx(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             CudaDataType xType,
             int incx,
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDzasum_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDzasum_v2(CudaBlasHandle handle,
             int n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrot_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrot_v2(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCrot_v2(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsrot_v2(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZrot_v2(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdrot_v2(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdrot_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotEx(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -870,32 +870,32 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
             CuDevicePtr a,
             CuDevicePtr b,
             CuDevicePtr c,
             CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotg_v2(CudaBlasHandle handle,
             CuDevicePtr a,
             CuDevicePtr b,
             CuDevicePtr c,
             CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCrotg_v2(CudaBlasHandle handle,
             CuDevicePtr a,
             CuDevicePtr b,
             CuDevicePtr c,
             CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZrotg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZrotg_v2(CudaBlasHandle handle,
             CuDevicePtr a,
             CuDevicePtr b,
             CuDevicePtr c,
             CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotgEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotgEx(CudaBlasHandle handle,
             CuDevicePtr a,
             CuDevicePtr b,
             CudaDataType abType,
@@ -903,24 +903,24 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotm_v2(CudaBlasHandle handle,
+            CuDevicePtr param);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotm_v2(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             int incx,
             CuDevicePtr y,
             int incy,
-            [In] CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmEx(CudaBlasHandle handle,
+            CuDevicePtr param);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmEx(CudaBlasHandle handle,
             int n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -931,944 +931,944 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr param,
             CudaDataType paramType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
             CuDevicePtr d1,
             CuDevicePtr d2,
             CuDevicePtr x1,
-            [In] CuDevicePtr y1,
+            CuDevicePtr y1,
             CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotmg_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotmg_v2(CudaBlasHandle handle,
             CuDevicePtr d1,
             CuDevicePtr d2,
             CuDevicePtr x1,
-            [In] CuDevicePtr y1,
+            CuDevicePtr y1,
             CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmgEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmgEx(CudaBlasHandle handle,
             CuDevicePtr d1,
             CudaDataType d1Type,
             CuDevicePtr d2,
             CudaDataType d2Type,
             CuDevicePtr x1,
             CudaDataType x1Type,
-            [In] CuDevicePtr y1,
+            CuDevicePtr y1,
             CudaDataType y1Type,
             CuDevicePtr param,
             CudaDataType paramType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a, int lda,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtbmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a, int lda,
             CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtpmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap,
             CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr a, int lda,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr a, int lda,
             CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap,
             CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap, CuDevicePtr x, int incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtpsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, CuDevicePtr ap,
             CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a,
             int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a,
             int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a,
             int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, int n, int k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtbsv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, int n, int k, CuDevicePtr a,
             int lda, CuDevicePtr x, int incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgbmv_v2(CudaBlasHandle handle,
-            Operation trans,
-            int m,
-            int n,
-            int kl,
-            int ku,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgbmv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
             int kl,
             int ku,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsbmv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsbmv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspmv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspmv_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSger_v2(CudaBlasHandle handle,
-            int m,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
+            ref float alpha,
             CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDger_v2(CudaBlasHandle handle,
-            int m,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
-            CuDevicePtr a,
-            int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr2_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr2_v2(CudaBlasHandle handle,
-            FillMode uplo,
-            int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr y,
-            int incy,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemv_v2(CudaBlasHandle handle,
-            Operation trans,
-            int m,
-            int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            ref float beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemv_v2(CudaBlasHandle handle,
-            Operation trans,
-            int m,
-            int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemv_v2(CudaBlasHandle handle,
-            Operation trans,
-            int m,
-            int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemv_v2(CudaBlasHandle handle,
-            Operation trans,
-            int m,
-            int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            int lda,
-            [In] CuDevicePtr x,
-            int incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgbmv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
             int kl,
             int ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            ref double beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            ref float beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            ref double beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsbmv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            int k,
+            ref float alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            ref float beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsbmv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            int k,
+            ref double alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            ref double beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspmv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
+            int incx,
+            ref float beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspmv_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
+            int incx,
+            ref double beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSger_v2(CudaBlasHandle handle,
+            int m,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDger_v2(CudaBlasHandle handle,
+            int m,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr a,
+            int lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr2_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref float alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr2_v2(CudaBlasHandle handle,
+            FillMode uplo,
+            int n,
+            ref double alpha,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr y,
+            int incy,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemv_v2(CudaBlasHandle handle,
+            Operation trans,
+            int m,
+            int n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemv_v2(CudaBlasHandle handle,
+            Operation trans,
+            int m,
+            int n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemv_v2(CudaBlasHandle handle,
+            Operation trans,
+            int m,
+            int n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemv_v2(CudaBlasHandle handle,
+            Operation trans,
+            int m,
+            int n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgbmv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
             int kl,
             int ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgbmv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
             int kl,
             int ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgbmv_v2(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
             int kl,
             int ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgbmv_v2(CudaBlasHandle handle,
+            Operation trans,
+            int m,
+            int n,
+            int kl,
+            int ku,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr x,
+            int incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            int incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsymv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsymv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsymv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsymv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChemv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChemv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhemv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhemv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsbmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsbmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChbmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhbmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhbmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpmv_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpmv_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             int incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSger_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSger_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDger_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDger_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgeru_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgeru_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgerc_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgerc_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgeru_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgeru_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgerc_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgerc_v2(CudaBlasHandle handle,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher2_v2(CudaBlasHandle handle,
             FillMode uplo, int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr2_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr2_v2(CudaBlasHandle handle,
             FillMode uplo,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             int incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             int incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3m(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3m(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1882,8 +1882,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemm3m(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemm3m(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1897,8 +1897,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemm(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1912,8 +1912,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref CudaHalf beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemm(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1927,8 +1927,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1943,8 +1943,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1959,8 +1959,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1977,8 +1977,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             DataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -1997,8 +1997,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2017,8 +2017,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmEx(CudaBlasHandle handle,
             Operation transa, Operation transb,
             int m, int n, int k,
             CuDevicePtr alpha,
@@ -2032,17 +2032,17 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
+        [LibraryImport(CublasApiDllName)]
         [Obsolete]
-        public static extern CuBlasStatus cublasUint8gemmBias(CudaBlasHandle handle,
+        public static partial CuBlasStatus cublasUint8gemmBias(CudaBlasHandle handle,
             Operation transa, Operation transb, Operation transc,
             int m, int n, int k,
             CuDevicePtr a, int aBias, int lda,
             CuDevicePtr b, int bBias, int ldb,
             CuDevicePtr c, int cBias, int ldc,
             int cMult, int cShift);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2059,32 +2059,32 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             DataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrkEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrkEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2097,8 +2097,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrk3mEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrk3mEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2111,60 +2111,60 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2177,8 +2177,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk3mEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk3mEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2190,8 +2190,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2204,8 +2204,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk3mEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk3mEx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
@@ -2217,615 +2217,615 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref float beta,
-            [In] CuDevicePtr c,
+            ref float beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref double beta,
-            [In] CuDevicePtr c,
+            ref double beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemm_v2(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyrk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyrk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherk_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherk_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher2k_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher2k_v2(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyrkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyrkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherkx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherkx(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             int n,
             int k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsymm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsymm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChemm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhemm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhemm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
             CuDevicePtr b,
             int ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrmm_v2(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrmm_v2(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrmm_v2(CudaBlasHandle handle, SideMode side,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrmm_v2(CudaBlasHandle handle, SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             int m,
             int n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             int lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2838,8 +2838,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2852,8 +2852,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2866,8 +2866,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2880,8 +2880,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2894,8 +2894,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgeam(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgeam(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -2908,8 +2908,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSmatinvBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSmatinvBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -2917,8 +2917,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldaInv,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDmatinvBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDmatinvBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -2926,8 +2926,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldaInv,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCmatinvBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCmatinvBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -2935,8 +2935,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldaInv,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZmatinvBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZmatinvBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -2944,8 +2944,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldaInv,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdgmm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdgmm(CudaBlasHandle handle,
             SideMode mode,
             int m,
             int n,
@@ -2955,8 +2955,8 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdgmm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdgmm(CudaBlasHandle handle,
             SideMode mode,
             int m,
             int n,
@@ -2966,8 +2966,8 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdgmm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdgmm(CudaBlasHandle handle,
             SideMode mode,
             int m,
             int n,
@@ -2977,8 +2977,8 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdgmm(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdgmm(CudaBlasHandle handle,
             SideMode mode,
             int m,
             int n,
@@ -2988,8 +2988,8 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             CuDevicePtr c,
             int ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3004,8 +3004,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3020,8 +3020,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3036,8 +3036,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3052,8 +3052,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3mBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3mBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3068,8 +3068,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3mStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3mStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3087,8 +3087,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3108,8 +3108,8 @@ namespace BrightData.Cuda.CudaToolkit
             int batchCount,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3132,8 +3132,8 @@ namespace BrightData.Cuda.CudaToolkit
             int batchCount,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3151,8 +3151,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3170,8 +3170,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3189,8 +3189,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3208,8 +3208,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3227,8 +3227,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3243,8 +3243,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3259,8 +3259,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             int ldc,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3280,8 +3280,8 @@ namespace BrightData.Cuda.CudaToolkit
             int batchCount,
             CudaDataType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3304,8 +3304,8 @@ namespace BrightData.Cuda.CudaToolkit
             int batchCount,
             CudaDataType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3323,8 +3323,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3342,8 +3342,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmStridedBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmStridedBatched(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             int m,
@@ -3361,50 +3361,40 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             long strideC,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgetrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgetrfBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr p,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgetrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgetrfBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr p,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgetrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgetrfBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr p,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgetrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgetrfBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr p,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgetriBatched(CudaBlasHandle handle,
-            int n,
-            CuDevicePtr a,
-            int lda,
-            CuDevicePtr p,
-            CuDevicePtr c,
-            int ldc,
-            CuDevicePtr info,
-            int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgetriBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgetriBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -3413,8 +3403,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgetriBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgetriBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -3423,8 +3413,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgetriBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgetriBatched(CudaBlasHandle handle,
             int n,
             CuDevicePtr a,
             int lda,
@@ -3433,8 +3423,18 @@ namespace BrightData.Cuda.CudaToolkit
             int ldc,
             CuDevicePtr info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgetriBatched(CudaBlasHandle handle,
+            int n,
+            CuDevicePtr a,
+            int lda,
+            CuDevicePtr p,
+            CuDevicePtr c,
+            int ldc,
+            CuDevicePtr info,
+            int batchSize);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3447,8 +3447,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3461,8 +3461,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3475,8 +3475,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3489,8 +3489,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3503,8 +3503,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsmBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsmBatched(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -3517,64 +3517,64 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr b,
             int ldb,
             int batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStpttr(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStpttr(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr ap,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtpttr(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtpttr(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr ap,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtpttr(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtpttr(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr ap,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtpttr(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtpttr(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr ap,
             CuDevicePtr a,
             int lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrttp(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrttp(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrttp(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrttp(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrttp(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrttp(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrttp(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrttp(CudaBlasHandle handle,
             FillMode uplo,
             int n,
             CuDevicePtr a,
             int lda,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgeqrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgeqrfBatched(CudaBlasHandle handle,
             int m,
             int n,
             CuDevicePtr aarray,
@@ -3582,8 +3582,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr tauArray,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgeqrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgeqrfBatched(CudaBlasHandle handle,
             int m,
             int n,
             CuDevicePtr aarray,
@@ -3591,8 +3591,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr tauArray,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgeqrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgeqrfBatched(CudaBlasHandle handle,
             int m,
             int n,
             CuDevicePtr aarray,
@@ -3600,8 +3600,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr tauArray,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgeqrfBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgeqrfBatched(CudaBlasHandle handle,
             int m,
             int n,
             CuDevicePtr aarray,
@@ -3609,8 +3609,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr tauArray,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgelsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgelsBatched(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
@@ -3622,8 +3622,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref int info,
             CuDevicePtr devInfoArray,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgelsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgelsBatched(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
@@ -3635,8 +3635,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref int info,
             CuDevicePtr devInfoArray,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgelsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgelsBatched(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
@@ -3648,8 +3648,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref int info,
             CuDevicePtr devInfoArray,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgelsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgelsBatched(CudaBlasHandle handle,
             Operation trans,
             int m,
             int n,
@@ -3661,8 +3661,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref int info,
             CuDevicePtr devInfoArray,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgetrsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgetrsBatched(CudaBlasHandle handle,
             Operation trans,
             int n,
             int nrhs,
@@ -3673,8 +3673,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgetrsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgetrsBatched(CudaBlasHandle handle,
             Operation trans,
             int n,
             int nrhs,
@@ -3685,8 +3685,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgetrsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgetrsBatched(CudaBlasHandle handle,
             Operation trans,
             int n,
             int nrhs,
@@ -3697,8 +3697,8 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgetrsBatched(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgetrsBatched(CudaBlasHandle handle,
             Operation trans,
             int n,
             int nrhs,
@@ -3709,89 +3709,24 @@ namespace BrightData.Cuda.CudaToolkit
             int ldb,
             ref int info,
             int batchSize);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetVector_64(long n, long elemSize, [In] IntPtr x, long incx, CuDevicePtr devicePtr, long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetVector_64(long n, long elemSize, [In] CuDevicePtr x, long incx, IntPtr y, long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetMatrix_64(long rows, long cols, long elemSize, [In] IntPtr a, long lda, CuDevicePtr b, long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetMatrix_64(long rows, long cols, long elemSize, [In] CuDevicePtr a, long lda, IntPtr b, long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetVectorAsync_64(long n, long elemSize, [In] IntPtr hostPtr, long incx, CuDevicePtr devicePtr, long incy, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetVectorAsync_64(long n, long elemSize, [In] CuDevicePtr devicePtr, long incx, IntPtr hostPtr, long incy, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSetMatrixAsync_64(long rows, long cols, long elemSize, [In] IntPtr a, long lda, CuDevicePtr b, long ldb, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGetMatrixAsync_64(long rows, long cols, long elemSize, [In] CuDevicePtr a, long lda, IntPtr b, long ldb, CuStream stream);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCopyEx_64(CudaBlasHandle handle,
-            long n,
-            [In] CuDevicePtr x,
-            CudaDataType xType,
-            long incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScopy_v2_64(CudaBlasHandle handle,
-            long n,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDcopy_v2_64(CudaBlasHandle handle,
-            long n,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCcopy_v2_64(CudaBlasHandle handle,
-            long n,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZcopy_v2_64(CudaBlasHandle handle,
-            long n,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSswap_v2_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDswap_v2_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCswap_v2_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZswap_v2_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            long incx,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSwapEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetVector_64(long n, long elemSize, IntPtr x, long incx, CuDevicePtr devicePtr, long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetVector_64(long n, long elemSize, CuDevicePtr x, long incx, IntPtr y, long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetMatrix_64(long rows, long cols, long elemSize, IntPtr a, long lda, CuDevicePtr b, long ldb);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetMatrix_64(long rows, long cols, long elemSize, CuDevicePtr a, long lda, IntPtr b, long ldb);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetVectorAsync_64(long n, long elemSize, IntPtr hostPtr, long incx, CuDevicePtr devicePtr, long incy, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetVectorAsync_64(long n, long elemSize, CuDevicePtr devicePtr, long incx, IntPtr hostPtr, long incy, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSetMatrixAsync_64(long rows, long cols, long elemSize, IntPtr a, long lda, CuDevicePtr b, long ldb, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGetMatrixAsync_64(long rows, long cols, long elemSize, CuDevicePtr a, long lda, IntPtr b, long ldb, CuStream stream);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCopyEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -3799,8 +3734,73 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasNrm2Ex_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScopy_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDcopy_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCcopy_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZcopy_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSswap_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDswap_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCswap_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZswap_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSwapEx_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
+            CudaDataType xType,
+            long incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasNrm2Ex_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -3808,20 +3808,8 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotEx_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            CudaDataType xType,
-            long incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            long incy,
-            IntPtr result,
-            CudaDataType resultType,
-            CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotcEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -3832,48 +3820,60 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotcEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
+            CudaDataType xType,
+            long incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            long incy,
+            IntPtr result,
+            CudaDataType resultType,
+            CudaDataType executionType);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSnrm2_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
             long incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDnrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScnrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDznrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDznrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdot_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdot_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScalEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScalEx_64(CudaBlasHandle handle,
             long n,
             IntPtr alpha,
             CudaDataType alphaType,
@@ -3881,32 +3881,32 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType xType,
             long incx,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref float alpha,
+            ref float alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref double alpha,
+            ref double alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref float alpha,
+            ref float alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref double alpha,
+            ref double alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAxpyEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAxpyEx_64(CudaBlasHandle handle,
             long n,
             IntPtr alpha,
             CudaDataType alphaType,
@@ -3917,156 +3917,156 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType yType,
             long incy,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
+            ref float alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
+            ref double alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIamaxEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIamaxEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             long incx,
             ref long result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref long result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIaminEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIaminEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             long incx,
             ref long result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAsumEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAsumEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             CudaDataType xType,
             long incx,
             IntPtr result,
             CudaDataType resultType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref float result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDzasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDzasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             ref double result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] ref float c,
-            [In] ref float s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrot_v2_64(CudaBlasHandle handle,
+            ref float c,
+            ref float s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] ref double c,
-            [In] ref double s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsrot_v2_64(CudaBlasHandle handle,
+            ref double c,
+            ref double s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] ref float c,
-            [In] ref float s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdrot_v2_64(CudaBlasHandle handle,
+            ref float c,
+            ref float s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] ref double c,
-            [In] ref double s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotEx_64(CudaBlasHandle handle,
+            ref double c,
+            ref double s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4078,26 +4078,26 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             float[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotm_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
+            [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)]
             double[] param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4108,8 +4108,8 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr param,
             CudaDataType paramType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasNrm2Ex_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasNrm2Ex_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4117,20 +4117,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotEx_64(CudaBlasHandle handle,
-            long n,
-            CuDevicePtr x,
-            CudaDataType xType,
-            long incx,
-            CuDevicePtr y,
-            CudaDataType yType,
-            long incy,
-            CuDevicePtr result,
-            CudaDataType resultType,
-            CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDotcEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4141,80 +4129,92 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDotcEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
+            CudaDataType xType,
+            long incx,
+            CuDevicePtr y,
+            CudaDataType yType,
+            long incy,
+            CuDevicePtr result,
+            CudaDataType resultType,
+            CudaDataType executionType);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSnrm2_v2_64(CudaBlasHandle handle,
+            long n,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDnrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScnrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScnrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDznrm2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDznrm2_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdot_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdot_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdotu_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdotu_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdotc_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdotc_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdotu_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdotu_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdotc_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdotc_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScalEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScalEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr alpha,
             CudaDataType alphaType,
@@ -4222,44 +4222,44 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType xType,
             long incx,
             CudaDataType executionType);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdscal_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdscal_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
+            CuDevicePtr alpha,
             CuDevicePtr x,
             long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAxpyEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAxpyEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr alpha,
             CudaDataType alphaType,
@@ -4270,190 +4270,190 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType yType,
             long incy,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZaxpy_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZaxpy_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamax_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamax_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIamaxEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIamaxEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             long incx,
             CuDevicePtr result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIsamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIsamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIdamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIdamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIcamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIcamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIzamin_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIzamin_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasIaminEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasIaminEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x, CudaDataType xType,
+            CuDevicePtr x, CudaDataType xType,
             long incx,
             CuDevicePtr result
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasAsumEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasAsumEx_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             CudaDataType xType,
             long incx,
             CuDevicePtr result,
             CudaDataType resultType,
             CudaDataType executiontype
         );
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasScasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasScasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDzasum_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDzasum_v2_64(CudaBlasHandle handle,
             long n,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr result);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrot_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrot_v2_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCrot_v2_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsrot_v2_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZrot_v2_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdrot_v2_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdrot_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr c,
-            [In] CuDevicePtr s);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotEx_64(CudaBlasHandle handle,
+            CuDevicePtr c,
+            CuDevicePtr s);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4465,24 +4465,24 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr s,
             CudaDataType csType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDrotm_v2_64(CudaBlasHandle handle,
+            CuDevicePtr param);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDrotm_v2_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             long incx,
             CuDevicePtr y,
             long incy,
-            [In] CuDevicePtr param);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasRotmEx_64(CudaBlasHandle handle,
+            CuDevicePtr param);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasRotmEx_64(CudaBlasHandle handle,
             long n,
             CuDevicePtr x,
             CudaDataType xType,
@@ -4493,916 +4493,916 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr param,
             CudaDataType paramType,
             CudaDataType executiontype);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a, long lda,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtbmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a, long lda,
             CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtpmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap,
             CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr a, long lda,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr a, long lda,
             CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap,
             CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, [In] CuDevicePtr ap,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap, CuDevicePtr x, long incx);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtpsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, CuDevicePtr ap,
             CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a,
             long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a,
             long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a,
             long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
-            DiagType diag, long n, long k, [In] CuDevicePtr a,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtbsv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
+            DiagType diag, long n, long k, CuDevicePtr a,
             long lda, CuDevicePtr x, long incx);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgbmv_v2_64(CudaBlasHandle handle,
-            Operation trans,
-            long m,
-            long n,
-            long kl,
-            long ku,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgbmv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
             long kl,
             long ku,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsbmv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsbmv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspmv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref float beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspmv_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] ref double beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSger_v2_64(CudaBlasHandle handle,
-            long m,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
+            ref float alpha,
             CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDger_v2_64(CudaBlasHandle handle,
-            long m,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
-            CuDevicePtr a,
-            long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr2_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr2_v2_64(CudaBlasHandle handle,
-            FillMode uplo,
-            long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr y,
-            long incy,
-            CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemv_v2_64(CudaBlasHandle handle,
-            Operation trans,
-            long m,
-            long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            ref float beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemv_v2_64(CudaBlasHandle handle,
-            Operation trans,
-            long m,
-            long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemv_v2_64(CudaBlasHandle handle,
-            Operation trans,
-            long m,
-            long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemv_v2_64(CudaBlasHandle handle,
-            Operation trans,
-            long m,
-            long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
-            long lda,
-            [In] CuDevicePtr x,
-            long incx,
-            [In] CuDevicePtr beta,
-            CuDevicePtr y,
-            long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgbmv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
             long kl,
             long ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            ref double beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            ref float beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            ref double beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsbmv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            long k,
+            ref float alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            ref float beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsbmv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            long k,
+            ref double alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            ref double beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspmv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
+            long incx,
+            ref float beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspmv_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
+            long incx,
+            ref double beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSger_v2_64(CudaBlasHandle handle,
+            long m,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDger_v2_64(CudaBlasHandle handle,
+            long m,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr a,
+            long lda);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr2_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref float alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr2_v2_64(CudaBlasHandle handle,
+            FillMode uplo,
+            long n,
+            ref double alpha,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr y,
+            long incy,
+            CuDevicePtr ap);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemv_v2_64(CudaBlasHandle handle,
+            Operation trans,
+            long m,
+            long n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemv_v2_64(CudaBlasHandle handle,
+            Operation trans,
+            long m,
+            long n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemv_v2_64(CudaBlasHandle handle,
+            Operation trans,
+            long m,
+            long n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemv_v2_64(CudaBlasHandle handle,
+            Operation trans,
+            long m,
+            long n,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgbmv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
             long kl,
             long ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgbmv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
             long kl,
             long ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgbmv_v2_64(CudaBlasHandle handle,
             Operation trans,
             long m,
             long n,
             long kl,
             long ku,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgbmv_v2_64(CudaBlasHandle handle,
+            Operation trans,
+            long m,
+            long n,
+            long kl,
+            long ku,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
+            long lda,
+            CuDevicePtr x,
+            long incx,
+            CuDevicePtr beta,
+            CuDevicePtr y,
+            long incy);
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsymv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsymv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsymv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsymv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChemv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChemv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhemv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhemv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsbmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsbmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChbmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhbmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhbmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr x,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpmv_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpmv_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr ap,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr ap,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr y,
             long incy);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSger_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSger_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDger_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDger_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgeru_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgeru_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgerc_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgerc_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgeru_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgeru_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgerc_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgerc_v2_64(CudaBlasHandle handle,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher2_v2_64(CudaBlasHandle handle,
             FillMode uplo, long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr a,
             long lda);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSspr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSspr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDspr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDspr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChpr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChpr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhpr2_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhpr2_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr x,
+            CuDevicePtr alpha,
+            CuDevicePtr x,
             long incx,
-            [In] CuDevicePtr y,
+            CuDevicePtr y,
             long incy,
             CuDevicePtr ap);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3m_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3m_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5416,8 +5416,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemm3m_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemm3m_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5431,8 +5431,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemm_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5446,8 +5446,8 @@ namespace BrightData.Cuda.CudaToolkit
             ref CudaHalf beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemm_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5461,8 +5461,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5477,8 +5477,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             long ldc,
             long batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5493,8 +5493,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             long ldc,
             long batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5511,8 +5511,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             DataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5531,8 +5531,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldc,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5551,8 +5551,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldc,
             ComputeType computeType,
             GemmAlgo algo);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmEx_64(CudaBlasHandle handle,
             Operation transa, Operation transb,
             long m, long n, long k,
             CuDevicePtr alpha,
@@ -5566,8 +5566,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -5584,32 +5584,32 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             DataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrkEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrkEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5622,8 +5622,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrk3mEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrk3mEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5636,60 +5636,60 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5702,8 +5702,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk3mEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk3mEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5715,8 +5715,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5729,8 +5729,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk3mEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk3mEx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
@@ -5742,615 +5742,615 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CudaDataType ctype,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref float beta,
-            [In] CuDevicePtr c,
+            ref float beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref double beta,
-            [In] CuDevicePtr c,
+            ref double beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref float beta,
+            ref float beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] ref double beta,
+            ref double beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] ref float alpha,
-            [In] CuDevicePtr a,
+            ref float alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] ref double alpha,
-            [In] CuDevicePtr a,
+            ref double alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemm_v2_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyrk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyrk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherk_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherk_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyr2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyr2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCher2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCher2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZher2k_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZher2k_v2_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsyrkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsyrkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCherkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCherkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZherkx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZherkx_64(CudaBlasHandle handle,
             FillMode uplo,
             Operation trans,
             long n,
             long k,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
-            [In] CuDevicePtr c,
+            CuDevicePtr beta,
+            CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZsymm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZsymm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasChemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasChemm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZhemm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZhemm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
-            [In] CuDevicePtr beta,
+            CuDevicePtr beta,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
             CuDevicePtr b,
             long ldb);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrmm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrmm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrmm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrmm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrmm_v2_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrmm_v2_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrmm_v2_64(CudaBlasHandle handle, SideMode side,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrmm_v2_64(CudaBlasHandle handle, SideMode side,
             FillMode uplo,
             Operation trans,
             DiagType diag,
             long m,
             long n,
-            [In] CuDevicePtr alpha,
-            [In] CuDevicePtr a,
+            CuDevicePtr alpha,
+            CuDevicePtr a,
             long lda,
-            [In] CuDevicePtr b,
+            CuDevicePtr b,
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6363,8 +6363,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6377,8 +6377,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6391,8 +6391,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6405,8 +6405,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6419,8 +6419,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgeam_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgeam_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6433,8 +6433,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSdgmm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSdgmm_64(CudaBlasHandle handle,
             SideMode mode,
             long m,
             long n,
@@ -6444,8 +6444,8 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDdgmm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDdgmm_64(CudaBlasHandle handle,
             SideMode mode,
             long m,
             long n,
@@ -6455,8 +6455,8 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCdgmm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCdgmm_64(CudaBlasHandle handle,
             SideMode mode,
             long m,
             long n,
@@ -6466,8 +6466,8 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZdgmm_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZdgmm_64(CudaBlasHandle handle,
             SideMode mode,
             long m,
             long n,
@@ -6477,8 +6477,8 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             CuDevicePtr c,
             long ldc);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6493,8 +6493,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             long ldc,
             long batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6509,8 +6509,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             long ldc,
             long batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6525,8 +6525,8 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr carray,
             long ldc,
             long batchCount);
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6542,8 +6542,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldc,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3mBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3mBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6559,8 +6559,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldc,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemm3mStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemm3mStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6579,8 +6579,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmBatchedEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmBatchedEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6601,8 +6601,8 @@ namespace BrightData.Cuda.CudaToolkit
             ComputeType computeType,
             GemmAlgo algo);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmStridedBatchedEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmStridedBatchedEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6626,8 +6626,8 @@ namespace BrightData.Cuda.CudaToolkit
             ComputeType computeType,
             GemmAlgo algo);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6646,8 +6646,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6666,8 +6666,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6686,8 +6686,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6706,8 +6706,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6727,8 +6727,8 @@ namespace BrightData.Cuda.CudaToolkit
             long batchCount);
 
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6745,8 +6745,8 @@ namespace BrightData.Cuda.CudaToolkit
             long batchCount);
 
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6763,8 +6763,8 @@ namespace BrightData.Cuda.CudaToolkit
             long batchCount);
 
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmBatchedEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmBatchedEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6785,8 +6785,8 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType computeType,
             GemmAlgo algo);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasGemmStridedBatchedEx_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasGemmStridedBatchedEx_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6810,8 +6810,8 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType computeType,
             GemmAlgo algo);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasSgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasSgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6830,8 +6830,8 @@ namespace BrightData.Cuda.CudaToolkit
             long strideC,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6851,8 +6851,8 @@ namespace BrightData.Cuda.CudaToolkit
             long batchCount);
 
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasHgemmStridedBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasHgemmStridedBatched_64(CudaBlasHandle handle,
             Operation transa,
             Operation transb,
             long m,
@@ -6872,8 +6872,8 @@ namespace BrightData.Cuda.CudaToolkit
             long batchCount);
 
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -6887,8 +6887,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -6902,8 +6902,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasCtrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasCtrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -6917,8 +6917,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasZtrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasZtrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -6932,8 +6932,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasStrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasStrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,
@@ -6947,8 +6947,8 @@ namespace BrightData.Cuda.CudaToolkit
             long ldb,
             long batchCount);
 
-        [DllImport(CublasApiDllName)]
-        public static extern CuBlasStatus cublasDtrsmBatched_64(CudaBlasHandle handle,
+        [LibraryImport(CublasApiDllName)]
+        public static partial CuBlasStatus cublasDtrsmBatched_64(CudaBlasHandle handle,
             SideMode side,
             FillMode uplo,
             Operation trans,

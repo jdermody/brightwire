@@ -37,6 +37,7 @@ namespace BrightData
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             if(_lap.IsValueCreated)
                 _lap.Value.Dispose();
         }

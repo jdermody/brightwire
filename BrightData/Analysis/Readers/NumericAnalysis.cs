@@ -26,7 +26,7 @@ namespace BrightData.Analysis.Readers
             FrequencyRange = Get(Consts.FrequencyRangePrefix, metaData);
         }
 
-        (string Label, double value)[] Get(string prefix, MetaData metaData)
+        static (string Label, double value)[] Get(string prefix, MetaData metaData)
         {
             return metaData.GetStringsWithPrefix(prefix)
                 .Select(k => (Label: k[prefix.Length..], Value: metaData.Get<double>(k)))

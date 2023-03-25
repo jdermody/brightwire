@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
+using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
@@ -23,35 +24,35 @@ namespace ExampleCode
 
             // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)
             // ALSO: check the mkl.net nuget package version is correct for your OS (default for ExampleCode is Windows x64)
-            //useMkl = false;
+            useMkl = false;
 
             // IMPORTANT: uncomment the following line to disable CUDA (for example if you have a do not have an NVIDA GPU)
             // ALSO: make sure you have installed CUDA toolkit from https://developer.nvidia.com/cuda-toolkit
-            //useCuda = false;
+            useCuda = false;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
 
-            //Xor(context, useMkl);
-            //IrisClassification(context, useMkl);
-            //IrisClustering(context, useMkl);
-            //MarkovChains(context, useMkl);
-            //TextClustering(context, useMkl);
-            //IntegerAddition(context, useMkl);
-            //ReberPrediction(context, useMkl);
-            //OneToMany(context, useMkl);
-            //ManyToOne(context, useMkl);
-            //SequenceToSequence(context, useMkl, useCuda);
-            //StockData(context, useMkl, useCuda);
-            //PredictBicyclesWithNeuralNetwork(context, useMkl);
-            //MultiLabelSingleClassifier(context, useMkl);
-            //MultiLabelMultiClassifiers(context, useMkl);
-            //MnistFeedForward(context, useMkl);
+            Xor(context, useMkl);
+            IrisClassification(context, useMkl);
+            IrisClustering(context, useMkl);
+            MarkovChains(context, useMkl);
+            TextClustering(context, useMkl);
+            IntegerAddition(context, useMkl);
+            ReberPrediction(context, useMkl);
+            OneToMany(context, useMkl);
+            ManyToOne(context, useMkl);
+            SequenceToSequence(context, useMkl);
+            StockData(context, useMkl, useCuda);
+            PredictBicyclesWithNeuralNetwork(context, useMkl);
+            MultiLabelSingleClassifier(context, useMkl);
+            MultiLabelMultiClassifiers(context, useMkl);
+            MnistFeedForward(context, useMkl);
             MnistConvolutional(context, useMkl, useCuda);
-            //TrainIncomePrediction(context, useMkl);
-            //SentimentClassification(context, useMkl, useCuda);
+            TrainIncomePrediction(context, useMkl);
+            SentimentClassification(context, useMkl, useCuda);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
@@ -105,7 +106,7 @@ namespace ExampleCode
 
             var irisTable = iris.Table.Value;
 
-            void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
+            static void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {
                 var clusters = items.Select(c => c.Select(r => r.Label).GroupAndCount().Format());
                 foreach (var cluster in clusters)
@@ -204,9 +205,9 @@ namespace ExampleCode
             sequences.TrainManyToOne();
         }
 
-        static void SequenceToSequence(BrightDataContext context, bool useMkl, bool useCuda)
+        static void SequenceToSequence(BrightDataContext context, bool useMkl)
         {
-            Start(context, useMkl, false);
+            Start(context, useMkl);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }

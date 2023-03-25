@@ -358,6 +358,11 @@ namespace BrightData
         /// (Optional) set of the distinct items in the buffer
         /// </summary>
         Dictionary<T, uint>? DistinctItems { get; }
+
+        /// <summary>
+        /// A function that will be called to validate any constraints when items are added to the buffer
+        /// </summary>
+        Predicate<T>? ConstraintValidator { get; set; }
     }
 
     /// <summary>

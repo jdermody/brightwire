@@ -141,7 +141,7 @@ namespace BrightData.Cuda
             while (segment is TensorSegmentWrapper { Stride: 1 } wrapper) {
                 segment = wrapper.UnderlyingSegment;
                 if (segment is CudaTensorSegment cudaTensor) {
-                    var offsetBlock = Provider.Offset(cudaTensor.DeviceMemory, wrapper.Offset, wrapper.Size);
+                    var offsetBlock = CudaProvider.Offset(cudaTensor.DeviceMemory, wrapper.Offset, wrapper.Size);
                     return new CudaTensorSegment(offsetBlock);
                 }
             }
@@ -475,7 +475,7 @@ namespace BrightData.Cuda
             var ptr = GetDeviceMemoryPtr(segment);
 
             return blockCount.AsRange().Select(i => {
-                var ptr2 = Provider.OffsetByBlock(ptr, i, blockSize);
+                var ptr2 = CudaProvider.OffsetByBlock(ptr, i, blockSize);
                 return new CudaTensorSegment(ptr2);
             });
         }
@@ -1106,14 +1106,14 @@ namespace BrightData.Cuda
         /// <inheritdoc />
         public override IMatrix GetMatrix(ITensor3D tensor, uint index)
         {
-            var ptr = Provider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.MatrixSize);
+            var ptr = CudaProvider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.MatrixSize);
             return new CudaMatrix(new CudaTensorSegment(ptr), tensor.RowCount, tensor.ColumnCount, this);
         }
 
         /// <inheritdoc />
         public override ITensor3D GetTensor(ITensor4D tensor, uint index)
         {
-            var ptr = Provider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.TensorSize);
+            var ptr = CudaProvider.OffsetByBlock(GetDeviceMemoryPtr(tensor.Segment), index, tensor.TensorSize);
             return new CudaTensor3D(new CudaTensorSegment(ptr), tensor.Depth, tensor.RowCount, tensor.ColumnCount, this);
         }
 
