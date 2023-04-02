@@ -50,6 +50,7 @@ namespace BrightData.Helper
 
         void IDisposable.Dispose()
         {
+            GC.SuppressFinalize(this);
             foreach (var (_, value) in _streamTable) {
                 if (value.IsValueCreated) {
                     var file = value.Value;

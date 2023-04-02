@@ -344,11 +344,7 @@ namespace ExampleCode.DataSet
 
         static string GetDataFilePath(this BrightDataContext context, string name)
         {
-            var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
-
-            // no directory specified
-            if (dataDirectory == null)
-                throw new Exception("DataFileDirectory not set");
+            var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory") ?? throw new Exception("DataFileDirectory not set");
 
             // try to create the directory if it doesn't exist
             if (!dataDirectory.Exists)

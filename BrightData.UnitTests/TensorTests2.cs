@@ -38,6 +38,7 @@ namespace BrightData.UnitTests
 
         public override void Dispose()
         {
+            GC.SuppressFinalize(this);
             _linearAlgebraProvider.Dispose();
             _cudaLinearAlgebraProvider.Dispose();
             _cudaProvider.Dispose();

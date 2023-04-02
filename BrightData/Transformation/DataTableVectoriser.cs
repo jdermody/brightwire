@@ -233,9 +233,7 @@ namespace BrightData.Transformation
                     .Where(kv => kv.Value == index)
                     .Select(kv => kv.Key)
                     .SingleOrDefault();
-                if (ret == null)
-                    throw new ArgumentException($"Index {index} not found");
-                return ret;
+                return ret ?? throw new ArgumentException($"Index {index} not found");
             }
         }
 
@@ -286,9 +284,7 @@ namespace BrightData.Transformation
                     .Where(kv => kv.Value == index)
                     .Select(kv => kv.Key)
                     .SingleOrDefault();
-                if (ret == null)
-                    throw new ArgumentException($"Index {index} not found");
-                return ret;
+                return ret ?? throw new ArgumentException($"Index {index} not found");
             }
         }
 

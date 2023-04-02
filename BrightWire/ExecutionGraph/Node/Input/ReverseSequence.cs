@@ -23,9 +23,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
             if (_inputIndex == 0) {
                 var curr = context.BatchSequence;
                 var batch = curr.MiniBatch;
-                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
-                if (reversed == null)
-                    throw new Exception("Input data was null");
+                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input
+                    ?? throw new Exception("Input data was null");
 
                 //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
                 return (this, reversed, null);

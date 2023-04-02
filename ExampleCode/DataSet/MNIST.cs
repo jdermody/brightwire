@@ -168,7 +168,7 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
+        public static BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a vector => vector mapping
             var builder = context.CreateTwoColumnVectorTableBuilder();

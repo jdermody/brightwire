@@ -1,5 +1,6 @@
 ﻿using BrightData.LinearAlgebra;
 using BrightData.MKL;
+using System;
 
 namespace BrightData.UnitTests.Helper
 {
@@ -16,6 +17,7 @@ namespace BrightData.UnitTests.Helper
 
         public override void Dispose()
         {
+            GC.SuppressFinalize(this);
             _mkl.Dispose();
             _cpu.Dispose();
             base.Dispose();

@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             ;
             var inputData = new Dictionary<uint, List<ITensorSegment>>();
             foreach (var item in data) {
-                var input = item.Item1;
+                var input = item.Matrix;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = new());

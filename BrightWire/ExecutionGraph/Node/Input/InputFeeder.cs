@@ -17,9 +17,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (_index == 0) {
-                var input = context.BatchSequence.Input;
-                if (input == null)
-                    throw new Exception("Input data was null");
+                var input = context.BatchSequence.Input
+                    ?? throw new Exception("Input data was null");
 
                 return (this, input, null);
             }

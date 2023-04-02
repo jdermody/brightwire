@@ -30,7 +30,7 @@ namespace BrightData.UnitTests
         public void FindDistinctContiguousRanges()
         {
             // Test with empty input
-            var empty = new uint[] {};
+            var empty = Array.Empty<uint>();
             var emptyRanges = empty.FindDistinctContiguousRanges();
             emptyRanges.Should().BeEmpty();
 

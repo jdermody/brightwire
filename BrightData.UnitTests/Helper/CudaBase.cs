@@ -17,6 +17,7 @@ namespace BrightData.UnitTests.Helper
 
         public override void Dispose()
         {
+            GC.SuppressFinalize(this);
             _cuda.Dispose();
             _cudaProvider.Dispose();
             base.Dispose();

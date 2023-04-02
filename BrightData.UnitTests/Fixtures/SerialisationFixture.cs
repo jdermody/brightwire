@@ -20,6 +20,7 @@ namespace BrightData.UnitTests.Fixtures
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             Context.Dispose();
             Stream.Dispose();
         }

@@ -25,9 +25,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _encoderContext.Push(context);
 
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd) {
-                var nextBatch = context.BatchSequence.MiniBatch.NextMiniBatch;
-                if (nextBatch == null)
-                    throw new Exception("No following mini batch was found");
+                var nextBatch = context.BatchSequence.MiniBatch.NextMiniBatch
+                    ?? throw new Exception("No following mini batch was found");
 
                 // connect the hidden states of the encoder to the decoder
                 var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _encoderName);

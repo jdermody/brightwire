@@ -69,6 +69,7 @@ namespace BrightData.DataTable
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _enumerator.Dispose();
             _stream.Dispose();
         }

@@ -44,6 +44,7 @@ namespace BrightData.DataTable
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _tempStreams.Dispose();
         }
 

@@ -112,9 +112,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             }
 
             // find each encoder hidden state and sequence input
-            var previousBatch = context.BatchSequence.MiniBatch.PreviousMiniBatch;
-            if(previousBatch == null)
-                throw new Exception("No previous mini batch");
+            var previousBatch = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
             Debug.Assert(batchSize == previousBatch.BatchSize);
             IMatrix[]? encoderStates = null;
             var inputs = new IMatrix[previousBatch.SequenceCount];
@@ -123,17 +121,15 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 if (_encoderSize > 0) {
                     if (i == 0)
                         encoderStates = new IMatrix[len];
-                    var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
-                    if(encoderState == null)
-                        throw new Exception("Not able to find the encoder hidden state");
+                    var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix()
+                        ?? throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != _encoderSize)
                         throw new Exception($"Expected encoder size to be {_encoderSize} but found {encoderState.ColumnCount}");
                     encoderStates![i] = encoderState;
                 }
 
-                var input = sequence.Input?.GetMatrix();
-                if (input == null)
-                    throw new Exception("Not able to find the input matrix");
+                var input = sequence.Input?.GetMatrix()
+                    ?? throw new Exception("Not able to find the input matrix");
                 if (input.ColumnCount != _inputSize)
                     throw new Exception($"Expected input size to be {_inputSize} but found {input.ColumnCount}");
                 inputs[i] = input;

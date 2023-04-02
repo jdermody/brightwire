@@ -1,7 +1,9 @@
-﻿using BrightData.LinearAlgebra;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using BrightData.LinearAlgebra;
 using MKLNET;
-// ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 
+// ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 namespace BrightData.MKL
 {
     /// <summary>

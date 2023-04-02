@@ -11,6 +11,7 @@ namespace BrightData.Buffer.ReadOnly
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             // nop
         }
 

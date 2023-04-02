@@ -8,7 +8,7 @@ namespace BrightData.Cuda.CudaToolkit
     internal class CudaException : Exception
     {
         CuResult _cudaError;
-        Lazy<string?> _internalName, _internalDescription;
+        readonly Lazy<string?> _internalName, _internalDescription;
 
         public CudaException(CuResult error)
             : base(GetErrorMessageFromCuResult(error))
