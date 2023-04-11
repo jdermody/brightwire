@@ -107,8 +107,7 @@ namespace BrightWire
             // create the other nodes
             foreach (var node in graph.OtherNodes) {
                 var n = factory.Create(node);
-                if (!nodeTable.ContainsKey(n.Id))
-                    nodeTable.Add(n.Id, n);
+                nodeTable.TryAdd(n.Id, n);
             }
 
             // let each node know it has been deserialised and can access the entire graph

@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                     if (i == 0)
                         encoderStates = new IMatrix[len];
                     var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix()
-                        ?? throw new Exception("Not able to find the encoder hidden state");;
+                        ?? throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != _encoderSize)
                         throw new Exception($"Expected encoder size to be {_encoderSize} but found {encoderState.ColumnCount}");
                     encoderStates![i] = encoderState;

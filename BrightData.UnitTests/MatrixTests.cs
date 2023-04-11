@@ -124,12 +124,12 @@ namespace BrightData.UnitTests
             return otherRow;
         }
 
-        void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
+        void CheckMatrixMultiplication(uint rowsA, uint columnsARowsB, uint columnsB)
         {
             var rand = new Random(1);
             var index = 1;
-            using var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (_, _) => index++/*rand.NextSingle()*/);
-            using var b = _cpu.CreateMatrix(columnsArowsB, columnsB, (_, _) => index++/*rand.NextSingle()*/);
+            using var a = _cpu.CreateMatrix(rowsA, columnsARowsB, (_, _) => index++/*rand.NextSingle()*/);
+            using var b = _cpu.CreateMatrix(columnsARowsB, columnsB, (_, _) => index++/*rand.NextSingle()*/);
             using var cpu = a.Multiply(b);
             using var gpu = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
             using var mkl = Apply(_mkl, a, b, (a, b) => a.Multiply(b));

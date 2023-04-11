@@ -427,6 +427,9 @@
 		<property type="System.Collections.Generic.Dictionary&lt;T, System.UInt32&gt;" name="DistinctItems">
 		<summary>(Optional) set of the distinct items in the buffer</summary>
 	</property>
+	<property type="System.Predicate&lt;T&gt;" name="ConstraintValidator">
+		<summary>A function that will be called to validate any constraints when items are added to the buffer</summary>
+	</property>
 </interface>
 <interface name="BrightData.ICompositeBufferWithMetaData" base="BrightData.ICompositeBuffer">
 	<summary>
@@ -1824,21 +1827,6 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	<method type="System.Single" name="L2Norm">
 		<summary>Returns the L2 norm of this tensor (euclidean norm)</summary>
 			</method>
-	<method type="(System.Single Min, System.Single Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxValues">
-		<summary>Finds the minimum and maximum values (and those indices) from this tensor</summary>
-			</method>
-	<method type="System.UInt32" name="GetMinIndex">
-		<summary>Returns the index of the minimum value from this tensor</summary>
-			</method>
-	<method type="System.UInt32" name="GetMaxIndex">
-		<summary>Returns the index of the maximum value from this tensor</summary>
-			</method>
-	<method type="System.Single" name="GetMin">
-		<summary>Returns the minimum value from this tensor</summary>
-			</method>
-	<method type="System.Single" name="GetMax">
-		<summary>Returns the maximum value from this tensor</summary>
-			</method>
 	<method type="System.Boolean" name="IsEntirelyFinite">
 		<summary>Checks if the tensor is entirely finite (does not contain NAN or Infinity)</summary>
 			</method>
@@ -3060,7 +3048,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 </class>
 <class name="BrightData.LinearAlgebra.BrightMatrix&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.IMatrix, LAP&gt;" is-static="false" is-abstract="false">
 	<summary>
-		Matrix type
+		Row major matrix type
 	</summary>
 	<method type="System.Void" name="BrightMatrix" is-static="false">
 		<summary>Constructor</summary>
@@ -3244,7 +3232,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 </class>
 <class name="BrightData.LinearAlgebra.BrightTensor3D&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.ITensor3D, LAP&gt;" is-static="false" is-abstract="false">
 	<summary>
-		3D tensor
+		Row major 3D tensor
 	</summary>
 	<method type="System.Void" name="BrightTensor3D" is-static="false">
 		<summary>Constructor</summary>
@@ -3389,7 +3377,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 </class>
 <class name="BrightData.LinearAlgebra.BrightTensor4D&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.ITensor4D, LAP&gt;" is-static="false" is-abstract="false">
 	<summary>
-		4D tensor
+		Row major 4D tensor
 	</summary>
 	<method type="System.Void" name="BrightTensor4D" is-static="false">
 		<summary>Constructor</summary>
@@ -3683,21 +3671,6 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary></summary>
 			</method>
 	<method type="System.Single" name="L2Norm" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="(System.Single Min, System.Single Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxValues" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.UInt32" name="GetMinIndex" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.UInt32" name="GetMaxIndex" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Single" name="GetMin" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Single" name="GetMax" is-static="false">
 		<summary></summary>
 			</method>
 	<method type="System.Boolean" name="IsEntirelyFinite" is-static="false">
@@ -6146,6 +6119,12 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 		<summary>Sets the context to use the default linear algebra provider</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
+	<method type="System.Nullable&lt;System.Double&gt;" name="PearsonCorrelationCoefficient" is-static="true">
+		<summary>Calculates the pearson correlation coefficient metric between two tensor segments
+https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
+				<param type="BrightData.ITensorSegment" name="x" summary="" />
+				<param type="BrightData.ITensorSegment" name="y" summary="" />
+			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -7587,7 +7566,7 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 	<method type="System.Single" name="StdDev" is-static="false">
 		<summary>Finds the standard deviation of each element in the tensor</summary>
 				<param type="BrightData.ITensorSegment" name="tensor" summary="" />
-				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="Precalculated mean of the tensor or null to calculate" />
+				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="Pre calculated mean of the tensor or null to calculate" />
 			</method>
 	<method type="BrightData.ITensorSegment" name="Sigmoid" is-static="false">
 		<summary>Creates a new tensor that contains the sigmoid function applied to each element in this tensor</summary>

@@ -1086,7 +1086,7 @@ namespace BrightData.LinearAlgebra
         /// Finds the standard deviation of each element in the tensor
         /// </summary>
         /// <param name="tensor"></param>
-        /// <param name="mean">Precalculated mean of the tensor or null to calculate</param>
+        /// <param name="mean">Pre calculated mean of the tensor or null to calculate</param>
         /// <returns></returns>
         public virtual float StdDev(ITensorSegment tensor, float? mean) => tensor.StdDev(mean);
 

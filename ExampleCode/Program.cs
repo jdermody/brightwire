@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
-using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;

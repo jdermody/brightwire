@@ -292,8 +292,7 @@ namespace BrightData.UnitTests
             );
         }
 
-        [Fact]
-        public void TestTensorMultipy()
+        [Fact] public void TestTensorMultiply()
         {
             uint index = 1;
             using var tensor = _linearAlgebraProvider.CreateTensor3D(

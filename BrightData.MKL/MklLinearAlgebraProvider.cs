@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using BrightData.LinearAlgebra;
+﻿using BrightData.LinearAlgebra;
 using MKLNET;
 
 // ReSharper disable BitwiseOperatorOnEnumWithoutFlags

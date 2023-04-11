@@ -65,8 +65,7 @@ namespace BrightData.Buffer.EncodedStream
 
                 // encode the values
                 foreach (var item in buffer.Values) {
-                    if (!_table.ContainsKey(item))
-                        _table.Add(item, (ushort)_table.Count);
+                    _table.TryAdd(item, (ushort)_table.Count);
                 }
             }
 
@@ -111,8 +110,7 @@ namespace BrightData.Buffer.EncodedStream
 
                 // encode the values
                 foreach (var item in buffer.Values) {
-                    if (!_table.ContainsKey(item))
-                        _table.Add(item, (ushort)_table.Count);
+                    _table.TryAdd(item, (ushort)_table.Count);
                 }
             }
 
