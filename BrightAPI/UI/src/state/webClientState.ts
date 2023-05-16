@@ -1,10 +1,10 @@
 import { selector } from "recoil";
 import { DataTableCsvRequest, DataTablePreviewModel, NamedItemModel, DataTableCsvPreviewRequest, DataTableInfoModel, ConvertDataTableColumnsRequest, DataTableListItemModel, NormalizeDataTableColumnsRequest, ReinterpretDataTableColumnsRequest, VectoriseDataTableColumnsRequest, DataTableColumnsRequest, DataTableRowsRequest, BagTableRequest, SplitTableRequest, RenameTableColumnsRequest, SetColumnTargetRequest } from "../models";
-import { baseUrlState } from "./baseUrlState";
+import { baseUrlState } from "./BaseUrlState";
 import { authenticatedHeaderState } from "./webClientHeaders";
 
 class WebClient
-{
+{   
     constructor(public baseUrl: string, private headers: any)
     {
     }

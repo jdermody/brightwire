@@ -3,7 +3,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>4.0.0</Version>
+    <Version>4.0.0-rc</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
@@ -14,6 +14,7 @@
     <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -40,6 +41,17 @@
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Update="readme.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

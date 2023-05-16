@@ -10,6 +10,6 @@
 Bright Wire - http://www.jackdermody.net/brightwire
 Copyright (c) 2016-2023 Jack Dermody - Open Source MIT License
 
-BrightData.Cuda adds GPU based tensor computation to Bright Data.
+BrightData.MKL adds Intel MKL based tensor computation to Bright Data.
 
-To use this library you will need to have a GPU that supports CUDA and to have installed Cuda Toolkit (https://developer.nvidia.com/cuda-toolkit)
+To use this library you will need to have an Intel CPU that supports MKL.

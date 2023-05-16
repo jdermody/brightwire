@@ -9,7 +9,7 @@ import { BrightDataType, ColumnConversionType, DataTableColumnModel, NameValueMo
 import { AutoSizeContainer } from '../panels/AutoSizeContainer';
 import { Operation } from './DataTable';
 import './ColumnInfo.scss';
-import { Popover2 } from '@blueprintjs/popover2';
+import { Popover2, Tooltip2 } from '@blueprintjs/popover2';
 import { ColumnDataPreview } from './ColumnDataPreview';
 
 export interface ColumnInfoProps {
@@ -125,17 +125,21 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
     return <div className={'column-info' + (isTarget ? ' target' : '') + ((isSelected && operation === Operation.VectoriseColumns) ? ' selected' : '')}>
         <div className="header">
             <span className={'type ' + column.columnType}>
-                {getDataTypeName(column.columnType)}
-                {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
+                <Tooltip2 content="Column type">
+                    {getDataTypeName(column.columnType)}
+                    {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
+                </Tooltip2>
             </span>
             <span className="name">
-                {onRenameColumn 
+                <Tooltip2 content="Column name">{onRenameColumn 
                     ? <EditableText value={name} onChange={setName} onConfirm={e => onRenameColumn(index, e)}/> 
                     : column.name
-                }
+                }</Tooltip2>
             </span>
             {onSetTargetColumn && !isTarget
-                ? <Button icon="target" small={true} onClick={() => onSetTargetColumn(index)}/>
+                ? <Tooltip2 content="Set column as classification target">
+                    <Button title="Set target" icon="target" small={true} onClick={() => onSetTargetColumn(index)}/>
+                </Tooltip2>
                 : undefined
             }
             {((operation === Operation.VectoriseColumns && isNumeric(column.columnType)) || operation === Operation.CopyColumns)
@@ -143,28 +147,32 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
                 : undefined
             }
             {categories.length
-                ? <Popover2 content={<HTMLTable>
-                        <thead>
-                            <tr>
-                                <th colSpan={2}>Categories</th>
-                            </tr>
-                        </thead>
-                        <tbody>{categories.map(x => 
-                            <tr key={x.index}>
-                                <td>{x.index}</td>
-                                <td>{x.name}</td>
-                            </tr>
-                        )}</tbody>
-                    </HTMLTable>
-                }>
-                    <Button icon="properties"/>
-                </Popover2>
+                ? <Tooltip2 content="Column categories">
+                    <Popover2 content={<HTMLTable>
+                            <thead>
+                                <tr>
+                                    <th colSpan={2}>Categories</th>
+                                </tr>
+                            </thead>
+                            <tbody>{categories.map(x => 
+                                <tr key={x.index}>
+                                    <td>{x.index}</td>
+                                    <td>{x.name}</td>
+                                </tr>
+                            )}</tbody>
+                        </HTMLTable>
+                    }>
+                        <Button icon="properties"/>
+                    </Popover2>
+                </Tooltip2>
                 : undefined
             }
             {preview
-                ? <Popover2 content={<ColumnDataPreview preview={preview}/>}>
-                    <Button icon="th-list"/>
-                </Popover2>
+                ? <Tooltip2 content="Column data">
+                    <Popover2 content={<ColumnDataPreview preview={preview}/>}>
+                        <Button icon="th-list"/>
+                    </Popover2>
+                </Tooltip2>
                 : undefined
             }
         </div>

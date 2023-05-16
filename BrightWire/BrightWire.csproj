@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>4.0.0</Version>
+    <Version>4.0.0-rc</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>Bright ML</Product>
@@ -17,6 +17,7 @@
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -46,6 +47,10 @@
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

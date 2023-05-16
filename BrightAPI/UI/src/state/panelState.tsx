@@ -15,31 +15,17 @@ const projectPanel: PanelInfo = {
     contents: <Project/>
 };
 
-export let previousActivePanel: PanelInfo[] = [];
+export const previousActivePanelState = atom<PanelInfo[]>({
+    key: 'previousActivePanelState',
+    default: [projectPanel]
+});
+
 export const currentPanelsState = atom<PanelInfo[]>({
     key: 'currentPanelsState',
-    default: [projectPanel],
-    effects: [
-        ({onSet}) => {
-            onSet(newValue => {
-                var activePanels = new Set(newValue);
-                previousActivePanel = previousActivePanel.filter(x => activePanels.has(x));
-            });
-        }
-    ]
+    default: [projectPanel]
 });
 
 export const activePanelState = atom<PanelInfo>({
     key: 'activePanelState',
-    default: projectPanel,
-    effects: [
-        ({onSet}) => {
-            onSet((newValue, oldValue) => {
-                if(oldValue instanceof DefaultValue)
-                    previousActivePanel.push(newValue);
-                else
-                    previousActivePanel.push(oldValue);
-            });
-        }
-    ]
+    default: projectPanel
 });

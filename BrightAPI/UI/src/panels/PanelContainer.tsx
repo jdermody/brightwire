@@ -2,7 +2,7 @@ import { AnchorButton } from '@blueprintjs/core';
 import React, { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { dataTablesChangeState, dataTablesState } from '../state/dataTablesState';
-import { activePanelState, currentPanelsState, PanelInfo, previousActivePanel } from '../state/panelState';
+import { activePanelState, currentPanelsState, PanelInfo, previousActivePanelState } from '../state/panelState';
 import { webClientState } from '../state/webClientState';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './PanelContainer.scss';
@@ -10,6 +10,7 @@ import './PanelContainer.scss';
 export const PanelContainer = () => {
     const currentPanels = useRecoilValue(currentPanelsState);
     const [activePanel, setActivePanel] = useRecoilState(activePanelState);
+    const [previousActivePanel, setPreviousActivePanel] = useRecoilState(previousActivePanelState);
     const webClient = useRecoilValue(webClientState);
     const setDataTables = useSetRecoilState(dataTablesState);
     const dataTablesChange = useRecoilValue(dataTablesChangeState);
@@ -21,6 +22,7 @@ export const PanelContainer = () => {
         webClient.getDataTables().then(setDataTables);
     }, [dataTablesChange]);
 
+    // sync state with browser location
     useEffect(() => {
         const locationId = location.hash.substring(1);
         if(activePanel.id != locationId) {
@@ -31,14 +33,16 @@ export const PanelContainer = () => {
         }
     }, [location, activePanel, currentPanels, setActivePanel]);
 
+    // sync tab state with browser location
     const onTabChange = useCallback((newPanel: PanelInfo) => {
+        setPreviousActivePanel(x => [...x, newPanel]);
         navigate({
             hash: newPanel.id
         }, {
             state: newPanel
         });
         //setActivePanel(newPanel);
-    }, [setActivePanel, navigate]);
+    }, [setActivePanel, navigate, setPreviousActivePanel]);
 
     return <div className="panel-container">
         <header>

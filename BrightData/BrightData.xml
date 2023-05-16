@@ -8841,7 +8841,7 @@
             Finds the standard deviation of each element in the tensor
             </summary>
             <param name="tensor"></param>
-            <param name="mean">Precalculated mean of the tensor or null to calculate</param>
+            <param name="mean">Pre calculated mean of the tensor or null to calculate</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sigmoid(BrightData.ITensorSegment)">
