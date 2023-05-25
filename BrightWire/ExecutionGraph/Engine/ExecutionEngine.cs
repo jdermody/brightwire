@@ -130,7 +130,7 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PopScope();
         }
 
-        public ExecutionResult? Execute(float[] input)
+        public IEnumerable<ExecutionResult> Execute(float[] input)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
@@ -139,17 +139,14 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1/*, mb => Execute(executionContext, mb)*/));
 
-            IGraphContext? context = null;
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
-                context = Execute(executionContext, operation).Single();
+                using var context = Execute(executionContext, operation).Single();
+                yield return context.Results.Single();
                 LinearAlgebraProvider.PopScope();
             }
-            var ret = context?.Results.SingleOrDefault();
-            context?.Dispose();
             LinearAlgebraProvider.PopScope();
             DataSource = null;
-            return ret;
         }
 
         //protected ExecutionResult _Execute(float[] input)
@@ -197,7 +194,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = null;
         }
 
-        public ExecutionResult? ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
+        public IEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, true, sequenceType, sequenceIndex);
@@ -205,16 +202,12 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1));
 
-            IGraphContext? context = null;
             while (executionContext.GetNextOperation() is { } operation) {
-                context = Execute(executionContext, operation).Single();
+                using var context = Execute(executionContext, operation).Single();
+                yield return context.Results.Single();
             }
-
-            var ret = context?.Results.SingleOrDefault();
-            context?.Dispose();
             LinearAlgebraProvider.PopScope();
             DataSource = null;
-            return ret;
         }
 
         IGraphContext ICreateGraphContext.Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext) => CreateContext(executionContext, sequence);

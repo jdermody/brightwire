@@ -373,6 +373,18 @@ namespace BrightData.DataTable
                 : Array.Empty<string>()
         ;
 
+        /// <summary>
+        /// Returns a row at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        public BrightDataTableRow this[int index] => GetRow((uint)index);
+
+        /// <summary>
+        /// Returns a row at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        public BrightDataTableRow this[uint index] => GetRow(index);
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", _columns.Select((_, i) => $"[{ColumnTypes[i]}]: {GetColumnMetaData((uint)i)}"));
     }

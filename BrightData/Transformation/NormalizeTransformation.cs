@@ -26,7 +26,7 @@ namespace BrightData.Transformation
                 else if (type == NormalizationType.Manhattan)
                     divide = Convert.ToDouble(analysedMetaData.Get(Consts.L1Norm));
                 else if (type == NormalizationType.Standard) {
-                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.PopulationStdDev) ?? 1);
+                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.SampleStdDev) ?? 1);
                     subtract = Convert.ToDouble(analysedMetaData.Get(Consts.Mean));
                 }
                 else if (type == NormalizationType.FeatureScale) {
@@ -84,6 +84,13 @@ namespace BrightData.Transformation
         /// </summary>
         /// <param name="val">Value to normalize</param>
         /// <returns>Normalized result</returns>
-        public double Normalize(double val) => _divideByZero ? val : (val - Subtract) / Divide;
+        public double Normalize(double val) => (val - Subtract) / (_divideByZero ? 1 : Divide);
+
+        /// <summary>
+        /// Reverse a normalized value
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public double ReverseNormalize(double val) => (_divideByZero ? val : val * Divide) + Subtract;
     }
 }

@@ -496,7 +496,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="input">Vector to execute</param>
         /// <returns></returns>
-        ExecutionResult? Execute(float[] input);
+        IEnumerable<ExecutionResult> Execute(float[] input);
 
         /// <summary>
         /// Executes a sequential input on the current graph
@@ -506,7 +506,7 @@ namespace BrightWire
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        IEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph

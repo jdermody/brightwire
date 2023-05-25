@@ -16,7 +16,7 @@ namespace BrightData.Serialisation
         /// </summary>
         /// <param name="str"></param>
         /// <param name="writer"></param>
-        public static void WriteTo(this String? str, BinaryWriter writer) => writer.Write(str ?? "");
+        public static void WriteTo(this string? str, BinaryWriter writer) => writer.Write(str ?? "");
 
         /// <summary>
         /// Writes the integer
@@ -177,13 +177,13 @@ namespace BrightData.Serialisation
         }
 
         /// <summary>
-        /// Reads an array from the reader
+        /// Reads an array of objects from the reader
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="context"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] ReadArray<T>(this BinaryReader reader, BrightDataContext context)
+        public static T[] ReadObjectArray<T>(this BinaryReader reader, BrightDataContext context)
             where T : ICanInitializeFromBinaryReader
         {
             var len = reader.ReadInt32();

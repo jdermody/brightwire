@@ -12,19 +12,19 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
-                TypeCode.String => FromString,
-                TypeCode.Single => FromSingle,
-                TypeCode.Double => FromDouble,
-                TypeCode.SByte => FromSByte,
-                TypeCode.Byte => FromByte,
-                TypeCode.Int16 => GetInt16,
-                TypeCode.UInt16 => FromUInt16,
-                TypeCode.Int32 => FromInt32,
-                TypeCode.UInt32 => FromUInt32,
-                TypeCode.Int64 => FromInt64,
-                TypeCode.UInt64 => FromUInt64,
+                TypeCode.String  => FromString,
+                TypeCode.Single  => FromSingle,
+                TypeCode.Double  => FromDouble,
+                TypeCode.SByte   => FromSByte,
+                TypeCode.Byte    => FromByte,
+                TypeCode.Int16   => GetInt16,
+                TypeCode.UInt16  => FromUInt16,
+                TypeCode.Int32   => FromInt32,
+                TypeCode.UInt32  => FromUInt32,
+                TypeCode.Int64   => FromInt64,
+                TypeCode.UInt64  => FromUInt64,
                 TypeCode.Decimal => FromDecimal,
-                _ => ConvertGeneric,
+                _                => ConvertGeneric,
             };
         }
 

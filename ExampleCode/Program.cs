@@ -23,11 +23,11 @@ namespace ExampleCode
 
             // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)
             // ALSO: check the mkl.net nuget package version is correct for your OS (default for ExampleCode is Windows x64)
-            useMkl = false;
+            //useMkl = false;
 
             // IMPORTANT: uncomment the following line to disable CUDA (for example if you have a do not have an NVIDA GPU)
             // ALSO: make sure you have installed CUDA toolkit from https://developer.nvidia.com/cuda-toolkit
-            useCuda = false;
+            //useCuda = false;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));

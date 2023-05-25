@@ -131,7 +131,7 @@ namespace ExampleCode.DataTableTrainers
                 uint index = 0, eCount = 0;
                 var context = engine.LinearAlgebraProvider.Context;
                 var executionContext = engine.CreateExecutionContext();
-                var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart);
+                var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart).SingleOrDefault();
                 if (result != null) {
                     var sb = new StringBuilder();
                     for (var i = 0; i < 32; i++) {
@@ -150,7 +150,7 @@ namespace ExampleCode.DataTableTrainers
 
                         Array.Clear(input, 0, ReberGrammar.Size);
                         input[nextIndex] = 1f;
-                        result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard);
+                        result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard).SingleOrDefault();
                     }
 
                     var str = sb.ToString();
