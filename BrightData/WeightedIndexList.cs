@@ -42,7 +42,7 @@ namespace BrightData
         /// An item within a weighted index list
         /// </summary>
         //[StructLayout(LayoutKind.Sequential, Pack=0)]
-        public readonly record struct Item
+        public readonly record struct Item : IEquatable<Item>
         {
             /// <summary>
             /// Index of item
@@ -70,6 +70,9 @@ namespace BrightData
 
             /// <inheritdoc />
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
+
+            /// <inheritdoc />
+            public bool Equals(Item other) => Index == other.Index && Math.Abs(Weight - other.Weight) < FloatMath.AlmostZero;
         }
 
         /// <summary>
@@ -322,10 +325,7 @@ namespace BrightData
 
         /// <inheritdoc />
         // ReSharper disable once NonReadonlyMemberInGetHashCode
-        public override int GetHashCode()
-        {
-            return Indices.GetHashCode();
-        }
+        public override int GetHashCode() => ((IStructuralEquatable)Indices).GetHashCode(EqualityComparer<Item>.Default);
 
         /// <summary>
         /// Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type

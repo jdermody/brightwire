@@ -2,13 +2,15 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class MatrixData : IReadOnlyMatrix
+    internal class MatrixData : IReadOnlyMatrix, IEquatable<MatrixData>, IHaveReadOnlyContiguousFloatSpan
     {
+        readonly ReadOnlyMatrixValueSemantics<MatrixData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;
         uint _startIndex;
@@ -19,6 +21,7 @@ namespace BrightData.DataTable.TensorData
             _startIndex = startIndex;
             RowCount = rowCount;
             ColumnCount = columnCount;
+            _valueSemantics = new(this);
         }
 
         public uint RowCount { get; private set; }
@@ -45,8 +48,9 @@ namespace BrightData.DataTable.TensorData
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            return _data.GetSpan(_startIndex, Size);
+            return FloatSpan;
         }
+        public ReadOnlySpan<float> FloatSpan => _data.GetSpan(_startIndex, Size);
 
         public IMatrix Create(LinearAlgebraProvider lap)
         {
@@ -89,6 +93,12 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size => ColumnCount * RowCount;
+
+        // value semantics
+        public bool Equals(MatrixData? other) => _valueSemantics.Equals(other);
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as MatrixData);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+
         public override string ToString()
         {
             var preview = String.Join("|", Math.Min(Consts.DefaultPreviewSize, Size).AsRange().Select(i => {

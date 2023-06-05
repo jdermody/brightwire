@@ -215,6 +215,14 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Creates a 4D tensor from matrices
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="tensors"></param>
+        /// <returns></returns>
+        public static IReadOnlyTensor4D CreateReadOnlyTensor4D(this BrightDataContext _, params IReadOnlyTensor3D[] tensors) => new ReadOnlyTensor4D(tensors);
+
+        /// <summary>
         /// Creates a 4D tensor from a binary reader
         /// </summary>
         /// <param name="context"></param>

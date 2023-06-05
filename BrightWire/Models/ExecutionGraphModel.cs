@@ -124,7 +124,7 @@ namespace BrightWire.Models
         /// <summary>
         /// Segment contract version number
         /// </summary>
-        public string Version { get; set; } = "3.0";
+        public string Version { get; set; } = "4.0";
 
         /// <summary>
         /// The name of the graph

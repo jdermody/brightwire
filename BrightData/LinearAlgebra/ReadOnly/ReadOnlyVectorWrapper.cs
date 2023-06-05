@@ -1,18 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyVectorWrapper : IReadOnlyVector
+    internal class ReadOnlyVectorWrapper : IReadOnlyVector, IEquatable<ReadOnlyVectorWrapper>
     {
+        readonly ReadOnlyVectorValueSemantics<ReadOnlyVectorWrapper> _valueSemantics;
         readonly ITensorSegment _segment;
 
         public ReadOnlyVectorWrapper(ITensorSegment segment)
         {
             _segment = segment;
+            _valueSemantics = new(this);
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -42,12 +45,18 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public float[] ToArray() => _segment.ToNewArray();
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_segment);
         public ITensorSegment Segment => _segment;
+
+        // value semantics
+        public bool Equals(ReadOnlyVectorWrapper? other) => _valueSemantics.Equals(other);
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVectorWrapper);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+
         public override string ToString()
         {
             var preview = String.Join("|", _segment.Values.Take(Consts.DefaultPreviewSize));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
-            return $"Vector Info ({Size}): {preview}";
+            return $"Read Only Vector Wrapper ({Size}): {preview}";
         }
     }
 }

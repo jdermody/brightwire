@@ -24,6 +24,10 @@ namespace BrightData.UnitTests
             var first = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
             var second = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
             first.Equals(second).Should().BeTrue();
+            var set = new HashSet<WeightedIndexList> {
+                first, second
+            };
+            set.Count.Should().Be(1);
         }
 
         [Fact]
@@ -31,7 +35,7 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 0.5f));
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Sum);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Sum);
 
             merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(1.0f);
@@ -42,7 +46,7 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 0.5f));
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Average);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Average);
 
             merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(0.5f);
@@ -53,7 +57,7 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 1.5f));
             var second = _context.CreateWeightedIndexList((1, 2.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Max);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Max);
 
             merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(2.5f);
@@ -131,7 +135,7 @@ namespace BrightData.UnitTests
         static IEnumerable<uint> GetStringIndices(IEnumerable<string> words, Dictionary<string, uint> stringTable)
         {
             foreach (var word in words) {
-                if(!stringTable.TryGetValue(word, out var index))
+                if (!stringTable.TryGetValue(word, out var index))
                     stringTable.Add(word, index = (uint)stringTable.Count);
                 yield return index;
             }

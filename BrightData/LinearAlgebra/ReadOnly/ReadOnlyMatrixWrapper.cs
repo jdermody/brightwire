@@ -1,18 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyMatrixWrapper : IReadOnlyMatrix
+    internal class ReadOnlyMatrixWrapper : IReadOnlyMatrix, IEquatable<ReadOnlyMatrixWrapper>, IHaveReadOnlyContiguousFloatSpan
     {
+        readonly ReadOnlyMatrixValueSemantics<ReadOnlyMatrixWrapper> _valueSemantics;
+
         public ReadOnlyMatrixWrapper(ITensorSegment segment, uint rowCount, uint columnCount)
         {
             RowCount = rowCount;
             ColumnCount = columnCount;
             Segment = segment;
+            _valueSemantics = new(this);
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -36,6 +40,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
+        public ReadOnlySpan<float> FloatSpan => Segment.GetSpan();
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
         public uint RowCount { get; }
         public uint ColumnCount { get; }
@@ -59,12 +64,17 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint Size => RowCount * ColumnCount;
         public ITensorSegment Segment { get; }
 
+        // value semantics
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrixWrapper);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+        public bool Equals(ReadOnlyMatrixWrapper? other) => _valueSemantics.Equals(other);
+
         public override string ToString()
         {
             var preview = String.Join("|", Segment.Values.Take(Consts.DefaultPreviewSize));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
-            return $"Matrix Info (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+            return $"Read Only Matrix Wrapper (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
     }
 }

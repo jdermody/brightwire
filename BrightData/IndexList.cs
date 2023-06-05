@@ -118,10 +118,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Indices.GetHashCode();
-        }
+        public override int GetHashCode() => ((IStructuralEquatable)_indices).GetHashCode(EqualityComparer<uint>.Default);
 
         /// <summary>
         /// Writes the data to an XML writer

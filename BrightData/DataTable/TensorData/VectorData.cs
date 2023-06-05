@@ -2,13 +2,15 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class VectorData : IReadOnlyVector
+    internal class VectorData : IReadOnlyVector, IEquatable<VectorData>
     {
+        readonly ReadOnlyVectorValueSemantics<VectorData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
         ITensorSegment? _segment;
         uint _startIndex;
@@ -20,6 +22,7 @@ namespace BrightData.DataTable.TensorData
             _startIndex = startIndex;
             _stride = stride;
             Size = size;
+            _valueSemantics = new(this);
         }
 
         public uint Size { get; private set; }
@@ -81,6 +84,11 @@ namespace BrightData.DataTable.TensorData
             writer.Write(Size);
             writer.Write(_data.GetSpan(_startIndex, Size).AsBytes());
         }
+
+        // value semantics
+        public bool Equals(VectorData? other) => _valueSemantics.Equals(other);
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as VectorData);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
 
         public override string ToString()
         {

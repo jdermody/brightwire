@@ -1,17 +1,26 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyMatrix : IReadOnlyMatrix
+    internal class ReadOnlyMatrix : IReadOnlyMatrix, IEquatable<ReadOnlyMatrix>, IHaveReadOnlyContiguousFloatSpan
     {
+        readonly ReadOnlyMatrixValueSemantics<ReadOnlyMatrix> _valueSemantics;
         float[] _data;
         ITensorSegment? _segment;
 
-        public ReadOnlyMatrix(float[] data, uint rows, uint columns)
+#pragma warning disable CS8618
+        ReadOnlyMatrix()
+#pragma warning restore CS8618
+        {
+            _valueSemantics = new(this);
+        }
+
+        public ReadOnlyMatrix(float[] data, uint rows, uint columns) : this()
         {
             _data = data;
             RowCount = rows;
@@ -21,7 +30,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
         }
 
-        public unsafe ReadOnlyMatrix(uint rows, uint columns, Func<uint, uint, float> initializer)
+        public unsafe ReadOnlyMatrix(uint rows, uint columns, Func<uint, uint, float> initializer) : this()
         {
             RowCount = rows;
             ColumnCount = columns;
@@ -31,9 +40,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 for (uint i = 0, len = (uint)_data.Length; i < len; i++)
                     *p++ = initializer(i % rows, i / rows);
             }
-            //for (uint j = 0; j < columns; j++)
-            //    for (uint i = 0; i < rows; i++)
-            //        _data[j * rows + i] = initializer(i, j);
         }
 
         public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data);
@@ -43,7 +49,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(2);
             writer.Write(ColumnCount);
             writer.Write(RowCount);
-            writer.Write(_data.AsSpan().AsBytes());
+            writer.Write(FloatSpan.AsBytes());
         }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
@@ -58,8 +64,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            return _data.AsSpan();
+            return FloatSpan;
         }
+        public ReadOnlySpan<float> FloatSpan => _data.AsSpan();
 
         public uint Size => RowCount * ColumnCount;
         public uint RowCount { get; private set; }
@@ -79,12 +86,18 @@ namespace BrightData.LinearAlgebra.ReadOnly
             ? ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToReadOnlyVector()).ToArray()
             : ColumnCount.AsRange().Select(GetColumn).ToArray()
         ;
+
+        // value semantics
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrix);
+        public bool Equals(ReadOnlyMatrix? other) => _valueSemantics.Equals(other);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+
         public override string ToString()
         {
             var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
-            return $"Matrix Info (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+            return $"Read Only Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
     }
 }

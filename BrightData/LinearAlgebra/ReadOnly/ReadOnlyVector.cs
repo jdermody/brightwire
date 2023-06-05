@@ -1,29 +1,35 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyVector : IReadOnlyVector
+    internal class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>
     {
+        readonly ReadOnlyVectorValueSemantics<ReadOnlyVector> _valueSemantics;
         float[]? _data = null;
         ITensorSegment? _segment = null;
 
-        public ReadOnlyVector(float[] data)
+        ReadOnlyVector()
+        {
+            _valueSemantics = new(this);
+        }
+        public ReadOnlyVector(float[] data) : this()
         {
             _data = data;
         }
-        public ReadOnlyVector(ITensorSegment? segment)
+        public ReadOnlyVector(ITensorSegment? segment) : this()
         {
             _segment = segment;
         }
-        public ReadOnlyVector(uint size)
+        public ReadOnlyVector(uint size) : this()
         {
             _data = new float[size];
         }
-        public ReadOnlyVector(uint size, Func<uint, float> initializer)
+        public ReadOnlyVector(uint size, Func<uint, float> initializer) : this()
         {
             _data = new float[size];
             for (uint i = 0; i < size; i++)
@@ -61,6 +67,12 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public float[] ToArray() => _data ?? _segment!.ToNewArray();
         public IVector Create(LinearAlgebraProvider lap) => _data is null ? lap.CreateVector(_segment!) : lap.CreateVector(_data);
         public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data!);
+
+        // value semantics
+        public bool Equals(ReadOnlyVector? other) => _valueSemantics.Equals(other);
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVector);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+
         public override string ToString()
         {
             if (_data is not null) {
@@ -69,7 +81,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                     preview += "|...";
                 return $"Vector Info ({Size}): {preview}";
             } 
-            return $"Vector Info ({_segment})";
+            return $"Read Only Vector ({_segment})";
         }
     }
 }

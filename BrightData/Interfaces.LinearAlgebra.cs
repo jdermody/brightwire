@@ -188,6 +188,17 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Indicates that the type has a contiguous read only float span
+    /// </summary>
+    public interface IHaveReadOnlyContiguousFloatSpan
+    {
+        /// <summary>
+        /// A read only span of floats
+        /// </summary>
+        ReadOnlySpan<float> FloatSpan { get; }
+    }
+
+    /// <summary>
     /// Vector that cannot be modified
     /// </summary>
     public interface IReadOnlyVector : IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment

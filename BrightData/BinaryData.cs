@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -72,7 +73,7 @@ namespace BrightData
         public override bool Equals(object? obj) => obj is BinaryData other && Equals(other);
 
         /// <inheritdoc />
-        public override int GetHashCode() => _data.GetHashCode();
+        public override int GetHashCode() => ((IStructuralEquatable)_data).GetHashCode(EqualityComparer<byte>.Default);
 
         /// <summary>
         /// Binary data equality

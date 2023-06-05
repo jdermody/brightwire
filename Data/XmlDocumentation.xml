@@ -336,22 +336,6 @@
 				<param type="System.UInt32" name="count" summary="Size of the span" />
 			</method>
 </interface>
-<interface name="BrightData.ICanReadSection" base="System.IDisposable">
-	<summary>
-		Implemented by types that can repeatedly read the same section of a stream
-	</summary>
-		<method type="System.IO.BinaryReader" name="GetReader">
-		<summary>Creates a new reader for the readable section of the stream</summary>
-			</method>
-	<method type="BrightData.IStructByReferenceEnumerator&lt;T&gt;" name="GetStructByReferenceEnumerator">
-		<summary>Returns an readonly reference enumerator for a block of data</summary>
-				<param type="System.UInt32" name="count" summary="Size of block to enumerate" />
-			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;T&gt;" name="Enumerate">
-		<summary>Enumerates a block of data</summary>
-				<param type="System.UInt32" name="count" summary="Size of block to enumerate" />
-			</method>
-</interface>
 <interface name="BrightWire.ICanSerialise" base="">
 	<summary>
 		Serialisation interface for graph components
@@ -373,15 +357,6 @@
 		<method type="System.Void" name="WriteTo">
 		<summary>Serialize to binary writer</summary>
 				<param type="System.IO.BinaryWriter" name="writer" summary="" />
-			</method>
-</interface>
-<interface name="BrightData.ICloneStreams" base="">
-	<summary>
-		Clones streams
-	</summary>
-		<method type="BrightData.ICanReadSection" name="Clone">
-		<summary>Creates a new repeatable section reader</summary>
-				<param type="System.Nullable&lt;System.Int64&gt;" name="position" summary="" />
 			</method>
 </interface>
 <interface name="BrightData.IColumnTransformationParam" base="">
@@ -856,11 +831,11 @@
 				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to write the input rows to the execution results" />
 			</method>
-	<method type="BrightWire.Models.ExecutionResult" name="Execute">
+	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="Execute">
 		<summary>Executes a single vector on the current graph</summary>
 				<param type="System.Single[]" name="input" summary="Vector to execute" />
 			</method>
-	<method type="BrightWire.Models.ExecutionResult" name="ExecuteSingleSequentialStep">
+	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSingleSequentialStep">
 		<summary>Executes a sequential input on the current graph</summary>
 				<param type="BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext" name="executionContext" summary="Execution context" />
 				<param type="System.UInt32" name="sequenceIndex" summary="Index of the current sequence (starting from 0)" />
@@ -986,6 +961,14 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	</summary>
 		<property type="T" name="Current">
 		<summary>The current mutable reference</summary>
+	</property>
+</interface>
+<interface name="BrightData.IHaveReadOnlyContiguousFloatSpan" base="">
+	<summary>
+		Indicates that the type has a contiguous read only float span
+	</summary>
+		<property type="System.ReadOnlySpan&lt;System.Single&gt;" name="FloatSpan">
+		<summary>A read only span of floats</summary>
 	</property>
 </interface>
 <interface name="BrightData.IHaveSize" base="">
@@ -1697,23 +1680,6 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	</summary>
 		<property type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="LinearAlgebraProvider">
 		<summary>Property to set the linear algebra provider</summary>
-	</property>
-</interface>
-<interface name="BrightData.IStructByReferenceEnumerator&lt;T&gt;" base="System.IDisposable">
-	<summary>
-		Allows readonly reference enumeration
-	</summary>
-		<method type="BrightData.IStructByReferenceEnumerator&lt;T&gt;" name="GetEnumerator">
-		<summary>Gets an enumerator</summary>
-			</method>
-	<method type="System.Boolean" name="MoveNext">
-		<summary>Moves to the next item</summary>
-			</method>
-	<method type="System.Void" name="Reset">
-		<summary>Resets the enumerator</summary>
-			</method>
-	<property type="T" name="Current">
-		<summary>Gets the current item</summary>
 	</property>
 </interface>
 <interface name="BrightWire.ITableClassifier" base="">
@@ -2807,6 +2773,12 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	</property>
 	<property type="System.String[]" name="Tail">
 		<summary>Returns the tail of the table</summary>
+	</property>
+	<property type="BrightData.DataTable.BrightDataTableRow" name="this">
+		<summary>Returns a row at the specified index</summary>
+	</property>
+	<property type="BrightData.DataTable.BrightDataTableRow" name="this">
+		<summary>Returns a row at the specified index</summary>
 	</property>
 	<method type="System.String" name="ToString" is-static="false">
 		<summary></summary>
@@ -4593,8 +4565,13 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
 			</method>
 	<method type="BrightData.Transformation.NormalizeTransformation" name="GetNormalization" is-static="true">
-		<summary></summary>
+		<summary>Returns a normalization that was previously stored in the metadata</summary>
 				<param type="BrightData.MetaData" name="metaData" summary="Meta data store" />
+			</method>
+	<method type="BrightData.Transformation.NormalizeTransformation" name="GetColumnNormalization" is-static="true">
+		<summary>Returns the normalization that was applied to the specified data table column</summary>
+				<param type="BrightData.DataTable.BrightDataTable" name="dataTable" summary="" />
+				<param type="System.UInt32" name="columnIndex" summary="Column index to retrieve" />
 			</method>
 	<method type="BrightData.Analysis.Readers.NumericAnalysis" name="Analyze" is-static="true">
 		<summary>Analyzes numbers in a sequence</summary>
@@ -5670,6 +5647,11 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 		<summary>Create a 3D tensor from a binary reader</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyTensor4D" name="CreateReadOnlyTensor4D" is-static="true">
+		<summary>Creates a 4D tensor from matrices</summary>
+				<param type="BrightData.BrightDataContext" name="_" summary="" />
+				<param type="BrightData.IReadOnlyTensor3D[]" name="tensors" summary="" />
 			</method>
 	<method type="BrightData.IReadOnlyTensor4D" name="CreateReadOnlyTensor4D" is-static="true">
 		<summary>Creates a 4D tensor from a binary reader</summary>
@@ -8397,6 +8379,10 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>Normalizes a value with the parameters</summary>
 				<param type="System.Double" name="val" summary="Value to normalize" />
 			</method>
+	<method type="System.Double" name="ReverseNormalize" is-static="false">
+		<summary>Reverse a normalized value</summary>
+				<param type="System.Double" name="val" summary="" />
+			</method>
 </class>
 <class name="BrightData.Analysis.Readers.NumericAnalysis" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -8761,8 +8747,8 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 			</method>
-	<method type="T[]" name="ReadArray" is-static="true">
-		<summary>Reads an array from the reader</summary>
+	<method type="T[]" name="ReadObjectArray" is-static="true">
+		<summary>Reads an array of objects from the reader</summary>
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>

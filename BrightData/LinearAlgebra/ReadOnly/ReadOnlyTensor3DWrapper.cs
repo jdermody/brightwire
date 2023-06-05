@@ -1,18 +1,23 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor3DWrapper : IReadOnlyTensor3D
+    internal class ReadOnlyTensor3DWrapper : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3DWrapper>, IHaveReadOnlyContiguousFloatSpan
     {
+        readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3DWrapper> _valueSemantics;
+
         public ReadOnlyTensor3DWrapper(ITensorSegment segment, uint depth, uint rowCount, uint columnCount)
         {
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
             Segment = segment;
+            _valueSemantics = new(this);
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -38,6 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> FloatSpan => Segment.GetSpan();
 
         public uint Size => MatrixSize * Depth;
         public ITensorSegment Segment { get; }
@@ -62,6 +68,19 @@ namespace BrightData.LinearAlgebra.ReadOnly
             for (uint i = 0; i < Depth; i++)
                 ret[i] = GetReadOnlyMatrix(i);
             return ret;
+        }
+
+        // value semantics
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor3DWrapper);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+        public bool Equals(ReadOnlyTensor3DWrapper? other) => _valueSemantics.Equals(other);
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => Segment[x]));
+            if (Size > Consts.DefaultPreviewSize)
+                preview += "|...";
+            return $"Read Only Tensor 3D Wrapper (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
     }
 }

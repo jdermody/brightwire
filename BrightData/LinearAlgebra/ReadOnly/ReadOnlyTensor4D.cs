@@ -1,14 +1,17 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor4D : IReadOnlyTensor4D
+    internal class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousFloatSpan
     {
+        readonly ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4D> _valueSemantics;
+        readonly Lazy<ITensorSegment> _segment;
         IReadOnlyTensor3D[] _tensors;
-        ITensorSegment? _segment;
 
         public ReadOnlyTensor4D(IReadOnlyTensor3D[] tensors)
         {
@@ -18,6 +21,21 @@ namespace BrightData.LinearAlgebra.ReadOnly
             RowCount = firstTensor.RowCount;
             ColumnCount = firstTensor.ColumnCount;
             Depth = firstTensor.Depth;
+            _valueSemantics = new(this);
+            _segment = new(() => {
+                var data = new float[Size];
+                var ptr = data.AsSpan();
+                uint offset = 0;
+                foreach (var tensor in _tensors) {
+                    var temp = SpanOwner<float>.Empty;
+                    var span = tensor.GetFloatSpan(ref temp, out var wasTempUsed);
+                    span.CopyTo(ptr.Slice((int)offset, (int)TensorSize));
+                    if(wasTempUsed)
+                        temp.Dispose();
+                    offset += TensorSize;
+                }
+                return new ArrayBasedTensorSegment(data);
+            });
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -40,6 +58,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
             if (reader.ReadInt32() != 4)
                 throw new Exception("Unexpected array size");
+            if (_segment.IsValueCreated)
+                throw new Exception("Segment was created before type was initialized");
+
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
             Depth = reader.ReadUInt32();
@@ -49,10 +70,11 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 var buffer = reader.BaseStream.ReadArray<float>(MatrixSize);
                 _tensors[i] = new ReadOnlyTensor3DWrapper(new ArrayBasedTensorSegment(buffer), Depth, RowCount, ColumnCount);
             }
-            _segment = null;
         }
 
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> FloatSpan => Segment.GetSpan();
+
         public uint Size => TensorSize * Count;
         public uint Count { get; private set; }
         public uint Depth { get; private set; }
@@ -61,30 +83,23 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
 
-        public ITensorSegment Segment
-        {
-            get
-            {
-                if (_segment is null) {
-                    var data = new float[Size];
-                    var ptr = data.AsSpan();
-                    uint offset = 0;
-                    foreach (var tensor in _tensors) {
-                        var temp = SpanOwner<float>.Empty;
-                        var span = tensor.GetFloatSpan(ref temp, out var wasTempUsed);
-                        span.CopyTo(ptr.Slice((int)offset, (int)TensorSize));
-                        if(wasTempUsed)
-                            temp.Dispose();
-                        offset += TensorSize;
-                    }
-                    _segment = new ArrayBasedTensorSegment(data);
-                }
-                return _segment;
-            }
-        }
+        public ITensorSegment Segment => _segment.Value;
 
         public float this[int count, int depth, int rowY, int columnX] => _tensors[count][depth, rowY, columnX];
         public float this[uint count, uint depth, uint rowY, uint columnX] => _tensors[count][depth, rowY, columnX];
         public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(_tensors);
+
+        // value semantics
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor4D);
+        public override int GetHashCode() => _valueSemantics.GetHashCode();
+        public bool Equals(ReadOnlyTensor4D? other) => _valueSemantics.Equals(other);
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => Segment[x]));
+            if (Size > Consts.DefaultPreviewSize)
+                preview += "|...";
+            return $"Read Only Tensor 4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
     }
 }

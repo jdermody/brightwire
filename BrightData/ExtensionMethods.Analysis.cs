@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
+using BrightData.DataTable;
 using BrightData.Transformation;
 
 namespace BrightData
@@ -154,11 +155,19 @@ namespace BrightData
         public static DictionaryValues GetDictionaryValues(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// 
+        /// Returns a normalization that was previously stored in the metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static NormalizeTransformation GetNormalization(this MetaData metaData) => new(metaData);
+
+        /// <summary>
+        /// Returns the normalization that was applied to the specified data table column
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndex">Column index to retrieve</param>
+        /// <returns></returns>
+        public static NormalizeTransformation GetColumnNormalization(this BrightDataTable dataTable, uint columnIndex) => dataTable.ColumnMetaData[columnIndex].GetNormalization();
 
         /// <summary>
         /// Analyzes numbers in a sequence
