@@ -39,6 +39,9 @@ $borderRadius: 5px;
             &.Int {
                 background-color: #29A634;
             }
+            span[icon] {
+                margin-left: 0.5em;
+            }
         }
         button {
             width:2em;

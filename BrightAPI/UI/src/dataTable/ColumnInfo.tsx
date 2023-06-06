@@ -126,8 +126,10 @@ export const ColumnInfo = ({column, index, operation, onChangeColumnType, previe
         <div className="header">
             <span className={'type ' + column.columnType}>
                 <Tooltip2 content="Column type">
-                    {getDataTypeName(column.columnType)}
-                    {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
+                    <>
+                        {getDataTypeName(column.columnType)}
+                        {isTarget ? <Icon icon="locate" iconSize={20} /> : null}
+                    </>
                 </Tooltip2>
             </span>
             <span className="name">

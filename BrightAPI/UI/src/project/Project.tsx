@@ -4,7 +4,7 @@ import { importFromFile } from './Commands';
 import { TextFilePreview, TextFilePreviewProps } from './TextFilePreview';
 import './Project.scss';
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
-import { activePanelState, currentPanelsState } from '../state/panelState';
+import { addNewPanel, panelState } from '../state/panelState';
 import { dataTablesState } from '../state/dataTablesState';
 import { DataTable } from '../dataTable/DataTable';
 import { useNavigate } from 'react-router-dom';
@@ -15,25 +15,20 @@ export const Project = () => {
     const form = useRef<HTMLFormElement>(null);
     const fileInput = useRef<HTMLInputElement>(null);
     const mainContainer = useRef<HTMLDivElement>(null);
-    const [currentPanels, setCurrentPanels] = useRecoilState(currentPanelsState);
-    const setActivePanel = useSetRecoilState(activePanelState);
+    const [panels, setPanels] = useRecoilState(panelState);
     const [dataTables, setDataTables] = useRecoilState(dataTablesState);
     const webClient = useRecoilValue(webClientState);
     const navigate = useNavigate();
 
     const openPanel = useCallback((id: string, name: string, content: JSX.Element) => {
-        if(!currentPanels.find(x => x.id === id)) {
-            setCurrentPanels(x => [...x, {
-                canClose: true,
-                contents: content,
-                id,
-                name
-            }]);
+        const panel = panels.find(x => x.id === id);
+        if(!panel) {
+            setPanels(x => addNewPanel(id, name, content, x));
         }
         navigate({
             hash: id
         });
-    }, [currentPanels, setCurrentPanels, setActivePanel]);
+    }, [panels]);
 
     function openDataTable(id: string, name: string) {
         openPanel(id, name, <DataTable id={id} openDataTable={openDataTable} />);

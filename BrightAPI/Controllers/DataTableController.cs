@@ -165,7 +165,7 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<object[][]>> GetDataTableData(string id, uint start, uint count)
+        public async Task<ActionResult<string[][]>> GetDataTableData(string id, uint start, uint count)
         {
             var dataTableResult = await LoadDataTable(id);
             if (dataTableResult.Result is not null)
@@ -173,7 +173,7 @@ namespace BrightAPI.Controllers
             var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
-            var ret = table.GetSlice(start, count).Select(r => r.ToArray().ToArray()).ToArray();
+            var ret = table.GetSlice(start, count).Select(r => r.ToArray().Select(x => x.ToString() ?? "-").ToArray()).ToArray();
             return ret;
         }
 

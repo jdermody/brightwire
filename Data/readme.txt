@@ -8,7 +8,7 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) 2016-2022 Jack Dermody - Open Source MIT License
+Copyright (c) 2016-2023 Jack Dermody - Open Source MIT License
 
 
 This library contains data used by bright wire sample code.

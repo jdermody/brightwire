@@ -1,16 +1,14 @@
 import { AnchorButton } from '@blueprintjs/core';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { dataTablesChangeState, dataTablesState } from '../state/dataTablesState';
-import { activePanelState, currentPanelsState, PanelInfo, previousActivePanelState } from '../state/panelState';
+import { panelState, PanelInfo, getCurrentSelectedPanel, setSelectedPanel } from '../state/panelState';
 import { webClientState } from '../state/webClientState';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './PanelContainer.scss';
 
 export const PanelContainer = () => {
-    const currentPanels = useRecoilValue(currentPanelsState);
-    const [activePanel, setActivePanel] = useRecoilState(activePanelState);
-    const [previousActivePanel, setPreviousActivePanel] = useRecoilState(previousActivePanelState);
+    const [panels, setPanels] = useRecoilState(panelState);
     const webClient = useRecoilValue(webClientState);
     const setDataTables = useSetRecoilState(dataTablesState);
     const dataTablesChange = useRecoilValue(dataTablesChangeState);
@@ -22,31 +20,33 @@ export const PanelContainer = () => {
         webClient.getDataTables().then(setDataTables);
     }, [dataTablesChange]);
 
+    // find the current active panel
+    const activePanel = useMemo(() => getCurrentSelectedPanel(panels), [panels]);
+
     // sync state with browser location
     useEffect(() => {
         const locationId = location.hash.substring(1);
         if(activePanel.id != locationId) {
-            const panel = currentPanels.find(x => x.id === locationId);
+            const panel = panels.find(x => x.id === locationId);
             if(panel) {
-                setActivePanel(panel);
+                setPanels(setSelectedPanel(panel, panels));
             }
         }
-    }, [location, activePanel, currentPanels, setActivePanel]);
+    }, [location, activePanel, panels]);
 
     // sync tab state with browser location
     const onTabChange = useCallback((newPanel: PanelInfo) => {
-        setPreviousActivePanel(x => [...x, newPanel]);
+        //setActivePanel(newPanel);
         navigate({
             hash: newPanel.id
         }, {
             state: newPanel
         });
-        //setActivePanel(newPanel);
-    }, [setActivePanel, navigate, setPreviousActivePanel]);
+    }, [navigate]);
 
     return <div className="panel-container">
         <header>
-            {currentPanels.map(p => 
+            {panels.map(p => 
                 <AnchorButton 
                     key={p.id} 
                     className={activePanel === p ? 'selected' : undefined} 
@@ -55,7 +55,7 @@ export const PanelContainer = () => {
             )}
         </header>
         <div className="contents">
-            {currentPanels.map(p => 
+            {panels.map(p => 
                 <main key={p.id} style={{visibility: p === activePanel ? 'visible' : 'hidden'}}>
                     {p.contents}
                 </main>

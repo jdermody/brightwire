@@ -21,8 +21,9 @@ export const DataTableGrid = ({tableId, columns, rowCount, onDataPreview}: DataG
         return {
             getRows:({startRow, endRow, successCallback, failCallback, sortModel, filterModel}) => {
                 webClient.getDataTableData(tableId, startRow, endRow - startRow).then(r => {
-                    if(startRow === 0)
+                    if(startRow === 0) {
                         onDataPreview(r.slice(0, 5));
+                    }
 
                     const rows = r.map(x => {
                         let ret:any = {};
@@ -42,9 +43,9 @@ export const DataTableGrid = ({tableId, columns, rowCount, onDataPreview}: DataG
             headerName: x.name,
             field: `c${i}`
         };
-        if(x.columnType === BrightDataType.Vector) {
-            ret.valueFormatter= e => e.value ? e.value.segment.values : '-'
-        }
+        // if(x.columnType === BrightDataType.Vector) {
+        //     ret.valueFormatter = e => e.value ? e.value.segment.values : '-'
+        // }
         return ret;
     }), [columns]);
 
