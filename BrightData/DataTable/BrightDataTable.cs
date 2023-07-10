@@ -74,7 +74,7 @@ namespace BrightData.DataTable
         /// <param name="stream">Stream with table data</param>
         /// <param name="bufferSize">In memory buffer size</param>
         /// <exception cref="ArgumentException"></exception>
-        public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = 32768)
+        public BrightDataTable(BrightDataContext context, Stream stream, uint bufferSize = Consts.DefaultInMemoryBufferSize)
         {
             _stream = stream;
             if (stream is FileStream fileStream)
@@ -136,9 +136,9 @@ namespace BrightData.DataTable
             _columnMetaData  = new(() => _metaData.Value.Skip(1).ToArray());
 
             // resolve generic methods
-            var genericMethods           = GetType().GetGenericMethods();
-            _getReader                   = genericMethods[nameof(GetReader)];
-            var getConverter = genericMethods[nameof(GetConverter)];
+            var genericMethods              = GetType().GetGenericMethods();
+            _getReader                      = genericMethods[nameof(GetReader)];
+            var getConverter                = genericMethods[nameof(GetConverter)];
             var getRandomAccessColumnReader = genericMethods[nameof(GetRandomAccessColumnReader)];
 
             // determine column offsets

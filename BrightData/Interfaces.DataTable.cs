@@ -324,7 +324,6 @@ namespace BrightData
         bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index);
     }
 
-
     /// <summary>
     /// Information about a column transformation
     /// </summary>
@@ -351,7 +350,7 @@ namespace BrightData
             ITypedSegment column, 
             Func<MetaData> analysedMetaData, 
             IProvideTempStreams tempStreams, 
-            uint inMemoryRowCount = 32768
+            uint inMemoryRowCount = Consts.DefaultTableRowCacheSize
         );
     }
 

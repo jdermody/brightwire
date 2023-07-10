@@ -16,7 +16,7 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount)
             where T : struct
         {
             return GenericActivator.Create<ICompositeBuffer<T>>(typeof(CompositeStructBuffer<>).MakeGenericType(typeof(T)),
@@ -34,7 +34,7 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static ICompositeBuffer CreateCompositeStructBuffer(this IProvideTempStreams tempStream, Type type, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer CreateCompositeStructBuffer(this IProvideTempStreams tempStream, Type type, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount)
         {
             return GenericActivator.Create<ICompositeBuffer>(typeof(CompositeStructBuffer<>).MakeGenericType(type),
                 tempStream,
@@ -50,7 +50,7 @@ namespace BrightData
         /// <param name="bufferSize"></param>
         /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount)
         {
             return GenericActivator.Create<ICompositeBuffer<string>>(typeof(CompositeStringBuffer),
                 tempStream,
@@ -67,7 +67,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
-        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this IProvideTempStreams tempStream, BrightDataContext context, uint bufferSize = 32768) where T : notnull
+        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this IProvideTempStreams tempStream, BrightDataContext context, uint bufferSize = Consts.DefaultInMemoryBufferSize) where T : notnull
         {
             return GenericActivator.Create<ICompositeBuffer<T>>(typeof(CompositeObjectBuffer<>).MakeGenericType(typeof(T)),
                 context,
@@ -84,7 +84,7 @@ namespace BrightData
         /// <param name="type"></param>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
-        public static ICompositeBuffer CreateCompositeObjectBuffer(this IProvideTempStreams tempStream, BrightDataContext context, Type type, uint bufferSize = 32768)
+        public static ICompositeBuffer CreateCompositeObjectBuffer(this IProvideTempStreams tempStream, BrightDataContext context, Type type, uint bufferSize = Consts.DefaultInMemoryBufferSize)
         {
             return GenericActivator.Create<ICompositeBuffer>(typeof(CompositeObjectBuffer<>).MakeGenericType(type),
                 context,
@@ -102,7 +102,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
+        public static ICompositeBuffer<T> CreateCompositeStructBuffer<T>(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount) where T : struct =>
             tempStream.CreateCompositeStructBuffer<T>(bufferSize, maxDistinct);
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static ICompositeBuffer CreateCompositeStructBuffer(this BrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+        public static ICompositeBuffer CreateCompositeStructBuffer(this BrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount) =>
             tempStream.CreateCompositeStructBuffer(type, bufferSize, maxDistinct);
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
-        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+        public static ICompositeBuffer<string> CreateCompositeStringBuffer(this BrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize, ushort maxDistinct = Consts.DefaultMaxDistinctCount) =>
             tempStream.CreateCompositeStringBuffer(bufferSize, maxDistinct);
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
+        public static ICompositeBuffer<T> CreateCompositeObjectBuffer<T>(this BrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize) where T : notnull =>
             tempStream.CreateCompositeObjectBuffer<T>(context, bufferSize);
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace BrightData
         /// <param name="tempStream">Temp stream provider</param>
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
-        public static ICompositeBuffer CreateCompositeObjectBuffer(this BrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
+        public static ICompositeBuffer CreateCompositeObjectBuffer(this BrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = Consts.DefaultInMemoryBufferSize) =>
             tempStream.CreateCompositeObjectBuffer(context, type, bufferSize);
 
         /// <summary>

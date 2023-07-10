@@ -259,6 +259,7 @@ namespace BrightData
                 AggregationType.Sum => data.Sum(),
                 AggregationType.Average => data.Average(),
                 AggregationType.Max => data.Max(),
+                AggregationType.Min => data.Min(),
                 _ => throw new NotImplementedException()
             };
         }

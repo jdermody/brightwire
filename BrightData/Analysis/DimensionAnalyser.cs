@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Tensor analysis
+    /// </summary>
     internal class DimensionAnalyser : IDataAnalyser<ITensor>
     {
         readonly uint _maxCount;

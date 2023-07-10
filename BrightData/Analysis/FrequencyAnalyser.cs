@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Frequency analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class FrequencyAnalyser<T> : IDataAnalyser<T>
         where T: notnull
     {

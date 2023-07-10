@@ -22,7 +22,7 @@ namespace BrightData.Buffer.ReadOnly
             readonly int                    _sizeOfT;
             int                             _index = -1, _bufferIndex = -1, _bufferSize;
 
-            public ReferenceStructFromStreamReader(MemoryMappedViewStream stream, long iterableCount, int bufferSize = 1024)
+            public ReferenceStructFromStreamReader(MemoryMappedViewStream stream, long iterableCount, int bufferSize = Consts.DefaultSmallBufferSize)
             {
                 _stream                = stream;
                 _initialStreamPosition = stream.Position;

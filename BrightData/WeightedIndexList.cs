@@ -14,7 +14,7 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>
+    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>
     {
         readonly Item[] _indices;
 
@@ -255,13 +255,13 @@ namespace BrightData
             foreach (var item in other._indices) {
                 var index = item.Index;
                 if (data.TryGetValue(index, out var pair))
-                    data[index] = (pair.Item1, item.Weight);
+                    data[index] = (pair.Weight1, item.Weight);
                 else
                     data[index] = (0f, item.Weight);
             }
 
             return MathF.Sqrt(data.Values
-                .Select(pair => pair.Item1 - pair.Item2)
+                .Select(pair => pair.Weight1 - pair.Weight2)
                 .Select(diff => diff * diff)
                 .Sum()
             );
@@ -355,5 +355,21 @@ namespace BrightData
         {
             return obj is WeightedIndexList other && Equals(other);
         }
+
+        /// <summary>
+        /// Structural equality operator
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator ==(WeightedIndexList lhs, WeightedIndexList rhs) => lhs.Equals(rhs);
+
+        /// <summary>
+        /// Structural inequality operator
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator !=(WeightedIndexList lhs, WeightedIndexList rhs) => !lhs.Equals(rhs);
     }
 }

@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Index based type analysis
+    /// </summary>
     internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
         readonly uint _writeCount, _maxCount;

@@ -288,7 +288,7 @@ namespace BrightData
             bool hasHeader,
             char delimiter = ',',
             int maxRows = int.MaxValue,
-            ushort maxDistinct = 1024,
+            ushort maxDistinct = Consts.DefaultMaxDistinctCount,
             CancellationToken ct = default
         )
         {
@@ -364,7 +364,7 @@ namespace BrightData
             string? fileOutputPath = null,
             int maxRows = int.MaxValue,
             uint inMemoryRowCount = 32768,
-            ushort maxDistinct = 1024,
+            ushort maxDistinct = Consts.DefaultMaxDistinctCount,
             CancellationToken ct = default)
         {
             var userNotification = context.UserNotifications;
@@ -1494,7 +1494,7 @@ namespace BrightData
             : new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite)
         ;
 
-        static BrightDataTable LoadTableFromStream(this BrightDataContext context, Stream stream, uint bufferSize = 32768)
+        static BrightDataTable LoadTableFromStream(this BrightDataContext context, Stream stream, uint bufferSize = Consts.DefaultInMemoryBufferSize)
         {
             stream.Seek(0, SeekOrigin.Begin);
             return new BrightDataTable(context, stream, bufferSize);

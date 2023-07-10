@@ -2,6 +2,10 @@
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Used to cast other numeric types to doubles for numeric analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
     {
         readonly ConvertToDouble<T> _converter = new();

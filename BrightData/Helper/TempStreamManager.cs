@@ -9,9 +9,9 @@ namespace BrightData.Helper
     /// </summary>
     public class TempStreamManager : IProvideTempStreams
     {
-        readonly string _basePath;
+        readonly string                                         _basePath;
         readonly ConcurrentDictionary<string, Lazy<FileStream>> _streamTable = new();
-        readonly ConcurrentBag<string> _tempPaths = new();
+        readonly ConcurrentBag<string>                          _tempPaths = new();
 
         /// <summary>
         /// Constructor
@@ -20,14 +20,6 @@ namespace BrightData.Helper
         public TempStreamManager(string? basePath = null)
         {
             _basePath = basePath ?? Path.GetTempPath();
-        }
-
-        /// <inheritdoc />
-        public string GetNewTempPath()
-        {
-            var ret = Path.Combine(_basePath, Guid.NewGuid().ToString("n"));
-            _tempPaths.Add(ret);
-            return ret;
         }
 
         /// <summary>

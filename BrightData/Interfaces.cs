@@ -255,7 +255,12 @@ namespace BrightData
         /// <summary>
         /// Finds the maximum value
         /// </summary>
-        Max
+        Max,
+
+        /// <summary>
+        /// Finds the minimum value
+        /// </summary>
+        Min
     }
 
     /// <summary>
@@ -298,11 +303,6 @@ namespace BrightData
     /// </summary>
     public interface IProvideTempStreams : IDisposable
     {
-        /// <summary>
-        /// Returns the path to a new temp file
-        /// </summary>
-        string GetNewTempPath();
-
         /// <summary>
         /// Returns an existing or creates a new temporary stream
         /// </summary>

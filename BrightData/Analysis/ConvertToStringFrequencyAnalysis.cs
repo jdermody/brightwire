@@ -1,5 +1,9 @@
 ﻿namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Used to convert other types to strings for frequency analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T> 
         where T: notnull
     {

@@ -191,7 +191,7 @@ namespace BrightData
         /// <returns></returns>
         public static DateAnalysis Analyze(this IEnumerable<DateTime> dates)
         {
-            var analysis = new DateAnalyser();
+            var analysis = new DateTimeAnalyser();
             foreach (var item in dates)
                 analysis.Add(item);
             return analysis.GetMetaData().GetDateAnalysis();

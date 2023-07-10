@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Binned frequency analysis
+    /// </summary>
     internal class LinearBinnedFrequencyAnalysis
     {
         readonly double _min, _max, _step;

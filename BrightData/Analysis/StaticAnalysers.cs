@@ -13,7 +13,7 @@ namespace BrightData.Analysis
         /// </summary>
         /// <param name="maxCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IDataAnalyser<DateTime> CreateDateAnalyser(uint maxCount = Consts.MaxDistinct) => new DateAnalyser(maxCount);
+        public static IDataAnalyser<DateTime> CreateDateAnalyser(uint maxCount = Consts.MaxDistinct) => new DateTimeAnalyser(maxCount);
 
         /// <summary>
         /// Creates a numeric analyzer
