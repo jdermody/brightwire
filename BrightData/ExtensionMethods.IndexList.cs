@@ -72,6 +72,13 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Creates a weighted index list from indexed counts
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static WeightedIndexList ToWeightedIndexList(this IEnumerable<(uint Index, uint Count)> items) => WeightedIndexList.Create(items.Select(x => new WeightedIndexList.Item(x.Index, x.Count)));
+
+        /// <summary>
         /// Converts the indexed classifications to weighted indexed classifications
         /// </summary>
         /// <param name="data"></param>

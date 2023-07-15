@@ -141,16 +141,16 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static float[][][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+	    public static IReadOnlyVector[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
 	    {
-		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), float[]>();
+		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
                 var outputRows = result.Output;
 			    for (var i = 0; i < outputRows.Length; i++) {
 				    var rowIndex = rows[i];
-				    ret.Add((rowIndex, sequenceIndex), outputRows[i].ToArray());
+				    ret.Add((rowIndex, sequenceIndex), outputRows[i]);
 			    }
 		    }
 		    return ret.GroupBy(d => d.Key.RowIndex)

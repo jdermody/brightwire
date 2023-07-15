@@ -48,7 +48,9 @@ namespace BrightData.Cuda
         {
             var provider = CreateCudaProvider(context, cudaKernelPath);
             var ret = new CudaLinearAlgebraProvider(context, provider);
-            ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
+            var setLinearAlgebraProvider = (ISetLinearAlgebraProvider)context;
+            setLinearAlgebraProvider.LinearAlgebraProvider = ret;
+            setLinearAlgebraProvider.LinearAlgebraProviderFactory = () => new CudaLinearAlgebraProvider(context, provider);
             return ret;
         }
 

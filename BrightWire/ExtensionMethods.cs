@@ -132,8 +132,9 @@ namespace BrightWire
         /// Creates a graph factory
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="lap">Linear algebra provider (optional)</param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this BrightDataContext context) => new(context.LinearAlgebraProvider);
+        public static GraphFactory CreateGraphFactory(this BrightDataContext context, LinearAlgebraProvider? lap = null) => new(lap ?? context.LinearAlgebraProvider);
 
 
         /// <summary>

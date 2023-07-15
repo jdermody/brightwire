@@ -247,11 +247,10 @@
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetSegment(System.UInt32,System.UInt32,BrightData.ICanRandomlyAccessData)">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetSegment(System.UInt32,BrightData.ICanRandomlyAccessData)">
             <summary>
             Returns a tensor segment from a segment provider
             </summary>
-            <param name="rowIndex"></param>
             <param name="columnIndex"></param>
             <param name="segmentProvider"></param>
             <returns></returns>
@@ -264,7 +263,7 @@
             Adapts data tables that classify each step of a sequence
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.TensorBasedDataTableAdapter">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.Tensor3DBasedDataTableAdapter">
             <summary>
             Adapts data tables that classify tensors (volumes)
             </summary>
@@ -526,11 +525,12 @@
             <param name="batchSize">Mini batch size</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph execution engine
             </summary>
             <param name="graph">The serialised graph to execute</param>
+            <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IVector[])">
@@ -2337,11 +2337,12 @@
             <param name="dataSource"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph factory
             </summary>
             <param name="context"></param>
+            <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlgebra.LinearAlgebraProvider)">

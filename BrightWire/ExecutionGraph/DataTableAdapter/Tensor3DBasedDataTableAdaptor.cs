@@ -8,12 +8,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify tensors (volumes)
     /// </summary>
-    internal class TensorBasedDataTableAdapter : RowBasedDataTableAdapterBase, IVolumeDataSource
+    internal class Tensor3DBasedDataTableAdapter : RowBasedDataTableAdapterBase, IVolumeDataSource
     {
         readonly uint[] _featureColumns;
         readonly uint _inputSize, _outputSize, _inputColumnIndex;
 
-        public TensorBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns)
+        public Tensor3DBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             Depth = input.Depth;
         }
 
-        TensorBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
+        Tensor3DBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _inputSize = inputSize;
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(BrightDataTable dataTable)
         {
-            return new TensorBasedDataTableAdapter(dataTable, _inputSize, _outputSize, Height, Width, Depth, _featureColumns);
+            return new Tensor3DBasedDataTableAdapter(dataTable, _inputSize, _outputSize, Height, Width, Depth, _featureColumns);
         }
 
         public override uint InputSize => _inputSize;

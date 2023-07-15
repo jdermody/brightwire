@@ -150,14 +150,15 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-		/// Creates a graph execution engine
-		/// </summary>
-		/// <param name="graph">The serialised graph to execute</param>
-		/// <returns></returns>
-		public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph)
+        /// Creates a graph execution engine
+        /// </summary>
+        /// <param name="graph">The serialised graph to execute</param>
+        /// <param name="lap">Linear algebra provider (optional)</param>
+        /// <returns></returns>
+        public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph, LinearAlgebraProvider? lap = null)
 		{
 			var input = this.CreateFrom(graph);
-			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
+			return new ExecutionEngine(lap ?? LinearAlgebraProvider, graph, input);
 		}
 
 		/// <summary>
@@ -229,7 +230,7 @@ namespace BrightWire.ExecutionGraph
 
 				// volume classification
 				if (featureColumnType == BrightDataType.Tensor3D && targetColumnType == BrightDataType.Vector)
-					return new TensorBasedDataTableAdapter(dataTable, featureColumns);
+					return new Tensor3DBasedDataTableAdapter(dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == BrightDataType.IndexList)

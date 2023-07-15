@@ -4,6 +4,49 @@
         <name>BrightData</name>
     </assembly>
     <members>
+        <member name="T:BrightData.Analysis.CastToDoubleNumericAnalysis`1">
+            <summary>
+            Used to cast other numeric types to doubles for numeric analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Analysis.ConvertToStringFrequencyAnalysis`1">
+            <summary>
+            Used to convert other types to strings for frequency analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Analysis.DateTimeAnalyser">
+            <summary>
+            Date time analysis
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.DimensionAnalyser">
+            <summary>
+            Tensor analysis
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.FrequencyAnalyser`1">
+            <summary>
+            Frequency analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Analysis.IndexAnalyser">
+            <summary>
+            Index based type analysis
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.LinearBinnedFrequencyAnalysis">
+            <summary>
+            Binned frequency analysis
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.NumericAnalyser">
+            <summary>
+            Numeric analysis
+            </summary>
+        </member>
         <member name="T:BrightData.Analysis.Readers.DateAnalysis">
             <summary>
             Date analysis results
@@ -292,6 +335,11 @@
             <param name="writeCount"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Analysis.StringAnalyser">
+            <summary>
+            String analysis
+            </summary>
+        </member>
         <member name="T:BrightData.BinaryData">
             <summary>
             Blob of binary data
@@ -371,6 +419,11 @@
         <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
+            </summary>
+        </member>
+        <member name="P:BrightData.BrightDataContext.LinearAlgebraProviderFactory">
+            <summary>
+            Linear algebra provider factory
             </summary>
         </member>
         <member name="M:BrightData.BrightDataContext.CreateTempStreamProvider">
@@ -613,6 +666,16 @@
         <member name="F:BrightData.Consts.DefaultInMemoryBufferSize">
             <summary>
             Default in memory buffer size
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.DefaultTableRowCacheSize">
+            <summary>
+            Default number of table rows to cache in memory
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.DefaultSmallBufferSize">
+            <summary>
+            Default size of a small buffer
             </summary>
         </member>
         <member name="F:BrightData.Consts.DefaultMaxDistinctCount">
@@ -906,6 +969,18 @@
             <summary>
             Returns the tail of the table
             </summary>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.Item(System.Int32)">
+            <summary>
+            Returns a row at the specified index
+            </summary>
+            <param name="index"></param>
+        </member>
+        <member name="P:BrightData.DataTable.BrightDataTable.Item(System.UInt32)">
+            <summary>
+            Returns a row at the specified index
+            </summary>
+            <param name="index"></param>
         </member>
         <member name="M:BrightData.DataTable.BrightDataTable.ToString">
             <inheritdoc />
@@ -1524,9 +1599,17 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.MetaData)">
             <summary>
-            
+            Returns a normalization that was previously stored in the metadata
             </summary>
             <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnNormalization(BrightData.DataTable.BrightDataTable,System.UInt32)">
+            <summary>
+            Returns the normalization that was applied to the specified data table column
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndex">Column index to retrieve</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Analyze``1(System.Collections.Generic.IEnumerable{``0})">
@@ -3032,6 +3115,13 @@
             <param name="_"></param>
             <param name="reader">The binary reader</param>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ToWeightedIndexList(System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.UInt32}})">
+            <summary>
+            Creates a weighted index list from indexed counts
+            </summary>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.ValueTuple{System.String,BrightData.IndexList}[],System.Boolean)">
             <summary>
             Converts the indexed classifications to weighted indexed classifications
@@ -3204,6 +3294,14 @@
             </summary>
             <param name="context"></param>
             <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateReadOnlyTensor4D(BrightData.BrightDataContext,BrightData.IReadOnlyTensor3D[])">
+            <summary>
+            Creates a 4D tensor from matrices
+            </summary>
+            <param name="_"></param>
+            <param name="tensors"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateReadOnlyTensor4D(BrightData.BrightDataContext,System.IO.BinaryReader)">
@@ -4188,55 +4286,6 @@
             <typeparam name="T">Type to return (created object cast to this type)</typeparam>
             <returns></returns>
         </member>
-        <member name="T:BrightData.Helper.ShapedBase">
-            <summary>
-            Tensor shape
-            </summary>
-        </member>
-        <member name="P:BrightData.Helper.ShapedBase.Shape">
-            <summary>
-            Array of sizes
-            </summary>
-        </member>
-        <member name="M:BrightData.Helper.ShapedBase.#ctor(System.UInt32[])">
-            <summary>
-            Constructor
-            </summary>
-            <param name="shape">Array of sizes</param>
-        </member>
-        <member name="P:BrightData.Helper.ShapedBase.Size">
-            <summary>
-            Total size of the shape
-            </summary>
-        </member>
-        <member name="P:BrightData.Helper.ShapedBase.Rank">
-            <summary>
-            Number of sizes within the shape
-            </summary>
-        </member>
-        <member name="M:BrightData.Helper.ShapedBase.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Helper.ShapedBase.ReadFrom(System.IO.BinaryReader)">
-            <summary>
-            Reads the shape from a binary reader
-            </summary>
-            <param name="reader">Reader</param>
-            <returns>Size of tensor</returns>
-        </member>
-        <member name="M:BrightData.Helper.ShapedBase.ResolveShape(System.UInt32,System.Nullable{System.UInt32}[])">
-            <summary>
-            Works out the shape from a possibly incomplete list of sizes
-            </summary>
-            <param name="total">Total size</param>
-            <param name="shape">List of sizes that form the shape (one can be null)</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.Helper.StreamCloner">
-            <summary>
-            Clones streams
-            </summary>
-        </member>
         <member name="T:BrightData.Helper.StringIndexer">
             <summary>
             Builds a string table
@@ -4281,9 +4330,6 @@
             Constructor
             </summary>
             <param name="basePath">Location on disk to write new temp files</param>
-        </member>
-        <member name="M:BrightData.Helper.TempStreamManager.GetNewTempPath">
-            <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.TempStreamManager.Get(System.String)">
             <summary>
@@ -4719,6 +4765,11 @@
             Finds the maximum value
             </summary>
         </member>
+        <member name="F:BrightData.AggregationType.Min">
+            <summary>
+            Finds the minimum value
+            </summary>
+        </member>
         <member name="T:BrightData.IDistribution`1">
             <summary>
             Data distribution
@@ -4749,11 +4800,6 @@
         <member name="T:BrightData.IProvideTempStreams">
             <summary>
             Temp stream provider
-            </summary>
-        </member>
-        <member name="M:BrightData.IProvideTempStreams.GetNewTempPath">
-            <summary>
-            Returns the path to a new temp file
             </summary>
         </member>
         <member name="M:BrightData.IProvideTempStreams.Get(System.String)">
@@ -4945,72 +4991,6 @@
             <summary>
             Current string table
             </summary>
-        </member>
-        <member name="T:BrightData.IStructByReferenceEnumerator`1">
-            <summary>
-            Allows readonly reference enumeration
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IStructByReferenceEnumerator`1.GetEnumerator">
-            <summary>
-            Gets an enumerator
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IStructByReferenceEnumerator`1.MoveNext">
-            <summary>
-            Moves to the next item
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IStructByReferenceEnumerator`1.Reset">
-            <summary>
-            Resets the enumerator
-            </summary>
-        </member>
-        <member name="P:BrightData.IStructByReferenceEnumerator`1.Current">
-            <summary>
-            Gets the current item
-            </summary>
-        </member>
-        <member name="T:BrightData.ICanReadSection">
-            <summary>
-            Implemented by types that can repeatedly read the same section of a stream
-            </summary>
-        </member>
-        <member name="M:BrightData.ICanReadSection.GetReader">
-            <summary>
-            Creates a new reader for the readable section of the stream
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ICanReadSection.GetStructByReferenceEnumerator``1(System.UInt32)">
-            <summary>
-            Returns an readonly reference enumerator for a block of data
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="count">Size of block to enumerate</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ICanReadSection.Enumerate``1(System.UInt32)">
-            <summary>
-            Enumerates a block of data
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="count">Size of block to enumerate</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.ICloneStreams">
-            <summary>
-            Clones streams
-            </summary>
-        </member>
-        <member name="M:BrightData.ICloneStreams.Clone(System.Nullable{System.Int64})">
-            <summary>
-            Creates a new repeatable section reader
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:BrightData.DataSpecificationType">
             <summary>
@@ -5734,6 +5714,11 @@
             Property to set the linear algebra provider
             </summary>
         </member>
+        <member name="P:BrightData.ISetLinearAlgebraProvider.LinearAlgebraProviderFactory">
+            <summary>
+            Linear algebra provider factory
+            </summary>
+        </member>
         <member name="T:BrightData.DistanceMetric">
             <summary>
             Distance metrics
@@ -5888,6 +5873,16 @@
         <member name="P:BrightData.IHaveTensorSegment.Segment">
             <summary>
             Underlying tensor segment
+            </summary>
+        </member>
+        <member name="T:BrightData.IHaveReadOnlyContiguousFloatSpan">
+            <summary>
+            Indicates that the type has a contiguous read only float span
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveReadOnlyContiguousFloatSpan.FloatSpan">
+            <summary>
+            A read only span of floats
             </summary>
         </member>
         <member name="T:BrightData.IReadOnlyVector">
@@ -9708,9 +9703,9 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadArray``1(System.IO.BinaryReader,BrightData.BrightDataContext)">
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadObjectArray``1(System.IO.BinaryReader,BrightData.BrightDataContext)">
             <summary>
-            Reads an array from the reader
+            Reads an array of objects from the reader
             </summary>
             <param name="reader"></param>
             <param name="context"></param>
@@ -10111,6 +10106,13 @@
             <param name="val">Value to normalize</param>
             <returns>Normalized result</returns>
         </member>
+        <member name="M:BrightData.Transformation.NormalizeTransformation.ReverseNormalize(System.Double)">
+            <summary>
+            Reverse a normalized value
+            </summary>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>
             A list of weighted indices is a sparse vector
@@ -10159,6 +10161,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.WeightedIndexList.Create(BrightData.WeightedIndexList.Item[])">
@@ -10304,6 +10309,22 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.op_Equality(BrightData.WeightedIndexList,BrightData.WeightedIndexList)">
+            <summary>
+            Structural equality operator
+            </summary>
+            <param name="lhs"></param>
+            <param name="rhs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.op_Inequality(BrightData.WeightedIndexList,BrightData.WeightedIndexList)">
+            <summary>
+            Structural inequality operator
+            </summary>
+            <param name="lhs"></param>
+            <param name="rhs"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

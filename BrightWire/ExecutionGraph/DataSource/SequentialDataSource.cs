@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             _data = matrixList;
             OutputSize = null;
 
-            int index = 0;
+            var index = 0;
             _rowDepth = new uint[matrixList.Length];
             foreach (var item in matrixList) {
                 if(index == 0)
@@ -33,8 +33,6 @@ namespace BrightWire.ExecutionGraph.DataSource
             }
         }
 
-        public uint InputCount => 1;
-        public bool IsSequential => true;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
@@ -43,13 +41,12 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<ITensorSegment>>();
+            var inputData = new Dictionary<uint /* sequence index */, List<ITensorSegment>>();
             foreach (var item in data) {
-                var input = item;
-                for (uint i = 0, len = input.RowCount; i < len; i++) {
+                for (uint i = 0, len = item.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = new());
-                    temp.Add(input.GetRow(i).Segment);
+                    temp.Add(item.GetRow(i).Segment);
                 }
             }
 

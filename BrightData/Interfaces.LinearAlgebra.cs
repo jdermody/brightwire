@@ -26,6 +26,11 @@ namespace BrightData
         /// Property to set the linear algebra provider
         /// </summary>
         LinearAlgebraProvider LinearAlgebraProvider { set; }
+
+        /// <summary>
+        /// Linear algebra provider factory
+        /// </summary>
+        Func<LinearAlgebraProvider> LinearAlgebraProviderFactory { set; }
     }
 
     /// <summary>

@@ -340,6 +340,9 @@ namespace BrightData.Cuda
 			return (size / blockSize) + 1;
 		}
 
+        public void PushContext() => Context.PushContext();
+        public void PopContext() => Context.PopContext();
+
 		internal static void CheckForError(CuResult result)
 		{
 			if (result != CuResult.Success) {

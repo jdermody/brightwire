@@ -26,10 +26,11 @@ namespace BrightData
                 ? new Random(randomSeed.Value) 
                 : new Random()
             ;
+            LinearAlgebraProviderFactory = () => new(this);
             if (lap is not null)
                 _lap = new(lap);
             else
-                _lap = new(() => new LinearAlgebraProvider(this));
+                _lap = new(() => LinearAlgebraProviderFactory());
 
             Set(Consts.DateTimeCreated, DateTime.Now);
         }
@@ -60,6 +61,11 @@ namespace BrightData
                 _lap = new(value);
             }
         }
+
+        /// <summary>
+        /// Linear algebra provider factory
+        /// </summary>
+        public Func<LinearAlgebraProvider> LinearAlgebraProviderFactory { get; set; }
 
         /// <summary>
         /// Creates a new temp stream provider
