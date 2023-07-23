@@ -10045,6 +10045,65 @@
             <param name="span"></param>
             <param name="analyser">Callback that receives each value and its index</param>
         </member>
+        <member name="M:BrightData.SpanExtensions.CosineDistance(System.ReadOnlySpan{System.Single},System.ReadOnlySpan{System.Single})">
+            <summary>
+            Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
+            </summary>
+            <param name="v1">First vector</param>
+            <param name="v2">Second vector</param>
+            <returns>Cosine distance between the two vectors</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.SpanExtensions.Minimum(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Find the minimum value and index in a vector
+            </summary>
+            <param name="vector">Vector to analyze</param>
+            <returns>Tuple containing the minimum value and its index</returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.MinimumIndex(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the index of the minimum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.MinimumValue(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the minimum value
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.Maximum(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the maximum value and index within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the maximum value and its index</returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.MaximumIndex(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.MaximumValue(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the index of the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.SpanExtensions.Softmax(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Calculates the softmax of a vector
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Transformation.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another

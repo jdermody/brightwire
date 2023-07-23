@@ -480,7 +480,7 @@ namespace BrightData
         public static ITensorSegment ZipVectorized(
             this ITensorSegment segment,
             ITensorSegment other,
-            SpanExtensions.ComputeVectorisedTwo<float> func1,
+            ComputeVectorisedTwo<float> func1,
             Func<float, float, float> func2)
         {
             var size = segment.Size;
@@ -545,7 +545,7 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ITensorSegment TransformVectorized(
             this ITensorSegment segment,
-            SpanExtensions.ComputeVectorisedOne<float> transformer1,
+            ComputeVectorisedOne<float> transformer1,
             Func<float, float> transformer2)
         {
             var size = segment.Size;
@@ -629,7 +629,7 @@ namespace BrightData
         public static unsafe void MutateVectorized(
             this ITensorSegment segment,
             ITensorSegment other,
-            SpanExtensions.ComputeVectorisedTwo<float> func1,
+            ComputeVectorisedTwo<float> func1,
             Func<float, float, float> func2)
         {
             var size = segment.Size;
@@ -686,7 +686,7 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void MutateInPlaceVectorized(
             this ITensorSegment segment,
-            SpanExtensions.ComputeVectorisedOne<float> mutator1,
+            ComputeVectorisedOne<float> mutator1,
             Func<float, float> mutator2)
         {
             var size = segment.Size;

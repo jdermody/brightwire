@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using BrightData.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -10,7 +13,7 @@ namespace BrightData
     /// <summary>
     /// Extensions that work with a span of numbers
     /// </summary>
-    public static class SpanExtensions
+    public partial class ExtensionMethods
     {
         /// <summary>
         /// Callback to calculate a new vector of Ts from two existing vectors
@@ -766,6 +769,146 @@ namespace BrightData
                         analyser(*p++, i);
                 }
             }
+        }
+
+        /// <summary>
+        /// Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
+        /// </summary>
+        /// <param name="v1">First vector</param>
+        /// <param name="v2">Second vector</param>
+        /// <returns>Cosine distance between the two vectors</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static float CosineDistance(this ReadOnlySpan<float> v1, ReadOnlySpan<float> v2)
+        {
+            var length = v1.Length;
+            if (length != v2.Length)
+                throw new ArgumentException($"Spans were of different size: ({v1.Length} vs {v2.Length})");
+
+            if (length >= Consts.MinimumSizeForVectorised) {
+                var leftVec = MemoryMarshal.Cast<float, Vector<float>>(v1);
+                var rightVec = MemoryMarshal.Cast<float, Vector<float>>(v2);
+                var numVectors = length / ExtensionMethods.NumericsVectorSize;
+                var nextIndex = numVectors * ExtensionMethods.NumericsVectorSize;
+                Vector<float> ab = new(0f), aa = new(0f), bb = new(0f);
+                for (var i = 0; i < numVectors; i++) {
+                    ab += leftVec[i] * rightVec[i];
+                    aa += leftVec[i] * leftVec[i];
+                    bb += rightVec[i] * rightVec[i];
+                }
+
+                float ab2 = Vector.Dot(ab, Vector<float>.One), aa2 = Vector.Dot(aa, Vector<float>.One), bb2 = Vector.Dot(bb, Vector<float>.One);
+                for (; nextIndex < length; nextIndex++) {
+                    float a = v1[nextIndex], b = v2[nextIndex];
+                    ab2 += a * b;
+                    aa2 += a * a;
+                    bb2 += b * b;
+                }
+                return 1f - ab2 / (MathF.Sqrt(aa2) * MathF.Sqrt(bb2));
+            }
+            else {
+                float aa = 0, bb = 0, ab = 0;
+                for (int i = 0, len = v1.Length; i < len; i++) {
+                    var a = v1[i];
+                    var b = v2[i];
+                    ab += a * b;
+                    aa += a * a;
+                    bb += b * b;
+                }
+                return 1f - ab / (MathF.Sqrt(aa) * MathF.Sqrt(bb));
+            }
+        }
+
+        /// <summary>
+        /// Find the minimum value and index in a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyze</param>
+        /// <returns>Tuple containing the minimum value and its index</returns>
+        public static (float Value, uint Index) Minimum(this ReadOnlySpan<float> vector)
+        {
+            var ret = uint.MaxValue;
+            var lowestValue = float.MaxValue;
+
+            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
+                var val = vector[(int)i];
+                if (val < lowestValue) {
+                    lowestValue = val;
+                    ret = i;
+                }
+            }
+
+            return (lowestValue, ret);
+        }
+
+        /// <summary>
+        /// Returns the index of the minimum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
+        public static uint MinimumIndex(this ReadOnlySpan<float> vector) => Minimum(vector).Index;
+
+        /// <summary>
+        /// Returns the minimum value
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
+        public static float MinimumValue(this ReadOnlySpan<float> vector) => Minimum(vector).Value;
+
+        /// <summary>
+        /// Returns the maximum value and index within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns>Tuple containing the maximum value and its index</returns>
+        public static (float Value, uint Index) Maximum(this ReadOnlySpan<float> vector)
+        {
+            var ret = uint.MaxValue;
+            var highestValue = float.MinValue;
+
+            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
+                var val = vector[(int)i];
+                if (val > highestValue) {
+                    highestValue = val;
+                    ret = i;
+                }
+            }
+
+            return (highestValue, ret);
+        }
+
+        /// <summary>
+        /// Returns the maximum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
+        public static uint MaximumIndex(this ReadOnlySpan<float> vector) => Maximum(vector).Index;
+
+        /// <summary>
+        /// Returns the index of the maximum value within a vector
+        /// </summary>
+        /// <param name="vector">Vector to analyse</param>
+        /// <returns></returns>
+        public static float MaximumValue(this ReadOnlySpan<float> vector) => Maximum(vector).Value;
+
+        /// <summary>
+        /// Calculates the softmax of a vector
+        /// https://en.wikipedia.org/wiki/Softmax_function
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        public static float[] Softmax(this ReadOnlySpan<float> vector)
+        {
+            var max = MaximumValue(vector);
+
+            var softmax = new float[vector.Length];
+            var index = 0;
+            float sum = 0;
+            foreach (var val in vector)
+                sum += softmax[index++] = MathF.Exp(val - max);
+
+            if (FloatMath.IsNotZero(sum)) {
+                foreach (ref var val in softmax.AsSpan())
+                    val /= sum;
+            }
+            return softmax;
         }
     }
 }
