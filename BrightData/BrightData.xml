@@ -1464,6 +1464,9 @@
             <summary>
             Extension methods to attach analyser creation to the bright data context
             </summary>
+            <summary>
+            Extensions that work with a span of numbers
+            </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDateAnalyser(BrightData.BrightDataContext,System.UInt32)">
             <summary>
@@ -3061,6 +3064,13 @@
             <param name="vector"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetAverage(System.Collections.Generic.IEnumerable{System.Single[]})">
+            <summary>
+            Finds the average of each value from a collection of vectors
+            </summary>
+            <param name="vectors"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.BrightDataContext,System.UInt32[])">
             <summary>
             Creates an index list from indices
@@ -3413,7 +3423,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ZipVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.SpanExtensions.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.ZipVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
             <summary>
             Creates a new tensor segment from each pairwise combination of this and another tensor segment (vectorized)
             </summary>
@@ -3432,7 +3442,7 @@
             <param name="transformer">Value transformer</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.TransformVectorized(BrightData.ITensorSegment,BrightData.SpanExtensions.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.TransformVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             Creates a new tensor segment from this tensor segment (vectorized)
             </summary>
@@ -3458,7 +3468,7 @@
             <param name="func">Update function</param>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.MutateVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.SpanExtensions.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.MutateVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
             <summary>
             In place update of this tensor segment with pairwise values from another tensor segment (vectorized)
             </summary>
@@ -3475,7 +3485,7 @@
             <param name="segment">This tensor</param>
             <param name="mutator">Update function</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.MutateInPlaceVectorized(BrightData.ITensorSegment,BrightData.SpanExtensions.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.MutateInPlaceVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             In place update of tensor segment (vectorized)
             </summary>
@@ -4013,6 +4023,378 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
             <exception cref="T:System.DivideByZeroException"></exception>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.ComputeVectorisedTwo`1">
+            <summary>
+            Callback to calculate a new vector of Ts from two existing vectors
+            </summary>
+            <param name="a">First input vector</param>
+            <param name="b">Second input vector</param>
+            <param name="r">Result (output) vector</param>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.ComputeVectorisedOne`1">
+            <summary>
+            Callback to calculate a new vector of Ts from an existing vector
+            </summary>
+            <param name="a">Input vector</param>
+            <param name="r">Result (output) vector</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ZipParallel``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.Func{``0,``0,``0})">
+            <summary>
+            Creates a new span of numbers from applying an operation to each pair of elements from this and another span
+            </summary>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="func">Function that computes a new value from a pair of values</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ZipVectorised``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},BrightData.ExtensionMethods.ComputeVectorisedTwo{``0},System.Func{``0,``0,``0})">
+            <summary>
+            Applies a function across each pair of elements from this and another span
+            </summary>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="func1">Vector callback</param>
+            <param name="func2">Element callback</param>
+            <returns>Memory buffer that holds results from each callback</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformParallel``1(System.ReadOnlySpan{``0},System.Func{``0,``0})">
+            <summary>
+            Applies a callback to each item in the span
+            </summary>
+            <param name="span">Vector</param>
+            <param name="transformer">Callback</param>
+            <returns>Memory buffer that holds results from each callback</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformVectorised``1(System.ReadOnlySpan{``0},BrightData.ExtensionMethods.ComputeVectorisedOne{``0},System.Func{``0,``0})">
+            <summary>
+            Creates a new span from an existing span via a vectorization function
+            </summary>
+            <param name="span">Input buffer</param>
+            <param name="transformer1">Vectorized transformer</param>
+            <param name="transformer2">Sequential transformer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformParallelIndexed``1(System.ReadOnlySpan{``0},System.Func{System.UInt32,``0})">
+            <summary>
+            Creates a new span from an existing span via a function (possibly executed in parallel) that receives an index and returns a new value
+            </summary>
+            <param name="span">Input span</param>
+            <param name="transformer">Transformation function (possibly executed in parallel)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Mutate``1(System.Span{``0},System.ReadOnlySpan{``0},System.Func{``0,``0,``0})">
+            <summary>
+            Updates a buffer by applying an update function that receives pairs of values from this and another span
+            </summary>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="func">Update function</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateVectorised``1(System.Span{``0},System.ReadOnlySpan{``0},BrightData.ExtensionMethods.ComputeVectorisedTwo{``0},System.Func{``0,``0,``0})">
+            <summary>
+            Updates a buffer by applying a vectorized transformation function to each pair of elements in this and another span
+            </summary>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="transformer1">Vectorized transformer</param>
+            <param name="transformer2">Sequential transformer</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateInPlace``1(System.Span{``0},System.Func{``0,``0})">
+            <summary>
+            Updates a span in place by applying a mutation function (potentially called in parallel) to each element
+            </summary>
+            <param name="span"></param>
+            <param name="mutator"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateInPlaceVectorised``1(System.Span{``0},BrightData.ExtensionMethods.ComputeVectorisedOne{``0},System.Func{``0,``0})">
+            <summary>
+            Updates a span in place by applying a vectorization function to each value
+            </summary>
+            <param name="span"></param>
+            <param name="mutator1"></param>
+            <param name="mutator2"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sum``1(System.Span{``0})">
+            <summary>
+            Calculates the sum of all values in this span
+            </summary>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sum``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Calculates the sum of all values in this span
+            </summary>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Returns a new buffer that contains this span added to another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},``0,``0)">
+            <summary>
+            Returns a new buffer that contains this span added to another span where each value is multiplied by coefficients
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="coefficient1">Coefficient to apply to each value in this span</param>
+            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add``1(System.ReadOnlySpan{``0},``0)">
+            <summary>
+            Returns a new buffer that contains each value added to a scalar
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Adds another span to this span in place
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace``1(System.Span{``0},System.ReadOnlySpan{``0},``0,``0)">
+            <summary>
+            Adds another span to this span and applies coefficients to each value
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="coefficient1">Coefficient to apply to each value in this span</param>
+            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace``1(System.Span{``0},``0)">
+            <summary>
+            Adds a scalar to each value
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="scalar"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MultiplyInPlace``1(System.Span{``0},``0)">
+            <summary>
+            Multiplies each value by a scalar
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="scalar"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Multiply``1(System.ReadOnlySpan{``0},``0)">
+            <summary>
+            Creates a new buffer that contains each value multiplied by a scalar
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Subtract``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new buffer in which each value in another span is subtracted from the values in this span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Subtract``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},``0,``0)">
+            <summary>
+            Creates a new buffer in which each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="coefficient1">Coefficient to apply to each value in this span</param>
+            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Subtracts another span from this span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace``1(System.Span{``0},System.ReadOnlySpan{``0},``0,``0)">
+            <summary>
+            Modifies this span so that each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <param name="coefficient1">Coefficient to apply to each value in this span</param>
+            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseMultiply``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseMultiplyInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Modifies this span so that each value is multiplied by the pairwise value from another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseDivide``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new buffer in which each value in this span is divided by the pairwise value from another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseDivideInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Modifies this span so that each value in this span is divided by the pairwise value from another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.DotProduct``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Calculates the dot product between this span and another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">This span</param>
+            <param name="other">Other span</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConstrainInPlace``1(System.Span{``0},System.Nullable{``0},System.Nullable{``0})">
+            <summary>
+            Modifies this span so that each value falls between the min and max values
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="minValue"></param>
+            <param name="maxValue"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsEntirelyFinite``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Checks if each value in this span is finite (not NaN or Infinity)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Reverse``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Reverses the span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Squared``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new buffer in which each value in this span is squared
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CherryPickIndices``1(System.ReadOnlySpan{``0},System.UInt32[])">
+            <summary>
+            Creates a new buffer from the specified indices
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="arrayIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Analyse``1(System.ReadOnlySpan{``0},System.Action{``0,System.UInt32})">
+            <summary>
+            Applies a callback (that might be executed in parallel) against each element in this span and its index
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="analyser">Callback that receives each value and its index</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CosineDistance(System.ReadOnlySpan{System.Single},System.ReadOnlySpan{System.Single})">
+            <summary>
+            Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
+            </summary>
+            <param name="v1">First vector</param>
+            <param name="v2">Second vector</param>
+            <returns>Cosine distance between the two vectors</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Minimum(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Find the minimum value and index in a vector
+            </summary>
+            <param name="vector">Vector to analyze</param>
+            <returns>Tuple containing the minimum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumIndex(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the index of the minimum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MinimumValue(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the minimum value
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Maximum(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the maximum value and index within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns>Tuple containing the maximum value and its index</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumIndex(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MaximumValue(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Returns the index of the maximum value within a vector
+            </summary>
+            <param name="vector">Vector to analyse</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Softmax(System.ReadOnlySpan{System.Single})">
+            <summary>
+            Calculates the softmax of a vector
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IHaveTensorSegment)">
             <summary>
@@ -9725,383 +10107,6 @@
             Reads an array of strings from the reader
             </summary>
             <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.SpanExtensions">
-            <summary>
-            Extensions that work with a span of numbers
-            </summary>
-        </member>
-        <member name="T:BrightData.SpanExtensions.ComputeVectorisedTwo`1">
-            <summary>
-            Callback to calculate a new vector of Ts from two existing vectors
-            </summary>
-            <param name="a">First input vector</param>
-            <param name="b">Second input vector</param>
-            <param name="r">Result (output) vector</param>
-        </member>
-        <member name="T:BrightData.SpanExtensions.ComputeVectorisedOne`1">
-            <summary>
-            Callback to calculate a new vector of Ts from an existing vector
-            </summary>
-            <param name="a">Input vector</param>
-            <param name="r">Result (output) vector</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.ZipParallel``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.Func{``0,``0,``0})">
-            <summary>
-            Creates a new span of numbers from applying an operation to each pair of elements from this and another span
-            </summary>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="func">Function that computes a new value from a pair of values</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.ZipVectorised``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},BrightData.SpanExtensions.ComputeVectorisedTwo{``0},System.Func{``0,``0,``0})">
-            <summary>
-            Applies a function across each pair of elements from this and another span
-            </summary>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="func1">Vector callback</param>
-            <param name="func2">Element callback</param>
-            <returns>Memory buffer that holds results from each callback</returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.TransformParallel``1(System.ReadOnlySpan{``0},System.Func{``0,``0})">
-            <summary>
-            Applies a callback to each item in the span
-            </summary>
-            <param name="span">Vector</param>
-            <param name="transformer">Callback</param>
-            <returns>Memory buffer that holds results from each callback</returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.TransformVectorised``1(System.ReadOnlySpan{``0},BrightData.SpanExtensions.ComputeVectorisedOne{``0},System.Func{``0,``0})">
-            <summary>
-            Creates a new span from an existing span via a vectorization function
-            </summary>
-            <param name="span">Input buffer</param>
-            <param name="transformer1">Vectorized transformer</param>
-            <param name="transformer2">Sequential transformer</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.TransformParallelIndexed``1(System.ReadOnlySpan{``0},System.Func{System.UInt32,``0})">
-            <summary>
-            Creates a new span from an existing span via a function (possibly executed in parallel) that receives an index and returns a new value
-            </summary>
-            <param name="span">Input span</param>
-            <param name="transformer">Transformation function (possibly executed in parallel)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Mutate``1(System.Span{``0},System.ReadOnlySpan{``0},System.Func{``0,``0,``0})">
-            <summary>
-            Updates a buffer by applying an update function that receives pairs of values from this and another span
-            </summary>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="func">Update function</param>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MutateVectorised``1(System.Span{``0},System.ReadOnlySpan{``0},BrightData.SpanExtensions.ComputeVectorisedTwo{``0},System.Func{``0,``0,``0})">
-            <summary>
-            Updates a buffer by applying a vectorized transformation function to each pair of elements in this and another span
-            </summary>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="transformer1">Vectorized transformer</param>
-            <param name="transformer2">Sequential transformer</param>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MutateInPlace``1(System.Span{``0},System.Func{``0,``0})">
-            <summary>
-            Updates a span in place by applying a mutation function (potentially called in parallel) to each element
-            </summary>
-            <param name="span"></param>
-            <param name="mutator"></param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MutateInPlaceVectorised``1(System.Span{``0},BrightData.SpanExtensions.ComputeVectorisedOne{``0},System.Func{``0,``0})">
-            <summary>
-            Updates a span in place by applying a vectorization function to each value
-            </summary>
-            <param name="span"></param>
-            <param name="mutator1"></param>
-            <param name="mutator2"></param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Sum``1(System.Span{``0})">
-            <summary>
-            Calculates the sum of all values in this span
-            </summary>
-            <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Sum``1(System.ReadOnlySpan{``0})">
-            <summary>
-            Calculates the sum of all values in this span
-            </summary>
-            <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Add``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Returns a new buffer that contains this span added to another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Add``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},``0,``0)">
-            <summary>
-            Returns a new buffer that contains this span added to another span where each value is multiplied by coefficients
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="coefficient1">Coefficient to apply to each value in this span</param>
-            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Add``1(System.ReadOnlySpan{``0},``0)">
-            <summary>
-            Returns a new buffer that contains each value added to a scalar
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="scalar"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.AddInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Adds another span to this span in place
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.AddInPlace``1(System.Span{``0},System.ReadOnlySpan{``0},``0,``0)">
-            <summary>
-            Adds another span to this span and applies coefficients to each value
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="coefficient1">Coefficient to apply to each value in this span</param>
-            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.AddInPlace``1(System.Span{``0},``0)">
-            <summary>
-            Adds a scalar to each value
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="scalar"></param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MultiplyInPlace``1(System.Span{``0},``0)">
-            <summary>
-            Multiplies each value by a scalar
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="scalar"></param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Multiply``1(System.ReadOnlySpan{``0},``0)">
-            <summary>
-            Creates a new buffer that contains each value multiplied by a scalar
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="scalar"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Subtract``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Creates a new buffer in which each value in another span is subtracted from the values in this span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Subtract``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},``0,``0)">
-            <summary>
-            Creates a new buffer in which each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="coefficient1">Coefficient to apply to each value in this span</param>
-            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.SubtractInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Subtracts another span from this span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.SubtractInPlace``1(System.Span{``0},System.ReadOnlySpan{``0},``0,``0)">
-            <summary>
-            Modifies this span so that each value in another span is multiplied by the second coefficient and then subtracted from the values in this span multiplied by the first coefficient
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <param name="coefficient1">Coefficient to apply to each value in this span</param>
-            <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.PointwiseMultiply``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.PointwiseMultiplyInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Modifies this span so that each value is multiplied by the pairwise value from another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.PointwiseDivide``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Creates a new buffer in which each value in this span is divided by the pairwise value from another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.PointwiseDivideInPlace``1(System.Span{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Modifies this span so that each value in this span is divided by the pairwise value from another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.DotProduct``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
-            <summary>
-            Calculates the dot product between this span and another span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span">This span</param>
-            <param name="other">Other span</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.ConstrainInPlace``1(System.Span{``0},System.Nullable{``0},System.Nullable{``0})">
-            <summary>
-            Modifies this span so that each value falls between the min and max values
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="minValue"></param>
-            <param name="maxValue"></param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.IsEntirelyFinite``1(System.ReadOnlySpan{``0})">
-            <summary>
-            Checks if each value in this span is finite (not NaN or Infinity)
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Reverse``1(System.ReadOnlySpan{``0})">
-            <summary>
-            Reverses the span
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Squared``1(System.ReadOnlySpan{``0})">
-            <summary>
-            Creates a new buffer in which each value in this span is squared
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.CherryPickIndices``1(System.ReadOnlySpan{``0},System.UInt32[])">
-            <summary>
-            Creates a new buffer from the specified indices
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="arrayIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Analyse``1(System.ReadOnlySpan{``0},System.Action{``0,System.UInt32})">
-            <summary>
-            Applies a callback (that might be executed in parallel) against each element in this span and its index
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="span"></param>
-            <param name="analyser">Callback that receives each value and its index</param>
-        </member>
-        <member name="M:BrightData.SpanExtensions.CosineDistance(System.ReadOnlySpan{System.Single},System.ReadOnlySpan{System.Single})">
-            <summary>
-            Vectorized cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite)
-            </summary>
-            <param name="v1">First vector</param>
-            <param name="v2">Second vector</param>
-            <returns>Cosine distance between the two vectors</returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Minimum(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Find the minimum value and index in a vector
-            </summary>
-            <param name="vector">Vector to analyze</param>
-            <returns>Tuple containing the minimum value and its index</returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MinimumIndex(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Returns the index of the minimum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MinimumValue(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Returns the minimum value
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Maximum(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Returns the maximum value and index within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns>Tuple containing the maximum value and its index</returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MaximumIndex(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Returns the maximum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.MaximumValue(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Returns the index of the maximum value within a vector
-            </summary>
-            <param name="vector">Vector to analyse</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.SpanExtensions.Softmax(System.ReadOnlySpan{System.Single})">
-            <summary>
-            Calculates the softmax of a vector
-            https://en.wikipedia.org/wiki/Softmax_function
-            </summary>
-            <param name="vector"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.Transformation.ColumnConversion">

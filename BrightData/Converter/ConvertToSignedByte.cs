@@ -41,7 +41,7 @@ namespace BrightData.Converter
         sbyte FromUInt64(T data) => System.Convert.ToSByte(GetUInt64(data));
         sbyte ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to sbyte");
             return (sbyte)ret;

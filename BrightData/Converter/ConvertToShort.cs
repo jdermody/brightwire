@@ -41,7 +41,7 @@ namespace BrightData.Converter
         short FromUInt64(T data) => System.Convert.ToInt16(GetUInt64(data));
         short ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to short");
             return (short)ret;

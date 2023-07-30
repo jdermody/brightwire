@@ -4,7 +4,7 @@ namespace BrightData.Converter
 {
     internal abstract class ConverterBase<T> where T: notnull
     {
-        protected readonly Lazy<GenericConverter<float>> _genericConverter = new();
+        protected GenericConverter<float>? _genericConverter = null;
         protected readonly bool _throwOnFailure;
 
         protected ConverterBase(bool throwOnFailure)

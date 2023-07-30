@@ -41,7 +41,7 @@ namespace BrightData.Converter
         float FromUInt64(T data) => GetUInt64(data);
         float ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to float");
             return (float)ret;

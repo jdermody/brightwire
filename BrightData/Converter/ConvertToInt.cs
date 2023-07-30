@@ -40,7 +40,7 @@ namespace BrightData.Converter
         int FromUInt64(T data) => System.Convert.ToInt32(GetUInt64(data));
         int ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to int");
             return (int)ret;

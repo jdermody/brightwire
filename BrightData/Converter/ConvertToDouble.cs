@@ -41,7 +41,7 @@ namespace BrightData.Converter
         double FromUInt64(T data) => GetUInt64(data);
         double ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to double");
             return (double)ret;

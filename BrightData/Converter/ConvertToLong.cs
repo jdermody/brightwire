@@ -41,7 +41,7 @@ namespace BrightData.Converter
         long FromUInt64(T data) => System.Convert.ToInt64(GetUInt64(data));
         long ConvertGeneric(T data)
         {
-            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
             if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to long");
             return (long)ret;
