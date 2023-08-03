@@ -311,6 +311,13 @@ namespace BrightData
         Stream Get(string uniqueId);
 
         /// <summary>
+        /// Returns the path to temp file
+        /// </summary>
+        /// <param name="uniqueId"></param>
+        /// <returns></returns>
+        string GetTempPath(string uniqueId);
+
+        /// <summary>
         /// Checks if a stream has been created
         /// </summary>
         /// <param name="uniqueId">Id that uniquely identifies the context</param>

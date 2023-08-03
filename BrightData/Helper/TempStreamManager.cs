@@ -22,6 +22,8 @@ namespace BrightData.Helper
             _basePath = basePath ?? Path.GetTempPath();
         }
 
+        public string GetTempPath(string id) => Path.Combine(_basePath, id);
+
         /// <summary>
         /// Returns an existing (or creates a new) temp stream
         /// </summary>
@@ -29,7 +31,7 @@ namespace BrightData.Helper
         public Stream Get(string uniqueId)
         {
             return _streamTable.GetOrAdd(uniqueId, id => 
-                new Lazy<FileStream>(() => new FileStream(Path.Combine(_basePath, id), FileMode.CreateNew, FileAccess.ReadWrite))
+                new Lazy<FileStream>(() => new FileStream(GetTempPath(id), FileMode.CreateNew, FileAccess.ReadWrite))
             ).Value;
         }
 
