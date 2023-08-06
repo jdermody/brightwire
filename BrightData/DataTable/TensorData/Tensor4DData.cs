@@ -91,6 +91,15 @@ namespace BrightData.DataTable.TensorData
 
         public uint Size => Count * Depth * ColumnCount * RowCount;
         public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index) => new Tensor3DData(_data, Depth, RowCount, ColumnCount, index * TensorSize);
+
+        public IReadOnlyTensor3D[] AllTensors()
+        {
+            var ret = new IReadOnlyTensor3D[Count];
+            for (uint i = 0; i < Count; i++)
+                ret[i] = GetReadOnlyTensor3D(i);
+            return ret;
+        }
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as Tensor4DData);

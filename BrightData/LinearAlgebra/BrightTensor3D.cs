@@ -35,8 +35,12 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
-        ITensor3D IReadOnlyTensor3D.Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
-        IReadOnlyMatrix IReadOnlyTensor3D.GetReadOnlyMatrix(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
+
+        /// <inheritdoc />
+        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
+
+        /// <inheritdoc />
+        public IReadOnlyMatrix GetReadOnlyMatrix(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
         TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
@@ -120,10 +124,8 @@ namespace BrightData.LinearAlgebra
         public IReadOnlyMatrix[] AllMatrices()
         {
             var ret = new IReadOnlyMatrix[Depth];
-            // ReSharper disable once InconsistentNaming
-            var _this = (IReadOnlyTensor3D)this;
             for (uint i = 0; i < Depth; i++)
-                ret[i] = _this.GetReadOnlyMatrix(i);
+                ret[i] = GetReadOnlyMatrix(i);
             return ret;
         }
 

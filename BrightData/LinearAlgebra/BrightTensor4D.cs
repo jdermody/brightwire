@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using BrightData.LinearAlgebra.ReadOnly;
+using System.Linq;
 
 namespace BrightData.LinearAlgebra
 {
@@ -148,6 +149,19 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public IVector RowSums() => Lap.ColumnSums(this);
+
+        /// <inheritdoc />
+        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index) => new ReadOnlyTensor3DWrapper(Tensor(index), Depth, RowCount, ColumnCount);
+        TensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
+
+        /// <inheritdoc />
+        public IReadOnlyTensor3D[] AllTensors()
+        {
+            var ret = new IReadOnlyTensor3D[Count];
+            for (uint i = 0; i < Depth; i++)
+                ret[i] = GetReadOnlyTensor3D(i);
+            return ret;
+        }
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";

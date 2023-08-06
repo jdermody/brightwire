@@ -88,6 +88,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public float this[int count, int depth, int rowY, int columnX] => _tensors[count][depth, rowY, columnX];
         public float this[uint count, uint depth, uint rowY, uint columnX] => _tensors[count][depth, rowY, columnX];
         public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(_tensors);
+        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index) => _tensors[index];
+        public IReadOnlyTensor3D[] AllTensors() => _tensors;
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor4D);

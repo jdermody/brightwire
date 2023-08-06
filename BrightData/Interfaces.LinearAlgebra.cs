@@ -422,6 +422,19 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <returns></returns>
         ITensor4D Create(LinearAlgebraProvider lap);
+
+        /// <summary>
+        /// Returns a 3D tensor from the 4D tensor
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        IReadOnlyTensor3D GetReadOnlyTensor3D(uint index);
+
+        /// <summary>
+        /// Returns all tensors as an array
+        /// </summary>
+        /// <returns></returns>
+        IReadOnlyTensor3D[] AllTensors();
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ namespace BrightData.UnitTests
                 _streams.Clear();
             }
 
-            public string GetNewTempPath()
+            public string GetTempPath(string uniqueId)
             {
                 throw new NotImplementedException();
             }

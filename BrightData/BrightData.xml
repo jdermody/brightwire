@@ -4668,6 +4668,45 @@
             <typeparam name="T">Type to return (created object cast to this type)</typeparam>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Helper.SpanAggregationOperation`1">
+            <summary>
+            Defines a span aggregation operation that will apply to each element within the span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="existingVal">Previous value</param>
+            <param name="val">New value</param>
+            <param name="total">Number of previous aggregation operations (including this one)</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Helper.SpanAggregator`1">
+            <summary>
+            A span aggregator
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Helper.SpanAggregator`1.GetOnlineAverage(System.Int32)">
+            <summary>
+            Creates a span aggregator that calculates the average of each value (online algorithm)
+            </summary>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SpanAggregator`1.Dispose">
+            <summary>
+            Disposes the span aggregation
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.SpanAggregator`1.Add(System.ReadOnlySpan{`0})">
+            <summary>
+            Adds a new operation
+            </summary>
+            <param name="span"></param>
+        </member>
+        <member name="P:BrightData.Helper.SpanAggregator`1.Span">
+            <summary>
+            The aggregation result
+            </summary>
+        </member>
         <member name="T:BrightData.Helper.StringIndexer">
             <summary>
             Builds a string table
@@ -4712,6 +4751,9 @@
             Constructor
             </summary>
             <param name="basePath">Location on disk to write new temp files</param>
+        </member>
+        <member name="M:BrightData.Helper.TempStreamManager.GetTempPath(System.String)">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.TempStreamManager.Get(System.String)">
             <summary>
@@ -6491,6 +6533,19 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IReadOnlyTensor4D.GetReadOnlyTensor3D(System.UInt32)">
+            <summary>
+            Returns a 3D tensor from the 4D tensor
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensor4D.AllTensors">
+            <summary>
+            Returns all tensors as an array
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.ITensor">
             <summary>
             Untyped tensor interface - vector, matrix, 3D tensor etc
@@ -7865,6 +7920,12 @@
         <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.Create(BrightData.ITensorSegment)">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.GetReadOnlyMatrix(System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.LinearAlgebra.BrightTensor3D`1.Depth">
             <inheritdoc />
         </member>
@@ -8086,6 +8147,12 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.RowSums">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.GetReadOnlyTensor3D(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.AllTensors">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.ToString">

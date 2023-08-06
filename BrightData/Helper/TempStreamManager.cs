@@ -22,6 +22,7 @@ namespace BrightData.Helper
             _basePath = basePath ?? Path.GetTempPath();
         }
 
+        /// <inheritdoc />
         public string GetTempPath(string id) => Path.Combine(_basePath, id);
 
         /// <summary>
