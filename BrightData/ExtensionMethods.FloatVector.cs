@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -94,5 +95,12 @@ namespace BrightData
             }
             return ret;
         }
+
+        /// <summary>
+        /// Converts the float array to a read only vector
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static IReadOnlyVector ToReadOnlyVector(this float[] segment) => new ReadOnlyVector(segment);
     }
 }

@@ -93,18 +93,20 @@ namespace BrightData
 
             public void Invoke(int i) => _ret[i] = _action((uint)i);
         }
-        readonly struct TransformIndexedWithValueAction<T> : IAction
+        readonly unsafe struct TransformIndexedWithValueAction<T> : IAction where T: unmanaged
         {
+            readonly T* _segment;
             readonly Func<uint, T, T> _action;
             readonly T[] _ret;
 
-            public TransformIndexedWithValueAction(Func<uint, T, T> action, T[] ret)
+            public TransformIndexedWithValueAction(T* segment, Func<uint, T, T> action, T[] ret)
             {
+                _segment = segment;
                 _action = action;
                 _ret = ret;
             }
 
-            public void Invoke(int i) => _ret[i] = _action((uint)i, _ret[i]);
+            public void Invoke(int i) => _ret[i] = _action((uint)i, _segment[i]);
         }
         readonly unsafe struct MutateAction<T> : IAction where T: unmanaged
         {
@@ -288,7 +290,7 @@ namespace BrightData
         /// <param name="span">Input span</param>
         /// <param name="transformer">Transformation function (possibly executed in parallel)</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> TransformParallelIndexed<T>(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> TransformParallelIndexed<T>(
             this ReadOnlySpan<T> span, 
             Func<uint, T, T> transformer
         ) where T: unmanaged, INumber<T>
@@ -297,12 +299,16 @@ namespace BrightData
             var ret = Allocate<T>(size);
             var array = ret.DangerousGetArray().Array!;
 
-            if(size >= Consts.MinimumSizeForParallel)
-                ParallelHelper.For(0, size, new TransformIndexedWithValueAction<T>(transformer, array));
-            else {
-                for (uint i = 0; i < size; i++)
-                    array[i] = transformer(i, array[i]);
+            fixed (T* xfp = span) {
+                if (size >= Consts.MinimumSizeForParallel)
+                    ParallelHelper.For(0, size, new TransformIndexedWithValueAction<T>(xfp, transformer, array));
+                else {
+                    var xp = xfp;
+                    for (uint i = 0; i < size; i++)
+                        array[i] = transformer(i, *xp++);
+                }
             }
+
             return ret;
         }
 

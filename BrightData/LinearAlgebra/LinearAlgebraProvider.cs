@@ -682,15 +682,9 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public ITensorSegment MapParallel(ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
         {
-            var size = segment.Size;
-            var ret = CreateSegment(size, false);
-
-            if (size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper(segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    ret[i] = mapper(segment[i]);
-            }
+            using var temp = segment.MapParallel(mapper);
+            var ret = CreateSegment(segment.Size, false);
+            ret.CopyFrom(temp.Span);
             return ret;
         }
 
@@ -699,16 +693,10 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives each value from the segment</param>
-        public static void MapParallelInPlace(ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
+        public void MapParallelInPlace(ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
         {
-            var size = segment.Size;
-
-            if(size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)segment.Size, i => segment[i] = mapper(segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    segment[i] = mapper(segment[i]);
-            }
+            using var temp = segment.MapParallel(mapper);
+            segment.CopyFrom(temp.Span);
         }
 
         /// <summary>
@@ -719,15 +707,9 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public ITensorSegment MapParallel(ITensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
         {
-            var size = segment.Size;
-            var ret = CreateSegment(size, false);
-            
-            if(size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, (int)size, i => ret[i] = mapper((uint)i, segment[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    ret[i] = mapper(i, segment[i]);
-            }
+            using var temp = segment.MapParallel(mapper);
+            var ret = CreateSegment(segment.Size, false);
+            ret.CopyFrom(temp.Span);
             return ret;
         }
 
@@ -738,14 +720,8 @@ namespace BrightData.LinearAlgebra
         /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
         public void MapParallelInPlace(ITensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
         {
-            var ret = CreateSegment(segment.Size, false);
-            try {
-                Parallel.For(0, (int)segment.Size, i => ret[i] = mapper((uint)i, segment[i]));
-                ret.CopyTo(segment);
-            }
-            finally {
-                ret.Release();
-            }
+            using var temp = segment.MapParallel(mapper);
+            segment.CopyFrom(temp.Span);
         }
 
         /// <summary>

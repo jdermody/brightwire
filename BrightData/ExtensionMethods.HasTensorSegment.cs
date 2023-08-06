@@ -429,8 +429,8 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static IReadOnlyMatrix SoftmaxDerivative(this IHaveTensorSegment segment, BrightDataContext context) => segment.Segment.SoftmaxDerivative(context);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IReadOnlyMatrix SoftmaxDerivative(this IHaveTensorSegment segment, BrightDataContext context) => segment.Segment.SoftmaxDerivative(context);
 
         /// <summary>
         /// Returns a new tensor segment from the values at the supplied indices from this tensor segment
@@ -453,7 +453,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
-        //public static void Analyze(IHaveTensorSegment segment, Action<float /* value */, uint /* index */> analyser) => segment.Segment.Analyze(analyser);
+        public static void Analyze(IHaveTensorSegment segment, Action<float /* value */, uint /* index */> analyser) => segment.Segment.Analyze(analyser);
 
         /// <summary>
         /// In place L1 regularization of the tensor segment
@@ -468,7 +468,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper"></param>
         /// <returns></returns>
-        //public static MemoryOwner<float> MapParallel(this IHaveTensorSegment segment, Func<float /* value */, float /* new value */> mapper) => segment.Segment.MapParallel(mapper);
+        public static MemoryOwner<float> MapParallel(this IHaveTensorSegment segment, Func<float /* value */, float /* new value */> mapper) => segment.Segment.MapParallel(mapper);
 
         /// <summary>
         /// Applies a mapping function to each value in the segment, potentially in parallel
@@ -476,7 +476,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper"></param>
         /// <returns></returns>
-        //public static MemoryOwner<float> MapParallel(this IHaveTensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper) => segment.Segment.MapParallel(mapper);
+        public static MemoryOwner<float> MapParallel(this IHaveTensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper) => segment.Segment.MapParallel(mapper);
 
         /// <summary>
         /// Reshapes to a vector

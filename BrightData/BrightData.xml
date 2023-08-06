@@ -3071,6 +3071,13 @@
             <param name="vectors"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(System.Single[])">
+            <summary>
+            Converts the float array to a read only vector
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IHaveTensorSegment)">
             <summary>
             Returns the index with the minimum value from this tensor segment
@@ -3451,6 +3458,14 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.SoftmaxDerivative(BrightData.IHaveTensorSegment,BrightData.BrightDataContext)">
+            <summary>
+            Creates a new tensor segment with softmax derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CherryPickIndices(BrightData.IHaveTensorSegment,System.UInt32[])">
             <summary>
             Returns a new tensor segment from the values at the supplied indices from this tensor segment
@@ -3467,12 +3482,35 @@
             <param name="lower"></param>
             <param name="upper"></param>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Analyze(BrightData.IHaveTensorSegment,System.Action{System.Single,System.UInt32})">
+            <summary>
+            Invokes a callback on each element of the tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
+        </member>
         <member name="M:BrightData.ExtensionMethods.L1Regularization(BrightData.IHaveTensorSegment,System.Single)">
             <summary>
             In place L1 regularization of the tensor segment
             </summary>
             <param name="segment"></param>
             <param name="coefficient">Coefficient to apply to each adjusted value</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MapParallel(BrightData.IHaveTensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            Applies a mapping function to each value in the segment, potentially in parallel
+            </summary>
+            <param name="segment"></param>
+            <param name="mapper"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MapParallel(BrightData.IHaveTensorSegment,System.Func{System.UInt32,System.Single,System.Single})">
+            <summary>
+            Applies a mapping function to each value in the segment, potentially in parallel
+            </summary>
+            <param name="segment"></param>
+            <param name="mapper"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveTensorSegment)">
             <summary>
@@ -3812,13 +3850,6 @@
             <param name="tensor"></param>
             <param name="initializer">Callback for each element</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment)">
-            <summary>
-            Converts the tensor segment to a sparse format (only non zero entries are preserved)
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.LoadReadOnlyVectorFrom(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <summary>
             Reads a vector from a binary reader
@@ -3860,497 +3891,6 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetLocalOrNewArray(BrightData.ITensorSegment)">
-            <summary>
-            Returns an array from a tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ZipParallel(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            Creates a new tensor segment from each pairwise combination of this and another tensor segment (in parallel)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="func">Pairwise combiner function</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ZipVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            Creates a new tensor segment from each pairwise combination of this and another tensor segment (vectorized)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="func1">Vectorized combiner combiner</param>
-            <param name="func2">Pairwise combiner function</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.TransformParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
-            <summary>
-            Creates a new tensor segment from this tensor segment (in parallel)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="transformer">Value transformer</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.TransformVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
-            <summary>
-            Creates a new tensor segment from this tensor segment (vectorized)
-            </summary>
-            <param name="segment">This segment</param>
-            <param name="transformer1">Vectorized value transformer</param>
-            <param name="transformer2">Value transformer</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.TransformParallelIndexed(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single})">
-            <summary>
-            Creates a new tensor segment from this tensor segment (in parallel)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="transformer">Indexed transformer</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MutateParallel(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            In place update of this tensor segment with pairwise values from another tensor segment (in parallel)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="func">Update function</param>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MutateVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
-            <summary>
-            In place update of this tensor segment with pairwise values from another tensor segment (vectorized)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="func1">Vectorized update function</param>
-            <param name="func2">Update function</param>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MutateInPlaceParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
-            <summary>
-            In place update of tensor segment (in parallel)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="mutator">Update function</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MutateInPlaceVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
-            <summary>
-            In place update of tensor segment (vectorized)
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="mutator1">Vectorized update function</param>
-            <param name="mutator2">Update function</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.ITensorSegment)">
-            <summary>
-            Sums all values
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Pairwise addition of this with another tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Pairwise addition of this with another tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <param name="coefficient1">Value to multiply each value in this tensor</param>
-            <param name="coefficient2">Value to multiply each value in the other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Adds a scalar to each value in this tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="scalar">Scalar to add to each value</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Adds another tensor segment in place to this tensor segment
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Adds another tensor segment in place to this tensor segment
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="coefficient1">Value to multiply each value in this tensor</param>
-            <param name="coefficient2">Value to multiply each value in the other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Adds a scalar to each value in this tensor segment in place
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="scalar">Scalar to add to each value</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Multiplies each value in this tensor segment by a scalar (in place)
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="scalar">Scalar to multiply</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Multiply(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Multiplies each value in this tensor segment by a scalar into a new tensor segment
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="scalar">Scalar to multiply</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Subtracts another tensor segment from this tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Subtracts another tensor segment from this tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <param name="coefficient1">Value to multiply each value in this tensor</param>
-            <param name="coefficient2">Value to multiply each value in the other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Subtracts another tensor segment from this tensor segment in place
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Subtracts another tensor segment from this tensor segment in place
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-            <param name="coefficient1">Value to multiply each value in this tensor</param>
-            <param name="coefficient2">Value to multiply each value in the other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.PointwiseMultiply(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Pairwise multiply each value in this tensor segment with the corresponding value from another tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.PointwiseMultiplyInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Pairwise multiply each value in this tensor segment with the corresponding value from another tensor segment in place
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.PointwiseDivide(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Pairwise divide each value in this tensor segment with the corresponding value from another tensor segment into a new tensor segment
-            </summary>
-            <param name="tensor1">This tensor</param>
-            <param name="tensor2">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Pairwise divide each value in this tensor segment with the corresponding value from another tensor segment in place
-            </summary>
-            <param name="target">This tensor</param>
-            <param name="other">Other tensor</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the dot product of this with another tensor
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Sqrt(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Creates a new tensor segment that contains the square root of each value in this tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="adjustment">A small value to add to each value in case of zeros</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Search(BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="value">Value to find</param>
-            <param name="tolerance">Degree of tolerance</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ConstrainInPlace(BrightData.ITensorSegment,System.Nullable{System.Single},System.Nullable{System.Single})">
-            <summary>
-            Constrains each value in this tensor segment to fit between a supplied minimum and maximum value
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="minInclusiveValue">Minimum allowed inclusive value (optional)</param>
-            <param name="maxInclusiveValue">Maximum allowed inclusive value (optional)</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Average(BrightData.ITensorSegment)">
-            <summary>
-            Finds the average value in this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.L1Norm(BrightData.ITensorSegment)">
-            <summary>
-            Calculates the L1 norm of this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.L2Norm(BrightData.ITensorSegment)">
-            <summary>
-            Calculates the L2 norm of this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues(BrightData.ITensorSegment)">
-            <summary>
-            Finds the min and max values (and their indices) of this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.IsEntirelyFinite(BrightData.ITensorSegment)">
-            <summary>
-            Checks if this tensor segment is finite for each value (not NaN or Infinity)
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Reverse(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment that is the reverse of this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Split(BrightData.ITensorSegment,System.UInt32)">
-            <summary>
-            Splits this tensor segment into multiple contiguous tensor segments
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="blockCount">Number of blocks</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CosineDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the cosine distance between this and another tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.EuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the euclidean distance between this and another tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.MeanSquaredDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the mean squared distance between this and another tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SquaredEuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the squared euclidean distance between this and another tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ManhattanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
-            <summary>
-            Calculates the manhattan distance between this and another tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <param name="other">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Abs(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment that contains the absolute value of each value in this tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Log(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment that contains the natural logarithm of each value in this tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Exp(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment that contains the exponent of each value in this tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Pow(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Creates a new tensor segment that contains each value raised by the specified power in this tensor segment
-            </summary>
-            <param name="segment">This tensor</param>
-            <param name="power">Specified power</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Squared(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment that contains each value squared in this tensor segment
-            </summary>
-            <param name="tensor">This tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
-            <summary>
-            Calculates the standard deviation of this tensor segment
-            </summary>
-            <param name="segment">This tensor segment</param>
-            <param name="mean">Mean of the tensor segment (optional)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Sigmoid(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with sigmoid function applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SigmoidDerivative(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with sigmoid derivative applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Tanh(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with tanh function applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.TanhDerivative(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with tanh derivative applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Relu(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with RELU function applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ReluDerivative(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with RELU derivative applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.LeakyRelu(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with Leaky RELU function applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.LeakyReluDerivative(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with Leaky RELU derivative applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Softmax(BrightData.ITensorSegment)">
-            <summary>
-            Creates a new tensor segment with softmax function applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SoftmaxDerivative(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
-            <summary>
-            Creates a new tensor segment with softmax derivative applied to each value in this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="lap"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
-            <summary>
-            Returns a new tensor segment from the values at the supplied indices from this tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="indices">Indices to copy to new tensor segment</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.RoundInPlace(BrightData.ITensorSegment,System.Single,System.Single)">
-            <summary>
-            Rounds each value in this tensor segment to be either the lower or upper supplied parameters
-            </summary>
-            <param name="segment"></param>
-            <param name="lower"></param>
-            <param name="upper"></param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze(BrightData.ITensorSegment,System.Action{System.Single,System.UInt32})">
-            <summary>
-            Invokes a callback on each element of the tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.L1Regularization(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            In place L1 regularization of the tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="coefficient">Coefficient to apply to each adjusted value</param>
-        </member>
         <member name="M:BrightData.ExtensionMethods.FindDistance(BrightData.IVector,BrightData.IVector,BrightData.DistanceMetric)">
             <summary>
             Applies a distance metric to two vectors and returns the distance between them
@@ -4370,87 +3910,11 @@
             <param name="distanceMetric">Distance metric</param>
             <returns>A vector in which each value is the distance between this and the corresponding other vector</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single})">
-            <summary>
-            Sets all values of the tensor segment via a callback that receives the index of each value
-            </summary>
-            <param name="segment"></param>
-            <param name="getValue"></param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Single)">
-            <summary>
-            Sets all values of the tensor segment to a single value
-            </summary>
-            <param name="segment"></param>
-            <param name="value">Value to set</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.ITensorSegment,System.Random)">
-            <summary>
-            Sets all values of this tensor segment to a random floating point number
-            </summary>
-            <param name="segment"></param>
-            <param name="random">Random number generator</param>
-        </member>
         <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IVector)">
             <summary>
             Converts the vector a weighted index list (sparse vector)
             </summary>
             <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(BrightData.ITensorSegment)">
-            <summary>
-            Converts the tensor segment to a read only vector
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(System.Single[])">
-            <summary>
-            Converts the float array to a read only vector
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
-            <summary>
-            Creates a vector from a tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="lap">Linear algebra provider</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToMatrix(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a matrix from a tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="lap">Linear algebra provider</param>
-            <param name="rows">Number of rows in matrix</param>
-            <param name="columns">Number of columns in matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToTensor3D(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a 3D tensor from a tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="lap">Linear algebra provider</param>
-            <param name="depth">Number of matrices</param>
-            <param name="rows">Number of rows in each matrix</param>
-            <param name="columns">Number of columns in each matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToTensor4D(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a 4D tensor from a tensor segment
-            </summary>
-            <param name="segment"></param>
-            <param name="lap">Linear algebra provider</param>
-            <param name="count">Number of 3D tensors</param>
-            <param name="depth">Number of matrices in each 3D tensor</param>
-            <param name="rows">Number of rows in each matrix</param>
-            <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ITensor,BrightData.ITensor)">
@@ -4467,16 +3931,12 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.PearsonCorrelationCoefficient(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyVector)">
             <summary>
-            Calculates the pearson correlation coefficient metric between two tensor segments
-            https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+            Converts the vector to a sparse format (only non zero entries are preserved)
             </summary>
-            <param name="x"></param>
-            <param name="y"></param>
+            <param name="vector"></param>
             <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-            <exception cref="T:System.DivideByZeroException"></exception>
         </member>
         <member name="T:BrightData.ExtensionMethods.ComputeVectorisedTwo`1">
             <summary>
@@ -5061,6 +4521,611 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
             <exception cref="T:System.DivideByZeroException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetLocalOrNewArray(BrightData.ITensorSegment)">
+            <summary>
+            Returns an array from a tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment)">
+            <summary>
+            Converts the tensor segment to a sparse format (only non zero entries are preserved)
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ZipParallel(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Creates a new tensor segment from each pairwise combination of this and another tensor segment (in parallel)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="func">Pairwise combiner function</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ZipVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Creates a new tensor segment from each pairwise combination of this and another tensor segment (vectorized)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="func1">Vectorized combiner combiner</param>
+            <param name="func2">Pairwise combiner function</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            Creates a new tensor segment from this tensor segment (in parallel)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="transformer">Value transformer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
+            <summary>
+            Creates a new tensor segment from this tensor segment (vectorized)
+            </summary>
+            <param name="segment">This segment</param>
+            <param name="transformer1">Vectorized value transformer</param>
+            <param name="transformer2">Value transformer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TransformParallelIndexed(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single})">
+            <summary>
+            Creates a new tensor segment from this tensor segment (in parallel)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="transformer">Indexed transformer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateParallel(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            In place update of this tensor segment with pairwise values from another tensor segment (in parallel)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="func">Update function</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateVectorized(BrightData.ITensorSegment,BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedTwo{System.Single},System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            In place update of this tensor segment with pairwise values from another tensor segment (vectorized)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="func1">Vectorized update function</param>
+            <param name="func2">Update function</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateInPlaceParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            In place update of tensor segment (in parallel)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="mutator">Update function</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateInPlaceVectorized(BrightData.ITensorSegment,BrightData.ExtensionMethods.ComputeVectorisedOne{System.Single},System.Func{System.Single,System.Single})">
+            <summary>
+            In place update of tensor segment (vectorized)
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="mutator1">Vectorized update function</param>
+            <param name="mutator2">Update function</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.ITensorSegment)">
+            <summary>
+            Sums all values
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Pairwise addition of this with another tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Pairwise addition of this with another tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <param name="coefficient1">Value to multiply each value in this tensor</param>
+            <param name="coefficient2">Value to multiply each value in the other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Add(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Adds a scalar to each value in this tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="scalar">Scalar to add to each value</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Adds another tensor segment in place to this tensor segment
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Adds another tensor segment in place to this tensor segment
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="coefficient1">Value to multiply each value in this tensor</param>
+            <param name="coefficient2">Value to multiply each value in the other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AddInPlace(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Adds a scalar to each value in this tensor segment in place
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="scalar">Scalar to add to each value</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Multiplies each value in this tensor segment by a scalar (in place)
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="scalar">Scalar to multiply</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Multiply(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Multiplies each value in this tensor segment by a scalar into a new tensor segment
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="scalar">Scalar to multiply</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Subtracts another tensor segment from this tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Subtracts another tensor segment from this tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <param name="coefficient1">Value to multiply each value in this tensor</param>
+            <param name="coefficient2">Value to multiply each value in the other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Subtracts another tensor segment from this tensor segment in place
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Subtracts another tensor segment from this tensor segment in place
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+            <param name="coefficient1">Value to multiply each value in this tensor</param>
+            <param name="coefficient2">Value to multiply each value in the other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseMultiply(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Pairwise multiply each value in this tensor segment with the corresponding value from another tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseMultiplyInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Pairwise multiply each value in this tensor segment with the corresponding value from another tensor segment in place
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseDivide(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Pairwise divide each value in this tensor segment with the corresponding value from another tensor segment into a new tensor segment
+            </summary>
+            <param name="tensor1">This tensor</param>
+            <param name="tensor2">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Pairwise divide each value in this tensor segment with the corresponding value from another tensor segment in place
+            </summary>
+            <param name="target">This tensor</param>
+            <param name="other">Other tensor</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the dot product of this with another tensor
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sqrt(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor segment that contains the square root of each value in this tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="adjustment">A small value to add to each value in case of zeros</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Search(BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="value">Value to find</param>
+            <param name="tolerance">Degree of tolerance</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConstrainInPlace(BrightData.ITensorSegment,System.Nullable{System.Single},System.Nullable{System.Single})">
+            <summary>
+            Constrains each value in this tensor segment to fit between a supplied minimum and maximum value
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="minInclusiveValue">Minimum allowed inclusive value (optional)</param>
+            <param name="maxInclusiveValue">Maximum allowed inclusive value (optional)</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Average(BrightData.ITensorSegment)">
+            <summary>
+            Finds the average value in this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.L1Norm(BrightData.ITensorSegment)">
+            <summary>
+            Calculates the L1 norm of this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.L2Norm(BrightData.ITensorSegment)">
+            <summary>
+            Calculates the L2 norm of this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues(BrightData.ITensorSegment)">
+            <summary>
+            Finds the min and max values (and their indices) of this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsEntirelyFinite(BrightData.ITensorSegment)">
+            <summary>
+            Checks if this tensor segment is finite for each value (not NaN or Infinity)
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Reverse(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment that is the reverse of this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Split(BrightData.ITensorSegment,System.UInt32)">
+            <summary>
+            Splits this tensor segment into multiple contiguous tensor segments
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="blockCount">Number of blocks</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CosineDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the cosine distance between this and another tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.EuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the euclidean distance between this and another tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MeanSquaredDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the mean squared distance between this and another tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SquaredEuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the squared euclidean distance between this and another tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ManhattanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+            <summary>
+            Calculates the manhattan distance between this and another tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <param name="other">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Abs(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment that contains the absolute value of each value in this tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Log(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment that contains the natural logarithm of each value in this tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Exp(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment that contains the exponent of each value in this tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Pow(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Creates a new tensor segment that contains each value raised by the specified power in this tensor segment
+            </summary>
+            <param name="segment">This tensor</param>
+            <param name="power">Specified power</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Squared(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment that contains each value squared in this tensor segment
+            </summary>
+            <param name="tensor">This tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
+            <summary>
+            Calculates the standard deviation of this tensor segment
+            </summary>
+            <param name="segment">This tensor segment</param>
+            <param name="mean">Mean of the tensor segment (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sigmoid(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with sigmoid function applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SigmoidDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with sigmoid derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Tanh(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with tanh function applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TanhDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with tanh derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Relu(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with RELU function applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReluDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with RELU derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LeakyRelu(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with Leaky RELU function applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LeakyReluDerivative(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with Leaky RELU derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Softmax(BrightData.ITensorSegment)">
+            <summary>
+            Creates a new tensor segment with softmax function applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SoftmaxDerivative(BrightData.ITensorSegment,BrightData.BrightDataContext)">
+            <summary>
+            Creates a new tensor segment with softmax derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SoftmaxDerivative(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <summary>
+            Creates a new tensor segment with softmax derivative applied to each value in this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="lap"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
+            <summary>
+            Returns a new tensor segment from the values at the supplied indices from this tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="indices">Indices to copy to new tensor segment</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.RoundInPlace(BrightData.ITensorSegment,System.Single,System.Single)">
+            <summary>
+            Rounds each value in this tensor segment to be either the lower or upper supplied parameters
+            </summary>
+            <param name="segment"></param>
+            <param name="lower"></param>
+            <param name="upper"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Analyze(BrightData.ITensorSegment,System.Action{System.Single,System.UInt32})">
+            <summary>
+            Invokes a callback on each element of the tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.L1Regularization(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            In place L1 regularization of the tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="coefficient">Coefficient to apply to each adjusted value</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            Sets all values of the tensor segment via a callback that receives each value
+            </summary>
+            <param name="segment"></param>
+            <param name="setValue"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single})">
+            <summary>
+            Sets all values of the tensor segment via a callback that receives the index of each value
+            </summary>
+            <param name="segment"></param>
+            <param name="setValue"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Single)">
+            <summary>
+            Sets all values of the tensor segment to a single value
+            </summary>
+            <param name="segment"></param>
+            <param name="value">Value to set</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.ITensorSegment,System.Random)">
+            <summary>
+            Sets all values of this tensor segment to a random floating point number
+            </summary>
+            <param name="segment"></param>
+            <param name="random">Random number generator</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(BrightData.ITensorSegment)">
+            <summary>
+            Converts the tensor segment to a read only vector
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <summary>
+            Creates a vector from a tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="lap">Linear algebra provider</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToMatrix(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a matrix from a tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="lap">Linear algebra provider</param>
+            <param name="rows">Number of rows in matrix</param>
+            <param name="columns">Number of columns in matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToTensor3D(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a 3D tensor from a tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="lap">Linear algebra provider</param>
+            <param name="depth">Number of matrices</param>
+            <param name="rows">Number of rows in each matrix</param>
+            <param name="columns">Number of columns in each matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToTensor4D(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a 4D tensor from a tensor segment
+            </summary>
+            <param name="segment"></param>
+            <param name="lap">Linear algebra provider</param>
+            <param name="count">Number of 3D tensors</param>
+            <param name="depth">Number of matrices in each 3D tensor</param>
+            <param name="rows">Number of rows in each matrix</param>
+            <param name="columns">Number of columns in each matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MapParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            Applies a mapping function to each value in the segment, potentially in parallel
+            </summary>
+            <param name="segment"></param>
+            <param name="mapper"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MapParallelInPlace(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+            <summary>
+            Applies a mapping function to each value in the segment in place (potentially in parallel)
+            </summary>
+            <param name="segment"></param>
+            <param name="mapper">Mapping function that receives each value from the segment</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MapParallel(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single,System.Single})">
+            <summary>
+            Applies a mapping function to each value in the segment to create a new segment (potentially in parallel)
+            </summary>
+            <param name="segment"></param>
+            <param name="mapper">Mapping function that receives the index and each value from the segment</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
             <summary>
