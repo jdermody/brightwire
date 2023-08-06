@@ -493,7 +493,7 @@ namespace BrightData
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLefTempUsed);
                 var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
                 try {
-                    ret = leftPtr.ZipVectorised(rightPtr, func1, func2);
+                    ret = leftPtr.ZipVectorized(rightPtr, func1, func2);
                 }
                 finally {
                     if (wasLefTempUsed)
@@ -555,7 +555,7 @@ namespace BrightData
                 var leftTemp = SpanOwner<float>.Empty;
                 var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
                 try {
-                    ret = leftPtr.TransformVectorised(transformer1, transformer2);
+                    ret = leftPtr.TransformVectorized(transformer1, transformer2);
                 }
                 finally {
                     if (wasLeftTempUsed)
@@ -644,7 +644,7 @@ namespace BrightData
                 try {
                     fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
                         var leftMutablePtr = new Span<float>(fp, (int)size);
-                        leftMutablePtr.MutateVectorised(rightPtr, func1, func2);
+                        leftMutablePtr.MutateVectorized(rightPtr, func1, func2);
                     }
                 }
                 finally {
@@ -696,7 +696,7 @@ namespace BrightData
                 try {
                     fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
                         var leftMutablePtr = new Span<float>(fp, (int)size);
-                        leftMutablePtr.MutateInPlaceVectorised(mutator1, mutator2);
+                        leftMutablePtr.MutateInPlaceVectorized(mutator1, mutator2);
                     }
                 }
                 finally {
@@ -1737,6 +1737,28 @@ namespace BrightData
             }
 
             public void Invoke(int i) => _segment[i] = _action(_segment[i]);
+        }
+        
+        internal static uint[] ResolveShape(this uint total, params uint?[] shape)
+        {
+            uint nonNullTotal = 1;
+            var hasFoundNull = false;
+            foreach (var item in shape) {
+                if (item.HasValue)
+                    nonNullTotal *= item.Value;
+                else if (!hasFoundNull)
+                    hasFoundNull = true;
+                else
+                    throw new ArgumentException("Only one parameter can be null");
+            }
+
+            if (hasFoundNull && nonNullTotal == 0)
+                throw new ArgumentException("Cannot resolve null parameter");
+
+            if (!hasFoundNull && nonNullTotal != total)
+                throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
+
+            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
 
         /// <summary>

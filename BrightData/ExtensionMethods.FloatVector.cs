@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
@@ -68,7 +69,7 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        public static float[] Softmax(this float[] vector) => new ReadOnlySpan<float>(vector, 0, vector.Length).Softmax();
+        public static MemoryOwner<float> Softmax(this float[] vector) => new ReadOnlySpan<float>(vector, 0, vector.Length).Softmax();
 
         /// <summary>
         /// Finds the average of each value from a collection of vectors

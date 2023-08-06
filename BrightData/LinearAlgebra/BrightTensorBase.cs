@@ -105,43 +105,22 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public IMatrix Reshape(uint? rows, uint? columns)
         {
-            var shape = ResolveShape(TotalSize, rows, columns);
+            var shape = TotalSize.ResolveShape(rows, columns);
             return Lap.CreateMatrix(shape[0], shape[1], Segment);
         }
 
         /// <inheritdoc />
         public ITensor3D Reshape(uint? depth, uint? rows, uint? columns)
         {
-            var shape = ResolveShape(TotalSize, depth, rows, columns);
+            var shape = TotalSize.ResolveShape(depth, rows, columns);
             return Lap.CreateTensor3D(shape[0], shape[1], shape[2], Segment);
         }
 
         /// <inheritdoc />
         public ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
-            var shape = ResolveShape(TotalSize, count, depth, rows, columns);
+            var shape = TotalSize.ResolveShape(count, depth, rows, columns);
             return Lap.CreateTensor4D(shape[0], shape[1], shape[2], shape[3], Segment);
-        }
-        static uint[] ResolveShape(uint total, params uint?[] shape)
-        {
-            uint nonNullTotal = 1;
-            var hasFoundNull = false;
-            foreach (var item in shape) {
-                if (item.HasValue)
-                    nonNullTotal *= item.Value;
-                else if (!hasFoundNull)
-                    hasFoundNull = true;
-                else
-                    throw new ArgumentException("Only one parameter can be null");
-            }
-
-            if (hasFoundNull && nonNullTotal == 0)
-                throw new ArgumentException("Cannot resolve null parameter");
-
-            if (!hasFoundNull && nonNullTotal != total)
-                throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
-
-            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
 
         /// <inheritdoc />
