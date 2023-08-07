@@ -500,11 +500,6 @@ namespace BrightData
         BrightDataContext Context { get; }
 
         /// <summary>
-        /// Underlying editable tensor segment
-        /// </summary>
-        ITensorSegment Segment { get; }
-
-        /// <summary>
         /// Reshapes to a vector
         /// </summary>
         /// <returns></returns>
@@ -936,14 +931,14 @@ namespace BrightData
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[int index] { get; set; }
+        float this[int index] { get; set; }
 
         /// <summary>
         /// Returns a value at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[uint index] { get; set; }
+        float this[uint index] { get; set; }
 
         /// <summary>
         /// Returns a value at the specified index
@@ -1420,7 +1415,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int count, int depth, int rowY, int columnX] { get; set; }
+        float this[int count, int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1430,7 +1425,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
+        float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor

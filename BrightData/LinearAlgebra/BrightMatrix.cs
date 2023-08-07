@@ -35,9 +35,6 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public uint ColumnCount { get; private set; }
 
-        /// <inheritdoc cref="IMatrix" />
-        public bool IsReadOnly => false;
-
         /// <inheritdoc />
         public sealed override uint TotalSize { get; protected set; }
 

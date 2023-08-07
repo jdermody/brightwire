@@ -6829,11 +6829,6 @@
             Underlying bright data context
             </summary>
         </member>
-        <member name="P:BrightData.ITensor.Segment">
-            <summary>
-            Underlying editable tensor segment
-            </summary>
-        </member>
         <member name="M:BrightData.ITensor.Reshape">
             <summary>
             Reshapes to a vector
@@ -7876,9 +7871,6 @@
         <member name="P:BrightData.LinearAlgebra.BrightMatrix`1.ColumnCount">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.BrightMatrix`1.IsReadOnly">
-            <inheritdoc cref="T:BrightData.IMatrix" />
-        </member>
         <member name="P:BrightData.LinearAlgebra.BrightMatrix`1.TotalSize">
             <inheritdoc />
         </member>
@@ -8057,9 +8049,6 @@
         <member name="P:BrightData.LinearAlgebra.BrightTensor3D`1.ColumnCount">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.BrightTensor3D`1.IsReadOnly">
-            <inheritdoc cref="T:BrightData.ITensor3D" />
-        </member>
         <member name="P:BrightData.LinearAlgebra.BrightTensor3D`1.MatrixSize">
             <inheritdoc />
         </member>
@@ -8213,9 +8202,6 @@
         </member>
         <member name="P:BrightData.LinearAlgebra.BrightTensor4D`1.TotalSize">
             <inheritdoc />
-        </member>
-        <member name="P:BrightData.LinearAlgebra.BrightTensor4D`1.IsReadOnly">
-            <inheritdoc cref="T:BrightData.ITensor4D" />
         </member>
         <member name="P:BrightData.LinearAlgebra.BrightTensor4D`1.Shape">
             <inheritdoc />

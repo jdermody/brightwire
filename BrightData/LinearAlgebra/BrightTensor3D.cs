@@ -53,9 +53,6 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public uint ColumnCount { get; private set; }
 
-        /// <inheritdoc cref="ITensor3D" />
-        public bool IsReadOnly => false;
-
         /// <inheritdoc />
         public uint MatrixSize { get; private set; }
 

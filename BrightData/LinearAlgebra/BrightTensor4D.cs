@@ -58,9 +58,6 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public sealed override uint TotalSize { get; protected set; }
 
-        /// <inheritdoc cref="ITensor4D" />
-        public bool IsReadOnly => false;
-
         /// <inheritdoc />
         public sealed override uint[] Shape
         {
