@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                var rowList = matrix.SoftmaxDerivativePerRow(_rows);
+                IReadOnlyTensorSegment[] rowList = matrix.SoftmaxDerivativePerRow(_rows);
                 var ret = lap.CreateMatrixFromRows(rowList);
                 rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);

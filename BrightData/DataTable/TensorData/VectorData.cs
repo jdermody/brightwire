@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -12,7 +13,7 @@ namespace BrightData.DataTable.TensorData
     {
         readonly ReadOnlyVectorValueSemantics<VectorData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment? _segment;
+        IReadOnlyTensorSegment? _segment;
         uint _startIndex;
         uint _stride;
 
@@ -26,6 +27,7 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size { get; private set; }
+        public bool IsReadOnly => true;
 
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
@@ -49,7 +51,7 @@ namespace BrightData.DataTable.TensorData
             return lap.CreateVector(segment);
         }
 
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public float this[int index]
         {

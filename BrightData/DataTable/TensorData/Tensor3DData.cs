@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -12,7 +14,7 @@ namespace BrightData.DataTable.TensorData
     {
         readonly ReadOnlyTensor3DValueSemantics<Tensor3DData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment? _segment;
+        IReadOnlyTensorSegment? _segment;
         uint _startIndex;
 
         public Tensor3DData(ICanRandomlyAccessUnmanagedData<float> data, uint depth, uint rowCount, uint columnCount, uint startIndex)
@@ -29,6 +31,7 @@ namespace BrightData.DataTable.TensorData
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
         public uint MatrixSize => RowCount * ColumnCount;
+        public bool IsReadOnly => true;
 
         public float this[int depth, int rowY, int columnX]
         {
@@ -64,13 +67,13 @@ namespace BrightData.DataTable.TensorData
             return lap.CreateTensor3D(Depth, RowCount, ColumnCount, segment);
         }
 
-        public IReadOnlyMatrix GetReadOnlyMatrix(uint index) => new MatrixData(_data, RowCount, ColumnCount, index * MatrixSize);
+        public IReadOnlyMatrix GetMatrix(uint index) => new MatrixData(_data, RowCount, ColumnCount, index * MatrixSize);
 
         public IReadOnlyMatrix[] AllMatrices()
         {
             var ret = new IReadOnlyMatrix[Depth];
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetReadOnlyMatrix(i);
+                ret[i] = GetMatrix(i);
             return ret;
         }
 
@@ -95,7 +98,7 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size => Depth * ColumnCount * RowCount;
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as Tensor3DData);

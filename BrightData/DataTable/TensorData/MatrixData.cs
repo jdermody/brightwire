@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -12,7 +14,7 @@ namespace BrightData.DataTable.TensorData
     {
         readonly ReadOnlyMatrixValueSemantics<MatrixData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment? _segment;
+        IReadOnlyTensorSegment? _segment;
         uint _startIndex;
 
         public MatrixData(ICanRandomlyAccessUnmanagedData<float> data, uint rowCount, uint columnCount, uint startIndex)
@@ -26,6 +28,7 @@ namespace BrightData.DataTable.TensorData
 
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
+        public bool IsReadOnly => true;
 
         public float this[int rowY, int columnX]
         {
@@ -63,16 +66,10 @@ namespace BrightData.DataTable.TensorData
 
         public IReadOnlyVector GetRow(uint rowIndex) => new VectorData(_data, _startIndex + rowIndex, RowCount, ColumnCount);
         public IReadOnlyVector GetColumn(uint columnIndex) => new VectorData(_data, _startIndex + columnIndex * RowCount, 1, RowCount);
-        public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
-            ? RowCount.AsRange().Select(i => GetRow(i).ToArray().ToReadOnlyVector()).ToArray()
-            : RowCount.AsRange().Select(GetRow).ToArray()
-        ;
-        public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
-            ? ColumnCount.AsRange().Select(i => GetColumn(i).ToArray().ToReadOnlyVector()).ToArray()
-            : ColumnCount.AsRange().Select(GetColumn).ToArray()
-        ;
+        public IReadOnlyVector[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
+        public IReadOnlyVector[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
 
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)
         {

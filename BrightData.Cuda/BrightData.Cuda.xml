@@ -68,7 +68,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Clone(BrightData.ITensorSegment)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Clone(BrightData.IReadOnlyTensorSegment)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
@@ -206,7 +206,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Split(BrightData.ITensorSegment,System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Split(BrightData.IReadOnlyTensorSegment,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
@@ -260,13 +260,16 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetNewMatrixFromRows(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.ITensorSegment})">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.IReadOnlyTensorSegment})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{System.Single[]})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{BrightData.ITensorSegment})">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(BrightData.IReadOnlyTensorSegment[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{BrightData.IReadOnlyTensorSegment})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{System.Single[]})">
@@ -380,10 +383,10 @@
         <member name="M:BrightData.Cuda.CudaMatrix.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.AllColumns(System.Boolean)">
+        <member name="M:BrightData.Cuda.CudaMatrix.AllColumnsAsReadOnly(System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.AllRows(System.Boolean)">
+        <member name="M:BrightData.Cuda.CudaMatrix.AllRowsAsReadOnly(System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.GetColumnVector(System.UInt32)">

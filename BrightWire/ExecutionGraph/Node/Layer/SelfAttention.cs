@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             // get the previous decoder state
             IMatrix? decoderHiddenState = null;
             if (currentIndex == 0) {
-                if ((FindByName(_decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
+                if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
                     decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
             }
             else {
@@ -85,9 +85,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 throw new Exception("Not able to find the decoder hidden state");
 
             // attend to each encoder hidden state
-            var previous = context.BatchSequence.MiniBatch.PreviousMiniBatch;
-            if(previous == null)
-                throw new Exception("No previous mini batch");
+            var previous = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
 
             IMatrix? weights = null;
             var encoderStates = new List<IMatrix>();
@@ -114,9 +112,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
-            foreach (var (first, second) in softmax.AllColumns(false).Zip(encoderStates)) {
+            foreach (var (first, second) in softmax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
                 // save the average weight across the batch for diagnostics
-                var multiplyWeight = first.Segment.Average();
+                var multiplyWeight = first.ReadOnlySegment.Average();
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 

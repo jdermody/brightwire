@@ -13,7 +13,7 @@ namespace BrightData.Cuda.Helper
         readonly IDeviceMemoryPtr _data;
         readonly List<IDisposable> _readers = new();
 
-        class VectorReader : ICanRandomlyAccessData<IReadOnlyVector>
+        class VectorReader : ICanRandomlyAccessData<IVectorData>
         {
             readonly CudaLinearAlgebraProvider _lap;
             readonly ICanRandomlyAccessUnmanagedData<DataRangeColumnType> _source;
@@ -37,8 +37,8 @@ namespace BrightData.Cuda.Helper
 
             public uint Size => _source.Size;
             object ICanRandomlyAccessData.this[int index] => Get((uint)index);
-            public IReadOnlyVector this[uint index] => Get(index);
-            public IReadOnlyVector this[int index] => Get((uint)index);
+            public IVectorData this[uint index] => Get(index);
+            public IVectorData this[int index] => Get((uint)index);
             object ICanRandomlyAccessData.this[uint index] => Get(index);
 
             IReadOnlyVector Get(uint index)
@@ -53,7 +53,7 @@ namespace BrightData.Cuda.Helper
                 return ret;
             }
         }
-        class MatrixReader : ICanRandomlyAccessData<IReadOnlyMatrix>
+        class MatrixReader : ICanRandomlyAccessData<IMatrixData>
         {
             readonly CudaLinearAlgebraProvider _lap;
             readonly ICanRandomlyAccessUnmanagedData<MatrixColumnType> _source;
@@ -77,8 +77,8 @@ namespace BrightData.Cuda.Helper
 
             public uint Size => _source.Size;
             object ICanRandomlyAccessData.this[int index] => Get((uint)index);
-            public IReadOnlyMatrix this[uint index] => Get(index);
-            public IReadOnlyMatrix this[int index] => Get((uint)index);
+            public IMatrixData this[uint index] => Get(index);
+            public IMatrixData this[int index] => Get((uint)index);
             object ICanRandomlyAccessData.this[uint index] => Get(index);
 
             IReadOnlyMatrix Get(uint index)
@@ -94,7 +94,7 @@ namespace BrightData.Cuda.Helper
             }
         }
 
-        class Tensor3DReader : ICanRandomlyAccessData<IReadOnlyTensor3D>
+        class Tensor3DReader : ICanRandomlyAccessData<ITensor3DData>
         {
             readonly CudaLinearAlgebraProvider _lap;
             readonly ICanRandomlyAccessUnmanagedData<Tensor3DColumnType> _source;
@@ -118,8 +118,8 @@ namespace BrightData.Cuda.Helper
 
             public uint Size => _source.Size;
             object ICanRandomlyAccessData.this[int index] => Get((uint)index);
-            public IReadOnlyTensor3D this[uint index] => Get(index);
-            public IReadOnlyTensor3D this[int index] => Get((uint)index);
+            public ITensor3DData this[uint index] => Get(index);
+            public ITensor3DData this[int index] => Get((uint)index);
             object ICanRandomlyAccessData.this[uint index] => Get(index);
 
             IReadOnlyTensor3D Get(uint index)
@@ -135,7 +135,7 @@ namespace BrightData.Cuda.Helper
             }
         }
 
-        class Tensor4DReader : ICanRandomlyAccessData<IReadOnlyTensor4D>
+        class Tensor4DReader : ICanRandomlyAccessData<ITensor4DData>
         {
             readonly CudaLinearAlgebraProvider _lap;
             readonly ICanRandomlyAccessUnmanagedData<Tensor4DColumnType> _source;
@@ -159,8 +159,8 @@ namespace BrightData.Cuda.Helper
 
             public uint Size => _source.Size;
             object ICanRandomlyAccessData.this[int index] => Get((uint)index);
-            public IReadOnlyTensor4D this[uint index] => Get(index);
-            public IReadOnlyTensor4D this[int index] => Get((uint)index);
+            public ITensor4DData this[uint index] => Get(index);
+            public ITensor4DData this[int index] => Get((uint)index);
             object ICanRandomlyAccessData.this[uint index] => Get(index);
 
             IReadOnlyTensor4D Get(uint index)

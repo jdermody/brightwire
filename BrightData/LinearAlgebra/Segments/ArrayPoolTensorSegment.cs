@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace BrightData.LinearAlgebra
+namespace BrightData.LinearAlgebra.Segments
 {
     /// <summary>
     /// A tensor segment that temporarily owns a buffer from an array pool
@@ -39,7 +39,8 @@ namespace BrightData.LinearAlgebra
         public int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
-            if (IsValid && ret <= 0) {
+            if (IsValid && ret <= 0)
+            {
                 _data.Dispose();
                 IsValid = false;
             }
@@ -59,28 +60,28 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public bool IsWrapper => false;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ITensorSegment" />
         public float this[int index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ITensorSegment" />
         public float this[uint index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ITensorSegment" />
         public float this[long index]
         {
             get => _array[index];
             set => _array[index] = value;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="ITensorSegment" />
         public float this[ulong index]
         {
             get => _array[index];
@@ -111,7 +112,7 @@ namespace BrightData.LinearAlgebra
         {
             var span = GetSpan(sourceOffset);
             var destination = segment.GetArrayIfEasilyAvailable();
-            if(destination is not null)
+            if (destination is not null)
                 span.CopyTo(destination.AsSpan((int)targetOffset, (int)(segment.Size - targetOffset)));
             else
                 segment.CopyFrom(span, targetOffset);
@@ -123,9 +124,11 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count)
         {
-            fixed (float* ptr = &_array[sourceOffset]) {
+            fixed (float* ptr = &_array[sourceOffset])
+            {
                 var p = ptr;
-                for (var i = 0; i < count; i++) {
+                for (var i = 0; i < count; i++)
+                {
                     *destination++ = *p;
                     p += stride;
                 }
@@ -135,7 +138,8 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public unsafe void Clear()
         {
-            fixed (float* ptr = &_array[0]) {
+            fixed (float* ptr = &_array[0])
+            {
                 Unsafe.InitBlock(ptr, 0, (uint)_data.Length * sizeof(float));
             }
         }
@@ -156,7 +160,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public override string ToString()
         {
-            var preview = String.Join("|", Values.Take(8));
+            var preview = string.Join("|", Values.Take(8));
             if (Size > 8)
                 preview += "|...";
             return $"{SegmentType} ({Size}): {preview}";

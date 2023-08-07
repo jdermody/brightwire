@@ -1,4 +1,5 @@
 ﻿using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 using System.Linq;
 
 namespace BrightData.LinearAlgebra
@@ -7,7 +8,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 4D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D
+    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D, IReadOnlyTensor4D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -32,7 +33,9 @@ namespace BrightData.LinearAlgebra
         
         /// <inheritdoc />
         public override ITensor4D Create(ITensorSegment segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
-        ITensor4D IReadOnlyTensor4D.Create(LinearAlgebraProvider lap) => lap.CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
+
+        /// <inheritdoc />
+        public ITensor4D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
 
         /// <inheritdoc />
         public uint Count { get; private set; }
@@ -54,6 +57,9 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public sealed override uint TotalSize { get; protected set; }
+
+        /// <inheritdoc cref="ITensor4D" />
+        public bool IsReadOnly => false;
 
         /// <inheritdoc />
         public sealed override uint[] Shape
@@ -96,6 +102,9 @@ namespace BrightData.LinearAlgebra
             get => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
+
+        IReadOnlyTensor3D IReadOnlyTensor4D.GetTensor3D(uint index) => GetTensorAsReadOnly(index);
+        IReadOnlyTensor3D[] IReadOnlyTensor4D.AllTensors() => AllTensorsAsReadOnly();
 
         /// <summary>
         /// Returns a value from the 4D tensor
@@ -151,20 +160,24 @@ namespace BrightData.LinearAlgebra
         public IVector RowSums() => Lap.ColumnSums(this);
 
         /// <inheritdoc />
-        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index) => new ReadOnlyTensor3DWrapper(Tensor(index), Depth, RowCount, ColumnCount);
+        public IReadOnlyTensor3D GetTensorAsReadOnly(uint index) => new ReadOnlyTensor3DWrapper(Tensor(index), Depth, RowCount, ColumnCount);
         TensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
 
         /// <inheritdoc />
-        public IReadOnlyTensor3D[] AllTensors()
+        public IReadOnlyTensor3D[] AllTensorsAsReadOnly()
         {
             var ret = new IReadOnlyTensor3D[Count];
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetReadOnlyTensor3D(i);
+                ret[i] = GetTensorAsReadOnly(i);
             return ret;
         }
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
+
+
+        /// <inheritdoc />
+        public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(Count, Depth, RowCount, ColumnCount, Segment);
     }
 
     /// <summary>

@@ -105,7 +105,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 			else {
 				input = signal.GetMatrix();
-				samples = input.AllRows(false);
+				samples = input.AllRowsAsReadOnly(false);
 			}
 
 			// collect statistics

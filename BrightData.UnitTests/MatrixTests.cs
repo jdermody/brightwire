@@ -21,10 +21,10 @@ namespace BrightData.UnitTests
             var array = matrix.Segment.ToNewArray();
             array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
 
-            matrix.GetColumn(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
-            matrix.GetColumn(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
-            matrix.GetRow(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
-            matrix.GetRow(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
+            matrix.GetColumnAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
+            matrix.GetColumnAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
+            matrix.GetRowAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
+            matrix.GetRowAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
         }
 
         [Fact]
@@ -402,9 +402,9 @@ namespace BrightData.UnitTests
         {
             const int index = 7;
             using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
-            var cpu = a.GetColumn(index).Segment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetColumn(index).Segment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetColumn(index).Segment.ToNewArray());
+            var cpu = a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -424,9 +424,9 @@ namespace BrightData.UnitTests
         {
             const int index = 11;
             using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
-            var cpu = a.GetRow(index).Segment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetRow(index).Segment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetRow(index).Segment.ToNewArray());
+            var cpu = a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 

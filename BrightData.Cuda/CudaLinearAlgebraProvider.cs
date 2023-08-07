@@ -7,6 +7,7 @@ using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
@@ -124,7 +125,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensorSegment Clone(ITensorSegment segment)
+        public override ITensorSegment Clone(IReadOnlyTensorSegment segment)
         {
             if (CudaTensorSegment.IsCuda(segment, out var cudaSegment)) {
                 var ret = (CudaTensorSegment)CreateSegment(segment.Size, false);
@@ -148,7 +149,7 @@ namespace BrightData.Cuda
             return CopyToDevice(segment);
         }
 
-        ITensorSegment CopyToDevice(ITensorSegment segment)
+        ITensorSegment CopyToDevice(IReadOnlyTensorSegment segment)
         {
             var deviceMemory = Provider.Allocate(segment.Size);
             var temp = SpanOwner<float>.Empty;
@@ -469,7 +470,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IEnumerable<ITensorSegment> Split(ITensorSegment segment, uint blockCount)
+        public override IEnumerable<IReadOnlyTensorSegment> Split(IReadOnlyTensorSegment segment, uint blockCount)
         {
             var blockSize = segment.Size / blockCount;
             var ptr = GetDeviceMemoryPtr(segment);
@@ -763,8 +764,46 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        public override IMatrix CreateMatrixFromColumns(IReadOnlyTensorSegment[] vectorColumns)
+        {
+            var allAreCuda = true;
+            var cudaSegmentList = new List<CudaTensorSegment>();
+            foreach (var item in vectorColumns) {
+                if (CudaTensorSegment.IsCuda(item, out var cudaSegment))
+                    cudaSegmentList.Add(cudaSegment);
+                else {
+                    allAreCuda = false;
+                    break;
+                }
+            }
+
+            var columns = (uint)vectorColumns.Length;
+            var rows = vectorColumns[0].Size;
+
+            if (allAreCuda) {
+                var devicePointers = GetDevicePointers(cudaSegmentList);
+                var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
+                using var devicePtr = new CudaDeviceVariable<CuDevicePtr>(columns);
+                devicePtr.CopyToDevice(devicePointers);
+                Provider.CopyToMatrixColumns(rows, columns, devicePtr, ret.DeviceMemory);
+                return CreateMatrix(rows, columns, ret);
+            }
+
+            var size = rows * columns;
+            using var buffer = SpanOwner<float>.Allocate((int)size);
+            fixed (float* ptr = buffer.Span) {
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                for (uint i = 0; i < rows; i++)
+                    *p++ = vectorColumns[(int)j][i];
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+            }
+        }
+
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<ITensorSegment> vectorColumns)
+        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<IReadOnlyTensorSegment> vectorColumns)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -821,7 +860,47 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<ITensorSegment> vectorRows)
+        public override IMatrix CreateMatrixFromRows(IReadOnlyTensorSegment[] vectorRows)
+        {
+            var allAreCuda = true;
+            var cudaSegmentList = new List<CudaTensorSegment>();
+            foreach (var item in vectorRows) {
+                if (CudaTensorSegment.IsCuda(item, out var cudaSegment))
+                    cudaSegmentList.Add(cudaSegment);
+                else {
+                    allAreCuda = false;
+                    break;
+                }
+            }
+
+            var rows = (uint)vectorRows.Length;
+            var columns = vectorRows[0].Size;
+
+            if (allAreCuda) {
+                var devicePointers = GetDevicePointers(cudaSegmentList);
+                var ret = (CudaTensorSegment)CreateSegment(rows * columns, false);
+                using var devicePtr = new CudaDeviceVariable<CuDevicePtr>(rows);
+                devicePtr.CopyToDevice(devicePointers);
+                Provider.CopyToMatrixRows(rows, columns, devicePtr, ret.DeviceMemory);
+                return CreateMatrix(rows, columns, ret);
+            }
+
+            // allocate a single block
+            var size = rows * columns;
+            using var buffer = SpanOwner<float>.Allocate((int)(size));
+            fixed (float* ptr = buffer.Span) {
+                var p = ptr;
+                for (uint j = 0; j < columns; j++)
+                for (uint i = 0; i < rows; i++)
+                    *p++ = vectorRows[(int)i][j];
+                var deviceMemory = Provider.Allocate(size);
+                deviceMemory.CopyToDevice(ptr, 0, 0, size);
+                return CreateMatrix(rows, columns, new CudaTensorSegment(deviceMemory));
+            }
+        }
+
+        /// <inheritdoc />
+        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<IReadOnlyTensorSegment> vectorRows)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -909,7 +988,7 @@ namespace BrightData.Cuda
         }
 
         static CudaDeviceVariable<float> GetDeviceVariable(ITensorSegment segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
-        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(ITensorSegment segment)
+        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(IReadOnlyTensorSegment segment)
         {
             if (segment is not CudaTensorSegment cudaSegment) 
                 throw new Exception("CUDA tensors can only be used with other CUDA tensors");

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
 
@@ -130,11 +131,11 @@ namespace BrightData
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
         {
             var columns = rows[0].Size;
-            var ret = new ReadOnlyMatrix((uint)rows.Length, columns);
+            var ret = new ReadOnlyMatrix(new float[rows.Length * columns], (uint)rows.Length, columns);
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i];
-                var target = ret.GetRow((uint)i);
-                source.Segment.CopyTo(target.Segment);
+                var target = ret.Row((uint)i);
+                source.ReadOnlySegment.CopyTo(target);
             } 
             return ret;
         }
@@ -151,8 +152,8 @@ namespace BrightData
             var ret = new ReadOnlyMatrix((uint)rows.Length, columns);
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i];
-                var target = ret.GetRow((uint)i);
-                target.Segment.CopyFrom(source);
+                var target = ret.Row((uint)i);
+                target.CopyFrom(source.AsSpan(), 0);
             } 
             return ret;
         }
@@ -169,8 +170,8 @@ namespace BrightData
             var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i];
-                var target = ret.GetRow((uint)i);
-                source.Segment.CopyTo(target.Segment);
+                var target = ret.Column((uint)i);
+                source.ReadOnlySegment.CopyTo(target);
             } 
             return ret;
         }
@@ -187,8 +188,8 @@ namespace BrightData
             var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i];
-                var target = ret.GetRow((uint)i);
-                target.Segment.CopyFrom(source);
+                var target = ret.Column((uint)i);
+                target.CopyFrom(source.AsSpan(), 0);
             } 
             return ret;
         }
@@ -330,7 +331,7 @@ namespace BrightData
             }
             // TODO: refactor this to avoid creating the vector?
             var temp = context.CreateReadOnlyVector(reader);
-            return temp.Segment.ToNewArray();
+            return temp.ToArray();
         }
 
         /// <summary>

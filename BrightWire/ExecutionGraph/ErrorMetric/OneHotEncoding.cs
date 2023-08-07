@@ -14,8 +14,8 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
 
         public float Compute(IReadOnlyVector output, IReadOnlyVector expectedOutput)
         {
-            var outputIndex = output.Segment.GetMinAndMaxValues().MaxIndex;
-            var expectedIndex = expectedOutput.Segment.GetMinAndMaxValues().MaxIndex;
+            var outputIndex = output.ReadOnlySegment.GetMinAndMaxValues().MaxIndex;
+            var expectedIndex = expectedOutput.ReadOnlySegment.GetMinAndMaxValues().MaxIndex;
             return outputIndex == expectedIndex ? 1f : 0f;
         }
 

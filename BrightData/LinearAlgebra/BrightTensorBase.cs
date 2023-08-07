@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Serialisation;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -236,7 +237,7 @@ namespace BrightData.LinearAlgebra
         public T Reverse() => Create(Lap.Reverse(Segment));
 
         /// <inheritdoc />
-        public IEnumerable<T> Split(uint blockCount) => Lap.Split(Segment, blockCount).Select(Create);
+        public IEnumerable<T> Split(uint blockCount) => Lap.Split(Segment, blockCount).Select(x => Create(Lap.Clone(x)));
 
         /// <inheritdoc />
         public float CosineDistance(ITensor other) => Lap.CosineDistance(Segment, other.Segment);
@@ -312,5 +313,11 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public float Sum() => Lap.Sum(Segment);
+
+        /// <inheritdoc />
+        public IReadOnlyTensorSegment ReadOnlySegment => Segment;
+
+        /// <inheritdoc cref="ITensor" />
+        public bool IsReadOnly => false;
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -10,28 +11,19 @@ namespace BrightData.LinearAlgebra.ReadOnly
     internal class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>
     {
         readonly ReadOnlyVectorValueSemantics<ReadOnlyVector> _valueSemantics;
-        float[]? _data = null;
-        ITensorSegment? _segment = null;
+        ArrayBasedTensorSegment? _segment = null;
+        float[] _data;
 
-        ReadOnlyVector()
-        {
-            _valueSemantics = new(this);
-        }
-        public ReadOnlyVector(float[] data) : this()
+        public ReadOnlyVector(float[] data)
         {
             _data = data;
+            _valueSemantics = new(this);
         }
-        public ReadOnlyVector(ITensorSegment? segment) : this()
+        public ReadOnlyVector(uint size) : this(new float[size])
         {
-            _segment = segment;
         }
-        public ReadOnlyVector(uint size) : this()
+        public ReadOnlyVector(uint size, Func<uint, float> initializer) : this(size)
         {
-            _data = new float[size];
-        }
-        public ReadOnlyVector(uint size, Func<uint, float> initializer) : this()
-        {
-            _data = new float[size];
             for (uint i = 0; i < size; i++)
                 _data[i] = initializer(i);
         }
@@ -40,7 +32,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
             writer.Write(1);
             writer.Write(Size);
-            writer.Write((_data ?? _segment!.ToNewArray()).AsSpan().AsBytes());
+            writer.Write((_data).AsSpan().AsBytes());
         }
 
         public void Initialize(BrightDataContext context, BinaryReader reader)
@@ -49,24 +41,21 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
             _data = reader.BaseStream.ReadArray<float>(size);
-            _segment = null;
         }
 
         public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
-            if (_data is not null) {
-                wasTempUsed = false;
-                return _data.AsSpan();
-            }
-            return _segment!.GetSpan(ref temp, out wasTempUsed);
+            wasTempUsed = false;
+            return _data.AsSpan();
         }
 
-        public uint Size => (uint?)_data?.Length ?? _segment!.Size;
-        public float this[int index] => _data is null ? _segment![index] : _data[index];
-        public float this[uint index] => _data is null ? _segment![index] : _data[index];
-        public float[] ToArray() => _data ?? _segment!.ToNewArray();
-        public IVector Create(LinearAlgebraProvider lap) => _data is null ? lap.CreateVector(_segment!) : lap.CreateVector(_data);
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data!);
+        public uint Size => (uint)_data.Length;
+        public bool IsReadOnly => true;
+        public float this[int index] => _data[index];
+        public float this[uint index] => _data[index];
+        public float[] ToArray() => _data;
+        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data);
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
 
         // value semantics
         public bool Equals(ReadOnlyVector? other) => _valueSemantics.Equals(other);
@@ -75,13 +64,10 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public override string ToString()
         {
-            if (_data is not null) {
-                var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
-                if (Size > Consts.DefaultPreviewSize)
-                    preview += "|...";
-                return $"Vector Info ({Size}): {preview}";
-            } 
-            return $"Read Only Vector ({_segment})";
+            var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
+            if (Size > Consts.DefaultPreviewSize)
+                preview += "|...";
+            return $"Vector Info ({Size}): {preview}";
         }
     }
 }

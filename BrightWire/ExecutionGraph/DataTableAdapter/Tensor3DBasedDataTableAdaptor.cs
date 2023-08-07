@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var input = (IReadOnlyTensor3D)firstRow[_inputColumnIndex = _featureColumnIndices[0]];
             var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
             _outputSize = output.Size;
-            _inputSize = input.Segment.Size;
+            _inputSize = input.ReadOnlySegment.Size;
             Height = input.RowCount;
             Width = input.ColumnCount;
             Depth = input.Depth;
@@ -52,8 +52,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override IMiniBatch Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            using var inputRows = SpanOwner<ITensorSegment>.Allocate(rows.Length);
-            using var targetRows = SpanOwner<ITensorSegment>.Allocate(rows.Length);
+            using var inputRows = SpanOwner<IReadOnlyTensorSegment>.Allocate(rows.Length);
+            using var targetRows = SpanOwner<IReadOnlyTensorSegment>.Allocate(rows.Length);
             var inputRowPtr = inputRows.Span;
             var targetRowsPtr = targetRows.Span;
             var index = 0;

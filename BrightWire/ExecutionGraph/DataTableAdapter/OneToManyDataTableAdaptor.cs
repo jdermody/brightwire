@@ -66,18 +66,18 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 .Select(r => ((IReadOnlyVector)r[_featureColumnIndices[0]], (IReadOnlyMatrix)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var outputData = new Dictionary<uint, List<ITensorSegment>>();
+            var outputData = new Dictionary<uint, List<IReadOnlyTensorSegment>>();
             foreach (var item in data) {
                 var output = item.Item2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = new());
-                    temp.Add(output.GetRow(i).Segment);
+                    temp.Add(output.GetRow(i).ReadOnlySegment);
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var curr = lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Item1.Segment[y]);
+            var curr = lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Item1.ReadOnlySegment[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)

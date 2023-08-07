@@ -48,7 +48,7 @@ namespace BrightData.Transformation
                     yield return new ManyToOneColumnOperation<IReadOnlyVector>(
                         rowCount,
                         sourceColumns, 
-                        obj => ToVector(context , obj),
+                        obj => ToVector(context, obj),
                         (ICompositeBuffer<IReadOnlyVector>)outputBuffer
                     );
                 else if (NewType == BrightDataType.String)
@@ -86,12 +86,12 @@ namespace BrightData.Transformation
             return context.CreateWeightedIndexList(indices);
         }
 
-        static IVector ToVector(BrightDataContext context, object[] values)
+        static IReadOnlyVector ToVector(BrightDataContext context, object[] values)
         {
             var data = values.Select(Convert.ToSingle).ToArray();
-            return context.LinearAlgebraProvider.CreateVector(data);
+            return context.CreateReadOnlyVector(data);
         }
 
-        static string ToString(object[] vals) => String.Join('|', vals.Select(Convert.ToString));
+        static string ToString(object[] values) => String.Join('|', values.Select(Convert.ToString));
     }
 }

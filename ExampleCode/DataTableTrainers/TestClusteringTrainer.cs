@@ -108,7 +108,7 @@ namespace ExampleCode.DataTableTrainers
             var outputPath = GetOutputPath("projected-kmeans");
             using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
-            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.GetRow(i).Create(lap)).ToList();
+            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.GetRowAsReadOnly(i).Create(lap)).ToList();
             var lookupTable2 = vectorList2.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
             Console.Write("done...");
 
@@ -139,7 +139,7 @@ namespace ExampleCode.DataTableTrainers
                 v2.Dispose();
                 s.Dispose();
 
-                var vectorList3 = sv2.AllColumns(false).Select(c => c.Create(lap)).ToList();
+                var vectorList3 = sv2.AllColumnsAsReadOnly(false).Select(c => c.Create(lap)).ToList();
                 var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");

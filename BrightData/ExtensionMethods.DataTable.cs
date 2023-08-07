@@ -42,10 +42,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.Vector            => typeof(IReadOnlyVector),
-                BrightDataType.Matrix            => typeof(IReadOnlyMatrix),
-                BrightDataType.Tensor3D          => typeof(IReadOnlyTensor3D),
-                BrightDataType.Tensor4D          => typeof(IReadOnlyTensor4D),
+                BrightDataType.Vector            => typeof(IVectorData),
+                BrightDataType.Matrix            => typeof(IMatrixData),
+                BrightDataType.Tensor3D          => typeof(ITensor3DData),
+                BrightDataType.Tensor4D          => typeof(ITensor4DData),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -95,16 +95,16 @@ namespace BrightData
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(IReadOnlyVector))
+            if (dataType == typeof(IVectorData))
                 return BrightDataType.Vector;
 
-            if (dataType == typeof(IReadOnlyMatrix))
+            if (dataType == typeof(IMatrixData))
                 return BrightDataType.Matrix;
 
-            if (dataType == typeof(IReadOnlyTensor3D))
+            if (dataType == typeof(ITensor3DData))
                 return BrightDataType.Tensor3D;
 
-            if (dataType == typeof(IReadOnlyTensor4D))
+            if (dataType == typeof(ITensor4DData))
                 return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))

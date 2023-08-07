@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -42,7 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
 
         public void WriteTo(BinaryWriter writer)
         {
@@ -71,21 +72,16 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint Size => RowCount * ColumnCount;
         public uint RowCount { get; private set; }
         public uint ColumnCount { get;private set; }
+        public bool IsReadOnly => true;
         public float this[int rowY, int columnX] => _data[columnX * RowCount + rowY];
         public float this[uint rowY, uint columnX] => _data[columnX * RowCount + rowY];
-        public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, Segment);
-        public TensorSegmentWrapper Row(uint index) => new(Segment, index, RowCount, ColumnCount);
-        public TensorSegmentWrapper Column(uint index) => new(Segment, index * RowCount, 1, RowCount);
+        public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, ReadOnlySegment);
+        public TensorSegmentWrapper Row(uint index) => new((ITensorSegment)ReadOnlySegment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index) => new((ITensorSegment)ReadOnlySegment, index * RowCount, 1, RowCount);
         public IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
         public IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
-        public IReadOnlyVector[] AllRows(bool makeCopy) => makeCopy
-            ? RowCount.AsRange().Select(i => Row(i).ToNewArray().ToReadOnlyVector()).ToArray()
-            : RowCount.AsRange().Select(GetRow).ToArray()
-        ;
-        public IReadOnlyVector[] AllColumns(bool makeCopy) => makeCopy
-            ? ColumnCount.AsRange().Select(i => Column(i).ToNewArray().ToReadOnlyVector()).ToArray()
-            : ColumnCount.AsRange().Select(GetColumn).ToArray()
-        ;
+        public IReadOnlyVector[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
+        public IReadOnlyVector[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrix);

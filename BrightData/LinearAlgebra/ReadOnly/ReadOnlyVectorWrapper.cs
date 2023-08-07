@@ -10,11 +10,10 @@ namespace BrightData.LinearAlgebra.ReadOnly
     internal class ReadOnlyVectorWrapper : IReadOnlyVector, IEquatable<ReadOnlyVectorWrapper>
     {
         readonly ReadOnlyVectorValueSemantics<ReadOnlyVectorWrapper> _valueSemantics;
-        readonly ITensorSegment _segment;
 
-        public ReadOnlyVectorWrapper(ITensorSegment segment)
+        public ReadOnlyVectorWrapper(IReadOnlyTensorSegment segment)
         {
-            _segment = segment;
+            ReadOnlySegment = segment;
             _valueSemantics = new(this);
         }
 
@@ -23,7 +22,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(1);
             writer.Write(Size);
             var temp = SpanOwner<float>.Empty;
-            _segment.GetSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -38,13 +37,14 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => _segment.GetSpan(ref temp, out wasTempUsed);
-        public uint Size => _segment.Size;
-        public float this[int index] => _segment[index];
-        public float this[uint index] => _segment[index];
-        public float[] ToArray() => _segment.ToNewArray();
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_segment);
-        public ITensorSegment Segment => _segment;
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public uint Size => ReadOnlySegment.Size;
+        public bool IsReadOnly => true;
+        public float this[int index] => ReadOnlySegment[index];
+        public float this[uint index] => ReadOnlySegment[index];
+        public float[] ToArray() => ReadOnlySegment.ToNewArray();
+        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(ReadOnlySegment);
+        public IReadOnlyTensorSegment ReadOnlySegment { get; }
 
         // value semantics
         public bool Equals(ReadOnlyVectorWrapper? other) => _valueSemantics.Equals(other);
@@ -53,7 +53,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public override string ToString()
         {
-            var preview = String.Join("|", _segment.Values.Take(Consts.DefaultPreviewSize));
+            var preview = String.Join("|", ReadOnlySegment.Values.Take(Consts.DefaultPreviewSize));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Read Only Vector Wrapper ({Size}): {preview}";

@@ -145,9 +145,9 @@ namespace BrightData.DataTable
         /// <param name="size">Size of the vector</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public ICompositeBufferWithMetaData<IReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
+        public ICompositeBufferWithMetaData<IVectorData> AddFixedSizeVectorColumn(uint size, string? name)
         {
-            var ret = AddColumn<IReadOnlyVector>(name);
+            var ret = AddColumn<IVectorData>(name);
             ret.ConstraintValidator = vector => vector.Size == size;
             return ret;
         }
@@ -159,9 +159,9 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public ICompositeBufferWithMetaData<IReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<IMatrixData> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<IReadOnlyMatrix>(name);
+            var ret = AddColumn<IMatrixData>(name);
             ret.ConstraintValidator = matrix => matrix.RowCount == rows && matrix.ColumnCount == columns;
             return ret;
         }
@@ -174,9 +174,9 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public ICompositeBufferWithMetaData<IReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<ITensor3DData> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<IReadOnlyTensor3D>(name);
+            var ret = AddColumn<ITensor3DData>(name);
             ret.ConstraintValidator = tensor => tensor.RowCount == rows && tensor.ColumnCount == columns && tensor.Depth == depth;
             return ret;
         }
@@ -190,9 +190,9 @@ namespace BrightData.DataTable
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        public ICompositeBufferWithMetaData<IReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
+        public ICompositeBufferWithMetaData<ITensor4DData> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<IReadOnlyTensor4D>(name);
+            var ret = AddColumn<ITensor4DData>(name);
             ret.ConstraintValidator = tensor => tensor.RowCount == rows && tensor.ColumnCount == columns && tensor.Depth == depth && tensor.Count == count;
             return ret;
         }

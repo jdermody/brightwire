@@ -4,7 +4,7 @@ using CommunityToolkit.HighPerformance;
 namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
     internal class ReadOnlyMatrixValueSemantics<T>
-        where T : IReadOnlyMatrix, IHaveReadOnlyContiguousFloatSpan
+        where T : IMatrixData, IHaveReadOnlyContiguousFloatSpan
     {
         readonly T _obj;
         readonly Lazy<int> _hashCode;

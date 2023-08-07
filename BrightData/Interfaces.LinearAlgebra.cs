@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -64,10 +65,7 @@ namespace BrightData
         SquaredEuclidean
     }
 
-    /// <summary>
-    /// A segment of a float tensor
-    /// </summary>
-    public interface ITensorSegment : ICountReferences, IDisposable, IHaveSize
+    public interface IReadOnlyTensorSegment : ICountReferences, IDisposable, IHaveSize
     {
         /// <summary>
         /// Segment type
@@ -79,52 +77,39 @@ namespace BrightData
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[int index] { get; set; }
+        float this[int index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[uint index] { get; set; }
+        float this[uint index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[long index] { get; set; }
+        float this[long index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[ulong index] { get; set; }
-
-        /// <summary>
-        /// Iterates all values in the segment
-        /// </summary>
-        IEnumerable<float> Values { get; }
-
-        /// <summary>
-        /// Returns a contiguous array of data only if this is the easily available (null otherwise)
-        /// </summary>
-        /// <returns></returns>
-        float[]? GetArrayIfEasilyAvailable();
+        float this[ulong index] { get; }
 
         /// <summary>
         /// Creates a new array from the segment
         /// </summary>
         /// <returns></returns>
         float[] ToNewArray();
-        
+
         /// <summary>
-        /// Copies from the span into the segment
+        /// Iterates all values in the segment
         /// </summary>
-        /// <param name="span">Span to copy from</param>
-        /// <param name="targetOffset">Index into this segment to replace from</param>
-        void CopyFrom(ReadOnlySpan<float> span, uint targetOffset = 0);
+        IEnumerable<float> Values { get; }
 
         /// <summary>
         /// Copies this segment to another segment
@@ -150,11 +135,6 @@ namespace BrightData
         unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count);
 
         /// <summary>
-        /// Sets each value within the segment to zero
-        /// </summary>
-        void Clear();
-
-        /// <summary>
         /// Returns a span from the current segment
         /// </summary>
         /// <param name="temp">Optional buffer that might be needed when creating the span</param>
@@ -170,15 +150,78 @@ namespace BrightData
         ReadOnlySpan<float> GetSpan(uint offset = 0);
 
         /// <summary>
+        /// True if the segment wraps another segment
+        /// </summary>
+        bool IsWrapper { get; }
+    }
+
+    /// <summary>
+    /// A segment of a float tensor
+    /// </summary>
+    public interface ITensorSegment : IReadOnlyTensorSegment
+    {
+        /// <summary>
+        /// Returns a value at the index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new float this[int index] { get; set; }
+
+        /// <summary>
+        /// Returns a value at the index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new float this[uint index] { get; set; }
+
+        /// <summary>
+        /// Returns a value at the index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new float this[long index] { get; set; }
+
+        /// <summary>
+        /// Returns a value at the index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        new float this[ulong index] { get; set; }
+
+        /// <summary>
+        /// Returns a contiguous array of data only if this is the easily available (null otherwise)
+        /// </summary>
+        /// <returns></returns>
+        float[]? GetArrayIfEasilyAvailable();
+
+        /// <summary>
+        /// Copies from the span into the segment
+        /// </summary>
+        /// <param name="span">Span to copy from</param>
+        /// <param name="targetOffset">Index into this segment to replace from</param>
+        void CopyFrom(ReadOnlySpan<float> span, uint targetOffset = 0);
+
+        /// <summary>
+        /// Sets each value within the segment to zero
+        /// </summary>
+        void Clear();
+
+        /// <summary>
         /// Returns the underlying array used by the segment (if available)
         /// </summary>
         /// <returns>Array, segment offset and segment stride</returns>
         (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray();
+    }
 
+    /// <summary>
+    /// Indicates that there is an underlying tensor segment
+    /// </summary>
+    public interface IHaveReadOnlyTensorSegment
+    {
         /// <summary>
-        /// True if the segment wraps another segment
+        /// Underlying tensor segment
         /// </summary>
-        bool IsWrapper { get; }
+        IReadOnlyTensorSegment ReadOnlySegment { get; }
     }
 
     /// <summary>
@@ -203,10 +246,25 @@ namespace BrightData
         ReadOnlySpan<float> FloatSpan { get; }
     }
 
+    public interface IVectorData : IHaveSpanOfFloats, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment
+    {
+        /// <summary>
+        /// True if the vector is read only
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
+        /// Creates a new mutable vector that is a copy of this vector
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns></returns>
+        IVector Create(LinearAlgebraProvider lap);
+    }
+
     /// <summary>
     /// Vector that cannot be modified
     /// </summary>
-    public interface IReadOnlyVector : IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment
+    public interface IReadOnlyVector : IVectorData
     {
         /// <summary>
         /// Returns a value at the index
@@ -221,19 +279,9 @@ namespace BrightData
         /// <param name="index"></param>
         /// <returns></returns>
         float this[uint index] { get; }
-
-        /// <summary>
-        /// Creates a mutable version of this vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <returns></returns>
-        IVector Create(LinearAlgebraProvider lap);
     }
 
-    /// <summary>
-    /// Matrix that cannot be modified
-    /// </summary>
-    public interface IReadOnlyMatrix : IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment
+    public interface IHaveMatrixDimensions : IHaveSize
     {
         /// <summary>
         /// Number of rows
@@ -244,7 +292,28 @@ namespace BrightData
         /// Number of columns
         /// </summary>
         uint ColumnCount { get; }
+    }
 
+    public interface IMatrixData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveMatrixDimensions
+    {
+        /// <summary>
+        /// True if the matrix is read only
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
+        /// Creates a new mutable matrix that is a copy of this matrix
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns></returns>
+        IMatrix Create(LinearAlgebraProvider lap);
+    }
+
+    /// <summary>
+    /// Matrix that cannot be modified
+    /// </summary>
+    public interface IReadOnlyMatrix : IMatrixData
+    {
         /// <summary>
         /// Returns a value from the matrix
         /// </summary>
@@ -260,13 +329,6 @@ namespace BrightData
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
         float this[uint rowY, uint columnX] { get; }
-
-        /// <summary>
-        /// Creates a mutable version of this matrix
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <returns></returns>
-        IMatrix Create(LinearAlgebraProvider lap);
 
         /// <summary>
         /// Returns a row from the matrix
@@ -285,22 +347,17 @@ namespace BrightData
         /// <summary>
         /// Returns all rows as an array
         /// </summary>
-        /// <param name="makeCopy">True to make a copy of each row</param>
         /// <returns></returns>
-        IReadOnlyVector[] AllRows(bool makeCopy);
+        IReadOnlyVector[] AllRows();
 
         /// <summary>
         /// Returns all columns as an array
         /// </summary>
-        /// <param name="makeCopy">True to make a copy of each column</param>
         /// <returns></returns>
-        IReadOnlyVector[] AllColumns(bool makeCopy);
+        IReadOnlyVector[] AllColumns();
     }
 
-    /// <summary>
-    /// 3D tensor that cannot be modified
-    /// </summary>
-    public interface IReadOnlyTensor3D : IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment
+    public interface IHaveTensor3DDimensions : IHaveMatrixDimensions
     {
         /// <summary>
         /// Number of matrices
@@ -308,20 +365,31 @@ namespace BrightData
         uint Depth { get; }
 
         /// <summary>
-        /// Number of rows
-        /// </summary>
-        uint RowCount { get; }
-
-        /// <summary>
-        /// Number of columns
-        /// </summary>
-        uint ColumnCount { get; }
-
-        /// <summary>
         /// Rows * Columns
         /// </summary>
         uint MatrixSize { get; }
+    }
 
+    public interface ITensor3DData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensor3DDimensions
+    {
+        /// <summary>
+        /// True if the tensor is read only
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
+        /// Creates a new mutable tensor that is a copy of this tensor
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns></returns>
+        ITensor3D Create(LinearAlgebraProvider lap);
+    }
+
+    /// <summary>
+    /// 3D tensor that cannot be modified
+    /// </summary>
+    public interface IReadOnlyTensor3D : ITensor3DData
+    {
         /// <summary>
         /// Returns a value from the 3D tensor
         /// </summary>
@@ -341,18 +409,11 @@ namespace BrightData
         float this[uint depth, uint rowY, uint columnX] { get; }
 
         /// <summary>
-        /// Creates a mutable version of this 3D tensor
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <returns></returns>
-        ITensor3D Create(LinearAlgebraProvider lap);
-
-        /// <summary>
         /// Returns a matrix from the 3D tensor
         /// </summary>
         /// <param name="index">Matrix index</param>
         /// <returns></returns>
-        IReadOnlyMatrix GetReadOnlyMatrix(uint index);
+        IReadOnlyMatrix GetMatrix(uint index);
 
         /// <summary>
         /// Returns all matrices as an array
@@ -361,10 +422,7 @@ namespace BrightData
         IReadOnlyMatrix[] AllMatrices();
     }
 
-    /// <summary>
-    /// 4D tensor that cannot be modified
-    /// </summary>
-    public interface IReadOnlyTensor4D : IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment
+    public interface IHaveTensor4DDimensions : IHaveTensor3DDimensions
     {
         /// <summary>
         /// Number of 3D tensors
@@ -372,30 +430,31 @@ namespace BrightData
         uint Count { get; }
 
         /// <summary>
-        /// Number of matrices in each 3D tensor
-        /// </summary>
-        uint Depth { get; }
-
-        /// <summary>
-        /// Number of rows in each matrix
-        /// </summary>
-        uint RowCount { get; }
-
-        /// <summary>
-        /// Number of columns in each matrix
-        /// </summary>
-        uint ColumnCount { get; }
-
-        /// <summary>
-        /// RowCount * ColumnCount
-        /// </summary>
-        uint MatrixSize { get; }
-
-        /// <summary>
         /// MatrixSize * Depth
         /// </summary>
         uint TensorSize { get; }
+    }
 
+    public interface ITensor4DData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensor4DDimensions
+    {
+        /// <summary>
+        /// True if the tensor is read only
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
+        /// Creates a new mutable tensor that is a copy of this tensor
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns></returns>
+        ITensor4D Create(LinearAlgebraProvider lap);
+    }
+
+    /// <summary>
+    /// 4D tensor that cannot be modified
+    /// </summary>
+    public interface IReadOnlyTensor4D : ITensor4DData
+    {
         /// <summary>
         /// Returns a value from the 4D tensor
         /// </summary>
@@ -417,18 +476,11 @@ namespace BrightData
         float this[uint count, uint depth, uint rowY, uint columnX] { get; }
 
         /// <summary>
-        /// Creates a mutable 4D version of this 4D tensor
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <returns></returns>
-        ITensor4D Create(LinearAlgebraProvider lap);
-
-        /// <summary>
         /// Returns a 3D tensor from the 4D tensor
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        IReadOnlyTensor3D GetReadOnlyTensor3D(uint index);
+        IReadOnlyTensor3D GetTensor3D(uint index);
 
         /// <summary>
         /// Returns all tensors as an array
@@ -440,7 +492,7 @@ namespace BrightData
     /// <summary>
     /// Untyped tensor interface - vector, matrix, 3D tensor etc
     /// </summary>
-    public interface ITensor : IDisposable, IAmSerializable, IHaveSpanOfFloats, IHaveSize, IHaveTensorSegment, IHaveLinearAlgebraProvider
+    public interface ITensor : IDisposable, IHaveLinearAlgebraProvider, IHaveSpanOfFloats, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensorSegment
     {
         /// <summary>
         /// Underlying bright data context
@@ -448,9 +500,9 @@ namespace BrightData
         BrightDataContext Context { get; }
 
         /// <summary>
-        /// Underlying segment
+        /// Underlying editable tensor segment
         /// </summary>
-        new ITensorSegment Segment { get; }
+        ITensorSegment Segment { get; }
 
         /// <summary>
         /// Reshapes to a vector
@@ -877,7 +929,7 @@ namespace BrightData
     /// <summary>
     /// Vector interface
     /// </summary>
-    public interface IVector : IReadOnlyVector, ITensor<IVector>
+    public interface IVector : ITensor<IVector>
     {
         /// <summary>
         /// Returns a value at the specified index
@@ -925,12 +977,19 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         float[] ToArray();
+
+        /// <summary>
+        /// Clones the vector, optionally with a new linear algebra provider
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        IVector Clone(LinearAlgebraProvider? lap = null);
     }
 
     /// <summary>
     /// Matrix interface
     /// </summary>
-    public interface IMatrix : IReadOnlyMatrix, ITensor<IMatrix>
+    public interface IMatrix : ITensor<IMatrix>, IMatrixData
     {
         /// <summary>
         /// Returns a value from the matrix
@@ -938,7 +997,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int rowY, int columnX] { get; set; }
+        float this[int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -946,7 +1005,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint rowY, uint columnX] { get; set; }
+        float this[uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -970,7 +1029,7 @@ namespace BrightData
         /// <param name="index">Row index</param>
         /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null);
+        ITensorSegment Row(uint index, ITensorSegment? segment = null);
 
         /// <summary>
         /// Returns a column from the matrix
@@ -978,7 +1037,7 @@ namespace BrightData
         /// <param name="index">Column index</param>
         /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null);
+        ITensorSegment Column(uint index, ITensorSegment? segment = null);
 
         /// <summary>
         /// Returns a row as a span
@@ -1159,12 +1218,24 @@ namespace BrightData
         /// <param name="rows"></param>
         /// <returns></returns>
         ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows);
+
+        /// <summary>
+        /// Clones the matrix, optionally into a new linear algebra provider
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        IMatrix Clone(LinearAlgebraProvider? lap);
+
+        IReadOnlyVector GetRowAsReadOnly(uint rowIndex);
+        IReadOnlyVector GetColumnAsReadOnly(uint columnIndex);
+        IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy);
+        IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy);
     }
 
     /// <summary>
     /// 3D tensor - a block of matrices
     /// </summary>
-    public interface ITensor3D : IReadOnlyTensor3D, ITensor<ITensor3D>
+    public interface ITensor3D : ITensor<ITensor3D>, ITensor3DData
     {
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1173,7 +1244,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int depth, int rowY, int columnX] { get; set; }
+        float this[int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1182,7 +1253,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint depth, uint rowY, uint columnX] { get; set; }
+        float this[uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1323,12 +1394,23 @@ namespace BrightData
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
         ITensor3D TransposeThisAndMultiply(ITensor4D other);
+
+        /// <summary>
+        /// Clones the tensor, optionally using a new linear algebra provider
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        ITensor3D Clone(LinearAlgebraProvider? lap);
+
+        IReadOnlyMatrix GetMatrixAsReadOnly(uint index);
+
+        IReadOnlyMatrix[] AllMatricesAsReadOnly();
     }
 
     /// <summary>
     /// 4D tensor - a block of 3D tensors
     /// </summary>
-    public interface ITensor4D : ITensor<ITensor4D>, IReadOnlyTensor4D
+    public interface ITensor4D : ITensor<ITensor4D>, ITensor4DData
     {
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1450,5 +1532,16 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         IVector RowSums();
+
+        /// <summary>
+        /// Clones the tensor, optionally with a different linear algebra provider
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        ITensor4D Clone(LinearAlgebraProvider? lap);
+
+        IReadOnlyTensor3D GetTensorAsReadOnly(uint index);
+
+        IReadOnlyTensor3D[] AllTensorsAsReadOnly();
     }
 }

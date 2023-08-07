@@ -14,6 +14,6 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static WeightedIndexList ToSparse(this IReadOnlyVector vector) => vector.Segment.ToSparse();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static WeightedIndexList ToSparse(this IReadOnlyVector vector) => vector.ReadOnlySegment.ToSparse();
     }
 }

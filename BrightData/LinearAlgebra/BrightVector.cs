@@ -7,7 +7,7 @@ namespace BrightData.LinearAlgebra
     /// Vector
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightVector<LAP> : BrightTensorBase<IVector, LAP>, IVector
+    public class BrightVector<LAP> : BrightTensorBase<IVector, LAP>, IVector, IReadOnlyVector
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -40,44 +40,28 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        /// <summary>
-        /// Returns a value from the vector
-        /// </summary>
-        /// <param name="index">Index to return</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IVector" />
         public float this[int index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the vector
-        /// </summary>
-        /// <param name="index">Index to return</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public float this[uint index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the vector
-        /// </summary>
-        /// <param name="index">Index to return</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public float this[long index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the vector
-        /// </summary>
-        /// <param name="index">Index to return</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public float this[ulong index]
         {
             get => Segment[index];
@@ -86,7 +70,9 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public float[] ToArray() => Segment.ToNewArray();
-        IVector IReadOnlyVector.Create(LinearAlgebraProvider lap) => lap.CreateVector(ToArray());
+
+        /// <inheritdoc />
+        public IVector Clone(LinearAlgebraProvider? lap = null) => (lap ?? LinearAlgebraProvider).CreateVector(ToArray());
 
         /// <inheritdoc />
         public override string ToString()
@@ -110,14 +96,10 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public void MapIndexedInPlace(Func<uint, float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, mutator);
-            try {
-                ret.CopyTo(Segment);
-            }
-            finally {
-                ret.Release();
-            }
+            Lap.MapParallelInPlace(Segment, mutator);
         }
+
+        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector((IReadOnlyVector)this);
     }
 
     /// <summary>

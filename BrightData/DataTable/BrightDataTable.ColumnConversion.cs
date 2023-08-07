@@ -26,22 +26,22 @@ namespace BrightData.DataTable
                 return (IConvertStructsToObjects<CT, T>)ret;
             }
 
-            if (dataType == typeof(IReadOnlyVector)) {
+            if (dataType == typeof(IVectorData)) {
                 var ret = new VectorInfoConverter(_tensors.Value);
                 return (IConvertStructsToObjects<CT, T>)ret;
             }
 
-            if (dataType == typeof(IReadOnlyMatrix)) {
+            if (dataType == typeof(IMatrixData)) {
                 var ret = new MatrixInfoConverter(_tensors.Value);
                 return (IConvertStructsToObjects<CT, T>)ret;
             }
 
-            if (dataType == typeof(IReadOnlyTensor3D)) {
+            if (dataType == typeof(ITensor3DData)) {
                 var ret = new Tensor3DInfoConverter(_tensors.Value);
                 return (IConvertStructsToObjects<CT, T>)ret;
             }
 
-            if (dataType == typeof(IReadOnlyTensor4D)) {
+            if (dataType == typeof(ITensor4DData)) {
                 var ret = new Tensor4DInfoConverter(_tensors.Value);
                 return (IConvertStructsToObjects<CT, T>)ret;
             }

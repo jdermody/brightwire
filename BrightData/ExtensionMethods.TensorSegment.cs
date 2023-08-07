@@ -12,6 +12,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 
 namespace BrightData
 {
@@ -19,12 +20,12 @@ namespace BrightData
     {
         readonly struct ZipAction : IAction
         {
-            readonly ITensorSegment _segment;
-            readonly ITensorSegment _other;
+            readonly IReadOnlyTensorSegment _segment;
+            readonly IReadOnlyTensorSegment _other;
             readonly Func<float, float, float> _action;
             readonly float[] _ret;
 
-            public ZipAction(ITensorSegment segment, ITensorSegment other, Func<float, float, float> action, float[] ret)
+            public ZipAction(IReadOnlyTensorSegment segment, IReadOnlyTensorSegment other, Func<float, float, float> action, float[] ret)
             {
                 _segment = segment;
                 _other = other;
@@ -36,11 +37,11 @@ namespace BrightData
         }
         readonly struct TransformAction : IAction
         {
-            readonly ITensorSegment _segment;
+            readonly IReadOnlyTensorSegment _segment;
             readonly Func<float, float> _action;
             readonly float[] _ret;
 
-            public TransformAction(ITensorSegment segment, Func<float, float> action, float[] ret)
+            public TransformAction(IReadOnlyTensorSegment segment, Func<float, float> action, float[] ret)
             {
                 _segment = segment;
                 _action = action;
@@ -91,7 +92,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static WeightedIndexList ToSparse(this ITensorSegment segment)
+        public static WeightedIndexList ToSparse(this IReadOnlyTensorSegment segment)
         {
             return WeightedIndexList.Create(segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
@@ -108,7 +109,7 @@ namespace BrightData
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment ZipParallel(this ITensorSegment segment, ITensorSegment other, Func<float, float, float> func)
+        public static ITensorSegment ZipParallel(this IReadOnlyTensorSegment segment, IReadOnlyTensorSegment other, Func<float, float, float> func)
         {
             var size = segment.Size;
             if (size != other.Size)
@@ -137,8 +138,8 @@ namespace BrightData
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ITensorSegment ZipVectorized(
-            this ITensorSegment segment,
-            ITensorSegment other,
+            this IReadOnlyTensorSegment segment,
+            IReadOnlyTensorSegment other,
             ComputeVectorisedTwo<float> func1,
             Func<float, float, float> func2)
         {
@@ -178,7 +179,7 @@ namespace BrightData
         /// <param name="transformer">Value transformer</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment TransformParallel(this ITensorSegment segment, Func<float, float> transformer)
+        public static ITensorSegment TransformParallel(this IReadOnlyTensorSegment segment, Func<float, float> transformer)
         {
             var size = segment.Size;
             var ret = Allocate(size);
@@ -203,7 +204,7 @@ namespace BrightData
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ITensorSegment TransformVectorized(
-            this ITensorSegment segment,
+            this IReadOnlyTensorSegment segment,
             ComputeVectorisedOne<float> transformer1,
             Func<float, float> transformer2)
         {
@@ -238,7 +239,7 @@ namespace BrightData
         /// <param name="segment">This tensor</param>
         /// <param name="transformer">Indexed transformer</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformParallelIndexed(this ITensorSegment segment, Func<uint, float> transformer)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformParallelIndexed(this IReadOnlyTensorSegment segment, Func<uint, float> transformer)
         {
             var size = segment.Size;
             var ret = Allocate(size);
@@ -287,7 +288,7 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void MutateVectorized(
             this ITensorSegment segment,
-            ITensorSegment other,
+            IReadOnlyTensorSegment other,
             ComputeVectorisedTwo<float> func1,
             Func<float, float, float> func2)
         {
@@ -375,7 +376,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(this ITensorSegment segment)
+        public static float Sum(this IReadOnlyTensorSegment segment)
         {
             var size = segment.Size;
             if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
@@ -403,7 +404,7 @@ namespace BrightData
         /// <param name="tensor2">Other tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Add(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorized(
+        public static ITensorSegment Add(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b,
@@ -419,7 +420,7 @@ namespace BrightData
         /// <param name="coefficient2">Value to multiply each value in the other tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Add(this ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorized(
+        public static ITensorSegment Add(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 + b * coefficient2,
@@ -433,7 +434,7 @@ namespace BrightData
         /// <param name="scalar">Scalar to add to each value</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Add(this ITensorSegment tensor, float scalar)
+        public static ITensorSegment Add(this IReadOnlyTensorSegment tensor, float scalar)
         {
             var scalarVector = new Vector<float>(scalar);
             return TransformVectorized(
@@ -449,7 +450,7 @@ namespace BrightData
         /// <param name="target">This tensor</param>
         /// <param name="other">Other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorized(
+        public static void AddInPlace(this ITensorSegment target, IReadOnlyTensorSegment other) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b,
@@ -464,7 +465,7 @@ namespace BrightData
         /// <param name="coefficient1">Value to multiply each value in this tensor</param>
         /// <param name="coefficient2">Value to multiply each value in the other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddInPlace(this ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => MutateVectorized(
+        public static void AddInPlace(this ITensorSegment target, IReadOnlyTensorSegment other, float coefficient1, float coefficient2) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = (a * coefficient1) + (b * coefficient2),
@@ -510,7 +511,7 @@ namespace BrightData
         /// <param name="scalar">Scalar to multiply</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Multiply(this ITensorSegment target, float scalar)
+        public static ITensorSegment Multiply(this IReadOnlyTensorSegment target, float scalar)
         {
             var scalarVector = new Vector<float>(scalar);
             return TransformVectorized(
@@ -527,7 +528,7 @@ namespace BrightData
         /// <param name="tensor2">Other tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Subtract(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorized(
+        public static ITensorSegment Subtract(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b,
@@ -543,7 +544,7 @@ namespace BrightData
         /// <param name="coefficient2">Value to multiply each value in the other tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Subtract(this ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorized(
+        public static ITensorSegment Subtract(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2, float coefficient1, float coefficient2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2,
@@ -556,7 +557,7 @@ namespace BrightData
         /// <param name="target">This tensor</param>
         /// <param name="other">Other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SubtractInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorized(
+        public static void SubtractInPlace(this ITensorSegment target, IReadOnlyTensorSegment other) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a - b,
@@ -571,7 +572,7 @@ namespace BrightData
         /// <param name="coefficient1">Value to multiply each value in this tensor</param>
         /// <param name="coefficient2">Value to multiply each value in the other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SubtractInPlace(this ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => MutateVectorized(
+        public static void SubtractInPlace(this ITensorSegment target, IReadOnlyTensorSegment other, float coefficient1, float coefficient2) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * coefficient1 - b * coefficient2,
@@ -584,7 +585,7 @@ namespace BrightData
         /// <param name="tensor1">This tensor</param>
         /// <param name="tensor2">Other tensor</param>
         /// <returns></returns>
-        public static ITensorSegment PointwiseMultiply(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorized(
+        public static ITensorSegment PointwiseMultiply(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b,
@@ -597,7 +598,7 @@ namespace BrightData
         /// <param name="target">This tensor</param>
         /// <param name="other">Other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PointwiseMultiplyInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorized(
+        public static void PointwiseMultiplyInPlace(this ITensorSegment target, IReadOnlyTensorSegment other) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a * b,
@@ -611,7 +612,7 @@ namespace BrightData
         /// <param name="tensor2">Other tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment PointwiseDivide(this ITensorSegment tensor1, ITensorSegment tensor2) => ZipVectorized(
+        public static ITensorSegment PointwiseDivide(this IReadOnlyTensorSegment tensor1, IReadOnlyTensorSegment tensor2) => ZipVectorized(
             tensor1,
             tensor2,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b,
@@ -624,7 +625,7 @@ namespace BrightData
         /// <param name="target">This tensor</param>
         /// <param name="other">Other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PointwiseDivideInPlace(this ITensorSegment target, ITensorSegment other) => MutateVectorized(
+        public static void PointwiseDivideInPlace(this ITensorSegment target, IReadOnlyTensorSegment other) => MutateVectorized(
             target,
             other,
             (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a / b,
@@ -639,7 +640,7 @@ namespace BrightData
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float DotProduct(this ITensorSegment segment, ITensorSegment other)
+        public static float DotProduct(this IReadOnlyTensorSegment segment, IReadOnlyTensorSegment other)
         {
             var size = segment.Size;
             if (size != other.Size)
@@ -672,7 +673,7 @@ namespace BrightData
         /// <param name="adjustment">A small value to add to each value in case of zeros</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Sqrt(this ITensorSegment tensor, float adjustment = FloatMath.AlmostZero)
+        public static ITensorSegment Sqrt(this IReadOnlyTensorSegment tensor, float adjustment = FloatMath.AlmostZero)
         {
             Vector<float> adjustmentVector = new(adjustment);
             return TransformVectorized(tensor,
@@ -688,7 +689,7 @@ namespace BrightData
         /// <param name="value">Value to find</param>
         /// <param name="tolerance">Degree of tolerance</param>
         /// <returns></returns>
-        public static uint? Search(this ITensorSegment segment, float value, float tolerance = FloatMath.AlmostZero)
+        public static uint? Search(this IReadOnlyTensorSegment segment, float value, float tolerance = FloatMath.AlmostZero)
         {
             uint? ret = null;
             Analyze(segment, (v, index) => {
@@ -720,14 +721,14 @@ namespace BrightData
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static float Average(this ITensorSegment segment) => Sum(segment) / segment.Size;
+        public static float Average(this IReadOnlyTensorSegment segment) => Sum(segment) / segment.Size;
 
         /// <summary>
         /// Calculates the L1 norm of this tensor segment
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static float L1Norm(this ITensorSegment segment)
+        public static float L1Norm(this IReadOnlyTensorSegment segment)
         {
             var abs = Abs(segment);
             try {
@@ -743,7 +744,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static float L2Norm(this ITensorSegment segment)
+        public static float L2Norm(this IReadOnlyTensorSegment segment)
         {
             var squared = Squared(segment);
             try {
@@ -759,7 +760,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this ITensorSegment segment)
+        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this IReadOnlyTensorSegment segment)
         {
             var min = float.MaxValue;
             var max = float.MinValue;
@@ -790,14 +791,14 @@ namespace BrightData
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEntirelyFinite(this ITensorSegment segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
+        public static bool IsEntirelyFinite(this IReadOnlyTensorSegment segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 
         /// <summary>
         /// Creates a new tensor segment that is the reverse of this tensor segment
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static ITensorSegment Reverse(this ITensorSegment segment)
+        public static ITensorSegment Reverse(this IReadOnlyTensorSegment segment)
         {
             var len = segment.Size - 1;
             return TransformParallelIndexed(segment, i => segment[len - i]);
@@ -809,10 +810,10 @@ namespace BrightData
         /// <param name="segment">This tensor</param>
         /// <param name="blockCount">Number of blocks</param>
         /// <returns></returns>
-        public static IEnumerable<ITensorSegment> Split(this ITensorSegment segment, uint blockCount)
+        public static IEnumerable<IReadOnlyTensorSegment> Split(this IReadOnlyTensorSegment segment, uint blockCount)
         {
             for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
-                yield return new TensorSegmentWrapper(segment, i, 1, blockSize);
+                yield return new ReadOnlyTensorSegmentWrapper(segment, i, 1, blockSize);
         }
 
         /// <summary>
@@ -821,7 +822,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static float CosineDistance(this ITensorSegment tensor, ITensorSegment other)
+        public static float CosineDistance(this IReadOnlyTensorSegment tensor, IReadOnlyTensorSegment other)
         {
             var ab = DotProduct(tensor, other);
             var aa = DotProduct(tensor, tensor);
@@ -835,7 +836,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static float EuclideanDistance(this ITensorSegment tensor, ITensorSegment other)
+        public static float EuclideanDistance(this IReadOnlyTensorSegment tensor, IReadOnlyTensorSegment other)
         {
             var distance = Subtract(tensor, other);
             try {
@@ -858,7 +859,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static float MeanSquaredDistance(this ITensorSegment tensor, ITensorSegment other)
+        public static float MeanSquaredDistance(this IReadOnlyTensorSegment tensor, IReadOnlyTensorSegment other)
         {
             var diff = Subtract(tensor, other);
             try {
@@ -876,7 +877,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static float SquaredEuclideanDistance(this ITensorSegment tensor, ITensorSegment other)
+        public static float SquaredEuclideanDistance(this IReadOnlyTensorSegment tensor, IReadOnlyTensorSegment other)
         {
             var diff = Subtract(tensor, other);
             try {
@@ -894,7 +895,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static float ManhattanDistance(this ITensorSegment tensor, ITensorSegment other)
+        public static float ManhattanDistance(this IReadOnlyTensorSegment tensor, IReadOnlyTensorSegment other)
         {
             var distance = Subtract(tensor, other);
             try {
@@ -917,7 +918,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Abs(this ITensorSegment tensor) => TransformVectorized(tensor,
+        public static ITensorSegment Abs(this IReadOnlyTensorSegment tensor) => TransformVectorized(tensor,
             (in Vector<float> a, out Vector<float> r) => r = Vector.Abs(a),
             MathF.Abs
         );
@@ -928,7 +929,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Log(this ITensorSegment tensor) => TransformParallel(tensor, MathF.Log);
+        public static ITensorSegment Log(this IReadOnlyTensorSegment tensor) => TransformParallel(tensor, MathF.Log);
 
         /// <summary>
         /// Creates a new tensor segment that contains the exponent of each value in this tensor segment
@@ -936,7 +937,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Exp(this ITensorSegment tensor) => TransformParallel(tensor, MathF.Exp);
+        public static ITensorSegment Exp(this IReadOnlyTensorSegment tensor) => TransformParallel(tensor, MathF.Exp);
 
         /// <summary>
         /// Creates a new tensor segment that contains each value raised by the specified power in this tensor segment
@@ -945,7 +946,7 @@ namespace BrightData
         /// <param name="power">Specified power</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Pow(this ITensorSegment segment, float power) => TransformParallel(segment, v => FloatMath.Pow(v, power));
+        public static ITensorSegment Pow(this IReadOnlyTensorSegment segment, float power) => TransformParallel(segment, v => FloatMath.Pow(v, power));
 
         /// <summary>
         /// Creates a new tensor segment that contains each value squared in this tensor segment
@@ -953,7 +954,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Squared(this ITensorSegment tensor) => TransformVectorized(
+        public static ITensorSegment Squared(this IReadOnlyTensorSegment tensor) => TransformVectorized(
             tensor,
             (in Vector<float> a, out Vector<float> r) => r = a * a,
             a => a * a
@@ -966,7 +967,7 @@ namespace BrightData
         /// <param name="mean">Mean of the tensor segment (optional)</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float StdDev(this ITensorSegment segment, float? mean)
+        public static float StdDev(this IReadOnlyTensorSegment segment, float? mean)
         {
             var avg = mean ?? Average(segment);
             var avgVector = new Vector<float>(avg);
@@ -1022,7 +1023,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment  Sigmoid(this ITensorSegment segment) => TransformParallel(segment, Sigmoid);
+        public static ITensorSegment Sigmoid(this IReadOnlyTensorSegment segment) => TransformParallel(segment, Sigmoid);
 
         /// <summary>
         /// Creates a new tensor segment with sigmoid derivative applied to each value in this tensor segment
@@ -1030,7 +1031,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment SigmoidDerivative(this ITensorSegment segment) => TransformParallel(segment, SigmoidDerivative);
+        public static ITensorSegment SigmoidDerivative(this IReadOnlyTensorSegment segment) => TransformParallel(segment, SigmoidDerivative);
 
         /// <summary>
         /// Creates a new tensor segment with tanh function applied to each value in this tensor segment
@@ -1038,7 +1039,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Tanh(this ITensorSegment segment) => TransformParallel(segment, Tanh);
+        public static ITensorSegment Tanh(this IReadOnlyTensorSegment segment) => TransformParallel(segment, Tanh);
 
         /// <summary>
         /// Creates a new tensor segment with tanh derivative applied to each value in this tensor segment
@@ -1046,7 +1047,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment TanhDerivative(this ITensorSegment segment) => TransformParallel(segment, TanhDerivative);
+        public static ITensorSegment TanhDerivative(this IReadOnlyTensorSegment segment) => TransformParallel(segment, TanhDerivative);
 
         /// <summary>
         /// Creates a new tensor segment with RELU function applied to each value in this tensor segment
@@ -1054,7 +1055,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Relu(this ITensorSegment segment) => TransformParallel(segment, Relu);
+        public static ITensorSegment Relu(this IReadOnlyTensorSegment segment) => TransformParallel(segment, Relu);
 
         /// <summary>
         /// Creates a new tensor segment with RELU derivative applied to each value in this tensor segment
@@ -1062,7 +1063,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment ReluDerivative(this ITensorSegment segment) => TransformParallel(segment, ReluDerivative);
+        public static ITensorSegment ReluDerivative(this IReadOnlyTensorSegment segment) => TransformParallel(segment, ReluDerivative);
 
         /// <summary>
         /// Creates a new tensor segment with Leaky RELU function applied to each value in this tensor segment
@@ -1070,7 +1071,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment LeakyRelu(this ITensorSegment segment) => TransformParallel(segment, LeakyRelu);
+        public static ITensorSegment LeakyRelu(this IReadOnlyTensorSegment segment) => TransformParallel(segment, LeakyRelu);
 
         /// <summary>
         /// Creates a new tensor segment with Leaky RELU derivative applied to each value in this tensor segment
@@ -1078,7 +1079,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment LeakyReluDerivative(this ITensorSegment segment) => TransformParallel(segment, LeakyReluDerivative);
+        public static ITensorSegment LeakyReluDerivative(this IReadOnlyTensorSegment segment) => TransformParallel(segment, LeakyReluDerivative);
 
         /// <summary>
         /// Creates a new tensor segment with softmax function applied to each value in this tensor segment
@@ -1086,7 +1087,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Softmax(this ITensorSegment segment)
+        public static ITensorSegment Softmax(this IReadOnlyTensorSegment segment)
         {
             var (_, max, _, _) = GetMinAndMaxValues(segment);
             var softmax = segment.TransformParallel(v => MathF.Exp(v - max));
@@ -1103,7 +1104,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IReadOnlyMatrix SoftmaxDerivative(this ITensorSegment segment, BrightDataContext context)
+        public static IReadOnlyMatrix SoftmaxDerivative(this IReadOnlyTensorSegment segment, BrightDataContext context)
         {
             return context.CreateReadOnlyMatrix(segment.Size, segment.Size, (x, y) => {
                 var xVal = segment[x];
@@ -1120,7 +1121,7 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMatrix SoftmaxDerivative(this ITensorSegment segment, LinearAlgebraProvider lap)
+        public static IMatrix SoftmaxDerivative(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap)
         {
             return lap.CreateMatrix(segment.Size, segment.Size, (x, y) => {
                 var xVal = segment[x];
@@ -1136,7 +1137,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="indices">Indices to copy to new tensor segment</param>
         /// <returns></returns>
-        public static ITensorSegment CherryPickIndices(this ITensorSegment segment, params uint[] indices)
+        public static ITensorSegment CherryPickIndices(this IReadOnlyTensorSegment segment, params uint[] indices)
         {
             var ret = MemoryOwner<float>.Allocate(indices.Length);
             var ptr = ret.Span;
@@ -1162,7 +1163,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
-        public static void Analyze(this ITensorSegment segment, Action<float /* value */, uint /* index */> analyser)
+        public static void Analyze(this IReadOnlyTensorSegment segment, Action<float /* value */, uint /* index */> analyser)
         {
             var size = segment.Size;
             if (size >= Consts.MinimumSizeForParallel)
@@ -1241,7 +1242,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this ITensorSegment segment) => new ReadOnlyVector(segment);
+        public static IReadOnlyVector ToReadOnlyVector(this IReadOnlyTensorSegment segment) => new ReadOnlyVectorWrapper(segment);
 
         /// <summary>
         /// Creates a vector from a tensor segment
@@ -1249,7 +1250,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        public static IVector ToVector(this ITensorSegment segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
+        public static IVector ToVector(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
 
         /// <summary>
         /// Creates a matrix from a tensor segment
@@ -1259,7 +1260,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in matrix</param>
         /// <param name="columns">Number of columns in matrix</param>
         /// <returns></returns>
-        public static IMatrix ToMatrix(this ITensorSegment segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
+        public static IMatrix ToMatrix(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
 
         /// <summary>
         /// Creates a 3D tensor from a tensor segment
@@ -1270,7 +1271,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor3D ToTensor3D(this ITensorSegment segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
+        public static ITensor3D ToTensor3D(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
 
         /// <summary>
         /// Creates a 4D tensor from a tensor segment
@@ -1282,7 +1283,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor4D ToTensor4D(this ITensorSegment segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
+        public static ITensor4D ToTensor4D(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
         /// <summary>
         /// Applies a mapping function to each value in the segment, potentially in parallel
@@ -1290,7 +1291,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper"></param>
         /// <returns></returns>
-        public static MemoryOwner<float> MapParallel(this ITensorSegment segment, Func<float /* value */, float /* new value */> mapper)
+        public static MemoryOwner<float> MapParallel(this IReadOnlyTensorSegment segment, Func<float /* value */, float /* new value */> mapper)
         {
             var segmentTemp = SpanOwner<float>.Empty;
             var span = segment.GetSpan(ref segmentTemp, out var wasTempUsed);
@@ -1329,7 +1330,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
         /// <returns></returns>
-        public static MemoryOwner<float> MapParallel(this ITensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
+        public static MemoryOwner<float> MapParallel(this IReadOnlyTensorSegment segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
         {
             var segmentTemp = SpanOwner<float>.Empty;
             var span = segment.GetSpan(ref segmentTemp, out var wasTempUsed);

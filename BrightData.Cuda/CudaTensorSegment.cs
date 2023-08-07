@@ -19,7 +19,7 @@ namespace BrightData.Cuda
             Release();
         }
 
-        public static bool IsCuda(ITensorSegment segment, [NotNullWhen(true)]out CudaTensorSegment? cudaSegment)
+        public static bool IsCuda(IReadOnlyTensorSegment segment, [NotNullWhen(true)]out CudaTensorSegment? cudaSegment)
         {
             if (segment.SegmentType == CudaSegmentType) {
                 cudaSegment = (CudaTensorSegment)segment;

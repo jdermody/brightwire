@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
@@ -83,30 +84,15 @@ namespace BrightData.Helper
         }
 
         public static bool AreApproximatelyEqual<T>(T t1, T t2, int maxDifference = 6)
-            where T: IHaveSize, IHaveSpanOfFloats
+            where T: IReadOnlyTensorSegment
         {
             var len = t1.Size;
             if (len != t2.Size)
                 return false;
 
-            SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
-            var p1 = t1.GetFloatSpan(ref temp1, out var wasTemp1Used);
-            var p2 = t2.GetFloatSpan(ref temp2, out var wasTemp2Used);
-
-            try {
-                for (var i = 0; i < len; i++) {
-                    if (!AreApproximatelyEqual(p1[i], p2[i], maxDifference))
-                        return false;
-                }
-
-                return true;
-            }
-            finally {
-                if(wasTemp1Used)
-                    temp1.Dispose();
-                if(wasTemp2Used)
-                    temp2.Dispose();
-            }
+            if (t1.Values.Zip(t2.Values).Any(x => !AreApproximatelyEqual(x.First, x.Second, maxDifference)))
+                return false;
+            return true;
         }
 
         public static bool AreApproximatelyEqual(float[] t1, float[] t2, int maxDifference = 6)
@@ -136,6 +122,8 @@ namespace BrightData.Helper
 
             return true;
         }
+
+        public static bool AreApproximatelyEqual(IHaveReadOnlyTensorSegment t1, IHaveReadOnlyTensorSegment t2, int maxDifference = 6) => AreApproximatelyEqual(t1.ReadOnlySegment, t2.ReadOnlySegment, maxDifference);
 #pragma warning restore 1591
     }
 }

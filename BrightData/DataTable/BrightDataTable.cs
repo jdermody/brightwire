@@ -127,6 +127,7 @@ namespace BrightData.DataTable
             unsafe ICanRandomlyAccessUnmanagedData<T> GetBlockAccessor<T>(uint offset, uint count) where T: unmanaged => count == 0 
                 ? new EmptyBlock<T>() 
                 : _buffer.GetBlock<T>(offset, count * sizeof(T));
+
             _stringTable     = new(() => ReadStringArray(_header.StringOffset));
             _binaryData      = new(() => GetBlockAccessor<byte>(_header.BinaryDataOffset, _header.BinaryDataCount));
             _tensors         = new(() => GetBlockAccessor<float>(_header.TensorOffset, _header.TensorCount));

@@ -630,9 +630,9 @@ namespace BrightData
         /// </summary>
         /// <param name="source">Copy from</param>
         /// <param name="target">Copy to</param>
-        public static void CopyTo(this IHaveTensorSegment source, IHaveTensorSegment target)
+        public static void CopyTo(this IHaveReadOnlyTensorSegment source, IHaveTensorSegment target)
         {
-            source.Segment.CopyTo(target.Segment);
+            source.ReadOnlySegment.CopyTo(target.Segment);
         }
 
         /// <summary>

@@ -97,7 +97,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             IMatrix? decoderHiddenState = null;
             if (_decoderSize > 0) {
                 if (currentIndex == 0) {
-                    if ((FindByName(_decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
+                    if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
                         decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
                 }
                 else {

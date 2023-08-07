@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
                 var rowList = new IVector[matrix.RowCount];
                 for(uint i = 0; i < matrix.RowCount; i++) {
-                    using var rowMatrix = matrix.GetRow(i).Segment.ToMatrix(lap, _tensor.RowCount, _tensor.ColumnCount);
+                    using var rowMatrix = matrix.GetRowAsReadOnly(i).ReadOnlySegment.ToMatrix(lap, _tensor.RowCount, _tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
                     var tensor = lap.CreateTensor3D(matrixList);
                     rowList[i] = tensor.Reshape();

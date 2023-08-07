@@ -80,14 +80,19 @@ namespace BrightData.UnitTests
             fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<WeightedIndexList>());
         }
 
+        void CheckSame(IHaveReadOnlyTensorSegment tensorSegment1, IHaveReadOnlyTensorSegment tensorSegment2)
+        {
+            tensorSegment1.ReadOnlySegment.Values.Should().BeEquivalentTo(tensorSegment2.ReadOnlySegment.Values);
+        }
+
         [Fact]
         public void InMemoryVector()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var vectorBuilder = builder.AddColumn<IReadOnlyVector>("vector");
-            using var firstVector = _context.LinearAlgebraProvider.CreateVector(5, i => i + 1);
+            var vectorBuilder = builder.AddColumn<IVectorData>("vector");
+            var firstVector = _context.CreateReadOnlyVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
-            using var secondVector = _context.LinearAlgebraProvider.CreateVector(5, i => i + 2);
+            var secondVector = _context.CreateReadOnlyVector(5, i => i + 2);
             vectorBuilder.Add(secondVector);
 
             using var stream = new MemoryStream();
@@ -96,17 +101,17 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             using var fromTable = dataTable.Get<IReadOnlyVector>(0, 0).Create(_context.LinearAlgebraProvider);
-            fromTable.Should().BeEquivalentTo(firstVector);
+            CheckSame(fromTable, firstVector);
             using var fromTable2 = dataTable.Get<IReadOnlyVector>(1, 0).Create(_context.LinearAlgebraProvider);
-            fromTable2.Should().BeEquivalentTo(secondVector);
+            CheckSame(fromTable2, secondVector);
         }
 
         [Fact]
         public void InMemoryMatrix()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var matrixBuilder = builder.AddColumn<IReadOnlyMatrix>("matrix");
-            using var firstMatrix = _context.LinearAlgebraProvider.CreateMatrix(5, 5, (i, j) => i + j);
+            var matrixBuilder = builder.AddColumn<IMatrixData>("matrix");
+            var firstMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
             var secondMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => (i + j) + 1);
             matrixBuilder.Add(secondMatrix);
@@ -117,13 +122,13 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             var column = dataTable.GetColumn(0);
-            var columnItems = column.AsDataTableSegment<IReadOnlyMatrix>().Values.ToList();
+            var columnItems = column.AsDataTableSegment<IMatrixData>().Values.ToList();
             columnItems.Last().Should().BeEquivalentTo(secondMatrix);
 
             using var fromTable = dataTable.Get<IReadOnlyMatrix>(0, 0).Create(_context.LinearAlgebraProvider);
-            fromTable.Should().BeEquivalentTo(firstMatrix);
+            CheckSame(fromTable, firstMatrix);
             var fromTable2 = dataTable.Get<IReadOnlyMatrix>(1, 0);
-            fromTable2.Should().BeEquivalentTo(secondMatrix);
+            CheckSame(fromTable2, secondMatrix);
 
             dataTable.GetRow(1)[0].Should().BeEquivalentTo(secondMatrix);
         }
@@ -132,11 +137,10 @@ namespace BrightData.UnitTests
         public void InMemoryTensor3D()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var tensorBuilder = builder.AddColumn<IReadOnlyTensor3D>("tensor");
-            var lap = _context.LinearAlgebraProvider;
-            using var firstTensor = lap.CreateTensor3DAndThenDisposeInput(
-                lap.CreateMatrix(5, 5, (i, j) => i + j),
-                lap.CreateMatrix(5, 5, (i, j) => i + j)
+            var tensorBuilder = builder.AddColumn<ITensor3DData>("tensor");
+            var firstTensor = _context.CreateReadOnlyTensor3D(
+                _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
+                _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
             );
             tensorBuilder.Add(firstTensor);
 
@@ -146,24 +150,22 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             using var fromTable = dataTable.Get<IReadOnlyTensor3D>(0, 0).Create(_context.LinearAlgebraProvider);
-            fromTable.Should().BeEquivalentTo(firstTensor);
-            fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
+            CheckSame(fromTable, firstTensor);
         }
 
         [Fact]
         public void InMemoryTensor4D()
         {
             using var builder = new BrightDataTableBuilder(_context);
-            var tensorBuilder = builder.AddColumn<IReadOnlyTensor4D>("tensor");
-            var lap = _context.LinearAlgebraProvider;
-            using var firstTensor = lap.CreateTensor4DAndThenDisposeInput(
-                lap.CreateTensor3DAndThenDisposeInput(
-                    lap.CreateMatrix(5, 5, (i, j) => i + j),
-                    lap.CreateMatrix(5, 5, (i, j) => i + j)
+            var tensorBuilder = builder.AddColumn<ITensor4DData>("tensor");
+            var firstTensor = _context.CreateReadOnlyTensor4D(
+                _context.CreateReadOnlyTensor3D(
+                    _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
+                    _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
                 ),
-                lap.CreateTensor3DAndThenDisposeInput(
-                    lap.CreateMatrix(5, 5, (i, j) => i + j),
-                    lap.CreateMatrix(5, 5, (i, j) => i + j)
+                _context.CreateReadOnlyTensor3D(
+                    _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
+                    _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
                 )
             );
             tensorBuilder.Add(firstTensor);
@@ -174,8 +176,7 @@ namespace BrightData.UnitTests
             var dataTable = new BrightDataTable(_context, stream);
 
             using var fromTable = dataTable.Get<IReadOnlyTensor4D>(0, 0).Create(_context.LinearAlgebraProvider);
-            fromTable.Should().BeEquivalentTo(firstTensor);
-            fromTable.Segment.Should().BeEquivalentTo(firstTensor.Segment);
+            CheckSame(fromTable, firstTensor);
         }
     }
 }

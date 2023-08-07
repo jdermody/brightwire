@@ -91,13 +91,13 @@ namespace BrightData.DataTable
                 else if (dataType == BrightDataType.String)
                     WriteStringData((ICanEnumerateWithSize<string>)columnSegment, stringTableWriter.Value);
                 else if (dataType == BrightDataType.Vector)
-                    WriteVectors((ICanEnumerateWithSize<IReadOnlyVector>)columnSegment, tensorWriter.Value);
+                    WriteVectors((ICanEnumerateWithSize<IVectorData>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Matrix)
-                    WriteMatrices((ICanEnumerateWithSize<IReadOnlyMatrix>)columnSegment, tensorWriter.Value);
+                    WriteMatrices((ICanEnumerateWithSize<IMatrixData>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Tensor3D)
-                    WriteTensors((ICanEnumerateWithSize<IReadOnlyTensor3D>)columnSegment, tensorWriter.Value);
+                    WriteTensors((ICanEnumerateWithSize<ITensor3DData>)columnSegment, tensorWriter.Value);
                 else if (dataType == BrightDataType.Tensor4D)
-                    WriteTensors((ICanEnumerateWithSize<IReadOnlyTensor4D>)columnSegment, tensorWriter.Value);
+                    WriteTensors((ICanEnumerateWithSize<ITensor4DData>)columnSegment, tensorWriter.Value);
                 else
                     _writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment });
             }
@@ -210,9 +210,9 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteVectors(ICanEnumerateWithSize<IReadOnlyVector> buffer, ICompositeBuffer<float> floats)
+        void WriteVectors(ICanEnumerateWithSize<IVectorData> buffer, ICompositeBuffer<float> floats)
         {
-            Write<IReadOnlyVector, DataRangeColumnType>(buffer, (item, ptr, index) => {
+            Write<IVectorData, DataRangeColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Size;
@@ -224,9 +224,9 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteMatrices(ICanEnumerateWithSize<IReadOnlyMatrix> buffer, ICompositeBuffer<float> floats)
+        void WriteMatrices(ICanEnumerateWithSize<IMatrixData> buffer, ICompositeBuffer<float> floats)
         {
-            Write<IReadOnlyMatrix, MatrixColumnType>(buffer, (item, ptr, index) => {
+            Write<IMatrixData, MatrixColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.RowCount = item.RowCount;
@@ -239,9 +239,9 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<ITensor3DData> buffer, ICompositeBuffer<float> floats)
         {
-            Write<IReadOnlyTensor3D, Tensor3DColumnType>(buffer, (item, ptr, index) => {
+            Write<ITensor3DData, Tensor3DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Depth = item.Depth;
@@ -255,9 +255,9 @@ namespace BrightData.DataTable
             });
         }
 
-        void WriteTensors(ICanEnumerateWithSize<IReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats)
+        void WriteTensors(ICanEnumerateWithSize<ITensor4DData> buffer, ICompositeBuffer<float> floats)
         {
-            Write<IReadOnlyTensor4D, Tensor4DColumnType>(buffer, (item, ptr, index) => {
+            Write<ITensor4DData, Tensor4DColumnType>(buffer, (item, ptr, index) => {
                 ref var data = ref ptr[index];
                 data.StartIndex = floats.Size;
                 data.Count = item.Count;

@@ -257,7 +257,7 @@ namespace ExampleCode.DataTableTrainers
                     }
 
                     foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output[0]))) {
-                        using var softmax = result.Segment.Softmax();
+                        using var softmax = result.ReadOnlySegment.Softmax();
                         var label = softmax.GetMinAndMaxValues().MaxIndex == 0 ? "positive" : "negative";
                         Console.WriteLine($"{token}: {label}");
                     }

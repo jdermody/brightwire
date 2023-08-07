@@ -25,7 +25,7 @@ namespace BrightWire.UnitTests
 
             public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
             {
-                return output.Segment.GetMinAndMaxValues().MaxIndex == targetOutput.Segment.GetMinAndMaxValues().MaxIndex ? 1 : 0;
+                return output.ReadOnlySegment.GetMinAndMaxValues().MaxIndex == targetOutput.ReadOnlySegment.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;

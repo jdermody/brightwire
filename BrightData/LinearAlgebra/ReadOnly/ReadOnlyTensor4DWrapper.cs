@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra.ReadOnly
@@ -11,13 +12,13 @@ namespace BrightData.LinearAlgebra.ReadOnly
     {
         ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4DWrapper>? _valueSemantics;
 
-        public ReadOnlyTensor4DWrapper(ITensorSegment segment, uint count, uint depth, uint rowCount, uint columnCount)
+        public ReadOnlyTensor4DWrapper(IReadOnlyTensorSegment segment, uint count, uint depth, uint rowCount, uint columnCount)
         {
             Count = count;
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
-            Segment = segment;
+            ReadOnlySegment = segment;
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -28,7 +29,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(Depth);
             writer.Write(Count);
             var temp = SpanOwner<float>.Empty;
-            Segment.GetSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -43,33 +44,33 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
-        public ReadOnlySpan<float> FloatSpan => Segment.GetSpan();
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => TensorSize * Count;
-        public ITensorSegment Segment { get; }
+        public IReadOnlyTensorSegment ReadOnlySegment { get; }
         public uint Count { get; }
         public uint Depth { get; }
         public uint RowCount { get; }
         public uint ColumnCount { get; }
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
+        public bool IsReadOnly => true;
 
-        public float this[int count, int depth, int rowY, int columnX] => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
-        public float this[uint count, uint depth, uint rowY, uint columnX] => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+        public float this[int count, int depth, int rowY, int columnX] => ReadOnlySegment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
+        public float this[uint count, uint depth, uint rowY, uint columnX] => ReadOnlySegment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
 
         public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(this);
-
-        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index)
+        public IReadOnlyTensor3D GetTensor3D(uint index)
         {
-            var segment = new TensorSegmentWrapper(Segment, index * TensorSize, 1, TensorSize);
+            var segment = new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index * TensorSize, 1, TensorSize);
             return new ReadOnlyTensor3DWrapper(segment, Depth, RowCount, ColumnCount);
         }
         public IReadOnlyTensor3D[] AllTensors()
         {
             var ret = new IReadOnlyTensor3D[Depth];
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetReadOnlyTensor3D(i);
+                ret[i] = GetTensor3D(i);
             return ret;
         }
 
@@ -81,7 +82,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public override string ToString()
         {
-            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => Segment[x]));
+            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => ReadOnlySegment[x]));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Read Only Tensor 4D Wrapper (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount}) {preview}";

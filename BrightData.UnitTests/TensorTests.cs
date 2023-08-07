@@ -640,17 +640,17 @@ namespace BrightData.UnitTests
         {
             var data = CheckCreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             using var tensor = _cpu.CreateTensor3D(data);
-            using var vector = _cpu.CreateVector(data.Segment);
+            using var vector = _cpu.CreateVector(data.ReadOnlySegment);
             using var tensor2 = vector.Reshape(4, 3, 2);
             FloatMath.AreApproximatelyEqual(tensor, tensor2);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
-            using var gpuVector = _cuda.CreateVector(data.Segment);
+            using var gpuVector = _cuda.CreateVector(data.ReadOnlySegment);
             using var gpuTensor2 = gpuVector.Reshape(4, 3, 2);
             FloatMath.AreApproximatelyEqual(gpuTensor, gpuTensor2);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
-            using var mklVector = _mkl.CreateVector(data.Segment);
+            using var mklVector = _mkl.CreateVector(data.ReadOnlySegment);
             using var mklTensor2 = mklVector.Reshape(4, 3, 2);
             FloatMath.AreApproximatelyEqual(mklTensor, mklTensor2);
         }
@@ -781,7 +781,7 @@ namespace BrightData.UnitTests
         {
             var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             using var cpuTensor = _cpu.CreateTensor3D(tensor);
-            FloatMath.AreApproximatelyEqual(cpuTensor, tensor);
+            FloatMath.AreApproximatelyEqual(cpuTensor.Segment, tensor.ReadOnlySegment);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);

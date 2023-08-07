@@ -20,10 +20,10 @@ namespace BrightWire.Models
         {
             _miniBatch = miniBatch;
 
-            Output = output.AllRows(true);
-            Target = _miniBatch.Target?.GetMatrix().AllRows(true);
+            Output = output.AllRowsAsReadOnly(true);
+            Target = _miniBatch.Target?.GetMatrix().AllRowsAsReadOnly(true);
 			if(wantInputInExecutionResults)
-                Input = _miniBatch.Input?.GetMatrix().AllRows(true);
+                Input = _miniBatch.Input?.GetMatrix().AllRowsAsReadOnly(true);
         }
 
         /// <summary>

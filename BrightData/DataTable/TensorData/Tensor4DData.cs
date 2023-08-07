@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -12,7 +14,7 @@ namespace BrightData.DataTable.TensorData
     {
         readonly ReadOnlyTensor4DValueSemantics<Tensor4DData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        ITensorSegment? _segment;
+        IReadOnlyTensorSegment? _segment;
         uint _startIndex;
 
         public Tensor4DData(ICanRandomlyAccessUnmanagedData<float> data, uint count, uint depth, uint rowCount, uint columnCount, uint startIndex)
@@ -32,6 +34,7 @@ namespace BrightData.DataTable.TensorData
         public uint ColumnCount { get; private set; }
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
+        public bool IsReadOnly => true;
 
         public float this[int count, int depth, int rowY, int columnX]
         {
@@ -90,14 +93,14 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size => Count * Depth * ColumnCount * RowCount;
-        public ITensorSegment Segment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
-        public IReadOnlyTensor3D GetReadOnlyTensor3D(uint index) => new Tensor3DData(_data, Depth, RowCount, ColumnCount, index * TensorSize);
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyTensor3D GetTensor3D(uint index) => new Tensor3DData(_data, Depth, RowCount, ColumnCount, index * TensorSize);
 
         public IReadOnlyTensor3D[] AllTensors()
         {
             var ret = new IReadOnlyTensor3D[Count];
             for (uint i = 0; i < Count; i++)
-                ret[i] = GetReadOnlyTensor3D(i);
+                ret[i] = GetTensor3D(i);
             return ret;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 
 namespace BrightData.LinearAlgebra
 {
@@ -8,7 +9,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D
+    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D, IReadOnlyTensor3D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -37,10 +38,10 @@ namespace BrightData.LinearAlgebra
         public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
-        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
+        public ITensor3D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
 
         /// <inheritdoc />
-        public IReadOnlyMatrix GetReadOnlyMatrix(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
+        public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
         TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
@@ -51,6 +52,9 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public uint ColumnCount { get; private set; }
+
+        /// <inheritdoc cref="ITensor3D" />
+        public bool IsReadOnly => false;
 
         /// <inheritdoc />
         public uint MatrixSize { get; private set; }
@@ -96,6 +100,9 @@ namespace BrightData.LinearAlgebra
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
+        IReadOnlyMatrix IReadOnlyTensor3D.GetMatrix(uint index) => GetMatrixAsReadOnly(index);
+        IReadOnlyMatrix[] IReadOnlyTensor3D.AllMatrices() => AllMatricesAsReadOnly();
+
         /// <summary>
         /// Returns a value from the tensor
         /// </summary>
@@ -121,11 +128,11 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IReadOnlyMatrix[] AllMatrices()
+        public IReadOnlyMatrix[] AllMatricesAsReadOnly()
         {
             var ret = new IReadOnlyMatrix[Depth];
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetReadOnlyMatrix(i);
+                ret[i] = GetMatrixAsReadOnly(i);
             return ret;
         }
 
@@ -176,6 +183,9 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
+
+        /// <inheritdoc />
+        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(Depth, RowCount, ColumnCount, (IReadOnlyTensorSegment)Segment);
     }
 
     /// <summary>

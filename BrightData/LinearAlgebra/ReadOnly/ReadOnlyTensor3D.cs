@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -10,7 +11,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     internal class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousFloatSpan
     {
         readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
-        readonly Lazy<ITensorSegment> _segment;
+        readonly Lazy<IReadOnlyTensorSegment> _segment;
         IReadOnlyMatrix[] _matrices;
 
         public ReadOnlyTensor3D(IReadOnlyMatrix[] matrices)
@@ -70,21 +71,22 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
-        public ITensorSegment Segment => _segment.Value;
-        public ReadOnlySpan<float> FloatSpan => Segment.GetSpan();
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public IReadOnlyTensorSegment ReadOnlySegment => _segment.Value;
+        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => MatrixSize * Depth;
         public uint Depth { get; private set; }
         public uint RowCount { get; private set; }
         public uint ColumnCount { get; private set; }
         public uint MatrixSize => RowCount * ColumnCount;
+        public bool IsReadOnly => true;
 
         public float this[int depth, int rowY, int columnX] => _matrices[depth][rowY, columnX];
         public float this[uint depth, uint rowY, uint columnX] => _matrices[depth][rowY, columnX];
 
         public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(this);
-        public IReadOnlyMatrix GetReadOnlyMatrix(uint index) => _matrices[index];
+        public IReadOnlyMatrix GetMatrix(uint index) => _matrices[index];
         public IReadOnlyMatrix[] AllMatrices() => _matrices;
 
         // value semantics
@@ -94,7 +96,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public override string ToString()
         {
-            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => Segment[x]));
+            var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => ReadOnlySegment[x]));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Read Only Tensor 3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount}) {preview}";

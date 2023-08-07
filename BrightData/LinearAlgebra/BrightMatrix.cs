@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
@@ -11,7 +12,7 @@ namespace BrightData.LinearAlgebra
     /// Row major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix
+    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix, IReadOnlyMatrix
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -34,6 +35,9 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public uint ColumnCount { get; private set; }
 
+        /// <inheritdoc cref="IMatrix" />
+        public bool IsReadOnly => false;
+
         /// <inheritdoc />
         public sealed override uint TotalSize { get; protected set; }
 
@@ -49,48 +53,28 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        /// <summary>
-        /// Returns a value from the matrix
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IMatrix" />
         public float this[int rowY, int columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the matrix
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IMatrix" />
         public float this[uint rowY, uint columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the matrix
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public float this[long rowY, long columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
-        /// <summary>
-        /// Returns a value from the matrix
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public float this[ulong rowY, ulong columnX]
         {
             get => Segment[columnX * RowCount + rowY];
@@ -98,19 +82,19 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public TensorSegmentWrapper Row(uint index, ITensorSegment? segment = null)
+        public ITensorSegment Row(uint index, ITensorSegment? segment = null)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new(segment ?? Segment, index, RowCount, ColumnCount);
+            return new TensorSegmentWrapper(segment ?? Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
-        public TensorSegmentWrapper Column(uint index, ITensorSegment? segment = null)
+        public ITensorSegment Column(uint index, ITensorSegment? segment = null)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new(segment ?? Segment, index * RowCount, 1, RowCount);
+            return new TensorSegmentWrapper(segment ?? Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
@@ -133,16 +117,18 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public override IMatrix Create(ITensorSegment segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
-        IMatrix IReadOnlyMatrix.Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
+        public IMatrix Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
+        public virtual IReadOnlyVector GetRowAsReadOnly(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector[] AllRows(bool makeCopy)
+        public virtual IReadOnlyVector GetColumnAsReadOnly(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
+
+        /// <inheritdoc />
+        public virtual IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy)
         {
             var ret = new IReadOnlyVector[RowCount];
             if (makeCopy) {
@@ -152,13 +138,13 @@ namespace BrightData.LinearAlgebra
             }
             else {
                 for (uint i = 0; i < RowCount; i++)
-                    ret[i] = GetRow(i);
+                    ret[i] = GetRowAsReadOnly(i);
             }
             return ret;
         }
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector[] AllColumns(bool makeCopy)
+        public virtual IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy)
         {
             var ret = new IReadOnlyVector[ColumnCount];
             if (makeCopy) {
@@ -168,7 +154,7 @@ namespace BrightData.LinearAlgebra
             }
             else {
                 for (uint i = 0; i < ColumnCount; i++)
-                    ret[i] = GetColumn(i);
+                    ret[i] = GetColumnAsReadOnly(i);
             }
 
             return ret;
@@ -286,6 +272,14 @@ namespace BrightData.LinearAlgebra
                 preview += "|...";
             return $"Matrix (Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
         }
+
+        /// <inheritdoc />
+        public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix((IReadOnlyMatrix)this);
+
+        IReadOnlyVector IReadOnlyMatrix.GetRow(uint rowIndex) => GetRowAsReadOnly(rowIndex);
+        IReadOnlyVector IReadOnlyMatrix.GetColumn(uint columnIndex) => GetColumnAsReadOnly(columnIndex);
+        IReadOnlyVector[] IReadOnlyMatrix.AllRows() => AllRowsAsReadOnly(false);
+        IReadOnlyVector[] IReadOnlyMatrix.AllColumns() => AllColumnsAsReadOnly(false);
     }
 
     /// <summary>
