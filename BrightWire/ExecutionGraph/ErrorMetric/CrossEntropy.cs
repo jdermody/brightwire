@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return delta.PointwiseDivide(oneMinusOutputTimesOutput);
         }
 
-        public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+        public float Compute(IVectorData output, IVectorData targetOutput)
         {
             float ret = 0;
             var len = output.Size;

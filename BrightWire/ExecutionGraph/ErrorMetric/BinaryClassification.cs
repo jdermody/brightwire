@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+        public float Compute(IVectorData output, IVectorData targetOutput)
         {
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {

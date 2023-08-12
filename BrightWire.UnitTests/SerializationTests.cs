@@ -23,7 +23,7 @@ namespace BrightWire.UnitTests
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+            public float Compute(IVectorData output, IVectorData targetOutput)
             {
                 return output.ReadOnlySegment.GetMinAndMaxValues().MaxIndex == targetOutput.ReadOnlySegment.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }

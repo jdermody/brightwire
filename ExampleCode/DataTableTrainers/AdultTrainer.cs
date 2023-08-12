@@ -28,18 +28,18 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.1f, 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 128);
             graph.Connect(engine)
                 .AddFeedForward(128)
-                .Add(graph.LeakyReluActivation())
-                .AddDropOut(0.75f)
+                .Add(graph.TanhActivation())
+                //.AddDropOut(0.75f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagation();
 
             // train the network
             Console.WriteLine("Training neural network...");
-            engine.Train(5, testData);
+            engine.Train(20, testData);
         }
     }
 }

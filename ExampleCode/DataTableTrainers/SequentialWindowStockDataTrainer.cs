@@ -42,9 +42,9 @@ namespace ExampleCode.DataTableTrainers
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
-                var expectedOutput = Test.GetColumn<IVector>(1).ToArray();
+                var expectedOutput = Test.GetColumn<IVectorData>(1).ToArray();
 
-                var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i].Segment.ToReadOnlyVector())).Average();
+                var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
                 Console.WriteLine($"Final quadratic prediction error: {score}");
             }
         }

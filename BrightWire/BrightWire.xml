@@ -3365,7 +3365,7 @@
             True if the result should be formatted as a percentage
             </summary>
         </member>
-        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IReadOnlyVector,BrightData.IReadOnlyVector)">
+        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IVectorData,BrightData.IVectorData)">
             <summary>
             Computes the error between the output vector and target vector
             </summary>

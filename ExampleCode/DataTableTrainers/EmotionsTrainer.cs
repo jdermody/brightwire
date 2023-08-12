@@ -27,7 +27,7 @@ namespace ExampleCode.DataTableTrainers
                 if (line == "@data")
                     break;
             }
-            using var table = context.ParseCsv(reader, false);
+            using var table = context.ParseCsvIntoMemory(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
 
             // convert the many feature columns to an index list and set that as the feature column
             using var tempStreams = context.CreateTempStreamProvider();
-            var reinterpreted = converted.ReinterpretColumns(tempStreams, filePath, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
+            var reinterpreted = converted.ReinterpretColumns(tempStreams, null, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
             reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
 
             return reinterpreted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
