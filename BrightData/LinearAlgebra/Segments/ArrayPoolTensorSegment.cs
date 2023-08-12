@@ -152,7 +152,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _array.AsSpan((int)offset, (int)Size);
+        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _array.AsSpan((int)offset, (int)(Size - offset));
 
         /// <inheritdoc />
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_array, 0, 1);

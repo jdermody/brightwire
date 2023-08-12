@@ -90,8 +90,12 @@ namespace BrightData.Helper
             if (len != t2.Size)
                 return false;
 
-            if (t1.Values.Zip(t2.Values).Any(x => !AreApproximatelyEqual(x.First, x.Second, maxDifference)))
-                return false;
+            using var a1 = t1.Values.GetEnumerator();
+            using var a2 = t2.Values.GetEnumerator();
+            while(a1.MoveNext() && a2.MoveNext()) {
+                if (!AreApproximatelyEqual(a1.Current, a2.Current, maxDifference))
+                    return false;
+            }
             return true;
         }
 

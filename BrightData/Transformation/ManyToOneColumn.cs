@@ -45,11 +45,11 @@ namespace BrightData.Transformation
                         (ICompositeBuffer<WeightedIndexList>)outputBuffer
                     );
                 else if (NewType == BrightDataType.Vector)
-                    yield return new ManyToOneColumnOperation<IReadOnlyVector>(
+                    yield return new ManyToOneColumnOperation<IVectorData>(
                         rowCount,
                         sourceColumns, 
                         obj => ToVector(context, obj),
-                        (ICompositeBuffer<IReadOnlyVector>)outputBuffer
+                        (ICompositeBuffer<IVectorData>)outputBuffer
                     );
                 else if (NewType == BrightDataType.String)
                     yield return new ManyToOneColumnOperation<string>(

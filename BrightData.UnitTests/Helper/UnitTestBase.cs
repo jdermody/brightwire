@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BrightData.Helper;
 using FluentAssertions;
 
@@ -7,12 +8,15 @@ namespace BrightData.UnitTests.Helper
     public class UnitTestBase : IDisposable
     {
         protected readonly BrightDataContext _context = new(null, 0);
+        protected readonly Random _random = new(0);
 
         public IReadOnlyVector CreateRandomVector(uint size = 32)
         {
             var rand = new Random();
             return _context.CreateReadOnlyVector(size, _ => FloatMath.Next(rand));
         }
+
+        protected ReadOnlySpan<float> CreateFloatSpan(uint size = 32) => size.AsRange().Select(_ => _random.NextSingle()).ToArray();
 
         protected static void AssertSame(params float[] values)
         {

@@ -33,7 +33,12 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            if(useMkl && useCuda)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else if(useMkl)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else
+                PerformanceTest.Run(new LinearAlgebraProvider(context));
 
             Xor(context, useMkl);
             IrisClassification(context, useMkl);
@@ -52,7 +57,7 @@ namespace ExampleCode
             MnistFeedForward(context, useMkl);
             MnistConvolutional(context, useMkl, useCuda);
             TrainIncomePrediction(context, useMkl);
-            SentimentClassification(context, useMkl, useCuda);
+            SentimentClassification(context, useMkl);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
@@ -151,9 +156,9 @@ namespace ExampleCode
             mnist.TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(BrightDataContext context, bool useMkl, bool useCuda)
+        static void SentimentClassification(BrightDataContext context, bool useMkl)
         {
-            Start(context, useMkl, useCuda);
+            Start(context, useMkl);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
@@ -174,7 +179,8 @@ namespace ExampleCode
             textClustering.KMeans();
             textClustering.Nnmf();
             textClustering.RandomProjection();
-            textClustering.LatentSemanticAnalysis();
+            if(context.LinearAlgebraProvider.ProviderName != Consts.DefaultLinearAlgebraProviderName)
+                textClustering.LatentSemanticAnalysis();
         }
 
         static void IntegerAddition(BrightDataContext context, bool useMkl)

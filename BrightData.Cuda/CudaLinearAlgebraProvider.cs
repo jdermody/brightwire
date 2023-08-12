@@ -340,7 +340,7 @@ namespace BrightData.Cuda
             var size = GetSize(tensor, other);
             var temp = Subtract(tensor, other);
             try {
-                var norm = temp.L2Norm();
+                var norm = L2Norm(temp);
                 return norm * norm / size;
             }
             finally {

@@ -114,7 +114,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var index = 0;
             foreach (var (first, second) in softmax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
                 // save the average weight across the batch for diagnostics
-                var multiplyWeight = first.ReadOnlySegment.Average();
+                var multiplyWeight = first.ReadOnlySegment.GetReadOnlySpan(x => x.Average());
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
