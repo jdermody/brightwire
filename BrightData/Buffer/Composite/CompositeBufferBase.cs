@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrightData.Buffer.EncodedStream;
 
@@ -13,18 +15,29 @@ namespace BrightData.Buffer.Composite
     /// <typeparam name="T"></typeparam>
     internal abstract class CompositeBufferBase<T> : ICompositeBuffer<T> where T : notnull
     {
-        readonly uint                _maxCount;
+        protected record Block(T[] Data)
+        {
+            public uint Size { get; private set; }
+            public ref T GetNext() => ref Data[Size++];
+            public bool HasFreeCapacity => Size < Data.Length;
+            public ReadOnlySpan<T> GetSpan() => new(Data, 0, (int)Size);
+        }
+
+        readonly int                 _itemSize;
+        readonly uint                _blockSize;
         readonly IProvideTempStreams _tempStream;
         readonly string              _id;
-        protected readonly List<T>   _tempBuffer;
         readonly ushort              _maxDistinct = 0;
+        List<Block>?                 _inMemoryBlocks;
+        Block?                       _currBlock;
 
-        protected CompositeBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
+        protected CompositeBufferBase(IProvideTempStreams tempStream, uint blockSize, ushort? maxDistinct)
         {
             _id = Guid.NewGuid().ToString("n");
             _tempStream = tempStream;
-            _maxCount = maxCount;
-            _tempBuffer = new();
+            _blockSize = blockSize;
+            _inMemoryBlocks = new();
+            _itemSize = Unsafe.SizeOf<T>();
 
             if (maxDistinct > 0) {
                 DistinctItems = new Dictionary<T, uint>();
@@ -39,20 +52,38 @@ namespace BrightData.Buffer.Composite
             if (!ConstraintValidator?.Invoke(item) == false)
                 throw new InvalidOperationException($"Failed to add item to buffer as it failed validation: {item}");
 
-            if (_tempBuffer.Count == _maxCount) {
-                var stream = _tempStream.Get(_id);
-                stream.Seek(0, SeekOrigin.End);
-                WriteTo(GetTempBuffer(), stream);
-                _tempBuffer.Clear();
+            if (_currBlock?.HasFreeCapacity != true) {
+                if(_currBlock is not null)
+                    (_inMemoryBlocks ??= new()).Add(_currBlock);
+                var wasRetried = false;
+                while (!wasRetried) {
+                    try {
+                        using var memoryCheck = new MemoryFailPoint(Math.Max(1, _itemSize * (int)_blockSize / 1024 / 1024));
+                        _currBlock = new(new T[_blockSize]);
+                        break;
+                    }
+                    catch(InsufficientMemoryException) {
+                        // try to recover by writing everything in memory to disk and then retrying the allocation
+                        if (!wasRetried && _inMemoryBlocks is not null) {
+                            var stream = _tempStream.Get(_id);
+                            stream.Seek(0, SeekOrigin.End);
+                            foreach(var block in _inMemoryBlocks)
+                                WriteTo(block.GetSpan(), stream);
+                            _inMemoryBlocks.Clear();
+                            GC.Collect();
+                            wasRetried = true;
+                        }else
+                            throw;
+                    }
+
+                }
             }
 
-            _tempBuffer.Add(item);
+            _currBlock!.GetNext() = item;
             if (DistinctItems?.TryAdd(item, Size) == true && DistinctItems.Count > _maxDistinct)
                 DistinctItems = null;
             ++Size;
         }
-
-        protected ReadOnlySpan<T> GetTempBuffer() => CollectionsMarshal.AsSpan(_tempBuffer);
 
         public IEnumerable<T> Values
         {
@@ -62,17 +93,25 @@ namespace BrightData.Buffer.Composite
                 if (_tempStream.HasStream(_id)) {
                     var stream = _tempStream.Get(_id);
                     stream.Seek(0, SeekOrigin.Begin);
-                    var buffer = new T[_maxCount];
+                    var buffer = new T[_blockSize];
                     while (stream.Position < stream.Length) {
-                        var count = ReadTo(stream, _maxCount, buffer);
+                        var count = ReadTo(stream, _blockSize, buffer);
                         for (uint i = 0; i < count; i++)
                             yield return buffer[i];
                     }
                 }
 
-                // then from the buffer
-                foreach (var item in _tempBuffer)
-                    yield return item;
+                // then from the in memory blocks
+                if (_inMemoryBlocks is not null) {
+                    foreach (var block in _inMemoryBlocks) {
+                        for(var i = 0; i < block.Size; i++)
+                            yield return block.Data[i];
+                    }
+                }
+
+                // then from the current block
+                for(var i = 0; i < _currBlock.Size; i++)
+                    yield return _currBlock.Data[i];
             }
         }
 

@@ -33,7 +33,7 @@
         /// <summary>
         /// Default in memory buffer size
         /// </summary>
-        public const int DefaultInMemoryBufferSize = 32768 * 1024;
+        public const int DefaultInMemoryBufferSize = 32768 * 4;
 
         /// <summary>
         /// Default number of table rows to cache in memory
