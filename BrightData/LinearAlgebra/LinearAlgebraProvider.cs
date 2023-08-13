@@ -825,7 +825,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="target">First tensor</param>
         /// <param name="other">Other tensor</param>
-        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other) => target.GetSpan(other, (x, y) => x.AddInPlace(y));
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other) => target.GetSpans(other, (x, y) => x.AddInPlace(y));
 
         /// <summary>
         /// Adds another tensor to the first tensor and applies coefficients to each element in each tensor
@@ -834,21 +834,21 @@ namespace BrightData.LinearAlgebra
         /// <param name="other">Other tensor</param>
         /// <param name="coefficient1">Coefficient applied to each element of the first tensor</param>
         /// <param name="coefficient2">Coefficient applied to each element of the other tensor</param>
-        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.GetSpan(other, (x, y) => x.AddInPlace(y, coefficient1, coefficient2));
+        public virtual void AddInPlace(ITensorSegment target, ITensorSegment other, float coefficient1, float coefficient2) => target.GetSpans(other, (x, y) => x.AddInPlace(y, coefficient1, coefficient2));
 
         /// <summary>
         /// Adds a scalar to each element of this tensor - modified in place
         /// </summary>
         /// <param name="target"></param>
         /// <param name="scalar"></param>
-        public virtual void AddInPlace(ITensorSegment target, float scalar) => target.ApplySpan(x => x.AddInPlace(scalar));
+        public virtual void AddInPlace(ITensorSegment target, float scalar) => target.GetSpan(x => x.AddInPlace(scalar));
 
         /// <summary>
         /// Multiplies each element of the tensor by a scalar - modified in place
         /// </summary>
         /// <param name="target"></param>
         /// <param name="scalar"></param>
-        public virtual void MultiplyInPlace(ITensorSegment target, float scalar) => target.ApplySpan(x => x.MultiplyInPlace(scalar));
+        public virtual void MultiplyInPlace(ITensorSegment target, float scalar) => target.GetSpan(x => x.MultiplyInPlace(scalar));
 
         /// <summary>
         /// Creates a new tensor by multiplying each element of the tensor with a scalar
@@ -881,7 +881,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
-        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpan(tensor2, (x, y) => x.SubtractInPlace(y));
+        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpans(tensor2, (x, y) => x.SubtractInPlace(y));
 
         /// <summary>
         /// Subtracts the second tensor from the first tensor and applies coefficient to each value in the tensors - first tensor modified in place
@@ -890,7 +890,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor2">Second tensor</param>
         /// <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
         /// <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
-        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.GetSpan(tensor2, (x, y) => x.SubtractInPlace(y, coefficient1, coefficient2));
+        public virtual void SubtractInPlace(ITensorSegment tensor1, ITensorSegment tensor2, float coefficient1, float coefficient2) => tensor1.GetSpans(tensor2, (x, y) => x.SubtractInPlace(y, coefficient1, coefficient2));
 
         /// <summary>
         /// Creates a new tensor by multiplying each element in the first tensor with the corresponding value in the second tensor
@@ -905,7 +905,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
-        public virtual void PointwiseMultiplyInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpan(tensor2, (x, y) => x.PointwiseMultiplyInPlace(y));
+        public virtual void PointwiseMultiplyInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpans(tensor2, (x, y) => x.PointwiseMultiplyInPlace(y));
 
         /// <summary>
         /// Creates a new tensor by dividing each element in the first tensor with the corresponding value in the second tensor
@@ -920,7 +920,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
-        public virtual void PointwiseDivideInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpan(tensor2, (x, y) => x.PointwiseDivideInPlace(y));
+        public virtual void PointwiseDivideInPlace(ITensorSegment tensor1, ITensorSegment tensor2) => tensor1.GetSpans(tensor2, (x, y) => x.PointwiseDivideInPlace(y));
 
         /// <summary>
         /// Calculates the dot product of the first with the second tensor
@@ -953,7 +953,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor"></param>
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
-        public virtual void ConstrainInPlace(ITensorSegment tensor, float? minValue, float? maxValue) => tensor.ApplySpan(x => x.ConstrainInPlace(minValue, maxValue));
+        public virtual void ConstrainInPlace(ITensorSegment tensor, float? minValue, float? maxValue) => tensor.GetSpan(x => x.ConstrainInPlace(minValue, maxValue));
 
         /// <summary>
         /// Finds the average of the values in the tensor
@@ -1177,7 +1177,15 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="tensor"></param>
         /// <returns></returns>
-        public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor) => tensor.SoftmaxDerivative(this);
+        public virtual IMatrix SoftmaxDerivative(ITensorSegment tensor)
+        {
+            return CreateMatrix(tensor.Size, tensor.Size, (x, y) => {
+                var xVal = tensor[x];
+                return x == y
+                    ? xVal * (1 - xVal)
+                    : -xVal * tensor[y];
+            });
+        }
 
         /// <summary>
         /// Creates a new tensor that each element of the tensor raised to the specified power
@@ -1193,7 +1201,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor"></param>
         /// <param name="lower"></param>
         /// <param name="upper"></param>
-        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper) => tensor.ApplySpan(x => x.RoundInPlace(lower, upper));
+        public virtual void RoundInPlace(ITensorSegment tensor, float lower, float upper) => tensor.GetSpan(x => x.RoundInPlace(lower, upper));
 
         /// <summary>
         /// Returns a new tensor with only the supplied indices
@@ -1505,7 +1513,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="coefficient"></param>
-        public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.L1Regularization(coefficient);
+        public virtual void L1Regularisation(ITensorSegment segment, float coefficient) => segment.GetSpan(x => x.L1Regularization(coefficient));
 
         /// <summary>
         /// Splits the matrix at the specified column index into two sub matrices

@@ -56,7 +56,7 @@ namespace ExampleCode.DataTableTrainers
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
                     Input: GetStringIndices(Test.Get<IReadOnlyVector>(i, 0)),
-                    Output: orderedOutput[i].Select(v => v.ReadOnlySegment.GetMinAndMaxValues().MaxIndex).ToArray()
+                    Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
                 ))
             ;
 
@@ -117,7 +117,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.ReadOnlySegment.GetMinAndMaxValues().MaxIndex).ToArray(),
+                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
                     );
                 })
@@ -191,8 +191,8 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
                     return (
-                        Input: matrix.AllRows().Select(r => r.ReadOnlySegment.GetMinAndMaxValues().MaxIndex).ToArray(),
-                        Output: orderedOutput[i].Select(v => v.ReadOnlySegment.GetMinAndMaxValues().MaxIndex).ToArray()
+                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
                     );
                 })
                 .ToList()

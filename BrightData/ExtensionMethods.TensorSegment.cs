@@ -18,66 +18,12 @@ namespace BrightData
 {
     public partial class ExtensionMethods
     {
+        /// <summary>
+        /// Creates a tensor segment from a memory owner
+        /// </summary>
+        /// <param name="memoryOwner"></param>
+        /// <returns></returns>
         public static ITensorSegment ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment(memoryOwner);
-
-        readonly struct ZipAction : IAction
-        {
-            readonly IReadOnlyTensorSegment _segment;
-            readonly IReadOnlyTensorSegment _other;
-            readonly Func<float, float, float> _action;
-            readonly float[] _ret;
-
-            public ZipAction(IReadOnlyTensorSegment segment, IReadOnlyTensorSegment other, Func<float, float, float> action, float[] ret)
-            {
-                _segment = segment;
-                _other = other;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i], _other[i]);
-        }
-        readonly struct TransformAction : IAction
-        {
-            readonly IReadOnlyTensorSegment _segment;
-            readonly Func<float, float> _action;
-            readonly float[] _ret;
-
-            public TransformAction(IReadOnlyTensorSegment segment, Func<float, float> action, float[] ret)
-            {
-                _segment = segment;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i]);
-        }
-        readonly struct TransformIndexedAction : IAction
-        {
-            readonly Func<uint, float> _action;
-            readonly float[] _ret;
-
-            public TransformIndexedAction(Func<uint, float> action, float[] ret)
-            {
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action((uint)i);
-        }
-        readonly struct MutateAction : IAction
-        {
-            readonly Func<float, float> _action;
-            readonly ITensorSegment _segment;
-
-            public MutateAction(Func<float, float> action, ITensorSegment segment)
-            {
-                _action = action;
-                _segment = segment;
-            }
-
-            public void Invoke(int i) => _segment[i] = _action(_segment[i]);
-        }
 
         /// <summary>
         /// Returns an array from a tensor segment
@@ -85,9 +31,6 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this ITensorSegment segment) => segment.GetArrayIfEasilyAvailable() ?? segment.ToNewArray();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static MemoryOwner<float> Allocate(uint size) => MemoryOwner<float>.Allocate((int)size);
 
         /// <summary>
         /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
@@ -100,206 +43,6 @@ namespace BrightData
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
-        }
-
-        
-
-        /// <summary>
-        /// Creates a new tensor segment from this tensor segment (in parallel)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="transformer">Value transformer</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment TransformParallel(this IReadOnlyTensorSegment segment, Func<float, float> transformer)
-        {
-            var size = segment.Size;
-            var ret = Allocate(size);
-            var array = ret.DangerousGetArray().Array!;
-
-            if (size >= Consts.MinimumSizeForParallel)
-                ParallelHelper.For(0, (int)size, new TransformAction(segment, transformer, array));
-            else {
-                for (uint i = 0; i < size; i++)
-                    array[(int)i] = transformer(segment[i]);
-            }
-
-            return new ArrayPoolTensorSegment(ret);
-        }
-
-        /// <summary>
-        /// Creates a new tensor segment from this tensor segment (vectorized)
-        /// </summary>
-        /// <param name="segment">This segment</param>
-        /// <param name="transformer1">Vectorized value transformer</param>
-        /// <param name="transformer2">Value transformer</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment TransformVectorized(
-            this IReadOnlyTensorSegment segment,
-            ComputeVectorisedOne<float> transformer1,
-            Func<float, float> transformer2)
-        {
-            var size = segment.Size;
-            MemoryOwner<float> ret;
-
-            if (size >= Consts.MinimumSizeForVectorised) {
-                var leftTemp = SpanOwner<float>.Empty;
-                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
-                try {
-                    ret = leftPtr.TransformVectorized(transformer1, transformer2);
-                }
-                finally {
-                    if (wasLeftTempUsed)
-                        leftTemp.Dispose();
-                }
-            }
-            else {
-                ret = Allocate(segment.Size);
-                var resultPtr = ret.Span;
-                for (var i = 0; i < size; i++)
-                    resultPtr[i] = transformer2(segment[i]);
-            }
-
-            return new ArrayPoolTensorSegment(ret);
-        }
-
-        
-        /// <summary>
-        /// Creates a new tensor segment from this tensor segment (in parallel)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="transformer">Indexed transformer</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ITensorSegment TransformParallelIndexed(this IReadOnlyTensorSegment segment, Func<uint, float> transformer)
-        {
-            var size = segment.Size;
-            var ret = Allocate(size);
-            var array = ret.DangerousGetArray().Array!;
-
-            if (size >= Consts.MinimumSizeForParallel)
-                ParallelHelper.For(0, (int)size, new TransformIndexedAction(transformer, array));
-            else {
-                for (uint i = 0; i < size; i++)
-                    array[(int)i] = transformer(i);
-            }
-
-            return new ArrayPoolTensorSegment(ret);
-        }
-
-        /// <summary>
-        /// In place update of this tensor segment with pairwise values from another tensor segment (in parallel)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="other">Other tensor</param>
-        /// <param name="func">Update function</param>
-        /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MutateParallel(this ITensorSegment segment, ITensorSegment other, Func<float, float, float> func)
-        {
-            var size = segment.Size;
-            if (size != other.Size)
-                throw new ArgumentException("Segments were different sizes");
-
-            if (size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, size, i => segment[i] = func(segment[i], other[i]));
-            else {
-                for (uint i = 0; i < size; i++)
-                    segment[i] = func(segment[i], other[i]);
-            }
-        }
-
-        /// <summary>
-        /// In place update of this tensor segment with pairwise values from another tensor segment (vectorized)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="other">Other tensor</param>
-        /// <param name="func1">Vectorized update function</param>
-        /// <param name="func2">Update function</param>
-        /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void MutateVectorized(
-            this ITensorSegment segment,
-            IReadOnlyTensorSegment other,
-            ComputeVectorisedTwo<float> func1,
-            Func<float, float, float> func2)
-        {
-            var size = segment.Size;
-            if (size != other.Size)
-                throw new ArgumentException("Segments were different sizes");
-
-            if (size >= Consts.MinimumSizeForVectorised) {
-                // get pointers to the segments
-                SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
-                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
-                var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
-                try {
-                    fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
-                        var leftMutablePtr = new Span<float>(fp, (int)size);
-                        leftMutablePtr.MutateVectorized(rightPtr, func1, func2);
-                    }
-                }
-                finally {
-                    if (wasLeftTempUsed)
-                        leftTemp.Dispose();
-                    if (wasRightTempUsed)
-                        rightTemp.Dispose();
-                }
-            }
-            else {
-                for (var i = 0; i < size; i++)
-                    segment[i] = func2(segment[i], other[i]);
-            }
-        }
-
-        /// <summary>
-        /// In place update of tensor segment (in parallel)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="mutator">Update function</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MutateInPlaceParallel(this ITensorSegment segment, Func<float, float> mutator)
-        {
-            var size = segment.Size;
-            if (size >= Consts.MinimumSizeForParallel)
-                ParallelHelper.For(0, (int)size, new MutateAction(mutator, segment));
-            else {
-                for (uint i = 0; i < size; i++)
-                    segment[i] = mutator(segment[i]);
-            }
-        }
-
-        /// <summary>
-        /// In place update of tensor segment (vectorized)
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="mutator1">Vectorized update function</param>
-        /// <param name="mutator2">Update function</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void MutateInPlaceVectorized(
-            this ITensorSegment segment,
-            ComputeVectorisedOne<float> mutator1,
-            Func<float, float> mutator2)
-        {
-            var size = segment.Size;
-            if (size >= Consts.MinimumSizeForVectorised) {
-                var leftTemp = SpanOwner<float>.Empty;
-                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLeftTempUsed);
-                try {
-                    fixed (float* fp = &MemoryMarshal.GetReference(leftPtr)) {
-                        var leftMutablePtr = new Span<float>(fp, (int)size);
-                        leftMutablePtr.MutateInPlaceVectorized(mutator1, mutator2);
-                    }
-                }
-                finally {
-                    if (wasLeftTempUsed)
-                        leftTemp.Dispose();
-                }
-            }
-            else {
-                for (var i = 0; i < size; i++)
-                    segment[i] = mutator2(segment[i]);
-            }
         }
 
         /// <summary>
@@ -330,69 +73,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Adds another tensor segment in place to this tensor segment
-        /// </summary>
-        /// <param name="target">This tensor</param>
-        /// <param name="other">Other tensor</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddInPlace(this ITensorSegment target, IReadOnlyTensorSegment other) => MutateVectorized(
-            target,
-            other,
-            (in Vector<float> a, in Vector<float> b, out Vector<float> r) => r = a + b,
-            (a, b) => a + b
-        );
-
-        /// <summary>
-        /// Multiplies each value in this tensor segment by a scalar (in place)
-        /// </summary>
-        /// <param name="target">This tensor</param>
-        /// <param name="scalar">Scalar to multiply</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MultiplyInPlace(this ITensorSegment target, float scalar)
-        {
-            var scalarVector = new Vector<float>(scalar);
-            MutateInPlaceVectorized(
-                target,
-                (in Vector<float> a, out Vector<float> r) => r = a * scalarVector,
-                a => a * scalar
-            );
-        }
-
-        /// <summary>
-        /// Calculates the dot product of this with another tensor
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="other">Other tensor</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float DotProduct(this IReadOnlyTensorSegment segment, IReadOnlyTensorSegment other)
-        {
-            var size = segment.Size;
-            if (size != other.Size)
-                throw new ArgumentException("Segments were different sizes");
-            if (size >= Consts.MinimumSizeForVectorised) {
-                SpanOwner<float> leftTemp = SpanOwner<float>.Empty, rightTemp = SpanOwner<float>.Empty;
-                var leftPtr = segment.GetSpan(ref leftTemp, out var wasLefTempUsed);
-                var rightPtr = other.GetSpan(ref rightTemp, out var wasRightTempUsed);
-                try {
-                    return leftPtr.DotProduct(rightPtr);
-                }
-                finally {
-                    if (wasLefTempUsed)
-                        leftTemp.Dispose();
-                    if (wasRightTempUsed)
-                        rightTemp.Dispose();
-                }
-            }
-
-            var ret = 0f;
-            for (uint i = 0; i < size; i++)
-                ret += segment[i] * other[i];
-            return ret;
-        }
-
-        /// <summary>
         /// Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance
         /// </summary>
         /// <param name="segment">This tensor</param>
@@ -408,13 +88,6 @@ namespace BrightData
             });
             return ret;
         }
-
-        /// <summary>
-        /// Finds the average value in this tensor segment
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <returns></returns>
-        public static float Average(this IReadOnlyTensorSegment segment) => Sum(segment) / segment.Size;
 
         /// <summary>
         /// Finds the min and max values (and their indices) of this tensor segment
@@ -459,51 +132,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a new tensor segment that contains each value squared in this tensor segment
-        /// </summary>
-        /// <param name="tensor">This tensor</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Squared(this IReadOnlyTensorSegment tensor) => TransformVectorized(
-            tensor,
-            (in Vector<float> a, out Vector<float> r) => r = a * a,
-            a => a * a
-        );
-
-        /// <summary>
-        /// Creates a new tensor segment with softmax function applied to each value in this tensor segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ITensorSegment Softmax(this IReadOnlyTensorSegment segment)
-        {
-            var (_, max, _, _) = GetMinAndMaxValues(segment);
-            var softmax = segment.TransformParallel(v => MathF.Exp(v - max));
-            var sum = Sum(softmax);
-            if (FloatMath.IsNotZero(sum))
-                softmax.MultiplyInPlace(1f / sum);
-            return softmax;
-        }
-
-        /// <summary>
-        /// Creates a new tensor segment with softmax derivative applied to each value in this tensor segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <param name="lap"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMatrix SoftmaxDerivative(this IReadOnlyTensorSegment segment, LinearAlgebraProvider lap)
-        {
-            return lap.CreateMatrix(segment.Size, segment.Size, (x, y) => {
-                var xVal = segment[x];
-                return x == y
-                    ? xVal * (1 - xVal)
-                    : -xVal * segment[y];
-            });
-        }
-
-        /// <summary>
         /// Invokes a callback on each element of the tensor segment
         /// </summary>
         /// <param name="segment"></param>
@@ -516,19 +144,6 @@ namespace BrightData
             else {
                 for (uint i = 0; i < size; i++)
                     analyser(segment[i], i);
-            }
-        }
-
-        /// <summary>
-        /// In place L1 regularization of the tensor segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <param name="coefficient">Coefficient to apply to each adjusted value</param>
-        public static void L1Regularization(this ITensorSegment segment, float coefficient)
-        {
-            for (uint i = 0, len = segment.Size; i < len; i++) {
-                var val = segment[i];
-                segment[i] = val - (val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient;
             }
         }
 
@@ -686,7 +301,7 @@ namespace BrightData
         }
 
         public delegate void OnFloatSpans(Span<float> span1, ReadOnlySpan<float> span2);
-        public static unsafe void GetSpan(this ITensorSegment segment1, ITensorSegment segment2, OnFloatSpans callback)
+        public static unsafe void GetSpans(this ITensorSegment segment1, ITensorSegment segment2, OnFloatSpans callback)
         {
             if (segment1.IsWrapper)
                 throw new ArgumentException($"Tensor segment wrappers cannot be modified");
@@ -714,7 +329,7 @@ namespace BrightData
         }
 
         public delegate void OnFloatSpan(Span<float> span);
-        public static unsafe void ApplySpan(this ITensorSegment segment, OnFloatSpan callback)
+        public static unsafe void GetSpan(this ITensorSegment segment, OnFloatSpan callback)
         {
             if (segment.IsWrapper)
                 throw new ArgumentException($"Tensor segment wrappers cannot be modified");

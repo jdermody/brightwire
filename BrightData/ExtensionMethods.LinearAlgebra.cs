@@ -400,7 +400,7 @@ namespace BrightData
                         shape = item.Shape;
                     }
                     else
-                        ret.AddInPlace(item.Segment);
+                        ret.GetSpans(item.Segment, (x, y) => x.AddInPlace(y));
 
                     ++count;
                     if (dispose)
@@ -409,7 +409,7 @@ namespace BrightData
 
                 if (ret is null || lap is null || shape is null)
                     throw new ArgumentException("Empty enumerable", nameof(tensors));
-                ret.MultiplyInPlace(1f / count);
+                ret.GetSpan(x => x.MultiplyInPlace(1f / count));
                 return (T)lap.CreateTensor(shape, ret);
             }
             catch {

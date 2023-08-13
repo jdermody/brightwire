@@ -34,7 +34,6 @@ namespace BrightData
                 TypeCode.Byte     => typeof(byte),
                 TypeCode.Char     => typeof(char),
                 TypeCode.DateTime => typeof(DateTime),
-                TypeCode.DBNull   => typeof(DBNull),
                 TypeCode.Decimal  => typeof(decimal),
                 TypeCode.Double   => typeof(double),
                 TypeCode.Int16    => typeof(short),
