@@ -24,7 +24,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         protected LAP Lap;
 
-        internal BrightTensorBase(ITensorSegment data, LAP lap)
+        internal BrightTensorBase(INumericSegment<float> data, LAP lap)
         {
             Segment = data;
             Segment.AddRef();
@@ -46,7 +46,7 @@ namespace BrightData.LinearAlgebra
         {
             Shape.WriteTo(writer);
             var temp = SpanOwner<float>.Empty;
-            var span = Segment.GetFloatSpan(ref temp, out var wasTempUsed);
+            var span = Segment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(span.AsBytes());
             }
@@ -77,7 +77,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="segment">Tensor segment</param>
         /// <returns></returns>
-        public abstract T Create(ITensorSegment segment);
+        public abstract T Create(INumericSegment<float> segment);
 
         /// <inheritdoc />
         public abstract uint TotalSize { get; protected set; }
@@ -89,7 +89,7 @@ namespace BrightData.LinearAlgebra
         /// <summary>
         /// Underlying tensor segment
         /// </summary>
-        public ITensorSegment Segment { get; private set; }
+        public INumericSegment<float> Segment { get; private set; }
 
         /// <inheritdoc />
         public BrightDataContext Context => Lap.Context;
@@ -98,7 +98,7 @@ namespace BrightData.LinearAlgebra
         public LinearAlgebraProvider LinearAlgebraProvider => Lap;
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetFloatSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
 
         /// <inheritdoc />
         public IVector Reshape() => Lap.CreateVector(Segment);
@@ -315,7 +315,7 @@ namespace BrightData.LinearAlgebra
         public float Sum() => Lap.Sum(Segment);
 
         /// <inheritdoc />
-        public IReadOnlyTensorSegment ReadOnlySegment => Segment;
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => Segment;
 
         /// <inheritdoc cref="ITensor" />
         public bool IsReadOnly => false;

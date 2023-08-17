@@ -7,7 +7,7 @@ namespace BrightData.Cuda
     public class CudaMatrix : BrightMatrix<CudaLinearAlgebraProvider>
     {
         /// <inheritdoc />
-        public CudaMatrix(ITensorSegment data, uint rows, uint columns, CudaLinearAlgebraProvider lap) : base(data, rows, columns, lap)
+        public CudaMatrix(INumericSegment<float> data, uint rows, uint columns, CudaLinearAlgebraProvider lap) : base(data, rows, columns, lap)
         {
         }
 

@@ -32,13 +32,13 @@ namespace BrightData.UnitTests.Helper
                 FloatMath.AreApproximatelyEqual(first, values[i], maxDifference).Should().BeTrue();
         }
 
-        protected static void AssertSame<T>(params T[] tensors) where T: IHaveReadOnlyTensorSegment
+        protected static void AssertSame<T>(params T[] tensors) where T: IHaveReadOnlyTensorSegment<float>
         {
             var first = tensors[0];
             for(var i = 1; i < tensors.Length; i++)
                 FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
         }
-        protected static void AssertSame(params ITensorSegment[] tensors)
+        protected static void AssertSame(params INumericSegment<float>[] tensors)
         {
             var first = tensors[0];
             for(var i = 1; i < tensors.Length; i++)
@@ -52,7 +52,7 @@ namespace BrightData.UnitTests.Helper
                 FloatMath.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
         }
 
-        protected static void AssertSameWithMaxDifference<T>(int maxDifference, params T[] tensors) where T: IHaveReadOnlyTensorSegment
+        protected static void AssertSameWithMaxDifference<T>(int maxDifference, params T[] tensors) where T: IHaveReadOnlyTensorSegment<float>
         {
             var first = tensors[0];
             for(var i = 1; i < tensors.Length; i++)
@@ -68,7 +68,7 @@ namespace BrightData.UnitTests.Helper
                 tensors.DisposeAll();
             }
         }
-        protected static void AssertSameAndThenDispose(params ITensorSegment[] tensors)
+        protected static void AssertSameAndThenDispose(params INumericSegment<float>[] tensors)
         {
             try {
                 AssertSame(tensors);
@@ -92,7 +92,7 @@ namespace BrightData.UnitTests.Helper
                     item.DisposeAll();
             }
         }
-        protected static void AssertSameAndThenDispose(int maxDifference, params ITensorSegment[][] tensors)
+        protected static void AssertSameAndThenDispose(int maxDifference, params INumericSegment<float>[][] tensors)
         {
             try {
                 var first = tensors[0];

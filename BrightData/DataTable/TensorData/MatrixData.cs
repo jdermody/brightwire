@@ -10,11 +10,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class MatrixData : IReadOnlyMatrix, IEquatable<MatrixData>, IHaveReadOnlyContiguousFloatSpan
+    internal class MatrixData : IReadOnlyMatrix, IEquatable<MatrixData>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyMatrixValueSemantics<MatrixData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        IReadOnlyTensorSegment? _segment;
+        IReadOnlyNumericSegment<float>? _segment;
         uint _startIndex;
 
         public MatrixData(ICanRandomlyAccessUnmanagedData<float> data, uint rowCount, uint columnCount, uint startIndex)
@@ -48,7 +48,7 @@ namespace BrightData.DataTable.TensorData
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return FloatSpan;
@@ -69,7 +69,7 @@ namespace BrightData.DataTable.TensorData
         public IReadOnlyVector[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IReadOnlyVector[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
 
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public void WriteTo(BinaryWriter writer)
         {

@@ -10,11 +10,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class Tensor4DData : IReadOnlyTensor4D, IEquatable<Tensor4DData>, IHaveReadOnlyContiguousFloatSpan
+    internal class Tensor4DData : IReadOnlyTensor4D, IEquatable<Tensor4DData>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyTensor4DValueSemantics<Tensor4DData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        IReadOnlyTensorSegment? _segment;
+        IReadOnlyNumericSegment<float>? _segment;
         uint _startIndex;
 
         public Tensor4DData(ICanRandomlyAccessUnmanagedData<float> data, uint count, uint depth, uint rowCount, uint columnCount, uint startIndex)
@@ -54,7 +54,7 @@ namespace BrightData.DataTable.TensorData
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return FloatSpan;
@@ -93,7 +93,7 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size => Count * Depth * ColumnCount * RowCount;
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
         public IReadOnlyTensor3D GetTensor3D(uint index) => new Tensor3DData(_data, Depth, RowCount, ColumnCount, index * TensorSize);
 
         public IReadOnlyTensor3D[] AllTensors()

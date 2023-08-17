@@ -1770,7 +1770,7 @@
             <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyFrom(BrightData.ICompositeBuffer{System.Single},BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyFrom(BrightData.ICompositeBuffer{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Copies all values from a tensor segment into a float buffer
             </summary>
@@ -2137,14 +2137,14 @@
             <param name="obj">Item to enumerate (once)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray(BrightData.IHaveSpanOfFloats)">
+        <member name="M:BrightData.ExtensionMethods.ToArray(BrightData.IHaveSpanOf{System.Single})">
             <summary>
             Extracts an array of floats
             </summary>
             <param name="spanOwner"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.IHaveReadOnlyTensorSegment,BrightData.IHaveTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.IHaveReadOnlyTensorSegment{System.Single},BrightData.IHaveTensorSegment{System.Single})">
             <summary>
             Copies tensor values to another tensor
             </summary>
@@ -2326,7 +2326,7 @@
             <param name="forModification">True if the table meta data might be updated</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.ITypedSegment{``0},BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.ITableSegment{``0},BrightData.INumericSegment{System.Single})">
             <summary>
             Copies a data table segment to a tensor segment
             </summary>
@@ -2335,7 +2335,7 @@
             <param name="vector">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ITypedSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ITableSegment,BrightData.INumericSegment{System.Single})">
             <summary>
             Copies a data table segment to tensor segment
             </summary>
@@ -2431,7 +2431,7 @@
             <param name="shuffle">True to shuffle the table before folding</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsDataTableSegment``1(BrightData.ITypedSegment)">
+        <member name="M:BrightData.ExtensionMethods.AsDataTableSegment``1(BrightData.ITableSegment)">
             <summary>
             Strongly typed enumeration of items in segment
             </summary>
@@ -2439,7 +2439,7 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITypedSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITableSegment)">
             <summary>
             Reads the segment as a strongly typed array
             </summary>
@@ -2481,7 +2481,7 @@
             <param name="filePath">Optional path to save data table to disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITypedSegment{``0})">
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ITableSegment{``0})">
             <summary>
             Converts a data table segment to an array
             </summary>
@@ -2871,7 +2871,7 @@
             <param name="results">Operation results</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.WriteDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITypedSegment[],System.IO.Stream)">
+        <member name="M:BrightData.ExtensionMethods.WriteDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITableSegment[],System.IO.Stream)">
             <summary>
             Writes a data table to a stream
             </summary>
@@ -2880,7 +2880,7 @@
             <param name="columns">Data table columns</param>
             <param name="stream">Output stream</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITypedSegment[],System.IO.Stream)">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITableSegment[],System.IO.Stream)">
             <summary>
             Builds a data table from an array of typed segments
             </summary>
@@ -2890,7 +2890,7 @@
             <param name="stream">Output stream</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTableInMemory(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITypedSegment[])">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTableInMemory(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITableSegment[])">
             <summary>
             Builds a data table in memory
             </summary>
@@ -2899,7 +2899,7 @@
             <param name="columns">Typed segments (table columns)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITypedSegment[],System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.ITableSegment[],System.String)">
             <summary>
             Builds a data table (and writes table data to a file)
             </summary>
@@ -3078,13 +3078,13 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment{System.Single})">
             <summary>
             Reshapes to a vector
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment{System.Single},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Reshapes to a matrix
             </summary>
@@ -3093,7 +3093,7 @@
             <param name="columns">Column count of each matrix (one parameter is optional null)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment{System.Single},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Reshapes to a 3D tensor
             </summary>
@@ -3103,7 +3103,7 @@
             <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment{System.Single},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Reshapes to a 4D tensor
             </summary>
@@ -4103,28 +4103,28 @@
             <param name="memoryOwner"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetLocalOrNewArray(BrightData.ITensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.GetLocalOrNewArray(BrightData.INumericSegment{System.Single})">
             <summary>
             Returns an array from a tensor segment
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Converts the tensor segment to a sparse format (only non zero entries are preserved)
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Sums all values
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Search(BrightData.IReadOnlyTensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Search(BrightData.IReadOnlyNumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance
             </summary>
@@ -4133,14 +4133,14 @@
             <param name="tolerance">Degree of tolerance</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Finds the min and max values (and their indices) of this tensor segment
             </summary>
             <param name="segment">This tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Split(BrightData.IReadOnlyTensorSegment,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.Split(BrightData.IReadOnlyNumericSegment{System.Single},System.UInt32)">
             <summary>
             Splits this tensor segment into multiple contiguous tensor segments
             </summary>
@@ -4148,49 +4148,49 @@
             <param name="blockCount">Number of blocks</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze(BrightData.IReadOnlyTensorSegment,System.Action{System.Single,System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Analyze(BrightData.IReadOnlyNumericSegment{System.Single},System.Action{System.Single,System.UInt32})">
             <summary>
             Invokes a callback on each element of the tensor segment
             </summary>
             <param name="segment"></param>
             <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.INumericSegment{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             Sets all values of the tensor segment via a callback that receives each value
             </summary>
             <param name="segment"></param>
             <param name="setValue"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.INumericSegment{System.Single},System.Func{System.UInt32,System.Single})">
             <summary>
             Sets all values of the tensor segment via a callback that receives the index of each value
             </summary>
             <param name="segment"></param>
             <param name="setValue"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Set(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Set(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Sets all values of the tensor segment to a single value
             </summary>
             <param name="segment"></param>
             <param name="value">Value to set</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.ITensorSegment,System.Random)">
+        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.INumericSegment{System.Single},System.Random)">
             <summary>
             Sets all values of this tensor segment to a random floating point number
             </summary>
             <param name="segment"></param>
             <param name="random">Random number generator</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Converts the tensor segment to a read only vector
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.IReadOnlyTensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a vector from a tensor segment
             </summary>
@@ -4198,7 +4198,7 @@
             <param name="lap">Linear algebra provider</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToMatrix(BrightData.IReadOnlyTensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ToMatrix(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
             Creates a matrix from a tensor segment
             </summary>
@@ -4208,7 +4208,7 @@
             <param name="columns">Number of columns in matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToTensor3D(BrightData.IReadOnlyTensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ToTensor3D(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a 3D tensor from a tensor segment
             </summary>
@@ -4219,7 +4219,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToTensor4D(BrightData.IReadOnlyTensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ToTensor4D(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a 4D tensor from a tensor segment
             </summary>
@@ -4494,7 +4494,7 @@
             <param name="type">Type of object to create</param>
             <param name="args">Arguments to pass to constructor</param>
         </member>
-        <member name="M:BrightData.Helper.GenericActivator.Create``2(System.Type,System.Object[])">
+        <member name="F:BrightData.Helper.GenericActivator.TypeCreators">
             <summary>
             Creates a new object
             </summary>
@@ -4562,6 +4562,11 @@
         <member name="P:BrightData.Helper.SpanAggregator`1.Span">
             <summary>
             The aggregation result
+            </summary>
+        </member>
+        <member name="F:BrightData.Helper.SpanAggregator`1.OnlineAverage">
+            <summary>
+            Online average aggregation
             </summary>
         </member>
         <member name="T:BrightData.Helper.StringIndexer">
@@ -4835,12 +4840,12 @@
             Enumerates the indices
             </summary>
         </member>
-        <member name="T:BrightData.IHaveSpanOfFloats">
+        <member name="T:BrightData.IHaveSpanOf`1">
             <summary>
             Indicates that the type can create a readonly span of floats
             </summary>
         </member>
-        <member name="M:BrightData.IHaveSpanOfFloats.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.IHaveSpanOf`1.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{`0}@,System.Boolean@)">
             <summary>
             Returns a span of floats
             </summary>
@@ -5791,23 +5796,23 @@
             Whole number
             </summary>
         </member>
-        <member name="T:BrightData.ITypedSegment">
+        <member name="T:BrightData.ITableSegment">
             <summary>
             A segment (series of values) in a table of which each element has the same type
             </summary>
         </member>
-        <member name="P:BrightData.ITypedSegment.SegmentType">
+        <member name="P:BrightData.ITableSegment.SegmentType">
             <summary>
             The single type of the segment
             </summary>
         </member>
-        <member name="T:BrightData.ITypedSegment`1">
+        <member name="T:BrightData.ITableSegment`1">
             <summary>
             Typed data table segment (all of the same type)
             </summary>
             <typeparam name="T">Data type of values within the segment</typeparam>
         </member>
-        <member name="P:BrightData.ITypedSegment`1.Values">
+        <member name="P:BrightData.ITableSegment`1.Values">
             <summary>
             Enumerates the values
             </summary>
@@ -5935,7 +5940,7 @@
             Column index
             </summary>
         </member>
-        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITypedSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Gets a column transformer
             </summary>
@@ -6081,56 +6086,56 @@
             Square Euclidean
             </summary>
         </member>
-        <member name="T:BrightData.IReadOnlyTensorSegment">
+        <member name="T:BrightData.IReadOnlyNumericSegment`1">
             <summary>
             Read only tensor segment
             </summary>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.SegmentType">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.SegmentType">
             <summary>
             Segment type
             </summary>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.Item(System.Int32)">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Item(System.Int32)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.Item(System.UInt32)">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Item(System.UInt32)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.Item(System.Int64)">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Item(System.Int64)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.Item(System.UInt64)">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Item(System.UInt64)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.ToNewArray">
+        <member name="M:BrightData.IReadOnlyNumericSegment`1.ToNewArray">
             <summary>
             Creates a new array from the segment
             </summary>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.Values">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Values">
             <summary>
             Iterates all values in the segment
             </summary>
         </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.CopyTo(BrightData.ITensorSegment,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.IReadOnlyNumericSegment`1.CopyTo(BrightData.INumericSegment{`0},System.UInt32,System.UInt32)">
             <summary>
             Copies this segment to another segment
             </summary>
@@ -6138,13 +6143,13 @@
             <param name="sourceOffset">Index within this segment to copy from</param>
             <param name="targetOffset">Index within other segment to replace from</param>
         </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.CopyTo(System.Span{System.Single})">
+        <member name="M:BrightData.IReadOnlyNumericSegment`1.CopyTo(System.Span{`0})">
             <summary>
             Copies this segment to a span
             </summary>
             <param name="destination">Destination span</param>
         </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
+        <member name="M:BrightData.IReadOnlyNumericSegment`1.CopyTo(`0*,System.Int32,System.Int32,System.Int32)">
             <summary>
             Copies to a pointer
             </summary>
@@ -6153,101 +6158,101 @@
             <param name="stride">Increment after each copy</param>
             <param name="count">Number of elements to copy</param>
         </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.GetSpan(System.UInt32)">
+        <member name="M:BrightData.IReadOnlyNumericSegment`1.GetSpan(System.UInt32)">
             <summary>
             Returns a span from the current segment
             </summary>
             <param name="offset">Index within this segment to return</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IReadOnlyTensorSegment.IsWrapper">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.IsWrapper">
             <summary>
             True if the segment wraps another segment
             </summary>
         </member>
-        <member name="T:BrightData.ITensorSegment">
+        <member name="T:BrightData.INumericSegment`1">
             <summary>
             A segment of a float tensor
             </summary>
         </member>
-        <member name="P:BrightData.ITensorSegment.Item(System.Int32)">
+        <member name="P:BrightData.INumericSegment`1.Item(System.Int32)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.ITensorSegment.Item(System.UInt32)">
+        <member name="P:BrightData.INumericSegment`1.Item(System.UInt32)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.ITensorSegment.Item(System.Int64)">
+        <member name="P:BrightData.INumericSegment`1.Item(System.Int64)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.ITensorSegment.Item(System.UInt64)">
+        <member name="P:BrightData.INumericSegment`1.Item(System.UInt64)">
             <summary>
             Returns a value at the index
             </summary>
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensorSegment.GetArrayIfEasilyAvailable">
+        <member name="M:BrightData.INumericSegment`1.GetArrayIfEasilyAvailable">
             <summary>
             Returns a contiguous array of data only if this is the easily available (null otherwise)
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
+        <member name="M:BrightData.INumericSegment`1.CopyFrom(System.ReadOnlySpan{`0},System.UInt32)">
             <summary>
             Copies from the span into the segment
             </summary>
             <param name="span">Span to copy from</param>
             <param name="targetOffset">Index into this segment to replace from</param>
         </member>
-        <member name="M:BrightData.ITensorSegment.Clear">
+        <member name="M:BrightData.INumericSegment`1.Clear">
             <summary>
             Sets each value within the segment to zero
             </summary>
         </member>
-        <member name="M:BrightData.ITensorSegment.GetUnderlyingArray">
+        <member name="M:BrightData.INumericSegment`1.GetUnderlyingArray">
             <summary>
             Returns the underlying array used by the segment (if available)
             </summary>
             <returns>Array, segment offset and segment stride</returns>
         </member>
-        <member name="T:BrightData.IHaveReadOnlyTensorSegment">
+        <member name="T:BrightData.IHaveReadOnlyTensorSegment`1">
             <summary>
             Indicates that there is an underlying tensor segment
             </summary>
         </member>
-        <member name="P:BrightData.IHaveReadOnlyTensorSegment.ReadOnlySegment">
+        <member name="P:BrightData.IHaveReadOnlyTensorSegment`1.ReadOnlySegment">
             <summary>
             Underlying tensor segment
             </summary>
         </member>
-        <member name="T:BrightData.IHaveTensorSegment">
+        <member name="T:BrightData.IHaveTensorSegment`1">
             <summary>
             Indicates that there is an underlying tensor segment
             </summary>
         </member>
-        <member name="P:BrightData.IHaveTensorSegment.Segment">
+        <member name="P:BrightData.IHaveTensorSegment`1.Segment">
             <summary>
             Underlying tensor segment
             </summary>
         </member>
-        <member name="T:BrightData.IHaveReadOnlyContiguousFloatSpan">
+        <member name="T:BrightData.IHaveReadOnlyContiguousSpan`1">
             <summary>
             Indicates that the type has a contiguous read only float span
             </summary>
         </member>
-        <member name="P:BrightData.IHaveReadOnlyContiguousFloatSpan.FloatSpan">
+        <member name="P:BrightData.IHaveReadOnlyContiguousSpan`1.FloatSpan">
             <summary>
             A read only span of floats
             </summary>
@@ -6995,7 +7000,7 @@
             <param name="columnX">Column index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.Row(System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.Row(System.UInt32,BrightData.INumericSegment{System.Single})">
             <summary>
             Returns a row from the matrix
             </summary>
@@ -7003,7 +7008,7 @@
             <param name="segment">Optional segment to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.Column(System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.Column(System.UInt32,BrightData.INumericSegment{System.Single})">
             <summary>
             Returns a column from the matrix
             </summary>
@@ -7154,25 +7159,25 @@
             <param name="columnIndices">Column indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.AddToEachRow(BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.AddToEachRow(BrightData.INumericSegment{System.Single})">
             <summary>
             Adds a tensor segment to each row of this matrix (matrix will be modified in place)
             </summary>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.IMatrix.AddToEachColumn(BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.AddToEachColumn(BrightData.INumericSegment{System.Single})">
             <summary>
             Adds a tensor segment to each column of this matrix (matrix will be modified in place)
             </summary>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.IMatrix.MultiplyEachRowWith(BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.MultiplyEachRowWith(BrightData.INumericSegment{System.Single})">
             <summary>
             Multiplies each row of this matrix with a tensor segment (matrix will be modified in place)
             </summary>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.IMatrix.MultiplyEachColumnWith(BrightData.ITensorSegment)">
+        <member name="M:BrightData.IMatrix.MultiplyEachColumnWith(BrightData.INumericSegment{System.Single})">
             <summary>
             Multiplies each column of this matrix with a tensor segment (matrix will be modified in place)
             </summary>
@@ -7184,7 +7189,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.SoftmaxDerivativePerRow(BrightData.ITensorSegment[])">
+        <member name="M:BrightData.IMatrix.SoftmaxDerivativePerRow(BrightData.INumericSegment{System.Single}[])">
             <summary>
             Computes the per row softmax derivative of this matrix
             </summary>
@@ -7507,7 +7512,7 @@
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,`0)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,`0)">
             <summary>
             Constructor
             </summary>
@@ -7540,10 +7545,10 @@
         <member name="P:BrightData.LinearAlgebra.BrightMatrix`1.Item(System.UInt64,System.UInt64)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Row(System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Row(System.UInt32,BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Column(System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Column(System.UInt32,BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
@@ -7552,7 +7557,7 @@
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetColumnSpan(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Create(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Create(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Clone(BrightData.LinearAlgebra.LinearAlgebraProvider)">
@@ -7627,22 +7632,22 @@
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetNewMatrixFromColumns(System.Collections.Generic.IEnumerable{System.UInt32})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.AddToEachRow(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.AddToEachRow(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.AddToEachColumn(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.AddToEachColumn(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.MultiplyEachRowWith(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.MultiplyEachRowWith(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.MultiplyEachColumnWith(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.MultiplyEachColumnWith(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.SoftmaxPerRow">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.SoftmaxDerivativePerRow(BrightData.ITensorSegment[])">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.SoftmaxDerivativePerRow(BrightData.INumericSegment{System.Single}[])">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.ToString">
@@ -7656,7 +7661,7 @@
             Matrix type
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Constructor
             </summary>
@@ -7671,7 +7676,7 @@
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,`0)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,`0)">
             <summary>
             Constructor
             </summary>
@@ -7682,7 +7687,7 @@
             <param name="lap">Linear algebra provider</param>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.Create(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.Create(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensor3D`1.Clone(BrightData.LinearAlgebra.LinearAlgebraProvider)">
@@ -7800,7 +7805,7 @@
             3D tensor 
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor3D.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor3D.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Constructor
             </summary>
@@ -7816,7 +7821,7 @@
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,System.UInt32,`0)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,`0)">
             <summary>
             Constructor
             </summary>
@@ -7827,7 +7832,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <param name="lap">Linear algebra provider</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.Create(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.Create(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensor4D`1.Clone(BrightData.LinearAlgebra.LinearAlgebraProvider)">
@@ -7937,7 +7942,7 @@
             4D tensor
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensor4D.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensor4D.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Constructor
             </summary>
@@ -7969,7 +7974,7 @@
         <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.Create(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.Create(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a typed tensor from a tensor segment
             </summary>
@@ -7993,7 +7998,7 @@
         <member name="P:BrightData.LinearAlgebra.BrightTensorBase`2.LinearAlgebraProvider">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightTensorBase`2.Reshape">
@@ -8185,7 +8190,7 @@
             </summary>
             <typeparam name="LAP"></typeparam>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightVector`1.#ctor(BrightData.ITensorSegment,`0)">
+        <member name="M:BrightData.LinearAlgebra.BrightVector`1.#ctor(BrightData.INumericSegment{System.Single},`0)">
             <summary>
             Constructor
             </summary>
@@ -8222,7 +8227,7 @@
         <member name="M:BrightData.LinearAlgebra.BrightVector`1.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightVector`1.Create(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.BrightVector`1.Create(BrightData.INumericSegment{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightVector`1.MapIndexed(System.Func{System.UInt32,System.Single,System.Single})">
@@ -8236,7 +8241,7 @@
             Vector
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightVector.#ctor(BrightData.ITensorSegment,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightData.LinearAlgebra.BrightVector.#ctor(BrightData.INumericSegment{System.Single},BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Constructor
             </summary>
@@ -8328,21 +8333,21 @@
             <param name="initializer">Function to initialize each value in the segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Clone(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Clone(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Creates a clone of the tensor segment
             </summary>
             <param name="segment">Segment to clone</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateVector(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateVector(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a vector from a tensor segment
             </summary>
             <param name="data">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateVector(BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateVector(BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Creates a vector from a read only tensor segment
             </summary>
@@ -8408,7 +8413,7 @@
             <param name="values"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a matrix from a segment
             </summary>
@@ -8417,7 +8422,7 @@
             <param name="data">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Creates a matrix from a segment
             </summary>
@@ -8493,14 +8498,14 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(BrightData.IReadOnlyTensorSegment[])">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(BrightData.IReadOnlyNumericSegment{System.Single}[])">
             <summary>
             Creates a matrix from the rows supplied as tensor segments
             </summary>
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{BrightData.IReadOnlyTensorSegment})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(System.ReadOnlySpan{BrightData.IReadOnlyNumericSegment{System.Single}})">
             <summary>
             Creates a matrix from the rows supplied as tensor segments
             </summary>
@@ -8549,14 +8554,14 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(BrightData.IReadOnlyTensorSegment[])">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(BrightData.IReadOnlyNumericSegment{System.Single}[])">
             <summary>
             Creates a matrix from the columns supplied as tensor segments
             </summary>
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.IReadOnlyTensorSegment})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.IReadOnlyNumericSegment{System.Single}})">
             <summary>
             Creates a matrix from the columns supplied as tensor segments
             </summary>
@@ -8570,7 +8575,7 @@
             <param name="columns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor3D(System.UInt32,System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor3D(System.UInt32,System.UInt32,System.UInt32,BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a 3D tensor
             </summary>
@@ -8580,7 +8585,7 @@
             <param name="data">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor3D(System.UInt32,System.UInt32,System.UInt32,BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor3D(System.UInt32,System.UInt32,System.UInt32,BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Creates a 3D tensor
             </summary>
@@ -8651,7 +8656,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor4D(System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.IReadOnlyTensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor4D(System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.IReadOnlyNumericSegment{System.Single})">
             <summary>
             Creates a 4D tensor
             </summary>
@@ -8662,7 +8667,7 @@
             <param name="data">Tensor segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor4D(System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor4D(System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a 4D tensor
             </summary>
@@ -8735,7 +8740,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetSize(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetSize(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Returns the size from both tensors (the size is expected to be the same)
             </summary>
@@ -8744,7 +8749,7 @@
             <returns></returns>
             <exception cref="T:System.Exception">Throws an exception if the tensors are a different size</exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallel(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallel(BrightData.INumericSegment{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             Applies a mapping function to each value in the segment to create a new segment (potentially in parallel)
             </summary>
@@ -8752,14 +8757,14 @@
             <param name="mapper">Mapping function that receives each value from the segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallelInPlace(BrightData.ITensorSegment,System.Func{System.Single,System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallelInPlace(BrightData.INumericSegment{System.Single},System.Func{System.Single,System.Single})">
             <summary>
             Applies a mapping function to each value in the segment in place (potentially in parallel)
             </summary>
             <param name="segment"></param>
             <param name="mapper">Mapping function that receives each value from the segment</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallel(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single,System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallel(BrightData.INumericSegment{System.Single},System.Func{System.UInt32,System.Single,System.Single})">
             <summary>
             Applies a mapping function to each value in the segment to create a new segment (potentially in parallel)
             </summary>
@@ -8767,14 +8772,14 @@
             <param name="mapper">Mapping function that receives the index and each value from the segment</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallelInPlace(BrightData.ITensorSegment,System.Func{System.UInt32,System.Single,System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MapParallelInPlace(BrightData.INumericSegment{System.Single},System.Func{System.UInt32,System.Single,System.Single})">
             <summary>
             Applies a mapping function to each value in the segment in place (potentially in parallel)
             </summary>
             <param name="segment"></param>
             <param name="mapper">Mapping function that receives the index and each value from the segment</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor(System.UInt32[],BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateTensor(System.UInt32[],BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a tensor from a tensor shape
             </summary>
@@ -8784,7 +8789,7 @@
             <exception cref="T:System.ArgumentException"></exception>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Adds two tensors into a new tensor
             </summary>
@@ -8792,7 +8797,7 @@
             <param name="tensor2"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Adds two tensors into a new tensor and applies coefficients to each element in the two tensors
             </summary>
@@ -8802,7 +8807,7 @@
             <param name="coefficient2"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Add(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Creates a new tensor from adding a scalar to each element in the tensor 
             </summary>
@@ -8810,14 +8815,14 @@
             <param name="scalar"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Adds another tensor to the first tensor which will be modified in place
             </summary>
             <param name="target">First tensor</param>
             <param name="other">Other tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Adds another tensor to the first tensor and applies coefficients to each element in each tensor
             </summary>
@@ -8826,21 +8831,21 @@
             <param name="coefficient1">Coefficient applied to each element of the first tensor</param>
             <param name="coefficient2">Coefficient applied to each element of the other tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddInPlace(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Adds a scalar to each element of this tensor - modified in place
             </summary>
             <param name="target"></param>
             <param name="scalar"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyInPlace(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyInPlace(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Multiplies each element of the tensor by a scalar - modified in place
             </summary>
             <param name="target"></param>
             <param name="scalar"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Creates a new tensor by multiplying each element of the tensor with a scalar
             </summary>
@@ -8848,7 +8853,7 @@
             <param name="scalar"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Subtracts the second tensor from the first tensor into a new tensor
             </summary>
@@ -8856,7 +8861,7 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Subtract(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Subtracts the second tensor from the first tensor into a new tensor and applies coefficients to each value in each tensor
             </summary>
@@ -8866,14 +8871,14 @@
             <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Subtracts the second tensor from the first tensor - first tensor modified in place
             </summary>
             <param name="tensor1">First tensor</param>
             <param name="tensor2">Second tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SubtractInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Subtracts the second tensor from the first tensor and applies coefficient to each value in the tensors - first tensor modified in place
             </summary>
@@ -8882,7 +8887,7 @@
             <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
             <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiply(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiply(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor by multiplying each element in the first tensor with the corresponding value in the second tensor
             </summary>
@@ -8890,14 +8895,14 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiplyInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseMultiplyInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Multiplies each element in the first tensor with the corresponding value in the second tensor - first tensor modified in place
             </summary>
             <param name="tensor1">First tensor</param>
             <param name="tensor2">Second tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivide(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivide(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor by dividing each element in the first tensor with the corresponding value in the second tensor
             </summary>
@@ -8905,14 +8910,14 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivideInPlace(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.PointwiseDivideInPlace(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Dividing each element in the first tensor with the corresponding value in the second tensor - first tensor is modified in place
             </summary>
             <param name="tensor1">First tensor</param>
             <param name="tensor2">Second tensor</param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.DotProduct(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.DotProduct(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Calculates the dot product of the first with the second tensor
             </summary>
@@ -8920,7 +8925,7 @@
             <param name="tensor2"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sqrt(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sqrt(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Creates a new tensor that contains the square root of each value in this tensor
             </summary>
@@ -8928,7 +8933,7 @@
             <param name="adjustment">A small value to add to each value in case of zeros</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Search(BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Search(BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Finds the index (if any) of the first element with a matching value
             </summary>
@@ -8937,7 +8942,7 @@
             <param name="tolerance"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ConstrainInPlace(BrightData.ITensorSegment,System.Nullable{System.Single},System.Nullable{System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ConstrainInPlace(BrightData.INumericSegment{System.Single},System.Nullable{System.Single},System.Nullable{System.Single})">
             <summary>
             Constrains each value in this tensor to lie between the min and max values (if supplied)
             </summary>
@@ -8945,77 +8950,77 @@
             <param name="minValue"></param>
             <param name="maxValue"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Average(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Average(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the average of the values in the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Norm(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Norm(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the L1 norm (manhattan distance) of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L2Norm(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L2Norm(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the L2 norm (euclidean distance) of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinAndMaxValues(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinAndMaxValues(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the minimum and maximum values of the tensor (and their corresponding indices)
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinIndex(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMinIndex(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the index of the minimum value of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMaxIndex(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMaxIndex(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the index of the maximum value of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMin(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMin(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the minimum value of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMax(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.GetMax(BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the maximum value of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.IsEntirelyFinite(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.IsEntirelyFinite(BrightData.INumericSegment{System.Single})">
             <summary>
             Checks if the tensor is entirely finite (not NaN or Infinity)
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Reverse(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Reverse(BrightData.INumericSegment{System.Single})">
             <summary>
             Reverse the order of the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Split(BrightData.IReadOnlyTensorSegment,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Split(BrightData.IReadOnlyNumericSegment{System.Single},System.UInt32)">
             <summary>
             Splits the tensor into separate (contiguous) sub tensors
             </summary>
@@ -9023,7 +9028,7 @@
             <param name="blockCount">Number of blocks to split into</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CosineDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CosineDistance(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the cosine distance between the first and second tensor
             </summary>
@@ -9031,7 +9036,7 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.EuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.EuclideanDistance(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the euclidean distance between the first and second tensor
             </summary>
@@ -9039,7 +9044,7 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MeanSquaredDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MeanSquaredDistance(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the mean squared distance between the first and second tensor
             </summary>
@@ -9047,7 +9052,7 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SquaredEuclideanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SquaredEuclideanDistance(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the squared euclidean distance between the first and second tensor
             </summary>
@@ -9055,7 +9060,7 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ManhattanDistance(BrightData.ITensorSegment,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ManhattanDistance(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single})">
             <summary>
             Finds the manhattan distance between the first and second tensor
             </summary>
@@ -9063,35 +9068,35 @@
             <param name="tensor2">Second tensor</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Abs(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Abs(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the absolute value of each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Log(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Log(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the natural logarithm of each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Exp(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Exp(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the exponent of each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Squared(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Squared(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the square of each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.StdDev(BrightData.ITensorSegment,System.Nullable{System.Single})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.StdDev(BrightData.INumericSegment{System.Single},System.Nullable{System.Single})">
             <summary>
             Finds the standard deviation of each element in the tensor
             </summary>
@@ -9099,77 +9104,77 @@
             <param name="mean">Pre calculated mean of the tensor or null to calculate</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sigmoid(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sigmoid(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the sigmoid function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SigmoidDerivative(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SigmoidDerivative(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the derivative of the sigmoid function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Tanh(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Tanh(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the tanh function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TanhDerivative(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TanhDerivative(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the derivative of the tanh function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Relu(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Relu(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the relu function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReluDerivative(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReluDerivative(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the derivative of the relu function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyRelu(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyRelu(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the leaky relu function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyReluDerivative(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.LeakyReluDerivative(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the derivative of the leaky relu function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Softmax(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Softmax(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the softmax function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivative(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivative(BrightData.INumericSegment{System.Single})">
             <summary>
             Creates a new tensor that contains the derivative of the softmax function applied to each element in this tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Pow(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Pow(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             Creates a new tensor that each element of the tensor raised to the specified power
             </summary>
@@ -9177,7 +9182,7 @@
             <param name="power"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RoundInPlace(BrightData.ITensorSegment,System.Single,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RoundInPlace(BrightData.INumericSegment{System.Single},System.Single,System.Single)">
             <summary>
             Rounds each element in the tensor to be either the lower or the upper parameter depending on its distance
             </summary>
@@ -9185,7 +9190,7 @@
             <param name="lower"></param>
             <param name="upper"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CherryPickIndices(BrightData.ITensorSegment,System.UInt32[])">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CherryPickIndices(BrightData.INumericSegment{System.Single},System.UInt32[])">
             <summary>
             Returns a new tensor with only the supplied indices
             </summary>
@@ -9279,7 +9284,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Regularisation(BrightData.ITensorSegment,System.Single)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Regularisation(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             In place L1 regularization of the tensor
             </summary>
@@ -9547,28 +9552,28 @@
             <param name="columnIndices"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachRow(BrightData.IMatrix,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachRow(BrightData.IMatrix,BrightData.INumericSegment{System.Single})">
             <summary>
             Adds a tensor to each row of the matrix
             </summary>
             <param name="matrix"></param>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachColumn(BrightData.IMatrix,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachColumn(BrightData.IMatrix,BrightData.INumericSegment{System.Single})">
             <summary>
             Adds a tensor to each column of the matrix
             </summary>
             <param name="matrix"></param>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachRowWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachRowWith(BrightData.IMatrix,BrightData.INumericSegment{System.Single})">
             <summary>
             Multiplies each row of the matrix with the tensor
             </summary>
             <param name="matrix"></param>
             <param name="segment"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachColumnWith(BrightData.IMatrix,BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiplyEachColumnWith(BrightData.IMatrix,BrightData.INumericSegment{System.Single})">
             <summary>
             Multiplies each column of the matrix with the tensor
             </summary>
@@ -9589,28 +9594,28 @@
             Binds a new thread to this provider
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sum(BrightData.ITensorSegment)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Sum(BrightData.INumericSegment{System.Single})">
             <summary>
             Returns the sum of values in the tensor
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmax(System.ArraySegment{BrightData.ITensorSegment})">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmax(System.ArraySegment{BrightData.INumericSegment{System.Single}})">
             <summary>
             Calculates the softmax of a set of tensors
             </summary>
             <param name="segments"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmaxDerivative(BrightData.ITensorSegment[])">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MultiSoftmaxDerivative(BrightData.INumericSegment{System.Single}[])">
             <summary>
             Calculates the softmax derivative of a set of tensors
             </summary>
             <param name="segments"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivativePerRow(BrightData.IMatrix,BrightData.ITensorSegment[])">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.SoftmaxDerivativePerRow(BrightData.IMatrix,BrightData.INumericSegment{System.Single}[])">
             <summary>
             Computes the per row softmax derivative
             </summary>
@@ -9653,7 +9658,7 @@
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Values">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyTo(BrightData.ITensorSegment,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyTo(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyTo(System.Span{System.Single})">
@@ -9665,7 +9670,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(System.UInt32)">
@@ -9678,16 +9683,16 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.Int32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.UInt32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.Int64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.UInt64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetArrayIfEasilyAvailable">
             <inheritdoc />
@@ -9736,7 +9741,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(BrightData.ITensorSegment,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetSpan(System.UInt32)">
@@ -9747,7 +9752,7 @@
             Read only tensor segment wrapper
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.#ctor(BrightData.IReadOnlyTensorSegment,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.#ctor(BrightData.IReadOnlyNumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Constructor
             </summary>
@@ -9810,7 +9815,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.ToNewArray">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(BrightData.ITensorSegment,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(System.Span{System.Single})">
@@ -9819,7 +9824,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(System.UInt32)">
@@ -9833,7 +9838,7 @@
             A tensor segment that wraps another tensor segment
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.#ctor(BrightData.ITensorSegment,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Constructor
             </summary>
@@ -9848,16 +9853,16 @@
             </summary>
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.Item(System.Int32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.Item(System.UInt32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.Item(System.Int64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.Item(System.UInt64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
+            <inheritdoc cref="!:INumericSegment" />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.GetArrayIfEasilyAvailable">
             <inheritdoc />
@@ -10153,7 +10158,7 @@
         <member name="P:BrightData.Transformation.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITypedSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.BrightDataContext,BrightData.BrightDataType,BrightData.ITableSegment,System.Func{BrightData.MetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Transformation.ColumnNormalization">

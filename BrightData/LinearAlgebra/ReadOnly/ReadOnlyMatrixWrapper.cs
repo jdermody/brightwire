@@ -8,11 +8,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyMatrixWrapper : IReadOnlyMatrix, IEquatable<ReadOnlyMatrixWrapper>, IHaveReadOnlyContiguousFloatSpan
+    internal class ReadOnlyMatrixWrapper : IReadOnlyMatrix, IEquatable<ReadOnlyMatrixWrapper>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyMatrixValueSemantics<ReadOnlyMatrixWrapper> _valueSemantics;
 
-        public ReadOnlyMatrixWrapper(IReadOnlyTensorSegment segment, uint rowCount, uint columnCount)
+        public ReadOnlyMatrixWrapper(IReadOnlyNumericSegment<float> segment, uint rowCount, uint columnCount)
         {
             RowCount = rowCount;
             ColumnCount = columnCount;
@@ -26,7 +26,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(ColumnCount);
             writer.Write(RowCount);
             var temp = SpanOwner<float>.Empty;
-            ReadOnlySegment.GetFloatSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -42,7 +42,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public uint RowCount { get; }
         public uint ColumnCount { get; }
         public bool IsReadOnly => true;
@@ -58,7 +58,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IReadOnlyVector[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();
         public IReadOnlyVector[] AllColumns() => ColumnCount.AsRange().Select(GetColumn).ToArray();
         public uint Size => RowCount * ColumnCount;
-        public IReadOnlyTensorSegment ReadOnlySegment { get; }
+        public IReadOnlyNumericSegment<float> ReadOnlySegment { get; }
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrixWrapper);

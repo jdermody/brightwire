@@ -2,11 +2,11 @@
 
 namespace BrightData.DataTable.Operations
 {
-    internal class NopColumnOperation : OperationBase<ITypedSegment?>
+    internal class NopColumnOperation : OperationBase<ITableSegment?>
     {
-        readonly ITypedSegment _column;
+        readonly ITableSegment _column;
 
-        public NopColumnOperation(ITypedSegment column) : base(0, null, true)
+        public NopColumnOperation(ITableSegment column) : base(0, null, true)
         {
             _column = column;
         }
@@ -16,6 +16,6 @@ namespace BrightData.DataTable.Operations
             throw new NotImplementedException();
         }
 
-        protected override ITypedSegment? GetResult(bool wasCancelled) => wasCancelled ? null : _column;
+        protected override ITableSegment? GetResult(bool wasCancelled) => wasCancelled ? null : _column;
     }
 }

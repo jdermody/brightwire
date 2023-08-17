@@ -57,7 +57,7 @@ namespace BrightData.DataTable
         /// Gets all columns as typed segments
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ITypedSegment> GetAllColumns() => GetColumns(ColumnIndices);
+        public IEnumerable<ITableSegment> GetAllColumns() => GetColumns(ColumnIndices);
 
 
         /// <summary>
@@ -65,19 +65,19 @@ namespace BrightData.DataTable
         /// </summary>
         /// <param name="columnIndices"></param>
         /// <returns></returns>
-        public IEnumerable<ITypedSegment> GetColumns(IEnumerable<uint> columnIndices) => columnIndices.Select(GetColumn);
+        public IEnumerable<ITableSegment> GetColumns(IEnumerable<uint> columnIndices) => columnIndices.Select(GetColumn);
 
         /// <summary>
         /// Returns a column as a typed segment
         /// </summary>
         /// <param name="columnIndex"></param>
         /// <returns></returns>
-        public ITypedSegment GetColumn(uint columnIndex)
+        public ITableSegment GetColumn(uint columnIndex)
         {
             var brightDataType = ColumnTypes[columnIndex];
             var columnDataType = brightDataType.GetColumnType().Type;
             var dataType = brightDataType.GetDataType();
-            return GenericActivator.Create<ITypedSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
+            return GenericActivator.Create<ITableSegment>(typeof(ColumnSegment<,>).MakeGenericType(columnDataType, dataType),
                 Context,
                 brightDataType,
                 _header.RowCount,
@@ -92,7 +92,7 @@ namespace BrightData.DataTable
         /// <typeparam name="T"></typeparam>
         /// <param name="columnIndex"></param>
         /// <returns></returns>
-        public ITypedSegment<T> GetColumn<T>(uint columnIndex) where T : notnull => (ITypedSegment<T>)GetColumn(columnIndex);
+        public ITableSegment<T> GetColumn<T>(uint columnIndex) where T : notnull => (ITableSegment<T>)GetColumn(columnIndex);
 
         static void ValidateColumnTypes(Type columnType, Type requestedType)
         {

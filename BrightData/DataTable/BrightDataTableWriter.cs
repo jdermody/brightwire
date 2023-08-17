@@ -34,7 +34,7 @@ namespace BrightData.DataTable
             _writeStructs = methods[nameof(WriteStructs)];
         }
 
-        public Stream Write(MetaData tableMetaData, ITypedSegment[] columnSegments)
+        public Stream Write(MetaData tableMetaData, ITableSegment[] columnSegments)
         {
             // check that all columns have the same number of rows
             var firstColumn = columnSegments.First();
@@ -217,7 +217,7 @@ namespace BrightData.DataTable
                 data.StartIndex = floats.Size;
                 data.Count = item.Size;
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
                     temp.Dispose();
@@ -232,7 +232,7 @@ namespace BrightData.DataTable
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
                     temp.Dispose();
@@ -248,7 +248,7 @@ namespace BrightData.DataTable
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
                     temp.Dispose();
@@ -265,7 +265,7 @@ namespace BrightData.DataTable
                 data.RowCount = item.RowCount;
                 data.ColumnCount = item.ColumnCount;
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 floats.CopyFrom(span);
                 if(wasTempUsed)
                     temp.Dispose();

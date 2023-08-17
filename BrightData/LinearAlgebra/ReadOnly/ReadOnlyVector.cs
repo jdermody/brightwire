@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             _data = reader.BaseStream.ReadArray<float>(size);
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return _data.AsSpan();
@@ -55,7 +55,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public float this[uint index] => _data[index];
         public float[] ToArray() => _data;
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data);
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
 
         // value semantics
         public bool Equals(ReadOnlyVector? other) => _valueSemantics.Equals(other);

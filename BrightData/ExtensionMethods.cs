@@ -611,10 +611,10 @@ namespace BrightData
         /// </summary>
         /// <param name="spanOwner"></param>
         /// <returns></returns>
-        public static float[] ToArray(this IHaveSpanOfFloats spanOwner)
+        public static float[] ToArray(this IHaveSpanOf<float> spanOwner)
         {
             var temp = SpanOwner<float>.Empty;
-            var span = spanOwner.GetFloatSpan(ref temp, out var wasTempUsed);
+            var span = spanOwner.GetSpan(ref temp, out var wasTempUsed);
             try {
                 return span.ToArray();
             }
@@ -629,7 +629,7 @@ namespace BrightData
         /// </summary>
         /// <param name="source">Copy from</param>
         /// <param name="target">Copy to</param>
-        public static void CopyTo(this IHaveReadOnlyTensorSegment source, IHaveTensorSegment target)
+        public static void CopyTo(this IHaveReadOnlyTensorSegment<float> source, IHaveTensorSegment<float> target)
         {
             source.ReadOnlySegment.CopyTo(target.Segment);
         }

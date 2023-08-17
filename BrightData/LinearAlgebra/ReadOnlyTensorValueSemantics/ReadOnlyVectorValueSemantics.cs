@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
                 var hashCode = new HashCode();
                 hashCode.Add(obj.Size);
                 var temp = SpanOwner<float>.Empty;
-                var span = obj.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = obj.GetSpan(ref temp, out var wasTempUsed);
                 try {
                     hashCode.Add(span);
                 }
@@ -33,8 +33,8 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
         {
             if (other is not null && other.Size == _obj.Size) {
                 SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
-                var span1 = _obj.GetFloatSpan(ref temp1, out var wasTemp1Used);
-                var span2 = other.GetFloatSpan(ref temp2, out var wasTemp2Used);
+                var span1 = _obj.GetSpan(ref temp1, out var wasTemp1Used);
+                var span2 = other.GetSpan(ref temp2, out var wasTemp2Used);
                 try {
                     return span1.SequenceEqual(span2);
                 }

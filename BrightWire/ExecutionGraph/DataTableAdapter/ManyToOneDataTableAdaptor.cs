@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 .Select(r => (Matrix: (IReadOnlyMatrix)r[_featureColumnIndices[0]], Vector: (IReadOnlyVector)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var inputData = new Dictionary<uint, List<IReadOnlyTensorSegment>>();
+            var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             foreach (var (input, _) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))

@@ -6,11 +6,11 @@ namespace BrightData.MKL
     public class MklVector : BrightVector<MklLinearAlgebraProvider>
     {
         /// <inheritdoc />
-        public MklVector(ITensorSegment data, MklLinearAlgebraProvider computationUnit) : base(data, computationUnit)
+        public MklVector(INumericSegment<float> data, MklLinearAlgebraProvider computationUnit) : base(data, computationUnit)
         {
         }
 
         /// <inheritdoc />
-        public override IVector Create(ITensorSegment segment) => new MklVector(segment, Lap);
+        public override IVector Create(INumericSegment<float> segment) => new MklVector(segment, Lap);
     }
 }

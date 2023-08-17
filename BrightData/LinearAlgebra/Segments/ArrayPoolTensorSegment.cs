@@ -73,7 +73,7 @@ namespace BrightData.LinearAlgebra.Segments
         public override void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _memoryOwner.Span : _memoryOwner.Span[(int)targetOffset..]);
 
         /// <inheritdoc />
-        public override void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public override void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
             var span = GetSpan(sourceOffset);
             var destination = segment.GetArrayIfEasilyAvailable();

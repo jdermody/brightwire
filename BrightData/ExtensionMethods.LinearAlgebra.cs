@@ -388,7 +388,7 @@ namespace BrightData
         {
             if(tensors == null)
                 throw new ArgumentException("Null enumerable", nameof(tensors));
-            ITensorSegment? ret = null;
+            INumericSegment<float>? ret = null;
             try {
                 var count = 0;
                 LinearAlgebraProvider? lap = null;

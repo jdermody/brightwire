@@ -72,8 +72,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
-                var inputData = new Dictionary<uint, List<IReadOnlyTensorSegment>>();
-                var outputData = new Dictionary<uint, List<IReadOnlyTensorSegment>>();
+                var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
+                var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
 
                 foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {

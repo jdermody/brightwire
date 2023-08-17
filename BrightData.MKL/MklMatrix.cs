@@ -6,11 +6,11 @@ namespace BrightData.MKL
     public class MklMatrix : BrightMatrix<MklLinearAlgebraProvider>
     {
         /// <inheritdoc />
-        public MklMatrix(ITensorSegment data, uint rows, uint columns, MklLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
+        public MklMatrix(INumericSegment<float> data, uint rows, uint columns, MklLinearAlgebraProvider computationUnit) : base(data, rows, columns, computationUnit)
         {
         }
 
         /// <inheritdoc />
-        public override IMatrix Create(ITensorSegment segment) => new MklMatrix(segment, RowCount, ColumnCount, Lap);
+        public override IMatrix Create(INumericSegment<float> segment) => new MklMatrix(segment, RowCount, ColumnCount, Lap);
     }
 }

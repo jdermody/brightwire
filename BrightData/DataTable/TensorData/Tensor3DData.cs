@@ -10,11 +10,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable.TensorData
 {
-    internal class Tensor3DData : IReadOnlyTensor3D, IEquatable<Tensor3DData>, IHaveReadOnlyContiguousFloatSpan
+    internal class Tensor3DData : IReadOnlyTensor3D, IEquatable<Tensor3DData>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyTensor3DValueSemantics<Tensor3DData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        IReadOnlyTensorSegment? _segment;
+        IReadOnlyNumericSegment<float>? _segment;
         uint _startIndex;
 
         public Tensor3DData(ICanRandomlyAccessUnmanagedData<float> data, uint depth, uint rowCount, uint columnCount, uint startIndex)
@@ -51,7 +51,7 @@ namespace BrightData.DataTable.TensorData
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return FloatSpan;
@@ -98,7 +98,7 @@ namespace BrightData.DataTable.TensorData
         }
 
         public uint Size => Depth * ColumnCount * RowCount;
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         // value semantics
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as Tensor3DData);

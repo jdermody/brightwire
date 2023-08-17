@@ -74,8 +74,8 @@ namespace BrightData.Transformation
         {
             readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
-            public NumericVectoriser(ITypedSegment column)
-                : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<T>)column).Values.GetEnumerator())
+            public NumericVectoriser(ITableSegment column)
+                : base(column.MetaData.GetColumnIndex(), ((ITableSegment<T>)column).Values.GetEnumerator())
             {
             }
 
@@ -91,12 +91,12 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            WeightedIndexListVectoriser(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<WeightedIndexList>)column).Values.GetEnumerator()) { }
-            public WeightedIndexListVectoriser(uint maxSize, ITypedSegment column) : this(column)
+            WeightedIndexListVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<WeightedIndexList>)column).Values.GetEnumerator()) { }
+            public WeightedIndexListVectoriser(uint maxSize, ITableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
-            public WeightedIndexListVectoriser(ITypedSegment column, BinaryReader reader) : this(column)
+            public WeightedIndexListVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _maxSize = reader.ReadUInt32();
             }
@@ -121,12 +121,12 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            IndexListVectoriser(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<IndexList>)column).Values.GetEnumerator()) { }
-            public IndexListVectoriser(uint maxSize, ITypedSegment column) : this(column)
+            IndexListVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<IndexList>)column).Values.GetEnumerator()) { }
+            public IndexListVectoriser(uint maxSize, ITableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
-            public IndexListVectoriser(ITypedSegment column, BinaryReader reader) : this(column)
+            public IndexListVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _maxSize = reader.ReadUInt32();
             }
@@ -147,14 +147,14 @@ namespace BrightData.Transformation
                 writer.Write(_maxSize);
             }
         }
-        class TensorVectoriser : VectoriserBase<IHaveReadOnlyTensorSegment>
+        class TensorVectoriser : VectoriserBase<IHaveReadOnlyTensorSegment<float>>
         {
-            TensorVectoriser(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), ((ITypedSegment<IHaveReadOnlyTensorSegment>)column).Values.GetEnumerator()) {}
-            public TensorVectoriser(uint size, ITypedSegment column) : this(column)
+            TensorVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<IHaveReadOnlyTensorSegment<float>>)column).Values.GetEnumerator()) {}
+            public TensorVectoriser(uint size, ITableSegment column) : this(column)
             {
                 Size = size;
             }
-            public TensorVectoriser(ITypedSegment column, BinaryReader reader) : this(column)
+            public TensorVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 Size = reader.ReadUInt32();
             }
@@ -168,7 +168,7 @@ namespace BrightData.Transformation
             public override uint Size { get; }
             public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
-            protected override IEnumerable<float> Vectorize(IHaveReadOnlyTensorSegment obj)
+            protected override IEnumerable<float> Vectorize(IHaveReadOnlyTensorSegment<float> obj)
             {
                 return obj.ReadOnlySegment.Values;
             }
@@ -186,13 +186,13 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
 #pragma warning disable 8618
-            OneHotEncodeVectorised(ITypedSegment column) : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator()) { }
+            OneHotEncodeVectorised(ITableSegment column) : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator()) { }
 #pragma warning restore 8618
-            public OneHotEncodeVectorised(uint size, ITypedSegment column) : this(column)
+            public OneHotEncodeVectorised(uint size, ITableSegment column) : this(column)
             {
                 _buffer = new float[Size = size];
             }
-            public OneHotEncodeVectorised(ITypedSegment column, BinaryReader reader) : this(column)
+            public OneHotEncodeVectorised(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _nextIndex = reader.ReadUInt32();
                 var size = reader.ReadUInt32();
@@ -242,12 +242,12 @@ namespace BrightData.Transformation
             readonly Dictionary<string, uint> _stringIndex = new();
             uint _nextIndex = 0;
 
-            public OneHotEncode(ITypedSegment column)
+            public OneHotEncode(ITableSegment column)
                 : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator())
             {
                 Size = 1;
             }
-            public OneHotEncode(ITypedSegment column, BinaryReader reader)
+            public OneHotEncode(ITableSegment column, BinaryReader reader)
                 : this(column)
             {
                 _nextIndex = reader.ReadUInt32();
@@ -383,7 +383,7 @@ namespace BrightData.Transformation
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser GetColumnVectoriser(ITypedSegment column, MetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
+        static IColumnVectoriser GetColumnVectoriser(ITableSegment column, MetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
         {
             var type = column.SegmentType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);

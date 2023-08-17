@@ -8,10 +8,10 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousFloatSpan
+    internal class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4D> _valueSemantics;
-        readonly Lazy<IReadOnlyTensorSegment> _segment;
+        readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyTensor3D[] _tensors;
 
         public ReadOnlyTensor4D(IReadOnlyTensor3D[] tensors)
@@ -29,7 +29,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 uint offset = 0;
                 foreach (var tensor in _tensors) {
                     var temp = SpanOwner<float>.Empty;
-                    var span = tensor.GetFloatSpan(ref temp, out var wasTempUsed);
+                    var span = tensor.GetSpan(ref temp, out var wasTempUsed);
                     span.CopyTo(ptr.Slice((int)offset, (int)TensorSize));
                     if(wasTempUsed)
                         temp.Dispose();
@@ -48,7 +48,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(Count);
             foreach (var item in _tensors) {
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 writer.Write(span.AsBytes());
                 if(wasTempUsed)
                     temp.Dispose();
@@ -73,7 +73,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => TensorSize * Count;
@@ -85,7 +85,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint TensorSize => MatrixSize * Depth;
         public bool IsReadOnly => true;
 
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment.Value;
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment.Value;
 
         public float this[int count, int depth, int rowY, int columnX] => _tensors[count][depth, rowY, columnX];
         public float this[uint count, uint depth, uint rowY, uint columnX] => _tensors[count][depth, rowY, columnX];

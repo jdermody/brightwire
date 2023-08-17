@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
@@ -68,7 +70,8 @@ namespace BrightData
     /// <summary>
     /// Read only tensor segment
     /// </summary>
-    public interface IReadOnlyTensorSegment : ICountReferences, IDisposable, IHaveSize, IHaveSpanOfFloats
+    public interface IReadOnlyNumericSegment<T> : ICountReferences, IDisposable, IHaveSize, IHaveSpanOf<float>
+        where T : unmanaged, INumber<T>
     {
         /// <summary>
         /// Segment type
@@ -80,39 +83,39 @@ namespace BrightData
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[int index] { get; }
+        T this[int index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[uint index] { get; }
+        T this[uint index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[long index] { get; }
+        T this[long index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[ulong index] { get; }
+        T this[ulong index] { get; }
 
         /// <summary>
         /// Creates a new array from the segment
         /// </summary>
         /// <returns></returns>
-        float[] ToNewArray();
+        T[] ToNewArray();
 
         /// <summary>
         /// Iterates all values in the segment
         /// </summary>
-        IEnumerable<float> Values { get; }
+        IEnumerable<T> Values { get; }
 
         /// <summary>
         /// Copies this segment to another segment
@@ -120,13 +123,13 @@ namespace BrightData
         /// <param name="segment">Segment to copy to</param>
         /// <param name="sourceOffset">Index within this segment to copy from</param>
         /// <param name="targetOffset">Index within other segment to replace from</param>
-        void CopyTo(ITensorSegment segment, uint sourceOffset = 0, uint targetOffset = 0);
+        void CopyTo(INumericSegment<T> segment, uint sourceOffset = 0, uint targetOffset = 0);
 
         /// <summary>
         /// Copies this segment to a span
         /// </summary>
         /// <param name="destination">Destination span</param>
-        void CopyTo(Span<float> destination);
+        void CopyTo(Span<T> destination);
 
         /// <summary>
         /// Copies to a pointer
@@ -135,14 +138,14 @@ namespace BrightData
         /// <param name="sourceOffset">Index within this segment to copy from</param>
         /// <param name="stride">Increment after each copy</param>
         /// <param name="count">Number of elements to copy</param>
-        unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count);
+        unsafe void CopyTo(T* destination, int sourceOffset, int stride, int count);
 
         /// <summary>
         /// Returns a span from the current segment
         /// </summary>
         /// <param name="offset">Index within this segment to return</param>
         /// <returns></returns>
-        ReadOnlySpan<float> GetSpan(uint offset = 0);
+        ReadOnlySpan<T> GetSpan(uint offset = 0);
 
         /// <summary>
         /// True if the segment wraps another segment
@@ -153,48 +156,49 @@ namespace BrightData
     /// <summary>
     /// A segment of a float tensor
     /// </summary>
-    public interface ITensorSegment : IReadOnlyTensorSegment
+    public interface INumericSegment<T> : IReadOnlyNumericSegment<T>
+        where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[int index] { get; set; }
+        new T this[int index] { get; set; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[uint index] { get; set; }
+        new T this[uint index] { get; set; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[long index] { get; set; }
+        new T this[long index] { get; set; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[ulong index] { get; set; }
+        new T this[ulong index] { get; set; }
 
         /// <summary>
         /// Returns a contiguous array of data only if this is the easily available (null otherwise)
         /// </summary>
         /// <returns></returns>
-        float[]? GetArrayIfEasilyAvailable();
+        T[]? GetArrayIfEasilyAvailable();
 
         /// <summary>
         /// Copies from the span into the segment
         /// </summary>
         /// <param name="span">Span to copy from</param>
         /// <param name="targetOffset">Index into this segment to replace from</param>
-        void CopyFrom(ReadOnlySpan<float> span, uint targetOffset = 0);
+        void CopyFrom(ReadOnlySpan<T> span, uint targetOffset = 0);
 
         /// <summary>
         /// Sets each value within the segment to zero
@@ -205,43 +209,45 @@ namespace BrightData
         /// Returns the underlying array used by the segment (if available)
         /// </summary>
         /// <returns>Array, segment offset and segment stride</returns>
-        (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray();
+        (T[]? Array, uint Offset, uint Stride) GetUnderlyingArray();
     }
 
     /// <summary>
     /// Indicates that there is an underlying tensor segment
     /// </summary>
-    public interface IHaveReadOnlyTensorSegment
+    public interface IHaveReadOnlyTensorSegment<T>
+        where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Underlying tensor segment
         /// </summary>
-        IReadOnlyTensorSegment ReadOnlySegment { get; }
+        IReadOnlyNumericSegment<T> ReadOnlySegment { get; }
     }
 
     /// <summary>
     /// Indicates that there is an underlying tensor segment
     /// </summary>
-    public interface IHaveTensorSegment
+    public interface IHaveTensorSegment<T>
+        where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Underlying tensor segment
         /// </summary>
-        ITensorSegment Segment { get; }
+        INumericSegment<T> Segment { get; }
     }
 
     /// <summary>
     /// Indicates that the type has a contiguous read only float span
     /// </summary>
-    public interface IHaveReadOnlyContiguousFloatSpan
+    public interface IHaveReadOnlyContiguousSpan<T>
     {
         /// <summary>
         /// A read only span of floats
         /// </summary>
-        ReadOnlySpan<float> FloatSpan { get; }
+        ReadOnlySpan<T> FloatSpan { get; }
     }
 
-    public interface IVectorData : IHaveSpanOfFloats, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment
+    public interface IVectorData : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
     {
         /// <summary>
         /// True if the vector is read only
@@ -289,7 +295,7 @@ namespace BrightData
         uint ColumnCount { get; }
     }
 
-    public interface IMatrixData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveMatrixDimensions
+    public interface IMatrixData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveMatrixDimensions
     {
         /// <summary>
         /// True if the matrix is read only
@@ -365,7 +371,7 @@ namespace BrightData
         uint MatrixSize { get; }
     }
 
-    public interface ITensor3DData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensor3DDimensions
+    public interface ITensor3DData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor3DDimensions
     {
         /// <summary>
         /// True if the tensor is read only
@@ -430,7 +436,7 @@ namespace BrightData
         uint TensorSize { get; }
     }
 
-    public interface ITensor4DData : IHaveSpanOfFloats, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensor4DDimensions
+    public interface ITensor4DData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor4DDimensions
     {
         /// <summary>
         /// True if the tensor is read only
@@ -487,7 +493,7 @@ namespace BrightData
     /// <summary>
     /// Untyped tensor interface - vector, matrix, 3D tensor etc
     /// </summary>
-    public interface ITensor : IDisposable, IHaveLinearAlgebraProvider, IHaveSpanOfFloats, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment, IHaveTensorSegment
+    public interface ITensor : IDisposable, IHaveLinearAlgebraProvider, IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensorSegment<float>
     {
         /// <summary>
         /// Underlying bright data context
@@ -1019,7 +1025,7 @@ namespace BrightData
         /// <param name="index">Row index</param>
         /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        ITensorSegment Row(uint index, ITensorSegment? segment = null);
+        INumericSegment<float> Row(uint index, INumericSegment<float>? segment = null);
 
         /// <summary>
         /// Returns a column from the matrix
@@ -1027,7 +1033,7 @@ namespace BrightData
         /// <param name="index">Column index</param>
         /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        ITensorSegment Column(uint index, ITensorSegment? segment = null);
+        INumericSegment<float> Column(uint index, INumericSegment<float>? segment = null);
 
         /// <summary>
         /// Returns a row as a span
@@ -1176,38 +1182,38 @@ namespace BrightData
         /// Adds a tensor segment to each row of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachRow(ITensorSegment segment);
+        void AddToEachRow(INumericSegment<float> segment);
 
         /// <summary>
         /// Adds a tensor segment to each column of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachColumn(ITensorSegment segment);
+        void AddToEachColumn(INumericSegment<float> segment);
 
         /// <summary>
         /// Multiplies each row of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachRowWith(ITensorSegment segment);
+        void MultiplyEachRowWith(INumericSegment<float> segment);
 
         /// <summary>
         /// Multiplies each column of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachColumnWith(ITensorSegment segment);
+        void MultiplyEachColumnWith(INumericSegment<float> segment);
 
         /// <summary>
         /// Computes the per row software of this matrix
         /// </summary>
         /// <returns></returns>
-        ITensorSegment[] SoftmaxPerRow();
+        INumericSegment<float>[] SoftmaxPerRow();
 
         /// <summary>
         /// Computes the per row softmax derivative of this matrix
         /// </summary>
         /// <param name="rows"></param>
         /// <returns></returns>
-        ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows);
+        INumericSegment<float>[] SoftmaxDerivativePerRow(INumericSegment<float>[] rows);
 
         /// <summary>
         /// Clones the matrix, optionally into a new linear algebra provider

@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment that wraps another tensor segment
     /// </summary>
-    public class TensorSegmentWrapper : ReadOnlyTensorSegmentWrapper, ITensorSegment
+    public class TensorSegmentWrapper : ReadOnlyTensorSegmentWrapper, INumericSegment<float>
     {
         /// <summary>
         /// Constructor
@@ -18,7 +18,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <param name="offset">First index within the wrapped tensor segment</param>
         /// <param name="stride">Stride within the wrapped tensor segment</param>
         /// <param name="length">Number of values in this tensor segment</param>
-        public TensorSegmentWrapper(ITensorSegment segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
+        public TensorSegmentWrapper(INumericSegment<float> segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
         {
             UnderlyingSegment = segment;
         }
@@ -26,30 +26,30 @@ namespace BrightData.LinearAlgebra.Segments
         /// <summary>
         /// The segment that was wrapped by this tensor segment
         /// </summary>
-        public new ITensorSegment UnderlyingSegment { get; }
+        public new INumericSegment<float> UnderlyingSegment { get; }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public new float this[int index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public new float this[uint index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public new float this[long index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public new float this[ulong index]
         {
             get => UnderlyingSegment[Offset + index * Stride];

@@ -185,7 +185,7 @@ namespace BrightData
     /// <summary>
     /// A segment (series of values) in a table of which each element has the same type
     /// </summary>
-    public interface ITypedSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable, IHaveSize, ICanEnumerate, IHaveBrightDataContext
+    public interface ITableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable, IHaveSize, ICanEnumerate, IHaveBrightDataContext
     {
         /// <summary>
         /// The single type of the segment
@@ -197,7 +197,7 @@ namespace BrightData
     /// Typed data table segment (all of the same type)
     /// </summary>
     /// <typeparam name="T">Data type of values within the segment</typeparam>
-    public interface ITypedSegment<out T> : ITypedSegment
+    public interface ITableSegment<out T> : ITableSegment
         where T : notnull
     {
         /// <summary>
@@ -347,7 +347,7 @@ namespace BrightData
         public IConvertColumn? GetTransformer(
             BrightDataContext context, 
             BrightDataType fromType, 
-            ITypedSegment column, 
+            ITableSegment column, 
             Func<MetaData> analysedMetaData, 
             IProvideTempStreams tempStreams, 
             uint inMemoryRowCount = Consts.DefaultTableRowCacheSize
@@ -436,6 +436,6 @@ namespace BrightData
         /// <param name="rowCount">Number of rows</param>
         /// <param name="columns">Source column data</param>
         /// <returns></returns>
-        IEnumerable<IOperation<ITypedSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
+        IEnumerable<IOperation<ITableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
     }
 }

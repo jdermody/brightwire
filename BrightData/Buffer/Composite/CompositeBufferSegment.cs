@@ -8,7 +8,7 @@ namespace BrightData.Buffer.Composite
     /// A single type data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CompositeBufferSegment<T> : ITypedSegment<T>, ICompositeBufferWithMetaData, ICompositeBufferWithMetaData<T>
+    internal class CompositeBufferSegment<T> : ITableSegment<T>, ICompositeBufferWithMetaData, ICompositeBufferWithMetaData<T>
         where T : notnull
     {
         readonly ICompositeBuffer<T> _buffer;

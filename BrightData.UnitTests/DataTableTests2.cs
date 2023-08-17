@@ -80,7 +80,7 @@ namespace BrightData.UnitTests
             fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<WeightedIndexList>());
         }
 
-        void CheckSame(IHaveReadOnlyTensorSegment tensorSegment1, IHaveReadOnlyTensorSegment tensorSegment2)
+        void CheckSame(IHaveReadOnlyTensorSegment<float> tensorSegment1, IHaveReadOnlyTensorSegment<float> tensorSegment2)
         {
             tensorSegment1.ReadOnlySegment.Values.Should().BeEquivalentTo(tensorSegment2.ReadOnlySegment.Values);
         }

@@ -15,7 +15,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="data">Tensor segment</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightVector(ITensorSegment data, LAP lap) : base(data, lap)
+        public BrightVector(INumericSegment<float> data, LAP lap) : base(data, lap)
         {
         }
 
@@ -84,7 +84,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override IVector Create(ITensorSegment segment) => Lap.CreateVector(segment);
+        public override IVector Create(INumericSegment<float> segment) => Lap.CreateVector(segment);
 
         /// <inheritdoc />
         public IVector MapIndexed(Func<uint, float, float> mutator)
@@ -112,7 +112,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="data">Tensor segment</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightVector(ITensorSegment data, LinearAlgebraProvider lap) : base(data, lap)
+        public BrightVector(INumericSegment<float> data, LinearAlgebraProvider lap) : base(data, lap)
         {
         }
     }

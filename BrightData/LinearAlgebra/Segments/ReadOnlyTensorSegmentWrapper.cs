@@ -8,7 +8,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// Read only tensor segment wrapper
     /// </summary>
-    public class ReadOnlyTensorSegmentWrapper : IReadOnlyTensorSegment
+    public class ReadOnlyTensorSegmentWrapper : IReadOnlyNumericSegment<float>
     {
         /// <summary>
         /// Constructor
@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <param name="offset">First index within the wrapped tensor segment</param>
         /// <param name="stride">Stride within the wrapped tensor segment</param>
         /// <param name="length">Number of values in this tensor segment</param>
-        public ReadOnlyTensorSegmentWrapper(IReadOnlyTensorSegment segment, uint offset, uint stride, uint length)
+        public ReadOnlyTensorSegmentWrapper(IReadOnlyNumericSegment<float> segment, uint offset, uint stride, uint length)
         {
             UnderlyingSegment = segment;
             Offset = offset;
@@ -50,7 +50,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <summary>
         /// The segment that was wrapped by this tensor segment
         /// </summary>
-        public IReadOnlyTensorSegment UnderlyingSegment { get; }
+        public IReadOnlyNumericSegment<float> UnderlyingSegment { get; }
 
         /// <summary>
         /// First index within the wrapped tensor segment
@@ -91,9 +91,9 @@ namespace BrightData.LinearAlgebra.Segments
         public float[] ToNewArray() => Values.ToArray();
 
         /// <inheritdoc />
-        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
-            if (Stride == 1 && !UnderlyingSegment.IsWrapper && UnderlyingSegment is ITensorSegment underlyingSegment)
+            if (Stride == 1 && !UnderlyingSegment.IsWrapper && UnderlyingSegment is INumericSegment<float> underlyingSegment)
             {
                 var (array, offset, stride) = underlyingSegment.GetUnderlyingArray();
                 if (array is not null && stride == 1)
@@ -125,10 +125,10 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (Stride == 1)
-                return UnderlyingSegment.GetFloatSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
+                return UnderlyingSegment.GetSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
 
             temp = SpanOwner<float>.Allocate((int)Size);
             var span = temp.Span;

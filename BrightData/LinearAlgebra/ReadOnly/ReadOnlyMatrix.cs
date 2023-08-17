@@ -8,11 +8,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyMatrix : IReadOnlyMatrix, IEquatable<ReadOnlyMatrix>, IHaveReadOnlyContiguousFloatSpan
+    internal class ReadOnlyMatrix : IReadOnlyMatrix, IEquatable<ReadOnlyMatrix>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyMatrixValueSemantics<ReadOnlyMatrix> _valueSemantics;
         float[] _data;
-        ITensorSegment? _segment;
+        INumericSegment<float>? _segment;
 
 #pragma warning disable CS8618
         ReadOnlyMatrix()
@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
 
         public void WriteTo(BinaryWriter writer)
         {
@@ -62,7 +62,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             _data = reader.BaseStream.ReadArray<float>(Size);
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return FloatSpan;
@@ -76,8 +76,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public float this[int rowY, int columnX] => _data[columnX * RowCount + rowY];
         public float this[uint rowY, uint columnX] => _data[columnX * RowCount + rowY];
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, ReadOnlySegment);
-        public TensorSegmentWrapper Row(uint index) => new((ITensorSegment)ReadOnlySegment, index, RowCount, ColumnCount);
-        public TensorSegmentWrapper Column(uint index) => new((ITensorSegment)ReadOnlySegment, index * RowCount, 1, RowCount);
+        public TensorSegmentWrapper Row(uint index) => new((INumericSegment<float>)ReadOnlySegment, index, RowCount, ColumnCount);
+        public TensorSegmentWrapper Column(uint index) => new((INumericSegment<float>)ReadOnlySegment, index * RowCount, 1, RowCount);
         public IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
         public IReadOnlyVector GetColumn(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
         public IReadOnlyVector[] AllRows() => RowCount.AsRange().Select(GetRow).ToArray();

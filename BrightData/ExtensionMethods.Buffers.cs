@@ -178,7 +178,7 @@ namespace BrightData
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="segment"></param>
-        public static void CopyFrom(this ICompositeBuffer<float> buffer, ITensorSegment segment)
+        public static void CopyFrom(this ICompositeBuffer<float> buffer, INumericSegment<float> segment)
         {
             for(uint i = 0, len = segment.Size; i < len; i++)
                 buffer.Add(segment[i]);
@@ -203,7 +203,7 @@ namespace BrightData
         /// <param name="metaData">Segment meta data</param>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static (ITypedSegment<T> Segment, ICompositeBufferWithMetaData<T> Buffer) GetSegmentWithCompositeBuffer<T>(this BrightDataContext context, MetaData metaData, ICompositeBuffer<T> buffer) where T : notnull
+        public static (ITableSegment<T> Segment, ICompositeBufferWithMetaData<T> Buffer) GetSegmentWithCompositeBuffer<T>(this BrightDataContext context, MetaData metaData, ICompositeBuffer<T> buffer) where T : notnull
         {
             var ret = new CompositeBufferSegment<T>(context, typeof(T).GetBrightDataType(), metaData, buffer);
             return (ret, ret);

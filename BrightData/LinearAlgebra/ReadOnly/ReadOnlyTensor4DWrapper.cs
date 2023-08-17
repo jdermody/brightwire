@@ -8,11 +8,11 @@ using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor4DWrapper : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4DWrapper>, IHaveReadOnlyContiguousFloatSpan
+    internal class ReadOnlyTensor4DWrapper : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4DWrapper>, IHaveReadOnlyContiguousSpan<float>
     {
         ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4DWrapper>? _valueSemantics;
 
-        public ReadOnlyTensor4DWrapper(IReadOnlyTensorSegment segment, uint count, uint depth, uint rowCount, uint columnCount)
+        public ReadOnlyTensor4DWrapper(IReadOnlyNumericSegment<float> segment, uint count, uint depth, uint rowCount, uint columnCount)
         {
             Count = count;
             Depth = depth;
@@ -29,7 +29,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(Depth);
             writer.Write(Count);
             var temp = SpanOwner<float>.Empty;
-            ReadOnlySegment.GetFloatSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -44,11 +44,11 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => TensorSize * Count;
-        public IReadOnlyTensorSegment ReadOnlySegment { get; }
+        public IReadOnlyNumericSegment<float> ReadOnlySegment { get; }
         public uint Count { get; }
         public uint Depth { get; }
         public uint RowCount { get; }

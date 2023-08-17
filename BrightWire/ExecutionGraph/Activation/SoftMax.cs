@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly ITensorSegment[] _rows;
+            readonly INumericSegment<float>[] _rows;
 
-            public Backpropagation(SoftMax source, ITensorSegment[] rows) : base(source)
+            public Backpropagation(SoftMax source, INumericSegment<float>[] rows) : base(source)
             {
                 _rows = rows;
             }
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                IReadOnlyTensorSegment[] rowList = matrix.SoftmaxDerivativePerRow(_rows);
+                IReadOnlyNumericSegment<float>[] rowList = matrix.SoftmaxDerivativePerRow(_rows);
                 var ret = lap.CreateMatrixFromRows(rowList);
                 rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);

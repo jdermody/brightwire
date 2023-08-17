@@ -21,7 +21,7 @@ namespace BrightData.Transformation
         public string? Name { get; }
         public uint[] SourceColumnIndices { get; }
 
-        public IEnumerable<IOperation<ITypedSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] sourceColumns)
+        public IEnumerable<IOperation<ITableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] sourceColumns)
         {
             if (SourceColumnIndices.Length >= 1) {
                 var metaData = new MetaData();

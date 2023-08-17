@@ -32,8 +32,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override IMiniBatch Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            using var inputRows = SpanOwner<IReadOnlyTensorSegment>.Allocate(rows.Length);
-            using var targetRows = SpanOwner<IReadOnlyTensorSegment>.Allocate(rows.Length);
+            using var inputRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            using var targetRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
             var inputRowPtr = inputRows.Span;
             var targetRowsPtr = targetRows.Span;
             var index = 0;

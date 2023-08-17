@@ -84,7 +84,7 @@ namespace BrightData.Transformation
             public double Subtract => _normalize.Subtract;
         }
 
-        public IConvertColumn GetTransformer(BrightDataContext context, BrightDataType fromType, ITypedSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn GetTransformer(BrightDataContext context, BrightDataType fromType, ITableSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SegmentType.GetDataType();
             var contextType = _toFloat

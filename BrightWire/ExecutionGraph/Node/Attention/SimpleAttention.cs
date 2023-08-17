@@ -21,9 +21,9 @@ namespace BrightWire.ExecutionGraph.Node.Attention
         {
             readonly uint _position, _sequenceSize;
             readonly IMatrix _inputMatrix;
-            readonly ITensorSegment[] _softmax;
+            readonly INumericSegment<float>[] _softmax;
 
-            public Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, ITensorSegment[] softmax) : base(source)
+            public Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, INumericSegment<float>[] softmax) : base(source)
             {
                 _position = position;
                 _sequenceSize = sequenceSize;

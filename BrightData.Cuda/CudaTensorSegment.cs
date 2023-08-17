@@ -5,7 +5,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment : ITensorSegment
+    internal class CudaTensorSegment : INumericSegment<float>
     {
         const string CudaSegmentType = "cuda";
 
@@ -19,7 +19,7 @@ namespace BrightData.Cuda
             Release();
         }
 
-        public static bool IsCuda(IReadOnlyTensorSegment segment, [NotNullWhen(true)]out CudaTensorSegment? cudaSegment)
+        public static bool IsCuda(IReadOnlyNumericSegment<float> segment, [NotNullWhen(true)]out CudaTensorSegment? cudaSegment)
         {
             if (segment.SegmentType == CudaSegmentType) {
                 cudaSegment = (CudaTensorSegment)segment;
@@ -84,7 +84,7 @@ namespace BrightData.Cuda
             DeviceMemory.CopyToDevice(span, targetOffset);
         }
 
-        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
             if (segment.SegmentType == CudaSegmentType) {
                 var other = (CudaTensorSegment)segment;
@@ -113,7 +113,7 @@ namespace BrightData.Cuda
             DeviceMemory.Clear();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = true;
             temp = SpanOwner<float>.Allocate((int)Size);

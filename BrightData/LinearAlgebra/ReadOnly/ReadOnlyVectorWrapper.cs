@@ -11,7 +11,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     {
         readonly ReadOnlyVectorValueSemantics<ReadOnlyVectorWrapper> _valueSemantics;
 
-        public ReadOnlyVectorWrapper(IReadOnlyTensorSegment segment)
+        public ReadOnlyVectorWrapper(IReadOnlyNumericSegment<float> segment)
         {
             ReadOnlySegment = segment;
             _valueSemantics = new(this);
@@ -22,7 +22,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(1);
             writer.Write(Size);
             var temp = SpanOwner<float>.Empty;
-            ReadOnlySegment.GetFloatSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -37,14 +37,14 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public uint Size => ReadOnlySegment.Size;
         public bool IsReadOnly => true;
         public float this[int index] => ReadOnlySegment[index];
         public float this[uint index] => ReadOnlySegment[index];
         public float[] ToArray() => ReadOnlySegment.ToNewArray();
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(ReadOnlySegment);
-        public IReadOnlyTensorSegment ReadOnlySegment { get; }
+        public IReadOnlyNumericSegment<float> ReadOnlySegment { get; }
 
         // value semantics
         public bool Equals(ReadOnlyVectorWrapper? other) => _valueSemantics.Equals(other);

@@ -3,7 +3,7 @@ using BrightData.Buffer.Composite;
 
 namespace BrightData.DataTable.Operations
 {
-    internal class ColumnConversionOperation<FT, TT> : OperationBase<ITypedSegment?> where FT : notnull where TT : notnull
+    internal class ColumnConversionOperation<FT, TT> : OperationBase<ITableSegment?> where FT : notnull where TT : notnull
     {
         readonly ICanEnumerateDisposable<FT> _input;
         readonly IConvertColumn<FT, TT>      _converter;
@@ -36,12 +36,12 @@ namespace BrightData.DataTable.Operations
             _converter.Convert(_enumerator.Current, _outputBuffer, index);
         }
 
-        protected override ITypedSegment? GetResult(bool wasCancelled)
+        protected override ITableSegment? GetResult(bool wasCancelled)
         {
             if (wasCancelled)
                 return null;
 
-            var segment = (ITypedSegment) _outputBuffer;
+            var segment = (ITableSegment) _outputBuffer;
             segment.MetaData.SetType(segment.SegmentType);
             if(segment.SegmentType.IsNumeric())
                 segment.MetaData.Set(Consts.IsNumeric, true);

@@ -39,7 +39,7 @@ namespace BrightData.DataTable
             var columns = GetColumns(columnIndices).ToArray();
             WriteTo(columns, stream);
         }
-        void WriteTo(ITypedSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
+        void WriteTo(ITableSegment[] columns, Stream stream) => Context.WriteDataTable(TableMetaData, columns, stream);
 
         /// <summary>
         /// Horizontally concatenates this data table with other data tables into a stream

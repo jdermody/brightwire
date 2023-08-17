@@ -8,10 +8,10 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousFloatSpan
+    internal class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>
     {
         readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
-        readonly Lazy<IReadOnlyTensorSegment> _segment;
+        readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyMatrix[] _matrices;
 
         public ReadOnlyTensor3D(IReadOnlyMatrix[] matrices)
@@ -28,7 +28,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 uint offset = 0;
                 foreach (var matrix in _matrices) {
                     var temp = SpanOwner<float>.Empty;
-                    var span = matrix.GetFloatSpan(ref temp, out var wasTempUsed);
+                    var span = matrix.GetSpan(ref temp, out var wasTempUsed);
                     span.CopyTo(ptr.Slice((int)offset, (int)MatrixSize));
                     if (wasTempUsed)
                         temp.Dispose();
@@ -47,7 +47,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(Depth);
             foreach (var item in _matrices) {
                 var temp = SpanOwner<float>.Empty;
-                var span = item.GetFloatSpan(ref temp, out var wasTempUsed);
+                var span = item.GetSpan(ref temp, out var wasTempUsed);
                 writer.Write(span.AsBytes());
                 if(wasTempUsed)
                     temp.Dispose();
@@ -71,8 +71,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment.Value;
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment.Value;
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => MatrixSize * Depth;

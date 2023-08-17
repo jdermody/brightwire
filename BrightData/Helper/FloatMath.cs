@@ -84,7 +84,7 @@ namespace BrightData.Helper
         }
 
         public static bool AreApproximatelyEqual<T>(T t1, T t2, int maxDifference = 6)
-            where T: IReadOnlyTensorSegment
+            where T: IReadOnlyNumericSegment<float>
         {
             var len = t1.Size;
             if (len != t2.Size)
@@ -113,7 +113,7 @@ namespace BrightData.Helper
             return true;
         }
 
-        public static bool AreApproximatelyEqual(ITensorSegment t1, ITensorSegment t2, int maxDifference = 6)
+        public static bool AreApproximatelyEqual(INumericSegment<float> t1, INumericSegment<float> t2, int maxDifference = 6)
         {
             var len = t1.Size;
             if (len != t2.Size)
@@ -127,7 +127,7 @@ namespace BrightData.Helper
             return true;
         }
 
-        public static bool AreApproximatelyEqual(IHaveReadOnlyTensorSegment t1, IHaveReadOnlyTensorSegment t2, int maxDifference = 6) => AreApproximatelyEqual(t1.ReadOnlySegment, t2.ReadOnlySegment, maxDifference);
+        public static bool AreApproximatelyEqual(IHaveReadOnlyTensorSegment<float> t1, IHaveReadOnlyTensorSegment<float> t2, int maxDifference = 6) => AreApproximatelyEqual(t1.ReadOnlySegment, t2.ReadOnlySegment, maxDifference);
 #pragma warning restore 1591
     }
 }

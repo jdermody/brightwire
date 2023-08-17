@@ -20,7 +20,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightTensor4D(ITensorSegment data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public BrightTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Count = count;
             Depth = depth;
@@ -32,7 +32,7 @@ namespace BrightData.LinearAlgebra
         }
         
         /// <inheritdoc />
-        public override ITensor4D Create(ITensorSegment segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
+        public override ITensor4D Create(INumericSegment<float> segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
         public ITensor4D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
@@ -191,7 +191,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightTensor4D(ITensorSegment data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, count, depth, rows, columns, lap)
+        public BrightTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, count, depth, rows, columns, lap)
         {
         }
     }

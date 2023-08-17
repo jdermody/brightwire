@@ -135,7 +135,7 @@ namespace BrightData.DataTable
             var writer = new BrightDataTableWriter(Context, _tempStreams, stream, _inMemoryBufferSize, _maxUniqueItemCount);
             writer.Write(
                 TableMetaData,
-                _columns.Cast<ITypedSegment>().ToArray()
+                _columns.Cast<ITableSegment>().ToArray()
             );
         }
 

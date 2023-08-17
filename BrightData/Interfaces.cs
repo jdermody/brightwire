@@ -31,7 +31,7 @@ namespace BrightData
     /// <summary>
     /// Indicates that the type can create a readonly span of floats
     /// </summary>
-    public interface IHaveSpanOfFloats
+    public interface IHaveSpanOf<T>
     {
         /// <summary>
         /// Returns a span of floats
@@ -39,7 +39,7 @@ namespace BrightData
         /// <param name="temp">Optional buffer that might be needed when creating the span</param>
         /// <param name="wasTempUsed">True if the buffer was used</param>
         /// <returns>Span of floats</returns>
-        ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
+        ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed);
     }
 
     /// <summary>

@@ -63,6 +63,9 @@ namespace BrightData.Helper
         /// </summary>
         public ReadOnlySpan<T> Span => _delta.Span;
 
+        /// <summary>
+        /// Online average aggregation
+        /// </summary>
         static readonly SpanAggregationOperation<T> OnlineAverage = (T existing, T value, uint total) => {
             var delta = value - existing;
             return existing + delta / T.CreateSaturating(total);

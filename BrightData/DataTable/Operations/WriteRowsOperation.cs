@@ -63,7 +63,7 @@ namespace BrightData.DataTable.Operations
             }
 
             var writer = new BrightDataTableWriter(_context, _tempStreams, _stream);
-            writer.Write(_tableMetaData, _buffers.Cast<ITypedSegment>().ToArray());
+            writer.Write(_tableMetaData, _buffers.Cast<ITableSegment>().ToArray());
             return _stream;
         }
     }

@@ -13,7 +13,7 @@ namespace BrightData.DataTable.TensorData
     {
         readonly ReadOnlyVectorValueSemantics<VectorData> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
-        IReadOnlyTensorSegment? _segment;
+        IReadOnlyNumericSegment<float>? _segment;
         uint _startIndex;
         uint _stride;
 
@@ -29,7 +29,7 @@ namespace BrightData.DataTable.TensorData
         public uint Size { get; private set; }
         public bool IsReadOnly => true;
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (_stride == 1) {
                 wasTempUsed = false;
@@ -51,7 +51,7 @@ namespace BrightData.DataTable.TensorData
             return lap.CreateVector(segment);
         }
 
-        public IReadOnlyTensorSegment ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(this.ToArray());
 
         public float this[int index]
         {

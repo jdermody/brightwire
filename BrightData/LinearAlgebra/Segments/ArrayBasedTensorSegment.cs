@@ -10,7 +10,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment based on a float array
     /// </summary>
-    public class ArrayBasedTensorSegment : ITensorSegment
+    public class ArrayBasedTensorSegment : INumericSegment<float>
     {
         protected readonly float[] _data;
 
@@ -59,7 +59,7 @@ namespace BrightData.LinearAlgebra.Segments
         public virtual IEnumerable<float> Values => _data;
 
         /// <inheritdoc />
-        public virtual void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public virtual void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
             segment.CopyFrom(_data.AsSpan((int)sourceOffset), targetOffset);
         }
@@ -88,7 +88,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return GetSpan();
@@ -109,28 +109,28 @@ namespace BrightData.LinearAlgebra.Segments
             return $"{SegmentType} ({Size}): {preview}";
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public float this[int index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public float this[uint index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public float this[long index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="ITensorSegment" />
+        /// <inheritdoc cref="INumericSegment" />
         public float this[ulong index]
         {
             get => _data[index];

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace BrightData.Helper
@@ -32,14 +33,14 @@ namespace BrightData.Helper
         /// <typeparam name="T2">Type to cast created object to</typeparam>
         /// <param name="type">Type of object to create</param>
         /// <param name="args">Arguments to pass to constructor</param>
-        public static (T1, T2) Create<T1, T2>(Type type, params object?[]? args)
-        {
-            var ret = Activator.CreateInstance(type, args);
-            return ret != null
-                ? ((T1)ret, (T2)ret)
-                : throw new Exception($"Could not create object of type: {type}")
-            ;
-        }
+        //public static (T1, T2) Create<T1, T2>(Type type, params object?[]? args)
+        //{
+        //    var ret = Activator.CreateInstance(type, args);
+        //    return ret != null
+        //        ? ((T1)ret, (T2)ret)
+        //        : throw new Exception($"Could not create object of type: {type}")
+        //    ;
+        //}
 
         static readonly ConcurrentDictionary<Type, Delegate> TypeCreators = new();
 
@@ -61,7 +62,7 @@ namespace BrightData.Helper
         /// <returns></returns>
         public static T CreateUninitialized<T>()
         {
-            return CreateUninitialized<T>(typeof(T));
+            return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace BrightData.Helper
         /// <returns></returns>
         public static T CreateUninitialized<T>(Type type)
         {
-            return (T)FormatterServices.GetUninitializedObject(type);
+            return (T)RuntimeHelpers.GetUninitializedObject(type);
         }
 
         static Func<T> CompileCreator<T>(Type type) => Expression.Lambda<Func<T>>(Expression.New(type)).Compile();

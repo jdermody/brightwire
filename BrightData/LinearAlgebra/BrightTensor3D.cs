@@ -21,7 +21,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="columns">Columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <exception cref="ArgumentException"></exception>
-        public BrightTensor3D(ITensorSegment data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public BrightTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Depth = depth;
             RowCount = rows;
@@ -35,7 +35,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override ITensor3D Create(ITensorSegment segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
+        public override ITensor3D Create(INumericSegment<float> segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
         public ITensor3D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
@@ -182,7 +182,7 @@ namespace BrightData.LinearAlgebra
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
 
         /// <inheritdoc />
-        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(Depth, RowCount, ColumnCount, (IReadOnlyTensorSegment)Segment);
+        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(Depth, RowCount, ColumnCount, (IReadOnlyNumericSegment<float>)Segment);
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Rows in each matrix</param>
         /// <param name="columns">Columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightTensor3D(ITensorSegment data, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, depth, rows, columns, lap)
+        public BrightTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, depth, rows, columns, lap)
         {
         }
     }

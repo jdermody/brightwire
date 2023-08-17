@@ -4,7 +4,7 @@ using CommunityToolkit.HighPerformance;
 namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
     internal class ReadOnlyTensor4DValueSemantics<T>
-        where T : IReadOnlyTensor4D, IHaveReadOnlyContiguousFloatSpan
+        where T : IReadOnlyTensor4D, IHaveReadOnlyContiguousSpan<float>
     {
         readonly T _obj;
         readonly Lazy<int> _hashCode;

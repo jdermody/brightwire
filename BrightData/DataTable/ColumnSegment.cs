@@ -4,7 +4,7 @@ using System.IO;
 
 namespace BrightData.DataTable
 {
-    internal class ColumnSegment<CT, T> : ITypedSegment<T>, ICanEnumerateWithSize<T>, ICanEnumerateDisposable
+    internal class ColumnSegment<CT, T> : ITableSegment<T>, ICanEnumerateWithSize<T>, ICanEnumerateDisposable
         where CT : unmanaged
         where T: notnull
     {

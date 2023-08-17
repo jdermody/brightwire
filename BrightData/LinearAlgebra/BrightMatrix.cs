@@ -22,7 +22,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightMatrix(ITensorSegment data, uint rows, uint columns, LAP lap) : base(data, lap)
+        public BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             RowCount = rows;
             ColumnCount = columns;
@@ -79,7 +79,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public ITensorSegment Row(uint index, ITensorSegment? segment = null)
+        public INumericSegment<float> Row(uint index, INumericSegment<float>? segment = null)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
@@ -87,7 +87,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public ITensorSegment Column(uint index, ITensorSegment? segment = null)
+        public INumericSegment<float> Column(uint index, INumericSegment<float>? segment = null)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
@@ -113,7 +113,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override IMatrix Create(ITensorSegment segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
+        public override IMatrix Create(INumericSegment<float> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
 
         /// <inheritdoc />
         public IMatrix Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
@@ -236,21 +236,21 @@ namespace BrightData.LinearAlgebra
         public IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => Lap.GetNewMatrixFromColumns(this, columnIndices);
 
         /// <inheritdoc />
-        public void AddToEachRow(ITensorSegment segment) => Lap.AddToEachRow(this, segment);
+        public void AddToEachRow(INumericSegment<float> segment) => Lap.AddToEachRow(this, segment);
 
         /// <inheritdoc />
-        public void AddToEachColumn(ITensorSegment segment) => Lap.AddToEachColumn(this, segment);
+        public void AddToEachColumn(INumericSegment<float> segment) => Lap.AddToEachColumn(this, segment);
 
         /// <inheritdoc />
-        public void MultiplyEachRowWith(ITensorSegment segment) => Lap.MultiplyEachRowWith(this, segment);
+        public void MultiplyEachRowWith(INumericSegment<float> segment) => Lap.MultiplyEachRowWith(this, segment);
 
         /// <inheritdoc />
-        public void MultiplyEachColumnWith(ITensorSegment segment) => Lap.MultiplyEachColumnWith(this, segment);
+        public void MultiplyEachColumnWith(INumericSegment<float> segment) => Lap.MultiplyEachColumnWith(this, segment);
 
         /// <inheritdoc />
-        public ITensorSegment[] SoftmaxPerRow()
+        public INumericSegment<float>[] SoftmaxPerRow()
         {
-            using var segments = SpanOwner<ITensorSegment>.Allocate((int)RowCount);
+            using var segments = SpanOwner<INumericSegment<float>>.Allocate((int)RowCount);
             var ptr = segments.Span;
             for (var i = 0; i < RowCount; i++)
                 ptr[i] = Row((uint)i);
@@ -258,7 +258,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public ITensorSegment[] SoftmaxDerivativePerRow(ITensorSegment[] rows) => Lap.SoftmaxDerivativePerRow(this, rows);
+        public INumericSegment<float>[] SoftmaxDerivativePerRow(INumericSegment<float>[] rows) => Lap.SoftmaxDerivativePerRow(this, rows);
 
 
         /// <inheritdoc />
@@ -291,7 +291,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightMatrix(ITensorSegment data, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, rows, columns, lap)
+        public BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, rows, columns, lap)
         {
         }
     }
