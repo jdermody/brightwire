@@ -65,7 +65,10 @@ namespace BrightData
         SquaredEuclidean
     }
 
-    public interface IReadOnlyTensorSegment : ICountReferences, IDisposable, IHaveSize
+    /// <summary>
+    /// Read only tensor segment
+    /// </summary>
+    public interface IReadOnlyTensorSegment : ICountReferences, IDisposable, IHaveSize, IHaveSpanOfFloats
     {
         /// <summary>
         /// Segment type
@@ -133,14 +136,6 @@ namespace BrightData
         /// <param name="stride">Increment after each copy</param>
         /// <param name="count">Number of elements to copy</param>
         unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count);
-
-        /// <summary>
-        /// Returns a span from the current segment
-        /// </summary>
-        /// <param name="temp">Optional buffer that might be needed when creating the span</param>
-        /// <param name="wasTempUsed">True if the buffer was used</param>
-        /// <returns></returns>
-        ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
 
         /// <summary>
         /// Returns a span from the current segment

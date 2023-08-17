@@ -14,7 +14,7 @@ namespace BrightData.Buffer.Composite
     {
         readonly BrightDataContext _context;
 
-        public CompositeObjectBuffer(BrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
+        public CompositeObjectBuffer(BrightDataContext context, IProvideTempStreams tempStream, uint blockSize) : base(tempStream, blockSize, null)
         {
             _context = context;
         }

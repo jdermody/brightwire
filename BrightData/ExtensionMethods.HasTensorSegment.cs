@@ -10,27 +10,6 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Returns the index with the minimum value from this tensor segment
-        /// </summary>
-        /// <param name="tensorSegment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMinimumIndex(this IHaveReadOnlyTensorSegment tensorSegment) => tensorSegment.ReadOnlySegment.GetMinAndMaxValues().MinIndex;
-
-        /// <summary>
-        /// Returns the index with the maximum value from this tensor segment
-        /// </summary>
-        /// <param name="tensorSegment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMaximumIndex(this IHaveReadOnlyTensorSegment tensorSegment) => tensorSegment.ReadOnlySegment.GetMinAndMaxValues().MaxIndex;
-
-        /// <summary>
-        /// Sums all values
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Sum(this IHaveReadOnlyTensorSegment segment) => segment.ReadOnlySegment.Sum();
-
-        /// <summary>
         /// Reshapes to a vector
         /// </summary>
         /// <returns></returns>

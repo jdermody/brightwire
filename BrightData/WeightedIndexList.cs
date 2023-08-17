@@ -75,26 +75,50 @@ namespace BrightData
             public bool Equals(Item other) => Index == other.Index && Math.Abs(Weight - other.Weight) < FloatMath.AlmostZero;
         }
 
-        /// <summary>
-        /// Creates a new weighted index list
-        /// </summary>
-        /// <param name="indexList">Weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList Create(params Item[] indexList) => new(indexList);
-        
-        /// <summary>
-        /// Creates a new weighted index list
-        /// </summary>
-        /// <param name="indexList">Weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => new(indexList.ToArray());
+        public ref struct ItemIterator
+        {
+            readonly Item[] _items;
+            int _pos = -1;
+
+            internal ItemIterator(Item[] items) => _items = items;
+
+            public ref readonly Item Current
+            {
+                get
+                {
+                    if (_pos < _items.Length)
+                        return ref _items[_pos];
+                    return ref Unsafe.NullRef<Item>();
+                }
+            }
+
+            public bool MoveNext() => ++_pos < _items.Length;
+
+            public ItemIterator GetEnumerator() => this;
+        }
+
+        public ItemIterator GetEnumerator() => new(_indices);
 
         /// <summary>
         /// Creates a new weighted index list
         /// </summary>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList Create(IEnumerable<Item> indexList) => new(indexList.ToArray());
+        public static WeightedIndexList Create(params Item[] indexList) => Merge(indexList);
+        
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
+        public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => Merge(indexList.ToArray());
+
+        /// <summary>
+        /// Creates a new weighted index list
+        /// </summary>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
+        public static WeightedIndexList Create(IEnumerable<Item> indexList) => Merge(indexList);
 
         /// <summary>
         /// Creates a new weighted index list
@@ -102,7 +126,7 @@ namespace BrightData
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList Create(params (uint Index, float Weight)[] indexList) =>
-            new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+            Merge(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
         /// <summary>
         /// Creates a new weighted index list
@@ -110,7 +134,7 @@ namespace BrightData
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList Create(IEnumerable<(uint Index, float Weight)> indexList) =>
-            new(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+            Merge(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
         /// <summary>
         /// The number of items in the list
@@ -144,19 +168,25 @@ namespace BrightData
         /// <param name="lists">Lists to merge</param>
         /// <param name="mergeOperation">How to merge item weights</param>
         /// <returns></returns>
-        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average)
+        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average) => Merge(lists.SelectMany(x => x.Indices), mergeOperation);
+
+        /// <summary>
+        /// Merges a sequence of weighted index items into one list
+        /// </summary>
+        /// <param name="items">Lists to merge</param>
+        /// <param name="mergeOperation">How to merge item weights</param>
+        /// <returns></returns>
+        public static WeightedIndexList Merge(IEnumerable<Item> items, AggregationType mergeOperation = AggregationType.Average)
         {
-            var items = new Dictionary<uint, List<float>>();
-            foreach (var list in lists) {
-                foreach (var index in list.Indices) {
-                    if (!items.TryGetValue(index.Index, out var weights))
-                        items.Add(index.Index, weights = new List<float>());
-                    weights.Add(index.Weight);
-                }
+            var itemWeights = new Dictionary<uint, List<float>>();
+            foreach (var index in items) {
+                if (!itemWeights.TryGetValue(index.Index, out var weights))
+                    itemWeights.Add(index.Index, weights = new List<float>());
+                weights.Add(index.Weight);
             }
 
             return new WeightedIndexList(
-                items.Select(d => new Item(d.Key, mergeOperation.Aggregate(d.Value))).ToArray()
+                itemWeights.Select(d => new Item(d.Key, mergeOperation.Aggregate(d.Value))).ToArray()
             );
         }
 

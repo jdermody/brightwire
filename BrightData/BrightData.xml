@@ -2489,14 +2489,14 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{BrightData.IndexListWithLabel{System.String}},BrightData.BrightDataContext)">
             <summary>
             Converts indexed classifications to a data table
             </summary>
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Span{BrightData.WeightedIndexListWithLabel{System.String}},BrightData.BrightDataContext)">
             <summary>
             Converts weighted index classifications to a data table
             </summary>
@@ -2512,7 +2512,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(System.Span{BrightData.WeightedIndexListWithLabel{System.String}},BrightData.BrightDataContext)">
             <summary>
             Converts the weighted index classification list to a list of dense vectors
             </summary>
@@ -3078,27 +3078,6 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IHaveReadOnlyTensorSegment)">
-            <summary>
-            Returns the index with the minimum value from this tensor segment
-            </summary>
-            <param name="tensorSegment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaximumIndex(BrightData.IHaveReadOnlyTensorSegment)">
-            <summary>
-            Returns the index with the maximum value from this tensor segment
-            </summary>
-            <param name="tensorSegment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.IHaveReadOnlyTensorSegment)">
-            <summary>
-            Sums all values
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.Reshape(BrightData.IHaveReadOnlyTensorSegment)">
             <summary>
             Reshapes to a vector
@@ -3211,46 +3190,46 @@
             <param name="weight">Weight to give each index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.ValueTuple{System.String,BrightData.IndexList}[],System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList``1(System.Collections.Generic.IReadOnlyList{BrightData.IndexListWithLabel{``0}},System.Boolean)">
             <summary>
             Converts the indexed classifications to weighted indexed classifications
             </summary>
             <param name="data"></param>
             <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxWeight``1(System.Span{BrightData.WeightedIndexListWithLabel{``0}})">
             <summary>
             Finds the greatest weight within the weighted index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex``1(System.Span{BrightData.WeightedIndexListWithLabel{``0}})">
             <summary>
             Find the greatest index within the weighted index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Span{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex``1(System.Span{BrightData.IndexListWithLabel{``0}})">
             <summary>
             Find the greatest index within the index classification list
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Normalize(System.Span{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+        <member name="M:BrightData.ExtensionMethods.Normalize``1(System.Span{BrightData.WeightedIndexListWithLabel{``0}})">
             <summary>
             Normalizes the weighted index classification list to fit between 0 and 1
             </summary>
             <param name="data"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.ValueTuple{``0,BrightData.WeightedIndexList}[])">
+        <member name="M:BrightData.ExtensionMethods.Tfidf``1(System.Collections.Generic.IReadOnlyList{BrightData.WeightedIndexListWithLabel{``0}})">
             <summary>
             Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Tf%E2%80%93idf
             </summary>
             <returns>A newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.ValueTuple{``0,BrightData.WeightedIndexList}[],System.Single,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyList{BrightData.WeightedIndexListWithLabel{``0}},System.Single,System.Single,System.Single)">
             <summary>
             Okapi B525+ modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Okapi_BM25
@@ -4278,6 +4257,42 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IVectorData)">
+            <summary>
+            Returns the index with the minimum value from this tensor segment
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaximumIndex(BrightData.IVectorData)">
+            <summary>
+            Returns the index with the maximum value from this tensor segment
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.IVectorData)">
+            <summary>
+            Sums all values
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Softmax(BrightData.IVectorData)">
+            <summary>
+            Returns the index with the minimum value from this tensor segment
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CosineDistance(BrightData.IVectorData,BrightData.IVectorData)">
+            <summary>
+            Finds cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite) between this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Helper.ColumnTypeClassifier">
             <summary>
             Classifies data table column types
@@ -4592,7 +4607,7 @@
             <summary>
             Constructor
             </summary>
-            <param name="basePath">Location on disk to write new temp files</param>
+            <param name="basePath">Location on disk to write new temp files or null to use default system temp path</param>
         </member>
         <member name="M:BrightData.Helper.TempStreamManager.GetTempPath(System.String)">
             <inheritdoc />
@@ -4829,8 +4844,8 @@
             <summary>
             Returns a span of floats
             </summary>
-            <param name="temp">Optional temporary memory buffer</param>
-            <param name="wasTempUsed">True if the memory buffer was used</param>
+            <param name="temp">Optional buffer that might be needed when creating the span</param>
+            <param name="wasTempUsed">True if the buffer was used</param>
             <returns>Span of floats</returns>
         </member>
         <member name="T:BrightData.ICanWriteToBinaryWriter">
@@ -5557,6 +5572,50 @@
             <param name="cancellationToken">Cancellation token to cancel operation</param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IndexListWithLabel`1">
+            <summary>
+            An index list with a typed label
+            </summary>
+            <param name="Label"></param>
+            <param name="Data"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IndexListWithLabel`1.#ctor(`0,BrightData.IndexList)">
+            <summary>
+            An index list with a typed label
+            </summary>
+            <param name="Label"></param>
+            <param name="Data"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.IndexListWithLabel`1.Label">
+            <summary></summary>
+        </member>
+        <member name="P:BrightData.IndexListWithLabel`1.Data">
+            <summary></summary>
+        </member>
+        <member name="T:BrightData.WeightedIndexListWithLabel`1">
+            <summary>
+            A weighted index list with a typed label
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Label"></param>
+            <param name="Data"></param>
+        </member>
+        <member name="M:BrightData.WeightedIndexListWithLabel`1.#ctor(`0,BrightData.WeightedIndexList)">
+            <summary>
+            A weighted index list with a typed label
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Label"></param>
+            <param name="Data"></param>
+        </member>
+        <member name="P:BrightData.WeightedIndexListWithLabel`1.Label">
+            <summary></summary>
+        </member>
+        <member name="P:BrightData.WeightedIndexListWithLabel`1.Data">
+            <summary></summary>
+        </member>
         <member name="T:BrightData.DataTableOrientation">
             <summary>
             Determines if the data table is oriented as either rows or columns
@@ -6022,6 +6081,11 @@
             Square Euclidean
             </summary>
         </member>
+        <member name="T:BrightData.IReadOnlyTensorSegment">
+            <summary>
+            Read only tensor segment
+            </summary>
+        </member>
         <member name="P:BrightData.IReadOnlyTensorSegment.SegmentType">
             <summary>
             Segment type
@@ -6088,14 +6152,6 @@
             <param name="sourceOffset">Index within this segment to copy from</param>
             <param name="stride">Increment after each copy</param>
             <param name="count">Number of elements to copy</param>
-        </member>
-        <member name="M:BrightData.IReadOnlyTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
-            <summary>
-            Returns a span from the current segment
-            </summary>
-            <param name="temp">Optional buffer that might be needed when creating the span</param>
-            <param name="wasTempUsed">True if the buffer was used</param>
-            <returns></returns>
         </member>
         <member name="M:BrightData.IReadOnlyTensorSegment.GetSpan(System.UInt32)">
             <summary>
@@ -9606,7 +9662,10 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(System.UInt32)">
@@ -9631,9 +9690,6 @@
             <inheritdoc cref="T:BrightData.ITensorSegment" />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetArrayIfEasilyAvailable">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Clear">
@@ -9662,34 +9718,16 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Release">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.IsValid">
+        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Size">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Size">
+        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.IsValid">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.SegmentType">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.IsWrapper">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Item(System.Int32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
-        </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Item(System.UInt32)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
-        </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Item(System.Int64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
-        </member>
-        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Item(System.UInt64)">
-            <inheritdoc cref="T:BrightData.ITensorSegment" />
-        </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Values">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetArrayIfEasilyAvailable">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.ToNewArray">
@@ -9701,26 +9739,13 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(BrightData.ITensorSegment,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(System.Span{System.Single})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.Clear">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
-            <inheritdoc />
-        </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetSpan(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetUnderlyingArray">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.ToString">
-            <inheritdoc />
+        <member name="T:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper">
+            <summary>
+            Read only tensor segment wrapper
+            </summary>
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.#ctor(BrightData.IReadOnlyTensorSegment,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
@@ -9794,7 +9819,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetFloatSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(System.UInt32)">
@@ -10294,6 +10319,14 @@
             Merges a sequence of weighted index lists into one list
             </summary>
             <param name="lists">Lists to merge</param>
+            <param name="mergeOperation">How to merge item weights</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item},BrightData.AggregationType)">
+            <summary>
+            Merges a sequence of weighted index items into one list
+            </summary>
+            <param name="items">Lists to merge</param>
             <param name="mergeOperation">How to merge item weights</param>
             <returns></returns>
         </member>

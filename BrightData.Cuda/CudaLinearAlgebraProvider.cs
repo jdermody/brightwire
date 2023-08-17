@@ -153,7 +153,7 @@ namespace BrightData.Cuda
         {
             var deviceMemory = Provider.Allocate(segment.Size);
             var temp = SpanOwner<float>.Empty;
-            var span = segment.GetSpan(ref temp, out var wasTempUsed);
+            var span = segment.GetFloatSpan(ref temp, out var wasTempUsed);
             try {
                 deviceMemory.CopyToDevice(span, 0);
                 return new CudaTensorSegment(deviceMemory);

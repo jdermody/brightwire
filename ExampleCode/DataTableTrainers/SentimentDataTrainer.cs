@@ -15,8 +15,8 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class SentimentDataTrainer
     {
-        readonly (string Classification, IndexList Data)[] _indexedSentencesTraining;
-        readonly (string Classification, IndexList Data)[] _indexedSentencesTest;
+        readonly IndexListWithLabel<string>[] _indexedSentencesTraining;
+        readonly IndexListWithLabel<string>[] _indexedSentencesTest;
         readonly BrightDataContext _context;
         readonly StringTableBuilder _stringTable;
         readonly uint _maxIndex;
@@ -166,7 +166,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -189,15 +189,15 @@ namespace ExampleCode.DataTableTrainers
 
         static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
 
-        static (string Classification, IndexList Data)[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
+        static IndexListWithLabel<string>[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
+                .Select(d => new IndexListWithLabel<string>(d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
                 .ToArray()
             ;
         }
 
-        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -304,7 +304,7 @@ namespace ExampleCode.DataTableTrainers
             return engine.CreateExecutionEngine(bestGraph);
         }
 
-        BrightDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        BrightDataTable CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix);

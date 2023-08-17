@@ -9,8 +9,8 @@ namespace BrightData.Buffer.Composite
     /// </summary>
     internal class CompositeStringBuffer : CompositeBufferBase<string>
     {
-        public CompositeStringBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct)
-            : base(tempStream, maxCount, maxDistinct)
+        public CompositeStringBuffer(IProvideTempStreams tempStream, uint blockSize, ushort maxDistinct)
+            : base(tempStream, blockSize, maxDistinct)
         {
         }
 

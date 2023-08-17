@@ -73,7 +73,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => TensorSize * Count;

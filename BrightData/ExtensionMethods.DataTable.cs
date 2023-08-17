@@ -831,7 +831,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static BrightDataTable ConvertToTable(this Span<(string Label, IndexList Data)> data, BrightDataContext context)
+        public static BrightDataTable ConvertToTable(this Span<IndexListWithLabel<string>> data, BrightDataContext context)
         {
             var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.IndexList, "Index");
@@ -848,7 +848,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static BrightDataTable ConvertToTable(this Span<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
+        public static BrightDataTable ConvertToTable(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var builder = new BrightDataTableBuilder(context);
             builder.AddColumn(BrightDataType.WeightedIndexList, "Weighted Index");
@@ -902,7 +902,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static (string Classification, IVector Data)[] Vectorise(this Span<(string Label, WeightedIndexList Data)> data, BrightDataContext context)
+        public static (string Classification, IVector Data)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
             var lap = context.LinearAlgebraProvider;

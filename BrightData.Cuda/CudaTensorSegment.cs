@@ -113,7 +113,7 @@ namespace BrightData.Cuda
             DeviceMemory.Clear();
         }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = true;
             temp = SpanOwner<float>.Allocate((int)Size);

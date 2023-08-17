@@ -110,8 +110,10 @@ namespace BrightData.Buffer.Composite
                 }
 
                 // then from the current block
-                for(var i = 0; i < _currBlock.Size; i++)
-                    yield return _currBlock.Data[i];
+                if (_currBlock is not null) {
+                    for (var i = 0; i < _currBlock.Size; i++)
+                        yield return _currBlock.Data[i];
+                }
             }
         }
 

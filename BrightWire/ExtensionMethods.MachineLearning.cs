@@ -147,7 +147,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
+        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<IndexListWithLabel<string>> data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
             foreach (var (classification, indexList) in data)
@@ -169,7 +169,7 @@ namespace BrightWire
             if (indexListColumn.Index == targetColumnIndex)
                 throw new ArgumentException("No index list column of features");
 
-            var data = table.MapRows((row => (row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index))));
+            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainMultinomialNaiveBayes();
         }
 
@@ -178,7 +178,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<IndexListWithLabel<string>> data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
             foreach (var (classification, indexList) in data)
@@ -198,7 +198,7 @@ namespace BrightWire
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
                 .Single(c => c.ColumnType == BrightDataType.IndexList);
 
-            var data = table.MapRows(row => (row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
+            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainBernoulliNaiveBayes();
         }
 

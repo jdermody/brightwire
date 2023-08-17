@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
+using static BrightData.WeightedIndexList;
 
 namespace BrightData
 {
@@ -16,6 +17,30 @@ namespace BrightData
     public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
     {
         readonly uint[] _indices;
+
+        public ref struct ItemIterator
+        {
+            readonly uint[] _items;
+            int _pos = -1;
+
+            internal ItemIterator(uint[] items) => _items = items;
+
+            public uint Current
+            {
+                get
+                {
+                    if (_pos < _items.Length)
+                        return _items[_pos];
+                    return uint.MaxValue;
+                }
+            }
+
+            public bool MoveNext() => ++_pos < _items.Length;
+
+            public ItemIterator GetEnumerator() => this;
+        }
+
+        public ItemIterator GetEnumerator() => new(_indices);
 
         /// <summary>
         /// Constructor

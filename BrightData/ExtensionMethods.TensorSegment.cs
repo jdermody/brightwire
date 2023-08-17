@@ -56,7 +56,7 @@ namespace BrightData
             var size = segment.Size;
             if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
                 var temp = SpanOwner<float>.Empty;
-                var span = segment.GetSpan(ref temp, out var wasTempUsed);
+                var span = segment.GetFloatSpan(ref temp, out var wasTempUsed);
                 try {
                     return span.Sum();
                 }
@@ -251,24 +251,14 @@ namespace BrightData
             var array = segment.GetArrayIfEasilyAvailable();
             if (array is not null)
                 return callback(new Span<float>(array, 0, (int)segment.Size));
-            else {
-                var temp = SpanOwner<float>.Empty;
-                var wasTempUsed = false;
-                try {
-                    return callback(segment.GetSpan(ref temp, out wasTempUsed));
-                }
-                finally {
-                    if (wasTempUsed)
-                        temp.Dispose();
-                }
-            }
+            return GetReadOnlySpan<IReadOnlyTensorSegment, RT>(segment, callback);
         }
-        public static RT GetReadOnlySpan<RT>(this IReadOnlyTensorSegment segment, OnReadOnlyFloatSpan<RT> callback)
+        public static RT GetReadOnlySpan<T, RT>(this T segment, OnReadOnlyFloatSpan<RT> callback) where T : IReadOnlyTensorSegment
         {
             var temp = SpanOwner<float>.Empty;
             var wasTempUsed = false;
             try {
-                return callback(segment.GetSpan(ref temp, out wasTempUsed));
+                return callback(segment.GetFloatSpan(ref temp, out wasTempUsed));
             }
             finally {
                 if (wasTempUsed)
@@ -283,20 +273,22 @@ namespace BrightData
             var array2 = segment2.GetArrayIfEasilyAvailable();
             if (array1 is not null && array2 is not null)
                 return callback(new Span<float>(array1, 0, (int)segment1.Size), new Span<float>(array2, 0, (int)segment2.Size));
-            else {
-                SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
-                bool wasTemp1Used = false, wasTemp2Used = false;
-                try {
-                    var s1 = segment1.GetSpan(ref temp1, out wasTemp1Used);
-                    var s2 = segment2.GetSpan(ref temp2, out wasTemp2Used);
-                    return callback(s1, s2);
-                }
-                finally {
-                    if (wasTemp1Used)
-                        temp1.Dispose();
-                    if (wasTemp2Used)
-                        temp2.Dispose();
-                }
+            return GetReadOnlySpans<IReadOnlyTensorSegment, RT>(segment1, segment2, callback);
+        }
+        public static RT GetReadOnlySpans<T, RT>(this T segment1, IReadOnlyTensorSegment segment2, OnReadOnlyFloatSpans<RT> callback)  where T: IReadOnlyTensorSegment
+        {
+            SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
+            bool wasTemp1Used = false, wasTemp2Used = false;
+            try {
+                var s1 = segment1.GetFloatSpan(ref temp1, out wasTemp1Used);
+                var s2 = segment2.GetFloatSpan(ref temp2, out wasTemp2Used);
+                return callback(s1, s2);
+            }
+            finally {
+                if (wasTemp1Used)
+                    temp1.Dispose();
+                if (wasTemp2Used)
+                    temp2.Dispose();
             }
         }
 
@@ -304,7 +296,7 @@ namespace BrightData
         public static unsafe void GetSpans(this ITensorSegment segment1, ITensorSegment segment2, OnFloatSpans callback)
         {
             if (segment1.IsWrapper)
-                throw new ArgumentException($"Tensor segment wrappers cannot be modified");
+                throw new ArgumentException("Tensor segment wrappers cannot be modified");
             var array1 = segment1.GetArrayIfEasilyAvailable();
             var array2 = segment2.GetArrayIfEasilyAvailable();
             if (array1 is not null && array2 is not null)
@@ -313,8 +305,8 @@ namespace BrightData
                 SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
                 bool wasTemp1Used = false, wasTemp2Used = false;
                 try {
-                    var s1 = segment1.GetSpan(ref temp1, out wasTemp1Used);
-                    var s2 = segment2.GetSpan(ref temp2, out wasTemp2Used);
+                    var s1 = segment1.GetFloatSpan(ref temp1, out wasTemp1Used);
+                    var s2 = segment2.GetFloatSpan(ref temp2, out wasTemp2Used);
                     fixed (float* ptr = s1) {
                         callback(new Span<float>(ptr, s1.Length), s2);
                     }
@@ -332,7 +324,7 @@ namespace BrightData
         public static unsafe void GetSpan(this ITensorSegment segment, OnFloatSpan callback)
         {
             if (segment.IsWrapper)
-                throw new ArgumentException($"Tensor segment wrappers cannot be modified");
+                throw new ArgumentException("Tensor segment wrappers cannot be modified");
             var array = segment.GetArrayIfEasilyAvailable();
             if (array is not null)
                 callback(new Span<float>(array, 0, (int)segment.Size));
@@ -340,7 +332,7 @@ namespace BrightData
                 var temp = SpanOwner<float>.Empty;
                 var wasTempUsed = false;
                 try {
-                    var span = segment.GetSpan(ref temp, out wasTempUsed);
+                    var span = segment.GetFloatSpan(ref temp, out wasTempUsed);
                     fixed (float* ptr = span) {
                         callback(new Span<float>(ptr, span.Length));
                     }

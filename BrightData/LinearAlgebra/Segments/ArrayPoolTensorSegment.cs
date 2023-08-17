@@ -10,105 +10,70 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment that temporarily owns a buffer from an array pool
     /// </summary>
-    public class ArrayPoolTensorSegment : ITensorSegment
+    public class ArrayPoolTensorSegment : ArrayBasedTensorSegment
     {
-        readonly MemoryOwner<float> _data;
-        readonly float[] _array;
+        readonly MemoryOwner<float> _memoryOwner;
         int _refCount = 0;
+        bool _isValid = true;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Rented buffer from pool</param>
-        public ArrayPoolTensorSegment(MemoryOwner<float> data)
+        public ArrayPoolTensorSegment(MemoryOwner<float> data) : base(data.DangerousGetArray().Array!)
         {
-            _data = data;
-            _array = data.DangerousGetArray().Array!;
+            _memoryOwner = data;
         }
 
         /// <inheritdoc />
-        public void Dispose()
+        public override void Dispose()
         {
             Release();
         }
 
         /// <inheritdoc />
-        public int AddRef() => Interlocked.Increment(ref _refCount);
+        public override int AddRef() => Interlocked.Increment(ref _refCount);
 
         /// <inheritdoc />
-        public int Release()
+        public override int Release()
         {
             var ret = Interlocked.Decrement(ref _refCount);
-            if (IsValid && ret <= 0)
+            if (_isValid && ret <= 0)
             {
-                _data.Dispose();
-                IsValid = false;
+                _memoryOwner.Dispose();
+                _isValid = false;
             }
 
             return ret;
         }
 
         /// <inheritdoc />
-        public bool IsValid { get; private set; } = true;
+        public override uint Size => (uint)_memoryOwner.Length;
 
         /// <inheritdoc />
-        public uint Size => (uint)_data.Length;
+        public override bool IsValid => _isValid;
 
         /// <inheritdoc />
-        public string SegmentType => "memory owner";
+        public override string SegmentType => "memory owner";
 
         /// <inheritdoc />
-        public bool IsWrapper => false;
-
-        /// <inheritdoc cref="ITensorSegment" />
-        public float this[int index]
-        {
-            get => _array[index];
-            set => _array[index] = value;
-        }
-
-        /// <inheritdoc cref="ITensorSegment" />
-        public float this[uint index]
-        {
-            get => _array[index];
-            set => _array[index] = value;
-        }
-
-        /// <inheritdoc cref="ITensorSegment" />
-        public float this[long index]
-        {
-            get => _array[index];
-            set => _array[index] = value;
-        }
-
-        /// <inheritdoc cref="ITensorSegment" />
-        public float this[ulong index]
-        {
-            get => _array[index];
-            set => _array[index] = value;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<float> Values
+        public override IEnumerable<float> Values
         {
             get
             {
                 for (int i = 0, len = (int)Size; i < len; i++)
-                    yield return _array[i];
+                    yield return _data[i];
             }
         }
 
         /// <inheritdoc />
-        public float[] GetArrayIfEasilyAvailable() => _array;
+        public override float[] ToNewArray() => _memoryOwner.Span.ToArray();
 
         /// <inheritdoc />
-        public float[] ToNewArray() => _data.Span.ToArray();
+        public override void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _memoryOwner.Span : _memoryOwner.Span[(int)targetOffset..]);
 
         /// <inheritdoc />
-        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _data.Span : _data.Span[(int)targetOffset..]);
-
-        /// <inheritdoc />
-        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public override void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             var span = GetSpan(sourceOffset);
             var destination = segment.GetArrayIfEasilyAvailable();
@@ -119,51 +84,6 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
-
-        /// <inheritdoc />
-        public unsafe void CopyTo(float* destination, int sourceOffset, int stride, int count)
-        {
-            fixed (float* ptr = &_array[sourceOffset])
-            {
-                var p = ptr;
-                for (var i = 0; i < count; i++)
-                {
-                    *destination++ = *p;
-                    p += stride;
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public unsafe void Clear()
-        {
-            fixed (float* ptr = &_array[0])
-            {
-                Unsafe.InitBlock(ptr, 0, (uint)_data.Length * sizeof(float));
-            }
-        }
-
-        /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
-        {
-            wasTempUsed = false;
-            return _array.AsSpan(0, (int)Size);
-        }
-
-        /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _array.AsSpan((int)offset, (int)(Size - offset));
-
-        /// <inheritdoc />
-        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_array, 0, 1);
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            var preview = string.Join("|", Values.Take(8));
-            if (Size > 8)
-                preview += "|...";
-            return $"{SegmentType} ({Size}): {preview}";
-        }
+        public override ReadOnlySpan<float> GetSpan(uint offset = 0) => _memoryOwner.Span[(int)offset..];
     }
 }

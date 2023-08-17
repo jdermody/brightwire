@@ -12,7 +12,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// </summary>
     public class ArrayBasedTensorSegment : ITensorSegment
     {
-        readonly float[] _data;
+        protected readonly float[] _data;
 
         /// <summary>
         /// Constructor
@@ -24,51 +24,48 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public int AddRef()
+        public virtual int AddRef()
         {
             // nop
             return 1;
         }
 
         /// <inheritdoc />
-        public int Release()
+        public virtual int Release()
         {
             // nop
             return 1;
         }
 
         /// <inheritdoc />
-        public bool IsValid => true;
+        public virtual bool IsValid => true;
 
         /// <inheritdoc />
-        public void Dispose()
+        public virtual void Dispose()
         {
             // nop
         }
 
         /// <inheritdoc />
-        public uint Size => (uint)_data.Length;
+        public virtual uint Size => (uint)_data.Length;
 
         /// <inheritdoc />
-        public string SegmentType => Consts.ArrayBased;
+        public virtual string SegmentType => Consts.ArrayBased;
 
         /// <inheritdoc />
-        public float[] ToNewArray() => _data.ToArray();
+        public virtual float[] ToNewArray() => _data.ToArray();
 
         /// <inheritdoc />
-        public IEnumerable<float> Values => _data;
+        public virtual IEnumerable<float> Values => _data;
 
         /// <inheritdoc />
-        public void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
+        public virtual void CopyTo(ITensorSegment segment, uint sourceOffset, uint targetOffset)
         {
             segment.CopyFrom(_data.AsSpan((int)sourceOffset), targetOffset);
         }
 
         /// <inheritdoc />
-        public void CopyTo(Span<float> destination)
-        {
-            _data.CopyTo(destination);
-        }
+        public virtual void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
 
         /// <inheritdoc />
         public unsafe void CopyTo(float* destination, int offset, int stride, int count)
@@ -85,14 +82,20 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public virtual void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
-            wasTempUsed = false;
-            return new(_data);
+            span.CopyTo(_data.AsSpan((int)targetOffset));
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(uint offset = 0) => _data.AsSpan((int)offset);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = false;
+            return GetSpan();
+        }
+
+        /// <inheritdoc />
+        public virtual ReadOnlySpan<float> GetSpan(uint offset = 0) => _data.AsSpan((int)offset);
 
         /// <inheritdoc />
         public bool IsWrapper => false;
@@ -138,23 +141,15 @@ namespace BrightData.LinearAlgebra.Segments
         public float[] GetArrayIfEasilyAvailable() => _data;
 
         /// <inheritdoc />
-        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
-        {
-            span.CopyTo(_data.AsSpan((int)targetOffset));
-        }
-
-        /// <inheritdoc />
         public unsafe void Clear()
         {
             fixed (float* ptr = &_data[0])
             {
-                Unsafe.InitBlock(ptr, 0, (uint)_data.Length * sizeof(float));
+                Unsafe.InitBlock(ptr, 0, Size * sizeof(float));
             }
         }
 
         /// <inheritdoc />
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
-
-
     }
 }

@@ -28,7 +28,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             writer.Write(RowCount);
             writer.Write(Depth);
             var temp = SpanOwner<float>.Empty;
-            ReadOnlySegment.GetSpan(ref temp, out var wasTempUsed);
+            ReadOnlySegment.GetFloatSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(temp.Span.AsBytes());
             }
@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetFloatSpan(ref temp, out wasTempUsed);
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
         public uint Size => MatrixSize * Depth;

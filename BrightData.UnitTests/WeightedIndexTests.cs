@@ -146,13 +146,13 @@ namespace BrightData.UnitTests
             return _context.CreateWeightedIndexList(GetStringIndices(words, stringTable).GroupBy(w => w).Select(g => new WeightedIndexList.Item(g.Key, g.Count())));
         }
 
-        (string Label, WeightedIndexList Data)[] GetSampleDocuments()
+        WeightedIndexListWithLabel<string>[] GetSampleDocuments()
         {
             var stringTable = new Dictionary<string, uint>();
-            return new[] {
-                ("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
-                ("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
-                ("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
+            return new WeightedIndexListWithLabel<string>[] {
+                new("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
+                new("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
+                new("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
             };
         }
 

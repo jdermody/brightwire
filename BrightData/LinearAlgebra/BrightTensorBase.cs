@@ -46,7 +46,7 @@ namespace BrightData.LinearAlgebra
         {
             Shape.WriteTo(writer);
             var temp = SpanOwner<float>.Empty;
-            var span = Segment.GetSpan(ref temp, out var wasTempUsed);
+            var span = Segment.GetFloatSpan(ref temp, out var wasTempUsed);
             try {
                 writer.Write(span.AsBytes());
             }
@@ -98,7 +98,7 @@ namespace BrightData.LinearAlgebra
         public LinearAlgebraProvider LinearAlgebraProvider => Lap;
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetSpan(ref temp, out wasTempUsed);
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => Segment.GetFloatSpan(ref temp, out wasTempUsed);
 
         /// <inheritdoc />
         public IVector Reshape() => Lap.CreateVector(Segment);

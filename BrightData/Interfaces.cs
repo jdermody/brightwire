@@ -36,8 +36,8 @@ namespace BrightData
         /// <summary>
         /// Returns a span of floats
         /// </summary>
-        /// <param name="temp">Optional temporary memory buffer</param>
-        /// <param name="wasTempUsed">True if the memory buffer was used</param>
+        /// <param name="temp">Optional buffer that might be needed when creating the span</param>
+        /// <param name="wasTempUsed">True if the buffer was used</param>
         /// <returns>Span of floats</returns>
         ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed);
     }
@@ -352,7 +352,6 @@ namespace BrightData
         /// </summary>
         Type DataType { get; }
     }
-
 
     /// <summary>
     /// Typed composite buffer
@@ -836,4 +835,20 @@ namespace BrightData
         where T : notnull 
         where CT : struct
     ;
+
+    /// <summary>
+    /// An index list with a typed label
+    /// </summary>
+    /// <param name="Label"></param>
+    /// <param name="Data"></param>
+    /// <typeparam name="T"></typeparam>
+    public record IndexListWithLabel<T>(T Label, IndexList Data);
+
+    /// <summary>
+    /// A weighted index list with a typed label
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="Label"></param>
+    /// <param name="Data"></param>
+    public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
 }

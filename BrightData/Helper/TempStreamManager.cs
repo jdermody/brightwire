@@ -11,12 +11,11 @@ namespace BrightData.Helper
     {
         readonly string                                         _basePath;
         readonly ConcurrentDictionary<string, Lazy<FileStream>> _streamTable = new();
-        readonly ConcurrentBag<string>                          _tempPaths = new();
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="basePath">Location on disk to write new temp files</param>
+        /// <param name="basePath">Location on disk to write new temp files or null to use default system temp path</param>
         public TempStreamManager(string? basePath = null)
         {
             _basePath = basePath ?? Path.GetTempPath();
@@ -55,12 +54,6 @@ namespace BrightData.Helper
                 }
             }
             _streamTable.Clear();
-
-            foreach (var filePath in _tempPaths) {
-                if(File.Exists(filePath))
-                    File.Delete(filePath);
-            }
-            _tempPaths.Clear();
         }
     }
 }

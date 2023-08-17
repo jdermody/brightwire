@@ -2369,7 +2369,7 @@
             <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
             <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(System.ValueTuple{System.String,BrightData.IndexList}[],BrightWire.IIndexListClassifier)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.IndexListWithLabel{System.String}[],BrightWire.IIndexListClassifier)">
             <summary>
             Classifies each row of the index classification list
             </summary>
@@ -2540,7 +2540,7 @@
             <param name="config"></param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{System.String}})">
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
@@ -2554,7 +2554,7 @@
             <param name="table">The training data table that must have a index-list based column to classify against</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{System.String}})">
             <summary>
             Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
             </summary>

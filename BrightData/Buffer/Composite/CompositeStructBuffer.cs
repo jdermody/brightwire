@@ -11,7 +11,7 @@ namespace BrightData.Buffer.Composite
     internal class CompositeStructBuffer<T> : CompositeBufferBase<T>
         where T : struct
     {
-        public CompositeStructBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)
+        public CompositeStructBuffer(IProvideTempStreams tempStream, uint blockSize, ushort maxDistinct) : base(tempStream, blockSize, maxDistinct)
         {
         }
 

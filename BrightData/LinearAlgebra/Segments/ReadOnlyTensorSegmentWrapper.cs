@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace BrightData.LinearAlgebra.Segments
 {
+    /// <summary>
+    /// Read only tensor segment wrapper
+    /// </summary>
     public class ReadOnlyTensorSegmentWrapper : IReadOnlyTensorSegment
     {
         /// <summary>
@@ -122,10 +125,10 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<float> GetFloatSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (Stride == 1)
-                return UnderlyingSegment.GetSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
+                return UnderlyingSegment.GetFloatSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
 
             temp = SpanOwner<float>.Allocate((int)Size);
             var span = temp.Span;

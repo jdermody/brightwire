@@ -226,7 +226,7 @@ namespace BrightWire
         /// <param name="data"></param>
         /// <param name="classifier">The classifier to classify each item in the list</param>
         /// <returns></returns>
-        public static (string Label, string Classification, float Score)[] Classify(this (string Label, IndexList Data)[] data, IIndexListClassifier classifier)
+        public static (string Label, string Classification, float Score)[] Classify(this IndexListWithLabel<string>[] data, IIndexListClassifier classifier)
         {
             var i = 0;
             var ret = new (string Label, string Classification, float Score)[data.Length];
