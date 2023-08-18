@@ -340,7 +340,14 @@ namespace BrightData.Cuda
 			return (size / blockSize) + 1;
 		}
 
+        /// <summary>
+        /// Pushes a new CUDA context
+        /// </summary>
         public void PushContext() => Context.PushContext();
+
+		/// <summary>
+		/// Pops a CUDA context
+		/// </summary>
         public void PopContext() => Context.PopContext();
 
 		internal static void CheckForError(CuResult result)

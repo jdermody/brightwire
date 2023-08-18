@@ -3,7 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Cuda.CudaToolkit.Types
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     [StructLayout(LayoutKind.Sequential)]
+
     public readonly struct SizeT
     {
         readonly nuint _value;
@@ -65,4 +67,5 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public override string ToString() => IntPtr.Size == 4 ? this._value.ToUInt32().ToString() : this._value.ToUInt64().ToString();
         public override int GetHashCode() => this._value.GetHashCode();
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

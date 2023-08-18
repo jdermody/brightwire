@@ -764,6 +764,7 @@ namespace BrightData.Cuda
             return ret;
         }
 
+        /// <inheritdoc />
         public override IMatrix CreateMatrixFromColumns(IReadOnlyNumericSegment<float>[] vectorColumns)
         {
             var allAreCuda = true;

@@ -1,5 +1,6 @@
 ﻿using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
+using System;
 
 namespace BrightData.Cuda
 {
@@ -12,24 +13,10 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy)
-        {
-            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-            var ret = new IReadOnlyVector[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++)
-                ret[i] = Column(i, segment).ToReadOnlyVector();
-            return ret;
-        }
+        public override IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy) => base.AllColumnsAsReadOnly(true);
 
         /// <inheritdoc />
-        public override IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy)
-        {
-            var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-            var ret = new IReadOnlyVector[RowCount];
-            for (uint i = 0; i < RowCount; i++)
-                ret[i] = Row(i, segment).ToReadOnlyVector();
-            return ret;
-        }
+        public override IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy) => base.AllRowsAsReadOnly(true);
 
         /// <inheritdoc />
         public override IVector GetColumnVector(uint index)

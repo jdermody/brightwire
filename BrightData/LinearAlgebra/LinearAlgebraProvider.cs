@@ -264,7 +264,7 @@ namespace BrightData.LinearAlgebra
         public virtual IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint /* row index */, uint /* column index */, float> initializer)
         {
             var segment = CreateSegment(rowCount * columnCount, false);
-            var array = segment.GetArrayIfEasilyAvailable()!;
+            var array = segment.GetUnderlyingArray().Array!;
             for (uint i = 0, len = segment.Size; i < len; i++)
                 array[i] = initializer(i % rowCount, i / rowCount);
             return CreateMatrix(rowCount, columnCount, segment);

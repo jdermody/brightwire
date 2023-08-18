@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -79,19 +80,19 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> Row(uint index, INumericSegment<float>? segment = null)
+        public INumericSegment<float> Row(uint index)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new TensorSegmentWrapper(segment ?? Segment, index, RowCount, ColumnCount);
+            return new TensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> Column(uint index, INumericSegment<float>? segment = null)
+        public INumericSegment<float> Column(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new TensorSegmentWrapper(segment ?? Segment, index * RowCount, 1, RowCount);
+            return new TensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
@@ -131,7 +132,7 @@ namespace BrightData.LinearAlgebra
             if (makeCopy) {
                 var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
                 for (uint i = 0; i < RowCount; i++)
-                    ret[i] = Row(i, segment).ToReadOnlyVector();
+                    ret[i] = new TensorSegmentWrapper(segment, i, RowCount, ColumnCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < RowCount; i++)
@@ -147,7 +148,7 @@ namespace BrightData.LinearAlgebra
             if (makeCopy) {
                 var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
                 for (uint i = 0; i < ColumnCount; i++)
-                    ret[i] = Column(i, segment).ToReadOnlyVector();
+                    ret[i] = new TensorSegmentWrapper(segment, i * RowCount, 1, RowCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < ColumnCount; i++)

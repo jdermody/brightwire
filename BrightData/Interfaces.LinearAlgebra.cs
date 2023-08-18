@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -188,12 +186,6 @@ namespace BrightData
         new T this[ulong index] { get; set; }
 
         /// <summary>
-        /// Returns a contiguous array of data only if this is the easily available (null otherwise)
-        /// </summary>
-        /// <returns></returns>
-        T[]? GetArrayIfEasilyAvailable();
-
-        /// <summary>
         /// Copies from the span into the segment
         /// </summary>
         /// <param name="span">Span to copy from</param>
@@ -247,6 +239,9 @@ namespace BrightData
         ReadOnlySpan<T> FloatSpan { get; }
     }
 
+    /// <summary>
+    /// Read only vector
+    /// </summary>
     public interface IVectorData : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
     {
         /// <summary>
@@ -282,6 +277,9 @@ namespace BrightData
         float this[uint index] { get; }
     }
 
+    /// <summary>
+    /// Matrix dimensions
+    /// </summary>
     public interface IHaveMatrixDimensions : IHaveSize
     {
         /// <summary>
@@ -295,6 +293,9 @@ namespace BrightData
         uint ColumnCount { get; }
     }
 
+    /// <summary>
+    /// Read only matrix
+    /// </summary>
     public interface IMatrixData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveMatrixDimensions
     {
         /// <summary>
@@ -358,6 +359,9 @@ namespace BrightData
         IReadOnlyVector[] AllColumns();
     }
 
+    /// <summary>
+    /// 3D tensor dimensions
+    /// </summary>
     public interface IHaveTensor3DDimensions : IHaveMatrixDimensions
     {
         /// <summary>
@@ -371,6 +375,9 @@ namespace BrightData
         uint MatrixSize { get; }
     }
 
+    /// <summary>
+    /// Read only 3D tensor
+    /// </summary>
     public interface ITensor3DData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor3DDimensions
     {
         /// <summary>
@@ -423,6 +430,9 @@ namespace BrightData
         IReadOnlyMatrix[] AllMatrices();
     }
 
+    /// <summary>
+    /// 4D tensor dimensions
+    /// </summary>
     public interface IHaveTensor4DDimensions : IHaveTensor3DDimensions
     {
         /// <summary>
@@ -436,6 +446,9 @@ namespace BrightData
         uint TensorSize { get; }
     }
 
+    /// <summary>
+    /// Read only 4D tensor
+    /// </summary>
     public interface ITensor4DData : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor4DDimensions
     {
         /// <summary>
@@ -1023,17 +1036,15 @@ namespace BrightData
         /// Returns a row from the matrix
         /// </summary>
         /// <param name="index">Row index</param>
-        /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        INumericSegment<float> Row(uint index, INumericSegment<float>? segment = null);
+        INumericSegment<float> Row(uint index);
 
         /// <summary>
         /// Returns a column from the matrix
         /// </summary>
         /// <param name="index">Column index</param>
-        /// <param name="segment">Optional segment to use</param>
         /// <returns></returns>
-        INumericSegment<float> Column(uint index, INumericSegment<float>? segment = null);
+        INumericSegment<float> Column(uint index);
 
         /// <summary>
         /// Returns a row as a span
@@ -1222,9 +1233,32 @@ namespace BrightData
         /// <returns></returns>
         IMatrix Clone(LinearAlgebraProvider? lap);
 
+        /// <summary>
+        /// Returns a row as a read only vector
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <returns></returns>
         IReadOnlyVector GetRowAsReadOnly(uint rowIndex);
+
+        /// <summary>
+        /// Returns a column as a read only vector
+        /// </summary>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         IReadOnlyVector GetColumnAsReadOnly(uint columnIndex);
+
+        /// <summary>
+        /// Returns all rows as read only vectors
+        /// </summary>
+        /// <param name="makeCopy">True to make a copy of each row</param>
+        /// <returns></returns>
         IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy);
+
+        /// <summary>
+        /// Returns all columns as read only vectors
+        /// </summary>
+        /// <param name="makeCopy">True to make a copy of each column</param>
+        /// <returns></returns>
         IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy);
     }
 
@@ -1398,8 +1432,17 @@ namespace BrightData
         /// <returns></returns>
         ITensor3D Clone(LinearAlgebraProvider? lap);
 
+        /// <summary>
+        /// Returns a sub matrix
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         IReadOnlyMatrix GetMatrixAsReadOnly(uint index);
 
+        /// <summary>
+        /// Returns all sub matrices
+        /// </summary>
+        /// <returns></returns>
         IReadOnlyMatrix[] AllMatricesAsReadOnly();
     }
 
@@ -1536,8 +1579,17 @@ namespace BrightData
         /// <returns></returns>
         ITensor4D Clone(LinearAlgebraProvider? lap);
 
+        /// <summary>
+        /// Returns a sub tensor
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         IReadOnlyTensor3D GetTensorAsReadOnly(uint index);
 
+        /// <summary>
+        /// Returns all sub tensors
+        /// </summary>
+        /// <returns></returns>
         IReadOnlyTensor3D[] AllTensorsAsReadOnly();
     }
 }

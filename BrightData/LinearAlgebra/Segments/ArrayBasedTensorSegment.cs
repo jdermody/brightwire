@@ -12,6 +12,9 @@ namespace BrightData.LinearAlgebra.Segments
     /// </summary>
     public class ArrayBasedTensorSegment : INumericSegment<float>
     {
+        /// <summary>
+        /// Underlying array
+        /// </summary>
         protected readonly float[] _data;
 
         /// <summary>
@@ -109,36 +112,33 @@ namespace BrightData.LinearAlgebra.Segments
             return $"{SegmentType} ({Size}): {preview}";
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public float this[int index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public float this[uint index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public float this[long index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public float this[ulong index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
-
-        /// <inheritdoc />
-        public float[] GetArrayIfEasilyAvailable() => _data;
 
         /// <inheritdoc />
         public unsafe void Clear()

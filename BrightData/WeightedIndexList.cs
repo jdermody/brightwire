@@ -75,6 +75,9 @@ namespace BrightData
             public bool Equals(Item other) => Index == other.Index && Math.Abs(Weight - other.Weight) < FloatMath.AlmostZero;
         }
 
+        /// <summary>
+        /// Index iterator
+        /// </summary>
         public ref struct ItemIterator
         {
             readonly Item[] _items;
@@ -82,7 +85,10 @@ namespace BrightData
 
             internal ItemIterator(Item[] items) => _items = items;
 
-            public ref readonly Item Current
+            /// <summary>
+            /// Current item
+            /// </summary>
+            public readonly ref readonly Item Current
             {
                 get
                 {
@@ -92,11 +98,23 @@ namespace BrightData
                 }
             }
 
+            /// <summary>
+            /// Advances the iterator
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext() => ++_pos < _items.Length;
 
-            public ItemIterator GetEnumerator() => this;
+            /// <summary>
+            /// Get enumerator
+            /// </summary>
+            /// <returns></returns>
+            public readonly ItemIterator GetEnumerator() => this;
         }
 
+        /// <summary>
+        /// Enumerates the weighted indices in the list
+        /// </summary>
+        /// <returns></returns>
         public ItemIterator GetEnumerator() => new(_indices);
 
         /// <summary>

@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
 
@@ -1122,9 +1121,21 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Calculates sigmoid
+        /// </summary>
+        /// <param name="val"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Sigmoid<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T> => T.One / (T.One + T.Exp(T.NegativeOne * val));
 
+        /// <summary>
+        /// Calculates sigmoid derivative
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T SigmoidDerivative<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T>
         {
@@ -1132,18 +1143,48 @@ namespace BrightData
             return sigmoid * (T.One - sigmoid);
         }
 
+        /// <summary>
+        /// Calculates tanh derivative
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T TanhDerivative<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T> => T.One - T.Pow(T.Tanh(val), T.One + T.One);
 
+        /// <summary>
+        /// Calculates RELU
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Relu<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : val;
 
+        /// <summary>
+        /// Calculates RELU derivative
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ReluDerivative<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : T.One;
 
+        /// <summary>
+        /// Calculates leaky RELU
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T LeakyRelu<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) * val : val;
 
+        /// <summary>
+        /// Calculates leaky RELU derivative
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T LeakyReluDerivative<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) : T.One;
 
@@ -1223,7 +1264,7 @@ namespace BrightData
         public static MemoryOwner<T> Softmax<T>(this ReadOnlySpan<T> segment)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
-            var (_, max, _, _) = GetMinAndMaxValues<T>(segment);
+            var (_, max, _, _) = GetMinAndMaxValues(segment);
             var softmax = segment.MapParallel(v => T.Exp(v - max));
             var sum = Sum(softmax.Span.AsReadOnly());
             if (!T.IsZero(sum))
@@ -1280,7 +1321,7 @@ namespace BrightData
             where T: unmanaged, INumber<T>
         {
             var compareTo = lower + (upper - lower) / (T.One + T.One);
-            MutateInPlace<T>(segment, v => v >= compareTo ? upper : lower);
+            MutateInPlace(segment, v => v >= compareTo ? upper : lower);
         }
 
         /// <summary>

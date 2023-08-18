@@ -3,13 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
-using CommunityToolkit.HighPerformance.Helpers;
 using BrightData.LinearAlgebra;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -30,7 +26,17 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static float[] GetLocalOrNewArray(this INumericSegment<float> segment) => segment.GetArrayIfEasilyAvailable() ?? segment.ToNewArray();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] GetLocalOrNewArray(this INumericSegment<float> segment)
+        {
+            var (array, offset, stride) = segment.GetUnderlyingArray();
+            if (array is not null && stride == 1) {
+                var ret = new float[segment.Size];
+                Array.Copy(array, offset, ret, 0, segment.Size);
+                return ret;
+            }
+            return segment.ToNewArray();
+        }
 
         /// <summary>
         /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
@@ -245,15 +251,39 @@ namespace BrightData
         /// <returns></returns>
         public static ITensor4D ToTensor4D(this IReadOnlyNumericSegment<float> segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
 
-        public delegate RT OnReadOnlyFloatSpan<out RT>(ReadOnlySpan<float> span);
-        public static RT GetReadOnlySpan<RT>(this INumericSegment<float> segment, OnReadOnlyFloatSpan<RT> callback)
+        /// <summary>
+        /// Callback that takes a readonly span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="RT"></typeparam>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public delegate RT OnReadOnlySpan<T, out RT>(ReadOnlySpan<T> span);
+
+        /// <summary>
+        /// Passes the segment as a readonly span to the callback
+        /// </summary>
+        /// <typeparam name="RT"></typeparam>
+        /// <param name="segment"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static RT GetReadOnlySpan<RT>(this INumericSegment<float> segment, OnReadOnlySpan<float, RT> callback)
         {
-            var array = segment.GetArrayIfEasilyAvailable();
-            if (array is not null)
-                return callback(new Span<float>(array, 0, (int)segment.Size));
+            var (array, offset, stride) = segment.GetUnderlyingArray();
+            if (array is not null && stride == 1)
+                return callback(new Span<float>(array, (int)offset, (int)segment.Size));
             return GetReadOnlySpan<IReadOnlyNumericSegment<float>, RT>(segment, callback);
         }
-        public static RT GetReadOnlySpan<T, RT>(this T segment, OnReadOnlyFloatSpan<RT> callback) where T : IReadOnlyNumericSegment<float>
+
+        /// <summary>
+        /// Passes the segment as a readonly span to the callback
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="RT"></typeparam>
+        /// <param name="segment"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static RT GetReadOnlySpan<T, RT>(this T segment, OnReadOnlySpan<float, RT> callback) where T : IReadOnlyNumericSegment<float>
         {
             var temp = SpanOwner<float>.Empty;
             var wasTempUsed = false;
@@ -266,16 +296,40 @@ namespace BrightData
             }
         }
 
-        public delegate RT OnReadOnlyFloatSpans<out RT>(ReadOnlySpan<float> span1, ReadOnlySpan<float> span2);
-        public static RT GetReadOnlySpans<RT>(this INumericSegment<float> segment1, INumericSegment<float> segment2, OnReadOnlyFloatSpans<RT> callback)
+        /// <summary>
+        /// Callback that takes two readonly spans
+        /// </summary>
+        /// <typeparam name="RT"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        public delegate RT OnReadOnlySpans<T, out RT>(ReadOnlySpan<T> span1, ReadOnlySpan<T> span2);
+
+        /// <summary>
+        /// Passes the readonly spans from the supplied segments into a callback function
+        /// </summary>
+        /// <typeparam name="RT"></typeparam>
+        /// <param name="segment1"></param>
+        /// <param name="segment2"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static RT GetReadOnlySpans<RT>(this INumericSegment<float> segment1, INumericSegment<float> segment2, OnReadOnlySpans<float, RT> callback)
         {
-            var array1 = segment1.GetArrayIfEasilyAvailable();
-            var array2 = segment2.GetArrayIfEasilyAvailable();
-            if (array1 is not null && array2 is not null)
-                return callback(new Span<float>(array1, 0, (int)segment1.Size), new Span<float>(array2, 0, (int)segment2.Size));
+            var (array1, offset1, stride1) = segment1.GetUnderlyingArray();
+            var (array2, offset2, stride2) = segment2.GetUnderlyingArray();
+            if (array1 is not null && array2 is not null && stride1 == 1 && stride2 == 1)
+                return callback(new Span<float>(array1, (int)offset1, (int)segment1.Size), new Span<float>(array2, (int)offset2, (int)segment2.Size));
             return GetReadOnlySpans<IReadOnlyNumericSegment<float>, RT>(segment1, segment2, callback);
         }
-        public static RT GetReadOnlySpans<T, RT>(this T segment1, IReadOnlyNumericSegment<float> segment2, OnReadOnlyFloatSpans<RT> callback)  where T: IReadOnlyNumericSegment<float>
+
+        /// <summary>
+        /// Passes the readonly spans from the supplied segments into a callback function
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="RT"></typeparam>
+        /// <param name="segment1"></param>
+        /// <param name="segment2"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static RT GetReadOnlySpans<T, RT>(this T segment1, IReadOnlyNumericSegment<float> segment2, OnReadOnlySpans<float, RT> callback)  where T: IReadOnlyNumericSegment<float>
         {
             SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
             bool wasTemp1Used = false, wasTemp2Used = false;
@@ -292,15 +346,28 @@ namespace BrightData
             }
         }
 
-        public delegate void OnFloatSpans(Span<float> span1, ReadOnlySpan<float> span2);
-        public static unsafe void GetSpans(this INumericSegment<float> segment1, INumericSegment<float> segment2, OnFloatSpans callback)
+        /// <summary>
+        /// Callback that takes one mutable span and one readonly span
+        /// </summary>
+        /// <param name="span1"></param>
+        /// <param name="span2"></param>
+        public delegate void OnSpans<T>(Span<T> span1, ReadOnlySpan<T> span2);
+
+        /// <summary>
+        /// Passes the first as a mutable span and the second as a readonly span from the supplied segments into a callback function
+        /// </summary>
+        /// <param name="segment1"></param>
+        /// <param name="segment2"></param>
+        /// <param name="callback"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static unsafe void GetSpans(this INumericSegment<float> segment1, INumericSegment<float> segment2, OnSpans<float> callback)
         {
             if (segment1.IsWrapper)
                 throw new ArgumentException("Tensor segment wrappers cannot be modified");
-            var array1 = segment1.GetArrayIfEasilyAvailable();
-            var array2 = segment2.GetArrayIfEasilyAvailable();
-            if (array1 is not null && array2 is not null)
-                callback(new Span<float>(array1, 0, (int)segment1.Size), new Span<float>(array2, 0, (int)segment2.Size));
+            var (array1, offset1, stride1) = segment1.GetUnderlyingArray();
+            var (array2, offset2, stride2) = segment2.GetUnderlyingArray();
+            if (array1 is not null && array2 is not null && stride1 == 1 && stride2 == 1)
+                callback(new Span<float>(array1, (int)offset1, (int)segment1.Size), new Span<float>(array2, (int)offset2, (int)segment2.Size));
             else {
                 SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
                 bool wasTemp1Used = false, wasTemp2Used = false;
@@ -320,14 +387,25 @@ namespace BrightData
             }
         }
 
-        public delegate void OnFloatSpan(Span<float> span);
-        public static unsafe void GetSpan(this INumericSegment<float> segment, OnFloatSpan callback)
+        /// <summary>
+        /// Callback that takes a single mutable span
+        /// </summary>
+        /// <param name="span"></param>
+        public delegate void OnSpan<T>(Span<T> span);
+
+        /// <summary>
+        /// Passes the segment as a mutable span into a callback function
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="callback"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static unsafe void GetSpan(this INumericSegment<float> segment, OnSpan<float> callback)
         {
             if (segment.IsWrapper)
                 throw new ArgumentException("Tensor segment wrappers cannot be modified");
-            var array = segment.GetArrayIfEasilyAvailable();
-            if (array is not null)
-                callback(new Span<float>(array, 0, (int)segment.Size));
+            var (array, offset, stride) = segment.GetUnderlyingArray();
+            if (array is not null && stride == 1)
+                callback(new Span<float>(array, (int)offset, (int)segment.Size));
             else {
                 var temp = SpanOwner<float>.Empty;
                 var wasTempUsed = false;

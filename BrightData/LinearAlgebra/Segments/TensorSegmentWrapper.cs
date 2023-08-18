@@ -28,28 +28,28 @@ namespace BrightData.LinearAlgebra.Segments
         /// </summary>
         public new INumericSegment<float> UnderlyingSegment { get; }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public new float this[int index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public new float this[uint index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public new float this[long index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
-        /// <inheritdoc cref="INumericSegment" />
+        /// <inheritdoc cref="INumericSegment{T}" />
         public new float this[ulong index]
         {
             get => UnderlyingSegment[Offset + index * Stride];

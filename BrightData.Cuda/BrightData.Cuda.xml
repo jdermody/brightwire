@@ -260,6 +260,9 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.GetNewMatrixFromRows(BrightData.IMatrix,System.Collections.Generic.IEnumerable{System.UInt32})">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(BrightData.IReadOnlyNumericSegment{System.Single}[])">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrixFromColumns(System.ReadOnlySpan{BrightData.IReadOnlyNumericSegment{System.Single}})">
             <inheritdoc />
         </member>
@@ -447,6 +450,16 @@
         <member name="P:BrightData.Cuda.CudaProvider.FreeMemory">
             <summary>
             Free device memory
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.PushContext">
+            <summary>
+            Pushes a new CUDA context
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.CudaProvider.PopContext">
+            <summary>
+            Pops a CUDA context
             </summary>
         </member>
         <member name="M:BrightData.Cuda.CudaProvider.BindThread">

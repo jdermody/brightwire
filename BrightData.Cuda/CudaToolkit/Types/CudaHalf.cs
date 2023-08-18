@@ -8,18 +8,18 @@ namespace BrightData.Cuda.CudaToolkit.Types
         ushort x;
         public CudaHalf(float f)
         {
-            x = __float2half(f).x;
+            x = Float2half(f).x;
         }
         public CudaHalf(double d)
         {
-            x = __double2half(d).x;
+            x = Double2half(d).x;
         }
         public CudaHalf(CudaHalf h16)
         {
             x = h16.x;
         }
 
-        static ushort __internal_float2half(float f, out uint remainder)
+        static ushort Internal_float2half(float f, out uint remainder)
         {
             var temp = new[] { f };
             var x = new uint[1];
@@ -57,7 +57,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
             return (ushort)(result);
         }
 
-        static CudaHalf __double2half(double x)
+        static CudaHalf Double2half(double x)
         {
             var ux = new ulong[1];
             var xa = new[] { x };
@@ -65,7 +65,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
             var absX = (ux[0] & 0x7fffffffffffffffUL);
             if (absX is >= 0x40f0000000000000UL or <= 0x3e60000000000000UL) {
-                return __float2half((float)x);
+                return Float2half((float)x);
             }
             var shifterBits = ux[0] & 0x7ff0000000000000UL;
             if (absX >= 0x3f10000000000000UL) {
@@ -92,14 +92,14 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
             var xRounded = xShiftRound - shifter[0];
             var xRndFlt = (float)xRounded;
-            var res = __float2half(xRndFlt);
+            var res = Float2half(xRndFlt);
             return res;
         }
 
-        static CudaHalf __float2half(float a)
+        static CudaHalf Float2half(float a)
         {
             var r = new CudaHalf {
-                x = __internal_float2half(a, out var remainder)
+                x = Internal_float2half(a, out var remainder)
             };
             if ((remainder > 0x80000000U) || ((remainder == 0x80000000U) && ((r.x & 0x1U) != 0U))) {
                 r.x++;
@@ -107,9 +107,6 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
             return r;
         }
-        public override string ToString()
-        {
-            return x.ToString();
-        }
+        public readonly override string ToString() => x.ToString();
     }
 }

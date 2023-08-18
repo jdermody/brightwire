@@ -1,10 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightData.Helper
 {
@@ -44,7 +40,7 @@ namespace BrightData.Helper
         /// <summary>
         /// Disposes the span aggregation
         /// </summary>
-        public void Dispose() => _delta.Dispose();
+        public readonly void Dispose() => _delta.Dispose();
 
         /// <summary>
         /// Adds a new operation
@@ -61,7 +57,7 @@ namespace BrightData.Helper
         /// <summary>
         /// The aggregation result
         /// </summary>
-        public ReadOnlySpan<T> Span => _delta.Span;
+        public readonly ReadOnlySpan<T> Span => _delta.Span;
 
         /// <summary>
         /// Online average aggregation

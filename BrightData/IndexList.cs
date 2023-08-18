@@ -18,6 +18,9 @@ namespace BrightData
     {
         readonly uint[] _indices;
 
+        /// <summary>
+        /// Index iterator
+        /// </summary>
         public ref struct ItemIterator
         {
             readonly uint[] _items;
@@ -25,7 +28,10 @@ namespace BrightData
 
             internal ItemIterator(uint[] items) => _items = items;
 
-            public uint Current
+            /// <summary>
+            /// Current value
+            /// </summary>
+            public readonly uint Current
             {
                 get
                 {
@@ -35,11 +41,23 @@ namespace BrightData
                 }
             }
 
+            /// <summary>
+            /// Advances the iterator
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext() => ++_pos < _items.Length;
 
-            public ItemIterator GetEnumerator() => this;
+            /// <summary>
+            /// Get enumerator
+            /// </summary>
+            /// <returns></returns>
+            public readonly ItemIterator GetEnumerator() => this;
         }
 
+        /// <summary>
+        /// Enumerates the indices in the list
+        /// </summary>
+        /// <returns></returns>
         public ItemIterator GetEnumerator() => new(_indices);
 
         /// <summary>

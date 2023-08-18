@@ -42,45 +42,45 @@ namespace BrightData.MKL
         /// <inheritdoc />
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
-        INumericSegment<float>  Apply(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, bool initialiseToZero, Action<int, float[], float[], float[]> mkl)
+        INumericSegment<float> Apply(INumericSegment<float>  tensor, INumericSegment<float> tensor2, bool initialiseToZero, Action<int, float[], float[], float[]> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var result = CreateSegment(size, initialiseToZero);
-            mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetArrayIfEasilyAvailable()!);
+            mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
             return result;
         }
-        INumericSegment<float>  ApplyUnderlying(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, bool initialiseToZero, Action<int, float[], int, int, float[], int, int, float[], int, int> mkl)
+        INumericSegment<float> ApplyUnderlying(INumericSegment<float>  tensor, INumericSegment<float> tensor2, bool initialiseToZero, Action<int, float[], int, int, float[], int, int, float[], int, int> mkl)
         {
             var size = GetSize(tensor, tensor2);
             var underlying = tensor.GetUnderlyingArray();
             var underlying2 = tensor2.GetUnderlyingArray();
             var result = CreateSegment(size, initialiseToZero);
-            mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride, result.GetArrayIfEasilyAvailable()!, 0, 1);
+            mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride, result.GetUnderlyingArray().Array!, 0, 1);
             return result;
         }
 
-        INumericSegment<float>  ApplyWithNewSize(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, uint resultSize, bool initialiseToZero, Action<float[], float[], float[]> mkl)
+        INumericSegment<float> ApplyWithNewSize(INumericSegment<float>  tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, Action<float[], float[], float[]> mkl)
         {
             var result = CreateSegment(resultSize, initialiseToZero);
-            mkl(tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetArrayIfEasilyAvailable()!);
+            mkl(tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
             return result;
         }
 
-        INumericSegment<float>  Apply(INumericSegment<float>  tensor, bool initialiseToZero, Action<int, float[], float[]> mkl)
+        INumericSegment<float> Apply(INumericSegment<float> tensor, bool initialiseToZero, Action<int, float[], float[]> mkl)
         {
             var result = CreateSegment(tensor.Size, initialiseToZero);
-            mkl((int)tensor.Size, tensor.GetLocalOrNewArray(), result.GetArrayIfEasilyAvailable()!);
+            mkl((int)tensor.Size, tensor.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
             return result;
         }
-        INumericSegment<float>  ApplyUnderlying(INumericSegment<float>  tensor, bool initialiseToZero, Action<int, float[], int, int, float[], int, int> mkl)
+        INumericSegment<float> ApplyUnderlying(INumericSegment<float> tensor, bool initialiseToZero, Action<int, float[], int, int, float[], int, int> mkl)
         {
             var result = CreateSegment(tensor.Size, initialiseToZero);
             var underlying = tensor.GetUnderlyingArray();
-            mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, result.GetArrayIfEasilyAvailable()!, 0, 1);
+            mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, result.GetUnderlyingArray().Array!, 0, 1);
             return result;
         }
 
-        static float Apply(INumericSegment<float>  tensor, Func<int, float[], float> mkl)
+        static float Apply(INumericSegment<float> tensor, Func<int, float[], float> mkl)
         {
             return mkl((int)tensor.Size, tensor.GetLocalOrNewArray());
         }
@@ -126,7 +126,7 @@ namespace BrightData.MKL
         {
             var result = CreateSegment(tensor.Size, false);
             tensor.CopyTo(result);
-            Blas.scal((int)tensor.Size, coefficient, result.GetArrayIfEasilyAvailable()!, 0, 1);
+            Blas.scal((int)tensor.Size, coefficient, result.GetUnderlyingArray().Array!, 0, 1);
             return result;
         }
 
@@ -281,12 +281,12 @@ namespace BrightData.MKL
                 cols,
                 buffer,
                 rows,
-                s.GetArrayIfEasilyAvailable()!,
-                u.GetArrayIfEasilyAvailable()!,
+                s.GetUnderlyingArray().Array!,
+                u.GetUnderlyingArray().Array!,
                 rows,
-                vt.GetArrayIfEasilyAvailable()!,
+                vt.GetUnderlyingArray().Array!,
                 cols,
-                rWork.GetArrayIfEasilyAvailable()!
+                rWork.GetUnderlyingArray().Array!
             );
             if (ret != 0)
                 throw new Exception("Failed to compute SVD");

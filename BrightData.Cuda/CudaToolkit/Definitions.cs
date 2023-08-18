@@ -4,6 +4,7 @@ using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.CudaToolkit
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     internal enum CuResult
     {
         Success = 0,
@@ -138,7 +139,7 @@ namespace BrightData.Cuda.CudaToolkit
         Unified = 4
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct CudaPointerAttributeP2PTokens
+    public readonly struct CudaPointerAttributeP2PTokens
     {
         readonly ulong p2pToken;
         readonly uint vaSpaceToken;
@@ -175,7 +176,6 @@ namespace BrightData.Cuda.CudaToolkit
     [Flags]
     internal enum CuStreamFlags : uint
     {
-        None = 0,
         Default = 0x0,
         NonBlocking = 0x1,
     }
@@ -424,7 +424,7 @@ namespace BrightData.Cuda.CudaToolkit
         readonly uint[] reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    internal struct CuMemPoolPtrExportData
+    internal readonly struct CuMemPoolPtrExportData
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
         readonly byte[] reserved;
@@ -570,8 +570,7 @@ namespace BrightData.Cuda.CudaToolkit
     {
         NonTranspose = 0,
         Transpose = 1,
-        ConjugateTranspose = 2,
-        Hermitan = 2,
+        ConjugateTransposeHermitan = 2,
         Conjugate = 3
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -1072,12 +1071,9 @@ namespace BrightData.Cuda.CudaToolkit
         MaxGridDimY = 6,
         MaxGridDimZ = 7,
         MaxSharedMemoryPerBlock = 8,
-        [Obsolete("Use MaxSharedMemoryPerBlock")]
-        SharedMemoryPerBlock = 8,
         TotalConstantMemory = 9,
         WarpSize = 10,
         MaxPitch = 11,
-        [Obsolete("Use MaxRegistersPerBlock")] RegistersPerBlock = 12,
         MaxRegistersPerBlock = 12,
         ClockRate = 13,
         TextureAlignment = 14,
@@ -1161,13 +1157,11 @@ namespace BrightData.Cuda.CudaToolkit
         CanUseStreamWaitValueNOrV1 = 94,
         CooperativeLaunch = 95,
         CooperativeMultiDeviceLaunch = 96,
-        MaxSharedMemoryPerBlockOptin = 97,
+        MaxSharedMemoryPerBlockOption = 97,
         CanFlushRemoteWrites = 98,
         HostRegisterSupported = 99,
         PageableMemoryAccessUsesHostPageTables = 100,
         DirectManagedMemoryAccessFromHost = 101,
-        [Obsolete("Deprecated, Use VirtualMemoryManagementSupported")]
-        VirtualAddressManagementSupported = 102,
         VirtualMemoryManagementSupported = 102,
         HandleTypePosixFileDescriptorSupported = 103,
         HandleTypeWin32HandleSupported = 104,
@@ -1185,7 +1179,7 @@ namespace BrightData.Cuda.CudaToolkit
         GpuDirectRdmaSupported = 116,
         GpuDirectRdmaFlushWritesOptions = 117,
         GpuDirectRdmaWritesOrdering = 118,
-        MempoolSupportedHandleTypes = 119,
+        MemPoolSupportedHandleTypes = 119,
         ClusterLaunch = 120,
         DeferredMappingCudaArraySupported = 121,
         CanUse64BitStreamMemOps = 122,
@@ -1231,7 +1225,7 @@ namespace BrightData.Cuda.CudaToolkit
     internal struct CuMipMappedArray
     {
         public nint Pointer;
-        public CudaArrayMemoryRequirements GetMemoryRequirements(CuDevice device)
+        public readonly CudaArrayMemoryRequirements GetMemoryRequirements(CuDevice device)
         {
             var temp = new CudaArrayMemoryRequirements();
             var res = DriverApiNativeMethods.ArrayManagement.cuMipmappedArrayGetMemoryRequirements(ref temp, this, device);
@@ -1293,7 +1287,7 @@ namespace BrightData.Cuda.CudaToolkit
         public byte[] reserved;
     }
     [StructLayout(LayoutKind.Sequential)]
-    internal struct CuExecAffinityParam
+    internal readonly struct CuExecAffinityParam
     {
         readonly CuExecAffinityType type;
         readonly CuExecAffinityParamUnion param;
@@ -1564,8 +1558,6 @@ namespace BrightData.Cuda.CudaToolkit
         PerformanceRank = 0x01,
         AccessSupported = 0x02,
         NativeAtomicSupported = 0x03,
-        [Obsolete("use CudaArrayAccessAccessSupported instead")]
-        AccessAccessSupported = 0x04,
         CudaArrayAccessAccessSupported = 0x04
     }
     internal enum CuOutputMode
@@ -1583,8 +1575,6 @@ namespace BrightData.Cuda.CudaToolkit
     internal enum CudaArray3DFlags
     {
         None = 0,
-        [Obsolete("Since CUDA Version 4.0. Use <Layered> instead")]
-        Array2D = 1,
         Layered = 1,
         SurfaceLdst = 2,
         Cubemap = 4,
@@ -1932,4 +1922,5 @@ namespace BrightData.Cuda.CudaToolkit
         NotUsed = 0,
         Used = 1
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

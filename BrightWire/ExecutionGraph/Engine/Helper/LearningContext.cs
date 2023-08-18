@@ -70,7 +70,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             // group on each node and updated combination and apply average error if multiple errors are defined
             foreach(var group in _nodeError.GroupBy(d => (d.Node, d.ErrorType))) {
                 if(group.Count() > 1) {
-                    using var averageError = group.Select(d => d.Error).Average(true);
+                    using var averageError = group.Select(d => d.Error).Average(false);
                     group.Key.Node.ApplyError(group.Key.ErrorType, averageError, this);
                 }else {
                     using var error = group.Single().Error;

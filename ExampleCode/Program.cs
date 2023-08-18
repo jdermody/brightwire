@@ -33,29 +33,29 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //if(useMkl && useCuda)
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //else if(useMkl)
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //else
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context));
+            if (useMkl && useCuda)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else if (useMkl)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else
+                PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            //Xor(context, useMkl);
-            //IrisClassification(context, useMkl);
-            //IrisClustering(context, useMkl);
-            //MarkovChains(context, useMkl);
-            //TextClustering(context, useMkl);
-            //IntegerAddition(context, useMkl);
-            //ReberPrediction(context, useMkl);
-            //OneToMany(context, useMkl);
-            //ManyToOne(context, useMkl);
-            //SequenceToSequence(context, useMkl);
-            //StockData(context, useMkl, useCuda);
-            //PredictBicyclesWithNeuralNetwork(context, useMkl);
-            //MultiLabelSingleClassifier(context, useMkl);
-            //MultiLabelMultiClassifiers(context, useMkl);
-            //MnistFeedForward(context, useMkl);
-            //MnistConvolutional(context, useMkl, useCuda);
+            Xor(context, useMkl);
+            IrisClassification(context, useMkl);
+            IrisClustering(context, useMkl);
+            MarkovChains(context, useMkl);
+            TextClustering(context, useMkl);
+            IntegerAddition(context, useMkl);
+            ReberPrediction(context, useMkl);
+            OneToMany(context, useMkl);
+            ManyToOne(context, useMkl);
+            SequenceToSequence(context, useMkl);
+            StockData(context, useMkl, useCuda);
+            PredictBicyclesWithNeuralNetwork(context, useMkl);
+            MultiLabelSingleClassifier(context, useMkl);
+            MultiLabelMultiClassifiers(context, useMkl);
+            MnistFeedForward(context, useMkl);
+            MnistConvolutional(context, useMkl, useCuda);
             TrainIncomePrediction(context, useMkl);
             SentimentClassification(context, useMkl);
         }

@@ -3921,6 +3921,62 @@
             <param name="mean">Mean of the tensor segment (optional)</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Sigmoid``1(``0)">
+            <summary>
+            Calculates sigmoid
+            </summary>
+            <param name="val"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SigmoidDerivative``1(``0)">
+            <summary>
+            Calculates sigmoid derivative
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TanhDerivative``1(``0)">
+            <summary>
+            Calculates tanh derivative
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Relu``1(``0)">
+            <summary>
+            Calculates RELU
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReluDerivative``1(``0)">
+            <summary>
+            Calculates RELU derivative
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LeakyRelu``1(``0)">
+            <summary>
+            Calculates leaky RELU
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LeakyReluDerivative``1(``0)">
+            <summary>
+            Calculates leaky RELU derivative
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Sigmoid``1(System.ReadOnlySpan{``0})">
             <summary>
             Creates a new tensor segment with sigmoid function applied to each value in this tensor segment
@@ -4230,6 +4286,92 @@
             <param name="rows">Number of rows in each matrix</param>
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.OnReadOnlySpan`2">
+            <summary>
+            Callback that takes a readonly span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="RT"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpan``1(BrightData.INumericSegment{System.Single},BrightData.ExtensionMethods.OnReadOnlySpan{System.Single,``0})">
+            <summary>
+            Passes the segment as a readonly span to the callback
+            </summary>
+            <typeparam name="RT"></typeparam>
+            <param name="segment"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpan``2(``0,BrightData.ExtensionMethods.OnReadOnlySpan{System.Single,``1})">
+            <summary>
+            Passes the segment as a readonly span to the callback
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="RT"></typeparam>
+            <param name="segment"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.OnReadOnlySpans`2">
+            <summary>
+            Callback that takes two readonly spans
+            </summary>
+            <typeparam name="RT"></typeparam>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpans``1(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},BrightData.ExtensionMethods.OnReadOnlySpans{System.Single,``0})">
+            <summary>
+            Passes the readonly spans from the supplied segments into a callback function
+            </summary>
+            <typeparam name="RT"></typeparam>
+            <param name="segment1"></param>
+            <param name="segment2"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpans``2(``0,BrightData.IReadOnlyNumericSegment{System.Single},BrightData.ExtensionMethods.OnReadOnlySpans{System.Single,``1})">
+            <summary>
+            Passes the readonly spans from the supplied segments into a callback function
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="RT"></typeparam>
+            <param name="segment1"></param>
+            <param name="segment2"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.OnSpans`1">
+            <summary>
+            Callback that takes one mutable span and one readonly span
+            </summary>
+            <param name="span1"></param>
+            <param name="span2"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetSpans(BrightData.INumericSegment{System.Single},BrightData.INumericSegment{System.Single},BrightData.ExtensionMethods.OnSpans{System.Single})">
+            <summary>
+            Passes the first as a mutable span and the second as a readonly span from the supplied segments into a callback function
+            </summary>
+            <param name="segment1"></param>
+            <param name="segment2"></param>
+            <param name="callback"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:BrightData.ExtensionMethods.OnSpan`1">
+            <summary>
+            Callback that takes a single mutable span
+            </summary>
+            <param name="span"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetSpan(BrightData.INumericSegment{System.Single},BrightData.ExtensionMethods.OnSpan{System.Single})">
+            <summary>
+            Passes the segment as a mutable span into a callback function
+            </summary>
+            <param name="segment"></param>
+            <param name="callback"></param>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
             <summary>
@@ -4690,6 +4832,34 @@
             <summary>
             Contains a list of indices
             </summary>
+        </member>
+        <member name="T:BrightData.IndexList.ItemIterator">
+            <summary>
+            Index iterator
+            </summary>
+        </member>
+        <member name="P:BrightData.IndexList.ItemIterator.Current">
+            <summary>
+            Current value
+            </summary>
+        </member>
+        <member name="M:BrightData.IndexList.ItemIterator.MoveNext">
+            <summary>
+            Advances the iterator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.ItemIterator.GetEnumerator">
+            <summary>
+            Get enumerator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.GetEnumerator">
+            <summary>
+            Enumerates the indices in the list
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:BrightData.IndexList.#ctor(System.UInt32[])">
             <summary>
@@ -6203,12 +6373,6 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.INumericSegment`1.GetArrayIfEasilyAvailable">
-            <summary>
-            Returns a contiguous array of data only if this is the easily available (null otherwise)
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.INumericSegment`1.CopyFrom(System.ReadOnlySpan{`0},System.UInt32)">
             <summary>
             Copies from the span into the segment
@@ -6257,6 +6421,11 @@
             A read only span of floats
             </summary>
         </member>
+        <member name="T:BrightData.IVectorData">
+            <summary>
+            Read only vector
+            </summary>
+        </member>
         <member name="P:BrightData.IVectorData.IsReadOnly">
             <summary>
             True if the vector is read only
@@ -6288,6 +6457,11 @@
             <param name="index"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveMatrixDimensions">
+            <summary>
+            Matrix dimensions
+            </summary>
+        </member>
         <member name="P:BrightData.IHaveMatrixDimensions.RowCount">
             <summary>
             Number of rows
@@ -6296,6 +6470,11 @@
         <member name="P:BrightData.IHaveMatrixDimensions.ColumnCount">
             <summary>
             Number of columns
+            </summary>
+        </member>
+        <member name="T:BrightData.IMatrixData">
+            <summary>
+            Read only matrix
             </summary>
         </member>
         <member name="P:BrightData.IMatrixData.IsReadOnly">
@@ -6357,6 +6536,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveTensor3DDimensions">
+            <summary>
+            3D tensor dimensions
+            </summary>
+        </member>
         <member name="P:BrightData.IHaveTensor3DDimensions.Depth">
             <summary>
             Number of matrices
@@ -6365,6 +6549,11 @@
         <member name="P:BrightData.IHaveTensor3DDimensions.MatrixSize">
             <summary>
             Rows * Columns
+            </summary>
+        </member>
+        <member name="T:BrightData.ITensor3DData">
+            <summary>
+            Read only 3D tensor
             </summary>
         </member>
         <member name="P:BrightData.ITensor3DData.IsReadOnly">
@@ -6415,6 +6604,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveTensor4DDimensions">
+            <summary>
+            4D tensor dimensions
+            </summary>
+        </member>
         <member name="P:BrightData.IHaveTensor4DDimensions.Count">
             <summary>
             Number of 3D tensors
@@ -6423,6 +6617,11 @@
         <member name="P:BrightData.IHaveTensor4DDimensions.TensorSize">
             <summary>
             MatrixSize * Depth
+            </summary>
+        </member>
+        <member name="T:BrightData.ITensor4DData">
+            <summary>
+            Read only 4D tensor
             </summary>
         </member>
         <member name="P:BrightData.ITensor4DData.IsReadOnly">
@@ -7000,20 +7199,18 @@
             <param name="columnX">Column index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.Row(System.UInt32,BrightData.INumericSegment{System.Single})">
+        <member name="M:BrightData.IMatrix.Row(System.UInt32)">
             <summary>
             Returns a row from the matrix
             </summary>
             <param name="index">Row index</param>
-            <param name="segment">Optional segment to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IMatrix.Column(System.UInt32,BrightData.INumericSegment{System.Single})">
+        <member name="M:BrightData.IMatrix.Column(System.UInt32)">
             <summary>
             Returns a column from the matrix
             </summary>
             <param name="index">Column index</param>
-            <param name="segment">Optional segment to use</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IMatrix.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
@@ -7203,6 +7400,34 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IMatrix.GetRowAsReadOnly(System.UInt32)">
+            <summary>
+            Returns a row as a read only vector
+            </summary>
+            <param name="rowIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IMatrix.GetColumnAsReadOnly(System.UInt32)">
+            <summary>
+            Returns a column as a read only vector
+            </summary>
+            <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IMatrix.AllRowsAsReadOnly(System.Boolean)">
+            <summary>
+            Returns all rows as read only vectors
+            </summary>
+            <param name="makeCopy">True to make a copy of each row</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IMatrix.AllColumnsAsReadOnly(System.Boolean)">
+            <summary>
+            Returns all columns as read only vectors
+            </summary>
+            <param name="makeCopy">True to make a copy of each column</param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.ITensor3D">
             <summary>
             3D tensor - a block of matrices
@@ -7373,6 +7598,19 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ITensor3D.GetMatrixAsReadOnly(System.UInt32)">
+            <summary>
+            Returns a sub matrix
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ITensor3D.AllMatricesAsReadOnly">
+            <summary>
+            Returns all sub matrices
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.ITensor4D">
             <summary>
             4D tensor - a block of 3D tensors
@@ -7506,6 +7744,19 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ITensor4D.GetTensorAsReadOnly(System.UInt32)">
+            <summary>
+            Returns a sub tensor
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ITensor4D.AllTensorsAsReadOnly">
+            <summary>
+            Returns all sub tensors
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.LinearAlgebra.BrightMatrix`1">
             <summary>
             Row major matrix type
@@ -7545,10 +7796,10 @@
         <member name="P:BrightData.LinearAlgebra.BrightMatrix`1.Item(System.UInt64,System.UInt64)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Row(System.UInt32,BrightData.INumericSegment{System.Single})">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Row(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Column(System.UInt32,BrightData.INumericSegment{System.Single})">
+        <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.Column(System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@)">
@@ -8234,6 +8485,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.BrightVector`1.MapIndexedInPlace(System.Func{System.UInt32,System.Single,System.Single})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.BrightVector`1.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.LinearAlgebra.BrightVector">
@@ -9628,6 +9882,11 @@
             A tensor segment based on a float array
             </summary>
         </member>
+        <member name="F:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment._data">
+            <summary>
+            Underlying array
+            </summary>
+        </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.#ctor(System.Single[])">
             <summary>
             Constructor
@@ -9683,19 +9942,16 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.Int32)">
-            <inheritdoc cref="!:INumericSegment" />
+            <inheritdoc cref="T:BrightData.INumericSegment`1" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.UInt32)">
-            <inheritdoc cref="!:INumericSegment" />
+            <inheritdoc cref="T:BrightData.INumericSegment`1" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.Int64)">
-            <inheritdoc cref="!:INumericSegment" />
+            <inheritdoc cref="T:BrightData.INumericSegment`1" />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Item(System.UInt64)">
-            <inheritdoc cref="!:INumericSegment" />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetArrayIfEasilyAvailable">
-            <inheritdoc />
+            <inheritdoc cref="T:BrightData.INumericSegment`1" />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Clear">
             <inheritdoc />
@@ -10270,6 +10526,34 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.WeightedIndexList.ItemIterator">
+            <summary>
+            Index iterator
+            </summary>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.ItemIterator.Current">
+            <summary>
+            Current item
+            </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.ItemIterator.MoveNext">
+            <summary>
+            Advances the iterator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.ItemIterator.GetEnumerator">
+            <summary>
+            Get enumerator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.GetEnumerator">
+            <summary>
+            Enumerates the weighted indices in the list
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:BrightData.WeightedIndexList.Create(BrightData.WeightedIndexList.Item[])">
             <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -16,6 +17,11 @@ namespace BrightData.LinearAlgebra.Segments
         int _refCount = 0;
         bool _isValid = true;
 
+        #if DEBUG
+        static uint NextId = 0, BreakOnCreate = 403, BreakOnRelease = 403;
+        uint _id = Interlocked.Increment(ref NextId);
+        #endif
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -23,6 +29,10 @@ namespace BrightData.LinearAlgebra.Segments
         public ArrayPoolTensorSegment(MemoryOwner<float> data) : base(data.DangerousGetArray().Array!)
         {
             _memoryOwner = data;
+            #if DEBUG
+            if(_id == BreakOnCreate)
+                Debugger.Break();
+            #endif
         }
 
         /// <inheritdoc />
@@ -40,6 +50,10 @@ namespace BrightData.LinearAlgebra.Segments
             var ret = Interlocked.Decrement(ref _refCount);
             if (_isValid && ret <= 0)
             {
+#if DEBUG
+                if(_id == BreakOnRelease)
+                    Debugger.Break();
+#endif
                 _memoryOwner.Dispose();
                 _isValid = false;
             }
@@ -76,9 +90,9 @@ namespace BrightData.LinearAlgebra.Segments
         public override void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
             var span = GetSpan(sourceOffset);
-            var destination = segment.GetArrayIfEasilyAvailable();
-            if (destination is not null)
-                span.CopyTo(destination.AsSpan((int)targetOffset, (int)(segment.Size - targetOffset)));
+            var (destinationArray, offset, stride) = segment.GetUnderlyingArray();
+            if (destinationArray is not null && stride == 1)
+                span.CopyTo(destinationArray.AsSpan((int)(targetOffset + offset), (int)(segment.Size - targetOffset)));
             else
                 segment.CopyFrom(span, targetOffset);
         }

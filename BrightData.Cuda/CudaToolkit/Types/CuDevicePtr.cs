@@ -3,6 +3,7 @@
 namespace BrightData.Cuda.CudaToolkit.Types
 {
     [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public struct CuDevicePtr
     {
         public SizeT Pointer;
@@ -40,16 +41,14 @@ namespace BrightData.Cuda.CudaToolkit.Types
             return src.Pointer != value.Pointer;
         }
 
-        public override bool Equals(object? obj) => obj is CuDevicePtr value && Pointer.Equals(value.Pointer);
+        public readonly override bool Equals(object? obj) => obj is CuDevicePtr value && Pointer.Equals(value.Pointer);
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
-        public override string ToString()
-        {
-            return Pointer.ToString();
-        }
+        public readonly override int GetHashCode() => base.GetHashCode();
+        public readonly override string ToString() => Pointer.ToString();
         public CuDevicePtr(SizeT pointer)
         {
             Pointer = pointer;
         }
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

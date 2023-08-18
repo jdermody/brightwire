@@ -99,6 +99,7 @@ namespace BrightData.LinearAlgebra
             Lap.MapParallelInPlace(Segment, mutator);
         }
 
+        /// <inheritdoc />
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector((IReadOnlyVector)this);
     }
 
