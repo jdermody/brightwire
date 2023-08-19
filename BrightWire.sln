@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.MKL", "BrightDat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightAPI", "BrightAPI\BrightAPI.csproj", "{25A2C2FC-4BA0-4BC0-AC54-3D645851675E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightData.Table", "BrightData.Table\BrightData.Table.csproj", "{2103DB39-77EA-4F6D-AB72-4B07F3D1D7F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{25A2C2FC-4BA0-4BC0-AC54-3D645851675E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25A2C2FC-4BA0-4BC0-AC54-3D645851675E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25A2C2FC-4BA0-4BC0-AC54-3D645851675E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2103DB39-77EA-4F6D-AB72-4B07F3D1D7F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2103DB39-77EA-4F6D-AB72-4B07F3D1D7F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2103DB39-77EA-4F6D-AB72-4B07F3D1D7F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2103DB39-77EA-4F6D-AB72-4B07F3D1D7F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

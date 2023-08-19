@@ -7,6 +7,7 @@ using BrightData;
 using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
+using BrightData.Table.Buffer;
 using BrightWire;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
@@ -19,6 +20,30 @@ namespace ExampleCode
 
         static void Main()
         {
+            //            var parser = new BrightData.Table.Helper.CsvParser(true, ',');
+            //            var buffers = parser.Parse(@"
+            //test,test2,test3
+            //123,234,567
+            //123,234
+            //");
+
+            var test = new StringCompositeBuffer(null, 2, 0);
+            test.Add("this is a test");
+            test.Add("this is another test");
+            test.Add("this is a final test");
+            test.ForEachBlock(block => {
+                foreach (var str in block)
+                    Console.WriteLine(str);
+            });
+            //var test2 = BrightData.Table.ExtensionMethods.CreateUnmanagedBuffer<uint>(null, 2, 0);
+            //test2.Add(1);
+            //test2.Add(new ReadOnlySpan<uint>(new uint [] {2, 3}));
+            //test2.ForEachBlock(block => {
+            //    foreach(var num in block)
+            //        Console.WriteLine(num);
+            //});
+            return;
+
             using var context = new BrightDataContext(null, RandomSeed);
             bool useCuda = true, useMkl = true;
 

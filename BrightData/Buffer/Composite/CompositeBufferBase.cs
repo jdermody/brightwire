@@ -6,6 +6,7 @@ using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrightData.Buffer.EncodedStream;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.Composite
 {
@@ -20,7 +21,7 @@ namespace BrightData.Buffer.Composite
             public uint Size { get; private set; }
             public ref T GetNext() => ref Data[Size++];
             public bool HasFreeCapacity => Size < Data.Length;
-            public ReadOnlySpan<T> GetSpan() => new(Data, 0, (int)Size);
+            public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
         }
 
         readonly int                 _itemSize;
@@ -33,6 +34,8 @@ namespace BrightData.Buffer.Composite
 
         protected CompositeBufferBase(IProvideTempStreams tempStream, uint blockSize, ushort? maxDistinct)
         {
+            var test = new ArrayPoolBufferWriter<T>();
+
             _id = Guid.NewGuid().ToString("n");
             _tempStream = tempStream;
             _blockSize = blockSize;
@@ -68,14 +71,13 @@ namespace BrightData.Buffer.Composite
                             var stream = _tempStream.Get(_id);
                             stream.Seek(0, SeekOrigin.End);
                             foreach(var block in _inMemoryBlocks)
-                                WriteTo(block.GetSpan(), stream);
+                                WriteTo(block.WrittenSpan, stream);
                             _inMemoryBlocks.Clear();
                             GC.Collect();
                             wasRetried = true;
                         }else
                             throw;
                     }
-
                 }
             }
 
