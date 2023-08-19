@@ -627,14 +627,6 @@ namespace BrightData
         float DotProduct(ITensor tensor);
 
         /// <summary>
-        /// Returns the index of the value in this tensor (if any)
-        /// </summary>
-        /// <param name="value">Value to find</param>
-        /// <param name="tolerance">Maximum difference between values</param>
-        /// <returns></returns>
-        uint? Search(float value, float tolerance = FloatMath.AlmostZero);
-
-        /// <summary>
         /// Modifies this tensor so that no value is less than or greater than supplied parameters
         /// </summary>
         /// <param name="minValue">Minimum value to allow (optional)</param>
@@ -988,11 +980,10 @@ namespace BrightData
         float[] ToArray();
 
         /// <summary>
-        /// Clones the vector, optionally with a new linear algebra provider
+        /// Clones the vector
         /// </summary>
-        /// <param name="lap"></param>
         /// <returns></returns>
-        IVector Clone(LinearAlgebraProvider? lap = null);
+        new IVector Clone();
     }
 
     /// <summary>
@@ -1227,11 +1218,10 @@ namespace BrightData
         INumericSegment<float>[] SoftmaxDerivativePerRow(INumericSegment<float>[] rows);
 
         /// <summary>
-        /// Clones the matrix, optionally into a new linear algebra provider
+        /// Clones the matrix
         /// </summary>
-        /// <param name="lap"></param>
         /// <returns></returns>
-        IMatrix Clone(LinearAlgebraProvider? lap);
+        new IMatrix Clone();
 
         /// <summary>
         /// Returns a row as a read only vector
@@ -1426,11 +1416,10 @@ namespace BrightData
         ITensor3D TransposeThisAndMultiply(ITensor4D other);
 
         /// <summary>
-        /// Clones the tensor, optionally using a new linear algebra provider
+        /// Clones the tensor
         /// </summary>
-        /// <param name="lap"></param>
         /// <returns></returns>
-        ITensor3D Clone(LinearAlgebraProvider? lap);
+        new ITensor3D Clone();
 
         /// <summary>
         /// Returns a sub matrix
@@ -1573,11 +1562,10 @@ namespace BrightData
         IVector RowSums();
 
         /// <summary>
-        /// Clones the tensor, optionally with a different linear algebra provider
+        /// Clones the tensor
         /// </summary>
-        /// <param name="lap"></param>
         /// <returns></returns>
-        ITensor4D Clone(LinearAlgebraProvider? lap);
+        new ITensor4D Clone();
 
         /// <summary>
         /// Returns a sub tensor

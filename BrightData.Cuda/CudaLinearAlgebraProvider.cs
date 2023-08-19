@@ -488,12 +488,6 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override uint? Search(INumericSegment<float> segment, float value, float tolerance = FloatMath.AlmostZero)
-        {
-            return base.Search(segment, value, tolerance);
-        }
-
-        /// <inheritdoc />
         public override IVector ColumnSums(IMatrix matrix)
         {
             var ret = Provider.SumColumns(GetDeviceMemoryPtr(matrix.Segment), matrix.RowCount, matrix.ColumnCount, null);

@@ -206,9 +206,6 @@ namespace BrightData.LinearAlgebra
         public T Sqrt() => Create(Lap.Sqrt(Segment));
 
         /// <inheritdoc />
-        public uint? Search(float value, float tolerance) => Lap.Search(Segment, value, tolerance);
-
-        /// <inheritdoc />
         public void ConstrainInPlace(float? minValue, float? maxValue) => Lap.ConstrainInPlace(Segment, minValue, maxValue);
 
         /// <inheritdoc />

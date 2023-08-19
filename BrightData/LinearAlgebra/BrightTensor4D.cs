@@ -35,9 +35,6 @@ namespace BrightData.LinearAlgebra
         public override ITensor4D Create(INumericSegment<float> segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
-        public ITensor4D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor4DAndThenDisposeInput(Count.AsRange().Select(GetTensor).ToArray());
-
-        /// <inheritdoc />
         public uint Count { get; private set; }
 
         /// <inheritdoc />

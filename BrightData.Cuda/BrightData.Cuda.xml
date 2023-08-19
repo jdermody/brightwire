@@ -212,9 +212,6 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.StdDev(BrightData.INumericSegment{System.Single},System.Nullable{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Search(BrightData.INumericSegment{System.Single},System.Single,System.Single)">
-            <inheritdoc />
-        </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.ColumnSums(BrightData.IMatrix)">
             <inheritdoc />
         </member>

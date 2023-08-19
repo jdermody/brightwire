@@ -72,9 +72,6 @@ namespace BrightData.LinearAlgebra
         public float[] ToArray() => Segment.ToNewArray();
 
         /// <inheritdoc />
-        public IVector Clone(LinearAlgebraProvider? lap = null) => (lap ?? LinearAlgebraProvider).CreateVector(ToArray());
-
-        /// <inheritdoc />
         public override string ToString()
         {
             var preview = String.Join("|", Segment.Values.Take(Consts.DefaultPreviewSize));

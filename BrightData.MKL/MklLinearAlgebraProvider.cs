@@ -1,9 +1,34 @@
 ﻿using BrightData.LinearAlgebra;
 using MKLNET;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 namespace BrightData.MKL
 {
+    static class Helper
+    {
+        /// <summary>
+        /// Returns an array from a tensor segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] GetLocalOrNewArray(this INumericSegment<float> segment)
+        {
+            var (array, offset, stride) = segment.GetUnderlyingArray();
+            if (array is not null && stride == 1) {
+                if (offset == 0)
+                    return array;
+
+                var ret = new float[segment.Size];
+                Array.Copy(array, offset, ret, 0, segment.Size);
+                return ret;
+            }
+
+            return segment.ToNewArray();
+        }
+    }
+
     /// <summary>
     /// Linear algebra provider that uses the Intel MKL library
     /// </summary>

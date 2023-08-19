@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrightData;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -39,9 +40,16 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
-            var array = delta.Segment.GetLocalOrNewArray();
-            for (uint j = 0; j < _data.Length; j++)
-                _data[j] += array[j] * context.LearningRate;
+            var temp = SpanOwner<float>.Empty;
+            var array = delta.Segment.GetSpan(ref temp, out var wasTempUsed);
+            try {
+                for (var j = 0; j < _data.Length; j++)
+                    _data[j] += array[j] * context.LearningRate;
+            }
+            finally {
+                if(wasTempUsed)
+                    temp.Dispose();
+            }
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

@@ -16,8 +16,16 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this IVectorData vector) => vector.ReadOnlySegment.GetReadOnlySpan(x => x.GetMinAndMaxValues());
+
+        /// <summary>
+        /// Returns the index with the minimum value from this tensor segment
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMinimumIndex(this IVectorData vector) => 
-            vector.ReadOnlySegment.GetMinAndMaxValues().MinIndex;
+            GetMinAndMaxValues(vector).MinIndex;
 
         /// <summary>
         /// Returns the index with the maximum value from this tensor segment
@@ -25,7 +33,7 @@ namespace BrightData
         /// <param name="vector"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMaximumIndex(this IVectorData vector) => 
-            vector.ReadOnlySegment.GetMinAndMaxValues().MaxIndex;
+            GetMinAndMaxValues(vector).MaxIndex;
 
         /// <summary>
         /// Sums all values
@@ -33,7 +41,7 @@ namespace BrightData
         /// <param name="vector"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Sum(this IVectorData vector) => 
-            vector.ReadOnlySegment.Sum();
+            vector.ReadOnlySegment.GetReadOnlySpan(x => x.Sum());
 
         /// <summary>
         /// Returns the index with the minimum value from this tensor segment

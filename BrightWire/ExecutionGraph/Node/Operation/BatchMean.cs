@@ -34,9 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             var input = signal.GetMatrix();
             using var columnSums = input.ColumnSums();
             columnSums.MultiplyInPlace(1f / input.RowCount);
-            var mean = columnSums.Segment.GetLocalOrNewArray();
-
-            var output = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);
+            var output = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, columnSums.Segment);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }

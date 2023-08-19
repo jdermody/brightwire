@@ -117,9 +117,6 @@ namespace BrightData.LinearAlgebra
         public override IMatrix Create(INumericSegment<float> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
 
         /// <inheritdoc />
-        public IMatrix Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateMatrix(RowCount, ColumnCount, (i, j) => this[i, j]);
-
-        /// <inheritdoc />
         public virtual IReadOnlyVector GetRowAsReadOnly(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
 
         /// <inheritdoc />

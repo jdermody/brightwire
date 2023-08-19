@@ -1,4 +1,5 @@
-﻿using BrightData.Helper;
+﻿using System;
+using BrightData.Helper;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
@@ -40,6 +41,20 @@ namespace BrightData.UnitTests
             for (var i = 0; i < 512; i++) {
                 outputSpan[i].Should().Be(v1[i] * i);
             }
+        }
+
+        [Fact]
+        public void SearchSpan()
+        {
+            Span<float> span = stackalloc float[32];
+            for (var i = 0; i < 32; i++)
+                span[i] = -16 + i;
+            var resultCount = 0;
+            foreach (var item in span.AsReadOnly().Search(2)) {
+                item.Should().Be(2);
+                ++resultCount;
+            }
+            resultCount.Should().Be(1);
         }
     }
 }

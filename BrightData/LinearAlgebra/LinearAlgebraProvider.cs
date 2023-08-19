@@ -6,7 +6,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.Segments;
@@ -939,15 +938,6 @@ namespace BrightData.LinearAlgebra
         public virtual INumericSegment<float> Sqrt(INumericSegment<float> tensor, float adjustment = FloatMath.AlmostZero) => tensor.GetReadOnlySpan(x => x.Sqrt(adjustment)).ToSegment();
 
         /// <summary>
-        /// Finds the index (if any) of the first element with a matching value
-        /// </summary>
-        /// <param name="tensor"></param>
-        /// <param name="value"></param>
-        /// <param name="tolerance"></param>
-        /// <returns></returns>
-        public virtual uint? Search(INumericSegment<float> tensor, float value, float tolerance = FloatMath.AlmostZero) => tensor.Search(value, tolerance);
-
-        /// <summary>
         /// Constrains each value in this tensor to lie between the min and max values (if supplied)
         /// </summary>
         /// <param name="tensor"></param>
@@ -1439,7 +1429,7 @@ namespace BrightData.LinearAlgebra
         public virtual IVector RowSums(IMatrix matrix)
         {
             var rows = matrix.AllRowsAsReadOnly(false);
-            return CreateVector(matrix.RowCount, i => rows[i].ReadOnlySegment.Sum());
+            return CreateVector(matrix.RowCount, i => rows[i].Sum());
         }
 
         /// <summary>
@@ -1450,7 +1440,7 @@ namespace BrightData.LinearAlgebra
         public virtual IVector ColumnSums(IMatrix matrix)
         {
             var columns = matrix.AllColumnsAsReadOnly(false);
-            return CreateVector(matrix.ColumnCount, i => columns[i].ReadOnlySegment.Sum());
+            return CreateVector(matrix.ColumnCount, i => columns[i].Sum());
         }
 
         /// <summary>
@@ -2278,5 +2268,15 @@ namespace BrightData.LinearAlgebra
 
             return ret;
         }
+    }
+
+    static class Helper
+    {
+        /// <summary>
+        /// Creates a tensor segment from a memory owner
+        /// </summary>
+        /// <param name="memoryOwner"></param>
+        /// <returns></returns>
+        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment(memoryOwner);
     }
 }

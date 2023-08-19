@@ -38,9 +38,6 @@ namespace BrightData.LinearAlgebra
         public override ITensor3D Create(INumericSegment<float> segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
-        public ITensor3D Clone(LinearAlgebraProvider? lap) => (lap ?? LinearAlgebraProvider).CreateTensor3DAndThenDisposeInput(Depth.AsRange().Select(GetMatrix).ToArray());
-
-        /// <inheritdoc />
         public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
         TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 

@@ -15,30 +15,6 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Creates a tensor segment from a memory owner
-        /// </summary>
-        /// <param name="memoryOwner"></param>
-        /// <returns></returns>
-        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment(memoryOwner);
-
-        /// <summary>
-        /// Returns an array from a tensor segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float[] GetLocalOrNewArray(this INumericSegment<float> segment)
-        {
-            var (array, offset, stride) = segment.GetUnderlyingArray();
-            if (array is not null && stride == 1) {
-                var ret = new float[segment.Size];
-                Array.Copy(array, offset, ret, 0, segment.Size);
-                return ret;
-            }
-            return segment.ToNewArray();
-        }
-
-        /// <summary>
         /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
         /// </summary>
         /// <param name="segment"></param>
@@ -52,80 +28,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Sums all values
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(this IReadOnlyNumericSegment<float> segment)
-        {
-            var size = segment.Size;
-            if (size >= Consts.MinimumSizeForVectorised && Sse3.IsSupported) {
-                var temp = SpanOwner<float>.Empty;
-                var span = segment.GetSpan(ref temp, out var wasTempUsed);
-                try {
-                    return span.Sum();
-                }
-                finally {
-                    if (wasTempUsed)
-                        temp.Dispose();
-                }
-            }
-
-            var ret = 0f;
-            for (uint i = 0; i < size; i++)
-                ret += segment[i];
-            return ret;
-        }
-
-        /// <summary>
-        /// Searches this tensor segment for the index of the first value that matches the specified value within a level of tolerance
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <param name="value">Value to find</param>
-        /// <param name="tolerance">Degree of tolerance</param>
-        /// <returns></returns>
-        public static uint? Search(this IReadOnlyNumericSegment<float> segment, float value, float tolerance = FloatMath.AlmostZero)
-        {
-            uint? ret = null;
-            Analyze(segment, (v, index) => {
-                if (Math.Abs(value - v) < tolerance)
-                    ret = index;
-            });
-            return ret;
-        }
-
-        /// <summary>
-        /// Finds the min and max values (and their indices) of this tensor segment
-        /// </summary>
-        /// <param name="segment">This tensor</param>
-        /// <returns></returns>
-        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this IReadOnlyNumericSegment<float> segment)
-        {
-            var min = float.MaxValue;
-            var max = float.MinValue;
-            var minIndex = uint.MaxValue;
-            var maxIndex = uint.MaxValue;
-            uint index = 0;
-
-            foreach (var value in segment.Values) {
-                if (value.CompareTo(max) > 0) {
-                    max = value;
-                    maxIndex = index;
-                }
-
-                if (value.CompareTo(min) < 0) {
-                    min = value;
-                    minIndex = index;
-                }
-
-                ++index;
-            }
-
-            return (min, max, minIndex, maxIndex);
-        }
-
-        /// <summary>
         /// Splits this tensor segment into multiple contiguous tensor segments
         /// </summary>
         /// <param name="segment">This tensor</param>
@@ -135,22 +37,6 @@ namespace BrightData
         {
             for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
                 yield return new ReadOnlyTensorSegmentWrapper(segment, i, 1, blockSize);
-        }
-
-        /// <summary>
-        /// Invokes a callback on each element of the tensor segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <param name="analyser">Callback that will receive each value and its corresponding index in the segment</param>
-        public static void Analyze(this IReadOnlyNumericSegment<float> segment, Action<float /* value */, uint /* index */> analyser)
-        {
-            var size = segment.Size;
-            if (size >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, size, i => analyser(segment[i], (uint)i));
-            else {
-                for (uint i = 0; i < size; i++)
-                    analyser(segment[i], i);
-            }
         }
 
         /// <summary>

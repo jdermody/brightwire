@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Helper;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
 
@@ -115,6 +120,19 @@ namespace BrightData
             }
 
             public void Invoke(int i) => _segment[i] = _action(_segment[i]);
+        }
+        readonly unsafe struct AnalyseAction<T> : IAction where T: unmanaged
+        {
+            readonly Action<T, uint> _action;
+            readonly T* _segment;
+
+            public AnalyseAction(Action<T, uint> action, T* segment)
+            {
+                _action = action;
+                _segment = segment;
+            }
+
+            public void Invoke(int i) => _action(_segment[i], (uint)i);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
@@ -455,6 +473,26 @@ namespace BrightData
             }
             for (; nextIndex < size; nextIndex++)
                 span[nextIndex] = mutator2(span[nextIndex]);
+        }
+
+        /// <summary>
+        /// Applies a callback (that might be executed in parallel) against each element in this span and its index
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="analyser">Callback that receives each value and its index</param>
+        public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged
+        {
+            var size = span.Length;
+            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
+                if (size >= Consts.MinimumSizeForParallel)
+                    ParallelHelper.For(0, size, new AnalyseAction<T>(analyser, fp));
+                else {
+                    var p = fp;
+                    for (uint i = 0; i < size; i++)
+                        analyser(*p++, i);
+                }
+            }
         }
 
         /// <summary>
@@ -1325,26 +1363,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Applies a callback (that might be executed in parallel) against each element in this span and its index
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="span"></param>
-        /// <param name="analyser">Callback that receives each value and its index</param>
-        public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged, INumber<T>
-        {
-            var size = span.Length;
-            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
-                var p = fp;
-                if (size >= Consts.MinimumSizeForParallel)
-                    Parallel.For(0, size, i => analyser(p[i], (uint)i));
-                else {
-                    for (uint i = 0; i < size; i++)
-                        analyser(*p++, i);
-                }
-            }
-        }
-
-        /// <summary>
         /// In place L1 regularization of the tensor segment
         /// </summary>
         /// <param name="segment"></param>
@@ -1543,6 +1561,28 @@ namespace BrightData
                 throw new DivideByZeroException("The standard deviations of x and y are zero.");
 
             return numerator / denominator;
+        }
+
+        /// <summary>
+        /// Searches the span for the index of the first value that matches the specified value within a level of tolerance
+        /// </summary>
+        /// <param name="segment">This tensor</param>
+        /// <param name="value">Value to find</param>
+        /// <param name="tolerance">Degree of tolerance</param>
+        /// <returns></returns>
+        public static GenericIndexedEnumerator<T> Search<T>(this ReadOnlySpan<T> segment, T value, T? tolerance = null)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            var results = new List<uint>();
+            var spinLock = new SpinLock();
+            tolerance ??= T.CreateSaturating(FloatMath.AlmostZero);
+            Analyse(segment, (v, index) => {
+                if (T.Abs(value - v) < tolerance) {
+                    using var l = spinLock.Enter();
+                    results.Add(index);
+                }
+            });
+            return new(segment, CollectionsMarshal.AsSpan(results));
         }
     }
 }

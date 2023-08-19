@@ -112,7 +112,7 @@ namespace BrightWire.Helper
             }
 
             var column = matrix.GetColumnAsReadOnly(index);
-            var (min, _, minIndex, _) = column.ReadOnlySegment.GetMinAndMaxValues();
+            var (min, _, minIndex, _) = column.GetMinAndMaxValues();
             return (minIndex, min);
 
             //var bestIndex = uint.MaxValue;
