@@ -35,7 +35,7 @@ namespace BrightData.Table.Helper
                                 while ((Columns ??= new()).Count <= j)
                                     Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
                                 if (_isFirstRow && _parser._firstRowIsHeader)
-                                    Columns[j].Name = sb.ToString();
+                                    Columns[j].MetaData.SetName(sb.ToString().Trim());
                                 else
                                     Columns[j].Add(sb.ToString());
                                 sb.Clear();
@@ -45,7 +45,7 @@ namespace BrightData.Table.Helper
                             if (Columns?.Count > (_columnIndex+1)) {
                                 for (var j = _columnIndex+1; j < Columns.Count; j++) {
                                     if (_isFirstRow && _parser._firstRowIsHeader)
-                                        Columns[j].Name = string.Empty;
+                                        Columns[j].MetaData.SetName(string.Empty);
                                     else
                                         Columns[j].Add(String.Empty);
                                 }

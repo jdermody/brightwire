@@ -155,8 +155,9 @@ namespace BrightData
         /// Item name
         /// </summary>
         /// <param name="metadata"></param>
+        /// <param name="defaultName">Name to use if no name was set</param>
         /// <returns></returns>
-        public static string GetName(this MetaData metadata) => metadata.Get(Consts.Name, "");
+        public static string GetName(this MetaData metadata, string defaultName = "") => metadata.Get(Consts.Name, defaultName);
 
         /// <summary>
         /// Item index

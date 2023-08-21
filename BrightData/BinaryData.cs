@@ -11,7 +11,7 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public readonly struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>
+    public readonly struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>, IHaveDataAsReadOnlyByteSpan
     {
         readonly byte[] _data;
 
@@ -90,5 +90,8 @@ namespace BrightData
         /// <param name="obj2"></param>
         /// <returns></returns>
         public static bool operator !=(BinaryData obj1, BinaryData obj2) => !obj1.Equals(obj2);
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes => _data;
     }
 }

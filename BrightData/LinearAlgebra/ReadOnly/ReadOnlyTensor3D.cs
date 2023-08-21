@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
@@ -8,7 +9,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>
+    public class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
         readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
@@ -39,6 +40,26 @@ namespace BrightData.LinearAlgebra.ReadOnly
             });
         }
 
+        public ReadOnlyTensor3D(ReadOnlySpan<byte> data) : this(BuildMatrices(data))
+        {
+        }
+
+        static IReadOnlyMatrix[] BuildMatrices(ReadOnlySpan<byte> data)
+        {
+            var columns = BinaryPrimitives.ReadUInt32LittleEndian(data);
+            var rows = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
+            var depth = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
+            var floats = data[12..].Cast<byte, float>();
+            var ret = new IReadOnlyMatrix[depth];
+            var matrixSize = (int)(columns * rows);
+            for (uint i = 0; i < depth; i++) {
+                ret[i] = new ReadOnlyMatrix(floats[..matrixSize].ToArray(), rows, depth);
+                floats = floats[matrixSize..];
+            }
+            return ret;
+        }
+
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
             writer.Write(3);
@@ -54,6 +75,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
+        /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             if (reader.ReadInt32() != 3)
@@ -71,35 +93,79 @@ namespace BrightData.LinearAlgebra.ReadOnly
             }
         }
 
+        /// <inheritdoc />
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+
+        /// <inheritdoc />
         public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment.Value;
+
+        /// <inheritdoc />
         public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
 
+        /// <inheritdoc />
         public uint Size => MatrixSize * Depth;
+
+        /// <inheritdoc />
         public uint Depth { get; private set; }
+
+        /// <inheritdoc />
         public uint RowCount { get; private set; }
+
+        /// <inheritdoc />
         public uint ColumnCount { get; private set; }
+
+        /// <inheritdoc />
         public uint MatrixSize => RowCount * ColumnCount;
+
+        /// <inheritdoc />
         public bool IsReadOnly => true;
 
+        /// <inheritdoc />
         public float this[int depth, int rowY, int columnX] => _matrices[depth][rowY, columnX];
+
+        /// <inheritdoc />
         public float this[uint depth, uint rowY, uint columnX] => _matrices[depth][rowY, columnX];
 
+        /// <inheritdoc />
         public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(this);
+
+        /// <inheritdoc />
         public IReadOnlyMatrix GetMatrix(uint index) => _matrices[index];
+
+        /// <inheritdoc />
         public IReadOnlyMatrix[] AllMatrices() => _matrices;
 
-        // value semantics
+        /// <inheritdoc />
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor3D);
+
+        /// <inheritdoc />
         public override int GetHashCode() => _valueSemantics.GetHashCode();
+
+        /// <inheritdoc />
         public bool Equals(ReadOnlyTensor3D? other) => _valueSemantics.Equals(other);
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var preview = String.Join("|", Enumerable.Range(0, Consts.DefaultPreviewSize).Select(x => ReadOnlySegment[x]));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
             return $"Read Only Tensor 3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount}) {preview}";
+        }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes
+        {
+            get
+            {
+                var buffer = _segment.Value;
+                var ret = new Span<byte>(new byte[buffer.Size + 12]);
+                BinaryPrimitives.WriteUInt32LittleEndian(ret, ColumnCount);
+                BinaryPrimitives.WriteUInt32LittleEndian(ret[4..], RowCount);
+                BinaryPrimitives.WriteUInt32LittleEndian(ret[8..], Depth);
+                buffer.CopyTo(ret[12..].Cast<byte, float>());
+                return ret;
+            }
         }
     }
 }

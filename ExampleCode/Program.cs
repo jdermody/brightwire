@@ -7,10 +7,10 @@ using BrightData;
 using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
-using BrightData.Table.Buffer;
 using BrightWire;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
+using ExtensionMethods = BrightData.Table.ExtensionMethods;
 
 namespace ExampleCode
 {
@@ -18,33 +18,67 @@ namespace ExampleCode
     {
         const int RandomSeed = 0;
 
+        class TestClass : IHaveDataAsReadOnlyByteSpan
+        {
+            readonly byte[] _data;
+
+            public TestClass(ReadOnlySpan<byte> data)
+            {
+                _data = data.ToArray();
+            }
+
+            public ReadOnlySpan<byte> DataAsBytes => _data;
+            public override string ToString()
+            {
+                return String.Join(", ", _data);
+            }
+        }
+
         static void Main()
         {
-            //            var parser = new BrightData.Table.Helper.CsvParser(true, ',');
-            //            var buffers = parser.Parse(@"
+            using var context = new BrightDataContext(null, RandomSeed);
+            //var vectorBuffer = ExtensionMethods.CreateCompositeBuffer<TestClass>(x => new(x), null, 2, 0);
+            //vectorBuffer.Add(new TestClass(new byte[] { 1, 2, 3 }));
+            //vectorBuffer.Add(new TestClass(new byte[] { 4, 5, 6 }));
+            //vectorBuffer.Add(new TestClass(new byte[] { 7, 8, 9 }));
+            //vectorBuffer.ForEachBlock(x => {
+            //    foreach (var item in x)
+            //        Console.WriteLine(item.ToString());
+            //});
+
+
+            //var parser = new BrightData.Table.Helper.CsvParser(true, ',');
+            //var buffers = parser.Parse(@"
             //test,test2,test3
             //123,234,567
             //123,234
             //");
 
-            var test = new StringCompositeBuffer(null, 2, 0);
-            test.Add("this is a test");
-            test.Add("this is another test");
-            test.Add("this is a final test");
-            test.ForEachBlock(block => {
-                foreach (var str in block)
-                    Console.WriteLine(str);
-            });
-            //var test2 = BrightData.Table.ExtensionMethods.CreateUnmanagedBuffer<uint>(null, 2, 0);
+            //var stringBuffer = ExtensionMethods.CreateCompositeBuffer(null, 2, 0, 128);
+            //stringBuffer.Add("this is a test");
+            //stringBuffer.Add("this is another test");
+            //stringBuffer.Add("this is a final test");
+            //for (uint i = 0; i < stringBuffer.BlockCount; i++) {
+            //    var block = stringBuffer.GetBlock(i).Result;
+            //}
+            //foreach(var item in ExtensionMethods.Enumerate(stringBuffer))
+            //    Console.WriteLine(item);
+            //var (table, encoded) = ExtensionMethods.Encode(stringBuffer);
+            //var test2 = ExtensionMethods.CreateCompositeBuffer<uint>(null, 2, 0);
             //test2.Add(1);
-            //test2.Add(new ReadOnlySpan<uint>(new uint [] {2, 3}));
+            //test2.Add(new ReadOnlySpan<uint>(new uint[] { 2, 3 }));
             //test2.ForEachBlock(block => {
-            //    foreach(var num in block)
+            //    foreach (var num in block)
             //        Console.WriteLine(num);
             //});
-            return;
+            //foreach(var item in ExtensionMethods.Enumerate(test2))
+            //    Console.WriteLine(item);
+            //for (uint i = 0; i < test2.BlockCount; i++) {
+            //    var block = test2.GetBlock(i).Result;
+            //}
+            //return;
 
-            using var context = new BrightDataContext(null, RandomSeed);
+            
             bool useCuda = true, useMkl = true;
 
             // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)
@@ -64,6 +98,7 @@ namespace ExampleCode
                 PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
             else
                 PerformanceTest.Run(new LinearAlgebraProvider(context));
+            return;
 
             Xor(context, useMkl);
             IrisClassification(context, useMkl);

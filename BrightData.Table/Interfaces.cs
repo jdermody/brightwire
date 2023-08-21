@@ -3,8 +3,10 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.HighPerformance.Buffers;
 using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Table
@@ -16,10 +18,15 @@ namespace BrightData.Table
     }
 
     public delegate void BlockCallback<T>(ReadOnlySpan<T> block);
+    public delegate T CreateFromReadOnlyByteSpan<out T>(ReadOnlySpan<byte> data) where T: IHaveDataAsReadOnlyByteSpan;
 
-    public interface IHaveSize
+    public interface ICompositeBuffer : IHaveSize, IHaveMetaData
     {
-        uint Size { get; }
+        public Guid Id { get; }
+        public new MetaData MetaData { get; set; }
+        public uint BlockCount { get; }
+        uint? DistinctItems { get; }
+        Type DataType { get; }
     }
 
     /// <summary>
@@ -27,13 +34,33 @@ namespace BrightData.Table
     /// * Not thread safe *
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICompositeBuffer<T> : IHaveSize where T: notnull
+    public interface ICompositeBuffer<T> : ICompositeBuffer where T: notnull
     {
-        public Guid Id { get; }
-        public string? Name { get; set; }
         Task ForEachBlock(BlockCallback<T> callback);
+        Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex);
         void Add(in T item);
         void Add(ReadOnlySpan<T> inputBlock);
-        uint? DistinctItems { get; }
+    }
+
+    public interface IByteReader : IDisposable
+    {
+        Task<ReadOnlyMemory<byte>> GetBlock(uint offset, uint numBytes);
+    }
+
+    internal record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;
+
+    internal record struct MatrixColumnType(uint StartIndex, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => RowCount * ColumnCount;
+    }
+
+    internal record struct Tensor3DColumnType(uint StartIndex, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => Depth * RowCount * ColumnCount;
+    }
+
+    internal record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => Count * Depth * RowCount * ColumnCount;
     }
 }

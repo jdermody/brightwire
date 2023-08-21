@@ -28,6 +28,11 @@ namespace BrightData
         IEnumerable<uint> Indices { get; }
     }
 
+    public interface IHaveDataAsReadOnlyByteSpan
+    {
+        ReadOnlySpan<byte> DataAsBytes { get; }
+    }
+
     /// <summary>
     /// Indicates that the type can create a readonly span of floats
     /// </summary>
@@ -851,4 +856,11 @@ namespace BrightData
     /// <param name="Label"></param>
     /// <param name="Data"></param>
     public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
+
+    public interface IDataTable : IDisposable
+    {
+        uint RowCount { get; }
+        uint ColumnCount { get; }
+        DataTableOrientation Orientation { get; }
+    }
 }

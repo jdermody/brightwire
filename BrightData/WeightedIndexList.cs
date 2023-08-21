@@ -8,23 +8,33 @@ using System.Text;
 using System.Xml;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData
 {
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>
+    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>, IHaveDataAsReadOnlyByteSpan
     {
         readonly Item[] _indices;
 
         /// <summary>
-        /// Constructor
+        /// Creates a weighted index list from an array of indices
         /// </summary>
         /// <param name="indices">Weighted indices</param>
         public WeightedIndexList(Item[] indices)
         {
             _indices = indices;
+        }
+
+        /// <summary>
+        /// Creates a weighted index list from a byte span
+        /// </summary>
+        /// <param name="data"></param>
+        public WeightedIndexList(ReadOnlySpan<byte> data)
+        {
+            _indices = data.Cast<byte, Item>().ToArray();
         }
 
         /// <summary>
@@ -419,5 +429,8 @@ namespace BrightData
         /// <param name="rhs"></param>
         /// <returns></returns>
         public static bool operator !=(WeightedIndexList lhs, WeightedIndexList rhs) => !lhs.Equals(rhs);
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes => _indices.AsSpan().AsBytes();
     }
 }

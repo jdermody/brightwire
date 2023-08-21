@@ -8,6 +8,7 @@ namespace BrightData.Table
 {
     public class Consts
     {
+        public const int MaxStackAllocSize = 512;
         public const int DefaultBlockSize = 32768;
         public const uint DefaultMaxDistinctCount = 32768;
     }

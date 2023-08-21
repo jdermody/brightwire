@@ -6,14 +6,15 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Table.Buffer
 {
-    public class StringCompositeBuffer : ICompositeBuffer<string>
+    class StringCompositeBuffer : CompositeBufferBase<string, StringCompositeBuffer.Block>
     {
-        record Block(string[] Data)
+        internal record Block(string[] Data) : ICompositeBufferBlock<string>
         {
             public uint Size { get; private set; }
             public ref string GetNext() => ref Data[Size++];
             public bool HasFreeCapacity => Size < Data.Length;
             public ReadOnlySpan<string> WrittenSpan => new(Data, 0, (int)Size);
+            public ReadOnlyMemory<string> WrittenMemory => new(Data, 0, (int)Size);
 
             public void WriteTo(SafeFileHandle file)
             {
@@ -33,99 +34,85 @@ namespace BrightData.Table.Buffer
             }
         }
 
-        readonly int         _blockSize;
-        readonly uint?       _maxInMemoryBlocks, _maxDistinctItems;
-        IProvideTempStreams? _tempStreams;
-        SafeFileHandle?      _file;
-        List<Block>?         _inMemoryBlocks;
-        Block?               _currBlock;
-        HashSet<string>?     _distinct;
-
         public StringCompositeBuffer(
             IProvideTempStreams? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        )
+        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
-            _tempStreams          = tempStreams;
-            _blockSize            = blockSize;
-            _maxInMemoryBlocks    = maxInMemoryBlocks;
-            if ((_maxDistinctItems = maxDistinctItems) > 0) {
-                _distinct = new HashSet<string>((int)maxDistinctItems!.Value / 32);
-            }
         }
 
-        public Guid Id { get; } = Guid.NewGuid();
-        public string? Name { get; set; }
-        public uint Size { get; private set; }
-        public uint? DistinctItems => (uint?)_distinct?.Count;
-
-        public Task ForEachBlock(BlockCallback<string> callback)
+        public override Task<ReadOnlyMemory<string>> GetBlock(uint blockIndex)
         {
-            // read from the file
-            if (_file != null) {
-                Span<byte> lengthBytes = stackalloc byte[8];
-                long fileLength = RandomAccess.GetLength(_file), offset = 0;
-                while (offset < fileLength) {
-                    RandomAccess.Read(_file, lengthBytes, offset);
-                    offset += 8;
-                    var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes[..4]);
-                    var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes[4..]);
-                    using var block = SpanOwner<byte>.Allocate((int)blockSize);
-                    var readCount = 0;
-                    do {
-                        readCount += RandomAccess.Read(_file, block.Span[readCount..], offset + readCount);
-                    }while(readCount < blockSize);
-
-                    var index = 0;
-                    using var buffer = MemoryOwner<string>.Allocate((int)numStrings);
-                    Decode(block.Span, chars => {
-                        // ReSharper disable once AccessToDisposedClosure
-                        buffer.Span[index++] = new string(chars);
-                    });
-                    callback(buffer.Span);
-                    offset += block.Length;
-                }
-            }
-
-            // then from in memory blocks
-            if (_inMemoryBlocks is not null) {
-                foreach (var block in _inMemoryBlocks)
-                    callback(block.WrittenSpan);
-            }
-
-            // then from the current block
-            if (_currBlock is not null)
-                callback(_currBlock.WrittenSpan);
-            return Task.CompletedTask;
+            if(blockIndex >= BlockCount)
+                throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
+            return base.GetBlock(blockIndex);
         }
 
-        public void Add(in string item)
+        public override void Add(in string item)
         {
             if(item.Length > ushort.MaxValue/3)
                 throw new ArgumentOutOfRangeException(nameof(item), $"Length cannot exceed {ushort.MaxValue/3}");
-
-            if (_currBlock?.HasFreeCapacity != true) {
-                if (_currBlock is not null) {
-                    if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value) {
-                        _file ??= (_tempStreams ??= new TempFileProvider()).Get(Id);
-                        _currBlock.WriteTo(_file);
-                    }else
-                        (_inMemoryBlocks ??= new()).Add(_currBlock);
-                }
-                _currBlock = new(new string[_blockSize]);
-            }
-            _currBlock.GetNext() = item;
-            if (_distinct?.Add(item) == true && _distinct.Count >= _maxDistinctItems)
-                _distinct = null;
-            ++Size;
+            base.Add(item);
         }
 
-        public void Add(ReadOnlySpan<string> inputBlock)
+        protected override uint SkipFileBlock(SafeFileHandle file, long offset)
         {
-            foreach(var item in inputBlock)
-                Add(item);
+            Span<byte> lengthBytes = stackalloc byte[4];
+            RandomAccess.Read(file, lengthBytes, offset);
+            return 8 + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
+        }
+
+        protected override ReadOnlyMemory<string> GetBlockFromFile(SafeFileHandle file, long offset)
+        {
+            var (numStrings, block) = ReadBlock(file, offset);
+            try {
+                var index = 0;
+                var buffer = new Memory<string>(new string[(int)numStrings]);
+                Decode(block.Span, chars => {
+                    // ReSharper disable once AccessToDisposedClosure
+                    buffer.Span[index++] = new string(chars);
+                });
+                return buffer;
+            }
+            finally {
+                block.Dispose();
+            }
+        }
+
+        protected override uint GetBlockFromFile(SafeFileHandle file, long offset, BlockCallback<string> callback)
+        {
+            var (numStrings, block) = ReadBlock(file, offset);
+            try {
+                var index = 0;
+                using var buffer = MemoryOwner<string>.Allocate((int)numStrings);
+                Decode(block.Span, chars => {
+                    // ReSharper disable once AccessToDisposedClosure
+                    buffer.Span[index++] = new string(chars);
+                });
+                callback(buffer.Span);
+                return (uint)block.Length + 8;
+            }
+            finally {
+                block.Dispose();
+            }
+        }
+
+        (uint NumStrings, MemoryOwner<byte> Block) ReadBlock(SafeFileHandle file, long offset)
+        {
+            Span<byte> lengthBytes = stackalloc byte[8];
+            RandomAccess.Read(file, lengthBytes, offset);
+            offset += 8;
+            var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes[..4]);
+            var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes[4..]);
+            var block = MemoryOwner<byte>.Allocate((int)blockSize);
+            var readCount = 0;
+            do {
+                readCount += RandomAccess.Read(file, block.Span[readCount..], offset + readCount);
+            }while(readCount < blockSize);
+
+            return (numStrings, block);
         }
 
         public static void Encode(string str, BlockCallback<byte> callback)
@@ -165,7 +152,5 @@ namespace BrightData.Table.Buffer
                 data = data[byteSize..];
             } while (data.Length > 0);
         }
-
-        public override string ToString() => $"String composite buffer|{Name ?? Id.ToString("n")}|count={Size:N0}";
     }
 }

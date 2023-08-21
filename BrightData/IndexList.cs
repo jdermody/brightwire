@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
+using CommunityToolkit.HighPerformance;
 using static BrightData.WeightedIndexList;
 
 namespace BrightData
@@ -14,7 +15,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
+    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>, IHaveDataAsReadOnlyByteSpan
     {
         readonly uint[] _indices;
 
@@ -61,12 +62,21 @@ namespace BrightData
         public ItemIterator GetEnumerator() => new(_indices);
 
         /// <summary>
-        /// Constructor
+        /// Creates an index list from an array of indices
         /// </summary>
         /// <param name="indices">Initial indices</param>
         public IndexList(params uint[] indices)
         {
             _indices = indices;
+        }
+
+        /// <summary>
+        /// Creates an index list from a byte span
+        /// </summary>
+        /// <param name="data"></param>
+        public IndexList(ReadOnlySpan<byte> data)
+        {
+            _indices = data.Cast<byte, uint>().ToArray();
         }
 
         /// <summary>
@@ -277,5 +287,8 @@ namespace BrightData
         }
 
         // TODO: use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes => _indices.AsSpan().AsBytes();
     }
 }

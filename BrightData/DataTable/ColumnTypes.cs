@@ -42,7 +42,7 @@ namespace BrightData.DataTable
         /// <summary>
         /// Total number of values
         /// </summary>
-        public uint Size => RowCount * ColumnCount;
+        public readonly uint Size => RowCount * ColumnCount;
     }
 
     /// <summary>

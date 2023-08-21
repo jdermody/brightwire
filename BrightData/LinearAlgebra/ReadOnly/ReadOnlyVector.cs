@@ -8,7 +8,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>
+    public class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         readonly ReadOnlyVectorValueSemantics<ReadOnlyVector> _valueSemantics;
         ArrayBasedTensorSegment? _segment = null;
@@ -18,6 +18,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
             _data = data;
             _valueSemantics = new(this);
+        }
+        public ReadOnlyVector(ReadOnlySpan<byte> data) : this(data.Cast<byte, float>().ToArray())
+        {
         }
         public ReadOnlyVector(uint size) : this(new float[size])
         {
@@ -69,5 +72,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 preview += "|...";
             return $"Vector Info ({Size}): {preview}";
         }
+
+        public ReadOnlySpan<byte> DataAsBytes => _data.AsSpan().Cast<float, byte>();
+        public ReadOnlySpan<float> FloatSpan => _data;
     }
 }

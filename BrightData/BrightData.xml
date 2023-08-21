@@ -396,6 +396,9 @@
             <param name="obj2"></param>
             <returns></returns>
         </member>
+        <member name="P:BrightData.BinaryData.DataAsBytes">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.BrightDataContext">
             <summary>
             Bright data context
@@ -1857,11 +1860,12 @@
             <param name="rnd">Random number generator to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.MetaData,System.String)">
             <summary>
             Item name
             </summary>
             <param name="metadata"></param>
+            <param name="defaultName">Name to use if no name was set</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnIndex(BrightData.MetaData)">
@@ -4865,9 +4869,15 @@
         </member>
         <member name="M:BrightData.IndexList.#ctor(System.UInt32[])">
             <summary>
-            Constructor
+            Creates an index list from an array of indices
             </summary>
             <param name="indices">Initial indices</param>
+        </member>
+        <member name="M:BrightData.IndexList.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Creates an index list from a byte span
+            </summary>
+            <param name="data"></param>
         </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
@@ -4991,6 +5001,9 @@
             </summary>
             <param name="other"></param>
             <returns></returns>
+        </member>
+        <member name="P:BrightData.IndexList.DataAsBytes">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.IHaveBrightDataContext">
             <summary>
@@ -8465,6 +8478,9 @@
         <member name="M:BrightData.LinearAlgebra.BrightVector`1.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.BrightVector`1.DataAsBytes">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.LinearAlgebra.BrightVector">
             <summary>
             Vector
@@ -9850,6 +9866,201 @@
             <param name="memoryOwner"></param>
             <returns></returns>
         </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.ReadOnlySegment">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.FloatSpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.RowCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.ColumnCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Item(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Item(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.GetRow(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.GetColumn(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.AllRows">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.AllColumns">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Equals(BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.ToString">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.ReadOnlySegment">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.FloatSpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Depth">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.RowCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.ColumnCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.MatrixSize">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Item(System.Int32,System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Item(System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.GetMatrix(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.AllMatrices">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Equals(BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.ToString">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.FloatSpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Depth">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.RowCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.ColumnCount">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.MatrixSize">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.TensorSize">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.ReadOnlySegment">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Item(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Item(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.GetTensor3D(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.AllTensors">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Equals(BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.ToString">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.DataAsBytes">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment">
             <summary>
             A tensor segment based on a float array
@@ -10454,9 +10665,15 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.#ctor(BrightData.WeightedIndexList.Item[])">
             <summary>
-            Constructor
+            Creates a weighted index list from an array of indices
             </summary>
             <param name="indices">Weighted indices</param>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Creates a weighted index list from a byte span
+            </summary>
+            <param name="data"></param>
         </member>
         <member name="P:BrightData.WeightedIndexList.Indices">
             <summary>
@@ -10695,6 +10912,9 @@
             <param name="lhs"></param>
             <param name="rhs"></param>
             <returns></returns>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.DataAsBytes">
+            <inheritdoc />
         </member>
     </members>
 </doc>
