@@ -63,3 +63,5 @@
 /BrightAPI/UI/node_modules
 /BrightData.Table/bin
 /BrightData.Table/obj
+/Benchmarks/bin
+/Benchmarks/obj
