@@ -65,3 +65,5 @@
 /BrightData.Table/obj
 /Benchmarks/bin
 /Benchmarks/obj
+/BrightData.Parquet/bin
+/BrightData.Parquet/obj
