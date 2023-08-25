@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.LinearAlgebra;
@@ -36,6 +37,12 @@ namespace ExampleCode
 
         static void Main()
         {
+            static async Task Test<T>(BrightData.Table.ICompositeBuffer<T> buffer) where T: notnull
+            {
+                await foreach (var item in buffer) {
+                    Console.WriteLine(item.ToString());
+                }
+            }
             using var context = new BrightDataContext(null, RandomSeed);
             //var vectorBuffer = ExtensionMethods.CreateCompositeBuffer<TestClass>(x => new(x), null, 2, 0);
             //vectorBuffer.Add(new TestClass(new byte[] { 1, 2, 3 }));
@@ -46,7 +53,6 @@ namespace ExampleCode
             //        Console.WriteLine(item.ToString());
             //});
 
-
             //var parser = new BrightData.Table.Helper.CsvParser(true, ',');
             //var buffers = parser.Parse(@"
             //test,test2,test3
@@ -54,31 +60,42 @@ namespace ExampleCode
             //123,234
             //");
 
-            //var stringBuffer = ExtensionMethods.CreateCompositeBuffer(null, 2, 0, 128);
-            //stringBuffer.Add("this is a test");
-            //stringBuffer.Add("this is another test");
-            //stringBuffer.Add("this is a final test");
-            //for (uint i = 0; i < stringBuffer.BlockCount; i++) {
-            //    var block = stringBuffer.GetBlock(i).Result;
-            //}
-            //foreach(var item in ExtensionMethods.Enumerate(stringBuffer))
-            //    Console.WriteLine(item);
-            //var (table, encoded) = ExtensionMethods.Encode(stringBuffer);
-            //var test2 = ExtensionMethods.CreateCompositeBuffer<uint>(null, 2, 0);
-            //test2.Add(1);
-            //test2.Add(new ReadOnlySpan<uint>(new uint[] { 2, 3 }));
-            //test2.ForEachBlock(block => {
-            //    foreach (var num in block)
-            //        Console.WriteLine(num);
-            //});
-            //foreach(var item in ExtensionMethods.Enumerate(test2))
-            //    Console.WriteLine(item);
-            //for (uint i = 0; i < test2.BlockCount; i++) {
-            //    var block = test2.GetBlock(i).Result;
-            //}
-            //return;
+            var stringBuffer = ExtensionMethods.CreateCompositeBuffer(null, 2, 0, 128);
+            stringBuffer.Add("this is a test");
+            stringBuffer.Add("this is another test");
+            stringBuffer.Add("this is a final test");
+            for (uint i = 0; i < stringBuffer.BlockCount; i++) {
+                var block = stringBuffer.GetBlock(i).Result;
+            }
+            foreach (var item in ExtensionMethods.GetEnumerator(stringBuffer))
+                Console.WriteLine(item);
+            Test(stringBuffer).Wait();
 
-            
+            //var (table, encoded) = ExtensionMethods.Encode(stringBuffer);
+            var test2 = ExtensionMethods.CreateCompositeBuffer<int>(null, 2, 0);
+            test2.Add(1);
+            test2.Add(new ReadOnlySpan<int>(new [] { 2, 3 }));
+            test2.ForEachBlock(block => {
+                foreach (var num in block)
+                    Console.WriteLine(num);
+            });
+            foreach (var item in ExtensionMethods.GetEnumerator(test2))
+                Console.WriteLine(item);
+            Test(test2).Wait();
+            for (uint i = 0; i < test2.BlockCount; i++) {
+                var block = test2.GetBlock(i).Result;
+            }
+            var table = ExtensionMethods.CreateTableInMemory(context, stringBuffer, test2).Result;
+            var strs = ExtensionMethods.AsReadOnlySequence(table.GetColumn<string>(0)).Result;
+            var nums = ExtensionMethods.AsReadOnlySequence(table.GetColumn<int>(1)).Result;
+            foreach (var item in strs) {
+                foreach (var str in item.Span) {
+                    Console.WriteLine(str);
+                }
+            }
+            return;
+
+
             bool useCuda = true, useMkl = true;
 
             // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)

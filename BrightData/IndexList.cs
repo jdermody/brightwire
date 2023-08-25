@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
 using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
 using static BrightData.WeightedIndexList;
 
 namespace BrightData
@@ -15,19 +16,19 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>, IHaveDataAsReadOnlyByteSpan
+    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>, IHaveDataAsReadOnlyByteSpan, IHaveReadOnlyContiguousSpan<uint>, IHaveSpanOf<uint>, IHaveSize
     {
-        readonly uint[] _indices;
+        readonly ReadOnlyMemory<uint> _indices;
 
         /// <summary>
         /// Index iterator
         /// </summary>
         public ref struct ItemIterator
         {
-            readonly uint[] _items;
+            readonly ReadOnlySpan<uint> _items;
             int _pos = -1;
 
-            internal ItemIterator(uint[] items) => _items = items;
+            internal ItemIterator(ReadOnlySpan<uint> items) => _items = items;
 
             /// <summary>
             /// Current value
@@ -59,7 +60,7 @@ namespace BrightData
         /// Enumerates the indices in the list
         /// </summary>
         /// <returns></returns>
-        public ItemIterator GetEnumerator() => new(_indices);
+        public ItemIterator GetEnumerator() => new(_indices.Span);
 
         /// <summary>
         /// Creates an index list from an array of indices
@@ -70,6 +71,8 @@ namespace BrightData
             _indices = indices;
         }
 
+        public IndexList(ReadOnlyMemory<uint> indices) => _indices = indices;
+
         /// <summary>
         /// Creates an index list from a byte span
         /// </summary>
@@ -79,17 +82,25 @@ namespace BrightData
             _indices = data.Cast<byte, uint>().ToArray();
         }
 
+        public ReadOnlyMemory<uint> ReadOnlyMemory { get; }
+
         /// <summary>
         /// Current indices in list
         /// </summary>
-        public IReadOnlyList<uint> Indices => _indices;
+        public IEnumerable<uint> Indices
+        {
+            get
+            {
+                for (var i = 0; i < _indices.Length; ++i)
+                    yield return _indices.Span[i];
+            }
+        }
 
         /// <summary>
         /// Indices as a span
         /// </summary>
         /// <returns></returns>
-        public ReadOnlySpan<uint> AsSpan() => new(_indices);
-
+        public ReadOnlySpan<uint> AsSpan() => _indices.Span;
         /// <summary>
         /// Creates an index list
         /// </summary>
@@ -114,22 +125,29 @@ namespace BrightData
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => _indices.Length;
+        public uint Size => (uint)_indices.Length;
 
         /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
         {
-            if (Count < 32) {
+            if (Size < 32) {
                 var indices = String.Join('|', Indices);
                 return $"IndexList - {indices}";
             } 
-            return $"IndexList ({Count} indices)";
+            return $"IndexList ({Size} indices)";
         }
 
         /// <inheritdoc />
         public bool Equals(IndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+
+        /// <inheritdoc />
+        public ReadOnlySpan<uint> GetSpan(ref SpanOwner<uint> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = false;
+            return _indices.Span;
+        }
 
         /// <inheritdoc />
         public override bool Equals(object? obj)
@@ -171,7 +189,13 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => ((IStructuralEquatable)_indices).GetHashCode(EqualityComparer<uint>.Default);
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            foreach (var item in _indices.Span)
+                hashCode.Add(item);
+            return hashCode.ToHashCode();
+        }
 
         /// <summary>
         /// Writes the data to an XML writer
@@ -191,9 +215,9 @@ namespace BrightData
         /// <param name="writer"></param>
         public unsafe void WriteTo(BinaryWriter writer)
         {
-            writer.Write(Count);
-            fixed (uint* ptr = _indices) {
-                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Count * sizeof(uint)));
+            writer.Write(Size);
+            fixed (uint* ptr = _indices.Span) {
+                writer.Write(new ReadOnlySpan<byte>(ptr, (int)Size * sizeof(uint)));
             }
         }
 
@@ -281,14 +305,17 @@ namespace BrightData
         /// <returns></returns>
         public float OverlapSimilarity(IndexList other)
         {
-            var set = new HashSet<uint>(_indices);
+            var set = new HashSet<uint>(Indices);
             var overlap = other.Indices.Where(set.Contains).Count();
-            return (float)overlap / Math.Min(Count, other.Count);
+            return (float)overlap / Math.Min(Size, other.Size);
         }
 
         // TODO: use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => _indices.AsSpan().AsBytes();
+        public ReadOnlySpan<byte> DataAsBytes => _indices.Span.AsBytes();
+
+        /// <inheritdoc />
+        public ReadOnlySpan<uint> ReadOnlySpan => _indices.Span;
     }
 }

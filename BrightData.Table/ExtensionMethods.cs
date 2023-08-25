@@ -1,36 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Table.Buffer;
+using BrightData.Table.Buffer.Composite;
+using BrightData.Table.ByteBlockReaders;
+using BrightData.Table.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Table
 {
     public static class ExtensionMethods
     {
-        /// <summary>
-        /// Builds a table of the generic methods from a type
-        /// </summary>
-        /// <param name="type">Type to inspect</param>
-        /// <param name="bindingFlags">Method flags</param>
-        /// <returns></returns>
-        public static Dictionary<string, MethodInfo> GetGenericMethods(
-            this Type type, 
-            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
-        ) {
-            return type.GetMethods(bindingFlags)
-                .Where(m => m.IsGenericMethod)
-                .ToDictionary(m => m.Name)
-            ;
+        public static async Task<IDataTable> CreateTableInMemory(
+            this BrightDataContext _,
+            params ICompositeBuffer[] buffers
+        )
+        {
+            var builder = new ColumnOrientedTableBuilder();
+            var ret = new MemoryStream();
+            await builder.Write(new(), buffers, ret);
+            var memory = new Memory<byte>(ret.GetBuffer(), 0, (int)ret.Length);
+            return new ColumnOriented(new MemoryByteBlockReader(memory, ret));
         }
 
         public static ICompositeBuffer<string> CreateCompositeBuffer(
-            IProvideTempStreams? tempStreams = null, 
+            IProvideTempData? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
@@ -38,14 +31,14 @@ namespace BrightData.Table
 
         public static ICompositeBuffer<T> CreateCompositeBuffer<T>(
             CreateFromReadOnlyByteSpan<T> createItem,
-            IProvideTempStreams? tempStreams = null, 
+            IProvideTempData? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) where T: IHaveDataAsReadOnlyByteSpan => new ManagedCompositeBuffer<T>(createItem, tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
         public static ICompositeBuffer<T> CreateCompositeBuffer<T>(
-            IProvideTempStreams? tempStreams = null, 
+            IProvideTempData? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
@@ -65,7 +58,7 @@ namespace BrightData.Table
         /// <exception cref="ArgumentException"></exception>
         public static (T[] Table, ICompositeBuffer<uint> Data) Encode<T>(
             this ICompositeBuffer<T> buffer, 
-            IProvideTempStreams? tempStreams = null, 
+            IProvideTempData? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null
         ) where T : notnull {
@@ -148,7 +141,7 @@ namespace BrightData.Table
             public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
             public readonly CompositeBufferIterator<T> GetEnumerator() => this;
         }
-        public static CompositeBufferIterator<T> Enumerate<T>(this ICompositeBuffer<T> buffer) where T: notnull => new(buffer);
+        public static CompositeBufferIterator<T> GetEnumerator<T>(this ICompositeBuffer<T> buffer) where T: notnull => new(buffer);
 
         static (Type, uint) GetTypeAndSize<T>() => (typeof(T), (uint)Unsafe.SizeOf<T>());
 
@@ -245,14 +238,14 @@ namespace BrightData.Table
         }
 
         public static ICompositeBuffer GetCompositeBuffer(this Type type,
-            IProvideTempStreams? tempStreams = null, 
+            IProvideTempData? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) => GetCompositeBuffer(GetTableDataType(type), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
         public static ICompositeBuffer GetCompositeBuffer(this BrightDataType type,
-            IProvideTempStreams? tempStreams = null,
+            IProvideTempData? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
@@ -279,5 +272,57 @@ namespace BrightData.Table
             BrightDataType.DateOnly          => CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
             _                                => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown table data type")
         };
+
+        public static async Task<T> GetItem<T>(this IReadOnlyBuffer<T> buffer, uint index) where T: notnull
+        {
+            var blockIndex = index / buffer.BlockSize;
+            var blockMemory = await buffer.GetBlock(blockIndex);
+            return blockMemory.Span[(int)(index % buffer.BlockSize)];
+        }
+
+        public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
+        {
+            var blocks = indices.Select((x, i) => (Index: x, BlockIndex: x / buffer.BlockSize, SourceIndex: (uint)i))
+                .GroupBy(x => x.BlockIndex)
+                .OrderBy(x => x.Key)
+            ;
+            var ret = new T[indices.Length];
+            foreach (var block in blocks) {
+                var blockMemory = await buffer.GetBlock(block.Key);
+                Add(blockMemory, block, ret);
+            }
+            return ret;
+
+            static void Add(ReadOnlyMemory<T> data, IEnumerable<(uint Index, uint BlockIndex, uint SourceIndex)> list, T[] output)
+            {
+                var span = data.Span;
+                foreach (var (index, _, sourceIndex) in list)
+                    output[sourceIndex] = span[(int)index];
+            }
+        }
+
+        class MemorySegment<T> : ReadOnlySequenceSegment<T>
+        {
+            public MemorySegment(ReadOnlyMemory<T> memory) => Memory = memory;
+            public MemorySegment<T> Append(ReadOnlyMemory<T> memory)
+            {
+                var segment = new MemorySegment<T>(memory) {
+                    RunningIndex = RunningIndex + Memory.Length
+                };
+                Next = segment;
+                return segment;
+            }
+        }
+        public static async Task<ReadOnlySequence<T>> AsReadOnlySequence<T>(this IReadOnlyBuffer<T> buffer) where T : notnull
+        {
+            if(buffer.BlockCount == 0)
+                return ReadOnlySequence<T>.Empty;
+
+            var first = new MemorySegment<T>(await buffer.GetBlock(0));
+            var last = first;
+            for(var i = 1; i < buffer.BlockCount; i++)
+                last = last.Append(await buffer.GetBlock(1));
+            return new ReadOnlySequence<T>(first, 0, last, last.Memory.Length);
+        }
     }
 }

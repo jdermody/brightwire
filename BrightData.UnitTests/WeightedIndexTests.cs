@@ -37,7 +37,7 @@ namespace BrightData.UnitTests
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
             var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Sum);
 
-            merged.Count.Should().Be(3);
+            merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(1.0f);
         }
 
@@ -48,7 +48,7 @@ namespace BrightData.UnitTests
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
             var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Average);
 
-            merged.Count.Should().Be(3);
+            merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(0.5f);
         }
 
@@ -59,7 +59,7 @@ namespace BrightData.UnitTests
             var second = _context.CreateWeightedIndexList((1, 2.5f), (2, 0.5f));
             var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Max);
 
-            merged.Count.Should().Be(3);
+            merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(2.5f);
         }
 

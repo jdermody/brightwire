@@ -57,9 +57,6 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public float[]? GetArrayIfEasilyAvailable() => null;
-
-        /// <inheritdoc />
         public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper)

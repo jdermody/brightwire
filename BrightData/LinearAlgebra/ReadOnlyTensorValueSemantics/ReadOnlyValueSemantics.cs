@@ -4,19 +4,19 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
-    internal class ReadOnlyVectorValueSemantics<T>
-        where T : IReadOnlyVector
+    internal class ReadOnlyValueSemantics<T, VT>
+        where T : IHaveSize, IHaveSpanOf<VT>
     {
         readonly T _obj;
         readonly Lazy<int> _hashCode;
 
-        internal ReadOnlyVectorValueSemantics(T obj)
+        internal ReadOnlyValueSemantics(T obj)
         {
             _obj = obj;
             _hashCode = new(() => {
                 var hashCode = new HashCode();
                 hashCode.Add(obj.Size);
-                var temp = SpanOwner<float>.Empty;
+                var temp = SpanOwner<VT>.Empty;
                 var span = obj.GetSpan(ref temp, out var wasTempUsed);
                 try {
                     hashCode.Add(span);
@@ -32,7 +32,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
         public bool Equals(T? other)
         {
             if (other is not null && other.Size == _obj.Size) {
-                SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
+                SpanOwner<VT> temp1 = SpanOwner<VT>.Empty, temp2 = SpanOwner<VT>.Empty;
                 var span1 = _obj.GetSpan(ref temp1, out var wasTemp1Used);
                 var span2 = other.GetSpan(ref temp2, out var wasTemp2Used);
                 try {

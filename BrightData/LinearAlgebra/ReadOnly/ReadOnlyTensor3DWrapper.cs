@@ -14,6 +14,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public ReadOnlyTensor3DWrapper(IReadOnlyNumericSegment<float> segment, uint depth, uint rowCount, uint columnCount)
         {
+            if(segment.Contiguous is null)
+                throw new ArgumentNullException(nameof(segment), "Expected a contiguous segment");
+
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
@@ -44,7 +47,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
-        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
+        public ReadOnlySpan<float> ReadOnlySpan => ReadOnlySegment.Contiguous!.ReadOnlySpan;
 
         public uint Size => MatrixSize * Depth;
         public IReadOnlyNumericSegment<float> ReadOnlySegment { get; }

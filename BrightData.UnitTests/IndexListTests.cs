@@ -15,7 +15,7 @@ namespace BrightData.UnitTests
             var first = _context.CreateIndexList(1, 2, 3);
             var second = _context.CreateIndexList(2, 3, 4);
             var merged = IndexList.Merge(new[] {first, second});
-            merged.Count.Should().Be(4);
+            merged.Size.Should().Be(4);
         }
 
         [Fact]

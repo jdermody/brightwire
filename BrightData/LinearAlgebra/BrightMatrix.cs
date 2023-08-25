@@ -109,7 +109,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public ReadOnlySpan<float> GetColumnSpan(uint columnIndex)
         {
-            var ret = Segment.GetSpan();
+            var ret = Segment.Contiguous!.ReadOnlySpan;
             return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
         }
 

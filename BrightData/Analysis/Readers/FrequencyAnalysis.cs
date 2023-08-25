@@ -9,11 +9,11 @@ namespace BrightData.Analysis.Readers
     {
         internal FrequencyAnalysis(MetaData metaData)
         {
-            Total = metaData.Get<ulong>(Consts.Total);
+            Total = metaData.GetOrThrow<ulong>(Consts.Total);
             MostFrequent = metaData.Get(Consts.MostFrequent) as string;
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
-                .Select(k => (Label: k[Consts.FrequencyPrefix.Length..], Value: metaData.Get<double>(k)))
+                .Select(k => (Label: k[Consts.FrequencyPrefix.Length..], Value: metaData.GetOrThrow<double>(k)))
                 .ToArray()
             ;
         }

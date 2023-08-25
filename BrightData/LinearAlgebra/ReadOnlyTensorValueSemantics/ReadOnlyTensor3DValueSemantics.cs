@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
                 hashCode.Add(_obj.Depth);
                 hashCode.Add(_obj.RowCount);
                 hashCode.Add(_obj.ColumnCount);
-                hashCode.Add(_obj.FloatSpan);
+                hashCode.Add(_obj.ReadOnlySpan);
                 return hashCode.ToHashCode();
             });
         }
@@ -28,7 +28,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
                 && other.RowCount == _obj.RowCount 
                 && other.Depth == _obj.Depth 
                 && other.ColumnCount == _obj.ColumnCount 
-                && _obj.FloatSpan.SequenceEqual(other.FloatSpan)
+                && _obj.ReadOnlySpan.SequenceEqual(other.ReadOnlySpan)
             );
         }
 

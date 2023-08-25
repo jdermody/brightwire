@@ -99,9 +99,6 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector((IReadOnlyVector)this);
-
-        /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => Segment.GetSpan().Cast<float, byte>();
     }
 
     /// <summary>

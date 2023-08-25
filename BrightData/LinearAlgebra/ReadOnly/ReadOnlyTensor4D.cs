@@ -11,6 +11,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 {
     public class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
+        const int HeaderSize = 16;
         readonly ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4D> _valueSemantics;
         readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyTensor3D[] _tensors;
@@ -44,13 +45,22 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
         }
 
+        public ReadOnlyTensor4D(ReadOnlyMemory<float> data, uint count, uint depth, uint rows, uint columns) : this(BuildTensors(data.Span, count, depth, rows, columns))
+        {
+        }
+
         static IReadOnlyTensor3D[] BuildTensors(ReadOnlySpan<byte> data)
         {
             var columns = BinaryPrimitives.ReadUInt32LittleEndian(data);
             var rows = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
             var depth = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
             var count = BinaryPrimitives.ReadUInt32LittleEndian(data[12..]);
-            var floats = data[16..].Cast<byte, float>();
+            var floats = data[HeaderSize..].Cast<byte, float>();
+            return BuildTensors(floats, count, depth, rows, columns);
+        }
+
+        static IReadOnlyTensor3D[] BuildTensors(ReadOnlySpan<float> floats, uint count, uint depth, uint rows, uint columns)
+        {
             var ret = new IReadOnlyTensor3D[count];
             var matrixSize = (int)(columns * rows);
             for (uint i = 0; i < count; i++) {
@@ -104,7 +114,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
+        public ReadOnlySpan<float> ReadOnlySpan => ReadOnlySegment.Contiguous!.ReadOnlySpan;
 
         /// <inheritdoc />
         public uint Size => TensorSize * Count;
@@ -172,12 +182,12 @@ namespace BrightData.LinearAlgebra.ReadOnly
             get
             {
                 var buffer = _segment.Value;
-                var ret = new Span<byte>(new byte[buffer.Size + 16]);
+                var ret = new Span<byte>(new byte[buffer.Size + HeaderSize]);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret, ColumnCount);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret[4..], RowCount);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret[8..], Depth);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret[12..], Count);
-                buffer.CopyTo(ret[16..].Cast<byte, float>());
+                buffer.CopyTo(ret[HeaderSize..].Cast<byte, float>());
                 return ret;
             }
         }

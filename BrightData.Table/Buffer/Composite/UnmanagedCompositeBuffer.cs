@@ -4,13 +4,13 @@ using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using Microsoft.Win32.SafeHandles;
 
-namespace BrightData.Table.Buffer
+namespace BrightData.Table.Buffer.Composite
 {
     /// <summary>
     /// Buffer that writes to disk after exhausting its in memory limit - not thread safe
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class UnmanagedCompositeBuffer<T> : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block> where T: unmanaged 
+    internal class UnmanagedCompositeBuffer<T> : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block> where T : unmanaged
     {
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
         {
@@ -21,10 +21,10 @@ namespace BrightData.Table.Buffer
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public void WriteTo(SafeFileHandle file)
+            public void WriteTo(ITempData file)
             {
                 var bytes = WrittenSpan.Cast<T, byte>();
-                RandomAccess.Write(file, bytes, RandomAccess.GetLength(file));
+                file.Write(bytes, file.Size);
             }
 
             public void Write(ReadOnlySpan<T> data)
@@ -33,14 +33,14 @@ namespace BrightData.Table.Buffer
                 Size += (uint)data.Length;
             }
         }
-        readonly int         _sizeOfT;
+        readonly int _sizeOfT;
 
         public UnmanagedCompositeBuffer(
-            IProvideTempStreams? tempStreams = null, 
-            int blockSize = Consts.DefaultBlockSize, 
+            IProvideTempData? tempStreams = null,
+            int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems) 
+        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
             _sizeOfT = Unsafe.SizeOf<T>();
         }
@@ -48,21 +48,25 @@ namespace BrightData.Table.Buffer
         public override async Task ForEachBlock(BlockCallback<T> callback)
         {
             // read from the file
-            if (_file != null) {
-                long fileLength = RandomAccess.GetLength(_file), offset = 0;
+            if (_tempData != null)
+            {
+                uint fileLength = _tempData.Size, offset = 0;
                 using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
-                while (offset < fileLength) {
-                    var readCount = 0;
-                    do {
-                        readCount += await RandomAccess.ReadAsync(_file, buffer.Memory[readCount..], offset + readCount);
-                    }while(readCount < _blockSize * _sizeOfT);
+                while (offset < fileLength)
+                {
+                    uint readCount = 0;
+                    do
+                    {
+                        readCount += await _tempData.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
+                    } while (readCount < _blockSize * _sizeOfT);
                     callback(buffer.Span.Cast<byte, T>());
-                    offset += _blockSize * _sizeOfT;
+                    offset += (uint)(_blockSize * _sizeOfT);
                 }
             }
 
             // then from the in memory blocks
-            if (_inMemoryBlocks is not null) {
+            if (_inMemoryBlocks is not null)
+            {
                 foreach (var block in _inMemoryBlocks)
                     callback(block.WrittenSpan);
             }
@@ -74,40 +78,39 @@ namespace BrightData.Table.Buffer
 
         public override async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
         {
-            if(blockIndex >= BlockCount)
+            if (blockIndex >= BlockCount)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
             uint currentIndex = 0;
 
             // read from the file
-            if (_file != null) {
-                if (blockIndex < _blocksInFile) {
-                    long fileLength = RandomAccess.GetLength(_file), offset = 0;
-                    while (offset < fileLength) {
-                        if (currentIndex++ == blockIndex) {
-                            var ret = new Memory<T>(new T[_blockSize]);
-                            var buffer = ret.Cast<T, byte>();
-                            var readCount = 0;
-                            do {
-                                readCount += await RandomAccess.ReadAsync(_file, buffer[readCount..], offset + readCount);
-                            } while (readCount < _blockSize * _sizeOfT);
-
-                            return ret;
-                        }
-
-                        offset += _blockSize * _sizeOfT;
+            if (_tempData != null)
+            {
+                if (blockIndex < _blocksInFile)
+                {
+                    uint fileLength = _tempData.Size, offset = 0;
+                    while (offset < fileLength)
+                    {
+                        if (currentIndex++ == blockIndex)
+                            return (await GetBlockFromFile(_tempData, offset)).Item2;
+                        offset += (uint)(_blockSize * _sizeOfT);
                     }
-                }else
+                }
+                else
                     currentIndex = _blocksInFile;
             }
 
             // then from the in memory blocks
-            if (_inMemoryBlocks is not null) {
-                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count) {
-                    foreach (var block in _inMemoryBlocks) {
+            if (_inMemoryBlocks is not null)
+            {
+                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
+                {
+                    foreach (var block in _inMemoryBlocks)
+                    {
                         if (currentIndex++ == blockIndex)
                             return block.WrittenMemory;
                     }
-                }else
+                }
+                else
                     currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
             }
 
@@ -119,14 +122,18 @@ namespace BrightData.Table.Buffer
 
         public override void Add(ReadOnlySpan<T> inputBlock)
         {
-            while (inputBlock.Length > 0) {
+            while (inputBlock.Length > 0)
+            {
                 var block = EnsureCurrentBlock();
                 var countToWrite = Math.Min(inputBlock.Length, (int)block.AvailableCapacity);
                 var itemsToWrite = inputBlock[..countToWrite];
                 block.Write(itemsToWrite);
-                if (_distinct != null) {
-                    foreach (var item in itemsToWrite) {
-                        if (_distinct?.Add(item) == true && _distinct.Count >= _maxDistinctItems) {
+                if (_distinct != null)
+                {
+                    foreach (var item in itemsToWrite)
+                    {
+                        if (_distinct?.Add(item) == true && _distinct.Count >= _maxDistinctItems)
+                        {
                             _distinct = null;
                             break;
                         }
@@ -137,19 +144,33 @@ namespace BrightData.Table.Buffer
             }
         }
 
-        protected override uint SkipFileBlock(SafeFileHandle file, long offset)
+        protected override Task<uint> SkipFileBlock(ITempData file, uint offset)
         {
-            throw new NotImplementedException();
+            return Task.FromResult((uint)_blockSize * (uint)_sizeOfT);
         }
 
-        protected override ReadOnlyMemory<T> GetBlockFromFile(SafeFileHandle file, long offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(ITempData file, uint offset)
         {
-            throw new NotImplementedException();
+            var ret = new Memory<T>(new T[_blockSize]);
+            var buffer = ret.Cast<T, byte>();
+            uint readCount = 0;
+            do
+            {
+                readCount += await file.ReadAsync(buffer[(int)readCount..], offset + readCount);
+            } while (readCount < _blockSize * _sizeOfT);
+            return ((uint)_blockSize * (uint)_sizeOfT, ret);
         }
 
-        protected override uint GetBlockFromFile(SafeFileHandle file, long offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback)
         {
-            throw new NotImplementedException();
+            using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
+            uint readCount = 0;
+            do
+            {
+                readCount += await file.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
+            } while (readCount < _blockSize * _sizeOfT);
+            callback(buffer.Span.Cast<byte, T>());
+            return (uint)_blockSize * (uint)_sizeOfT;
         }
     }
 }

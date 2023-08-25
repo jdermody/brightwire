@@ -11,18 +11,17 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public readonly struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>, IHaveDataAsReadOnlyByteSpan
+    public readonly struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>, IHaveDataAsReadOnlyByteSpan, IHaveSize, IHaveReadOnlyContiguousSpan<byte>
     {
-        readonly byte[] _data;
+        readonly Memory<byte> _data;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Binary data blob</param>
-        public BinaryData(byte[] data)
-        {
-            _data = data;
-        }
+        public BinaryData(params byte[] data) => _data = data;
+
+        public BinaryData(Memory<byte> data) => _data = data;
 
         /// <summary>
         /// Constructor
@@ -33,7 +32,7 @@ namespace BrightData
         /// <summary>
         /// Returns the data as a span
         /// </summary>
-        public ReadOnlySpan<byte> Data => _data;
+        public ReadOnlySpan<byte> Data => _data.Span;
 
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
@@ -47,13 +46,13 @@ namespace BrightData
         public void WriteTo(BinaryWriter writer)
         {
             writer.Write(_data.Length);
-            writer.Write(_data);
+            writer.Write(_data.Span);
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            var binaryHash = SHA512.HashData(_data);
+            var binaryHash = SHA512.HashData(_data.Span);
 
             var sb = new StringBuilder();
             for (var i = 0; i < binaryHash.Length; i++) {
@@ -73,7 +72,13 @@ namespace BrightData
         public override bool Equals(object? obj) => obj is BinaryData other && Equals(other);
 
         /// <inheritdoc />
-        public override int GetHashCode() => ((IStructuralEquatable)_data).GetHashCode(EqualityComparer<byte>.Default);
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            foreach (var item in _data.Span)
+                hashCode.Add(item);
+            return hashCode.ToHashCode();
+        }
 
         /// <summary>
         /// Binary data equality
@@ -92,6 +97,9 @@ namespace BrightData
         public static bool operator !=(BinaryData obj1, BinaryData obj2) => !obj1.Equals(obj2);
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => _data;
+        public ReadOnlySpan<byte> DataAsBytes => _data.Span;
+
+        public uint Size => (uint)_data.Length;
+        public ReadOnlySpan<byte> ReadOnlySpan => _data.Span;
     }
 }

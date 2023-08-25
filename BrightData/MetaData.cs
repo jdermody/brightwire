@@ -149,7 +149,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the value</param>
         /// <returns></returns>
-        public T Get<T>(string name) where T : IConvertible
+        public T GetOrThrow<T>(string name) where T : IConvertible
         {
             if (_values.TryGetValue(name, out var obj))
                 return (T)obj;
@@ -186,7 +186,7 @@ namespace BrightData
                         writer.WriteStartElement("item");
                         writer.WriteAttributeString("name", item.Name);
                         writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
-                        writer.WriteValue(item.String);
+                        writer.WriteValue(item.StringValue);
                         writer.WriteEndElement();
                     }
 
@@ -216,7 +216,7 @@ namespace BrightData
                 writer.Write(item.Name);
                 var typeCode = item.Value.GetTypeCode();
                 writer.Write((byte)typeCode);
-                writer.Write(item.String);
+                writer.Write(item.StringValue);
             }
         }
 
@@ -266,7 +266,7 @@ namespace BrightData
         /// Returns non empty metadata
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
+        public IEnumerable<(string Name, IConvertible Value, string StringValue)> GetNonEmpty()
         {
             var nonNull = _values.ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {

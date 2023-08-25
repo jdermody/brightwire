@@ -498,7 +498,7 @@ namespace BrightAPI.Controllers
         }
 
         static NameValueModel[] AsModel(MetaData metadata) => metadata.GetNonEmpty().Select(x => new NameValueModel {
-            Value = x.String,
+            Value = x.StringValue,
             Name = x.Name
         }).ToArray();
 

@@ -856,11 +856,4 @@ namespace BrightData
     /// <param name="Label"></param>
     /// <param name="Data"></param>
     public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
-
-    public interface IDataTable : IDisposable
-    {
-        uint RowCount { get; }
-        uint ColumnCount { get; }
-        DataTableOrientation Orientation { get; }
-    }
 }

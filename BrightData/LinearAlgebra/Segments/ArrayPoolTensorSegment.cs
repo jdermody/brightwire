@@ -18,8 +18,10 @@ namespace BrightData.LinearAlgebra.Segments
         bool _isValid = true;
 
         #if DEBUG
-        static uint NextId = 0, BreakOnCreate = 403, BreakOnRelease = 403;
-        uint _id = Interlocked.Increment(ref NextId);
+        static uint NextId = 0;
+        static readonly uint BreakOnCreate = uint.MaxValue;
+        static readonly uint BreakOnRelease = uint.MaxValue;
+        readonly uint _id = Interlocked.Increment(ref NextId);
         #endif
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace BrightData.LinearAlgebra.Segments
         public override bool IsValid => _isValid;
 
         /// <inheritdoc />
-        public override string SegmentType => "memory owner";
+        public override string SegmentType => Consts.MemoryOwnerBased;
 
         /// <inheritdoc />
         public override IEnumerable<float> Values
@@ -89,7 +91,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <inheritdoc />
         public override void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
-            var span = GetSpan(sourceOffset);
+            var span = ReadOnlySpan[(int)sourceOffset..];
             var (destinationArray, offset, stride) = segment.GetUnderlyingArray();
             if (destinationArray is not null && stride == 1)
                 span.CopyTo(destinationArray.AsSpan((int)(targetOffset + offset), (int)(segment.Size - targetOffset)));
@@ -98,6 +100,6 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public override ReadOnlySpan<float> GetSpan(uint offset = 0) => _memoryOwner.Span[(int)offset..];
+        public override ReadOnlySpan<float> ReadOnlySpan => _memoryOwner.Span;
     }
 }

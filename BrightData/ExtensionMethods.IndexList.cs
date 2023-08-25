@@ -203,7 +203,7 @@ namespace BrightData
                 float sum = 0;
                 foreach (var (_, weightedIndexList) in classification)
                 {
-                    foreach (var index in weightedIndexList.Indices)
+                    foreach (ref readonly var index in weightedIndexList.ReadOnlySpan)
                     {
                         var key = index.Index;
                         if (indexOccurrence.TryGetValue(key, out var temp))
@@ -236,7 +236,7 @@ namespace BrightData
             foreach (var (label, weightedIndexList) in data) {
                 var totalWords = classificationSum[label];
                 var classificationIndex = new List<WeightedIndexList.Item>();
-                foreach (var item in weightedIndexList.Indices) {
+                foreach (ref readonly var item in weightedIndexList.ReadOnlySpan) {
                     var index = item.Index;
                     var tf = item.Weight / totalWords;
                     var docsWithTerm = (float)indexOccurrence[index];
@@ -269,7 +269,7 @@ namespace BrightData
             foreach (var (label, weightedIndexList) in data) {
                 var documentWeight = classificationSum[label] / averageDocumentWeight;
                 var classificationIndex = new List<WeightedIndexList.Item>();
-                foreach (var item in weightedIndexList.Indices) {
+                foreach (ref readonly var item in weightedIndexList.ReadOnlySpan) {
                     var index = item.Index;
                     var tf = (item.Weight * (k+1)) / ((item.Weight + k) * (1 - b + (b * documentWeight))) + d;
                     var docsWithTerm = (float)indexOccurrence[index];

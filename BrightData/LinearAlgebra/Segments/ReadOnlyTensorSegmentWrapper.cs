@@ -125,6 +125,9 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
+        public IHaveReadOnlyContiguousSpan<float>? Contiguous => null;
+
+        /// <inheritdoc />
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             if (Stride == 1)
@@ -135,12 +138,6 @@ namespace BrightData.LinearAlgebra.Segments
             CopyTo(span);
             wasTempUsed = true;
             return span;
-        }
-
-        /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(uint offset)
-        {
-            throw new NotImplementedException();
         }
 
         /// <inheritdoc />

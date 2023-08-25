@@ -10,7 +10,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment based on a float array
     /// </summary>
-    public class ArrayBasedTensorSegment : INumericSegment<float>
+    public class ArrayBasedTensorSegment : INumericSegment<float>, IHaveReadOnlyContiguousSpan<float>
     {
         /// <summary>
         /// Underlying array
@@ -68,7 +68,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public virtual void CopyTo(Span<float> destination) => GetSpan().CopyTo(destination);
+        public virtual void CopyTo(Span<float> destination) => ReadOnlySpan.CopyTo(destination);
 
         /// <inheritdoc />
         public unsafe void CopyTo(float* destination, int offset, int stride, int count)
@@ -85,6 +85,9 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
+        public IHaveReadOnlyContiguousSpan<float>? Contiguous => this;
+
+        /// <inheritdoc />
         public virtual void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
         {
             span.CopyTo(_data.AsSpan((int)targetOffset));
@@ -94,11 +97,8 @@ namespace BrightData.LinearAlgebra.Segments
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            return GetSpan();
+            return ReadOnlySpan;
         }
-
-        /// <inheritdoc />
-        public virtual ReadOnlySpan<float> GetSpan(uint offset = 0) => _data.AsSpan((int)offset);
 
         /// <inheritdoc />
         public bool IsWrapper => false;
@@ -151,5 +151,8 @@ namespace BrightData.LinearAlgebra.Segments
 
         /// <inheritdoc />
         public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
+
+        /// <inheritdoc />
+        public virtual ReadOnlySpan<float> ReadOnlySpan => new(_data);
     }
 }

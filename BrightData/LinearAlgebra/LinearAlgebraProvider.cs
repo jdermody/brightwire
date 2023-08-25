@@ -1212,8 +1212,8 @@ namespace BrightData.LinearAlgebra
             var rowCount = matrix.RowCount;
             var ret = CreateMatrix(columnCount, rowCount, false);
             var temp = SpanOwner<float>.Empty;
-            fixed (float* matrixPtr = &MemoryMarshal.GetReference(matrix.Segment.GetSpan(ref temp, out var wasTempUsed)))
-            fixed (float* retPtr = &MemoryMarshal.GetReference(ret.Segment.GetSpan())) {
+            fixed (float* matrixPtr = matrix.Segment.GetSpan(ref temp, out var wasTempUsed))
+            fixed (float* retPtr = ret.Segment.Contiguous!.ReadOnlySpan) {
                 CacheTranspose(matrixPtr, matrix.RowCount, matrix.ColumnCount, 0, matrix.RowCount, 0, matrix.ColumnCount, retPtr);
                 if (wasTempUsed)
                     temp.Dispose();
@@ -1287,7 +1287,7 @@ namespace BrightData.LinearAlgebra
             var matrixSpan = transposedThis.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
             var otherSpan = other.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
             try {
-                var retSpan = ret.Segment.GetSpan();
+                var retSpan = ret.Segment.Contiguous!.ReadOnlySpan;
                 fixed (float* matrixPtr = matrixSpan)
                 fixed (float* otherPtr = otherSpan)
                 fixed (float* retPtr = retSpan) {

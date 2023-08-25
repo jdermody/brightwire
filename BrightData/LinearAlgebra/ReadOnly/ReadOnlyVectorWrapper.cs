@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 {
     internal class ReadOnlyVectorWrapper : IReadOnlyVector, IEquatable<ReadOnlyVectorWrapper>
     {
-        readonly ReadOnlyVectorValueSemantics<ReadOnlyVectorWrapper> _valueSemantics;
+        readonly ReadOnlyValueSemantics<ReadOnlyVectorWrapper, float> _valueSemantics;
 
         public ReadOnlyVectorWrapper(IReadOnlyNumericSegment<float> segment)
         {

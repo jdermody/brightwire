@@ -63,7 +63,6 @@ namespace BrightData.Cuda
         }
 
         public IEnumerable<float> Values => ToNewArray();
-        public float[]? GetArrayIfEasilyAvailable() => null;
 
         public MemoryOwner<float> ToNewMemoryOwner()
         {
@@ -108,6 +107,8 @@ namespace BrightData.Cuda
             throw new NotImplementedException();
         }
 
+        public IHaveReadOnlyContiguousSpan<float>? Contiguous => null;
+
         public void Clear()
         {
             DeviceMemory.Clear();
@@ -119,11 +120,6 @@ namespace BrightData.Cuda
             temp = SpanOwner<float>.Allocate((int)Size);
             DeviceMemory.CopyToHost(temp.DangerousGetArray());
             return temp.Span;
-        }
-
-        public ReadOnlySpan<float> GetSpan(uint offset)
-        {
-            throw new NotImplementedException();
         }
 
         public (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray() => (null, 0, 0);

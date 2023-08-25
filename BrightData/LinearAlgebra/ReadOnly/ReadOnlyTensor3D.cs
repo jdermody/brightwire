@@ -11,6 +11,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 {
     public class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
+        const int HeaderSize = 12;
         readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
         readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyMatrix[] _matrices;
@@ -44,12 +45,20 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
         }
 
+        public ReadOnlyTensor3D(ReadOnlyMemory<float> data, uint depth, uint rows, uint columns) : this(BuildMatrices(data.Span, depth, rows, columns))
+        {
+        }
+
         static IReadOnlyMatrix[] BuildMatrices(ReadOnlySpan<byte> data)
         {
             var columns = BinaryPrimitives.ReadUInt32LittleEndian(data);
             var rows = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
             var depth = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
-            var floats = data[12..].Cast<byte, float>();
+            return BuildMatrices(data[HeaderSize..].Cast<byte, float>(), depth, rows, columns);
+        }
+
+        static IReadOnlyMatrix[] BuildMatrices(ReadOnlySpan<float> floats, uint depth, uint rows, uint columns)
+        {
             var ret = new IReadOnlyMatrix[depth];
             var matrixSize = (int)(columns * rows);
             for (uint i = 0; i < depth; i++) {
@@ -100,7 +109,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment.Value;
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
+        public ReadOnlySpan<float> ReadOnlySpan => ReadOnlySegment.Contiguous!.ReadOnlySpan;
 
         /// <inheritdoc />
         public uint Size => MatrixSize * Depth;
@@ -159,11 +168,11 @@ namespace BrightData.LinearAlgebra.ReadOnly
             get
             {
                 var buffer = _segment.Value;
-                var ret = new Span<byte>(new byte[buffer.Size + 12]);
+                var ret = new Span<byte>(new byte[buffer.Size + HeaderSize]);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret, ColumnCount);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret[4..], RowCount);
                 BinaryPrimitives.WriteUInt32LittleEndian(ret[8..], Depth);
-                buffer.CopyTo(ret[12..].Cast<byte, float>());
+                buffer.CopyTo(ret[HeaderSize..].Cast<byte, float>());
                 return ret;
             }
         }

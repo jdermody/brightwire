@@ -4,10 +4,11 @@ using Microsoft.Win32.SafeHandles;
 using System.Buffers;
 using System.Buffers.Binary;
 
-namespace BrightData.Table.Buffer
+namespace BrightData.Table.Buffer.Composite
 {
-    internal class ManagedCompositeBuffer<T> : CompositeBufferBase<T, ManagedCompositeBuffer<T>.Block> where T: IHaveDataAsReadOnlyByteSpan
+    internal class ManagedCompositeBuffer<T> : CompositeBufferBase<T, ManagedCompositeBuffer<T>.Block> where T : IHaveDataAsReadOnlyByteSpan
     {
+        const int HeaderSize = 4;
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
         {
             public uint Size { get; private set; }
@@ -16,14 +17,15 @@ namespace BrightData.Table.Buffer
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public void WriteTo(SafeFileHandle file)
+            public void WriteTo(ITempData file)
             {
-                var offset = RandomAccess.GetLength(file);
+                var offset = file.Size;
                 using var writer = new ArrayPoolBufferWriter<byte>();
                 var memoryOwner = (IMemoryOwner<byte>)writer;
-                writer.Advance(4);
+                writer.Advance(HeaderSize);
                 var size = 0;
-                for (uint i = 0; i < Size; i++) {
+                for (uint i = 0; i < Size; i++)
+                {
                     var itemData = Data[i].DataAsBytes;
                     var span = writer.GetSpan(itemData.Length + 4);
                     BinaryPrimitives.WriteUInt32LittleEndian(span, (uint)itemData.Length);
@@ -32,7 +34,7 @@ namespace BrightData.Table.Buffer
                     size += itemData.Length + 4;
                 }
                 BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, (uint)size);
-                RandomAccess.Write(file, writer.WrittenSpan, offset);
+                file.Write(writer.WrittenSpan, offset);
             }
         }
 
@@ -40,71 +42,77 @@ namespace BrightData.Table.Buffer
 
         public ManagedCompositeBuffer(
             CreateFromReadOnlyByteSpan<T> createItem,
-            IProvideTempStreams? tempStreams = null,
+            IProvideTempData? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
-            _createItem            = createItem;
+            _createItem = createItem;
         }
 
-        protected override uint SkipFileBlock(SafeFileHandle file, long offset)
+        protected override async Task<uint> SkipFileBlock(ITempData file, uint offset)
         {
-            Span<byte> lengthBytes = stackalloc byte[4];
+            var lengthBytes = new byte[HeaderSize];
+            await file.ReadAsync(lengthBytes, offset);
             var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
-            return blockSize + 4;
+            return blockSize + HeaderSize;
         }
 
-        protected override ReadOnlyMemory<T> GetBlockFromFile(SafeFileHandle file, long offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(ITempData file, uint offset)
         {
-            var (_, buffer) = ReadBuffer(file, offset);
-            try {
+            var (blockSize, buffer) = await ReadBuffer(file, offset);
+            try
+            {
                 var buffer2 = new Memory<T>(new T[_blockSize]);
                 Copy(buffer.Span, buffer2.Span);
-                return buffer2;
+                return (blockSize + HeaderSize, buffer2);
             }
-            finally {
+            finally
+            {
                 buffer.Dispose();
             }
         }
 
-        protected override uint GetBlockFromFile(SafeFileHandle file, long offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback)
         {
-            var (blockSize, buffer) = ReadBuffer(file, offset);
-            try {
-                using var buffer2 = SpanOwner<T>.Allocate(_blockSize);
+            var (blockSize, buffer) = await ReadBuffer(file, offset);
+            try
+            {
+                using var buffer2 = MemoryOwner<T>.Allocate(_blockSize);
                 Copy(buffer.Span, buffer2.Span);
                 callback(buffer2.Span);
-                return blockSize + 4;
+                return blockSize + HeaderSize;
             }
-            finally {
+            finally
+            {
                 buffer.Dispose();
             }
         }
 
         void Copy(ReadOnlySpan<byte> inputSpan, Span<T> outputSpan)
         {
-            for (var i = 0; i < _blockSize; i++) {
+            for (var i = 0; i < _blockSize; i++)
+            {
                 var itemSize = BinaryPrimitives.ReadUInt32LittleEndian(inputSpan);
-                var itemData = inputSpan[4..(int)(itemSize + 4)];
+                var itemData = inputSpan[HeaderSize..(int)(itemSize + 4)];
                 outputSpan[i] = _createItem(itemData);
-                inputSpan = inputSpan[(int)(itemSize + 4)..];
+                inputSpan = inputSpan[(int)(itemSize + HeaderSize)..];
             }
         }
 
-        static (uint BlockSize, MemoryOwner<byte> Buffer) ReadBuffer(SafeFileHandle file, long offset)
+        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(ITempData file, uint offset)
         {
-            Span<byte> lengthBytes = stackalloc byte[4];
-            RandomAccess.Read(file, lengthBytes, offset);
+            var lengthBytes = new byte[HeaderSize];
+            await file.ReadAsync(lengthBytes, offset);
             var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
-            offset += 4;
+            offset += HeaderSize;
             var buffer = MemoryOwner<byte>.Allocate((int)blockSize);
-            var inputSpan = buffer.Span;
-            var readCount = 0;
-            do {
-                readCount += RandomAccess.Read(file, inputSpan[readCount..], offset + readCount);
-            }while(readCount < blockSize);
+            uint readCount = 0;
+            do
+            {
+                readCount += await file.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
+            } while (readCount < blockSize);
 
             return (blockSize, buffer);
         }

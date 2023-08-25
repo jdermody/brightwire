@@ -51,9 +51,9 @@ namespace BrightData.DataTable.TensorData
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
-            return FloatSpan;
+            return ReadOnlySpan;
         }
-        public ReadOnlySpan<float> FloatSpan => _data.GetSpan(_startIndex, Size);
+        public ReadOnlySpan<float> ReadOnlySpan => _data.GetSpan(_startIndex, Size);
 
         public IMatrix Create(LinearAlgebraProvider lap)
         {

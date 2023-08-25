@@ -9,24 +9,24 @@ using System.Xml;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>, IHaveDataAsReadOnlyByteSpan
+    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>, IHaveDataAsReadOnlyByteSpan, IHaveSize, IHaveSpanOf<WeightedIndexList.Item>, IHaveReadOnlyContiguousSpan<WeightedIndexList.Item>
     {
-        readonly Item[] _indices;
+        readonly ReadOnlyMemory<Item> _indices;
 
         /// <summary>
         /// Creates a weighted index list from an array of indices
         /// </summary>
         /// <param name="indices">Weighted indices</param>
-        public WeightedIndexList(Item[] indices)
-        {
-            _indices = indices;
-        }
+        public WeightedIndexList(params Item[] indices) => _indices = indices;
+
+        public WeightedIndexList(ReadOnlyMemory<Item> indices) => _indices = indices;
 
         /// <summary>
         /// Creates a weighted index list from a byte span
@@ -40,19 +40,26 @@ namespace BrightData
         /// <summary>
         /// Weighted indices
         /// </summary>
-        public IReadOnlyList<Item> Indices => _indices;
+        public IEnumerable<Item> Indices
+        {
+            get
+            {
+                for (var i = 0; i < _indices.Length; i++)
+                    yield return _indices.Span[i];
+            }
+        }
 
         /// <summary>
         /// Returns a span of the weighted indices
         /// </summary>
         /// <returns></returns>
-        public ReadOnlySpan<Item> AsSpan() => new(_indices);
+        public ReadOnlySpan<Item> AsSpan() => _indices.Span;
 
         /// <summary>
         /// An item within a weighted index list
         /// </summary>
         //[StructLayout(LayoutKind.Sequential, Pack=0)]
-        public readonly record struct Item : IEquatable<Item>
+        public readonly record struct Item
         {
             /// <summary>
             /// Index of item
@@ -90,10 +97,10 @@ namespace BrightData
         /// </summary>
         public ref struct ItemIterator
         {
-            readonly Item[] _items;
+            readonly ReadOnlySpan<Item> _items;
             int _pos = -1;
 
-            internal ItemIterator(Item[] items) => _items = items;
+            internal ItemIterator(ReadOnlySpan<Item> items) => _items = items;
 
             /// <summary>
             /// Current item
@@ -125,7 +132,7 @@ namespace BrightData
         /// Enumerates the weighted indices in the list
         /// </summary>
         /// <returns></returns>
-        public ItemIterator GetEnumerator() => new(_indices);
+        public ItemIterator GetEnumerator() => new(_indices.Span);
 
         /// <summary>
         /// Creates a new weighted index list
@@ -167,19 +174,19 @@ namespace BrightData
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => _indices.Length;
+        public uint Size => (uint)_indices.Length;
 
         /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
         {
-            if (Count < 32)
+            if (Size < 32)
             {
                 var indices = String.Join('|', Indices);
                 return $"Weighted Index List - {indices}";
             }
-            return $"Weighted Index List ({Count} indices)";
+            return $"Weighted Index List ({Size} indices)";
         }
 
         /// <inheritdoc />
@@ -240,8 +247,8 @@ namespace BrightData
         /// <param name="writer"></param>
         public unsafe void WriteTo(BinaryWriter writer)
         {
-            writer.Write(Count);
-            fixed (Item* ptr = _indices) {
+            writer.Write(Size);
+            fixed (Item* ptr = _indices.Span) {
                 writer.Write(new ReadOnlySpan<byte>(ptr, _indices.Length * sizeof(Item)));
             }
         }
@@ -276,7 +283,7 @@ namespace BrightData
         {
             var ret = 0f;
             var otherTable = other.Indices.ToDictionary(d => d.Index, d => d.Weight);
-            foreach (var item in Indices)
+            foreach (ref readonly var item in ReadOnlySpan)
             {
                 if (otherTable.TryGetValue(item.Index, out var otherWeight))
                     ret += otherWeight * item.Weight;
@@ -287,7 +294,7 @@ namespace BrightData
         /// <summary>
         /// Magnitude of weights
         /// </summary>
-        public float Magnitude => Indices.Any()
+        public float Magnitude => Size > 0
             ? FloatMath.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
             : 0f
         ;
@@ -307,10 +314,10 @@ namespace BrightData
         public float EuclideanDistance(WeightedIndexList other)
         {
             var data = new Dictionary<uint /* index */, (float Weight1, float Weight2)>();
-            foreach (var item in _indices)
+            foreach (ref readonly var item in _indices.Span)
                 data[item.Index] = (item.Weight, 0f);
 
-            foreach (var item in other._indices) {
+            foreach (ref readonly var item in other._indices.Span) {
                 var index = item.Index;
                 if (data.TryGetValue(index, out var pair))
                     data[index] = (pair.Weight1, item.Weight);
@@ -328,7 +335,7 @@ namespace BrightData
         /// <summary>
         /// Returns the index with the highest weight
         /// </summary>
-        public float GetMaxWeight() => Indices.Any()
+        public float GetMaxWeight() => Size > 0
             ? Indices.Max(item => item.Weight)
             : float.NaN
         ;
@@ -367,7 +374,7 @@ namespace BrightData
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
 
-            foreach (var item in Indices) {
+            foreach (ref readonly var item in _indices.Span) {
                 if (maxIndex.HasValue && item.Index > maxIndex.Value)
                     continue;
 
@@ -382,8 +389,13 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
-        public override int GetHashCode() => ((IStructuralEquatable)Indices).GetHashCode(EqualityComparer<Item>.Default);
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            foreach (var item in _indices.Span)
+                hashCode.Add(item);
+            return hashCode.ToHashCode();
+        }
 
         /// <summary>
         /// Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type
@@ -408,6 +420,12 @@ namespace BrightData
         /// <inheritdoc />
         public bool Equals(WeightedIndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
 
+        public ReadOnlySpan<Item> GetSpan(ref SpanOwner<Item> temp, out bool wasTempUsed)
+        {
+            wasTempUsed = false;
+            return _indices.Span;
+        }
+
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
@@ -431,6 +449,8 @@ namespace BrightData
         public static bool operator !=(WeightedIndexList lhs, WeightedIndexList rhs) => !lhs.Equals(rhs);
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => _indices.AsSpan().AsBytes();
+        public ReadOnlySpan<byte> DataAsBytes => _indices.Span.AsBytes();
+
+        public ReadOnlySpan<Item> ReadOnlySpan => _indices.Span;
     }
 }

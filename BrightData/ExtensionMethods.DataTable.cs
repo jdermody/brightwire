@@ -909,7 +909,7 @@ namespace BrightData
             IVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
-                foreach (var item in weightedIndexList.Indices)
+                foreach (ref readonly var item in weightedIndexList.ReadOnlySpan)
                     ret[item.Index] = item.Weight;
                 return lap.CreateVector(ret);
             }
@@ -1371,13 +1371,13 @@ namespace BrightData
                     sb.Append('(');
                     if (metaData.Has(Consts.YDimension)) {
                         if (metaData.Has(Consts.ZDimension)) {
-                            sb.Append(metaData.Get<uint>(Consts.ZDimension));
+                            sb.Append(metaData.GetOrThrow<uint>(Consts.ZDimension));
                             sb.Append(", ");
                         }
-                        sb.Append(metaData.Get<uint>(Consts.YDimension));
+                        sb.Append(metaData.GetOrThrow<uint>(Consts.YDimension));
                         sb.Append(", ");
                     }
-                    sb.Append(metaData.Get<uint>(Consts.XDimension));
+                    sb.Append(metaData.GetOrThrow<uint>(Consts.XDimension));
                     sb.Append(')');
                 }
 

@@ -94,6 +94,8 @@
         public const string FilePath                         = "FilePath";
         public const string BaseTempPath                     = "BaseTempPath";
         public const string ArrayBased                       = "ArrayBased";
+        public const string MemoryOwnerBased                 = "MemoryOwnerBased";
+        public const string MemoryBased                      = "MemoryBased";
         public const string DateTimeCreated                  = "DateTimeCreated";
         public const string CustomColumnReaders              = "CustomColumnReaders";
         public const string DefaultLinearAlgebraProviderName = "default";

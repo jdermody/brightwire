@@ -11,22 +11,59 @@ using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Table
 {
-    public interface IProvideTempStreams
+    public interface IDataTable : IDisposable, IHaveMetaData
     {
-        SafeFileHandle Get(Guid id);
+        uint RowCount { get; }
+        uint ColumnCount { get; }
+        DataTableOrientation Orientation { get; }
+        void PersistMetaData();
+        IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
+    }
+
+    public interface ITempData : IDisposable, IHaveSize
+    {
+        public Guid Id { get; }
+        void Write(ReadOnlySpan<byte> data, uint offset);
+        ValueTask WriteAsync(ReadOnlyMemory<byte> data, uint offset);
+        uint Read(Span<byte> data, uint offset);
+        Task<uint> ReadAsync(Memory<byte> data, uint offset);
+    }
+
+    public interface IProvideTempData
+    {
+        ITempData Get(Guid id);
         void Clear();
     }
 
     public delegate void BlockCallback<T>(ReadOnlySpan<T> block);
     public delegate T CreateFromReadOnlyByteSpan<out T>(ReadOnlySpan<byte> data) where T: IHaveDataAsReadOnlyByteSpan;
 
-    public interface ICompositeBuffer : IHaveSize, IHaveMetaData
+    public interface IReadOnlyBuffer
+    {
+        public uint BlockSize { get; }
+        public uint BlockCount { get; }
+        Type DataType { get; }
+    }
+
+    public interface IReadOnlyBuffer<T> : IReadOnlyBuffer where T : notnull
+    {
+        Task ForEachBlock(BlockCallback<T> callback);
+        Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex);
+        IAsyncEnumerable<T> EnumerateAll();
+        IAsyncEnumerator<T> GetAsyncEnumerator();
+    }
+
+    public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData
+    {
+    }
+    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IHaveMetaData where T : notnull
+    {
+    }
+
+    public interface ICompositeBuffer : IHaveSize, IReadOnlyBufferWithMetaData
     {
         public Guid Id { get; }
-        public new MetaData MetaData { get; set; }
-        public uint BlockCount { get; }
         uint? DistinctItems { get; }
-        Type DataType { get; }
     }
 
     /// <summary>
@@ -34,17 +71,17 @@ namespace BrightData.Table
     /// * Not thread safe *
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICompositeBuffer<T> : ICompositeBuffer where T: notnull
+    public interface ICompositeBuffer<T> : IReadOnlyBuffer<T>, ICompositeBuffer where T: notnull
     {
-        Task ForEachBlock(BlockCallback<T> callback);
-        Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex);
         void Add(in T item);
         void Add(ReadOnlySpan<T> inputBlock);
+        IReadOnlySet<T>? DistinctSet { get; }
     }
 
-    public interface IByteReader : IDisposable
+    public interface IByteBlockReader : IDisposable, IHaveSize
     {
-        Task<ReadOnlyMemory<byte>> GetBlock(uint offset, uint numBytes);
+        Task<ReadOnlyMemory<byte>> GetBlock(uint byteOffset, uint numBytes);
+        Task Update(uint byteOffset, ReadOnlyMemory<byte> data);
     }
 
     internal record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;

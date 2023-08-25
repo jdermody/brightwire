@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 using BrightWire.Models.Bayesian;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,10 @@ namespace BrightWire.Bayesian
             }
             public string Label { get; }
 
-	        public double GetScore(IEnumerable<uint> stringIndexList)
+	        public double GetScore(ReadOnlyMemory<uint> stringIndexList)
             {
                 var score = _prior;
-                foreach (var item in stringIndexList) {
+                foreach (var item in stringIndexList.Span) {
                     if (_index.TryGetValue(item, out var temp))
                         score += temp;
                     else
@@ -43,7 +44,7 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(c)).ToList();
         }
 
-        IEnumerable<(string Classification, double Score)> Classify(IReadOnlyList<uint> stringIndexList)
+        IEnumerable<(string Classification, double Score)> Classify(ReadOnlyMemory<uint> stringIndexList)
         {
             foreach (var cls in _classification)
                 yield return (cls.Label, cls.GetScore(stringIndexList));
@@ -54,7 +55,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         public (string Label, float Weight)[] Classify(IndexList indexList)
         {
-            return Classify(indexList.Indices)
+            return Classify(indexList.ReadOnlyMemory)
                 .OrderByDescending(kv => kv.Score)
                 .Take(1)
                 .Select((d, _) => (d.Classification, 1f))

@@ -139,11 +139,10 @@ namespace BrightData
         unsafe void CopyTo(T* destination, int sourceOffset, int stride, int count);
 
         /// <summary>
-        /// Returns a span from the current segment
+        /// Tries to return a contiguous span from the current segment if possible
         /// </summary>
-        /// <param name="offset">Index within this segment to return</param>
         /// <returns></returns>
-        ReadOnlySpan<T> GetSpan(uint offset = 0);
+        IHaveReadOnlyContiguousSpan<float>? Contiguous { get; }
 
         /// <summary>
         /// True if the segment wraps another segment
@@ -236,7 +235,7 @@ namespace BrightData
         /// <summary>
         /// A read only span of floats
         /// </summary>
-        ReadOnlySpan<T> FloatSpan { get; }
+        ReadOnlySpan<T> ReadOnlySpan { get; }
     }
 
     /// <summary>

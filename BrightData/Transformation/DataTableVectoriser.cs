@@ -403,13 +403,13 @@ namespace BrightData.Transformation
             }
 
             if ((columnClass & ColumnClass.Tensor) != 0)
-                return new TensorVectoriser(analysedMetaData.Get<uint>(Consts.Size), column);
+                return new TensorVectoriser(analysedMetaData.GetOrThrow<uint>(Consts.Size), column);
 
             if (type == BrightDataType.WeightedIndexList)
-                return new WeightedIndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
+                return new WeightedIndexListVectoriser(analysedMetaData.GetOrThrow<uint>(Consts.MaxIndex), column);
 
             if (type == BrightDataType.IndexList)
-                return new IndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
+                return new IndexListVectoriser(analysedMetaData.GetOrThrow<uint>(Consts.MaxIndex), column);
 
             throw new NotImplementedException();
         }

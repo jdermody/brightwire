@@ -11,7 +11,7 @@ namespace BrightData.DataTable.TensorData
 {
     internal class VectorData : IReadOnlyVector, IEquatable<VectorData>
     {
-        readonly ReadOnlyVectorValueSemantics<VectorData> _valueSemantics;
+        readonly ReadOnlyValueSemantics<VectorData, float> _valueSemantics;
         ICanRandomlyAccessUnmanagedData<float> _data;
         IReadOnlyNumericSegment<float>? _segment;
         uint _startIndex;

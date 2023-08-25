@@ -14,6 +14,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         public ReadOnlyMatrixWrapper(IReadOnlyNumericSegment<float> segment, uint rowCount, uint columnCount)
         {
+            if(segment.Contiguous is null)
+                throw new ArgumentNullException(nameof(segment), "Expected a contiguous segment");
             RowCount = rowCount;
             ColumnCount = columnCount;
             ReadOnlySegment = segment;
@@ -41,7 +43,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             throw new NotImplementedException();
         }
 
-        public ReadOnlySpan<float> FloatSpan => ReadOnlySegment.GetSpan();
+        public ReadOnlySpan<float> ReadOnlySpan => ReadOnlySegment.Contiguous!.ReadOnlySpan;
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public uint RowCount { get; }
         public uint ColumnCount { get; }

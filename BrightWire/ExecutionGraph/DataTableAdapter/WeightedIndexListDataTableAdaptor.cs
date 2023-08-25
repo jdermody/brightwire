@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public float[] Encode(WeightedIndexList indexList)
         {
             var ret = new float[InputSize];
-            foreach (var item in indexList.Indices)
+            foreach (ref readonly var item in indexList.ReadOnlySpan)
                 ret[item.Index] = item.Weight;
             return ret;
         }

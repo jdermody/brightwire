@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Table.Buffer;
+using BrightData.Table.Buffer.Composite;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Table.Helper
@@ -67,7 +68,7 @@ namespace BrightData.Table.Helper
 
         readonly bool _firstRowIsHeader;
         readonly char _delimiter, _quote;
-        readonly IProvideTempStreams? _tempStreams;
+        readonly IProvideTempData? _tempStreams;
         readonly int _blockSize;
         readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
 
@@ -75,7 +76,7 @@ namespace BrightData.Table.Helper
             bool firstRowIsHeader,
             char delimiter, 
             char quote = '"',
-            IProvideTempStreams? tempStreams = null,
+            IProvideTempData? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
