@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightData.Analysis
@@ -22,6 +23,12 @@ namespace BrightData.Analysis
         {
             foreach(var index in obj.Indices)
                 Add(index);
+        }
+
+        public void Add(ReadOnlySpan<IHaveIndices> block)
+        {
+            foreach(ref readonly var item in block)
+                Add(item);
         }
 
         void Add(uint index)

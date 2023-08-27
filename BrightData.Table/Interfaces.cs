@@ -38,19 +38,20 @@ namespace BrightData.Table
     public delegate void BlockCallback<T>(ReadOnlySpan<T> block);
     public delegate T CreateFromReadOnlyByteSpan<out T>(ReadOnlySpan<byte> data) where T: IHaveDataAsReadOnlyByteSpan;
 
-    public interface IReadOnlyBuffer
+    public interface IReadOnlyBuffer : IHaveSize
     {
         public uint BlockSize { get; }
         public uint BlockCount { get; }
         Type DataType { get; }
+        IAsyncEnumerable<object> EnumerateAll();
     }
 
     public interface IReadOnlyBuffer<T> : IReadOnlyBuffer where T : notnull
     {
-        Task ForEachBlock(BlockCallback<T> callback);
+        Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default);
         Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex);
-        IAsyncEnumerable<T> EnumerateAll();
-        IAsyncEnumerator<T> GetAsyncEnumerator();
+        IAsyncEnumerable<T> EnumerateAllTyped();
+        IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default);
     }
 
     public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData
@@ -66,15 +67,18 @@ namespace BrightData.Table
         uint? DistinctItems { get; }
     }
 
-    /// <summary>
-    /// Composite buffers add data in memory until a pre specified limit and then store the remainder in a temp file
-    /// * Not thread safe *
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ICompositeBuffer<T> : IReadOnlyBuffer<T>, ICompositeBuffer where T: notnull
+    public interface IAppendToBuffer<T> where T: notnull
     {
         void Add(in T item);
         void Add(ReadOnlySpan<T> inputBlock);
+    }
+
+    /// <summary>
+    /// Composite buffers add data in memory until a pre specified limit and then store the remainder in a temp file
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBuffer<T>, IAppendToBuffer<T> where T: notnull
+    {
         IReadOnlySet<T>? DistinctSet { get; }
     }
 
@@ -99,5 +103,10 @@ namespace BrightData.Table
     internal record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
     {
         public readonly uint Size => Count * Depth * RowCount * ColumnCount;
+    }
+
+    public interface IOperation
+    {
+        Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default);
     }
 }

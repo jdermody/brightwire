@@ -131,13 +131,7 @@ namespace BrightData
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
         {
             var columns = rows[0].Size;
-            var ret = new ReadOnlyMatrix(new float[rows.Length * columns], (uint)rows.Length, columns);
-            for (var i = 0; i < rows.Length; i++) {
-                var source = rows[i];
-                var target = ret.Row((uint)i);
-                source.ReadOnlySegment.CopyTo(target);
-            } 
-            return ret;
+            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
         }
 
         /// <summary>
@@ -149,13 +143,7 @@ namespace BrightData
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params float[][] rows)
         {
             var columns = (uint)rows[0].Length;
-            var ret = new ReadOnlyMatrix((uint)rows.Length, columns);
-            for (var i = 0; i < rows.Length; i++) {
-                var source = rows[i];
-                var target = ret.Row((uint)i);
-                target.CopyFrom(source.AsSpan(), 0);
-            } 
-            return ret;
+            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
         }
 
         /// <summary>
@@ -167,13 +155,7 @@ namespace BrightData
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params IReadOnlyVector[] columns)
         {
             var rows = columns[0].Size;
-            var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
-            for (var i = 0; i < columns.Length; i++) {
-                var source = columns[i];
-                var target = ret.Column((uint)i);
-                source.ReadOnlySegment.CopyTo(target);
-            } 
-            return ret;
+            return new ReadOnlyMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
         }
 
         /// <summary>
@@ -185,13 +167,7 @@ namespace BrightData
         public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params float[][] columns)
         {
             var rows = (uint)columns[0].Length;
-            var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
-            for (var i = 0; i < columns.Length; i++) {
-                var source = columns[i];
-                var target = ret.Column((uint)i);
-                target.CopyFrom(source.AsSpan(), 0);
-            } 
-            return ret;
+            return new ReadOnlyMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
         }
 
         /// <summary>

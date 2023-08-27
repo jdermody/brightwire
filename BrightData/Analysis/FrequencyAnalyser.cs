@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightData.Analysis
@@ -44,6 +45,12 @@ namespace BrightData.Analysis
         }
 
         public void AddObject(object obj) => AddString(obj.ToString());
+
+        public void Add(ReadOnlySpan<T> block)
+        {
+            foreach(ref readonly var item in block)
+                Add(item);
+        }
 
         public virtual void WriteTo(MetaData metadata)
         {

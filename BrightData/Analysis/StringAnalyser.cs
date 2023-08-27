@@ -1,4 +1,6 @@
-﻿namespace BrightData.Analysis
+﻿using System;
+
+namespace BrightData.Analysis
 {
     /// <summary>
     /// String analysis
@@ -21,6 +23,12 @@
                 if (len > _maxLength)
                     _maxLength = len;
             }
+        }
+
+        public void Add(ReadOnlySpan<string> span)
+        {
+            foreach(var item in span)
+                Add(item);
         }
 
         public override void WriteTo(MetaData metadata)

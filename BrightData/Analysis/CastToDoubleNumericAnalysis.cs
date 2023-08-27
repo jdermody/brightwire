@@ -1,4 +1,5 @@
-﻿using BrightData.Converter;
+﻿using System;
+using BrightData.Converter;
 
 namespace BrightData.Analysis
 {
@@ -25,6 +26,12 @@ namespace BrightData.Analysis
         public void AddObject(object obj)
         {
             Add((T)obj);
+        }
+
+        public void Add(ReadOnlySpan<T> block)
+        {
+            foreach(ref readonly var item in block)
+                Analysis.Add(_converter.Convert(item));
         }
 
         public void WriteTo(MetaData metadata)

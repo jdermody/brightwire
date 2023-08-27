@@ -57,6 +57,12 @@ namespace BrightData.Analysis
 			_l2 += val * val;
 		}
 
+        public void Add(ReadOnlySpan<double> span)
+        {
+            foreach(var item in span)
+                Add(item);
+        }
+
 		public double L1Norm => _l1;
 	    public double L2Norm => Math.Sqrt(_l2);
 	    public double Min => _min;

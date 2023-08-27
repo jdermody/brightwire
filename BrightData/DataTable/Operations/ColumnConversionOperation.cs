@@ -7,7 +7,7 @@ namespace BrightData.DataTable.Operations
     {
         readonly ICanEnumerateDisposable<FT> _input;
         readonly IConvertColumn<FT, TT>      _converter;
-        readonly CompositeBufferSegment<TT>     _outputBuffer;
+        readonly CompositeBufferSegment<TT>  _outputBuffer;
         readonly IEnumerator<FT>             _enumerator;
 
         public ColumnConversionOperation(

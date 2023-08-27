@@ -53,32 +53,56 @@ namespace BrightData.Table.Buffer.Composite
         public uint? DistinctItems => (uint?)_distinct?.Count;
         public Type DataType => typeof(T);
 
-        public virtual async Task ForEachBlock(BlockCallback<T> callback)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
         {
+            var guid = Guid.NewGuid();
+            notify?.OnStartOperation(guid, message);
+            var count = 0;
+
+            // read from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                foreach (var block in _inMemoryBlocks) {
+                    if (ct.IsCancellationRequested)
+                        break;
+                    callback(block.WrittenSpan);
+                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
+                }
+            }
+
             // read from the file
             if (_tempData != null)
             {
                 uint fileLength = _tempData.Size, offset = 0;
-                while (offset < fileLength)
+                while (offset < fileLength && !ct.IsCancellationRequested)
                 {
                     offset += await GetBlockFromFile(_tempData, offset, callback);
+                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
                 }
             }
 
-            // then from in memory blocks
+            // then from the current block
+            if (_currBlock is not null && !ct.IsCancellationRequested) {
+                callback(_currBlock.WrittenSpan);
+                notify?.OnOperationProgress(guid, (float)++count / BlockCount);
+            }
+            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
+        }
+
+        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        {
+            // read from in memory blocks
             if (_inMemoryBlocks is not null)
             {
                 foreach (var block in _inMemoryBlocks)
-                    callback(block.WrittenSpan);
+                {
+                    var data = block.WrittenMemory;
+                    for (var i = 0; i < data.Length; i++) {
+                        yield return data.Span[i];
+                    }
+                }
             }
 
-            // then from the current block
-            if (_currBlock is not null)
-                callback(_currBlock.WrittenSpan);
-        }
-
-        public async IAsyncEnumerable<T> EnumerateAll()
-        {
             // read from the file
             if (_tempData != null)
             {
@@ -93,18 +117,6 @@ namespace BrightData.Table.Buffer.Composite
                 }
             }
 
-            // then from in memory blocks
-            if (_inMemoryBlocks is not null)
-            {
-                foreach (var block in _inMemoryBlocks)
-                {
-                    var data = block.WrittenMemory;
-                    for (var i = 0; i < data.Length; i++) {
-                        yield return data.Span[i];
-                    }
-                }
-            }
-
             if (_currBlock is not null) {
                 for (var i = 0; i < _currBlock.WrittenMemory.Length; i++) {
                     yield return _currBlock.WrittenMemory.Span[i];
@@ -112,9 +124,32 @@ namespace BrightData.Table.Buffer.Composite
             }
         }
 
+        public async IAsyncEnumerable<object> EnumerateAll()
+        {
+            await foreach(var item in EnumerateAllTyped())
+                yield return item;
+        }
+
         public virtual async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
         {
             uint currentIndex = 0;
+
+            // read from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
+                {
+                    foreach (var block in _inMemoryBlocks)
+                    {
+                        if (currentIndex++ == blockIndex)
+                        {
+                            return block.WrittenMemory;
+                        }
+                    }
+                }
+                else
+                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
+            }
 
             // read from the file
             if (_tempData != null)
@@ -133,30 +168,13 @@ namespace BrightData.Table.Buffer.Composite
                     currentIndex = _blocksInFile;
             }
 
-            // then from in memory blocks
-            if (_inMemoryBlocks is not null)
-            {
-                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
-                {
-                    foreach (var block in _inMemoryBlocks)
-                    {
-                        if (currentIndex++ == blockIndex)
-                        {
-                            return block.WrittenMemory;
-                        }
-                    }
-                }
-                else
-                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
-            }
-
             // then from the current block
             if (_currBlock is not null && currentIndex == blockIndex)
                 return _currBlock.WrittenMemory;
             throw new Exception("Unexpected - failed to find block");
         }
 
-        public IAsyncEnumerator<T> GetAsyncEnumerator() => EnumerateAll().GetAsyncEnumerator();
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
         public virtual void Add(in T item)
         {

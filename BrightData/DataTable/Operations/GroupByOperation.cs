@@ -6,14 +6,14 @@ namespace BrightData.DataTable.Operations
 {
     internal class GroupByOperation : OperationBase<(string Label, ICompositeBuffer[] ColumnData)[]>
     {
-        readonly BrightDataContext                   _context;
-        readonly IProvideTempStreams                 _tempStreams;
-        readonly uint[]                              _groupByColumnIndices;
-        readonly MetaData[]                          _columnMetaData;
-        readonly ICanEnumerateDisposable[]           _columns;
-        readonly IEnumerator<object>[]               _enumerators;
+        readonly BrightDataContext                      _context;
+        readonly IProvideTempStreams                    _tempStreams;
+        readonly uint[]                                 _groupByColumnIndices;
+        readonly MetaData[]                             _columnMetaData;
+        readonly ICanEnumerateDisposable[]              _columns;
+        readonly IEnumerator<object>[]                  _enumerators;
         readonly Dictionary<string, ICompositeBuffer[]> _groups = new();
-        readonly object[]                            _row;
+        readonly object[]                               _row;
 
         public GroupByOperation(
             BrightDataContext context,

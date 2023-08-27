@@ -46,6 +46,7 @@ namespace BrightData.Table
         }
 
         public override IReadOnlyBuffer<T> GetColumn<T>(uint index) => (IReadOnlyBuffer<T>)_columnReader[index];
+        protected override IReadOnlyBuffer GetColumn(uint index) => _columnReader[index];
 
         IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
             new BlockReaderReadOnlyBuffer<T>(_columnMetaData[columnIndex], _reader, offset, size, ReaderBlockSize);

@@ -153,8 +153,9 @@ namespace BrightData
     /// Typed data analyser
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<in T> : IAcceptSequentialTypedData<T>, IDataAnalyser where T : notnull
+    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IDataAnalyser where T : notnull
     {
+        void Add(ReadOnlySpan<T> block);
     }
 
     /// <summary>
@@ -611,21 +612,21 @@ namespace BrightData
         /// </summary>
         /// <param name="operationId">Unique id for this operation</param>
         /// <param name="msg">Optional message associated with the operation</param>
-        void OnStartOperation(string operationId, string? msg = null);
+        void OnStartOperation(Guid operationId, string? msg = null);
 
         /// <summary>
         /// Called when the operation has progressed
         /// </summary>
         /// <param name="operationId">Unique id for this operation</param>
         /// <param name="progressPercent">Progress percentage (between 0 and 1)</param>
-        void OnOperationProgress(string operationId, float progressPercent);
+        void OnOperationProgress(Guid operationId, float progressPercent);
 
         /// <summary>
         /// Called when the operation has completed
         /// </summary>
         /// <param name="operationId">Unique id for this operation</param>
         /// <param name="wasCancelled">True if the operation was cancelled</param>
-        void OnCompleteOperation(string operationId, bool wasCancelled);
+        void OnCompleteOperation(Guid operationId, bool wasCancelled);
 
         /// <summary>
         /// Called to notify the user

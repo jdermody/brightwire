@@ -4342,6 +4342,29 @@
             <param name="callback"></param>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
+        <member name="T:BrightData.ExtensionMethods.OnReadOnlySpan`1">
+            <summary>
+            Callback that takes a single readonly span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpan``1(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.ExtensionMethods.OnReadOnlySpan{System.Single})">
+            <summary>
+            Passes the segment as a readonly span into a callback function
+            </summary>
+            <param name="segment"></param>
+            <param name="callback"></param>
+            <typeparam name="CT"></typeparam>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetReadOnlySpan``1(BrightData.IHaveSpanOf{``0},BrightData.ExtensionMethods.OnReadOnlySpan{``0})">
+            <summary>
+            Invokes the callback with the contents of the span
+            </summary>
+            <param name="spanContainer"></param>
+            <param name="callback"></param>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
             <summary>
             Creates a data field specification for a data type
@@ -4911,7 +4934,7 @@
             <param name="indices"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.IndexList.Count">
+        <member name="P:BrightData.IndexList.Size">
             <summary>
             The number of items in the list
             </summary>
@@ -4922,6 +4945,9 @@
             </summary>
         </member>
         <member name="M:BrightData.IndexList.Equals(BrightData.IndexList)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.IndexList.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.UInt32}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.Equals(System.Object)">
@@ -5003,6 +5029,9 @@
             <returns></returns>
         </member>
         <member name="P:BrightData.IndexList.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.IndexList.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="T:BrightData.IHaveBrightDataContext">
@@ -6343,11 +6372,10 @@
             <param name="stride">Increment after each copy</param>
             <param name="count">Number of elements to copy</param>
         </member>
-        <member name="M:BrightData.IReadOnlyNumericSegment`1.GetSpan(System.UInt32)">
+        <member name="P:BrightData.IReadOnlyNumericSegment`1.Contiguous">
             <summary>
-            Returns a span from the current segment
+            Tries to return a contiguous span from the current segment if possible
             </summary>
-            <param name="offset">Index within this segment to return</param>
             <returns></returns>
         </member>
         <member name="P:BrightData.IReadOnlyNumericSegment`1.IsWrapper">
@@ -6431,7 +6459,7 @@
             Indicates that the type has a contiguous read only float span
             </summary>
         </member>
-        <member name="P:BrightData.IHaveReadOnlyContiguousSpan`1.FloatSpan">
+        <member name="P:BrightData.IHaveReadOnlyContiguousSpan`1.ReadOnlySpan">
             <summary>
             A read only span of floats
             </summary>
@@ -8478,9 +8506,6 @@
         <member name="M:BrightData.LinearAlgebra.BrightVector`1.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.BrightVector`1.DataAsBytes">
-            <inheritdoc />
-        </member>
         <member name="T:BrightData.LinearAlgebra.BrightVector">
             <summary>
             Vector
@@ -9878,7 +9903,7 @@
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.FloatSpan">
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Size">
@@ -9926,6 +9951,11 @@
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.ToString">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.Values">
+            <summary>
+            Enumerates all values in the matrix
+            </summary>
+        </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix.DataAsBytes">
             <inheritdoc />
         </member>
@@ -9941,7 +9971,7 @@
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.ReadOnlySegment">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.FloatSpan">
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D.Size">
@@ -10001,7 +10031,7 @@
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.FloatSpan">
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D.Size">
@@ -10110,13 +10140,13 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.Contiguous">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetSpan(System.UInt32)">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.IsWrapper">
@@ -10141,6 +10171,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.GetUnderlyingArray">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="T:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment">
@@ -10184,7 +10217,51 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.CopyTo(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.GetSpan(System.UInt32)">
+        <member name="P:BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment">
+            <summary>
+            A tensor segment that temporarily owns a buffer from an array pool
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.#ctor(CommunityToolkit.HighPerformance.Buffers.MemoryOwner{System.Single})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Rented buffer from pool</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.AddRef">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.Release">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.IsValid">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.SegmentType">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.Values">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.ToNewArray">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.CopyTo(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment.ReadOnlySpan">
             <inheritdoc />
         </member>
         <member name="T:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper">
@@ -10264,10 +10341,10 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.CopyTo(System.Single*,System.Int32,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
+        <member name="P:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.Contiguous">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.Single}@,System.Boolean@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper.ToString">
@@ -10303,9 +10380,6 @@
         </member>
         <member name="P:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.Item(System.UInt64)">
             <inheritdoc cref="T:BrightData.INumericSegment`1" />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.GetArrayIfEasilyAvailable">
-            <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.CopyFrom(System.ReadOnlySpan{System.Single},System.UInt32)">
             <inheritdoc />
@@ -10780,7 +10854,7 @@
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Count">
+        <member name="P:BrightData.WeightedIndexList.Size">
             <summary>
             The number of items in the list
             </summary>

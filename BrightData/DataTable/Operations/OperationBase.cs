@@ -23,7 +23,7 @@ namespace BrightData.DataTable.Operations
         {
             if (!_isNop) {
                 if (notifyUser is not null) {
-                    var id = Guid.NewGuid().ToString("n");
+                    var id = Guid.NewGuid();
                     notifyUser.OnStartOperation(id, _msg);
                     var total = (float)_stepsTotal;
                     var prevProgress = -1;

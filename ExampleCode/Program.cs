@@ -44,21 +44,21 @@ namespace ExampleCode
                 }
             }
             using var context = new BrightDataContext(null, RandomSeed);
-            //var vectorBuffer = ExtensionMethods.CreateCompositeBuffer<TestClass>(x => new(x), null, 2, 0);
-            //vectorBuffer.Add(new TestClass(new byte[] { 1, 2, 3 }));
-            //vectorBuffer.Add(new TestClass(new byte[] { 4, 5, 6 }));
-            //vectorBuffer.Add(new TestClass(new byte[] { 7, 8, 9 }));
-            //vectorBuffer.ForEachBlock(x => {
-            //    foreach (var item in x)
-            //        Console.WriteLine(item.ToString());
-            //});
+            var vectorBuffer = ExtensionMethods.CreateCompositeBuffer<TestClass>(x => new(x), null, 2, 0);
+            vectorBuffer.Add(new TestClass(new byte[] { 1, 2, 3 }));
+            vectorBuffer.Add(new TestClass(new byte[] { 4, 5, 6 }));
+            vectorBuffer.Add(new TestClass(new byte[] { 7, 8, 9 }));
+            vectorBuffer.ForEachBlock(x => {
+                foreach (var item in x)
+                    Console.WriteLine(item.ToString());
+            });
 
-            //var parser = new BrightData.Table.Helper.CsvParser(true, ',');
-            //var buffers = parser.Parse(@"
-            //test,test2,test3
-            //123,234,567
-            //123,234
-            //");
+            var parser = new BrightData.Table.Helper.CsvParser(true, ',');
+            var buffers = parser.Parse(@"
+            test,test2,test3
+            123,234,567
+            123,234
+            ");
 
             var stringBuffer = ExtensionMethods.CreateCompositeBuffer(null, 2, 0, 128);
             stringBuffer.Add("this is a test");
@@ -74,7 +74,7 @@ namespace ExampleCode
             //var (table, encoded) = ExtensionMethods.Encode(stringBuffer);
             var test2 = ExtensionMethods.CreateCompositeBuffer<int>(null, 2, 0);
             test2.Add(1);
-            test2.Add(new ReadOnlySpan<int>(new [] { 2, 3 }));
+            test2.Add(new ReadOnlySpan<int>(new[] { 2, 3 }));
             test2.ForEachBlock(block => {
                 foreach (var num in block)
                     Console.WriteLine(num);
@@ -115,7 +115,6 @@ namespace ExampleCode
                 PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
             else
                 PerformanceTest.Run(new LinearAlgebraProvider(context));
-            return;
 
             Xor(context, useMkl);
             IrisClassification(context, useMkl);

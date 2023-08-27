@@ -102,8 +102,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         /// <inheritdoc />
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, ReadOnlySegment);
-        public TensorSegmentWrapper Row(uint index) => new((INumericSegment<float>)ReadOnlySegment, index, RowCount, ColumnCount);
-        public TensorSegmentWrapper Column(uint index) => new((INumericSegment<float>)ReadOnlySegment, index * RowCount, 1, RowCount);
+        public ReadOnlyTensorSegmentWrapper Row(uint index) => new((INumericSegment<float>)ReadOnlySegment, index, RowCount, ColumnCount);
+        public ReadOnlyTensorSegmentWrapper Column(uint index) => new((INumericSegment<float>)ReadOnlySegment, index * RowCount, 1, RowCount);
 
         /// <inheritdoc />
         public IReadOnlyVector GetRow(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));

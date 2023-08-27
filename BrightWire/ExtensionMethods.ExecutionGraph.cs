@@ -41,7 +41,7 @@ namespace BrightWire
             var count = 0;
             GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
-                var id = Guid.NewGuid().ToString("n");
+                var id = Guid.NewGuid();
                 userNotifications?.OnStartOperation(id);
                 engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
                 if (++count == testCadence) {

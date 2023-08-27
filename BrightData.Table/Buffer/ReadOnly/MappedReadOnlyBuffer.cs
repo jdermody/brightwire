@@ -25,13 +25,14 @@ namespace BrightData.Table.Buffer.ReadOnly
         public uint BlockSize => _index.BlockSize;
         public uint BlockCount => _index.BlockCount;
         public Type DataType => typeof(T);
+        public uint Size => _index.Size;
 
-        public async Task ForEachBlock(BlockCallback<T> callback)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify, string? msg, CancellationToken ct = default)
         {
             await _index.ForEachBlock(x => {
                 var mapped = _mapper(x);
                 callback(mapped.Span);
-            });
+            }, notify, msg, ct);
         }
 
         public async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
@@ -48,15 +49,21 @@ namespace BrightData.Table.Buffer.ReadOnly
             return ret;
         }
 
-        public IAsyncEnumerator<T> GetAsyncEnumerator() => EnumerateAll().GetAsyncEnumerator();
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
-        public async IAsyncEnumerable<T> EnumerateAll()
+        public async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < BlockCount; i++) {
                 var block = await GetBlock(i);
                 for (var j = 0; j < block.Length; j++)
                     yield return block.Span[j];
             }
+        }
+
+        public async IAsyncEnumerable<object> EnumerateAll()
+        {
+            await foreach(var item in EnumerateAllTyped())
+                yield return item;
         }
 
         public MetaData MetaData => _index.MetaData;

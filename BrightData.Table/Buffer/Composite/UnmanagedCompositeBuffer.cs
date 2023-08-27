@@ -45,42 +45,60 @@ namespace BrightData.Table.Buffer.Composite
             _sizeOfT = Unsafe.SizeOf<T>();
         }
 
-        public override async Task ForEachBlock(BlockCallback<T> callback)
-        {
-            // read from the file
-            if (_tempData != null)
-            {
-                uint fileLength = _tempData.Size, offset = 0;
-                using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
-                while (offset < fileLength)
-                {
-                    uint readCount = 0;
-                    do
-                    {
-                        readCount += await _tempData.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
-                    } while (readCount < _blockSize * _sizeOfT);
-                    callback(buffer.Span.Cast<byte, T>());
-                    offset += (uint)(_blockSize * _sizeOfT);
-                }
-            }
+        //public override async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+        //{
+        //    // read from the in memory blocks
+        //    if (_inMemoryBlocks is not null)
+        //    {
+        //        foreach (var block in _inMemoryBlocks) {
+        //            if (ct.IsCancellationRequested)
+        //                break;
+        //            callback(block.WrittenSpan);
+        //        }
+        //    }
 
-            // then from the in memory blocks
-            if (_inMemoryBlocks is not null)
-            {
-                foreach (var block in _inMemoryBlocks)
-                    callback(block.WrittenSpan);
-            }
+        //    // read from the file
+        //    if (_tempData != null && !ct.IsCancellationRequested)
+        //    {
+        //        uint fileLength = _tempData.Size, offset = 0;
+        //        using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
+        //        while (offset < fileLength && !ct.IsCancellationRequested)
+        //        {
+        //            uint readCount = 0;
+        //            do
+        //            {
+        //                readCount += await _tempData.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
+        //            } while (readCount < _blockSize * _sizeOfT);
+        //            callback(buffer.Span.Cast<byte, T>());
+        //            offset += (uint)(_blockSize * _sizeOfT);
+        //        }
+        //    }
 
-            // then from the current block
-            if (_currBlock is not null)
-                callback(_currBlock.WrittenSpan);
-        }
+        //    // then from the current block
+        //    if (_currBlock is not null && !ct.IsCancellationRequested)
+        //        callback(_currBlock.WrittenSpan);
+        //}
 
         public override async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
             uint currentIndex = 0;
+
+            // read from the in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
+                {
+                    foreach (var block in _inMemoryBlocks)
+                    {
+                        if (currentIndex++ == blockIndex)
+                            return block.WrittenMemory;
+                    }
+                }
+                else
+                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
+            }
 
             // read from the file
             if (_tempData != null)
@@ -97,21 +115,6 @@ namespace BrightData.Table.Buffer.Composite
                 }
                 else
                     currentIndex = _blocksInFile;
-            }
-
-            // then from the in memory blocks
-            if (_inMemoryBlocks is not null)
-            {
-                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
-                {
-                    foreach (var block in _inMemoryBlocks)
-                    {
-                        if (currentIndex++ == blockIndex)
-                            return block.WrittenMemory;
-                    }
-                }
-                else
-                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
             }
 
             // then from the current block

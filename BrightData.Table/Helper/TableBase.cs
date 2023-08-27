@@ -211,6 +211,7 @@ namespace BrightData.Table.Helper
         public uint ColumnCount => _header.ColumnCount;
         public DataTableOrientation Orientation => _header.Orientation;
         public abstract IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
+        protected abstract IReadOnlyBuffer GetColumn(uint index);
 
         public BrightDataType[] ColumnTypes { get; }
 
@@ -244,6 +245,92 @@ namespace BrightData.Table.Helper
 
             var memory = new Memory<byte>(tempBuffer.GetBuffer(), 0, (int)tempBuffer.Length);
             _reader.Update(_header.MetaDataOffset, memory);
+        }
+
+        public record Row(object[] Values);
+        public async IAsyncEnumerable<Row> Enumerate([EnumeratorCancellation] CancellationToken ct = default)
+        {
+            var size = _header.ColumnCount;
+            var enumerators = new IAsyncEnumerator<object>[size];
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+
+            for (uint i = 0; i < size; i++)
+                enumerators[i] = GetColumn(i).EnumerateAll().GetAsyncEnumerator(ct);
+
+            while (!ct.IsCancellationRequested && isValid) {
+                for (var i = 0; i < size; i++)
+                    currentTasks[i] = enumerators[i].MoveNextAsync();
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                var curr = new object[size];
+                for (var i = 0; i < size; i++)
+                    curr[i] = enumerators[i].Current;
+                yield return new Row(curr);
+            }
+        }
+
+        public record Row<T1, T2>(T1 C1, T2 C2) where T1: notnull where T2: notnull;
+        public async IAsyncEnumerable<Row<T1, T2>> Enumerate<T1, T2>(uint firstColumnIndex = 0, uint secondColumnIndex = 1, [EnumeratorCancellation] CancellationToken ct = default) 
+            where T1 : notnull 
+            where T2 : notnull
+        {
+            const int size = 2;
+            var e1 = GetColumn<T1>(firstColumnIndex).GetAsyncEnumerator(ct);
+            var e2 = GetColumn<T2>(secondColumnIndex).GetAsyncEnumerator(ct);
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+
+            while (!ct.IsCancellationRequested && isValid) {
+                currentTasks[0] = e1.MoveNextAsync();
+                currentTasks[1] = e1.MoveNextAsync();
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                var row = new Row<T1, T2>(e1.Current, e2.Current);
+                yield return row;
+            }
+        }
+
+        public record Row<T1, T2, T3>(T1 C1, T2 C2, T3 C3) where T1: notnull where T2: notnull where T3: notnull;
+        public async IAsyncEnumerable<Row<T1, T2, T3>> Enumerate<T1, T2, T3>(
+            uint firstColumnIndex = 0, 
+            uint secondColumnIndex = 1, 
+            uint thirdColumnIndex = 1, 
+            [EnumeratorCancellation] CancellationToken ct = default
+        )
+            where T1 : notnull 
+            where T2 : notnull
+            where T3 : notnull
+        {
+            const int size = 3;
+            var e1 = GetColumn<T1>(firstColumnIndex).GetAsyncEnumerator(ct);
+            var e2 = GetColumn<T2>(secondColumnIndex).GetAsyncEnumerator(ct);
+            var e3 = GetColumn<T3>(thirdColumnIndex).GetAsyncEnumerator(ct);
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+
+            while (!ct.IsCancellationRequested && isValid) {
+                currentTasks[0] = e1.MoveNextAsync();
+                currentTasks[1] = e1.MoveNextAsync();
+                currentTasks[2] = e2.MoveNextAsync();
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                var row = new Row<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
+                yield return row;
+            }
         }
     }
 }

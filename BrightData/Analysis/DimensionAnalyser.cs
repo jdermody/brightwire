@@ -53,6 +53,12 @@ namespace BrightData.Analysis
                 throw new ArgumentException("Expected a tensor", nameof(obj));
         }
 
+        public void Add(ReadOnlySpan<ITensor> block)
+        {
+            foreach(ref readonly var item in block)
+                Add(item);
+        }
+
         public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);

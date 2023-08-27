@@ -363,7 +363,7 @@ namespace BrightData
         /// <param name="index">Index of current part</param>
         /// <param name="total">Total number of parts</param>
         /// <param name="progress">Process within the part</param>
-        public static void NotifyProgress(this INotifyUser? notify, string operationId, uint index, uint total, float progress) => notify?.OnOperationProgress(operationId, (float) index / total + progress / total);
+        public static void NotifyProgress(this INotifyUser? notify, Guid operationId, uint index, uint total, float progress) => notify?.OnOperationProgress(operationId, (float) index / total + progress / total);
 
         /// <summary>
         /// Writes a progress bar to the console

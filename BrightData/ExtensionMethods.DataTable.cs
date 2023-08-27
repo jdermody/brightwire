@@ -306,7 +306,7 @@ namespace BrightData
             }
 
             if (userNotification is not null) {
-                var operationId = Guid.NewGuid().ToString("n");
+                var operationId = Guid.NewGuid();
                 userNotification.OnStartOperation(operationId, "Parsing CSV into memory...");
                 parser.OnProgress = p => userNotification.OnOperationProgress(operationId, p);
                 parser.OnComplete = () => {
@@ -383,7 +383,7 @@ namespace BrightData
 
             // set up notifications
             if (userNotification is not null) {
-                var operationId = Guid.NewGuid().ToString("n");
+                var operationId = Guid.NewGuid();
                 userNotification.OnStartOperation(operationId, "Parsing CSV...");
                 parser.OnProgress = p => userNotification.OnOperationProgress(operationId, p);
                 parser.OnComplete = () => {

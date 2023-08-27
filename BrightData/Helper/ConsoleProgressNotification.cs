@@ -13,7 +13,7 @@ namespace BrightData.Helper
         readonly Stopwatch _stopWatch = new();
 
         /// <inheritdoc />
-        public void OnStartOperation(string operationId, string? msg)
+        public void OnStartOperation(Guid operationId, string? msg)
         {
             if(msg is not null)
                 Console.WriteLine(msg);
@@ -23,13 +23,13 @@ namespace BrightData.Helper
         }
 
         /// <inheritdoc />
-        public void OnOperationProgress(string operationId, float progressPercent)
+        public void OnOperationProgress(Guid operationId, float progressPercent)
         {
             WriteProgress(progressPercent, ref _progress, _stopWatch);
         }
 
         /// <inheritdoc />
-        public void OnCompleteOperation(string operationId, bool wasCancelled)
+        public void OnCompleteOperation(Guid operationId, bool wasCancelled)
         {
             _stopWatch.Stop();
             //Console.WriteLine();
