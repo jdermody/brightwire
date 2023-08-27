@@ -1,18 +1,20 @@
 ![image](https://user-images.githubusercontent.com/1952388/177148366-bb4f2d2f-92af-4f60-a0de-ce5e3b08f135.png)
 
-Bright Wire is an extensible machine learning library for .NET with optional MKL and GPU support (via CUDA).
+*Bright Wire* is an extensible machine learning library for .NET with optional MKL and GPU support (via CUDA).
 
 ## Getting Started
 
-Bright Wire is a .net 7 class library.
+*Bright Wire* is a .net 7 class library.
 
 The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire-v2
 
-Bright Wire runs "out of the box" for CPU based computation. For GPU based computation, you will need to install
+*Bright Wire* runs "out of the box" with its own vectorised linear algebra library.
+
+If you have a NVIDIA GPU then you can also use GPU based computation. You will need to install
 [NVIDIA CUDA Toolkit 12](https://developer.nvidia.com/cuda-downloads) 
 (and have a [Kepler or better NVIDIA GPU](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
-To enable higher performance CPU based computation, Bright Wire also supports the Intel Math Kernel Library (MKL).
+To enable higher performance CPU based computation on Intel hardware, *Bright Wire* also supports the Intel Math Kernel Library (MKL).
 
 ## Tutorials
 
@@ -52,7 +54,7 @@ Install-Package BrightData.Cuda
 
 ## Features
 
-### Connectionist aka "Deep Learning"
+### Neural Networks
 * Feed Forward, Convolutional, Bidirectional and Sequence to Sequence (seq2seq) network architectures
 * LSTM, GRU, Simple, Elman and Jordan recurrent neural networks
 * L2, Dropout and DropConnect regularisation
