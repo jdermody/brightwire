@@ -61,3 +61,9 @@
 /BrightAPI/UI/.parcel-cache
 /BrightAPI/UI/dist
 /BrightAPI/UI/node_modules
+/Benchmarks/bin
+/Benchmarks/obj
+/BrightData.Parquet/bin
+/BrightData.Parquet/obj
+/BrightData.Table/bin
+/BrightData.Table/obj
