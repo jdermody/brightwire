@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Helper;
@@ -25,6 +24,10 @@ namespace BrightData.UnitTests
             var first = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
             var second = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
             first.Equals(second).Should().BeTrue();
+            var set = new HashSet<WeightedIndexList> {
+                first, second
+            };
+            set.Count.Should().Be(1);
         }
 
         [Fact]
@@ -32,9 +35,9 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 0.5f));
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Sum);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Sum);
 
-            merged.Indices.Length.Should().Be(3);
+            merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(1.0f);
         }
 
@@ -43,9 +46,9 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 0.5f));
             var second = _context.CreateWeightedIndexList((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Average);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Average);
 
-            merged.Indices.Length.Should().Be(3);
+            merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(0.5f);
         }
 
@@ -54,9 +57,9 @@ namespace BrightData.UnitTests
         {
             var first = _context.CreateWeightedIndexList((0, 0.5f), (1, 1.5f));
             var second = _context.CreateWeightedIndexList((1, 2.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] {first, second}, AggregationType.Max);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Max);
 
-            merged.Indices.Length.Should().Be(3);
+            merged.Count.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(2.5f);
         }
 
@@ -123,7 +126,7 @@ namespace BrightData.UnitTests
         public void AsDense()
         {
             var first = _context.CreateWeightedIndexList((0, 1f), (1, 2f), (2, 3f));
-            var vector = first.AsDense();
+            var vector = first.AsDense(_context.LinearAlgebraProvider);
             vector[0].Should().Be(1f);
             vector[1].Should().Be(2f);
             vector[2].Should().Be(3f);
@@ -132,7 +135,7 @@ namespace BrightData.UnitTests
         static IEnumerable<uint> GetStringIndices(IEnumerable<string> words, Dictionary<string, uint> stringTable)
         {
             foreach (var word in words) {
-                if(!stringTable.TryGetValue(word, out var index))
+                if (!stringTable.TryGetValue(word, out var index))
                     stringTable.Add(word, index = (uint)stringTable.Count);
                 yield return index;
             }
@@ -143,13 +146,13 @@ namespace BrightData.UnitTests
             return _context.CreateWeightedIndexList(GetStringIndices(words, stringTable).GroupBy(w => w).Select(g => new WeightedIndexList.Item(g.Key, g.Count())));
         }
 
-        IReadOnlyList<(string Label, WeightedIndexList Data)> GetSampleDocuments()
+        WeightedIndexListWithLabel<string>[] GetSampleDocuments()
         {
             var stringTable = new Dictionary<string, uint>();
-            return new[] {
-                ("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
-                ("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
-                ("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
+            return new WeightedIndexListWithLabel<string>[] {
+                new("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
+                new("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
+                new("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
             };
         }
 

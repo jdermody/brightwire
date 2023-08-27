@@ -12,10 +12,23 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class LearningContext : ILearningContext
     {
+        class NodeError
+        {
+            public NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
+            {
+                Node = node;
+                ErrorType = errorType;
+                Error = error;
+            }
+
+            public NodeBase Node { get; }
+            public NodeErrorType ErrorType { get; }
+            public ITensor Error { get; }
+        }
+
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
         readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new();
-        readonly List<(NodeBase Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new();
-        readonly List<(NodeBase Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new();
+        readonly List<NodeError> _nodeError = new();
         readonly HashSet<NodeBase> _updatesDisabled = new();
         readonly Stopwatch _timer = new();
 
@@ -38,60 +51,46 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 	    public uint RowCount { get; private set; }
 	    public uint CurrentEpoch { get; private set; }
 	    public float LearningRate { get; set; }
-	    public float BatchLearningRate => LearningRate / BatchSize;
+	    //public float BatchLearningRate => LearningRate / BatchSize;
         public uint BatchSize { get; set; }
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
         {
-            if (!_updatesDisabled.Contains(fromNode)) {
-                _layerMatrixUpdate.Add((fromNode, update, updater));
-            }
-        }
-
-        public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
-        {
-            if (!_updatesDisabled.Contains(fromNode)) {
-                _layerVectorUpdate.Add((fromNode, update, updater));
-            }
-        }
-
-        void Update<T>(List<(NodeBase Node, T Error, Action<T> Updater)> updates, Func<IEnumerable<T>, T> getAverage) where T: IDisposable
-        {
-            // group on each node and updated combination and apply average error if multiple errors are defined
-            foreach(var group in updates.GroupBy(d => (d.Node, d.Updater))) {
-                if(group.Count() > 1) {
-                    using var averageError = getAverage(group.Select(d => d.Error));
-                    group.Key.Updater(averageError);
-                }else {
-                    using var error = group.Single().Error;
-                    group.Key.Updater(error);
-                }
-            }
-            updates.Clear();
+            if (!_updatesDisabled.Contains(fromNode))
+                _nodeError.Add(new NodeError(fromNode, errorType, error));
         }
 
         public void ApplyUpdates()
         {
             if(_deferredBackpropagation.Any())
                 BackpropagateThroughTime(null);
-            Update(_layerMatrixUpdate, m => m.Average(true));
-            Update(_layerVectorUpdate, v => v.Average(true));
+            
+            // group on each node and updated combination and apply average error if multiple errors are defined
+            foreach(var group in _nodeError.GroupBy(d => (d.Node, d.ErrorType))) {
+                if(group.Count() > 1) {
+                    using var averageError = group.Select(d => d.Error).Average(false);
+                    group.Key.Node.ApplyError(group.Key.ErrorType, averageError, this);
+                }else {
+                    using var error = group.Single().Error;
+                    group.Key.Node.ApplyError(group.Key.ErrorType, error, this);
+                }
+            }
+            _nodeError.Clear();
         }
 
         public void StartEpoch()
         {
             BeforeEpochStarts?.Invoke(this);
-            if (_learningRateSchedule.TryGetValue(++CurrentEpoch, out float newLearningRate)) {
+            if (_learningRateSchedule.TryGetValue(++CurrentEpoch, out var newLearningRate)) {
                 LearningRate = newLearningRate;
                 GraphFactory.Context.UserNotifications?.OnMessage($"Learning rate changed to {newLearningRate}");
             }
 
             RowCount = 0;
             _timer.Restart();
-            _layerVectorUpdate.Clear();
-            _layerMatrixUpdate.Clear();
+            _nodeError.Clear();
         }
 
         public void EndEpoch()
@@ -115,6 +114,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             int depth = 0;
             IGraphData? lastError = null;
+            // TOD: average the error?
             while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
                 var (data, callback) = _deferredBackpropagation.Pop();
                 var error = callback(signalOverride ?? data ?? lastError);

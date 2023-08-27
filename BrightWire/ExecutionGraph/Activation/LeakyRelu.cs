@@ -12,14 +12,14 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<LeakyRelu>
         {
-            readonly IFloatMatrix _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(LeakyRelu source, IFloatMatrix matrix) : base(source)
+            public Backpropagation(LeakyRelu source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 using var od = _input.LeakyReluDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
@@ -29,10 +29,10 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public LeakyRelu(string? name = null) : base(name) { }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            var output = signal.ReplaceWith(input.LeakyReluActivation());
+            var output = signal.ReplaceWith(input.LeakyRelu());
             return (this, output, () => new Backpropagation(this, input));
         }
     }

@@ -16,7 +16,7 @@ namespace BrightData.Serialisation
         /// </summary>
         /// <param name="str"></param>
         /// <param name="writer"></param>
-        public static void WriteTo(this String? str, BinaryWriter writer) => writer.Write(str ?? "");
+        public static void WriteTo(this string? str, BinaryWriter writer) => writer.Write(str ?? "");
 
         /// <summary>
         /// Writes the integer
@@ -98,10 +98,43 @@ namespace BrightData.Serialisation
         {
             writer.Write(array?.Length ?? 0);
             if (array?.Length > 0) {
-                var bytes = MemoryMarshal.Cast<T, byte>(array);
                 writer.Flush();
-                writer.BaseStream.Write(bytes);
+                writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
             }
+        }
+
+        /// <summary>
+        /// Writes an array of arrays to a binary writer
+        /// </summary>
+        /// <param name="arrayOfArrays"></param>
+        /// <param name="writer"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void WriteTo<T>(this T[][]? arrayOfArrays, BinaryWriter writer) where T : struct
+        {
+            writer.Write(arrayOfArrays?.Length ?? 0);
+            writer.Write(arrayOfArrays?.Length > 0 ? arrayOfArrays[0].Length : 0);
+
+            if (arrayOfArrays?.Length > 0 && arrayOfArrays[0].Length > 0) {
+                writer.Flush();
+                foreach(var array in arrayOfArrays)
+                    writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
+            }
+        }
+
+        /// <summary>
+        /// Reads an array of arrays from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static T[][] ReadArrayOfArrays<T>(this BinaryReader reader) where T: struct
+        {
+            var count = reader.ReadInt32();
+            var size = reader.ReadInt32();
+            var ret = new T[count][];
+            for (var i = 0; i < count; i++)
+                ret[i] = reader.BaseStream.ReadArray<T>(size);
+            return ret;
         }
 
         /// <summary>
@@ -125,22 +158,32 @@ namespace BrightData.Serialisation
         /// <param name="reader"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Create<T>(this IBrightDataContext context, BinaryReader reader)
+        public static T Create<T>(this BrightDataContext context, BinaryReader reader)
             where T : ICanInitializeFromBinaryReader
         {
-            var ret = GenericActivator.CreateUninitialized<T>();
+            T ret;
+            if(typeof(T) == typeof(IVector))
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.VectorType);
+            else if(typeof(T) == typeof(IMatrix))
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.MatrixType);
+            else if(typeof(T) == typeof(ITensor3D))
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor3DType);
+            else if(typeof(T) == typeof(ITensor4D))
+                ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor4DType);
+            else
+                ret = GenericActivator.CreateUninitialized<T>();
             ret.Initialize(context, reader);
             return ret;
         }
 
         /// <summary>
-        /// Reads an array from the reader
+        /// Reads an array of objects from the reader
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="context"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] ReadArray<T>(this BinaryReader reader, IBrightDataContext context)
+        public static T[] ReadObjectArray<T>(this BinaryReader reader, BrightDataContext context)
             where T : ICanInitializeFromBinaryReader
         {
             var len = reader.ReadInt32();

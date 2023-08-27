@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -32,9 +31,9 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="sampleCount">How many samples to generate</param>
         /// <returns>A list of sequences</returns>
-        public static IRowOrientedDataTable Addition(IBrightDataContext context, int sampleCount)
+        public static BrightDataTable Addition(BrightDataContext context, int sampleCount)
         {
-            Random rand = context.Random;
+            var rand = context.Random;
             var builder = context.CreateTwoColumnMatrixTableBuilder();
 
             for (var i = 0; i < sampleCount; i++) {
@@ -46,15 +45,18 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = GetBitArray(b);
                 var r2 = GetBitArray(a + b);
 
-                var inputList = new Vector<float>[r2.Length];
-                var outputList = new Vector<float>[r2.Length];
-                for (int j = 0; j < r2.Length; j++) {
-                    inputList[j] = context.CreateVector(a2[j], b2[j]);
-                    outputList[j] = context.CreateVector(r2[j]);
+                var inputList = new IReadOnlyVector[r2.Length];
+                var outputList = new IReadOnlyVector[r2.Length];
+                for (var j = 0; j < r2.Length; j++) {
+                    inputList[j] = context.CreateReadOnlyVector(a2[j], b2[j]);
+                    outputList[j] = context.CreateReadOnlyVector(r2[j]);
                 }
-                builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
+
+                var input = context.CreateReadOnlyMatrixFromRows(inputList);
+                var output = context.CreateReadOnlyMatrixFromRows(outputList);
+                builder.AddRow(input, output);
             }
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
     }
 }

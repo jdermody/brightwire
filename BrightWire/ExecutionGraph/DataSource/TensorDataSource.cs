@@ -3,22 +3,23 @@ using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
     internal class TensorDataSource : IDataSource
     {
         readonly uint _rows, _columns, _depth, _matrixSize;
-        readonly Tensor3D<float>[] _data;
-        readonly ILinearAlgebraProvider _lap;
+        readonly ITensor3D[] _data;
+        readonly LinearAlgebraProvider _lap;
 
-        public TensorDataSource(ILinearAlgebraProvider lap, Tensor3D<float>[] data)
+        public TensorDataSource(LinearAlgebraProvider lap, ITensor3D[] data)
         {
             _lap = lap;
             _data = data;
 
             var first = data.First();
-            InputSize = first.Size;
+            InputSize = first.Segment.Size;
             OutputSize = null;
             _rows = first.RowCount;
             _columns = first.ColumnCount;
@@ -32,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }
@@ -46,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 var z = i / _matrixSize;
                 var x = rem % _rows;
                 var y = rem / _rows;
-                return tensor.Matrix(z).Row(x).Segment[y];
+                return tensor.GetMatrix(z).GetRowAsReadOnly(x)[y];
             });
             return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
         }

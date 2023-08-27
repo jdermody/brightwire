@@ -1,6 +1,6 @@
-﻿using System.Threading;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
+﻿using System;
+using System.Runtime.InteropServices;
+using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
@@ -9,29 +9,40 @@ namespace BrightData.Cuda.Helper
     /// </summary>
     internal class PtrToMemory : IDeviceMemoryPtr
     {
-	    readonly IDeviceMemoryPtr _rootBlock;
+	    readonly IDeviceMemoryPtr          _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;
-        readonly CudaContext _context;
-	    int _refCount = 1;
+        bool                               _addedReference = false;
 
-        public PtrToMemory(CudaContext context, IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
+        public PtrToMemory(IDeviceMemoryPtr rootBlock, CuDevicePtr ptr, SizeT size)
         {
-            _context = context;
-            _ptr = new CudaDeviceVariable<float>(ptr, size);
+            _ptr       = new CudaDeviceVariable<float>(ptr, false, size);
 	        _rootBlock = rootBlock;
-	        rootBlock.AddRef();
+        }
+
+        public void Dispose()
+        {
+            if(_addedReference)
+                Release();
         }
 
         public CudaDeviceVariable<float> DeviceVariable => _ptr;
-        public CUdeviceptr DevicePointer => _ptr.DevicePointer;
+        public CuDevicePtr DevicePointer => _ptr.DevicePointer;
         public uint Size => _ptr.Size;
+
+        public void CopyToHost(ArraySegment<float> target) => _ptr.CopyToHost(target.Array!, 0, target.Offset, target.Count * sizeof(float));
 
         public void Clear()
         {
-            _context.ClearMemory(_ptr.DevicePointer, 0, _ptr.SizeInBytes);
+            _ptr.Memset(0);
         }
 
-	    public void CopyToDevice(float[] source)
+        public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)
+        {
+            var offsetPtr = _ptr.DevicePointer.Pointer + (offsetInFloats * sizeof(float));
+            return new PtrToMemory(_rootBlock, new CuDevicePtr(offsetPtr), size * sizeof(float));
+        }
+
+        public void CopyToDevice(float[] source)
         {
 	        _ptr.CopyToDevice(source);
         }
@@ -40,22 +51,35 @@ namespace BrightData.Cuda.Helper
         {
 	        _ptr.CopyToDevice(source.DeviceVariable);
         }
+        public unsafe void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource)
+        {
+            fixed (float* p = &MemoryMarshal.GetReference(span))
+            {
+                DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
+            }
+        }
+
+        public unsafe void CopyToDevice(float* ptr, uint sourceOffset, uint targetOffset, uint size)
+        {
+            DeviceVariable.CopyToDevice((IntPtr)ptr, sourceOffset, targetOffset, (int)size * sizeof(float));
+        }
 
         public void CopyToHost(float[] target)
         {
-            _context.CopyToHost<float>(target, _ptr.DevicePointer);
+            _ptr.CopyToHost(target);
         }
 
 	    public int AddRef()
-	    {
-		    return Interlocked.Increment(ref _refCount) + _rootBlock.AddRef();
+        {
+            _addedReference = true;
+		    return _rootBlock.AddRef();
 	    }
 
-	    public void Free()
+	    public int Release()
         {
-	        _rootBlock.Free();
-			if(Interlocked.Decrement(ref _refCount) <= 0)
-				_ptr.Dispose();
+	        return _rootBlock.Release();
         }
+
+        public bool IsValid => _rootBlock.IsValid;
     }
 }

@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public IAction Action { get; set; }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var output = Action.Execute(signal, context, source!);
             return (this, output, null);

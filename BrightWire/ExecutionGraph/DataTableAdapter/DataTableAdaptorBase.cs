@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightWire.ExecutionGraph.Helper;
 using BrightData;
-using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -25,14 +26,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// <summary>
 		/// Data table
 		/// </summary>
-        protected readonly IRowOrientedDataTable _dataTable;
+        protected readonly BrightDataTable _dataTable;
 
         /// <summary>
 	    /// Constructor
 	    /// </summary>
         /// <param name="dataTable"></param>
 	    /// <param name="featureColumns"></param>
-	    protected DataTableAdapterBase(IRowOrientedDataTable dataTable, uint[] featureColumns)
+	    protected DataTableAdapterBase(BrightDataTable dataTable, uint[] featureColumns)
         {
             _dataTable = dataTable;
             _targetColumnIndex = dataTable.GetTargetColumnOrThrow();
@@ -51,7 +52,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public abstract IMiniBatch Get(uint[] rows);
 
         /// <inheritdoc />
-        public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
+        public abstract IDataSource CloneWith(BrightDataTable dataTable);
 
         /// <inheritdoc />
         public IDataTableVectoriser? InputVectoriser { get; protected set; } = null;
@@ -77,24 +78,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// Creates a mini batch
 		/// </summary>
 		/// <param name="rows">Row indices</param>
-		/// <param name="data">List of input/output tuples</param>
-        protected IMiniBatch GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
+		/// <param name="data">Array of input/output pairs</param>
+        protected IMiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
         {
-            var numInputs = (uint)data[0].Input.Length;
-            var inputList = new IGraphData[numInputs];
             var lap = _dataTable.Context.LinearAlgebraProvider;
-
-            for (uint i = 0; i < numInputs; i++) {
-                var i1 = i;
-                inputList[i] = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[(int) x].Input[i1][y]).AsGraphData();
-            }
-
-	        var output = OutputSize > 0 
-                ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]).AsGraphData()
+            var input = lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
+            var output = OutputSize > 0 
+                ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Output[y]).AsGraphData()
                 : null;
 
-            // TODO: change from single
-            return new MiniBatch(rows, this, inputList.Single(), output);
+            return new MiniBatch(rows, this, input, output);
         }
 
 		/// <summary>
@@ -102,33 +95,33 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float>? Output)[] data)
+        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
         {
-            List<Vector<float>>? temp;
-            var inputData = new Dictionary<uint, List<Vector<float>>>();
-            var outputData = new Dictionary<uint, List<Vector<float>>>();
+            var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
+            var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             var lap = _dataTable.Context.LinearAlgebraProvider;
 
             foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out temp))
-                        inputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(input.Row(i));
+                    if (!inputData.TryGetValue(i, out var temp))
+                        inputData.Add(i, temp = new List<IReadOnlyNumericSegment<float>>());
+                    temp.Add(input.GetRow(i).ReadOnlySegment);
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = new List<Vector<float>>());
-                        temp.Add(output.Row(i));
+                            outputData.Add(i, temp = new List<IReadOnlyNumericSegment<float>>());
+                        temp.Add(output.GetRow(i).ReadOnlySegment);
                     }
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = lap.CreateMatrixFromRows(item.Value);
+                var span = CollectionsMarshal.AsSpan(item.Value);
+                var input = lap.CreateMatrixFromRows(span);
                 IGraphData? output = null;
-                if (outputData.TryGetValue(item.Key, out temp))
-                    output = lap.CreateMatrixFromRows(temp).AsGraphData();
+                if (outputData.TryGetValue(item.Key, out var outputList))
+                    output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputList)).AsGraphData();
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)

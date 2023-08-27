@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData.DataTypeSpecification;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData
 {
@@ -17,25 +17,26 @@ namespace BrightData
         /// <param name="canRepeat"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch {
-            BrightDataType.BinaryData => new FieldSpecification<BinaryData>(name, canRepeat),
-            BrightDataType.Boolean => new FieldSpecification<bool>(name, canRepeat),
-            BrightDataType.SByte => new FieldSpecification<byte>(name, canRepeat),
-            BrightDataType.Short => new FieldSpecification<short>(name, canRepeat),
-            BrightDataType.Int => new FieldSpecification<int>(name, canRepeat),
-            BrightDataType.Long => new FieldSpecification<long>(name, canRepeat),
-            BrightDataType.Float => new FieldSpecification<float>(name, canRepeat),
-            BrightDataType.Double => new FieldSpecification<double>(name, canRepeat),
-            BrightDataType.Decimal => new FieldSpecification<decimal>(name, canRepeat),
-            BrightDataType.String => new FieldSpecification<string>(name, canRepeat),
-            BrightDataType.Date => new FieldSpecification<DateTime>(name, canRepeat),
-            BrightDataType.IndexList => new FieldSpecification<IndexList>(name, canRepeat),
+        public static IDataTypeSpecification AsDataFieldSpecification(this BrightDataType dataType, string? name, bool canRepeat = false) => dataType switch 
+        {
+            BrightDataType.BinaryData        => new FieldSpecification<BinaryData>(name, canRepeat),
+            BrightDataType.Boolean           => new FieldSpecification<bool>(name, canRepeat),
+            BrightDataType.SByte             => new FieldSpecification<byte>(name, canRepeat),
+            BrightDataType.Short             => new FieldSpecification<short>(name, canRepeat),
+            BrightDataType.Int               => new FieldSpecification<int>(name, canRepeat),
+            BrightDataType.Long              => new FieldSpecification<long>(name, canRepeat),
+            BrightDataType.Float             => new FieldSpecification<float>(name, canRepeat),
+            BrightDataType.Double            => new FieldSpecification<double>(name, canRepeat),
+            BrightDataType.Decimal           => new FieldSpecification<decimal>(name, canRepeat),
+            BrightDataType.String            => new FieldSpecification<string>(name, canRepeat),
+            BrightDataType.Date              => new FieldSpecification<DateTime>(name, canRepeat),
+            BrightDataType.IndexList         => new FieldSpecification<IndexList>(name, canRepeat),
             BrightDataType.WeightedIndexList => new FieldSpecification<WeightedIndexList>(name, canRepeat),
-            BrightDataType.Vector => new FieldSpecification<System.Numerics.Vector<float>>(name, canRepeat),
-            BrightDataType.Matrix => new FieldSpecification<Matrix<float>>(name, canRepeat),
-            BrightDataType.Tensor3D => new FieldSpecification<Tensor3D<float>>(name, canRepeat),
-            BrightDataType.Tensor4D => new FieldSpecification<Tensor4D<float>>(name, canRepeat),
-            _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
+            BrightDataType.Vector            => new FieldSpecification<IReadOnlyVector>(name, canRepeat),
+            BrightDataType.Matrix            => new FieldSpecification<IReadOnlyMatrix>(name, canRepeat),
+            BrightDataType.Tensor3D          => new FieldSpecification<IReadOnlyTensor3D>(name, canRepeat),
+            BrightDataType.Tensor4D          => new FieldSpecification<IReadOnlyTensor4D>(name, canRepeat),
+            _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 
         /// <summary>
@@ -43,12 +44,13 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
+        public static IDataTypeSpecification GetTypeSpecification(this BrightDataTable dataTable) => new DataTableSpecification(dataTable);
 
         class ColumnFilter<T> : IConsumeColumnData<T> where T: notnull
         {
             readonly IDataTypeSpecification<T> _filter;
             readonly HashSet<uint> _nonConformingRowIndices;
+            uint _index = 0;
 
             public ColumnFilter(uint columnIndex, BrightDataType columnType, IDataTypeSpecification<T> filter, HashSet<uint> nonConformingRowIndices)
             {
@@ -60,10 +62,11 @@ namespace BrightData
 
             public uint ColumnIndex { get; }
             public BrightDataType ColumnType { get; }
-            public void Add(T value, uint index)
+            public void Add(T value)
             {
                 if(!_filter.IsValid(value))
-                    _nonConformingRowIndices.Add(index);
+                    _nonConformingRowIndices.Add(_index);
+                ++_index;
             }
         }
 
@@ -79,18 +82,16 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
+        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, BrightDataTable dataTable)
         {
-            if (typeInfo.UnderlyingType != typeof(IDataTable))
+            if (typeInfo.UnderlyingType != typeof(BrightDataTable))
                 throw new ArgumentException("Expected data table specification");
             if(typeInfo.Children?.Length != dataTable.ColumnCount)
                 throw new ArgumentException("Expected data table and type info column count to match");
 
             var ret = new HashSet<uint>();
-            var readers = dataTable.ColumnTypes
-                .Select((ct, i) => (ColumnType:ct, Index:(uint)i))
-                .Zip(typeInfo.Children!, (ct, ts) => GetColumnReader(ct.Index, ct.ColumnType, ret, ts));
-            dataTable.ReadTyped(readers);
+            var ops = dataTable.CopyToColumnConsumers(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts))).ToArray();
+            EnsureAllCompleted(CompleteInParallel(ops));
             return ret;
         }
     }

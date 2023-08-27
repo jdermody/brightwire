@@ -64,7 +64,7 @@ namespace BrightWire.Models.Bayesian
         }
 
         /// <summary>
-        /// Equals overide
+        /// Equals override
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>

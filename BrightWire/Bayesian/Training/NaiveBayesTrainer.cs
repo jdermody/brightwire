@@ -4,6 +4,7 @@ using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using BrightData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -16,10 +17,10 @@ namespace BrightWire.Bayesian.Training
         {
             readonly Dictionary<uint, IDataAnalyser> _column = new();
 
-            public FrequencyAnalysis(IDataTable table, uint ignoreColumnIndex)
+            public FrequencyAnalysis(BrightDataTable table, uint ignoreColumnIndex)
             {
                 uint index = 0;
-                var metaData = table.AllColumnsMetaData();
+                var metaData = table.ColumnMetaData;
                 var columnTypes = table.ColumnTypes;
 
                 for(int i = 0, len = columnTypes.Length; i < len; i++) {
@@ -48,7 +49,7 @@ namespace BrightWire.Bayesian.Training
             public ulong Total { get; private set; } = 0;
         }
 
-        public static NaiveBayes Train(IDataTable table)
+        public static NaiveBayes Train(BrightDataTable table)
         {
             // analyse the table to get the set of class values
             var targetColumn = table.GetTargetColumnOrThrow();
@@ -56,7 +57,7 @@ namespace BrightWire.Bayesian.Training
             // analyse each row by its classification
             var rowsByClassification = new Dictionary<string, FrequencyAnalysis>();
             ulong rowCount = 0;
-            table.ForEachRow(row => {
+            foreach(var (_, row) in table.GetAllRowData()) {
                 var target = row[targetColumn].ToString();
                 if (target != null) {
                     if (!rowsByClassification.TryGetValue(target, out var analysis))
@@ -64,7 +65,7 @@ namespace BrightWire.Bayesian.Training
                     analysis.Process(row);
                     ++rowCount;
                 }
-            });
+            }
 
             // create the per-class summaries from the frequency table
             var classList = new List<NaiveBayes.ClassSummary>();
@@ -90,10 +91,10 @@ namespace BrightWire.Bayesian.Training
                         var analysis = metaData.GetFrequencyAnalysis();
                         var total = (double) analysis.Total;
                         if (total > 0) {
-                            var list = new List<NaiveBayes.CategorialProbability>();
+                            var list = new List<NaiveBayes.CategoricalProbability>();
                             foreach (var (label, value) in analysis.Frequency) {
                                 var categoryProbability = value / total;
-                                list.Add(new NaiveBayes.CategorialProbability {
+                                list.Add(new NaiveBayes.CategoricalProbability {
                                     Category = label,
                                     LogProbability = Math.Log(categoryProbability),
                                     Probability = categoryProbability

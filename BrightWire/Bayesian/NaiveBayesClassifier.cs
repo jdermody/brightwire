@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData;
+using BrightData.DataTable;
 
 namespace BrightWire.Bayesian
 {
@@ -13,7 +13,7 @@ namespace BrightWire.Bayesian
     {
         interface IProbabilityProvider
         {
-            double GetProbability(IConvertibleRow row);
+            double GetProbability(BrightDataTableRow row);
         }
         class CategoricalColumn : IProbabilityProvider
         {
@@ -28,9 +28,9 @@ namespace BrightWire.Bayesian
                 _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
             }
 
-            public double GetProbability(IConvertibleRow row)
+            public double GetProbability(BrightDataTableRow row)
             {
-	            var val = row.GetTyped<string>(_columnIndex);
+	            var val = row.Get<string>(_columnIndex);
                 if (_probability.TryGetValue(val, out var ret))
                     return ret;
                 return _nullValue;
@@ -45,9 +45,9 @@ namespace BrightWire.Bayesian
                 _column = column;
             }
 
-            public double GetProbability(IConvertibleRow row)
+            public double GetProbability(BrightDataTableRow row)
             {
-                var x = row.GetTyped<double>(_column.ColumnIndex);
+                var x = row.Get<double>(_column.ColumnIndex);
                 var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
                 return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
             }
@@ -68,7 +68,7 @@ namespace BrightWire.Bayesian
             }
         }
 
-        IEnumerable<(string Classification, double Score)> GetClassificationScores(IConvertibleRow row)
+        IEnumerable<(string Classification, double Score)> GetClassificationScores(BrightDataTableRow row)
         {
             foreach (var cls in _classProbability) {
                 var score = cls.Item2;
@@ -83,7 +83,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public (string Label, float Weight)[] Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
         {
             return GetClassificationScores(row)
                 .OrderByDescending(kv => kv.Score)

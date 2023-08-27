@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <summary>
         /// Information about an incoming signal
         /// </summary>
-        protected class IncomingChannel
+        protected class IncomingChannel : IHaveSize
         {
             /// <summary>
             /// The channel on which the signal was received
@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The signal
             /// </summary>
-            public IFloatMatrix? Data { get; private set; }
+            public IMatrix? Data { get; private set; }
 
             /// <summary>
             /// The node the signal came from
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IFloatMatrix? data, NodeBase? source)
+            public void SetData(IMatrix? data, NodeBase? source)
             {
                 Data = data;
                 Source = source;
@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
 
         /// <inheritdoc />
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             IGraphData next = GraphData.Null;
             Func<IBackpropagate>? backProp = null;
@@ -97,8 +97,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             if (_data.TryGetValue(channel, out var data)) {
                 data.SetData(signal.GetMatrix(), source);
                 if(_data.All(kv => kv.Value.IsValid)) {
-                    IFloatMatrix? matrix;
-                    (matrix, backProp) = Activate(context, _data.Select(kv => kv.Value).ToList());
+                    (var matrix, backProp) = Activate(context, _data.Select(kv => kv.Value).ToList());
                     if(matrix != null)
                         next = signal.ReplaceWith(matrix);
 
@@ -116,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data);
+        protected abstract (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data);
 
         /// <inheritdoc />
 	    protected override (string Description, byte[] Data) GetInfo()

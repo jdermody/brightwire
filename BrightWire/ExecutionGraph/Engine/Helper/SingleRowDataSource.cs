@@ -1,5 +1,7 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -22,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public MiniBatchSequenceType Type { get; }
             public IGraphData Input { get; }
             public IGraphData? Target => null;
-            public IGraphSequenceContext? GraphContext { get; set; }
+            public IGraphContext? GraphContext { get; set; }
         }
         class SingleRowMiniBatch : IMiniBatch
         {
@@ -59,11 +61,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         readonly float[] _data;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly uint _sequenceIndex;
         readonly MiniBatchSequenceType _sequenceType;
 
-        public SingleRowDataSource(float[] data, ILinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+        public SingleRowDataSource(float[] data, LinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
         {
             _data = data;
             _lap = lap;
@@ -80,15 +82,15 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }
 
         public IMiniBatch Get(uint[] rows)
         {
-            var data = _lap.CreateVector(_data);
-            return new SingleRowMiniBatch(this, data.ReshapeAsRowMatrix().AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
+            using var data = _lap.CreateVector(_data);
+            return new SingleRowMiniBatch(this, data.Reshape(1, null).AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
         }
 
         public uint[][] GetSequentialBatches()

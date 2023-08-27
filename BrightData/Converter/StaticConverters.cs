@@ -29,7 +29,7 @@ namespace BrightData.Converter
         public static ICanConvert<T, float> GetConverterToFloat<T>() where T : notnull => new ConvertToFloat<T>();
 
         /// <summary>
-        /// Creates a converter to ints
+        /// Creates a converter to integers
         /// </summary>
         /// <typeparam name="T">Type to convert from</typeparam>
         /// <returns></returns>

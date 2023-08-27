@@ -29,7 +29,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.IConvertibleRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable.BrightDataTableRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -168,7 +168,7 @@
             Data table
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <summary>
             Constructor
             </summary>
@@ -187,7 +187,7 @@
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.Get(System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.CloneWith(BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.CloneWith(BrightData.DataTable.BrightDataTable)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputVectoriser">
@@ -205,14 +205,14 @@
             </summary>
             <param name="rows">List of row indices</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[][],System.Single[]}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[],System.Single[]}[])">
             <summary>
             Creates a mini batch
             </summary>
             <param name="rows">Row indices</param>
-            <param name="data">List of input/output tuples</param>
+            <param name="data">Array of input/output pairs</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.LinearAlgebra.Matrix{System.Single},BrightData.LinearAlgebra.Matrix{System.Single}}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IReadOnlyMatrix,BrightData.IReadOnlyMatrix}[])">
             <summary>
             Creates a sequential mini batch
             </summary>
@@ -244,8 +244,16 @@
             Base class for data tables that work with data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <inheritdoc />
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetSegment(System.UInt32,BrightData.ICanRandomlyAccessData)">
+            <summary>
+            Returns a tensor segment from a segment provider
+            </summary>
+            <param name="columnIndex"></param>
+            <param name="segmentProvider"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetRows(System.UInt32[])">
             <inheritdoc />
@@ -255,7 +263,7 @@
             Adapts data tables that classify each step of a sequence
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.TensorBasedDataTableAdapter">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.Tensor3DBasedDataTableAdapter">
             <summary>
             Adapts data tables that classify tensors (volumes)
             </summary>
@@ -275,15 +283,106 @@
             Executes (without training) graphs
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionContext">
-            <summary>
-            Graph engine execution context
-            </summary>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionGraphSequenceContext">
             <summary>
             Execution engine context
             </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext">
+            <summary>
+            Graph engine execution context
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.#ctor(BrightWire.IGraphEngine,System.Boolean)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="graphEngine">Graph engine</param>
+            <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.LinearAlgebraProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.Add(System.Collections.Generic.IEnumerable{BrightWire.IGraphOperation})">
+            <summary>
+            Adds graph operations to the queue
+            </summary>
+            <param name="operations"></param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphContext})">
+            <summary>
+            Registers a continuation that will be executed after the current sequence has been processed in full
+            </summary>
+            <param name="sequence"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.IMiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphContext,BrightWire.IGraphData},System.Action{BrightWire.IGraphContext[]})">
+            <summary>
+            Registers an additional mini batch to execute after the current mini batch has completed
+            </summary>
+            <param name="miniBatch">Mini batch to execute</param>
+            <param name="data">Initial data</param>
+            <param name="start">Callback when starting the batch</param>
+            <param name="end">Callback when ending the batch</param>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RemainingOperationCount">
+            <summary>
+            Count of remaining operations in queue
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.HasContinuations">
+            <summary>
+            True if there are registered continuations or additional mini batches that still need to execute
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.WantInputInExecutionResults">
+            <summary>
+            True if the input to the graph will be stored in the execution results
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.Continue(BrightWire.IGraphContext)">
+            <summary>
+            Checks if execution should continue from a remaining continuation
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.ExecuteAdditionalMiniBatch(BrightWire.ILearningContext)">
+            <summary>
+            Executes any additional mini batches
+            </summary>
+            <param name="learningContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.HasMemory(System.String)">
+            <summary>
+            Checks if a named memory slot is in use
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.GetMemory(System.String)">
+            <summary>
+            Returns a named memory slot
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.GetNextOperation">
+            <summary>
+            Pops the next pending graph operation (if any)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.SetMemory(System.String,BrightData.IMatrix)">
+            <summary>
+            Sets a named memory slot
+            </summary>
+            <param name="index"></param>
+            <param name="memory"></param>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.LearningContext">
             <summary>
@@ -372,7 +471,7 @@
             Creates graph nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.ILinearAlgebraProvider,BrightWire.IPropertySet)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.IPropertySet)">
             <summary>
             Constructor
             </summary>
@@ -380,9 +479,7 @@
             <param name="propertySet">A property set with initialisation data (optional)</param>
         </member>
         <member name="P:BrightWire.ExecutionGraph.GraphFactory.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:BrightWire.ExecutionGraph.GraphFactory.Context">
             <summary>
@@ -405,11 +502,17 @@
             Pops the last property set from the stack
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWeightUpdater(BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWeightUpdater(BrightData.IMatrix)">
             <summary>
             Creates a gradient descent optimiser for the given matrix
             </summary>
             <param name="weight"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.GetWeightInitialisation">
+            <summary>
+            Returns an object that can initialize weights in the graph
+            </summary>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.IErrorMetric,System.Single,System.UInt32)">
@@ -422,34 +525,35 @@
             <param name="batchSize">Mini batch size</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph execution engine
             </summary>
             <param name="graph">The serialised graph to execute</param>
+            <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Vector{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IVector[])">
             <summary>
             Creates a data source from a list of vectors
             </summary>
             <param name="vectorList">The list of vectors that will be the rows in the data source</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Matrix{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IMatrix[])">
             <summary>
             Creates a data source from a list of matrices (sequential vectors)
             </summary>
             <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Tensor3D{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.ITensor3D[])">
             <summary>
             Creates a data source from a list of tensors
             </summary>
             <param name="tensorList">The list of tensors that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.DataTable.BrightDataTable,System.UInt32[])">
             <summary>
             Creates a data source from a data table
             </summary>
@@ -457,7 +561,7 @@
             <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable,System.String)">
             <summary>
             Create a row classifier node
             </summary>
@@ -827,7 +931,7 @@
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.Momentum(System.Single)">
             <summary>
-            Creats a momentum gradient descent optimiser
+            Creates a momentum gradient descent optimiser
             </summary>
             <param name="momentum">Momentum parameter</param>
         </member>
@@ -1003,7 +1107,7 @@
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.GraphOperationProvider.OneMinusInput(System.String)">
             <summary>
-            Caclculates one minus graph input (1-x)
+            Calculates one minus graph input (1-x)
             </summary>
             <param name="name"></param>
             <returns></returns>
@@ -1097,8 +1201,27 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.Tensor4DGraphData">
             <summary>
-            Graph data adaptor for 4D tensors
+            Graph data adapter for 4D tensors
             </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Helper.GraphHelperMethods">
+            <summary>
+            Graph extension methods
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor3D)">
+            <summary>
+            Reshapes the 3D tensor as a matrix
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor4D)">
+            <summary>
+            Reshapes the 4D tensor as a matrix
+            </summary>
+            <param name="tensor"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.MiniBatch">
             <summary>
@@ -1225,6 +1348,11 @@
             The channel to send the signal on
             </summary>
         </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Attention.TensorFeedForward">
+            <summary>
+            Applies a feed forward node to each matrix within a tensor
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.BackpropagationBase`1">
             <summary>
             Base class for node backpropagation
@@ -1258,7 +1386,7 @@
             </summary>
             <param name="isDisposing"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.ErrorTo(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.ErrorTo(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Sends the error to each of the parents
             </summary>
@@ -1267,7 +1395,7 @@
             <param name="parents"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Backpropagates the error
             </summary>
@@ -1304,10 +1432,10 @@
             </summary>
             <param name="name"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphContext,BrightWire.IGraphData,BrightWire.IGraphData,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             When both the primary and secondary inputs have arrived
             </summary>
@@ -1354,7 +1482,7 @@
             <param name="size">The size of the input signal</param>
             <param name="channel">The channel</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IFloatMatrix,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IMatrix,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Sets data
             </summary>
@@ -1378,10 +1506,10 @@
             <param name="name">The name of the node (optional)</param>
             <param name="incoming">The list of incoming wires</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
             <summary>
             Called when all registered inputs have arrived
             </summary>
@@ -1420,6 +1548,11 @@
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.HookErrorSignal">
             <summary>
             Provides a hook into the backpropagation signal
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Helper.RecurrentBridge">
+            <summary>
+            Connects the hidden states across two recurrent neural network nodes
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.RowClassifier">
@@ -1586,17 +1719,16 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(System.Threading.CancellationToken,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Forward(BrightWire.IGraphData,BrightWire.IGraphContext,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the graph
             </summary>
-            <param name="ct">Cancellation token</param>
             <param name="signal">Initial data</param>
             <param name="context">Context</param>
             <param name="channel"></param>
             <param name="prev"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes a single forward step
             </summary>
@@ -1733,6 +1865,15 @@
             </summary>
             <param name="directDescendant"></param>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ApplyError(BrightWire.NodeErrorType,BrightData.ITensor,BrightWire.ILearningContext)">
+            <summary>
+            Applies an error to this node
+            </summary>
+            <param name="type">Error type</param>
+            <param name="delta"></param>
+            <param name="context"></param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Operation.BatchMean">
             <summary>
             Calculates the mean across the batch 
@@ -1770,7 +1911,7 @@
             </summary>
             <param name="source">The node that generated the forward signal</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphSequenceContext)">
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphContext)">
             <summary>
             Backpropagates the error
             </summary>
@@ -1778,7 +1919,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
@@ -1851,7 +1992,7 @@
             <param name="height">New height</param>
             <param name="depth">New depth</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable,System.String)">
             <summary>
             Connects a row classifier
             </summary>
@@ -1999,7 +2140,7 @@
             <summary>
             Adds a max pooling convolutional layer
             </summary>
-            <param name="filterWidth">Width of max pooliing filter</param>
+            <param name="filterWidth">Width of max pooling filter</param>
             <param name="filterHeight">Height of max pooling filter</param>
             <param name="xStride">X stride</param>
             <param name="yStride">Y stride</param>
@@ -2084,13 +2225,14 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.String,System.String,System.UInt32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.String,System.String,System.UInt32,System.UInt32,System.String)">
             <summary>
             Adds a self attention node
             </summary>
             <param name="encoderName">Name of encoder node (must be same size as decoder)</param>
             <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
-            <param name="encoderDecoderSize">Node size</param>
+            <param name="encoderSize">Size of the encoder</param>
+            <param name="decoderSize">Size of the decoder</param>
             <param name="name">Optional name to give the node</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.JoinInputWithMemory(System.String,System.UInt32,System.String)">
@@ -2119,7 +2261,7 @@
             Static extension methods
             </summary>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.IBrightDataContext,``0,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.BrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 2
             </summary>
@@ -2128,7 +2270,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.IBrightDataContext,``0,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.BrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 3
             </summary>
@@ -2137,7 +2279,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.IConvertibleRow,System.UInt32[])">
+        <member name="M:BrightWire.ExtensionMethods.GetFields``1(BrightData.DataTable.BrightDataTableRow,System.UInt32[])">
             <summary>
             Gets the strongly typed fields from a convertible row as an array
             </summary>
@@ -2146,7 +2288,7 @@
             <typeparam name="T">Type to convert to</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.IRowOrientedDataTable,BrightWire.IRowClassifier)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.DataTable.BrightDataTable,BrightWire.IRowClassifier)">
             <summary>
             Classifies each row in the data table
             </summary>
@@ -2154,22 +2296,14 @@
             <param name="classifier"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.IConvertibleTable,BrightWire.IRowClassifier)">
-            <summary>
-            Classifies each row in the data table
-            </summary>
-            <param name="convertible"></param>
-            <param name="classifier"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.GetRowsAsLabeledFeatures(BrightData.IDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.GetRowsAsLabeledFeatures(BrightData.DataTable.BrightDataTable)">
             <summary>
             Enumerates rows in the table as vectorized rows
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(BrightData.IDataTable,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(BrightData.DataTable.BrightDataTable,System.UInt32)">
             <summary>
             Clusters the rows in the data table using hierarchical clustering
             </summary>
@@ -2177,7 +2311,7 @@
             <param name="k">Number of clusters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(BrightData.IDataTable,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.ExtensionMethods.KMeans(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             Clusters the rows in the data table using k-means clustering
             </summary>
@@ -2187,7 +2321,7 @@
             <param name="distanceMetric">Distance metric to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.NonNegativeMatrixFactorisation(BrightData.IDataTable,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.NonNegativeMatrixFactorisation(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32)">
             <summary>
             Clusters the rows in the data table using non negative matrix factorisation clustering
             </summary>
@@ -2203,21 +2337,22 @@
             <param name="dataSource"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext,BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph factory
             </summary>
             <param name="context"></param>
+            <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlgebra.LinearAlgebraProvider)">
             <summary>
             Creates a graph factory
             </summary>
             <param name="lap"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateSequentialWindow(BrightData.IRowOrientedDataTable,System.UInt32,System.UInt32[])">
+        <member name="M:BrightWire.ExtensionMethods.CreateSequentialWindow(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32[])">
             <summary>
             Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows
             </summary>
@@ -2226,7 +2361,7 @@
             <param name="columnIndices">Column indices to select</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.IConvertibleTable,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.DataTable.BrightDataTable,System.UInt32,System.UInt32)">
             <summary>
             Creates a confusion matrix from two columns of a data table
             </summary>
@@ -2234,7 +2369,7 @@
             <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
             <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classify(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightWire.IIndexListClassifier)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightData.IndexListWithLabel{System.String}[],BrightWire.IIndexListClassifier)">
             <summary>
             Classifies each row of the index classification list
             </summary>
@@ -2261,7 +2396,7 @@
             <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
             <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.Classify(BrightWire.IRowClassifier,BrightData.DataTable.BrightDataTable)">
             <summary>
             Classifies each row of the data table
             </summary>
@@ -2290,19 +2425,19 @@
             </summary>
             <param name="results">Output from sequential graph execution</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.IMatrix)">
             <summary>
             Converts the matrix to a generic IGraphData
             </summary>
             <param name="matrix">Matrix to convert</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.I3DFloatTensor)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor3D)">
             <summary>
             Converts the 3D tensor to a generic IGraphData
             </summary>
             <param name="tensor">Tensor to convert</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.I4DFloatTensor)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor4D)">
             <summary>
             Converts the 4D tensor to a generic IGraphData
             </summary>
@@ -2315,7 +2450,14 @@
             <param name="miniBatch"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.ILinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.GetLinearAlgebraProvider(BrightWire.IGraphContext)">
+            <summary>
+            Returns the linear algebra provider associated from this graph context
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
             <summary>
             Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
             </summary>
@@ -2323,24 +2465,6 @@
             <param name="fixedSize">The vector size to reduce from</param>
             <param name="reducedSize">The vector size to reduce to</param>
             <param name="s"></param>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainLogisticRegression(BrightData.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
-            <summary>
-            Trains a logistic regression model on a data table
-            </summary>
-            <param name="table">The training data</param>
-            <param name="iterations">Number of iterations to train for</param>
-            <param name="learningRate">The learning rate</param>
-            <param name="lambda">Regularisation lambda</param>
-            <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
-            <returns>The trained model</returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateLogisticRegressionTrainer(BrightData.IRowOrientedDataTable)">
-            <summary>
-            Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
-            </summary>
-            <param name="table">The training data provider</param>
-            <returns>A trainer that can be used to build a logistic regression model</returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.GetTransitions``1(System.Collections.Generic.Dictionary{BrightWire.Models.Bayesian.MarkovModelObservation2{``0},BrightWire.Models.Bayesian.MarkovModelStateTransition{``0}[]},``0,``0)">
             <summary>
@@ -2363,25 +2487,25 @@
             <param name="item3">The third observation</param>
             <returns>The list of state transitions or null if nothing was found</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},BrightData.ILinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
             Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
             <param name="data">The training data</param>
-            <param name="lap">Linear alegbra provider</param>
+            <param name="lap">Linear algebra provider</param>
             <param name="k">The number of clusters</param>
             <param name="maxIterations">The maximum number of iterations</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.HierachicalCluster(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(System.Collections.Generic.IEnumerable{BrightData.IVector},System.UInt32)">
             <summary>
-            Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
+            Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
             </summary>
             <param name="data">The list of vectors to cluster</param>
             <param name="k">The number of clusters to find</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IFloatVector},BrightData.IBrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IVector},BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
             </summary>
@@ -2392,24 +2516,13 @@
             <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.IDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.DataTable.BrightDataTable)">
             <summary>
             K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
             </summary>
             <param name="data">The training data</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialLogisticRegression(BrightData.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
-            <summary>
-            Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
-            </summary>
-            <param name="data">The training data</param>
-            <param name="trainingIterations">Number of training iterations</param>
-            <param name="trainingRate">Training rate</param>
-            <param name="lambda">L2 regularisation</param>
-            <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightData.IRowOrientedDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightData.DataTable.BrightDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
             </summary>
@@ -2419,7 +2532,7 @@
             <param name="config"></param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightData.IRowOrientedDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightData.DataTable.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Decision trees build a logical tree to classify data. Various measures can be specified to prevent overfitting.
             </summary>
@@ -2427,48 +2540,40 @@
             <param name="config"></param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{System.String}})">
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
             <param name="table">The training data table that must have a index-list based column to classify against</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,BrightData.IndexList}})">
+        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{System.String}})">
             <summary>
             Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
             </summary>
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
             </summary>
             <param name="table">The training data table that must have an index-list based column</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightData.IDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightData.DataTable.BrightDataTable)">
             <summary>
             Naive bayes is a classifier that assumes conditional independence between all features
             </summary>
             <param name="table">The training data provider</param>
             <returns>A naive bayes model</returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateLinearRegressionTrainer(BrightData.IDataTable,BrightData.ILinearAlgebraProvider)">
-            <summary>
-            Linear regression fits a line to a set of data that allows you predict future values
-            </summary>
-            <param name="table">The training data table</param>
-            <param name="lap">Linear algebra provider</param>
-            <returns>A trainer that can be used to build a linear regression model</returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.GetBestClassification(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,System.Single}})">
             <summary>
@@ -2477,7 +2582,7 @@
             <param name="classifications">List of weighted classifications</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainSimpleNeuralNetwork(BrightWire.ExecutionGraph.GraphFactory,BrightData.IRowOrientedDataTable,BrightData.IRowOrientedDataTable,BrightWire.IErrorMetric,System.Single,System.UInt32,System.UInt32,System.UInt32,System.Func{BrightWire.ExecutionGraph.GraphFactory,BrightWire.ExecutionGraph.Node.NodeBase},System.Func{BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider,BrightWire.ICreateTemplateBasedGradientDescent},System.Func{BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider,BrightWire.IWeightInitialisation})">
+        <member name="M:BrightWire.ExtensionMethods.TrainSimpleNeuralNetwork(BrightWire.ExecutionGraph.GraphFactory,BrightData.DataTable.BrightDataTable,BrightData.DataTable.BrightDataTable,BrightWire.IErrorMetric,System.Single,System.UInt32,System.UInt32,System.UInt32,System.Func{BrightWire.ExecutionGraph.GraphFactory,BrightWire.ExecutionGraph.Node.NodeBase},System.Func{BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider,BrightWire.ICreateTemplateBasedGradientDescent},System.Func{BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider,BrightWire.IWeightInitialisation})">
             <summary>
             Trains a neural network with a single hidden layer
             </summary>
@@ -2494,39 +2599,13 @@
             <param name="weightInitialisation"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightWire.Helper.DebugHelpers">
-            <summary>
-            Helper classes useful when debugging BW
-            </summary>
-        </member>
-        <member name="M:BrightWire.Helper.DebugHelpers.WriteComparison(BrightData.IIndexable3DFloatTensor,BrightData.IIndexable3DFloatTensor)">
-            <summary>
-            Zips two tensors and writes the values side by side
-            </summary>
-            <param name="t1">First tensor</param>
-            <param name="t2">Second tensor</param>
-            <returns>Xml string</returns>
-        </member>
-        <member name="M:BrightWire.Helper.DebugHelpers.WriteComparison(BrightData.IIndexable4DFloatTensor,BrightData.IIndexable4DFloatTensor)">
-            <summary>
-            Zips two tensors and writes the values side by side
-            </summary>
-            <param name="t1">First tensor</param>
-            <param name="t2">Second tensor</param>
-            <returns>Xml string</returns>
-        </member>
-        <member name="M:BrightWire.Helper.DebugHelpers.WriteComparison(BrightData.IIndexableFloatMatrix,BrightData.IIndexableFloatMatrix)">
-            <summary>
-            Zips two matrices and writes the values side by side
-            </summary>
-            <param name="m1">First matrix</param>
-            <param name="m2">Second matrix</param>
-            <returns>Xml string</returns>
-        </member>
         <member name="T:BrightWire.Helper.PropertySet">
             <summary>
             Property set implementation
             </summary>
+        </member>
+        <member name="P:BrightWire.Helper.PropertySet.LinearAlgebraProvider">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Helper.RandomProjection">
             <summary>
@@ -2548,7 +2627,7 @@
             Calculates the distance between a list of vectors and a list of vectors to compare against
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IFloatVector[],BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IVector[],BrightData.DistanceMetric)">
             <summary>
             Constructor
             </summary>
@@ -2565,21 +2644,21 @@
             Distance metric
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IFloatVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IVector)">
             <summary>
             Adds a comparison vector (will be owned and disposed by the helper class)
             </summary>
             <param name="comparison">Vector to compare against</param>
             <returns>Index of the comparison vector</returns>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IFloatVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IVector)">
             <summary>
             Updates the comparison vector at this index (disposes the old vector)
             </summary>
             <param name="index">Index to update</param>
             <param name="newVector">Vector to replace with</param>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IFloatVector})">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IVector})">
             <summary>
             Updates the entire list of comparison vectors
             </summary>
@@ -2628,12 +2707,18 @@
         </member>
         <member name="P:BrightWire.IGraphData.Count">
             <summary>
-            Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
+            Count of 3D tensors (1 if the signal is a matrix or 3D tensor)
             </summary>
         </member>
         <member name="M:BrightWire.IGraphData.GetMatrix">
             <summary>
             Gets the signal as a matrix
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightWire.IGraphData.Get3DTensor">
+            <summary>
+            Gets the signal as a 3D tensor
             </summary>
             <returns></returns>
         </member>
@@ -2643,7 +2728,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphData.ReplaceWith(BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.IGraphData.ReplaceWith(BrightData.IMatrix)">
             <summary>
             Replaces the data with the specified matrix (but preserves any tensor meta data)
             </summary>
@@ -2665,7 +2750,7 @@
             An action to perform when a signal reaches a node
             </summary>
         </member>
-        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the action
             </summary>
@@ -2717,37 +2802,32 @@
             <param name="factory">Graph factory</param>
             <param name="reader">Binary reader that holds the node's state</param>
         </member>
-        <member name="T:BrightWire.IGraphSequenceContext">
+        <member name="T:BrightWire.IGraphContext">
             <summary>
-            Represents a single pass through the graph, from a single mini batch sequence
+            Represents a single pass through the graph
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Data">
+        <member name="P:BrightWire.IGraphContext.Data">
             <summary>
             Current signal
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.ExecutionContext">
+        <member name="P:BrightWire.IGraphContext.ExecutionContext">
             <summary>
             Current execution context
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.LearningContext">
+        <member name="P:BrightWire.IGraphContext.LearningContext">
             <summary>
             Current learning context (optional)
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
-        </member>
-        <member name="P:BrightWire.IGraphSequenceContext.BatchSequence">
+        <member name="P:BrightWire.IGraphContext.BatchSequence">
             <summary>
             Current mini batch sequence
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.AddForwardHistory(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate},BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.IGraphContext.AddForwardHistory(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate},BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Records forward node execution
             </summary>
@@ -2756,46 +2836,46 @@
             <param name="callback">Optional callback to add backpropagation</param>
             <param name="prev">Ancestors that fed input into the node</param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.Backpropagate(BrightWire.IGraphData)">
+        <member name="M:BrightWire.IGraphContext.Backpropagate(BrightWire.IGraphData)">
             <summary>
             Backpropagates the signal
             </summary>
             <param name="delta">Error signal</param>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.ErrorSignal">
+        <member name="P:BrightWire.IGraphContext.ErrorSignal">
             <summary>
             Final error signal
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.SetOutput(BrightWire.IGraphData,System.Int32)">
+        <member name="M:BrightWire.IGraphContext.SetOutput(BrightWire.IGraphData,System.Int32)">
             <summary>
             Saves the data as an output of the graph
             </summary>
             <param name="data">Segment to save</param>
             <param name="channel">Channel to save against (optional)</param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.GetOutput(System.Int32)">
+        <member name="M:BrightWire.IGraphContext.GetOutput(System.Int32)">
             <summary>
             Returns a saved output
             </summary>
             <param name="channel">Output channel (optional)</param>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Output">
+        <member name="P:BrightWire.IGraphContext.Output">
             <summary>
             Returns all stored output
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphSequenceContext.Results">
+        <member name="P:BrightWire.IGraphContext.Results">
             <summary>
             Execution results
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.ClearForBackpropagation">
+        <member name="M:BrightWire.IGraphContext.ClearForBackpropagation">
             <summary>
             Resets the context for another run of backpropagation
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.SetData(System.String,System.String,BrightWire.IGraphData)">
+        <member name="M:BrightWire.IGraphContext.SetData(System.String,System.String,BrightWire.IGraphData)">
             <summary>
             Stores sequence specific data
             </summary>
@@ -2803,97 +2883,23 @@
             <param name="type">Data type</param>
             <param name="data"></param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.GetData(System.String)">
+        <member name="M:BrightWire.IGraphContext.GetData(System.String)">
             <summary>
             Retrieves sequence specific data
             </summary>
             <param name="type">Data type</param>
             <returns></returns>
         </member>
-        <member name="T:BrightWire.IGraphExecutionContext">
-            <summary>
-            Graph execution context
-            </summary>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.SetMemory(System.String,BrightData.IFloatMatrix)">
-            <summary>
-            Writes to a named memory slot
-            </summary>
-            <param name="slotName">Slot name</param>
-            <param name="memory">Segment</param>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.GetMemory(System.String)">
-            <summary>
-            Reads from a named memory slot
-            </summary>
-            <param name="slotName">Slot name</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.GetNextOperation">
-            <summary>
-            Gets the next queued graph operation (if any)
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.Add(System.Collections.Generic.IEnumerable{BrightWire.IGraphOperation})">
-            <summary>
-            Adds a list of graph operations to the queue
-            </summary>
-            <param name="operationList">List of operations</param>
-        </member>
-        <member name="P:BrightWire.IGraphExecutionContext.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
-            </summary>
-        </member>
-        <member name="P:BrightWire.IGraphExecutionContext.RemainingOperationCount">
-            <summary>
-            How many operations remain queued
-            </summary>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphSequenceContext,System.Threading.CancellationToken})">
-            <summary>
-            Registers a continuation that will be executed after the current sequence has been processed in full
-            </summary>
-            <param name="sequence">Sequence index</param>
-            <param name="callback">Continuation</param>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.IMiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphSequenceContext,BrightWire.IGraphData,System.Threading.CancellationToken},System.Action{BrightWire.IGraphSequenceContext[]})">
-            <summary>
-            Registers an additional mini batch to execute after the current mini batch has completed
-            </summary>
-            <param name="miniBatch">Mini batch to execute</param>
-            <param name="data">Initial data</param>
-            <param name="startCallback">Callback when starting the batch</param>
-            <param name="endCallback">Callback when ending the batch</param>
-        </member>
-        <member name="P:BrightWire.IGraphExecutionContext.HasContinuations">
-            <summary>
-            True if there are registered continuations or additional mini batches to execute
-            </summary>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.Continue(BrightWire.IGraphSequenceContext)">
-            <summary>
-            Execute any registered continuation for this context
-            </summary>
-            <param name="context">Context with an associated IMiniBatchSequence</param>
-        </member>
-        <member name="M:BrightWire.IGraphExecutionContext.ExecuteAdditionalMiniBatch(BrightWire.ILearningContext)">
-            <summary>
-            Executes any additionally registered mini batches
-            </summary>
-            <param name="learningContext">Learning context (null if executing without training)</param>
-        </member>
         <member name="T:BrightWire.ICreateGraphContext">
             <summary>
             A type that can create a graph context
             </summary>
         </member>
-        <member name="M:BrightWire.ICreateGraphContext.Create(BrightWire.IGraphExecutionContext,BrightWire.IMiniBatchSequence,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.ICreateGraphContext.Create(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.IMiniBatchSequence,BrightWire.ILearningContext)">
             <summary>
             Creates a graph context
             </summary>
-            <param name="executionContext">Graph execution cointext</param>
+            <param name="executionContext">Graph execution context</param>
             <param name="sequence">Mini batch sequence</param>
             <param name="learningContext">Learning context (null if executing without training)</param>
             <returns></returns>
@@ -2903,7 +2909,7 @@
             Backpropagation handler
             </summary>
         </member>
-        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
+        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Backpropagate
             </summary>
@@ -2943,7 +2949,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IDataSource.CloneWith(BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.IDataSource.CloneWith(BrightData.DataTable.BrightDataTable)">
             <summary>
             Creates a new data source, using the current as a template but replacing the data table
             </summary>
@@ -3105,19 +3111,14 @@
             A pending graph operation (mini batch)
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphOperation.Execute">
+        <member name="M:BrightWire.IGraphOperation.GetMiniBatch">
             <summary>
-            Executes the operation
+            Creates the mini batch
             </summary>
         </member>
         <member name="T:BrightWire.IGraphEngine">
             <summary>
             Graph engines drive execution within a graph
-            </summary>
-        </member>
-        <member name="P:BrightWire.IGraphEngine.LinearAlgebraProvider">
-            <summary>
-            Linear algebra provider
             </summary>
         </member>
         <member name="P:BrightWire.IGraphEngine.Graph">
@@ -3140,13 +3141,14 @@
             Graph engine that is optimised for inference
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Boolean)">
             <summary>
             Executes a data source on the current graph
             </summary>
             <param name="dataSource">Segment source to process</param>
             <param name="batchSize">Initial size of each mini batch</param>
-            <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+            <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
+            <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[])">
@@ -3156,7 +3158,7 @@
             <param name="input">Vector to execute</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSingleSequentialStep(BrightWire.IGraphExecutionContext,System.UInt32,System.Single[],BrightWire.MiniBatchSequenceType)">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSingleSequentialStep(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.UInt32,System.Single[],BrightWire.MiniBatchSequenceType)">
             <summary>
             Executes a sequential input on the current graph
             </summary>
@@ -3184,12 +3186,13 @@
             A graph engine that can train the graph from training data
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphTrainingEngine.Train(BrightWire.IGraphExecutionContext,System.Action{System.Single})">
+        <member name="M:BrightWire.IGraphTrainingEngine.Train(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.Action{System.Single},System.Threading.CancellationToken)">
             <summary>
             Executes a training epoch on the graph
             </summary>
             <param name="executionContext">Graph execution context</param>
             <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
+            <param name="ct"></param>
             <returns>Graph training error</returns>
         </member>
         <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Boolean,System.Boolean})">
@@ -3288,12 +3291,29 @@
             Weight matrix
             </summary>
         </member>
-        <member name="M:BrightWire.IFeedForward.UpdateWeights(BrightData.IFloatMatrix,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.IFeedForward.UpdateWeights(BrightData.IMatrix,BrightWire.ILearningContext)">
             <summary>
             Updates the weights
             </summary>
             <param name="delta">Weight delta matrix</param>
             <param name="context">Graph learning context</param>
+        </member>
+        <member name="M:BrightWire.IFeedForward.UpdateBias(BrightData.IMatrix,BrightWire.ILearningContext)">
+            <summary>
+            Updates the bias
+            </summary>
+            <param name="delta"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:BrightWire.IFeedForward.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphContext,BrightWire.ExecutionGraph.Node.NodeBase)">
+            <summary>
+            Executes the feed forward node
+            </summary>
+            <param name="signal"></param>
+            <param name="channel"></param>
+            <param name="context"></param>
+            <param name="source"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightWire.IHaveFeedForward">
             <summary>
@@ -3345,7 +3365,7 @@
             True if the result should be formatted as a percentage
             </summary>
         </member>
-        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.LinearAlgebra.Vector{System.Single},BrightData.LinearAlgebra.Vector{System.Single})">
+        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IVectorData,BrightData.IVectorData)">
             <summary>
             Computes the error between the output vector and target vector
             </summary>
@@ -3361,7 +3381,7 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphContext,BrightData.IMatrix,BrightData.IMatrix)">
             <summary>
             Calculates the gradient of the error function
             </summary>
@@ -3385,14 +3405,14 @@
             The transformation matrix
             </summary>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IFloatVector)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IVector)">
             <summary>
             Reduces a vector
             </summary>
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IMatrix)">
             <summary>
             Reduces a matrix
             </summary>
@@ -3458,11 +3478,6 @@
             The current learning/training rate
             </summary>
         </member>
-        <member name="P:BrightWire.ILearningContext.BatchLearningRate">
-            <summary>
-            The learning rate adjusted with the current batch size
-            </summary>
-        </member>
         <member name="P:BrightWire.ILearningContext.BatchSize">
             <summary>
             The current mini batch size
@@ -3473,21 +3488,13 @@
             The total number of rows per epoch
             </summary>
         </member>
-        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IFloatMatrix,System.Action{BrightData.IFloatMatrix})">
+        <member name="M:BrightWire.ILearningContext.AddError(BrightWire.NodeErrorType,BrightWire.ExecutionGraph.Node.NodeBase,BrightData.ITensor)">
             <summary>
-            Stores an update to the model parameters
+            Adds an error to the node
             </summary>
-            <param name="fromNode">The node that is affected by this update</param>
-            <param name="update">The matrix update</param>
-            <param name="updater">Callback to execute the update</param>
-        </member>
-        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IFloatVector,System.Action{BrightData.IFloatVector})">
-            <summary>
-            Stores an update to the model parameters
-            </summary>
-            <param name="fromNode">The node that is affected by this update</param>
-            <param name="update">The vector update</param>
-            <param name="updater">Callback to execute the update</param>
+            <param name="errorType">Error type</param>
+            <param name="fromNode">The node that created the error</param>
+            <param name="error">Error</param>
         </member>
         <member name="M:BrightWire.ILearningContext.ApplyUpdates">
             <summary>
@@ -3568,7 +3575,7 @@
             Gradient descent optimisation
             </summary>
         </member>
-        <member name="M:BrightWire.IGradientDescentOptimisation.Update(BrightData.IFloatMatrix,BrightData.IFloatMatrix,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.IGradientDescentOptimisation.Update(BrightData.IMatrix,BrightData.IMatrix,BrightWire.ILearningContext)">
             <summary>
             Updates the matrix with the delta
             </summary>
@@ -3592,7 +3599,7 @@
             Creates gradient descent optimisations based on a matrix
             </summary>
         </member>
-        <member name="M:BrightWire.ICreateTemplateBasedGradientDescent.Create(BrightWire.IGradientDescentOptimisation,BrightData.IFloatMatrix,BrightWire.IPropertySet)">
+        <member name="M:BrightWire.ICreateTemplateBasedGradientDescent.Create(BrightWire.IGradientDescentOptimisation,BrightData.IMatrix,BrightWire.IPropertySet)">
             <summary>
             Creates the gradient descent optimisation for a particular target matrix
             </summary>
@@ -3604,11 +3611,6 @@
         <member name="T:BrightWire.IPropertySet">
             <summary>
             The current set of graph initialisation parameters
-            </summary>
-        </member>
-        <member name="P:BrightWire.IPropertySet.LinearAlgebraProvider">
-            <summary>
-            The linear algebra provider to use
             </summary>
         </member>
         <member name="P:BrightWire.IPropertySet.WeightInitialisation">
@@ -3751,7 +3753,7 @@
             Logistic regression classifier
             </summary>
         </member>
-        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.LinearAlgebra.Matrix{System.Single})">
+        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.IMatrix)">
             <summary>
             Outputs a list of values from 0 to 1 for each input data
             </summary>
@@ -3774,51 +3776,6 @@
             </summary>
             <param name="input">List of data to predict</param>
             <returns>List of predictions</returns>
-        </member>
-        <member name="T:BrightWire.ILogisticRegressionTrainer">
-            <summary>
-            A logistic regression trainer
-            </summary>
-        </member>
-        <member name="M:BrightWire.ILogisticRegressionTrainer.GradientDescent(System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
-            <summary>
-            Trains a model using gradient descent
-            </summary>
-            <param name="iterations">Number of training epochs</param>
-            <param name="learningRate">The training rate</param>
-            <param name="lambda">Regularisation lambda</param>
-            <param name="costCallback">Callback with current cost - False to stop training</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ILogisticRegressionTrainer.ComputeCost(BrightData.IFloatVector,System.Single)">
-            <summary>
-            Computes the cost of the specified parameters
-            </summary>
-            <param name="theta">The model parameters</param>
-            <param name="lambda">Regularisation lambda</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightWire.ILinearRegressionTrainer">
-            <summary>
-            Trainer for linear regression models
-            </summary>
-        </member>
-        <member name="M:BrightWire.ILinearRegressionTrainer.GradientDescent(System.Int32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
-            <summary>
-            Solves the model using gradient descent
-            </summary>
-            <param name="iterations">Number of training epochs</param>
-            <param name="learningRate">The training rate</param>
-            <param name="lambda">Regularisation lambda</param>
-            <param name="costCallback">Callback with current cost - False to stop training</param>
-            <returns>A trained model</returns>
-        </member>
-        <member name="M:BrightWire.ILinearRegressionTrainer.ComputeCost(BrightData.IFloatVector,System.Single)">
-            <summary>
-            Computes the cost of the specified parameters
-            </summary>
-            <param name="theta">The model parameters</param>
-            <param name="lambda">Regularisation lambda</param>
         </member>
         <member name="T:BrightWire.IIndexListEncoder">
             <summary>
@@ -3859,7 +3816,7 @@
             Classifies convertible rows
             </summary>
         </member>
-        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.IConvertibleRow)">
+        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable.BrightDataTableRow)">
             <summary>
             Classifies a convertible row
             </summary>
@@ -3871,43 +3828,31 @@
             Classifies a data table
             </summary>
         </member>
-        <member name="M:BrightWire.ITableClassifier.Classify(BrightData.IDataTable)">
+        <member name="M:BrightWire.ITableClassifier.Classify(BrightData.DataTable.BrightDataTable)">
             <summary>
             Classifies each row of a data table
             </summary>
             <param name="table">Table to classify</param>
             <returns></returns>
         </member>
-        <member name="T:BrightWire.Linear.LogisticRegressionPredictor">
+        <member name="T:BrightWire.NodeErrorType">
             <summary>
-            Makes predictions from a previously trained model
+            Node error type
             </summary>
         </member>
-        <member name="T:BrightWire.Linear.MultinomialLogisticRegressionClassifier">
+        <member name="F:BrightWire.NodeErrorType.Default">
             <summary>
-            Makes predictions from a previously trained model
+            Default error
             </summary>
         </member>
-        <member name="T:BrightWire.Linear.RegressionPredictor">
+        <member name="F:BrightWire.NodeErrorType.Bias">
             <summary>
-            Makes predictions from a previously trained model
+            Error in node bias
             </summary>
         </member>
-        <member name="T:BrightWire.Linear.Training.LogisticRegressionTrainer">
+        <member name="F:BrightWire.NodeErrorType.Weight">
             <summary>
-            Logistic regression
-            https://en.wikipedia.org/wiki/Logistic_regression
-            </summary>
-        </member>
-        <member name="T:BrightWire.Linear.Training.MultinomialLogisticRegressionTrainner">
-            <summary>
-            Logistic regression with multiple possible classifications
-            </summary>
-        </member>
-        <member name="T:BrightWire.Linear.Training.RegressionTrainer">
-            <summary>
-            Linear regression
-            https://en.wikipedia.org/wiki/Linear_regression
+            Error in node weights
             </summary>
         </member>
         <member name="T:BrightWire.Models.Bayesian.BernoulliNaiveBayes">
@@ -3938,7 +3883,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class">
@@ -3953,7 +3898,7 @@
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Prior">
             <summary>
-            The log of the prior probablilty for this classification
+            The log of the prior probability for this classification
             </summary>
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.MissingProbability">
@@ -3974,7 +3919,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.ClassData">
@@ -3996,7 +3941,7 @@
         <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModelStateTransition`1">
@@ -4048,7 +3993,7 @@
         </member>
         <member name="M:BrightWire.Models.Bayesian.MarkovModelObservation2`1.Equals(System.Object)">
             <summary>
-            Equals overide
+            Equals override
             </summary>
             <param name="obj"></param>
             <returns></returns>
@@ -4171,7 +4116,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class">
@@ -4202,7 +4147,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.MultinomialNaiveBayes.ClassData">
@@ -4219,7 +4164,7 @@
         <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes">
@@ -4275,33 +4220,33 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
-        <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability">
+        <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability">
             <summary>
             A category and its associated log probability
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Category">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Category">
             <summary>
             The category label
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.LogProbability">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.LogProbability">
             <summary>
             The natural log of the category's probability
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Probability">
+        <member name="P:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Probability">
             <summary>
             The category's probability
             </summary>
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.WriteTo(System.IO.BinaryWriter)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategoricalProbability.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary">
@@ -4332,7 +4277,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.Bayesian.NaiveBayes.Class">
@@ -4349,7 +4294,7 @@
         <member name="M:BrightWire.Models.Bayesian.NaiveBayes.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ConfusionMatrix">
@@ -4408,7 +4353,7 @@
         <member name="M:BrightWire.Models.DataSourceModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.DataSourceModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.DataSourceModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel">
@@ -4460,7 +4405,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.Node.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel.Wire">
@@ -4486,7 +4431,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.WriteTo(System.IO.BinaryWriter)">
@@ -4526,7 +4471,7 @@
         <member name="M:BrightWire.Models.ExecutionGraphModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.ExecutionGraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.VisitNodes``1(``0,System.Action{``0,BrightWire.Models.ExecutionGraphModel.Node,System.UInt32},System.Action{``0,BrightWire.Models.ExecutionGraphModel.Node})">
@@ -4548,12 +4493,13 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,System.Collections.Generic.IEnumerable{BrightData.LinearAlgebra.Vector{System.Single}})">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.IMatrix,System.Boolean)">
             <summary>
             Constructor
             </summary>
             <param name="miniBatch">The mini batch sequence</param>
             <param name="output">The mini batch output</param>
+            <param name="wantInputInExecutionResults">True to save graph inputs in the execution results</param>
         </member>
         <member name="P:BrightWire.Models.ExecutionResult.Output">
             <summary>
@@ -4615,7 +4561,7 @@
         <member name="M:BrightWire.Models.GraphModel.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.GraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.GraphModel.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.InstanceBased.KNearestNeighbours">
@@ -4643,7 +4589,7 @@
             The vector indexes to use to encode the other column(s) as a classification target
             </summary>
         </member>
-        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.ILinearAlgebraProvider,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,BrightData.DistanceMetric)">
             <summary>
             Creates a classifier from this model
             </summary>
@@ -4654,84 +4600,7 @@
         <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightWire.Models.Linear.LinearRegression">
-            <summary>
-            A linear regression model
-            </summary>
-        </member>
-        <member name="P:BrightWire.Models.Linear.LinearRegression.Theta">
-            <summary>
-            The model parameters
-            </summary>
-        </member>
-        <member name="M:BrightWire.Models.Linear.LinearRegression.CreatePredictor(BrightData.ILinearAlgebraProvider)">
-            <summary>
-            Creates a predictor from this model
-            </summary>
-            <param name="lap">The linear algebra provider</param>
-        </member>
-        <member name="M:BrightWire.Models.Linear.LinearRegression.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightWire.Models.Linear.LinearRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightWire.Models.Linear.LogisticRegression">
-            <summary>
-            A logistic regression model
-            </summary>
-        </member>
-        <member name="P:BrightWire.Models.Linear.LogisticRegression.Theta">
-            <summary>
-            The model parameters
-            </summary>
-        </member>
-        <member name="M:BrightWire.Models.Linear.LogisticRegression.CreateClassifier(BrightData.ILinearAlgebraProvider)">
-            <summary>
-            Creates a classifier from this model
-            </summary>
-            <param name="lap">Linear algebra provider</param>
-        </member>
-        <member name="M:BrightWire.Models.Linear.LogisticRegression.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightWire.Models.Linear.LogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightWire.Models.Linear.MultinomialLogisticRegression">
-            <summary>
-            Multinomial logistic regression model
-            </summary>
-        </member>
-        <member name="P:BrightWire.Models.Linear.MultinomialLogisticRegression.Model">
-            <summary>
-            The list of logistic regression models
-            </summary>
-        </member>
-        <member name="P:BrightWire.Models.Linear.MultinomialLogisticRegression.Classification">
-            <summary>
-            The associated classification labels
-            </summary>
-        </member>
-        <member name="P:BrightWire.Models.Linear.MultinomialLogisticRegression.FeatureColumn">
-            <summary>
-            The columns used to build the dense input vectors
-            </summary>
-        </member>
-        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.CreateClassifier(BrightData.ILinearAlgebraProvider)">
-            <summary>
-            Creates a classifier from this model
-            </summary>
-            <param name="lap">Linear algebra provider</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.StringTable">
@@ -4788,7 +4657,7 @@
         <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="P:BrightWire.Models.TreeBased.DecisionTree.ClassColumnIndex">
@@ -4815,7 +4684,7 @@
         <member name="M:BrightWire.Models.TreeBased.DecisionTree.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.TreeBased.RandomForest">
@@ -4837,7 +4706,7 @@
         <member name="M:BrightWire.Models.TreeBased.RandomForest.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.Models.TreeBased.RandomForest.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightWire.Models.TreeBased.RandomForest.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.And">
@@ -4845,7 +4714,7 @@
             Simple AND training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.And.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.And.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing AND training data
             </summary>
@@ -4862,7 +4731,7 @@
             </summary>
             <param name="val">The number to convert</param>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.BinaryIntegers.Addition(BrightData.IBrightDataContext,System.Int32)">
+        <member name="M:BrightWire.TrainingData.Artificial.BinaryIntegers.Addition(BrightData.BrightDataContext,System.Int32)">
             <summary>
             Creates random integers added together as feature vectors
             The input feature contains two features, one for each bit at that position
@@ -4877,7 +4746,7 @@
             Simple OR training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.Or.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.Or.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing OR training data
             </summary>
@@ -4901,14 +4770,14 @@
             <param name="ch">The character to query</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.Encode(BrightData.IBrightDataContext,System.String)">
+        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.Encode(BrightData.BrightDataContext,System.String)">
             <summary>
             Encodes a reber sequence as a sequence of one hot encoded vectors
             </summary>
             <param name="context"></param>
             <param name="sequence">The reber sequence to encode</param>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetOneHot(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetOneHot(BrightData.BrightDataContext,System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             One hot encodes the REBER strings
             </summary>
@@ -4932,21 +4801,21 @@
             Generates an unlimited number of reber sequences
             </summary>
             <param name="minlength">Minimum length of the sequences (optional)</param>
-            <param name="maxLength">Mimimum length of the sequences (optional)</param>
+            <param name="maxLength">Minimum length of the sequences (optional)</param>
         </member>
         <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.GetExtended(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Generates an unlimited number of extended reber sequences
             </summary>
             <param name="minlength">Minimum length of the sequences (optional)</param>
-            <param name="maxLength">Mimimum length of the sequences (optional)</param>
+            <param name="maxLength">Minimum length of the sequences (optional)</param>
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.SequenceGenerator">
             <summary>
             Generates random alphabetical sequences
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.SequenceGenerator.#ctor(BrightData.IBrightDataContext,System.Int32,System.UInt32,System.UInt32,System.Boolean)">
+        <member name="M:BrightWire.TrainingData.Artificial.SequenceGenerator.#ctor(BrightData.BrightDataContext,System.Int32,System.UInt32,System.UInt32,System.Boolean)">
             <summary>
             Constructor
             </summary>
@@ -5007,7 +4876,7 @@
             Simple XOR training data
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.Xor.Get(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Artificial.Xor.Get(BrightData.BrightDataContext)">
             <summary>
             Generates a data table containing XOR training data
             </summary>
@@ -5049,7 +4918,7 @@
             Creates standard data table builders
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature matrix column and one target matrix column
             </summary>
@@ -5060,7 +4929,7 @@
             <param name="outputColumns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature vector column and one target vector column
             </summary>
@@ -5069,7 +4938,7 @@
             <param name="outputSize">Size of the output vector</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature tensor 3D columns and one target vector column
             </summary>
@@ -5207,7 +5076,7 @@
             Decision tree configuration
             </summary>
         </member>
-        <member name="M:BrightWire.TreeBased.Training.DecisionTreeTrainer.Train(BrightData.IRowOrientedDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.TreeBased.Training.DecisionTreeTrainer.Train(BrightData.DataTable.BrightDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Trains a decision tree
             </summary>
@@ -5221,9 +5090,9 @@
             https://en.wikipedia.org/wiki/Random_forest
             </summary>
         </member>
-        <member name="T:BrightWire.Unsupervised.Hierachical">
+        <member name="T:BrightWire.Unsupervised.Hierarchical">
             <summary>
-            Hierachical clustering
+            Hierarchical clustering
             https://en.wikipedia.org/wiki/Hierarchical_clustering
             </summary>
         </member>

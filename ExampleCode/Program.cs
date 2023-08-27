@@ -5,11 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
-using BrightData.Numerics;
+using BrightData.LinearAlgebra;
+using BrightData.MKL;
 using BrightWire;
 using ExampleCode.DataSet;
-// ReSharper disable once RedundantUsingDirective
-using MathNet.Numerics;
+using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode
 {
@@ -19,41 +19,48 @@ namespace ExampleCode
 
         static void Main()
         {
-            using var context = new BrightDataContext(RandomSeed);
-            var useCuda = false;
+            using var context = new BrightDataContext(null, RandomSeed);
+            bool useCuda = true, useMkl = true;
 
-            // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            //Control.UseNativeMKL();
+            // IMPORTANT: uncomment the following line to disable MKL (for example if you do not have an Intel CPU)
+            // ALSO: check the mkl.net nuget package version is correct for your OS (default for ExampleCode is Windows x64)
+            //useMkl = false;
 
-            // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            //useCuda = true;
+            // IMPORTANT: uncomment the following line to disable CUDA (for example if you have a do not have an NVIDIA GPU)
+            // ALSO: make sure you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit
+            //useCuda = false;
 
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
-            IrisClassification(context);
-            IrisClustering(context);
-            MarkovChains(context);
-            TextClustering(context);
-            IntegerAddition(context);
-            ReberPrediction(context);
-            OneToMany(context, useCuda);
-            ManyToOne(context, useCuda);
-            SequenceToSequence(context, useCuda);
-            StockData(context, useCuda);
-            SimpleLinearTest(context);
-            PredictBicyclesWithLinearModel(context);
-            PredictBicyclesWithNeuralNetwork(context);
-            MultiLabelSingleClassifier(context);
-            MultiLabelMultiClassifiers(context);
-            MnistFeedForward(context);
-            MnistConvolutional(context, useCuda);
-            TrainIncomePrediction(context);
-            SentimentClassification(context, useCuda);
+            if (useMkl && useCuda)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else if (useMkl)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else
+                PerformanceTest.Run(new LinearAlgebraProvider(context));
+
+            Xor(context, useMkl);
+            IrisClassification(context, useMkl);
+            IrisClustering(context, useMkl);
+            MarkovChains(context, useMkl);
+            TextClustering(context, useMkl);
+            IntegerAddition(context, useMkl);
+            ReberPrediction(context, useMkl);
+            OneToMany(context, useMkl);
+            ManyToOne(context, useMkl);
+            SequenceToSequence(context, useMkl);
+            StockData(context, useMkl, useCuda);
+            PredictBicyclesWithNeuralNetwork(context, useMkl);
+            MultiLabelSingleClassifier(context, useMkl);
+            MultiLabelMultiClassifiers(context, useMkl);
+            MnistFeedForward(context, useMkl);
+            MnistConvolutional(context, useMkl, useCuda);
+            TrainIncomePrediction(context, useMkl);
+            SentimentClassification(context, useMkl);
         }
 
-        static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
+        static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
         {
             context.ResetRandom(RandomSeed);
 
@@ -61,12 +68,14 @@ namespace ExampleCode
             Console.WriteLine("*");
             Console.WriteLine($"* {title}");
             if (useCuda) {
-                context.UseCudaLinearAlgebra();
-                Console.WriteLine("* (CUDA)");
+                context.UseCuda();
+                Console.WriteLine("* (GPU - CUDA)");
+            }else if (useMkl) {
+                context.UseMkl();
+                Console.WriteLine("* (CPU - MKL)");
             }
             else {
-                context.UseNumericsLinearAlgebra();
-                Console.WriteLine("* (Numerics)");
+                Console.WriteLine("* (CPU)");
             }
             Console.WriteLine("*");
             Console.WriteLine("*********************************************");
@@ -77,35 +86,34 @@ namespace ExampleCode
             Console.WriteLine("---------------------------------------------");
         }
 
-        static void Xor(IBrightDataContext context)
+        static void Xor(BrightDataContext context, bool useMkl)
         {
-            Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(4, 100, 0.5f, 4);
+            Start(context, useMkl);
+            context.Xor().Train(4, 100, 0.5f, 4);
         }
 
-        static void IrisClassification(IBrightDataContext context)
+        static void IrisClassification(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var iris = context.Iris();
             iris.TrainNaiveBayes();
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
-            iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(8, 200, 0.1f, 16);
+            //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
+            iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
 
-        static void IrisClustering(IBrightDataContext context)
+        static void IrisClustering(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var iris = context.Iris();
 
-            // select only the first three columns (ignore the training label)
-            var irisTable = iris.Table.AsColumnOriented().CopyColumns(3.AsRange().ToArray());
+            var irisTable = iris.Table.Value;
 
-            void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
+            static void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {
-                var clusters = items.Select(c => c.Select(r => iris.Labels[r.RowIndex]).GroupAndCount().Format());
+                var clusters = items.Select(c => c.Select(r => r.Label).GroupAndCount().Format());
                 foreach (var cluster in clusters)
                     Console.WriteLine(cluster);
             }
@@ -116,7 +124,7 @@ namespace ExampleCode
             WriteSeparator();
 
             Console.WriteLine();
-            Console.WriteLine("Hierachical...");
+            Console.WriteLine("Hierarchical...");
             WriteSeparator();
             Write(irisTable.HierarchicalCluster(3));
             WriteSeparator();
@@ -128,27 +136,29 @@ namespace ExampleCode
             WriteSeparator();
         }
 
-        static void MarkovChains(IBrightDataContext context)
+        static void MarkovChains(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MnistFeedForward(IBrightDataContext context)
+        static void MnistFeedForward(BrightDataContext context, bool useMkl)
         {
-            Start(context);
-            context.Mnist().TrainFeedForwardNeuralNetwork();
+            Start(context, useMkl);
+            using var mnist = context.Mnist();
+            mnist.TrainFeedForwardNeuralNetwork();
         }
 
-        static void MnistConvolutional(IBrightDataContext context, bool useCuda)
+        static void MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
-            context.Mnist().TrainConvolutionalNeuralNetwork();
+            Start(context, useMkl, useCuda);
+            using var mnist = context.Mnist();
+            mnist.TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(IBrightDataContext context, bool useCuda)
+        static void SentimentClassification(BrightDataContext context, bool useMkl)
         {
-            Start(context, useCuda);
+            Start(context, useMkl);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
@@ -162,91 +172,92 @@ namespace ExampleCode
             sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
-        static void TextClustering(IBrightDataContext context)
+        static void TextClustering(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var textClustering = context.TextClustering();
             textClustering.KMeans();
             textClustering.Nnmf();
             textClustering.RandomProjection();
-            textClustering.LatentSemanticAnalysis();
+            if(context.LinearAlgebraProvider.ProviderName != Consts.DefaultLinearAlgebraProviderName)
+                textClustering.LatentSemanticAnalysis();
         }
 
-        static void IntegerAddition(IBrightDataContext context)
+        static void IntegerAddition(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.IntegerAddition().TrainRecurrentNeuralNetwork();
         }
 
-        static void ReberPrediction(IBrightDataContext context)
+        static void ReberPrediction(BrightDataContext context, bool useMkl)
         {
-            Start(context);
-            var reber = context.ReberSequencePrediction();
+            Start(context, useMkl);
+            var reber = context.ReberSequencePrediction(extended: true, minLength:10, maxLength:10);
             var engine = reber.TrainLstm();
-            reber.GenerateSequences(engine);
+            ReberSequenceTrainer.GenerateSequences(engine);
         }
 
-        static void OneToMany(IBrightDataContext context, bool useCuda)
+        static void OneToMany(BrightDataContext context, bool useMkl)
         {
-            Start(context, useCuda);
+            Start(context, useMkl);
             var sequences = context.OneToMany();
             sequences.TrainOneToMany();
         }
 
-        static void ManyToOne(IBrightDataContext context, bool useCuda)
+        static void ManyToOne(BrightDataContext context, bool useMkl)
         {
-            Start(context, useCuda);
+            Start(context, useMkl);
             var sequences = context.ManyToOne();
             sequences.TrainManyToOne();
         }
 
-        static void SequenceToSequence(IBrightDataContext context, bool useCuda)
+        static void SequenceToSequence(BrightDataContext context, bool useMkl)
         {
-            Start(context, useCuda);
+            Start(context, useMkl);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }
 
-        static void SimpleLinearTest(IBrightDataContext context)
-        {
-            Start(context);
-            context.SimpleLinear().TrainLinearRegression();
-        }
+        //static void SimpleLinearTest(BrightDataContext context)
+        //{
+        //    Start(context);
+        //    context.SimpleLinear().TrainLinearRegression();
+        //}
 
-        static void PredictBicyclesWithLinearModel(IBrightDataContext context)
-        {
-            Start(context);
-            context.Bicycles().TrainLinearModel();
-        }
+        //static void PredictBicyclesWithLinearModel(BrightDataContext context)
+        //{
+        //    Start(context);
+        //    context.Bicycles().TrainLinearModel();
+        //}
 
-        static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
+        static void PredictBicyclesWithNeuralNetwork(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Bicycles().TrainNeuralNetwork();
         }
 
-        static void MultiLabelSingleClassifier(IBrightDataContext context)
+        static void MultiLabelSingleClassifier(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Emotions().TrainNeuralNetwork();
         }
 
-        static void MultiLabelMultiClassifiers(IBrightDataContext context)
+        static void MultiLabelMultiClassifiers(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             context.Emotions().TrainMultiClassifiers();
         }
 
-        static void StockData(IBrightDataContext context, bool useCuda)
+        static void StockData(BrightDataContext context, bool useMkl, bool useCuda)
         {
-            Start(context, useCuda);
+            Start(context, useMkl, useCuda);
             var stockData = context.StockData().GetSequentialWindow();
             stockData.TrainLstm(256);
         }
 
-        static void TrainIncomePrediction(IBrightDataContext context)
+        static void TrainIncomePrediction(BrightDataContext context, bool useMkl)
         {
-            Start(context);
+            Start(context, useMkl);
             var adult = context.Adult();
             adult.TrainNeuralNetwork();
             //adult.TrainNaiveBayes();

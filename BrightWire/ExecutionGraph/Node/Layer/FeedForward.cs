@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         protected class Backpropagation : SingleBackpropagationBase<FeedForward>
         {
-            readonly IFloatMatrix _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(FeedForward source, IFloatMatrix input) : base(source)
+            public Backpropagation(FeedForward source, IMatrix input) : base(source)
             {
                 _input = input;
             }
@@ -24,74 +24,86 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //_input.Dispose();
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal
-                var ret = es.TransposeAndMultiply(_source._weight);
+                var ret = es.TransposeAndMultiply(_source.Weight);
 
                 // calculate the update to the weights
                 var weightUpdate = _input.TransposeThisAndMultiply(es);
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
+                learningContext.AddError(NodeErrorType.Bias, _source, es);
+                learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
         }
 
-        IFloatVector _bias;
-        IFloatMatrix _weight;
         IGradientDescentOptimisation _updater;
-        uint _inputSize, _outputSize;
 
-        public FeedForward(uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string? name = null) : base(name)
+        public FeedForward(uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string? name = null) : base(name)
         {
-            _bias = bias;
-            _weight = weight;
+            Bias = bias;
+            Weight = weight;
             _updater = updater;
-            _inputSize = inputSize;
-            _outputSize = outputSize;
+            InputSize = inputSize;
+            OutputSize = outputSize;
         }
 
-        public IFloatVector Bias => _bias;
-        public IFloatMatrix Weight => _weight;
-        public uint InputSize => _inputSize;
-        public uint OutputSize => _outputSize;
+        public IVector Bias { get; private set; }
+        public IMatrix Weight { get; private set; }
+        public uint InputSize { get; private set; }
+        public uint OutputSize { get; private set; }
 
         protected override void DisposeInternal(bool isDisposing)
         {
-            _bias.Dispose();
-            _weight.Dispose();
+            Bias.Dispose();
+            Weight.Dispose();
         }
 
-        public void UpdateWeights(IFloatMatrix delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
-            _updater.Update(_weight, delta, context);
+            if(type == NodeErrorType.Bias)
+                UpdateBias((IMatrix)delta, context);
+            else if (type == NodeErrorType.Weight)
+                UpdateWeights((IMatrix)delta, context);
+            else
+                throw new NotImplementedException();
         }
 
-        public void UpdateBias(IFloatMatrix delta, ILearningContext context)
+        public void UpdateWeights(IMatrix delta, ILearningContext context)
+        {
+            _updater.Update(Weight, delta, context);
+            //if(!Weight.IsEntirelyFinite())
+            //    Debugger.Break();
+        }
+
+        public void UpdateBias(IMatrix delta, ILearningContext context)
         {
             using var columnSums = delta.ColumnSums();
-            _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
+            columnSums.MultiplyInPlace(1f / delta.RowCount);
+            Bias.AddInPlace(columnSums, 1f, context.LearningRate);
         }
 
-        protected IFloatMatrix FeedForwardInternal(IFloatMatrix input, IFloatMatrix weight)
+        protected IMatrix FeedForwardInternal(IMatrix input, IMatrix weight)
         {
             var output = input.Multiply(weight);
-            output.AddToEachRow(_bias);
+            output.AddToEachRow(Bias.Segment);
             return output;
         }
 
-        public IFloatMatrix Forward(IFloatMatrix input) => FeedForwardInternal(input, _weight);
+        public IMatrix Forward(IMatrix input) => FeedForwardInternal(input, Weight);
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            var output = FeedForwardInternal(input, _weight);
+            var output = FeedForwardInternal(input, Weight);
+            //if(!output.IsEntirelyFinite())
+            //    Debugger.Break();
 
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input));
         }
@@ -104,36 +116,35 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             var lap = factory.LinearAlgebraProvider;
-
-            _inputSize = (uint)reader.ReadInt32();
-            _outputSize = (uint)reader.ReadInt32();
+            InputSize = (uint)reader.ReadInt32();
+            OutputSize = (uint)reader.ReadInt32();
 
             // read the bias parameters
-            using var bias = factory.Context.ReadVectorFrom(reader);
+            var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (_bias == null)
-                _bias = lap.CreateVector(bias);
+            if (Bias == null)
+                Bias = bias.Create(lap);
             else
-                _bias.Data = bias;
+                bias.CopyTo(Bias);
 
             // read the weight parameters
-            using var weight = factory.Context.ReadMatrixFrom(reader);
+            var weight = factory.Context.ReadMatrixFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (_weight == null)
-                _weight = lap.CreateMatrix(weight);
+            if (Weight == null)
+                Weight = weight.Create(lap);
             else
-                _weight.Data = weight;
+                weight.CopyTo(Weight);
 
             // ReSharper disable once ConstantNullCoalescingCondition
-            _updater ??= factory.CreateWeightUpdater(_weight);
+            _updater ??= factory.CreateWeightUpdater(Weight);
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write((int)_inputSize);
-            writer.Write((int)_outputSize);
-            _bias.Data.WriteTo(writer);
-            _weight.Data.WriteTo(writer);
+            writer.Write((int)InputSize);
+            writer.Write((int)OutputSize);
+            Bias.WriteTo(writer);
+            Weight.WriteTo(writer);
         }
     }
 }

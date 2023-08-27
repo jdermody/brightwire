@@ -24,9 +24,9 @@ namespace BrightWire.Bayesian
             }
             public string Label { get; }
 
-	        public double GetScore(uint[] stringIndexList)
+	        public double GetScore(IEnumerable<uint> stringIndexList)
             {
-                double score = _prior;
+                var score = _prior;
                 foreach (var item in stringIndexList) {
                     if (_index.TryGetValue(item, out var temp))
                         score += temp;
@@ -43,7 +43,7 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(c)).ToList();
         }
 
-        IEnumerable<(string Classification, double Score)> Classify(uint[] stringIndexList)
+        IEnumerable<(string Classification, double Score)> Classify(IReadOnlyList<uint> stringIndexList)
         {
             foreach (var cls in _classification)
                 yield return (cls.Label, cls.GetScore(stringIndexList));

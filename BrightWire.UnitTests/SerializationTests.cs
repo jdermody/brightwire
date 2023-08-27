@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -10,7 +9,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class SerializationTests : NumericsBase
+    public class SerializationTests : CpuBase
     {
         public class CustomErrorMetric : IErrorMetric
         {
@@ -19,14 +18,14 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+            public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(Vector<float> output, Vector<float> targetOutput)
+            public float Compute(IVectorData output, IVectorData targetOutput)
             {
-                return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
+                return output.GetMaximumIndex() == targetOutput.GetMaximumIndex() ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;
@@ -34,7 +33,7 @@ namespace BrightWire.UnitTests
 
         static GraphModel? _bestNetwork = null;
 
-        static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
+        static (GraphFactory, IDataSource) MakeGraphAndData(BrightDataContext context)
         {
             var graph = new GraphFactory(context.LinearAlgebraProvider);
             var data = graph.CreateDataSource(And.Get(context));
@@ -61,7 +60,7 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(float[] value) => value[0] > 0.5f;
+            static bool Handle(IReadOnlyVector value) => value[0] > 0.5f;
             var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }

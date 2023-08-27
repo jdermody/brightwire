@@ -9,12 +9,12 @@ namespace BrightWire.Models.Bayesian
     /// <summary>
     /// A bernoulli naive bayes model
     /// </summary>
-    public class BernoulliNaiveBayes : ISerializable
+    public class BernoulliNaiveBayes : IAmSerializable
     {
         /// <summary>
         /// The probabilities associated with a string index
         /// </summary>
-        public class StringIndexProbability : ISerializable
+        public class StringIndexProbability : IAmSerializable
         {
             /// <summary>
             /// The string index
@@ -35,13 +35,13 @@ namespace BrightWire.Models.Bayesian
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// A classification
         /// </summary>
-        public class Class : ISerializable
+        public class Class : IAmSerializable
         {
             /// <summary>
             /// The classification label
@@ -49,7 +49,7 @@ namespace BrightWire.Models.Bayesian
             public string Label { get; set; } = "";
 
             /// <summary>
-            /// The log of the prior probablilty for this classification
+            /// The log of the prior probability for this classification
             /// </summary>
             public double Prior { get; set; }
 
@@ -72,7 +72,7 @@ namespace BrightWire.Models.Bayesian
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
@@ -98,6 +98,6 @@ namespace BrightWire.Models.Bayesian
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

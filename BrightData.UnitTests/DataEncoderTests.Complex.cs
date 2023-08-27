@@ -74,7 +74,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeIndexList()
         {
-            Encode(_context.Context.CreateIndexList(1, 2, 3));
+            Encode(_context.Context.CreateIndexList(1, 2, 3), options => options.ComparingByMembers<IndexList>());
         }
 
         [Fact]
@@ -83,13 +83,13 @@ namespace BrightData.UnitTests
             EncodeArray(new [] {
                 _context.Context.CreateIndexList(1, 2, 3),
                 _context.Context.CreateIndexList(2, 3, 4)
-            });
+            }, options => options.ComparingByMembers<IndexList>());
         }
 
         [Fact]
         public void EncodeWeightedIndexList()
         {
-            Encode(_context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)));
+            Encode(_context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)), options => options.ComparingByMembers<WeightedIndexList>());
         }
 
         [Fact]
@@ -98,15 +98,14 @@ namespace BrightData.UnitTests
             EncodeArray(new [] {
                 _context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)),
                 _context.Context.CreateWeightedIndexList((2, 1f), (3, 0.5f), (4, 0f)),
-            });
+            }, options => options.ComparingByMembers<WeightedIndexList>());
         }
 
         [Fact]
         public void EncodeFloatVector()
         {
             Encode(
-                _context.Context.CreateVector(8, i => (float)i), 
-                options => options.Excluding(v => v.Segment.AllocationIndex)
+                _context.Context.CreateReadOnlyVector(8, i => i)
             );
         }
 
@@ -114,9 +113,9 @@ namespace BrightData.UnitTests
         public void EncodeFloatVectorArray()
         {
             EncodeArray(new [] {
-                _context.Context.CreateVector(8, i => (float)i),
-                _context.Context.CreateVector(8, i => (float)i*2)
-            }, options => options.Excluding(v => v.Segment.AllocationIndex));
+                _context.Context.CreateReadOnlyVector(8, i => (float)i),
+                _context.Context.CreateReadOnlyVector(8, i => (float)i*2)
+            });
         }
 
         //[Fact]
@@ -140,7 +139,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeBinaryData()
         {
-            Encode(new BinaryData(new byte[] { 1, 2, 3 }));
+            Encode(new BinaryData(new byte[] { 1, 2, 3 }), options => options.ComparingByValue<BinaryData>());
         }
 
         [Fact]
@@ -149,7 +148,7 @@ namespace BrightData.UnitTests
             EncodeArray(new[] {
                 new BinaryData(new byte[] { 1, 2, 3 }),
                 new BinaryData(new byte[] { 2, 3, 4 })
-            });
+            }, options => options.ComparingByValue<BinaryData>());
         }
     }
 }

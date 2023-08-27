@@ -2,22 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class SequenceToSequenceTrainer : DataTableTrainer
     {
         readonly SequenceGenerator _sequenceGenerator;
-        readonly IBrightDataContext _context;
 
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IBrightDataContext context, IRowOrientedDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataTable dataTable) : base(dataTable)
         {
             _sequenceGenerator = sequenceGenerator;
-            _context = context;
         }
 
         public void TrainOneToMany()
@@ -28,27 +26,27 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.GaussianWeightInitialisation(false, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             // create the engine
-            const float TRAINING_RATE = 0.03f;
+            const float trainingRate = 0.003f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 16);
-            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 8);
+            engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 128;
+            const int hiddenLayerSize = 128;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE)
+                .AddGru(hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagation()
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(15, testData, g => bestModel = g.Graph);
+            engine.Train(40, testData, g => bestModel = g.Graph);
             var executionEngine = engine.CreateExecutionEngine(bestModel);
 
             var output = executionEngine.Execute(testData);
@@ -57,8 +55,8 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Row(i).Get<Vector<float>>(0).ToArray()),
-                    Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
+                    Input: GetStringIndices(Test.Get<IReadOnlyVector>(i, 0)),
+                    Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
                 ))
             ;
 
@@ -66,6 +64,11 @@ namespace ExampleCode.DataTableTrainers
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
                 Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result)}");
             }
+        }
+
+        static uint[] GetStringIndices(IReadOnlyVector vector)
+        {
+            return GetStringIndices(vector.ReadOnlySegment.ToNewArray());
         }
 
         static uint[] GetStringIndices(float[] vector) => vector
@@ -83,27 +86,27 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.GaussianWeightInitialisation(false, 0.01f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.00375f, 8);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 128;
+            const int hiddenLayerSize = 128;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddGru(hiddenLayerSize, "encoder1")
                 .AddRecurrentBridge("encoder1", "encoder2")
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
+                .AddGru(hiddenLayerSize, "encoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(5, testData, g => bestModel = g.Graph);
+            engine.Train(10, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
             var output = executionEngine.Execute(testData);
@@ -111,10 +114,13 @@ namespace ExampleCode.DataTableTrainers
 
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
-                .Select(i => (
-                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
-                    Output: GetStringIndices(orderedOutput[i].Last())
-                ))
+                .Select(i => {
+                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
+                    return (
+                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Output: GetStringIndices(orderedOutput[i].Last())
+                    );
+                })
                 .ToList()
             ;
 
@@ -132,27 +138,30 @@ namespace ExampleCode.DataTableTrainers
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.Adam)
-                .Use(graph.GaussianWeightInitialisation(true, 0.005f))
+                .Use(graph.GaussianWeightInitialisation(false, 0.005f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
             ;
 
-            const uint BATCH_SIZE = 16;
-            const uint HIDDEN_LAYER_SIZE = 128;
-            const float TRAINING_RATE = 0.1f;
+            const uint batchSize = 8;
+            const uint hiddenLayerSize = 32;
+            const float trainingRate = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
-            Training.MetaData.Set("Seq2Seq", true);
+            Training.TableMetaData.Set("Seq2Seq", true);
+
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder1")
+                .AddLstm(hiddenLayerSize, "encoder1")
                 .AddRecurrentBridge("encoder1", "encoder2")
-                .AddGru(HIDDEN_LAYER_SIZE, "encoder2")
+                .AddLstm(hiddenLayerSize, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
-                .AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, "self-attention")
-                .AddGru(HIDDEN_LAYER_SIZE, "decoder")
+                //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE, "self-attention")
+                .AddGru(hiddenLayerSize, "decoder")
+                .AddRecurrentBridge("decoder", "decoder2")
+                .AddGru(hiddenLayerSize, "decoder2")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
                 .AddBackpropagationThroughTime()
@@ -160,8 +169,8 @@ namespace ExampleCode.DataTableTrainers
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
-            engine.Train(20, testData, model => bestModel = model.Graph);
+            engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
+            engine.Train(60, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);
@@ -179,18 +188,21 @@ namespace ExampleCode.DataTableTrainers
 
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
-                .Select(i => (
-                    Input: Test.Row(i).Get<Matrix<float>>(0).Rows.Select(v => v.MaximumIndex()).ToArray(),
-                    Output: orderedOutput[i].Select(v => v.MaximumIndex()).ToArray()
-                ))
+                .Select(i => {
+                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
+                    return (
+                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
+                    );
+                })
                 .ToList()
             ;
 
             // group by index and calculate error
             var errorByIndex = new Dictionary<int, int>();
             foreach (var (input, output) in inputOutput) {
-                var len = input.Length;
                 var outputReversed = output.Reverse().ToList();
+                var len = Math.Min(input.Length, outputReversed.Count);
                 for (var i = 0; i < len; i++) {
                     if (input[i] != outputReversed[i]) {
                         if (errorByIndex.TryGetValue(i, out var error))

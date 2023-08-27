@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.LinearAlgebra;
+using System.Linq;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
@@ -82,110 +83,51 @@ namespace BrightData.Helper
             return AlmostEqual2SComplement(v1, v2, maxDifference);
         }
 
-        public static bool AreApproximatelyEqual(IIndexable4DFloatTensor t1, IIndexable4DFloatTensor t2, int maxDifference = 6)
+        public static bool AreApproximatelyEqual<T>(T t1, T t2, int maxDifference = 6)
+            where T: IReadOnlyNumericSegment<float>
         {
-            if (t1.Count != t2.Count)
+            var len = t1.Size;
+            if (len != t2.Size)
                 return false;
-            for (var i = 0; i < t1.Count; i++) {
-                if (!AreApproximatelyEqual(t1.Tensors[i], t2.Tensors[i], maxDifference))
+
+            using var a1 = t1.Values.GetEnumerator();
+            using var a2 = t2.Values.GetEnumerator();
+            while(a1.MoveNext() && a2.MoveNext()) {
+                if (!AreApproximatelyEqual(a1.Current, a2.Current, maxDifference))
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(float[] t1, float[] t2, int maxDifference = 6)
+        {
+            var len = t1.Length;
+            if (len != t2.Length)
+                return false;
+
+            for (var i = 0; i < len; i++) {
+                if (!AreApproximatelyEqual(t1[i], t2[i], maxDifference))
                     return false;
             }
 
             return true;
         }
 
-        public static bool AreApproximatelyEqual(IIndexable3DFloatTensor t1, IIndexable3DFloatTensor t2, int maxDifference = 6)
+        public static bool AreApproximatelyEqual(INumericSegment<float> t1, INumericSegment<float> t2, int maxDifference = 6)
         {
-            if (t1.Depth != t2.Depth)
+            var len = t1.Size;
+            if (len != t2.Size)
                 return false;
 
-            for (var i = 0; i < t1.Depth; i++) {
-                if (!AreApproximatelyEqual(t1.Matrix[i], t2.Matrix[i], maxDifference))
+            for (var i = 0; i < len; i++) {
+                if (!AreApproximatelyEqual(t1[i], t2[i], maxDifference))
                     return false;
             }
 
             return true;
         }
 
-        public static bool AreApproximatelyEqual(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2, int maxDifference = 6)
-        {
-            if (m1.RowCount != m2.RowCount || m1.ColumnCount != m2.ColumnCount)
-                return false;
-
-            for (uint i = 0; i < m1.RowCount; i++) {
-                for (uint j = 0; j < m1.ColumnCount; j++) {
-                    if (!AreApproximatelyEqual(m1[i, j], m2[i, j], maxDifference))
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
-        public static bool AreApproximatelyEqual(IIndexableFloatVector v1, IIndexableFloatVector v2, int maxDifference = 6)
-        {
-            if (v1.Count != v2.Count)
-                return false;
-
-            for (uint i = 0; i < v1.Count; i++) {
-                if (!AreApproximatelyEqual(v1[i], v2[i], maxDifference))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool AreApproximatelyEqual(Tensor4D<float> t1, Tensor4D<float> t2, int maxDifference = 6)
-        {
-            if (t1.Count != t2.Count)
-                return false;
-
-            for (uint i = 0; i < t1.Count; i++) {
-                if (!AreApproximatelyEqual(t1.Tensor(i), t2.Tensor(i), maxDifference))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool AreApproximatelyEqual(Tensor3D<float> t1, Tensor3D<float> t2, int maxDifference = 6)
-        {
-            if (t1.Depth != t2.Depth)
-                return false;
-
-            for (uint i = 0; i < t1.Depth; i++) {
-                if (!AreApproximatelyEqual(t1.Matrix(i), t2.Matrix(i), maxDifference))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool AreApproximatelyEqual(Matrix<float> m1, Matrix<float> m2, int maxDifference = 6)
-        {
-            if (m1.RowCount != m2.RowCount || m1.ColumnCount != m2.ColumnCount)
-                return false;
-
-            for (uint i = 0; i < m1.RowCount; i++) {
-                if(!AreApproximatelyEqual(m1.Row(i), m2.Row(i), maxDifference))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool AreApproximatelyEqual(Vector<float> v1, Vector<float> v2, int maxDifference = 6)
-        {
-            if (v1.Size != v2.Size)
-                return false;
-
-            for (var i = 0; i < v1.Size; i++) {
-                if (!AreApproximatelyEqual(v1[i], v2[i], maxDifference))
-                    return false;
-            }
-
-            return true;
-        }
+        public static bool AreApproximatelyEqual(IHaveReadOnlyTensorSegment<float> t1, IHaveReadOnlyTensorSegment<float> t2, int maxDifference = 6) => AreApproximatelyEqual(t1.ReadOnlySegment, t2.ReadOnlySegment, maxDifference);
 #pragma warning restore 1591
     }
 }

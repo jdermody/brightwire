@@ -9,26 +9,20 @@ namespace BrightData.Helper
     /// </summary>
     public class TempStreamManager : IProvideTempStreams
     {
-        readonly string _basePath;
+        readonly string                                         _basePath;
         readonly ConcurrentDictionary<string, Lazy<FileStream>> _streamTable = new();
-        readonly ConcurrentBag<string> _tempPaths = new();
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="basePath">Location on disk to write new temp files</param>
+        /// <param name="basePath">Location on disk to write new temp files or null to use default system temp path</param>
         public TempStreamManager(string? basePath = null)
         {
             _basePath = basePath ?? Path.GetTempPath();
         }
 
         /// <inheritdoc />
-        public string GetNewTempPath()
-        {
-            var ret = Path.Combine(_basePath, Guid.NewGuid().ToString("n"));
-            _tempPaths.Add(ret);
-            return ret;
-        }
+        public string GetTempPath(string id) => Path.Combine(_basePath, id);
 
         /// <summary>
         /// Returns an existing (or creates a new) temp stream
@@ -37,7 +31,7 @@ namespace BrightData.Helper
         public Stream Get(string uniqueId)
         {
             return _streamTable.GetOrAdd(uniqueId, id => 
-                new Lazy<FileStream>(() => new FileStream(Path.Combine(_basePath, id), FileMode.CreateNew, FileAccess.ReadWrite))
+                new Lazy<FileStream>(() => new FileStream(GetTempPath(id), FileMode.CreateNew, FileAccess.ReadWrite))
             ).Value;
         }
 
@@ -50,6 +44,7 @@ namespace BrightData.Helper
 
         void IDisposable.Dispose()
         {
+            GC.SuppressFinalize(this);
             foreach (var (_, value) in _streamTable) {
                 if (value.IsValueCreated) {
                     var file = value.Value;
@@ -59,12 +54,6 @@ namespace BrightData.Helper
                 }
             }
             _streamTable.Clear();
-
-            foreach (var filePath in _tempPaths) {
-                if(File.Exists(filePath))
-                    File.Delete(filePath);
-            }
-            _tempPaths.Clear();
         }
     }
 }

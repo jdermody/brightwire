@@ -7,7 +7,7 @@ namespace BrightData.Analysis.Readers
     /// </summary>
     public class IndexAnalysis
     {
-        internal IndexAnalysis(IMetaData metaData)
+        internal IndexAnalysis(MetaData metaData)
         {
             MinIndex = metaData.GetNullable<uint>(Consts.MinIndex);
             MaxIndex = metaData.GetNullable<uint>(Consts.MaxIndex);

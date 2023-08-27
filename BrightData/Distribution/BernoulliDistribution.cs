@@ -2,9 +2,9 @@
 {
     internal class BernoulliDistribution : INonNegativeDiscreteDistribution
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public BernoulliDistribution(IBrightDataContext context, float probability)
+        public BernoulliDistribution(BrightDataContext context, float probability)
         {
             Probability = probability;
             _context = context;

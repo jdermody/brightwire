@@ -15,9 +15,9 @@ namespace BrightWire.Descriptor
             _momentum = momentum;
         }
 
-        public virtual IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet)
+        public virtual IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {
-            var cache = propertySet.LinearAlgebraProvider.CreateZeroMatrix(template.RowCount, template.ColumnCount);
+            var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new Momentum(_momentum, cache, prev);
         }
     }

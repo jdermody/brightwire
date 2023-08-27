@@ -12,14 +12,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
         {
-            readonly IFloatMatrix _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(TiedFeedForward source, IFloatMatrix input) : base(source)
+            public Backpropagation(TiedFeedForward source, IMatrix input) : base(source)
             {
                 _input = input;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -31,14 +31,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source._layer.UpdateWeights(err, learningContext));
+                learningContext.AddError(NodeErrorType.Bias, _source, es);
+                learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
         }
         IFeedForward _layer;
-        IFloatVector _bias;
+        IVector _bias;
         string _layerId;
 
         public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null) : base(name)
@@ -48,19 +48,31 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInit.CreateBias(layer.InputSize);
         }
 
-        public void UpdateBias(IFloatMatrix delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
-            using var columnSums = delta.ColumnSums();
-            _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);
+            if (type == NodeErrorType.Bias)
+                UpdateBias((IMatrix)delta, context);
+            else if (type == NodeErrorType.Weight)
+                _layer.UpdateWeights((IMatrix)delta, context);
+            else {
+                throw new NotImplementedException();
+            }
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public void UpdateBias(IMatrix delta, ILearningContext context)
+        {
+            using var columnSums = delta.ColumnSums();
+            columnSums.MultiplyInPlace(1f / columnSums.Size);
+            _bias.AddInPlace(columnSums, 1f, context.LearningRate);
+        }
+
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
 
             // feed forward
             var output = input.TransposeAndMultiply(_layer.Weight);
-            output.AddToEachRow(_bias);
+            output.AddToEachRow(_bias.Segment);
 
             // set output
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input));
@@ -73,15 +85,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            var lap = factory.LinearAlgebraProvider;
             _layerId = reader.ReadString();
 
-            var lap = factory.LinearAlgebraProvider;
-            var bias = factory.Context.ReadVectorFrom(reader);
+            var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
-                _bias = lap.CreateVector(bias);
+                _bias = bias.Create(lap);
             else
-                _bias.Data = bias;
+                bias.CopyTo(_bias);
         }
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
@@ -92,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write(_layerId);
-            _bias.Data.WriteTo(writer);
+            _bias.WriteTo(writer);
         }
     }
 }

@@ -6,43 +6,58 @@ using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class DataTableTrainer : IDisposable
     {
-        public DataTableTrainer(IRowOrientedDataTable table)
+        protected readonly BrightDataContext _context;
+
+        public DataTableTrainer(BrightDataTable table)
         {
-            TargetColumn = table.GetTargetColumnOrThrow();
-            Table = table;
-            var (training, test) = table.Split();
-            Training = training;
-            Test = test;
+            try {
+                var shuffled = table.Shuffle(null);
+                _context = table.Context;
+                TargetColumn = table.GetTargetColumnOrThrow();
+                Table = new(shuffled);
+                var (training, test) = shuffled.Split();
+                Training = training;
+                Test = test;
+            }
+            finally {
+                table.Dispose();
+            }
         }
 
-        public DataTableTrainer(IRowOrientedDataTable? table, IRowOrientedDataTable training, IRowOrientedDataTable test)
+        public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
         {
+            _context = training.Context;
             TargetColumn = training.GetTargetColumnOrThrow();
             Training = training;
             Test = test;
-            Table = table ?? training.Concat(test);
+            if (table is null)
+                Table = new(() => training.ConcatenateRows(test));
+            else
+                Table = new(table);
         }
 
         public void Dispose()
         {
-            Table.Dispose();
+            if(Table.IsValueCreated)
+                Table.Value.Dispose();
             Training.Dispose();
             Test.Dispose();
         }
 
         public uint TargetColumn { get; }
-        public IRowOrientedDataTable Table { get; }
-        public IRowOrientedDataTable Training { get; }
-        public IRowOrientedDataTable Test { get; }
+        public Lazy<BrightDataTable> Table { get; }
+        public BrightDataTable Training { get; }
+        public BrightDataTable Test { get; }
 
-        public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.KMeans(k));
-        public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.HierarchicalCluster(k));
-        public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
+        public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.Value.KMeans(k));
+        public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.Value.HierarchicalCluster(k));
+        public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.Value.NonNegativeMatrixFactorisation(k));
 
         static IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string? Label)[]> clusters) => clusters
             .Select(c => String.Join(';', c
@@ -82,32 +97,32 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(Table.Context.LinearAlgebraProvider, k));
+                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
             return ret;
         }
 
-        public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
-        {
-            var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
-            if (writeResults)
-                WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
-        }
+        //public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
+        //{
+        //    var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
+        //    if (writeResults)
+        //        WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
+        //}
 
         void WriteResults(string type, IRowClassifier classifier)
         {
             var results = Test.Classify(classifier).ToList();
             var score = results
-                .Average(d => d.Row.GetTyped<string>(TargetColumn) == d.Classification.OrderByDescending(c => c.Weight).First().Label ? 1.0 : 0.0);
-
+                .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
         void WriteResults(string type, ITableClassifier classifier)
         {
             var results = classifier.Classify(Test).ToList();
-            var expectedLabels = Test.Column(TargetColumn).Enumerate().Select(o => o.ToString()).ToArray();
+            using var column = Test.GetColumn(TargetColumn);
+            var expectedLabels = column.Values.Select(o => o.ToString()).ToArray();
             var score = results
-                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.OrderByDescending(c => c.Weight).First().Classification ? 1.0 : 0.0);
+                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.MaxBy(c => c.Weight).Classification ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
@@ -115,7 +130,7 @@ namespace ExampleCode.DataTableTrainers
         public virtual void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
         {
             // create a neural network graph factory
-            var graph = Table.Context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
 
             // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
             var errorMetric = graph.ErrorMetric.OneHotEncoding;

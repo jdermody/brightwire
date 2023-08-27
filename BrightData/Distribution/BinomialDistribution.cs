@@ -2,7 +2,7 @@
 {
     internal class BinomialDistribution : INonNegativeDiscreteDistribution
     {
-        public BinomialDistribution(IBrightDataContext context, float probability, uint numTrials)
+        public BinomialDistribution(BrightDataContext context, float probability, uint numTrials)
         {
             NumTrials = numTrials;
             BaseDistribution = new BernoulliDistribution(context, probability);

@@ -11,11 +11,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<MultiplyGate>
         {
-            readonly IFloatMatrix _primary, _secondary;
+            readonly IMatrix _primary, _secondary;
             readonly NodeBase _primarySource;
             readonly NodeBase _secondarySource;
 
-            public Backpropagation(MultiplyGate source, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource) : base(source)
+            public Backpropagation(MultiplyGate source, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource) : base(source)
             {
                 _primary = primary;
                 _secondary = secondary;
@@ -25,11 +25,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             protected override void DisposeMemory(bool isDisposing)
             {
-                //_input1.Dispose();
-                //_input2.Dispose();
+                _primary.Dispose();
+                _secondary.Dispose();
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_secondary);
@@ -40,11 +40,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public MultiplyGate(string? name = null) : base(name) { }
 
-        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        protected override (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource)
         {
-            var output = primary.PointwiseMultiply(secondary);
+            var primaryMatrix = primary.GetMatrix();
+            var secondaryMatrix = secondary.GetMatrix();
+            var output = primaryMatrix.PointwiseMultiply(secondaryMatrix);
 
-            return (output, () => new Backpropagation(this, primary,  secondary, primarySource, secondarySource));
+            return (output.AsGraphData(), () => new Backpropagation(this, primaryMatrix,  secondaryMatrix, primarySource, secondarySource));
         }
     }
 }

@@ -9,18 +9,19 @@ using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class SentimentDataTrainer
     {
-        readonly (string Classification, IndexList Data)[] _indexedSentencesTraining;
-        readonly (string Classification, IndexList Data)[] _indexedSentencesTest;
-        readonly IBrightDataContext _context;
+        readonly IndexListWithLabel<string>[] _indexedSentencesTraining;
+        readonly IndexListWithLabel<string>[] _indexedSentencesTest;
+        readonly BrightDataContext _context;
         readonly StringTableBuilder _stringTable;
         readonly uint _maxIndex;
 
-        public SentimentDataTrainer(IBrightDataContext context, DirectoryInfo directory)
+        public SentimentDataTrainer(BrightDataContext context, DirectoryInfo directory)
         {
             var files = new[]
             {
@@ -165,45 +166,45 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static IRowOrientedDataTable GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             var addColumns = true;
-
+            var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(maxIndex);
+                var features = indexList.AsDense(lap, maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(features.Size, "Features");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").SetTarget(true);
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
                 }
-                builder.AddRow(features, context.CreateVector(vector));
+                builder.AddRow(features, context.CreateReadOnlyVector(vector));
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
 
-        static (string Classification, IndexList Data)[] BuildIndexedClassifications(IBrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
+        static IndexListWithLabel<string>[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
+                .Select(d => new IndexListWithLabel<string>(d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
                 .ToArray()
             ;
         }
 
-        static IRowOrientedDataTable CreateCombinedDataTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             var addColumns = true;
-
+            var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(maxIndex);
+                var features = indexList.AsDense(lap, maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
@@ -211,12 +212,12 @@ namespace ExampleCode.DataTableTrainers
                     builder.AddFixedSizeVectorColumn(features.Size, "Vector");
                     builder.AddColumn(BrightDataType.IndexList, "Index List");
                     builder.AddColumn(BrightDataType.String, "Target");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").SetTarget(true);
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
-                builder.AddRow(features, indexList, classification, context.CreateVector(vector));
+                builder.AddRow(features, indexList, classification, context.CreateReadOnlyVector(vector));
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
@@ -255,8 +256,9 @@ namespace ExampleCode.DataTableTrainers
                         word[101] = mc == "positive" ? 1f : 0f;
                     }
 
-                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output.Single()))) {
-                        var label = result.Softmax().MaximumIndex() == 0 ? "positive" : "negative";
+                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output[0]))) {
+                        using var softmax = result.ReadOnlySegment.GetReadOnlySpan(x => x.Softmax());
+                        var label = softmax.Span.AsReadOnly().MaximumIndex() == 0 ? "positive" : "negative";
                         Console.WriteLine($"{token}: {label}");
                     }
                 }
@@ -274,7 +276,7 @@ namespace ExampleCode.DataTableTrainers
             var training = graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
-            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.1f, batchSize: 128);
+            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.01f, batchSize: 128);
 
             graph.CurrentPropertySet
                 .Use(graph.Adam())
@@ -282,14 +284,14 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 100;
+            const int hiddenLayerSize = 100;
 
             var forward = graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "forward")
+                .AddLstm(hiddenLayerSize, "forward")
             ;
             var reverse = graph.Connect(engine)
                 .ReverseSequence()
-                .AddLstm(HIDDEN_LAYER_SIZE, "backward")
+                .AddLstm(hiddenLayerSize, "backward")
             ;
             graph.BidirectionalJoin(forward, reverse)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")
@@ -302,23 +304,23 @@ namespace ExampleCode.DataTableTrainers
             return engine.CreateExecutionEngine(bestGraph);
         }
 
-        IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        BrightDataTable CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix);
-            builder.AddColumn(BrightDataType.Matrix).SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
 
             var empty = new float[102];
             foreach (var (classification, indexList) in data) {
                 var c1 = bernoulli.Classify(indexList).First().Label == "positive" ? 1f : 0f;
                 var c2 = multinomial.Classify(indexList).First().Label == "positive" ? 1f : 0f;
-                var input = indexList.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 2, (_, j) => GetOutputValue(j, classification == "positive"));
+                var input = indexList.Indices.Select(i => _context.CreateReadOnlyVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateReadOnlyMatrix((uint)input.Length, 2, (_, j) => GetOutputValue(j, classification == "positive"));
                 
-                builder.AddRow(_context.CreateMatrixFromRows(input), output);
+                builder.AddRow(_context.CreateReadOnlyMatrixFromRows(input), output);
             }
 
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         static float[]? GetInputVector(float c1, float c2, string word)

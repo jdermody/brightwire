@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BrightData;
 using BrightWire.ExecutionGraph.Node;
 
@@ -13,40 +12,32 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IFloatVector[] _rows;
+            readonly INumericSegment<float>[] _rows;
 
-            public Backpropagation(SoftMax source, IFloatVector[] rows) : base(source)
+            public Backpropagation(SoftMax source, INumericSegment<float>[] rows) : base(source)
             {
                 _rows = rows;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
+                var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                var rowList = new List<IFloatVector>();
-                for (uint i = 0; i < matrix.RowCount; i++) {
-                    using var derivative = _rows[(int)i].SoftmaxDerivative();
-                    var sm = derivative.Multiply(matrix.Row(i));
-                    rowList.Add(sm.ReshapeAsVector());
-                }
-                var ret = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
-                foreach (var item in rowList)
-                    item.Dispose();
+                IReadOnlyNumericSegment<float>[] rowList = matrix.SoftmaxDerivativePerRow(_rows);
+                var ret = lap.CreateMatrixFromRows(rowList);
+                rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);
             }
         }
 
         public SoftMax(string? name = null) : base(name) { }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
+            var lap = context.GetLinearAlgebraProvider();
             var input = signal.GetMatrix();
-            var rowList = new IFloatVector[input.RowCount];
-            for (uint i = 0; i < input.RowCount; i++) {
-                using var row = input.Row(i);
-                rowList[i] = row.Softmax();
-            }
-            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+            var rowList = input.SoftmaxPerRow();
+            var output = lap.CreateMatrixFromRows(rowList);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }

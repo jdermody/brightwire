@@ -34,7 +34,7 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// Reads a short
         /// </summary>
-        public override Int16 ReadInt16()
+        public override short ReadInt16()
         {
             _a16 = ReadBytes(2);
             if (BitConverter.IsLittleEndian)
@@ -45,7 +45,7 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// Reads a long
         /// </summary>
-        public override Int64 ReadInt64()
+        public override long ReadInt64()
         {
             _a64 = ReadBytes(8);
             if (BitConverter.IsLittleEndian)
@@ -56,7 +56,7 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// Reads a ulong
         /// </summary>
-        public override UInt32 ReadUInt32()
+        public override uint ReadUInt32()
         {
             _a32 = ReadBytes(4);
             if (BitConverter.IsLittleEndian)

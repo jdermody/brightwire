@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using BrightData.LinearAlgebra;
+using BrightData.Serialisation;
 
 namespace BrightData.Helper
 {
@@ -11,8 +10,8 @@ namespace BrightData.Helper
     /// </summary>
     public class DataEncoder : IDataReader
     {
-        readonly IBrightDataContext _context;
-        internal DataEncoder(IBrightDataContext context) => _context = context;
+        readonly BrightDataContext _context;
+        internal DataEncoder(BrightDataContext context) => _context = context;
 
         /// <summary>
         /// Generic method to read from a binary reader
@@ -76,28 +75,25 @@ namespace BrightData.Helper
                 return __refvalue(__makeref(val), T);
             }
 
-            if (typeOfT == typeof(Vector<float>)) {
-                var val = new Vector<float>(_context, reader);
+            if (typeOfT == typeof(IReadOnlyVector)) {
+                var val = _context.CreateReadOnlyVector(reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Matrix<float>)) {
-                var val = new Matrix<float>(_context, reader);
+            if (typeOfT == typeof(IReadOnlyMatrix)) {
+                var val = _context.CreateReadOnlyMatrix(reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Tensor3D<float>)) {
-                var val = new Tensor3D<float>(_context, reader);
+            if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var val = _context.CreateReadOnlyTensor3D(reader);
                 return __refvalue(__makeref(val), T);
             }
-
-            if (typeOfT == typeof(Tensor4D<float>)) {
-                var val = new Tensor4D<float>(_context, reader);
+            if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var val = _context.CreateReadOnlyTensor4D(reader);
                 return __refvalue(__makeref(val), T);
             }
 
             if (typeOfT == typeof(BinaryData)) {
-                var val = new BinaryData(reader);
+                var val = _context.Create<BinaryData>(reader);
                 return __refvalue(__makeref(val), T);
             }
 
@@ -173,34 +169,35 @@ namespace BrightData.Helper
                     ret[i] = _context.CreateWeightedIndexList(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Vector<float>)) {
-                var ret = new Vector<float>[len];
-                for (uint i = 0; i < len; i++)
-                    ret[i] = new Vector<float>(_context, reader);
+            if (typeOfT == typeof(IReadOnlyVector)) {
+                var ret = new IReadOnlyVector[len];
+                for (uint i = 0; i < len; i++) {
+                    ret[i] = _context.CreateReadOnlyVector(reader);
+                }
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Matrix<float>)) {
-                var ret = new Matrix<float>[len];
+            if (typeOfT == typeof(IReadOnlyMatrix)) {
+                var ret = new IReadOnlyMatrix[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = new Matrix<float>(_context, reader);
+                    ret[i] = _context.CreateReadOnlyMatrix(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Tensor3D<float>)) {
-                var ret = new Tensor3D<float>[len];
+            if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var ret = new IReadOnlyTensor3D[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = new Tensor3D<float>(_context, reader);
+                    ret[i] = _context.CreateReadOnlyTensor3D(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
-            if (typeOfT == typeof(Tensor4D<float>)) {
-                var ret = new Tensor4D<float>[len];
+            if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var ret = new IReadOnlyTensor4D[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = new Tensor4D<float>(_context, reader);
+                    ret[i] = _context.CreateReadOnlyTensor4D(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(BinaryData)) {
                 var ret = new BinaryData[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = new BinaryData(reader);
+                    ret[i] = _context.Create<BinaryData>(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             throw new NotImplementedException();
@@ -241,14 +238,14 @@ namespace BrightData.Helper
                 __refvalue(valRef, IndexList).WriteTo(writer);
             else if (typeOfT == typeof(WeightedIndexList))
                 __refvalue(valRef, WeightedIndexList).WriteTo(writer);
-            else if (typeOfT == typeof(Vector<float>))
-                __refvalue(valRef, Vector<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Matrix<float>))
-                __refvalue(valRef, Matrix<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Tensor3D<float>))
-                __refvalue(valRef, Tensor3D<float>).WriteTo(writer);
-            else if (typeOfT == typeof(Tensor4D<float>))
-                __refvalue(valRef, Tensor4D<float>).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyVector))
+                __refvalue(valRef, IReadOnlyVector).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyMatrix))
+                __refvalue(valRef, IReadOnlyMatrix).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyTensor3D))
+                __refvalue(valRef, IReadOnlyTensor3D).WriteTo(writer);
+            else if (typeOfT == typeof(IReadOnlyTensor4D))
+                __refvalue(valRef, IReadOnlyTensor4D).WriteTo(writer);
             else if (typeOfT == typeof(BinaryData))
                 __refvalue(valRef, BinaryData).WriteTo(writer);
             else
@@ -318,20 +315,20 @@ namespace BrightData.Helper
                 var data = __refvalue(__makeref(values), WeightedIndexList[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Vector<float>)) {
-                var data = __refvalue(__makeref(values), Vector<float>[]);
+            } else if (typeOfT == typeof(IReadOnlyVector)) {
+                var data = __refvalue(__makeref(values), IReadOnlyVector[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Matrix<float>)) {
-                var data = __refvalue(__makeref(values), Matrix<float>[]);
+            } else if (typeOfT == typeof(IReadOnlyMatrix)) {
+                var data = __refvalue(__makeref(values), IReadOnlyMatrix[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Tensor3D<float>)) {
-                var data = __refvalue(__makeref(values), Tensor3D<float>[]);
+            } else if (typeOfT == typeof(IReadOnlyTensor3D)) {
+                var data = __refvalue(__makeref(values), IReadOnlyTensor3D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
-            } else if (typeOfT == typeof(Tensor4D<float>)) {
-                var data = __refvalue(__makeref(values), Tensor4D<float>[]);
+            } else if (typeOfT == typeof(IReadOnlyTensor4D)) {
+                var data = __refvalue(__makeref(values), IReadOnlyTensor4D[]);
                 for (uint i = 0; i < len; i++)
                     data[i].WriteTo(writer);
             } else if (typeOfT == typeof(BinaryData)) {

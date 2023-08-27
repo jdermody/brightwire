@@ -13,21 +13,21 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 _source._tryRestore(context);
                 return errorSignal;
             }
         }
 
-        readonly Action<IGraphSequenceContext> _tryRestore;
+        readonly Action<IGraphContext> _tryRestore;
 
-        public HookErrorSignal(Action<IGraphSequenceContext> tryRestore, string? name = null) : base(name)
+        public HookErrorSignal(Action<IGraphContext> tryRestore, string? name = null) : base(name)
         {
             _tryRestore = tryRestore;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             return (this, signal, () => new Backpropagation(this));
         }

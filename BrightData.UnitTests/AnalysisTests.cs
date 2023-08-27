@@ -12,7 +12,7 @@ namespace BrightData.UnitTests
         {
             var d1 = new DateTime(2020, 1, 1);
             var d2 = new DateTime(2020, 2, 1);
-            var analysis = new[] { d1, d2, d2}.Analyze();
+            var analysis = new[] { d1, d2, d2 }.Analyze();
 
             analysis.MinDate.Should().Be(d1);
             analysis.MaxDate.Should().Be(d2);
@@ -38,7 +38,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void IntegerAnalysis()
         {
-            var analysis = new[] {1, 2, 3}.Analyze();
+            var analysis = new[] { 1, 2, 3 }.Analyze();
             analysis.Min.Should().Be(1);
             analysis.Max.Should().Be(3);
             analysis.Median.Should().Be(2);
@@ -62,7 +62,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void StringAnalysis()
         {
-            var analysis = new[] {"a", "ab", "abc"}.Analyze();
+            var analysis = new[] { "a", "ab", "abc" }.Analyze();
             analysis.MinLength.Should().Be(1);
             analysis.MaxLength.Should().Be(3);
             analysis.NumDistinct.Should().Be(3);
@@ -84,7 +84,7 @@ namespace BrightData.UnitTests
         public void IndexAnalysis()
         {
             using var context = new BrightDataContext();
-            var analysis = new[] {
+            var analysis = new IHaveIndices[] {
                 context.CreateIndexList(1, 2, 3),
                 context.CreateIndexList(4, 5, 6),
             }.Analyze();

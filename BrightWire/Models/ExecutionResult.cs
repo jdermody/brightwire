@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using BrightData.LinearAlgebra;
+﻿using System.Linq;
+using BrightData;
 
 namespace BrightWire.Models
 {
@@ -11,38 +10,41 @@ namespace BrightWire.Models
 	{
 		readonly IMiniBatchSequence _miniBatch;
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="miniBatch">The mini batch sequence</param>
-		/// <param name="output">The mini batch output</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, IEnumerable<Vector<float>> output)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="miniBatch">The mini batch sequence</param>
+        /// <param name="output">The mini batch output</param>
+        /// <param name="wantInputInExecutionResults">True to save graph inputs in the execution results</param>
+        public ExecutionResult(IMiniBatchSequence miniBatch, IMatrix output, bool wantInputInExecutionResults)
         {
             _miniBatch = miniBatch;
-            Output = output.Select(d => d.ToArray()).ToArray();
-            Target = _miniBatch.Target?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
-            Input = _miniBatch.Input?.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
+
+            Output = output.AllRowsAsReadOnly(true);
+            Target = _miniBatch.Target?.GetMatrix().AllRowsAsReadOnly(true);
+			if(wantInputInExecutionResults)
+                Input = _miniBatch.Input?.GetMatrix().AllRowsAsReadOnly(true);
         }
 
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public float[][] Output { get; }
+		public IReadOnlyVector[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public float[][]? Target { get; }
+		public IReadOnlyVector[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public float[][]? Input { get; }
+		public IReadOnlyVector[]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public float[][]? Error { get; set; } = null;
+        public IReadOnlyVector[]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch
@@ -55,5 +57,5 @@ namespace BrightWire.Models
 		/// <param name="errorMetric">The error metric to calculate with</param>
 		/// <returns></returns>
 		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target!, errorMetric.Compute).Average();
-	}
+    }
 }

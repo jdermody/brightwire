@@ -33,4 +33,4 @@ http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
 
 Finally, pass the path to your ptx file to the cuda provider:
 
-UseCudaLinearAlgebra(this IBrightDataContext context, string *cudaKernelPath*)
+UseCudaLinearAlgebra(this BrightDataContext context, string *cudaKernelPath*)

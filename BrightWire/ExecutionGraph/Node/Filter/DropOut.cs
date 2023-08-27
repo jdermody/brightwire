@@ -13,14 +13,14 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     {
         class Backpropagation : SingleBackpropagationBase<DropOut>
         {
-            readonly IFloatMatrix _filter;
+            readonly IMatrix _filter;
 
-            public Backpropagation(DropOut source, IFloatMatrix filter) : base(source)
+            public Backpropagation(DropOut source, IMatrix filter) : base(source)
             {
                 _filter = filter;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);
@@ -29,19 +29,23 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution? _probabilityToDrop;
 
-        public DropOut(IBrightDataContext context, float dropOutPercentage, string? name = null) : base(name)
+        public DropOut(BrightDataContext context, float dropOutPercentage, string? name = null) : base(name)
         {
             _dropOutPercentage = dropOutPercentage;
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
                 // drop out random neurons during training
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
                 var matrix = signal.GetMatrix();
-                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (_, _) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                Func<uint, uint, float> sample = FloatMath.IsZero(_dropOutPercentage)
+                    ? (_, _) => 1f
+                    : (_, _) => _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage
+                ;
+                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, sample);
                 var output = matrix.PointwiseMultiply(filter);
                 return (this, signal.ReplaceWith(output), () => new Backpropagation(this, filter));
             }

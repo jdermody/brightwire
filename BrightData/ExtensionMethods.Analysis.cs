@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
+using BrightData.DataTable;
 using BrightData.Transformation;
 
 namespace BrightData
@@ -17,7 +18,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <returns></returns>
-        public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
+        public static IDataAnalyser<DateTime> GetDateAnalyser(this BrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDateAnalyser(maxCount);
 
 
@@ -29,7 +30,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: struct =>
+        public static IDataAnalyser<T> GetNumericAnalyser<T>(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: struct =>
             StaticAnalysers.CreateNumericAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T : notnull =>
+        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T : notnull =>
             StaticAnalysers.CreateConvertToStringAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <returns></returns>
-        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
+        public static IDataAnalyser<ITensor> GetDimensionAnalyser(this BrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDimensionAnalyser(maxCount);
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: notnull =>
+        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: notnull =>
             StaticAnalysers.CreateFrequencyAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateIndexAnalyser(maxCount, writeCount);
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<double> GetNumericAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<double> GetNumericAnalyser(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateNumericAnalyser(writeCount, maxCount);
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<string> GetStringAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<string> GetStringAnalyser(this BrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateStringAnalyser(writeCount, maxCount);
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace BrightData
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext _, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser GetFrequencyAnalyser(this BrightDataContext _, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateFrequencyAnalyser(type, maxCount, writeCount);
 
         /// <summary>
@@ -109,56 +110,64 @@ namespace BrightData
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DateAnalysis GetDateAnalysis(this IMetaData metaData) => new(metaData);
+        public static DateAnalysis GetDateAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the dimension analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DimensionAnalysis GetDimensionAnalysis(this IMetaData metaData) => new(metaData);
+        public static DimensionAnalysis GetDimensionAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the frequency analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static FrequencyAnalysis GetFrequencyAnalysis(this IMetaData metaData) => new(metaData);
+        public static FrequencyAnalysis GetFrequencyAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the index analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new(metaData);
+        public static IndexAnalysis GetIndexAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the numeric analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new(metaData);
+        public static NumericAnalysis GetNumericAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the string analysis that was stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new(metaData);
+        public static StringAnalysis GetStringAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
         /// Gets the categories that were stored in meta data
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static DictionaryValues GetDictionaryValues(this IMetaData metaData) => new(metaData);
+        public static DictionaryValues GetDictionaryValues(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// 
+        /// Returns a normalization that was previously stored in the metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
-        public static NormalizeTransformation GetNormalization(this IMetaData metaData) => new(metaData);
+        public static NormalizeTransformation GetNormalization(this MetaData metaData) => new(metaData);
+
+        /// <summary>
+        /// Returns the normalization that was applied to the specified data table column
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndex">Column index to retrieve</param>
+        /// <returns></returns>
+        public static NormalizeTransformation GetColumnNormalization(this BrightDataTable dataTable, uint columnIndex) => dataTable.ColumnMetaData[columnIndex].GetNormalization();
 
         /// <summary>
         /// Analyzes numbers in a sequence
@@ -182,7 +191,7 @@ namespace BrightData
         /// <returns></returns>
         public static DateAnalysis Analyze(this IEnumerable<DateTime> dates)
         {
-            var analysis = new DateAnalyser();
+            var analysis = new DateTimeAnalyser();
             foreach (var item in dates)
                 analysis.Add(item);
             return analysis.GetMetaData().GetDateAnalysis();
@@ -193,7 +202,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensors"></param>
         /// <returns></returns>
-        public static DimensionAnalysis Analyze(this IEnumerable<ITensor<float>> tensors)
+        public static DimensionAnalysis Analyze(this IEnumerable<ITensor> tensors)
         {
             var analysis = new DimensionAnalyser();
             foreach (var item in tensors)

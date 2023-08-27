@@ -1,33 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Version>3.0.3</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <Version>4.0.0-rc</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product />
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
-    <Description>Cuda provider for Bright Data - allows GPU computation</Description>
-    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <Description>Cuda provider for Bright Data - allows GPU computation on NVIDIA GPUs</Description>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageTags>cuda gpu</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>updated to .net 6 and cuda 11.5</PackageReleaseNotes>
+    <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>C:\code\brightwire\BrightData.Cuda\BrightData.Cuda.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Compile Remove="Properties\**" />
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />
     <None Remove="cuda\brightwire.ptx" />
-    <None Remove="cuda\brightwire_35.ptx" />
-    <None Remove="cuda\brightwire_37.ptx" />
     <None Remove="cuda\brightwire_50.ptx" />
     <None Remove="cuda\brightwire_52.ptx" />
     <None Remove="cuda\brightwire_53.ptx" />
@@ -41,14 +41,6 @@
 	<None Remove="cuda\brightwire_86.ptx" />
 	<None Remove="cuda\brightwire_87.ptx" />
     <Content Include="cuda\brightwire.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_35.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_37.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
@@ -108,48 +100,25 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="managed-cuda\CudaBlas.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-    <None Include="managed-cuda\CudaSolve.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
-    <None Include="managed-cuda\ManagedCuda.netCore.dll">
-      <Pack>True</Pack>
-      <PackagePath>lib/net6.0</PackagePath>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="managed-cuda\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CudaBlas.netCore">
-      <HintPath>managed-cuda\CudaBlas.netCore.dll</HintPath>
-    </Reference>
-    <Reference Include="CudaSolve.netCore">
-      <HintPath>managed-cuda\CudaSolve.netCore.dll</HintPath>
-    </Reference>
-    <Reference Include="ManagedCuda.netCore">
-      <HintPath>managed-cuda\ManagedCuda.netCore.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\BrightData\BrightData.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

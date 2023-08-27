@@ -68,7 +68,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
-            _memory.Data.WriteTo(writer);
+            _memory.WriteTo(writer);
 
             foreach(var item in SerializedNodes)
                 WriteSubNode(item, writer);
@@ -91,13 +91,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = factory.Context.ReadVectorFrom(reader);
+            var memoryData = factory.Context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                Create(factory, inputSize, memory.Segment.ToArray(), memoryId);
+                Create(factory, inputSize, memoryData, memoryId);
             else
-                _memory.Data = memory;
+                _memory.Data = memoryData;
 
             foreach(var item in SerializedNodes)
                 ReadSubNode(item, factory, reader);

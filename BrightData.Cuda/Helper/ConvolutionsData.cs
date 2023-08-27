@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda.Helper
 {
-    internal class ConvolutionsData : IDisposable
+    internal unsafe class ConvolutionsData : IDisposable
     {
 		public ConvolutionsData(CudaProvider cuda, List<(uint X, uint Y)> convolutions)
 	    {
@@ -11,16 +12,18 @@ namespace BrightData.Cuda.Helper
 		    X = cuda.Allocate(Count);
 		    Y = cuda.Allocate(Count);
 
-		    var xData = new float[Count];
-		    var yData = new float[Count];
+		    using var xData = SpanOwner<float>.Allocate((int)Count);
+            using var yData = SpanOwner<float>.Allocate((int)Count);
+            var xDataArray = xData.DangerousGetArray().Array!;
+            var yDataArray = yData.DangerousGetArray().Array!;
 		    for (var i = 0; i < Count; i++) {
 			    var item = convolutions[i];
-			    xData[i] = item.X;
-			    yData[i] = item.Y;
+                xDataArray[i] = item.X;
+                yDataArray[i] = item.Y;
 		    }
 
-		    X.CopyToDevice(xData);
-		    Y.CopyToDevice(yData);
+		    X.CopyToDevice(xDataArray);
+		    Y.CopyToDevice(yDataArray);
 	    }
 
 		public IDeviceMemoryPtr X { get; }
@@ -29,8 +32,8 @@ namespace BrightData.Cuda.Helper
 
 		public void Dispose()
 	    {
-		    X.Free();
-		    Y.Free();
+		    X.Release();
+		    Y.Release();
 	    }
     }
 }

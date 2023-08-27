@@ -2,10 +2,10 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using BrightData.LinearAlgebra;
+using BrightData.DataTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
-using BrightWire.Models.Linear;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -25,7 +25,7 @@ namespace BrightWire
 		/// <param name="output">The vector that was the output of the model</param>
 		/// <param name="targetOutput">The vector that the model was expected to output</param>
 		/// <returns></returns>
-		float Compute(Vector<float> output, Vector<float> targetOutput);
+		float Compute(IVectorData output, IVectorData targetOutput);
 
         /// <summary>
         /// Computes the error between the output vector and target vector
@@ -42,7 +42,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput);
+		IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -58,21 +58,21 @@ namespace BrightWire
 		/// <summary>
 		/// The transformation matrix
 		/// </summary>
-		IFloatMatrix Matrix { get; }
+		IMatrix Matrix { get; }
 
 		/// <summary>
 		/// Reduces a vector
 		/// </summary>
 		/// <param name="vector"></param>
 		/// <returns></returns>
-		IFloatVector Compute(IFloatVector vector);
+		IVector Compute(IVector vector);
 
 		/// <summary>
 		/// Reduces a matrix
 		/// </summary>
 		/// <param name="matrix"></param>
 		/// <returns></returns>
-		IFloatMatrix Compute(IFloatMatrix matrix);
+		IMatrix Compute(IMatrix matrix);
 	}
 
 	/// <summary>
@@ -137,12 +137,7 @@ namespace BrightWire
 		/// </summary>
 		float LearningRate { get; set; }
 
-		/// <summary>
-		/// The learning rate adjusted with the current batch size
-		/// </summary>
-		float BatchLearningRate { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The current mini batch size
 		/// </summary>
 		uint BatchSize { get; set; }
@@ -153,20 +148,12 @@ namespace BrightWire
 		uint RowCount { get; }
 
 		/// <summary>
-		/// Stores an update to the model parameters
+		/// Adds an error to the node
 		/// </summary>
-        /// <param name="fromNode">The node that is affected by this update</param>
-		/// <param name="update">The matrix update</param>
-		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
-
-        /// <summary>
-        /// Stores an update to the model parameters
-        /// </summary>
-        /// <param name="fromNode">The node that is affected by this update</param>
-        /// <param name="update">The vector update</param>
-        /// <param name="updater">Callback to execute the update</param>
-        void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater);
+		/// <param name="errorType">Error type</param>
+		/// <param name="fromNode">The node that created the error</param>
+		/// <param name="error">Error</param>
+        void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -254,7 +241,7 @@ namespace BrightWire
 		/// <param name="source">The matrix to update</param>
 		/// <param name="delta">The delta matrix</param>
 		/// <param name="context">The graph learning context</param>
-		void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context);
+		void Update(IMatrix source, IMatrix delta, ILearningContext context);
 	}
 
 	/// <summary>
@@ -281,20 +268,15 @@ namespace BrightWire
 		/// <param name="template">The instance of the matrix that will be updated</param>
 		/// <param name="propertySet">The property set that contains initialisation parameters</param>
 		/// <returns></returns>
-		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet);
+		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
 	}
 
 	/// <summary>
 	/// The current set of graph initialisation parameters
 	/// </summary>
-	public interface IPropertySet
+	public interface IPropertySet : IHaveLinearAlgebraProvider
 	{
-		/// <summary>
-		/// The linear algebra provider to use
-		/// </summary>
-		ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The weight initialiser to use
 		/// </summary>
 		IWeightInitialisation? WeightInitialisation { get; set; }
@@ -423,14 +405,14 @@ namespace BrightWire
 		/// Creates the bias vector
 		/// </summary>
 		/// <param name="size">The size of the vector</param>
-		IFloatVector CreateBias(uint size);
+		IVector CreateBias(uint size);
 
 		/// <summary>
 		/// Creates the weight matrix
 		/// </summary>
 		/// <param name="rows">Row count</param>
 		/// <param name="columns">Column count</param>
-		IFloatMatrix CreateWeight(uint rows, uint columns);
+		IMatrix CreateWeight(uint rows, uint columns);
 	}
 
 	/// <summary>
@@ -442,7 +424,7 @@ namespace BrightWire
 		/// Outputs a list of values from 0 to 1 for each input data
 		/// </summary>
 		/// <param name="input">Input data</param>
-		Vector<float> Predict(Matrix<float> input);
+		IVector Predict(IMatrix input);
 	}
 
 	/// <summary>
@@ -464,60 +446,7 @@ namespace BrightWire
 		float[] Predict(float[][] input);
 	}
 
-	/// <summary>
-	/// A logistic regression trainer
-	/// </summary>
-	public interface ILogisticRegressionTrainer
-	{
-		/// <summary>
-		/// Trains a model using gradient descent
-		/// </summary>
-		/// <param name="iterations">Number of training epochs</param>
-		/// <param name="learningRate">The training rate</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <param name="costCallback">Callback with current cost - False to stop training</param>
-		/// <returns></returns>
-		LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
-
-		/// <summary>
-		/// Computes the cost of the specified parameters
-		/// </summary>
-		/// <param name="theta">The model parameters</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <returns></returns>
-		float ComputeCost(IFloatVector theta, float lambda);
-	}
-
-	/// <summary>
-	/// Trainer for linear regression models
-	/// </summary>
-	public interface ILinearRegressionTrainer
-	{
-		// <summary>
-		// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
-		// </summary>
-		// <returns></returns>
-		//LinearRegression Solve();
-
-		/// <summary>
-		/// Solves the model using gradient descent
-		/// </summary>
-		/// <param name="iterations">Number of training epochs</param>
-		/// <param name="learningRate">The training rate</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		/// <param name="costCallback">Callback with current cost - False to stop training</param>
-		/// <returns>A trained model</returns>
-		LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
-
-		/// <summary>
-		/// Computes the cost of the specified parameters
-		/// </summary>
-		/// <param name="theta">The model parameters</param>
-		/// <param name="lambda">Regularisation lambda</param>
-		float ComputeCost(IFloatVector theta, float lambda);
-	}
-
-	/// <summary>
+    /// <summary>
 	/// Encodes index lists to dense vectors
 	/// </summary>
 	public interface IIndexListEncoder
@@ -564,7 +493,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row to classify</param>
 		/// <returns></returns>
-        (string Label, float Weight)[] Classify(IConvertibleRow row);
+        (string Label, float Weight)[] Classify(BrightDataTableRow row);
 	}
 
     /// <summary>
@@ -577,6 +506,27 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">Table to classify</param>
         /// <returns></returns>
-        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(IDataTable table);
+        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(BrightDataTable table);
 	}
+
+    /// <summary>
+    /// Node error type
+    /// </summary>
+    public enum NodeErrorType
+    {
+		/// <summary>
+		/// Default error
+		/// </summary>
+		Default = 0,
+
+		/// <summary>
+		/// Error in node bias
+		/// </summary>
+		Bias,
+
+		/// <summary>
+		/// Error in node weights
+		/// </summary>
+		Weight
+    }
 }

@@ -7,9 +7,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.DataTable;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -25,19 +28,25 @@ namespace BrightWire
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new ExecutionContext(engine.Context, engine.LinearAlgebraProvider, engine);
-            var userNotifications = engine.LinearAlgebraProvider.Context.UserNotifications;
-            // ReSharper disable once AccessToModifiedClosure
-            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage));
+            var executionContext = new GraphExecutionContext(engine);
+            var userNotifications = engine.Context.UserNotifications;
+
+#if !DEBUG
+            var testId = Guid.NewGuid().ToString("n");
+            userNotifications?.OnStartOperation(testId);
+            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            userNotifications?.OnCompleteOperation(testId, false);
+#endif
 
             var count = 0;
             GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
-                userNotifications?.OnStartOperation();
-                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(percentage));
+                var id = Guid.NewGuid().ToString("n");
+                userNotifications?.OnStartOperation(id);
+                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
                 if (++count == testCadence) {
-                    userNotifications?.OnStartOperation();
-                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(percentage)) && onImprovement != null) {
+                    userNotifications?.OnStartOperation(id);
+                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -45,7 +54,7 @@ namespace BrightWire
                     }
                     count = 0;
                 }
-                userNotifications?.OnCompleteOperation();
+                userNotifications?.OnCompleteOperation(id, false);
             }
 
             return ret;
@@ -57,7 +66,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classifiy(this IRowClassifier classifier, IRowOrientedDataTable dataTable)
+        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, BrightDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }
@@ -98,8 +107,7 @@ namespace BrightWire
             // create the other nodes
             foreach (var node in graph.OtherNodes) {
                 var n = factory.Create(node);
-                if (!nodeTable.ContainsKey(n.Id))
-                    nodeTable.Add(n.Id, n);
+                nodeTable.TryAdd(n.Id, n);
             }
 
             // let each node know it has been deserialised and can access the entire graph
@@ -133,15 +141,16 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static float[][][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+	    public static IReadOnlyVector[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
 	    {
-		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), float[]>();
+		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
-			    for (var i = 0; i < result.Output.Length; i++) {
+                var outputRows = result.Output;
+			    for (var i = 0; i < outputRows.Length; i++) {
 				    var rowIndex = rows[i];
-				    ret.Add((rowIndex, sequenceIndex), result.Output[i]);
+				    ret.Add((rowIndex, sequenceIndex), outputRows[i]);
 			    }
 		    }
 		    return ret.GroupBy(d => d.Key.RowIndex)
@@ -156,7 +165,7 @@ namespace BrightWire
         /// Converts the matrix to a generic IGraphData
         /// </summary>
         /// <param name="matrix">Matrix to convert</param>
-        public static IGraphData AsGraphData(this IFloatMatrix matrix)
+        public static IGraphData AsGraphData(this IMatrix matrix)
         {
             return new MatrixGraphData(matrix);
         }
@@ -165,7 +174,7 @@ namespace BrightWire
         /// Converts the 3D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this I3DFloatTensor tensor)
+        public static IGraphData AsGraphData(this ITensor3D tensor)
         {
             return new Tensor3DGraphData(tensor);
         }
@@ -174,7 +183,7 @@ namespace BrightWire
         /// Converts the 4D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this I4DFloatTensor tensor)
+        public static IGraphData AsGraphData(this ITensor4D tensor)
         {
             return new Tensor4DGraphData(tensor);
         }
@@ -184,7 +193,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="miniBatch"></param>
         /// <returns></returns>
-        public static IEnumerable<IGraphSequenceContext> GetGraphContexts(this IMiniBatch miniBatch)
+        public static IEnumerable<IGraphContext> GetGraphContexts(this IMiniBatch miniBatch)
         {
             for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {
                 var context = miniBatch.GetSequenceAtIndex(i).GraphContext;
@@ -192,5 +201,12 @@ namespace BrightWire
                     yield return context;
             }
         }
+
+        /// <summary>
+        /// Returns the linear algebra provider associated from this graph context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

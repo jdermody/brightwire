@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.LinearAlgebra;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -13,7 +12,7 @@ namespace BrightWire.TrainingData.Artificial
     public class SequenceGenerator
     {
 	    readonly uint _minSize, _maxSize;
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         readonly bool _noRepeat;
         readonly Random _rnd;
 
@@ -40,7 +39,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="minSize">The minimum size of each sequence</param>
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
-        public SequenceGenerator(IBrightDataContext context, int dictionarySize, uint minSize, uint maxSize, bool noRepeat = true)
+        public SequenceGenerator(BrightDataContext context, int dictionarySize, uint minSize, uint maxSize, bool noRepeat = true)
         {
             _rnd = context.Random;
             _context = context;
@@ -94,11 +93,11 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="ch"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        public Vector<float> Encode(char ch, float val = 1f)
+        public IReadOnlyVector Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
-            return _context.CreateVector(ret);
+            return _context.CreateReadOnlyVector(ret);
         }
 
         /// <summary>
@@ -106,12 +105,12 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public Vector<float> Encode(IEnumerable<(char, float)> data)
+        public IReadOnlyVector Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[CharTable[item.Item1]] = item.Item2;
-            return _context.CreateVector(ret);
+            return _context.CreateReadOnlyVector(ret);
         }
 
         /// <summary>
@@ -119,13 +118,13 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public Matrix<float> Encode(string str)
+        public IReadOnlyMatrix Encode(string str)
         {
-            var data = new Vector<float>[str.Length];
+            var data = new IReadOnlyVector[str.Length];
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return _context.CreateMatrixFromRows(data);
+            return _context.CreateReadOnlyMatrixFromRows(data);
         }
 
         /// <summary>

@@ -7,18 +7,18 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     {
         class Backpropagation : SingleBackpropagationBase<InputSquared>
         {
-			readonly IFloatMatrix _input;
+			readonly IMatrix _input;
 
-            public Backpropagation(InputSquared source, IFloatMatrix input) : base(source)
+            public Backpropagation(InputSquared source, IMatrix input) : base(source)
             {
 				_input = input;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
                 var err = es.PointwiseMultiply(_input);
-                err.Multiply(2f);
+                err.MultiplyInPlace(2f);
                 return errorSignal.ReplaceWith(err);
             }
         }
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             var inputSquared = input.PointwiseMultiply(input);

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -16,20 +17,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     class SelfAttention : NodeBase, IHaveFeedForward
     {
         FeedForward _layer;
+        LinearAlgebraProvider _lap;
         string _encoderName, _decoderName;
 
         class Backpropagation : SingleBackpropagationBase<SelfAttention>
         {
             readonly uint _position;
-            readonly List<(IFloatMatrix EncoderState,  IFloatMatrix CombinedState)> _weights;
+            readonly List<(IMatrix EncoderState,  IMatrix CombinedState)> _weights;
 
-            public Backpropagation(SelfAttention source, uint position, List<(IFloatMatrix EncoderState,  IFloatMatrix CombinedState)> weights) : base(source)
+            public Backpropagation(SelfAttention source, uint position, List<(IMatrix EncoderState, IMatrix CombinedState)> weights) : base(source)
             {
                 _position = position;
                 _weights = weights;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var (left, right) = errorSignal.GetMatrix().SplitAtColumn(_position);
 
@@ -38,36 +40,41 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 foreach (var (encoderState, combinedState) in _weights) {
                     using var err = encoderState.PointwiseMultiply(right);
                     using var errRows = err.RowSums();
-                    errRows.Multiply(1f / err.ColumnCount);
+                    errRows.MultiplyInPlace(1f / err.ColumnCount);
 
-                    var feedForwardError = errRows.SoftmaxDerivative();
-                    using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError).RowSums();
-                    collapsed.Multiply(1f / feedForwardError.ColumnCount);
-                    var weightUpdate = collapsed.ReshapeAsColumnMatrix();
+                    using var feedForwardError = errRows.SoftmaxDerivative();
+                    using var feedForwardError2 = feedForwardError.ColumnSums();
+                    using var collapsed = combinedState.TransposeThisAndMultiply(feedForwardError);
+                    using var rowSums = collapsed.RowSums();
+                    rowSums.MultiplyInPlace(1f / feedForwardError.ColumnCount);
+                    var weightUpdate = rowSums.Reshape(null, 1);
 
-                    learningContext.StoreUpdate(_source, feedForwardError, e => _source._layer.UpdateBias(e, learningContext));
-                    learningContext.StoreUpdate(_source, weightUpdate, e => _source._layer.UpdateWeights(e, learningContext));
+                    learningContext.AddError(NodeErrorType.Bias, _source, feedForwardError2.Reshape(null, 1));
+                    learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
                 }
 
                 return left.AsGraphData();
             }
         }
 
-        public SelfAttention(string encoderName, string decoderName, FeedForward layer, string? name, string? id = null) : base(name, id)
+        public SelfAttention(LinearAlgebraProvider lap, string encoderName, string decoderName, FeedForward layer, string? name, string? id = null) : base(name, id)
         {
+            _lap = lap;
             _encoderName = encoderName;
             _decoderName = decoderName;
             _layer = layer;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
+
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var currentIndex = context.BatchSequence.SequenceIndex;
 
             // get the previous decoder state
-            IFloatMatrix? decoderHiddenState = null;
+            IMatrix? decoderHiddenState = null;
             if (currentIndex == 0) {
-                if ((FindByName(_decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
+                if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
                     decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
             }
             else {
@@ -78,22 +85,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 throw new Exception("Not able to find the decoder hidden state");
 
             // attend to each encoder hidden state
-            var previous = context.BatchSequence.MiniBatch.PreviousMiniBatch;
-            if(previous == null)
-                throw new Exception("No previous mini batch");
+            var previous = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
 
-            IFloatMatrix? weights = null;
-            var encoderStates = new List<IFloatMatrix>();
-            var inputs = new List<IFloatMatrix>();
+            IMatrix? weights = null;
+            var encoderStates = new List<IMatrix>();
+            var inputs = new List<IMatrix>();
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
-                var encoderState = previous.GetSequenceAtIndex(i).GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
-                var combined = decoderHiddenState.ConcatRows(encoderState);
+                var sequence = previous.GetSequenceAtIndex(i);
+                var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
+                var combined = decoderHiddenState.ConcatRight(encoderState);
                 var output = _layer.Forward(combined);
 
                 if (weights == null)
                     weights = output;
                 else {
-                    var next = weights.ConcatRows(output);
+                    var next = weights.ConcatRight(output);
                     weights.Dispose();
                     weights = next;
                 }
@@ -102,27 +108,25 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 
             // form the new attention as a product of the weights
-            using var softmax = weights!.SoftmaxActivation();
-            var combinedAttention = context.LinearAlgebraProvider.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, true);
-            var backward = new List<(IFloatMatrix EncoderState, IFloatMatrix CombinedState)>();
+            using var softmax = weights!.Softmax();
+            using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
+            var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
-            foreach (var (first, second) in softmax.ColumnVectors().Zip(encoderStates)) {
-                var multiplyWeight = first.Average();
+            foreach (var (first, second) in softmax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
+                // save the average weight across the batch for diagnostics
+                var multiplyWeight = first.ReadOnlySegment.GetReadOnlySpan(x => x.Average());
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
-                var saved = second.Clone();
-                var indexedFirst = first.AsIndexable();
-                using var stretched = context.LinearAlgebraProvider.CreateMatrix(second.RowCount, second.ColumnCount, (i, j) => indexedFirst[i]);
-                second.PointwiseMultiply(stretched);
-                //second.Multiply(multiplyWeight);
-                combinedAttention.AddInPlace(second);
-                backward.Add((saved, inputs[index++]));
+                using var stretched = _lap.CreateMatrixFromColumns(Enumerable.Repeat(first, (int)second.ColumnCount).ToArray());
+                using var result = second.PointwiseMultiply(stretched);
+                combinedAttention.AddInPlace(result);
+                backward.Add((second, inputs[index++]));
             }
-            combinedAttention.Multiply(1f / index);
+            combinedAttention.MultiplyInPlace(1f / index);
 
             // concatenate signal with combined attention
-            var final = signal.GetMatrix().ConcatRows(combinedAttention);
+            var final = signal.GetMatrix().ConcatRight(combinedAttention);
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, backward));
         }
 
@@ -142,7 +146,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            // ReSharper disable once ConstantNullCoalescingCondition
+            _lap = factory.LinearAlgebraProvider;
             _layer ??= GenericActivator.CreateUninitialized<FeedForward>();
             _layer.ReadFrom(factory, reader);
             _encoderName = reader.ReadString();

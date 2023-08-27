@@ -4,18 +4,17 @@ using System.IO;
 using System.Linq;
 using BrightData.Converter;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.Transformation
 {
-    internal class DataTableVectoriser : IHaveDataContext, IDataTableVectoriser
+    internal class DataTableVectoriser : IHaveBrightDataContext, IDataTableVectoriser
     {
-        interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter
+        interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter, IHaveSize
         {
             uint ColumnIndex { get; }
             IEnumerable<float> GetNext();
             IEnumerable<float> Convert(object obj);
-            uint Size { get; }
         }
 
         interface IColumnVectoriser<in T> : IColumnVectoriser where T : notnull
@@ -75,8 +74,8 @@ namespace BrightData.Transformation
         {
             readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
-            public NumericVectoriser(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
+            public NumericVectoriser(ITableSegment column)
+                : base(column.MetaData.GetColumnIndex(), ((ITableSegment<T>)column).Values.GetEnumerator())
             {
             }
 
@@ -92,12 +91,12 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator()) { }
-            public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
+            WeightedIndexListVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<WeightedIndexList>)column).Values.GetEnumerator()) { }
+            public WeightedIndexListVectoriser(uint maxSize, ITableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
-            public WeightedIndexListVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            public WeightedIndexListVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _maxSize = reader.ReadUInt32();
             }
@@ -122,12 +121,12 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
-            public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
+            IndexListVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<IndexList>)column).Values.GetEnumerator()) { }
+            public IndexListVectoriser(uint maxSize, ITableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
-            public IndexListVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            public IndexListVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _maxSize = reader.ReadUInt32();
             }
@@ -148,14 +147,14 @@ namespace BrightData.Transformation
                 writer.Write(_maxSize);
             }
         }
-        class TensorVectoriser : VectoriserBase<ITensor<float>>
+        class TensorVectoriser : VectoriserBase<IHaveReadOnlyTensorSegment<float>>
         {
-            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator()) {}
-            public TensorVectoriser(uint size, ISingleTypeTableSegment column) : this(column)
+            TensorVectoriser(ITableSegment column) : base(column.MetaData.GetColumnIndex(), ((ITableSegment<IHaveReadOnlyTensorSegment<float>>)column).Values.GetEnumerator()) {}
+            public TensorVectoriser(uint size, ITableSegment column) : this(column)
             {
                 Size = size;
             }
-            public TensorVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            public TensorVectoriser(ITableSegment column, BinaryReader reader) : this(column)
             {
                 Size = reader.ReadUInt32();
             }
@@ -169,9 +168,9 @@ namespace BrightData.Transformation
             public override uint Size { get; }
             public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
-            protected override IEnumerable<float> Vectorize(ITensor<float> obj)
+            protected override IEnumerable<float> Vectorize(IHaveReadOnlyTensorSegment<float> obj)
             {
-                return obj.Segment.Values;
+                return obj.ReadOnlySegment.Values;
             }
         }
 
@@ -187,13 +186,13 @@ namespace BrightData.Transformation
             uint _nextIndex = 0;
 
 #pragma warning disable 8618
-            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator()) { }
+            OneHotEncodeVectorised(ITableSegment column) : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator()) { }
 #pragma warning restore 8618
-            public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column) : this(column)
+            public OneHotEncodeVectorised(uint size, ITableSegment column) : this(column)
             {
                 _buffer = new float[Size = size];
             }
-            public OneHotEncodeVectorised(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            public OneHotEncodeVectorised(ITableSegment column, BinaryReader reader) : this(column)
             {
                 _nextIndex = reader.ReadUInt32();
                 var size = reader.ReadUInt32();
@@ -234,9 +233,7 @@ namespace BrightData.Transformation
                     .Where(kv => kv.Value == index)
                     .Select(kv => kv.Key)
                     .SingleOrDefault();
-                if (ret == null)
-                    throw new ArgumentException($"Index {index} not found");
-                return ret;
+                return ret ?? throw new ArgumentException($"Index {index} not found");
             }
         }
 
@@ -245,12 +242,12 @@ namespace BrightData.Transformation
             readonly Dictionary<string, uint> _stringIndex = new();
             uint _nextIndex = 0;
 
-            public OneHotEncode(ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator())
+            public OneHotEncode(ITableSegment column)
+                : base(column.MetaData.GetColumnIndex(), column.Values.GetEnumerator())
             {
                 Size = 1;
             }
-            public OneHotEncode(ISingleTypeTableSegment column, BinaryReader reader)
+            public OneHotEncode(ITableSegment column, BinaryReader reader)
                 : this(column)
             {
                 _nextIndex = reader.ReadUInt32();
@@ -287,9 +284,7 @@ namespace BrightData.Transformation
                     .Where(kv => kv.Value == index)
                     .Select(kv => kv.Key)
                     .SingleOrDefault();
-                if (ret == null)
-                    throw new ArgumentException($"Index {index} not found");
-                return ret;
+                return ret ?? throw new ArgumentException($"Index {index} not found");
             }
         }
 
@@ -297,32 +292,32 @@ namespace BrightData.Transformation
 
         public uint OutputSize => (uint)_input.Sum(c => c.Size);
         public uint RowCount { get; }
-        public IBrightDataContext Context { get; }
+        public BrightDataContext Context { get; }
 
         public float[] Vectorise(object[] row)
         {
             return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
         }
 
-        public float[] Vectorise(IDataTableSegment segment)
+        public float[] Vectorise(ICanRandomlyAccessData segment)
         {
             return _input.SelectMany(i => i.Convert(segment[i.ColumnIndex])).ToArray();
         }
 
-        public DataTableVectoriser(IDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
+        public DataTableVectoriser(BrightDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
         {
-            columnIndices = dataTable.AllOrSelectedColumnIndices(columnIndices).ToArray();
+            columnIndices = dataTable.AllOrSpecifiedColumnIndices(columnIndices).ToArray();
 
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
 
-            var analysis = dataTable.ColumnAnalysis(columnIndices).ToDictionary(d => d.ColumnIndex, d => d.MetaData);
+            var analysis = dataTable.GetColumnAnalysis(columnIndices).ToDictionary(d => d.ColumnIndex, d => d.MetaData);
             _input.AddRange(columnIndices
-                .Select(ci => GetColumnVectoriser(dataTable.Column(ci), analysis[ci], oneHotEncodeToMultipleColumns))
+                .Select(ci => GetColumnVectoriser(dataTable.GetColumn(ci), analysis[ci], oneHotEncodeToMultipleColumns))
             );
         }
 
-        public DataTableVectoriser(IDataTable dataTable, BinaryReader reader)
+        public DataTableVectoriser(BrightDataTable dataTable, BinaryReader reader)
         {
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
@@ -332,15 +327,21 @@ namespace BrightData.Transformation
                 _input.Add(GetColumnVectoriser(dataTable, reader));
         }
 
-        static IColumnVectoriser GetColumnVectoriser(IDataTable dataTable, BinaryReader reader)
+        public void Dispose()
+        {
+            foreach(var item in _input)
+                item.Dispose();
+        }
+
+        static IColumnVectoriser GetColumnVectoriser(BrightDataTable dataTable, BinaryReader reader)
         {
             var type = (VectorisationType) reader.ReadByte();
-            var column = dataTable.Column(reader.ReadUInt32());
+            var column = dataTable.GetColumn(reader.ReadUInt32());
 
             return type switch {
                 VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(column, reader),
                 VectorisationType.Numeric => GenericActivator.Create<IColumnVectoriser>(
-                    typeof(NumericVectoriser<>).MakeGenericType(column.SingleType.GetDataType()),
+                    typeof(NumericVectoriser<>).MakeGenericType(column.SegmentType.GetDataType()),
                     column
                 ),
                 VectorisationType.IndexList => new IndexListVectoriser(column, reader),
@@ -358,7 +359,7 @@ namespace BrightData.Transformation
                 item.WriteTo(writer);
         }
 
-        public IEnumerable<Vector<float>> Enumerate()
+        public IEnumerable<IVector> Enumerate()
         {
             var ret = new float[OutputSize];
 
@@ -368,7 +369,7 @@ namespace BrightData.Transformation
                     foreach (var value in column.GetNext())
                         ret[index++] = value;
                 }
-                var input = Context.CreateVector(ret);
+                var input = Context.LinearAlgebraProvider.CreateVector(ret);
                 yield return input;
             }
         }
@@ -382,9 +383,9 @@ namespace BrightData.Transformation
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, IMetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
+        static IColumnVectoriser GetColumnVectoriser(ITableSegment column, MetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
         {
-            var type = column.SingleType;
+            var type = column.SegmentType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
 
             if ((columnClass & ColumnClass.Categorical) != 0) {

@@ -13,10 +13,10 @@ namespace BrightWire.Unsupervised
     internal class KMeans : IDisposable
 	{
 		readonly VectorDistanceHelper _distance;
-		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new();
-		readonly IFloatVector[] _data;
+		List<(uint[] DataIndices, IVector Cluster)> _clusters = new();
+		readonly IVector[] _data;
 
-		public KMeans(IBrightDataContext context, uint k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+		public KMeans(BrightDataContext context, uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 		{
 			_data = data.ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);
@@ -77,7 +77,7 @@ namespace BrightWire.Unsupervised
 				.ToList();
 
 			var differenceCount = 0;
-			var newClusters = new List<(uint[] DataIndices, IFloatVector Cluster)>();
+			var newClusters = new List<(uint[] DataIndices, IVector Cluster)>();
 			for (var i = 0; i < _clusters.Count; i++) {
 				var oldIndices = _clusters[i].DataIndices;
 				if (i < clusters.Count) {
@@ -108,6 +108,6 @@ namespace BrightWire.Unsupervised
 			}
 		}
 
-		public IFloatVector[][] Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToArray()).ToArray();
+		public IVector[][] Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToArray()).ToArray();
     }
 }

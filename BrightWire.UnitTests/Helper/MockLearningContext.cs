@@ -15,23 +15,26 @@ namespace BrightWire.UnitTests.Helper
 
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; set; }
         public uint CurrentEpoch { get; set; }
         public float LearningRate { get; set; }
         public float BatchLearningRate { get; set; }
         public uint BatchSize { get; set; }
         public uint RowCount { get; set; }
-        public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
+        public void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater)
         {
 
         }
 
-        public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
+        public void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater)
         {
             
         }
 
         public bool DeferUpdates { get; set; }
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
+        {
+        }
+
         public void ApplyUpdates()
         {
             throw new NotImplementedException();

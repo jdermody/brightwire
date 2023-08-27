@@ -15,7 +15,7 @@ namespace BrightData.Transformation
         /// </summary>
         /// <param name="type">Type of normalization</param>
         /// <param name="analysedMetaData">Numeric analysis</param>
-        public NormalizeTransformation(NormalizationType type, IMetaData analysedMetaData)
+        public NormalizeTransformation(NormalizationType type, MetaData analysedMetaData)
         {
             NormalizationType = type;
 
@@ -26,7 +26,7 @@ namespace BrightData.Transformation
                 else if (type == NormalizationType.Manhattan)
                     divide = Convert.ToDouble(analysedMetaData.Get(Consts.L1Norm));
                 else if (type == NormalizationType.Standard) {
-                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.PopulationStdDev) ?? 1);
+                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.SampleStdDev) ?? 1);
                     subtract = Convert.ToDouble(analysedMetaData.Get(Consts.Mean));
                 }
                 else if (type == NormalizationType.FeatureScale) {
@@ -46,7 +46,7 @@ namespace BrightData.Transformation
             _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
         }
 
-        internal NormalizeTransformation(IMetaData metaData)
+        internal NormalizeTransformation(MetaData metaData)
         {
             NormalizationType = (NormalizationType)metaData.Get<byte>(Consts.NormalizationType, 0);
             Subtract = metaData.Get(Consts.NormalizationP1, 0D);
@@ -57,7 +57,7 @@ namespace BrightData.Transformation
         /// Writes the normalization parameters to a meta data store
         /// </summary>
         /// <param name="metaData"></param>
-        public void WriteTo(IMetaData metaData)
+        public void WriteTo(MetaData metaData)
         {
             metaData.Set(Consts.NormalizationType, (byte)NormalizationType);
             metaData.Set(Consts.NormalizationP1, Subtract);
@@ -84,6 +84,13 @@ namespace BrightData.Transformation
         /// </summary>
         /// <param name="val">Value to normalize</param>
         /// <returns>Normalized result</returns>
-        public double Normalize(double val) => _divideByZero ? val : (val - Subtract) / Divide;
+        public double Normalize(double val) => (val - Subtract) / (_divideByZero ? 1 : Divide);
+
+        /// <summary>
+        /// Reverse a normalized value
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public double ReverseNormalize(double val) => (_divideByZero ? val : val * Divide) + Subtract;
     }
 }

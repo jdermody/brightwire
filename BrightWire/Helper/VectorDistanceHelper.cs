@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.Helper
 {
@@ -10,18 +11,18 @@ namespace BrightWire.Helper
 	/// </summary>
     public class VectorDistanceHelper : IDisposable
 	{
-		readonly ILinearAlgebraProvider _lap;
-        readonly List<IFloatVector> _comparison = new();
-		readonly IFloatVector[] _data;
+		readonly LinearAlgebraProvider _lap;
+        readonly List<IVector> _comparison = new();
+		readonly IVector[] _data;
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
         /// <param name="data">List of vectors to compare</param>
 		/// <param name="distanceMetric">Distance metric for comparison</param>
-	    public VectorDistanceHelper(IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public VectorDistanceHelper(IVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
-			_lap = data[0].LinearAlgebraProvider;
+			_lap = data[0].Context.LinearAlgebraProvider;
 		    Metric = distanceMetric;
 		    _data = data;
 	    }
@@ -35,7 +36,7 @@ namespace BrightWire.Helper
 		/// <summary>
 		/// The list of vectors to compare against
 		/// </summary>
-		public IReadOnlyList<IFloatVector> CompareTo => _comparison;
+		public IReadOnlyList<IVector> CompareTo => _comparison;
 
 		/// <summary>
 		/// Distance metric
@@ -47,7 +48,7 @@ namespace BrightWire.Helper
 		/// </summary>
 		/// <param name="comparison">Vector to compare against</param>
 		/// <returns>Index of the comparison vector</returns>
-		public int AddComparison(IFloatVector comparison)
+		public int AddComparison(IVector comparison)
 		{
 			var ret = _comparison.Count;
 			_comparison.Add(comparison);
@@ -59,7 +60,7 @@ namespace BrightWire.Helper
 		/// </summary>
 		/// <param name="index">Index to update</param>
 		/// <param name="newVector">Vector to replace with</param>
-		public void UpdateComparisonVector(int index, IFloatVector newVector)
+		public void UpdateComparisonVector(int index, IVector newVector)
 		{
 			_comparison[index].Dispose();
 			_comparison[index] = newVector;
@@ -69,7 +70,7 @@ namespace BrightWire.Helper
 		/// Updates the entire list of comparison vectors
 		/// </summary>
 		/// <param name="comparisonVectors">List of vectors to compare against</param>
-		public void SetComparisonVectors(IEnumerable<IFloatVector> comparisonVectors)
+		public void SetComparisonVectors(IEnumerable<IVector> comparisonVectors)
 		{
 			_comparison.ForEach(c => c.Dispose());
 			_comparison.Clear();
@@ -81,7 +82,7 @@ namespace BrightWire.Helper
 		/// </summary>
 		public uint[] GetClosest()
         {
-            using var distance = _lap.CalculateDistances(_data, _comparison, Metric);
+            using var distance = _lap.FindDistances(_data, _comparison, Metric);
             return _data.Length.AsRange()
                 .Select(i => GetMinimum(distance, i).Index)
                 .ToArray();
@@ -91,36 +92,39 @@ namespace BrightWire.Helper
 		/// Returns a vector averaged from the data vectors
 		/// </summary>
 		/// <param name="indices">Indices of the data vectors to use in the averaged vector</param>
-		public IFloatVector GetAverageFromData(uint[] indices)
+		public IVector GetAverageFromData(uint[] indices)
         {
             using var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToArray());
             var result = data.RowSums();
-            result.Multiply(1f / indices.Length);
+            result.MultiplyInPlace(1f / indices.Length);
             return result;
         }
 
-		(uint Index, float Value) GetMinimum(IFloatMatrix data, uint columnIndex)
+		(uint Index, float Value) GetMinimum(IMatrix matrix, uint index)
 		{
             var len = _comparison.Count;
-            var matrix = data.AsIndexable();
-				
+
             switch (len) {
                 case 1:
-                    return (0, matrix[0, columnIndex]);
+                    return (0, matrix[0, index]);
                 case 0:
                     throw new Exception("Cannot find minimum with zero length");
             }
 
-            uint bestIndex = uint.MaxValue;
-            var min = float.MaxValue;
-            for (uint j = 0; j < len; j++) {
-                var val = matrix[j, columnIndex];
-                if (val < min) {
-                    bestIndex = j;
-                    min = val;
-                }
-            }
-            return (bestIndex, min);
+            var column = matrix.GetColumnAsReadOnly(index);
+            var (min, _, minIndex, _) = column.GetMinAndMaxValues();
+            return (minIndex, min);
+
+            //var bestIndex = uint.MaxValue;
+            //var min = float.MaxValue;
+            //for (uint j = 0; j < len; j++) {
+            //    var val = matrix[j, columnIndex];
+            //    if (val < min) {
+            //        bestIndex = j;
+            //        min = val;
+            //    }
+            //}
+            //return (bestIndex, min);
         }
 	}
 }

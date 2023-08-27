@@ -1,12 +1,12 @@
 ﻿using System;
-using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
+using BrightWire.ExecutionGraph.Node.Attention;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.ExecutionGraph.Node.Layer;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -17,6 +17,7 @@ namespace BrightWire.ExecutionGraph
     {
         readonly GraphFactory _factory;
         readonly NodeBase _first;
+        readonly uint _initialWidth;
         uint _width, _height, _depth;
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace BrightWire.ExecutionGraph
         {
             _factory = factory;
             _first = LastNode = node;
-            _width = size;
+            _initialWidth = _width = size;
             _height = 1;
             _depth = 1;
         }
@@ -46,7 +47,7 @@ namespace BrightWire.ExecutionGraph
         {
             _factory = factory;
             _first = LastNode = node;
-            _width = width;
+            _initialWidth = _width = width;
             _height = height;
             _depth = depth;
         }
@@ -60,7 +61,7 @@ namespace BrightWire.ExecutionGraph
             : this(factory, engine.DataSource?.InputSize ?? throw new ArgumentException("No data source"), engine.Start)
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
-                _width = volumeDataSource.Width;
+                _initialWidth = _width = volumeDataSource.Width;
                 _height = volumeDataSource.Height;
                 _depth = volumeDataSource.Depth;
             }
@@ -110,7 +111,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
+        public WireBuilder AddClassifier(IRowClassifier classifier, BrightDataTable dataTable, string? name = null)
         {
             var node = _factory.CreateClassifier(classifier, dataTable, name);
             SetNode(node.RowClassifier);
@@ -328,7 +329,7 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Adds a max pooling convolutional layer
         /// </summary>
-        /// <param name="filterWidth">Width of max pooliing filter</param>
+        /// <param name="filterWidth">Width of max pooling filter</param>
         /// <param name="filterHeight">Height of max pooling filter</param>
         /// <param name="xStride">X stride</param>
         /// <param name="yStride">Y stride</param>
@@ -476,13 +477,15 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="encoderName">Name of encoder node (must be same size as decoder)</param>
         /// <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
-        /// <param name="encoderDecoderSize">Node size</param>
+        /// <param name="encoderSize">Size of the encoder</param>
+        /// <param name="decoderSize">Size of the decoder</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderDecoderSize, string? name = null)
+        public WireBuilder AddSelfAttention(string encoderName, string decoderName, uint encoderSize, uint decoderSize, string? name = null)
         {
-            var layer = _factory.CreateFeedForward(encoderDecoderSize * 2, 1, name != null ? null + "_attention" : null);
-            SetNode(new SelfAttention(encoderName, decoderName, (FeedForward)layer, name));
-            SetNewSize(encoderDecoderSize * 2);
+            var newSize = _initialWidth + encoderSize + decoderSize;
+            var weightInit = _factory.GetWeightInitialisation();
+            SetNode(new SimpleAttention(_factory.LinearAlgebraProvider, encoderName, decoderName, _initialWidth, encoderSize, decoderSize, weightInit, _factory.CreateWeightUpdater, name));
+            SetNewSize(_width + newSize);
             return this;
         }
 

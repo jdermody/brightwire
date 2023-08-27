@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Threading;
+using BrightData;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Helper;
 using BrightWire.Models;
@@ -83,12 +83,11 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Executes the graph
         /// </summary>
-        /// <param name="ct">Cancellation token</param>
         /// <param name="signal">Initial data</param>
         /// <param name="context">Context</param>
         /// <param name="channel"></param>
         /// <param name="prev"></param>
-        public void Forward(CancellationToken ct, IGraphData signal, IGraphSequenceContext context, uint channel = 0, NodeBase? prev = null)
+        public void Forward(IGraphData signal, IGraphContext context, uint channel = 0, NodeBase? prev = null)
         {
             // execute the node
             var (from, output, backProp) = ForwardSingleStep(signal, channel, context, prev);
@@ -102,9 +101,7 @@ namespace BrightWire.ExecutionGraph.Node
             // send output to connected nodes
             if (output.HasValue || this is FlowThrough) {
                 foreach (var wire in from.Output) {
-                    if (ct.IsCancellationRequested)
-                        break;
-                    wire.SendTo.Forward(ct, output, context, wire.Channel, from);
+                    wire.SendTo.Forward(output, context, wire.Channel, from);
                 }
             }
         }
@@ -117,7 +114,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public abstract (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source);
+        public abstract (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source);
 
         /// <summary>
         /// Serialise this node and any connected nodes
@@ -351,6 +348,18 @@ namespace BrightWire.ExecutionGraph.Node
         {
             var wire = _output.Single(w => w.SendTo == directDescendant);
             _output.Remove(wire);
+        }
+
+        /// <summary>
+        /// Applies an error to this node
+        /// </summary>
+        /// <param name="type">Error type</param>
+        /// <param name="delta"></param>
+        /// <param name="context"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }

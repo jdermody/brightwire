@@ -3,26 +3,27 @@ using System.Linq;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class XorTrainer : DataTableTrainer
     {
-        public XorTrainer(IRowOrientedDataTable table) : base(table, table, table)
+        public XorTrainer(BrightDataTable table) : base(table, table, table)
         {
         }
 
-        public ExecutionGraphModel? TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
+        public ExecutionGraphModel? Train(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
-            var context = Table.Context;
-            var targetColumnIndex = Table.GetTargetColumnOrThrow();
+            var targetColumnIndex = Table.Value.GetTargetColumnOrThrow();
 
             // train a model
-            var graph = context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
             var model = graph.TrainSimpleNeuralNetwork(
                 Training, 
                 Test, 
-                graph.ErrorMetric.BinaryClassification, 
+                errorMetric, 
                 learningRate, 
                 batchSize, 
                 hiddenLayerSize, 
@@ -38,13 +39,13 @@ namespace ExampleCode.DataTableTrainers
                 var testData = graph.CreateDataSource(Test);
                 var output = executionEngine.Execute(testData).ToList();
                 if (writeResults) {
-                    var testAccuracy = output.Average(o => o.CalculateError(graph.ErrorMetric.OneHotEncoding));
+                    var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");
 
                     // print the values that have been learned
                     foreach (var item in output) {
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
-                            var row = Test.Row(index);
+                            var row = Test.GetRow(index);
                             var result = item.Output[index];
                             var input = row.ToArray()
                                 .Select((v, i) => (Val: v, Ind: i))
@@ -52,7 +53,7 @@ namespace ExampleCode.DataTableTrainers
                                 .Select(d => d.Val)
                                 .AsCommaSeparated()
                             ;
-                            Console.WriteLine($"{input} = {result.AsCommaSeparated()}");
+                            Console.WriteLine($"{input} = {result.ToArray().AsCommaSeparated()}");
                         }
                     }
                 }

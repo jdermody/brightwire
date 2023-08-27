@@ -3,30 +3,38 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
+using BrightData.Cuda;
+using BrightData.Cuda.Helper;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
-    internal class Mnist
+    internal class Mnist : IDisposable
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
         public Image[] TrainingImages { get; }
         public Image[] TestImages { get; }
+        readonly List<IDisposable> _tensorCache = new();
 
-        public Mnist(IBrightDataContext context, Image[] trainingImages, Image[] testImages)
+        public Mnist(BrightDataContext context, Image[] trainingImages, Image[] testImages)
         {
             _context = context;
             TrainingImages = trainingImages;
             TestImages = testImages;
         }
 
+        public void Dispose()
+        {
+            _tensorCache.DisposeAll();
+        }
+
         public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
-            uint numIterations = 20,
-            float trainingRate = 0.1f,
+            uint numIterations = 10,
+            float trainingRate = 0.003f,
             uint batchSize = 128
         )
         {
@@ -39,7 +47,7 @@ namespace ExampleCode.DataSet
         public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
-            float trainingRate = 0.1f,
+            float trainingRate = 0.001f,
             uint batchSize = 128
         )
         {
@@ -99,34 +107,32 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (Vector<float> Data, Vector<float> Label) AsFloatArray(IBrightDataContext context)
+            public (IReadOnlyVector Data, IReadOnlyVector Label) AsFloatArray(BrightDataContext context)
             {
-                var label = new float[10];
-                label[Label] = 1;
-
                 return (
-                    context.CreateVector(Data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
-                    context.CreateVector(label)
+                    context.CreateReadOnlyVector(Data.Length, i => Data[i] / 255f),
+                    context.CreateReadOnlyVector(10, i => i == Label ? 1f : 0f)
                 );
             }
 
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor(IBrightDataContext context)
+            public (IReadOnlyTensor3D Tensor, IReadOnlyVector Label) AsFloatTensor(BrightDataContext context)
             {
-                const int SIZE = 28;
+                const int imageSize = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new List<Vector<float>>();
+                var rows = new IReadOnlyVector[imageSize];
 
-                for (var y = 0; y < SIZE; y++) {
-                    var row = new float[SIZE];
-                    for (var x = 0; x < SIZE; x++)
-                        row[x] = vector[(y * SIZE) + x];
-                    rows.Add(context.CreateVector(row));
+                for (var y = 0; y < imageSize; y++) {
+                    var row = new float[imageSize];
+                    for (var x = 0; x < imageSize; x++)
+                        row[x] = vector[(y * imageSize) + x];
+                    rows[y] = context.CreateReadOnlyVector(row);
                 }
 
-                var tensor = context.CreateTensor3D(context.CreateMatrixFromRows(rows.ToArray()));
+                var imageAsMatrix = context.CreateReadOnlyMatrixFromRows(rows);
+                var tensor = context.CreateReadOnlyTensor3D(imageAsMatrix);
                 return (tensor, Label: label);
             }
         }
@@ -162,30 +168,36 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public static IRowOrientedDataTable BuildVectorToVectorDataTable(IBrightDataContext context, Image[] images)
+        public static BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a vector => vector mapping
-            var dataTable = context.CreateTwoColumnVectorTableBuilder();
+            var builder = context.CreateTwoColumnVectorTableBuilder();
 
             foreach (var image in images) {
                 var (data, label) = image.AsFloatArray(context);
-                dataTable.AddRow(data, label);
+                builder.AddRow(data, label);
             }
 
-            return dataTable.BuildRowOriented();
+            var ret = builder.BuildInMemory();
+            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            return ret;
         }
 
-        public static IRowOrientedDataTable Build3DTensorToVectorDataTable(IBrightDataContext context, Image[] images)
+        public BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a 3D tensor => vector mapping
-            var dataTable = context.Create3DTensorToVectorTableBuilder();
+            var builder = context.Create3DTensorToVectorTableBuilder();
 
             foreach (var image in images) {
                 var (tensor, label) = image.AsFloatTensor(context);
-                dataTable.AddRow(tensor, label);
+                builder.AddRow(tensor, label);
             }
 
-            return dataTable.BuildRowOriented();
+            var ret = builder.BuildInMemory();
+            if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            return ret;
         }
     }
 }

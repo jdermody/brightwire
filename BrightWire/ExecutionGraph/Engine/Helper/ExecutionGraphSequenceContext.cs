@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
@@ -9,9 +9,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Execution engine context
     /// </summary>
-    internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
+    internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphContext
     {
-        public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch) : base(miniBatch)
+        public ExecutionGraphSequenceContext(GraphExecutionContext executionContext, IMiniBatchSequence miniBatch) : base(miniBatch)
         {
             ExecutionContext = executionContext;
             BatchSequence.GraphContext = this;
@@ -23,9 +23,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public bool IsTraining => false;
-        public IGraphExecutionContext ExecutionContext { get; }
+        public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext => null;
-        public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         
         public IGraphData Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) { /* nop */ }
@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 if (Data.HasValue)
-                    yield return  new ExecutionResult(BatchSequence, Data.GetMatrix().Data.Rows);
+                    yield return new ExecutionResult(BatchSequence, Data.GetMatrix(), ExecutionContext.WantInputInExecutionResults);
             }
         }
 

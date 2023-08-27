@@ -14,29 +14,29 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     {
         new class Backpropagation : SingleBackpropagationBase<DropConnect>
         {
-            readonly IFloatMatrix _input, _filter, _filteredWeights;
+            readonly IMatrix _input, _filter, _filteredWeights;
 
-            public Backpropagation(DropConnect source, IFloatMatrix input, IFloatMatrix filter, IFloatMatrix filteredWeights) : base(source)
+            public Backpropagation(DropConnect source, IMatrix input, IMatrix filter, IMatrix filteredWeights) : base(source)
             {
                 _input = input;
                 _filter = filter;
                 _filteredWeights = filteredWeights;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal against the filtered weights
-                IFloatMatrix ret = es.TransposeAndMultiply(_filteredWeights);
+                IMatrix ret = es.TransposeAndMultiply(_filteredWeights);
 
                 // calculate the update to the weights and filter out the dropped connections
                 var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
 
                 // store the updates
                 var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
+                learningContext.AddError(NodeErrorType.Bias, _source, es);
+                learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
 
                 return errorSignal.ReplaceWith(ret);
             }
@@ -44,17 +44,17 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution? _probabilityToDrop;
 
-        public DropConnect(IBrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string? name = null) 
+        public DropConnect(BrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string? name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
                 var input = signal;
                 var inputMatrix = input.GetMatrix();
                 var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (_, _) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);

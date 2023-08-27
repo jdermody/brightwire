@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -12,27 +11,27 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         class Backpropagation : SingleBackpropagationBase<TransposeAndCombineSignal>
         {
-            readonly I4DFloatTensor _tensor;
+            readonly ITensor4D _tensor;
 
-            public Backpropagation(TransposeAndCombineSignal source, I4DFloatTensor tensor) : base(source)
+            public Backpropagation(TransposeAndCombineSignal source, ITensor4D tensor) : base(source)
             {
                 _tensor = tensor;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var matrix = errorSignal.GetMatrix();
-                var lap = context.LinearAlgebraProvider;
+                var lap = context.GetLinearAlgebraProvider();
 
-                var rowList = new List<IFloatVector>();
+                var rowList = new IVector[matrix.RowCount];
                 for(uint i = 0; i < matrix.RowCount; i++) {
-                    var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
+                    using var rowMatrix = matrix.GetRowAsReadOnly(i).ReadOnlySegment.ToMatrix(lap, _tensor.RowCount, _tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
-                    var tensor = lap.Create3DTensor(matrixList);
-                    rowList.Add(tensor.ReshapeAsVector());
+                    var tensor = lap.CreateTensor3D(matrixList);
+                    rowList[i] = tensor.Reshape();
                 }
                 var errorMatrix = lap.CreateMatrixFromRows(rowList);
-
+                rowList.DisposeAll();
                 return errorSignal.ReplaceWith(errorMatrix.Transpose());
             }
         }
@@ -41,17 +40,17 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
-            var rowList = new List<IFloatVector>();
+            var rowList = new IVector[tensor.Count];
 
             for(uint i = 0; i < tensor.Count; i++) {
-                var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
-                rowList.Add(row);
+                using var matrix = tensor.GetTensor(i).AddAllMatrices();
+                rowList[i] = matrix.Reshape();
             }
-            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
-
+            var output = context.GetLinearAlgebraProvider().CreateMatrixFromRows(rowList);
+            rowList.DisposeAll();
             return (this, output.AsGraphData(), () => new Backpropagation(this, tensor));
         }
     }

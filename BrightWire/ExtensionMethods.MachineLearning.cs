@@ -1,7 +1,6 @@
 ﻿using System;
 using BrightWire.Bayesian.Training;
 using BrightWire.Helper;
-using BrightWire.Linear.Training;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.TreeBased.Training;
@@ -9,12 +8,13 @@ using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
-using BrightWire.Models.Linear;
 using BrightWire.Models.TreeBased;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -27,34 +27,9 @@ namespace BrightWire
         /// <param name="fixedSize">The vector size to reduce from</param>
         /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
-        }
-
-	    /// <summary>
-	    /// Trains a logistic regression model on a data table
-	    /// </summary>
-	    /// <param name="table">The training data</param>
-        /// <param name="iterations">Number of iterations to train for</param>
-	    /// <param name="learningRate">The learning rate</param>
-	    /// <param name="lambda">Regularisation lambda</param>
-	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
-	    /// <returns>The trained model</returns>
-	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
-        {
-            var trainer = table.CreateLogisticRegressionTrainer();
-            return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
-        }
-
-        /// <summary>
-        /// Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
-        /// </summary>
-        /// <param name="table">The training data provider</param>
-        /// <returns>A trainer that can be used to build a logistic regression model</returns>
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table)
-        {
-            return new LogisticRegressionTrainer(table);
         }
 
         /// <summary>
@@ -94,25 +69,25 @@ namespace BrightWire
         /// Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>
-        /// <param name="lap">Linear alegbra provider</param>
+        /// <param name="lap">Linear algebra provider</param>
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] Nnmf(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static IVector[][] Nnmf(this IEnumerable<IVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
         }
 
         /// <summary>
-        /// Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
+        /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, uint k)
+        public static IVector[][] HierarchicalCluster(this IEnumerable<IVector> data, uint k)
         {
-            using var clusterer = new Hierachical(k, data);
+            using var clusterer = new Hierarchical(k, data);
             clusterer.Cluster();
             return clusterer.Clusters;
         }
@@ -126,7 +101,7 @@ namespace BrightWire
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, IBrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IVector[][] KMeans(this IEnumerable<IVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
@@ -137,24 +112,11 @@ namespace BrightWire
         /// K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
         /// </summary>
         /// <param name="data">The training data</param>
-        public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
+        public static KNearestNeighbours TrainKNearestNeighbours(this BrightDataTable data)
         {
             return KnnClassificationTrainer.Train(data);
         }
 
-	    /// <summary>
-	    /// Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
-	    /// </summary>
-	    /// <param name="data">The training data</param>
-        /// <param name="trainingIterations">Number of training iterations</param>
-	    /// <param name="trainingRate">Training rate</param>
-	    /// <param name="lambda">L2 regularisation</param>
-	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
-	    /// <returns></returns>
-	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
-        {
-            return MultinomialLogisticRegressionTrainner.Train(data, trainingIterations, trainingRate, lambda, costCallback);
-        }
 
         /// <summary>
         /// Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
@@ -164,7 +126,7 @@ namespace BrightWire
         /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
+        public static RandomForest TrainRandomForest(this BrightDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
@@ -175,7 +137,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, DecisionTreeTrainer.Config? config = null)
+        public static DecisionTree TrainDecisionTree(this BrightDataTable data, DecisionTreeTrainer.Config? config = null)
         {
             return DecisionTreeTrainer.Train(data, config);
         }
@@ -185,7 +147,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
+        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<IndexListWithLabel<string>> data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
             foreach (var (classification, indexList) in data)
@@ -198,7 +160,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
 		/// <returns></returns>
-	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IRowOrientedDataTable table)
+	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this BrightDataTable table)
 		{
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
@@ -207,8 +169,7 @@ namespace BrightWire
             if (indexListColumn.Index == targetColumnIndex)
                 throw new ArgumentException("No index list column of features");
 
-            var data = table.AsConvertible()
-                .Map((row => (row.GetTyped<string>(targetColumnIndex), row.GetTyped<IndexList>(indexListColumn.Index))));
+            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainMultinomialNaiveBayes();
         }
 
@@ -217,7 +178,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<IndexListWithLabel<string>> data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
             foreach (var (classification, indexList) in data)
@@ -230,15 +191,14 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="table">The training data table that must have an index-list based column</param>
 	    /// <returns>A model that can be used for classification</returns>
-	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IRowOrientedDataTable table)
+	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this BrightDataTable table)
 	    {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
                 .Single(c => c.ColumnType == BrightDataType.IndexList);
 
-            var data = table.AsConvertible()
-                .Map(row => (row.GetTyped<string>(targetColumnIndex), row.GetTyped<IndexList>(indexListColumn.Index)));
+            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainBernoulliNaiveBayes();
         }
 
@@ -247,20 +207,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">The training data provider</param>
         /// <returns>A naive bayes model</returns>
-        public static NaiveBayes TrainNaiveBayes(this IDataTable table)
+        public static NaiveBayes TrainNaiveBayes(this BrightDataTable table)
         {
             return NaiveBayesTrainer.Train(table);
-        }
-
-        /// <summary>
-        /// Linear regression fits a line to a set of data that allows you predict future values
-        /// </summary>
-        /// <param name="table">The training data table</param>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <returns>A trainer that can be used to build a linear regression model</returns>
-        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
-        {
-            return new RegressionTrainer(lap, table);
         }
 
         /// <summary>
@@ -270,7 +219,7 @@ namespace BrightWire
         /// <returns></returns>
         public static string GetBestClassification(this IEnumerable<(string Label, float Weight)> classifications)
         {
-            return classifications.OrderByDescending(c => c.Weight).First().Label;
+            return classifications.MaxBy(c => c.Weight).Label;
         }
 
         /// <summary>
@@ -289,8 +238,8 @@ namespace BrightWire
         /// <param name="weightInitialisation"></param>
         /// <returns></returns>
         public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
-            IRowOrientedDataTable trainingTable,
-            IRowOrientedDataTable testTable,
+            BrightDataTable trainingTable,
+            BrightDataTable testTable,
             IErrorMetric errorMetric,
             float learningRate,
             uint batchSize,
@@ -329,6 +278,7 @@ namespace BrightWire
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
             engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            engine.Test(testData);
             return bestGraph;
         }
     }

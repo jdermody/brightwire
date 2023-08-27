@@ -4,18 +4,22 @@ using BrightData.Cuda;
 
 namespace BrightData.UnitTests.Helper
 {
-    public class CudaBase : NumericsBase
+    public class CudaBase : CpuBase
     {
-        protected readonly ILinearAlgebraProvider _cuda;
+        readonly CudaProvider                        _cudaProvider;
+        protected readonly CudaLinearAlgebraProvider _cuda;
 
         public CudaBase()
         {
-            _cuda = _context.UseCudaLinearAlgebra(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
+            _cudaProvider = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
+            _cuda = new CudaLinearAlgebraProvider(_context, _cudaProvider);
         }
 
         public override void Dispose()
         {
+            GC.SuppressFinalize(this);
             _cuda.Dispose();
+            _cudaProvider.Dispose();
             base.Dispose();
         }
     }

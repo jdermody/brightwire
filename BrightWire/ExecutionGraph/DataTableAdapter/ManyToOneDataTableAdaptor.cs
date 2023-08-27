@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData;
-using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -16,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _rowDepth;
         readonly uint _outputSize;
 
-	    public ManyToOneDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+	    public ManyToOneDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
@@ -25,15 +26,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
-            Matrix<float>? inputMatrix = null;
-            Vector<float>? outputVector = null;
-            dataTable.ForEachRow((row, i) => {
-                inputMatrix = (Matrix<float>)row[_featureColumnIndices[0]];
-                outputVector = (Vector<float>)row[_targetColumnIndex];
+            IReadOnlyMatrix? inputMatrix = null;
+            IReadOnlyVector? outputVector = null;
+            foreach(var (i, row) in dataTable.GetAllRowData()) {
+                inputMatrix = (IReadOnlyMatrix)row[_featureColumnIndices[0]];
+                outputVector = (IReadOnlyVector)row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
-            });
+            }
             if (inputMatrix == null || outputVector == null)
                 throw new Exception("No data found");
 
@@ -41,7 +42,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputSize = _outputSize = outputVector.Size;
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new ManyToOneDataTableAdapter(dataTable, _featureColumns);
         }
@@ -63,23 +64,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
-                .Select(r => ((Matrix<float>)r[_featureColumnIndices[0]], (Vector<float>)r[_targetColumnIndex]))
+                .Select(r => (Matrix: (IReadOnlyMatrix)r[_featureColumnIndices[0]], Vector: (IReadOnlyVector)r[_targetColumnIndex]))
                 .ToList()
             ;
-            var inputData = new Dictionary<uint, List<Vector<float>>>();
-            foreach (var item in data) {
-                var input = item.Item1;
+            var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
+            foreach (var (input, _) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(input.Row(i));
+                        inputData.Add(i, temp = new());
+                    temp.Add(input.GetRow(i).ReadOnlySegment);
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Item2.Segment[y]);
+            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Vector[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = lap.CreateMatrixFromRows(item.Value);
+                var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)

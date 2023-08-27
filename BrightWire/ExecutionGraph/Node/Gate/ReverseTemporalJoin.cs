@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
@@ -21,10 +20,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _backward = backward;
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
+                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
                 yield return (errorSignal.ReplaceWith(left), context, _forward);
 
                 var batch = context.BatchSequence.MiniBatch;
@@ -46,11 +45,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
-        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
+        Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
+        Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
 
         Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
-        Dictionary<uint, IGraphSequenceContext> _contextTable = new();
+        Dictionary<uint, IGraphContext> _contextTable = new();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
@@ -59,14 +58,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
+            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
-            _contextTable = new Dictionary<uint, IGraphSequenceContext>();
+            _contextTable = new Dictionary<uint, IGraphContext>();
         }
 
-        void Continue(IGraphSequenceContext context, CancellationToken ct)
+        void Continue(IGraphContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -76,13 +75,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput.Remove(sequenceIndex);
 
             // concatenate the inputs
-            var next = data.ConcatRows(floatMatrix).AsGraphData();
+            var next = data.ConcatRight(floatMatrix).AsGraphData();
             context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize, forwardParent, reverseParent));
             foreach(var wire in Output)
-                wire.SendTo.Forward(ct, next, context, wire.Channel, this);
+                wire.SendTo.Forward(next, context, wire.Channel, this);
         }
 
-        protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

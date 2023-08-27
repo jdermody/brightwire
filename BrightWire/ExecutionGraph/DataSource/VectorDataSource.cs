@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -11,10 +12,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     internal class VectorDataSource : IDataSource
     {
-	    readonly Vector<float>[] _data;
-        readonly ILinearAlgebraProvider _lap;
+	    readonly IVector[] _data;
+        readonly LinearAlgebraProvider _lap;
 
-        public VectorDataSource(ILinearAlgebraProvider lap, Vector<float>[] data)
+        public VectorDataSource(LinearAlgebraProvider lap, IVector[] data)
         {
             _lap = lap;
             _data = data;
@@ -46,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
         }
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }

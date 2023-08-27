@@ -18,14 +18,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 throw new NotImplementedException("Only one input is now supported");
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             if (_inputIndex == 0) {
                 var curr = context.BatchSequence;
                 var batch = curr.MiniBatch;
-                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
-                if (reversed == null)
-                    throw new Exception("Input data was null");
+                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input
+                    ?? throw new Exception("Input data was null");
 
                 //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
                 return (this, reversed, null);

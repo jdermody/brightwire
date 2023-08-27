@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Output.Add(new WireToNode(child));
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             // default behaviour is to send backpropagation signal to all ancestors, so no need to do anything
             return (this, signal, null);

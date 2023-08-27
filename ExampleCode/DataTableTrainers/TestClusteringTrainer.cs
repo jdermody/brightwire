@@ -10,7 +10,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class TestClusteringTrainer
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
         public class AaaiDocument
         {
@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
             /// </summary>
             public string[] Group { get; }
 
-            public (string Classification, WeightedIndexList Data) AsClassification(IBrightDataContext context, StringTableBuilder stringTable)
+            public (string Classification, WeightedIndexList Data) AsClassification(BrightDataContext context, StringTableBuilder stringTable)
             {
                 var weightedIndex = new List<WeightedIndexList.Item>();
                 foreach (var item in Keyword)
@@ -66,16 +66,16 @@ namespace ExampleCode.DataTableTrainers
             }
         }
         readonly StringTableBuilder _stringTable = new();
-        readonly IFloatVector[] _vectors;
-        readonly Dictionary<IFloatVector, AaaiDocument> _documentTable = new();
+        readonly IVector[] _vectors;
+        readonly Dictionary<IVector, AaaiDocument> _documentTable = new();
         readonly uint _groupCount;
 
-        public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
+        public TestClusteringTrainer(BrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
             (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
-            _vectors = data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size + 1))).ToArray();
+            _vectors = data.Select(d => d.Data.AsDense(lap, _stringTable.Size + 1)).ToArray();
             foreach(var (first, second) in _vectors.Zip(documents))
                 _documentTable.Add(first, second);
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
@@ -108,13 +108,13 @@ namespace ExampleCode.DataTableTrainers
             var outputPath = GetOutputPath("projected-kmeans");
             using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
-            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.Row(i)).ToList();
-            var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => d.Item1, d => _documentTable[d.Item2]);
+            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.GetRowAsReadOnly(i).Create(lap)).ToList();
+            var lookupTable2 = vectorList2.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
             Console.Write("done...");
 
             Console.Write("Kmeans clustering of random projection...");
             WriteClusters(outputPath, vectorList2.KMeans(_context, _groupCount), lookupTable2);
-            vectorList2.ForEach(v => v.Dispose());
+            vectorList2.DisposeAll();
             Console.WriteLine($"written to {outputPath}");
         }
 
@@ -132,18 +132,19 @@ namespace ExampleCode.DataTableTrainers
             var (_, floatVector, vt) = matrixT.Svd();
             matrixT.Dispose();
 
-            var s = lap.CreateDiagonalMatrix(floatVector.AsIndexable().Values.Take((int)k).ToArray());
+            var s = lap.CreateDiagonalMatrix(floatVector.Segment.Values.Take((int)k).ToArray());
             var v2 = vt.GetNewMatrixFromRows(kIndices);
             using (var sv2 = s.Multiply(v2))
             {
                 v2.Dispose();
                 s.Dispose();
 
-                var vectorList3 = sv2.AsIndexable().Columns.ToList();
-                var lookupTable3 = vectorList3.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => (IFloatVector)d.Item1, d => _documentTable[d.Item2]);
+                var vectorList3 = sv2.AllColumnsAsReadOnly(false).Select(c => c.Create(lap)).ToList();
+                var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");
                 WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);
+                vectorList3.DisposeAll();
             }
 
             Console.WriteLine($"written to {outputPath}");
@@ -153,7 +154,7 @@ namespace ExampleCode.DataTableTrainers
 
         string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
-        static void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AaaiDocument> lookupTable)
+        static void WriteClusters(string filePath, IVector[][] clusters, Dictionary<IVector, AaaiDocument> lookupTable)
         {
             new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);

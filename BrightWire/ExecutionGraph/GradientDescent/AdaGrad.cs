@@ -9,10 +9,10 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// </summary>
     internal class AdaGrad : IGradientDescentOptimisation
     {
-        protected IFloatMatrix _cache;
+        protected IMatrix _cache;
         protected IGradientDescentOptimisation _updater;
 
-        public AdaGrad(IFloatMatrix cache, IGradientDescentOptimisation updater)
+        public AdaGrad(IMatrix cache, IGradientDescentOptimisation updater)
         {
             _cache = cache;
             _updater = updater;
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _cache.Dispose();
         }
 
-        public virtual void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
+        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(deltaSquared);
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         {
             var rows = (uint)reader.ReadInt32();
             var columns = (uint)reader.ReadInt32();
-            _cache = factory.LinearAlgebraProvider.CreateZeroMatrix(rows, columns);
+            _cache = factory.LinearAlgebraProvider.CreateMatrix(rows, columns, true);
             _updater = factory.CreateGradientDescentOptimisation(reader);
         }
 

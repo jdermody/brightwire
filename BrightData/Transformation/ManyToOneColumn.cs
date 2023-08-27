@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using BrightData.LinearAlgebra;
+using BrightData.DataTable.Operations;
 
 namespace BrightData.Transformation
 {
@@ -11,36 +10,62 @@ namespace BrightData.Transformation
     /// </summary>
     internal class ManyToOneColumn : IReinterpretColumns
     {
-        public ManyToOneColumn(BrightDataType newType, string name, params uint[] columnIndices)
+        public ManyToOneColumn(BrightDataType newType, string? name, params uint[] sourceColumnIndices)
         {
             NewType = newType;
             Name = name;
-            ColumnIndices = columnIndices;
+            SourceColumnIndices = sourceColumnIndices;
         }
 
         public BrightDataType NewType { get; }
-        public string Name { get; }
-        public uint[] ColumnIndices { get; }
+        public string? Name { get; }
+        public uint[] SourceColumnIndices { get; }
 
-        public IEnumerable<ISingleTypeTableSegment> GetNewColumns(IBrightDataContext context, IProvideTempStreams tempStreams, uint initialColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] columns)
+        public IEnumerable<IOperation<ITableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] sourceColumns)
         {
-            if (ColumnIndices.Length >= 1)
-            {
-                // convert many columns to single index list
+            if (SourceColumnIndices.Length >= 1) {
+                var metaData = new MetaData();
+                if (!String.IsNullOrWhiteSpace(Name))
+                    metaData.SetName(Name);
+                metaData.SetType(NewType);
+                var outputBuffer = NewType.GetCompositeBufferWithMetaData(metaData, context, tempStreams);
+
                 if (NewType == BrightDataType.IndexList)
-                    yield return new ManyToOne<IndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToIndexList);
-                else if(NewType == BrightDataType.WeightedIndexList)
-                    yield return new ManyToOne<WeightedIndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToWeightedIndexList);
+                    yield return new ManyToOneColumnOperation<IndexList>(
+                        rowCount,
+                        sourceColumns, 
+                        obj => ToIndexList(context , obj),
+                        (ICompositeBuffer<IndexList>)outputBuffer
+                    );
+                else if (NewType == BrightDataType.WeightedIndexList)
+                    yield return new ManyToOneColumnOperation<WeightedIndexList>(
+                        rowCount,
+                        sourceColumns, 
+                        obj => ToWeightedIndexList(context , obj),
+                        (ICompositeBuffer<WeightedIndexList>)outputBuffer
+                    );
                 else if (NewType == BrightDataType.Vector)
-                    yield return new ManyToOne<Vector<float>>(context, tempStreams, Name, initialColumnIndex, columns, ToVector);
+                    yield return new ManyToOneColumnOperation<IVectorData>(
+                        rowCount,
+                        sourceColumns, 
+                        obj => ToVector(context, obj),
+                        (ICompositeBuffer<IVectorData>)outputBuffer
+                    );
                 else if (NewType == BrightDataType.String)
-                    yield return new ManyToOne<string>(context, tempStreams, Name, initialColumnIndex, columns, ToString);
+                    yield return new ManyToOneColumnOperation<string>(
+                        rowCount,
+                        sourceColumns,
+                        ToString,
+                        (ICompositeBuffer<string>)outputBuffer
+                    );
+                else
+                    throw new NotImplementedException();
             }
             else
                 throw new NotImplementedException("Currently not supported");
         }
 
-        static IndexList ToIndexList(IBrightDataContext context, object[] vals)
+        static IndexList ToIndexList(BrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -50,7 +75,7 @@ namespace BrightData.Transformation
             return context.CreateIndexList(indices);
         }
 
-        static WeightedIndexList ToWeightedIndexList(IBrightDataContext context, object[] vals)
+        static WeightedIndexList ToWeightedIndexList(BrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -61,59 +86,12 @@ namespace BrightData.Transformation
             return context.CreateWeightedIndexList(indices);
         }
 
-        static Vector<float> ToVector(IBrightDataContext context, object[] values)
+        static IReadOnlyVector ToVector(BrightDataContext context, object[] values)
         {
             var data = values.Select(Convert.ToSingle).ToArray();
-            return context.CreateVector(data);
+            return context.CreateReadOnlyVector(data);
         }
 
-        static string ToString(IBrightDataContext context, object[] vals) => String.Join('|', vals.Select(Convert.ToString));
-
-        class ManyToOne<T> : ISingleTypeTableSegment where T: notnull
-        {
-            readonly IHybridBuffer<T> _buffer;
-
-            public ManyToOne(
-                IBrightDataContext context, 
-                IProvideTempStreams tempStreams, 
-                string name, 
-                uint newColumnIndex, 
-                IReadOnlyCollection<(IColumnInfo Info, ISingleTypeTableSegment Segment)> sourceColumns, 
-                Func<IBrightDataContext, object[], T> converter
-            ) {
-                Index = newColumnIndex;
-                Size = sourceColumns.First().Segment.Size;
-                MetaData.SetType(BrightDataType.IndexList);
-                MetaData.Set(Consts.Index, newColumnIndex);
-                MetaData.Set(Consts.Name, name);
-                _buffer = (IHybridBuffer<T>)MetaData.GetGrowableSegment(SingleType, context, tempStreams);
-
-                // fill the buffer
-                var len = sourceColumns.Count;
-                var buffer = new object[len];
-                var enumerators = sourceColumns.Select(c => c.Segment.Enumerate().GetEnumerator()).ToList();
-                uint index = 0;
-                var ct = context.CancellationToken;
-                while (enumerators.All(e => e.MoveNext()) && !ct.IsCancellationRequested)
-                {
-                    for (var i = 0; i < len; i++)
-                        buffer[i] = enumerators[i].Current;
-                    _buffer.Add(converter(context, buffer), index++);
-                }
-            }
-
-            public IMetaData MetaData { get; } = new MetaData();
-            public uint Index { get; }
-            public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
-
-            public void Dispose()
-            {
-                // nop
-            }
-
-            public BrightDataType SingleType { get; } = BrightDataType.IndexList;
-            public IEnumerable<object> Enumerate() => _buffer.Enumerate();
-            public uint Size { get; }
-        }
+        static string ToString(object[] values) => String.Join('|', values.Select(Convert.ToString));
     }
 }

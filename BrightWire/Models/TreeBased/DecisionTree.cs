@@ -11,12 +11,12 @@ namespace BrightWire.Models.TreeBased
     /// <summary>
     /// A decision tree model
     /// </summary>
-    public class DecisionTree : ISerializable
+    public class DecisionTree : IAmSerializable
     {
         /// <summary>
         /// A node in the decision tree
         /// </summary>
-        public class Node : ISerializable
+        public class Node : IAmSerializable
         {
             /// <summary>
             /// The nodes children
@@ -71,7 +71,7 @@ namespace BrightWire.Models.TreeBased
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
@@ -110,6 +110,6 @@ namespace BrightWire.Models.TreeBased
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

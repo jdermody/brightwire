@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+	<PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>3.0.3</Version>
+    <Version>4.0.0-rc</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
@@ -12,9 +11,10 @@
     <Company />
     <Product>Bright ML</Product>
     <Description>Bright data is a performance oriented data table and linear algebra library that supports both CPU and GPU computation</Description>
-    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <PackageReleaseNotes>updated to .net 6</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,13 +23,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>C:\code\brightwire\BrightData\BrightData.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
+	<ItemGroup>
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 
@@ -44,4 +44,14 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="readme.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Update="readme.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _activation = activation;
             var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
-            _input = new FlowThrough();
+            _input = new FlowThrough(Name != null ? $"{Name}_start" : null);
 
             var inputChannel = graph.Connect(inputSize, _input)
                 .AddFeedForward(hiddenLayerSize, "Wh");
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override List<WireToNode> Output => _output.Output;
         public NodeBase Memory => _memory;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source) => _start.ForwardSingleStep(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
-            _memory.Data.WriteTo(writer);
+            _memory.WriteTo(writer);
             Serialise(_activation, writer);
 
             foreach(var item in SerializedNodes)
@@ -75,14 +75,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = factory.Context.ReadVectorFrom(reader);
+            var memoryData = factory.Context.LoadReadOnlyVectorAndThenGetArrayFrom(reader);
             var activation = Hydrate(factory, reader);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                Create(factory, inputSize, memory.Segment.ToArray(), activation, memoryId);
+                Create(factory, inputSize, memoryData, activation, memoryId);
             else
-                _memory.Data = memory;
+                _memory.Data = memoryData;
 
             foreach(var item in SerializedNodes)
                 ReadSubNode(item, factory, reader);

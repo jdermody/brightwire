@@ -7,12 +7,12 @@ namespace BrightWire.Models
     /// <summary>
     /// A serialised graph
     /// </summary>
-    public class GraphModel : ISerializable
+    public class GraphModel : IAmSerializable
     {
         /// <summary>
         /// Segment contract version number
         /// </summary>
-        public string Version { get; set; } = "3.0";
+        public string Version { get; set; } = "4.0";
 
         /// <summary>
         /// The name of the graph
@@ -33,6 +33,6 @@ namespace BrightWire.Models
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

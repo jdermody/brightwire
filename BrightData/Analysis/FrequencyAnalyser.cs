@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Frequency analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class FrequencyAnalyser<T> : IDataAnalyser<T>
         where T: notnull
     {
@@ -41,7 +45,7 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj) => AddString(obj.ToString());
 
-        public virtual void WriteTo(IMetaData metadata)
+        public virtual void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.Total, Total);

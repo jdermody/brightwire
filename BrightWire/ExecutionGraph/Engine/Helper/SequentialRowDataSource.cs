@@ -2,6 +2,8 @@
 using System;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -11,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     internal class SequentialRowDataSource : IDataSource
     {
         readonly float[][] _data;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
 
-        public SequentialRowDataSource(float[][] data, ILinearAlgebraProvider lap)
+        public SequentialRowDataSource(float[][] data, LinearAlgebraProvider lap)
         {
             _data = data;
             _lap = lap;
@@ -28,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }
@@ -43,7 +45,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     type = MiniBatchSequenceType.SequenceStart;
                 else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
-                ret.Add(type, _lap.CreateVector(row).ReshapeAsRowMatrix().AsGraphData(), null);
+                using var temp = _lap.CreateVector(row);
+                ret.Add(type, temp.Reshape(1, null).AsGraphData(), null);
                 ++index;
             }
             return ret;

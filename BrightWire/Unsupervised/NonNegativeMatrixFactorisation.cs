@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.Unsupervised
 {
@@ -12,17 +13,17 @@ namespace BrightWire.Unsupervised
     internal class NonNegativeMatrixFactorisation
     {
         readonly uint _numClusters;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly IErrorMetric _costFunction;
 
-        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, uint numClusters, IErrorMetric? costFunction = null)
+        public NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numClusters, IErrorMetric? costFunction = null)
         {
             _lap = lap;
             _numClusters = numClusters;
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IFloatVector[][] Cluster(IEnumerable<IFloatVector> data, uint numIterations, float errorThreshold = 0.001f)
+        public IVector[][] Cluster(IEnumerable<IVector> data, uint numIterations, float errorThreshold = 0.001f)
         {
             var dataArray = data.ToArray();
 
@@ -63,8 +64,8 @@ namespace BrightWire.Unsupervised
             }
 
             // weights gives cluster membership
-            var documentClusters = weights.AsIndexable().Rows
-                .Select((c, i) => (Index: i, MaxIndex: c.MaximumAbsoluteIndex()))
+            var documentClusters = weights.AllRowsAsReadOnly(false)
+                .Select((r, i) => (Index: i, MaxIndex: r.GetMaximumIndex()))
                 .ToList();
             weights.Dispose();
             features.Dispose();
@@ -74,9 +75,9 @@ namespace BrightWire.Unsupervised
                 .ToArray();
         }
 
-        float DifferenceCost(IFloatMatrix m1, IFloatMatrix m2)
+        float DifferenceCost(IMatrix m1, IMatrix m2)
         {
-            return m1.AsIndexable().Rows.Zip(m2.AsIndexable().Rows, (r1, r2) => _costFunction.Compute(r1.Data, r2.Data)).Average();
+            return m1.AllRowsAsReadOnly(false).Zip(m2.AllRowsAsReadOnly(false), (r1, r2) => _costFunction.Compute(r1.ToArray(), r2.ToArray())).Average();
         }
     }
 }

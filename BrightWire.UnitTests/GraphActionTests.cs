@@ -1,5 +1,4 @@
-﻿using BrightData;
-using BrightData.Helper;
+﻿using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.UnitTests.Helper;
@@ -8,7 +7,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class GraphActionTests : NumericsBase
+    public class GraphActionTests : CpuBase
     {
         readonly GraphFactory _factory;
 
@@ -22,14 +21,14 @@ namespace BrightWire.UnitTests
             var context = new TestingContext(_cpu);
             var output = action.Execute(input, context, null!);
 
-            FloatMath.AreApproximatelyEqual(output.GetMatrix().AsIndexable(), expectedOutput.GetMatrix().AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(output.GetMatrix(), expectedOutput.GetMatrix()).Should().BeTrue();
         }
 
         [Fact]
         public void TestConstrainInput()
         {
-            var input = _cpu.CreateVector(-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f).ReshapeAsMatrix(1, 7);
-            var output = _cpu.CreateVector(-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f).ReshapeAsMatrix(1, 7);
+            using var input = _cpu.CreateVector(-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f).Reshape(1, 7);
+            using var output = _cpu.CreateVector(-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f).Reshape(1, 7);
 
             CheckTestAction(_factory.GraphAction.Constrain(), input.AsGraphData(), output.AsGraphData());
         }

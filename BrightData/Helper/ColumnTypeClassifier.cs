@@ -17,10 +17,15 @@ namespace BrightData.Helper
             BrightDataType.SByte
         };
         static readonly HashSet<BrightDataType> ContinuousType = new(NumericType) {
-            BrightDataType.Date
+            BrightDataType.Date,
+            BrightDataType.DateOnly,
+            BrightDataType.TimeOnly
         };
         static readonly HashSet<BrightDataType> BlittableType = new(ContinuousType) {
-            BrightDataType.Boolean
+            BrightDataType.Boolean,
+            BrightDataType.BinaryData,
+            BrightDataType.IndexList,
+            BrightDataType.WeightedIndexList,
         };
         static readonly HashSet<BrightDataType> CategoricalType = new() {
             BrightDataType.Boolean,
@@ -73,7 +78,7 @@ namespace BrightData.Helper
         /// <param name="type">Column type to check</param>
         /// <param name="metaData">Column metadata</param>
         /// <returns></returns>
-        public static ColumnClass GetClass(BrightDataType type, IMetaData metaData)
+        public static ColumnClass GetClass(BrightDataType type, MetaData metaData)
         {
             var ret = ColumnClass.Unknown;
             if (metaData.IsCategorical() || IsCategorical(type))
@@ -83,13 +88,13 @@ namespace BrightData.Helper
             if (IsDecimal(type))
                 ret |= ColumnClass.Decimal;
             if (IsBlittable(type))
-                ret |= ColumnClass.Structable;
+                ret |= ColumnClass.Struct;
             if (type.IsTensor())
                 ret |= ColumnClass.Tensor;
             if (type.IsIndexedList())
                 ret |= ColumnClass.IndexBased;
             if (type.IsContinuous())
-                ret |= ColumnClass.Continuous;
+                ret |= ColumnClass.DateTime;
             if (type.IsInteger())
                 ret |= ColumnClass.Integer;
             return ret;

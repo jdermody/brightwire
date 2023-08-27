@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -11,21 +12,21 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     internal class Xavier : IWeightInitialisation
     {
         readonly float _parameter;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new();
 
-        public Xavier(ILinearAlgebraProvider lap, float parameter = 6)
+        public Xavier(LinearAlgebraProvider lap, float parameter = 6)
         {
             _lap = lap;
             _parameter = MathF.Sqrt(parameter);
         }
 
-        public IFloatVector CreateBias(uint size)
+        public IVector CreateBias(uint size)
         {
-            return _lap.CreateVector(size);
+            return _lap.CreateVector(size, true);
         }
 
-        public IFloatMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }

@@ -1,126 +1,151 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading;
-using BrightData.Computation;
+using System.Diagnostics.CodeAnalysis;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
 
 namespace BrightData
 {
     /// <summary>
     /// Bright data context
     /// </summary>
-    public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
+    public class BrightDataContext : ISetLinearAlgebraProvider, IDisposable
     {
-        ILinearAlgebraProvider                        _lap;
+        Lazy<LinearAlgebraProvider>                   _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
-        readonly TensorPool                           _tensorPool;
-        readonly DisposableLayers                     _memoryLayers = new();
-        readonly FloatComputation                     _floatComputation;
-        readonly DoubleComputation                    _doubleComputation;
-        readonly DecimalComputation                   _decimalComputation;
-        readonly UIntComputation                      _uintComputation;
-        readonly DataEncoder                          _dataReader;
 
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="lap">Linear algebra provider to use (optional)</param>
         /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
-        /// <param name="maxCacheSize">Max size of cache to store in memory</param>
-        public BrightDataContext(
-            int? randomSeed = null,
-            long maxCacheSize = Consts.DefaultMemoryCacheSize)
+        public BrightDataContext(LinearAlgebraProvider? lap = null, int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
-            Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            _tensorPool = new TensorPool(maxCacheSize);
-            _dataReader = new DataEncoder(this);
+            Random = randomSeed.HasValue 
+                ? new Random(randomSeed.Value) 
+                : new Random()
+            ;
+            LinearAlgebraProviderFactory = () => new(this);
+            if (lap is not null)
+                _lap = new(lap);
+            else
+                _lap = new(() => LinearAlgebraProviderFactory());
 
-            _floatComputation = new FloatComputation(this);
-            _doubleComputation = new DoubleComputation(this);
-            _decimalComputation = new DecimalComputation(this);
-            _uintComputation = new UIntComputation(this);
-
-            _memoryLayers.Push();
-            _lap = new SimpleLinearAlgebraProvider(this, true);
+            Set(Consts.DateTimeCreated, DateTime.Now);
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            _memoryLayers.Pop();
-            _tensorPool.Dispose();
-            TempStreamProvider.Dispose();
-            LinearAlgebraProvider.Dispose();
+            GC.SuppressFinalize(this);
+            if(_lap.IsValueCreated)
+                _lap.Value.Dispose();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Default random number generator
+        /// </summary>
         public Random Random { get; private set; }
-
-        /// <inheritdoc />
-        public ITensorPool TensorPool => _tensorPool;
-
-        /// <inheritdoc />
-        public IDisposableLayers MemoryLayer => _memoryLayers;
-
-        /// <inheritdoc />
-        public IDataReader DataReader => _dataReader;
-
-        /// <inheritdoc />
-        public INumericComputation<T> GetComputation<T>() where T : struct
-        {
-            var typeCode = Type.GetTypeCode(typeof(T));
-            return typeCode switch {
-                TypeCode.Single  => (INumericComputation<T>) _floatComputation,
-                TypeCode.Double  => (INumericComputation<T>) _doubleComputation,
-                TypeCode.Decimal => (INumericComputation<T>) _decimalComputation,
-                TypeCode.UInt32  => (INumericComputation<T>) _uintComputation,
-                _                => throw new NotImplementedException()
-            };
-        }
 
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        public ILinearAlgebraProvider LinearAlgebraProvider
+        public LinearAlgebraProvider LinearAlgebraProvider
         {
-            get => _lap;
+            get => _lap.Value;
             set
             {
-                _lap.Dispose();
-                _lap = value;
+                if(_lap.IsValueCreated)
+                    _lap.Value.Dispose();
+                _lap = new(value);
             }
         }
 
-        /// <inheritdoc />
-        public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
+        /// <summary>
+        /// Linear algebra provider factory
+        /// </summary>
+        public Func<LinearAlgebraProvider> LinearAlgebraProviderFactory { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Creates a new temp stream provider
+        /// </summary>
+        /// <returns></returns>
+        public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
+
+        /// <summary>
+        /// Returns a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="defaultValue">Value to return if the property was not set</param>
+        /// <returns></returns>
         public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="defaultValueCreator">Callback to return a value if the property was not set</param>
+        /// <returns></returns>
         public T Get<T>(string name, Func<T> defaultValueCreator) where T : notnull => (T)_attachedProperties.GetOrAdd(name, _ => defaultValueCreator());
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a typed property from the context (or null if the property was not set)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <returns></returns>
         public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Tries to get a typed property from the context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="ret">The property value (if set)</param>
+        /// <returns>True if the property was set</returns>
+        public bool TryGet<T>(string name, [NotNullWhen(true)]out T? ret)
+        {
+            if (_attachedProperties.TryGetValue(name, out var obj)) {
+                ret = (T)obj;
+                return true;
+            }
+
+            ret = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Sets a typed property in this context
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Property name</param>
+        /// <param name="value">Property value</param>
+        /// <returns></returns>
         public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (_, _) => value);
 
-        /// <inheritdoc />
-        public T Set<T>(string name, Func<T> valueCreator) where T : notnull => (T)_attachedProperties.AddOrUpdate(name, _ => valueCreator(), (_, o) => o);
+        /// <summary>
+        /// Removes a typed property from the context
+        /// </summary>
+        /// <param name="name">Property name</param>
+        public void Clear(string name) => _attachedProperties.TryRemove(name, out var _);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// True if the context does not use a predefined random seed
+        /// </summary>
         public bool IsStochastic { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Resets the random seed
+        /// </summary>
+        /// <param name="seed"></param>
         public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Optional interface to provide user notification of long running operations
+        /// </summary>
         public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
-
-        /// <inheritdoc />
-        public CancellationToken CancellationToken { get; set; } = default;
     }
 }

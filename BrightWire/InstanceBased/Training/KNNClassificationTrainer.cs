@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightData;
 using BrightWire.Models.InstanceBased;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.InstanceBased.Training
 {
@@ -10,16 +11,16 @@ namespace BrightWire.InstanceBased.Training
     /// </summary>
     internal static class KnnClassificationTrainer
     {
-        public static KNearestNeighbours Train(IDataTable table)
+        public static KNearestNeighbours Train(BrightDataTable table)
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var featureColumns = table.ColumnIndicesOfFeatures().ToArray();
-            var vectoriser = table.GetVectoriser(true, featureColumns);
-            var data = vectoriser.Enumerate().ToArray();
+            using var vectoriser = table.GetVectoriser(true, featureColumns);
+            using var columnReader = table.ReadColumn(targetColumnIndex);
 
             return new KNearestNeighbours {
-                Instance = data,
-                Classification = table.Column(targetColumnIndex).Enumerate().Select(v => v.ToString() ?? throw new Exception("Cannot convert to string")).ToArray(),
+                Instance = vectoriser.Enumerate().Select(d => d.Segment.ToNewArray()).ToArray(),
+                Classification = columnReader.Values.Select(v => v.ToString() ?? throw new Exception("Cannot convert to string")).ToArray(),
                 DataColumns = featureColumns,
                 TargetColumn = targetColumnIndex
             };

@@ -23,13 +23,14 @@ using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Output;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {
 	/// <summary>
 	/// Creates graph nodes
 	/// </summary>
-	public class GraphFactory
+	public class GraphFactory : IHaveLinearAlgebraProvider
 	{
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor();
 		readonly Stack<IPropertySet> _propertySetStack = new();
@@ -40,7 +41,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="lap">The linear algebra provider to use</param>
 		/// <param name="propertySet">A property set with initialisation data (optional)</param>
-		public GraphFactory(ILinearAlgebraProvider lap, IPropertySet? propertySet = null)
+		public GraphFactory(LinearAlgebraProvider lap, IPropertySet? propertySet = null)
 		{
 			LinearAlgebraProvider = lap;
 			WeightInitialisation = new WeightInitialisationProvider(LinearAlgebraProvider);
@@ -52,15 +53,13 @@ namespace BrightWire.ExecutionGraph
 			};
         }
 
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        /// <inheritdoc />
+        public LinearAlgebraProvider LinearAlgebraProvider { get; }
 
         /// <summary>
         /// Bright data context
         /// </summary>
-        public IBrightDataContext Context => LinearAlgebraProvider.Context;
+        public BrightDataContext Context => LinearAlgebraProvider.Context;
 
         /// <summary>
 		/// The current property set
@@ -95,7 +94,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="weight"></param>
 		/// <returns></returns>
-		public IGradientDescentOptimisation CreateWeightUpdater(IFloatMatrix weight)
+		public IGradientDescentOptimisation CreateWeightUpdater(IMatrix weight)
 		{
 			var propertySet = CurrentPropertySet;
 
@@ -117,7 +116,11 @@ namespace BrightWire.ExecutionGraph
 			return ret ?? SimpleGradientDescent;
 		}
 
-		IWeightInitialisation GetWeightInitialisation()
+		/// <summary>
+		/// Returns an object that can initialize weights in the graph
+		/// </summary>
+		/// <returns></returns>
+		public IWeightInitialisation GetWeightInitialisation()
 		{
 			var propertySet = CurrentPropertySet;
 			var ret = propertySet.WeightInitialisation;
@@ -139,8 +142,6 @@ namespace BrightWire.ExecutionGraph
             uint batchSize = 128
         )
 		{
-			//var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, this);
-			//return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
             var ret = new TrainingEngine(this, dataSource, errorMetric);
             var learningContext = ret.LearningContext;
             learningContext.LearningRate = learningRate;
@@ -149,21 +150,22 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-		/// Creates a graph execution engine
-		/// </summary>
-		/// <param name="graph">The serialised graph to execute</param>
-		/// <returns></returns>
-		public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph)
+        /// Creates a graph execution engine
+        /// </summary>
+        /// <param name="graph">The serialised graph to execute</param>
+        /// <param name="lap">Linear algebra provider (optional)</param>
+        /// <returns></returns>
+        public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph, LinearAlgebraProvider? lap = null)
 		{
 			var input = this.CreateFrom(graph);
-			return new ExecutionEngine(Context, LinearAlgebraProvider, graph, input);
+			return new ExecutionEngine(lap ?? LinearAlgebraProvider, graph, input);
 		}
 
 		/// <summary>
 		/// Creates a data source from a list of vectors
 		/// </summary>
 		/// <param name="vectorList">The list of vectors that will be the rows in the data source</param>
-		public IDataSource CreateDataSource(Vector<float>[] vectorList)
+		public IDataSource CreateDataSource(IVector[] vectorList)
 		{
 			return new VectorDataSource(LinearAlgebraProvider, vectorList);
 		}
@@ -173,7 +175,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(Matrix<float>[] sequenceList)
+		public IDataSource CreateDataSource(IMatrix[] sequenceList)
 		{
 			return new SequentialDataSource(LinearAlgebraProvider, sequenceList);
 		}
@@ -183,7 +185,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="tensorList">The list of tensors that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(Tensor3D<float>[] tensorList)
+		public IDataSource CreateDataSource(ITensor3D[] tensorList)
 		{
 			return new TensorDataSource(LinearAlgebraProvider, tensorList);
 		}
@@ -194,7 +196,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table to convert</param>
         /// <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
         /// <returns></returns>
-        public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, params uint[] featureColumns)
+        public IDataSource CreateDataSource(BrightDataTable dataTable, params uint[] featureColumns)
 		{
 			var columns = dataTable.ColumnTypes;
 			var targetColumn = dataTable.GetTargetColumnOrThrow();
@@ -228,7 +230,7 @@ namespace BrightWire.ExecutionGraph
 
 				// volume classification
 				if (featureColumnType == BrightDataType.Tensor3D && targetColumnType == BrightDataType.Vector)
-					return new TensorBasedDataTableAdapter(dataTable, featureColumns);
+					return new Tensor3DBasedDataTableAdapter(dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == BrightDataType.IndexList)
@@ -239,7 +241,7 @@ namespace BrightWire.ExecutionGraph
 					return new WeightedIndexListDataTableAdapter(dataTable, null, featureColumns);
 			}
 
-			// default adapator
+			// default adapter
 			return new DefaultDataTableAdapter(dataTable, null, null, featureColumns);
 		}
 
@@ -250,7 +252,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public (NodeBase RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
+        public (NodeBase RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, BrightDataTable dataTable, string? name = null)
         {
             var ret = new RowClassifier(LinearAlgebraProvider, classifier, dataTable, name);
             return (ret, ret.OutputSize);
@@ -760,7 +762,7 @@ namespace BrightWire.ExecutionGraph
 		public ICreateGradientDescent L2(float lambda) => new L2RegularisationDescriptor(lambda);
 
 		/// <summary>
-		/// Creats a momentum gradient descent optimiser
+		/// Creates a momentum gradient descent optimiser
 		/// </summary>
 		/// <param name="momentum">Momentum parameter</param>
 		public ICreateTemplateBasedGradientDescent Momentum(float momentum = 0.9f) => new MomentumDescriptor(momentum);
@@ -904,7 +906,7 @@ namespace BrightWire.ExecutionGraph
 			/// </summary>
 			public IWeightInitialisation Identity01 { get; }
 
-			internal WeightInitialisationProvider(ILinearAlgebraProvider lap)
+			internal WeightInitialisationProvider(LinearAlgebraProvider lap)
 			{
 				Ones = new Constant(lap);
 				Zeroes = new Constant(lap, 0f, 0f);
@@ -946,7 +948,7 @@ namespace BrightWire.ExecutionGraph
 			public NodeBase SquareRootOf(string? name = null) => new SquareRootOfInput(name);
 
 			/// <summary>
-			/// Caclculates one minus graph input (1-x)
+			/// Calculates one minus graph input (1-x)
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>

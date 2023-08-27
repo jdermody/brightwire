@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Xunit;
-using BrightData.Buffer;
 using FluentAssertions;
 
 namespace BrightData.UnitTests
@@ -16,12 +15,13 @@ namespace BrightData.UnitTests
 
             public void Dispose()
             {
+                GC.SuppressFinalize(this);
                 foreach(var item in _streams)
                     item.Value.Dispose();
                 _streams.Clear();
             }
 
-            public string GetNewTempPath()
+            public string GetTempPath(string uniqueId)
             {
                 throw new NotImplementedException();
             }
@@ -83,7 +83,7 @@ namespace BrightData.UnitTests
                 StringBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
         }
 
-        void ObjectTests<T>(IBrightDataContext context, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectTests<T>(BrightDataContext context, Func<uint, T> indexTranslator) where T : IAmSerializable
         {
             foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 ObjectBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
@@ -96,11 +96,11 @@ namespace BrightData.UnitTests
                 StructBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 
-        void StringBufferReadWriteTest(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, string> indexTranslator)
+        void StringBufferReadWriteTest(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, string> indexTranslator)
         {
-            var buffer = _streamProvider.CreateHybridStringBuffer(bufferSize, numDistinct);
+            var buffer = _streamProvider.CreateCompositeStringBuffer(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i), i);
+                buffer.Add(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
@@ -109,15 +109,15 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<string>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
+            foreach (var item in bufferReader.Values)
                 item.Should().Be(indexTranslator(index++));
         }
 
-        void ObjectBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort _, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectBufferReadWriteTest<T>(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort _, Func<uint, T> indexTranslator) where T : IAmSerializable
         {
-            var buffer = _streamProvider.CreateHybridObjectBuffer<T>(context, bufferSize);
+            var buffer = _streamProvider.CreateCompositeObjectBuffer<T>(context, bufferSize);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i), i);
+                buffer.Add(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
@@ -126,15 +126,17 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
-                item.Should().Be(indexTranslator(index++));
+            foreach (var item in bufferReader.Values) {
+                var comparison = indexTranslator(index++);
+                item.Should().BeEquivalentTo(comparison, options => options.ComparingByMembers<T>());
+            }
         }
 
-        void StructBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : struct
+        void StructBufferReadWriteTest<T>(BrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : struct
         {
-            var buffer = _streamProvider.CreateHybridStructBuffer<T>(bufferSize, numDistinct);
+            var buffer = _streamProvider.CreateCompositeStructBuffer<T>(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i), i);
+                buffer.Add(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
@@ -143,7 +145,7 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
-            foreach (var item in bufferReader.EnumerateTyped())
+            foreach (var item in bufferReader.Values)
                 item.Should().Be(indexTranslator(index++));
         }
     }

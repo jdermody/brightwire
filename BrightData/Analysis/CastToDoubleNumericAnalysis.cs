@@ -2,6 +2,10 @@
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Used to cast other numeric types to doubles for numeric analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
     {
         readonly ConvertToDouble<T> _converter = new();
@@ -23,7 +27,7 @@ namespace BrightData.Analysis
             Add((T)obj);
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             Analysis.WriteTo(metadata);
         }

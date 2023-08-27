@@ -1,5 +1,8 @@
 ﻿namespace BrightData.Analysis
 {
+    /// <summary>
+    /// String analysis
+    /// </summary>
     internal class StringAnalyser : FrequencyAnalyser<string>
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
@@ -20,7 +23,7 @@
             }
         }
 
-        public override void WriteTo(IMetaData metadata)
+        public override void WriteTo(MetaData metadata)
         {
             base.WriteTo(metadata);
             if(_minLength != uint.MaxValue)

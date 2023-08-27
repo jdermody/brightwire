@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using BrightData;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
     internal class NodeWrapper : NodeBase
     {
-        class ContextProxy : IGraphSequenceContext
+        class ContextProxy : IGraphContext
         {
-            readonly IGraphSequenceContext _context;
+            readonly IGraphContext _context;
             readonly NodeBase _wrapper;
 
-            public ContextProxy(IGraphSequenceContext context, NodeBase wrapper)
+            public ContextProxy(IGraphContext context, NodeBase wrapper)
             {
                 _context = context;
                 _wrapper = wrapper;
@@ -24,15 +24,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 get =>_context.Data;
                 set => _context.Data = value;
             }
-            public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
+            public GraphExecutionContext ExecutionContext => _context.ExecutionContext;
             public ILearningContext? LearningContext => _context.LearningContext;
-            public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
             public IGraphData? ErrorSignal => _context.ErrorSignal;
 
             public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
             {
-                // TODO: wrap the backpropagation?
                 _context.AddForwardHistory(_wrapper, data, callback, prev);
             }
 
@@ -67,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = node.Id;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             return _node.ForwardSingleStep(signal, channel, context, source);
         }

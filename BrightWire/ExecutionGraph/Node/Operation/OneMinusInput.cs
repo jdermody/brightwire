@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -12,10 +11,10 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             public Backpropagation(OneMinusInput source) : base(source) { }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
+                using var minusOne = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => -1f);
                 return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
             }
         }
@@ -24,10 +23,10 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
+            using var ones = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, (_, _) => 1f);
             var output = ones.Subtract(input);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this));
         }

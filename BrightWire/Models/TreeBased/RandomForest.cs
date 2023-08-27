@@ -9,7 +9,7 @@ namespace BrightWire.Models.TreeBased
     /// <summary>
     /// A random forest model
     /// </summary>
-    public class RandomForest : ISerializable
+    public class RandomForest : IAmSerializable
     {
         /// <summary>
         /// The list of trees in the forest
@@ -29,6 +29,6 @@ namespace BrightWire.Models.TreeBased
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

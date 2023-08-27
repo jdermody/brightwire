@@ -6,32 +6,34 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
     internal static class SimpleDataSets
     {
-        public static IrisTrainer Iris(this IBrightDataContext context)
+        public static DataTableTrainer Iris(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try
             {
                 using var table = context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
-                using var numericTable = table.ConvertTable(
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric);
+                using var numericTable = table.Convert(
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric, 
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric
+                );
                 using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
-                return new IrisTrainer(normalized.AsRowOriented(), table.Column(4).ToArray<string>());
+                using var column = table.GetColumn(4);
+                return new DataTableTrainer(normalized);
             }
             finally
             {
@@ -39,29 +41,29 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static StockDataTrainer StockData(this IBrightDataContext context)
+        public static StockDataTrainer StockData(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
                 using var table = context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
-                using var numericTable = table.ConvertTable(
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToDate);
+                using var numericTable = table.Convert(
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToNumeric,
+                    ColumnConversionOperation.ToDate);
                 using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
-                return new StockDataTrainer(normalised.AsRowOriented());
+                return new StockDataTrainer(normalised);
             }
             finally {
                 reader.Dispose();
             }
         }
 
-        public static XorTrainer Xor(this IBrightDataContext context)
+        public static XorTrainer Xor(this BrightDataContext context)
         {
             // Some training data that the network will learn.  The XOR pattern looks like:
             // 0 0 => 0
@@ -72,14 +74,14 @@ namespace ExampleCode.DataSet
             return new XorTrainer(table);
         }
 
-        public static IntegerAdditionTrainer IntegerAddition(this IBrightDataContext context)
+        public static IntegerAdditionTrainer IntegerAddition(this BrightDataContext context)
         {
             var data = BinaryIntegers.Addition(context, 1000);
             var (training, test) = data.Split();
             return new IntegerAdditionTrainer(data, training, test);
         }
 
-        public static SentenceTable BeautifulandDamned(this IBrightDataContext context)
+        public static SentenceTable BeautifulandDamned(this BrightDataContext context)
         {
             using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
@@ -89,7 +91,7 @@ namespace ExampleCode.DataSet
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
-        public static Mnist Mnist(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
+        public static Mnist Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
         {
             var testImages = DataSet.Mnist.Load(
                 GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
@@ -105,14 +107,14 @@ namespace ExampleCode.DataSet
             return new Mnist(context, trainingImages, testImages);
         }
 
-        public static SentimentDataTrainer SentimentData(this IBrightDataContext context)
+        public static SentimentDataTrainer SentimentData(this BrightDataContext context)
         {
             // http://dkotzias.com/papers/GICF.pdf
             var directory = ExtractToDirectory(context, "sentiment", "sentiment.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip");
             return new SentimentDataTrainer(context, directory);
         }
 
-        public static TestClusteringTrainer TextClustering(this IBrightDataContext context)
+        public static TestClusteringTrainer TextClustering(this BrightDataContext context)
         {
             using var reader = GetStreamReader(context, "aaai-accepted-papers.csv",
                 "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv");
@@ -122,33 +124,35 @@ namespace ExampleCode.DataSet
             var topicSplit = "\n".ToCharArray();
 
             var docList = new List<TestClusteringTrainer.AaaiDocument>();
-            table.ForEachRow(row => docList.Add(new TestClusteringTrainer.AaaiDocument(
-                (string) row[0],
-                ((string) row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
-                ((string) row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),
-                (string) row[5],
-                ((string) row[2]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries)
-            )));
+            foreach (var (_, row) in table.GetAllRowData()) {
+                docList.Add(new TestClusteringTrainer.AaaiDocument(
+                    (string)row[0],
+                    ((string)row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
+                    ((string)row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),
+                    (string)row[5],
+                    ((string)row[2]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries)
+                ));
+            }
 
             return new TestClusteringTrainer(context, docList);
         }
 
-        public static ReberSequenceTrainer ReberSequencePrediction(this IBrightDataContext context, bool extended = true, int? minLength = 10, int? maxLength = 10)
+        public static ReberSequenceTrainer ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
         {
             var grammar = new ReberGrammar(context.Random);
             var sequences = extended
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
-
-            return new ReberSequenceTrainer(context, ReberGrammar.GetOneHot(context, sequences.Take(500)));
+            var trainingData = sequences.Take(2000).ToArray();
+            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, trainingData));
         }
 
-        public static SequenceToSequenceTrainer OneToMany(this IBrightDataContext context)
+        public static SequenceToSequenceTrainer OneToMany(this BrightDataContext context)
         {
             var grammar = new SequenceGenerator(context, dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
-            var addColumns = true;
+            var builder = context.CreateTableBuilder();
+            var addTableColumns = true;
 
             foreach (var sequence in sequences)
             {
@@ -158,7 +162,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new Vector<float>[sequenceData.Count];
+                var rows = new IReadOnlyVector[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -166,30 +170,30 @@ namespace ExampleCode.DataSet
                     rows[index++] = row;
                 }
 
-                var output = context.CreateMatrixFromRows(rows);
-                if (addColumns) {
-                    addColumns = false;
+                var output = context.CreateReadOnlyMatrixFromRows(rows);
+                if (addTableColumns) {
+                    addTableColumns = false;
                     builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
-                    builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").SetTarget(true);
+                    builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
                 }
                 builder.AddRow(summary, output);
             }
 
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
-        public static SequenceToSequenceTrainer ManyToOne(this IBrightDataContext context)
+        public static SequenceToSequenceTrainer ManyToOne(this BrightDataContext context)
         {
-            const int SIZE = 5, DICTIONARY_SIZE = 16;
-            var grammar = new SequenceGenerator(context, dictionarySize: DICTIONARY_SIZE, minSize: SIZE-1, maxSize: SIZE+1);
+            const int size = 5, dictionarySize = 16;
+            var grammar = new SequenceGenerator(context, dictionarySize: dictionarySize, minSize: size-1, maxSize: size+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Sequence");
-            builder.AddColumn(BrightDataType.Vector, "Summary").SetTarget(true);
+            builder.AddColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new Vector<float>[sequence.Length];
+                var rows = new IReadOnlyVector[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
@@ -198,21 +202,21 @@ namespace ExampleCode.DataSet
                 }
 
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
-                builder.AddRow(context.CreateMatrixFromRows(rows), target);
+                builder.AddRow(context.CreateReadOnlyMatrixFromRows(rows), target);
             }
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
         static string Reverse(string str) => new(str.Reverse().ToArray());
 
-        public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
+        public static SequenceToSequenceTrainer SequenceToSequence(this BrightDataContext context)
         {
-            const int SEQUENCE_LENGTH = 4;
-            var grammar = new SequenceGenerator(context, 3, SEQUENCE_LENGTH-1, SEQUENCE_LENGTH+1, false);
+            const int sequenceLength = 5;
+            var grammar = new SequenceGenerator(context, 3, sequenceLength-1, sequenceLength+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
-            var builder = context.BuildTable();
+            var builder = context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Matrix, "Input");
-            builder.AddColumn(BrightDataType.Matrix, "Output").SetTarget(true);
+            builder.AddColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -221,67 +225,67 @@ namespace ExampleCode.DataSet
                 builder.AddRow(encodedSequence, encodedSequence2);
             }
 
-            return new SequenceToSequenceTrainer(grammar, context, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
         }
 
-        public static LinearTrainer SimpleLinear(this IBrightDataContext context)
-        {
-            var dataTableBuilder = context.BuildTable();
-            dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "labour costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "energy costs");
-            dataTableBuilder.AddColumn(BrightDataType.Float, "output").SetTarget(true);
+        //public static LinearTrainer SimpleLinear(this BrightDataContext context)
+        //{
+        //    var dataTableBuilder = context.BuildTable();
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "capital costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "labour costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "energy costs");
+        //    dataTableBuilder.AddColumn(BrightDataType.Float, "output").SetTarget(true);
 
-            dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
-            dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);
-            dataTableBuilder.AddRow(208.904f, 0.532f, 18.005f, 1.985f);
-            dataTableBuilder.AddRow(528.864f, 1.836f, 75.639f, 9.897f);
-            dataTableBuilder.AddRow(307.419f, 1.136f, 52.234f, 5.907f);
-            dataTableBuilder.AddRow(138.283f, 1.085f, 9.027f, 1.832f);
-            dataTableBuilder.AddRow(418.883f, 2.390f, 1.676f, 4.865f);
-            dataTableBuilder.AddRow(247.439f, 1.356f, 31.244f, 2.728f);
-            dataTableBuilder.AddRow(19.478f, 0.115f, 1.739f, 0.125f);
-            dataTableBuilder.AddRow(537.540f, 2.591f, 104.584f, 9.685f);
-            dataTableBuilder.AddRow(605.507f, 2.789f, 82.296f, 8.727f);
-            dataTableBuilder.AddRow(174.765f, 0.933f, 21.990f, 2.239f);
-            dataTableBuilder.AddRow(946.766f, 4.004f, 125.351f, 10.077f);
-            dataTableBuilder.AddRow(296.490f, 1.513f, 43.232f, 4.477f);
-            dataTableBuilder.AddRow(645.690f, 2.540f, 75.581f, 7.037f);
-            dataTableBuilder.AddRow(288.975f, 1.416f, 42.037f, 3.507f);
+        //    dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
+        //    dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);
+        //    dataTableBuilder.AddRow(208.904f, 0.532f, 18.005f, 1.985f);
+        //    dataTableBuilder.AddRow(528.864f, 1.836f, 75.639f, 9.897f);
+        //    dataTableBuilder.AddRow(307.419f, 1.136f, 52.234f, 5.907f);
+        //    dataTableBuilder.AddRow(138.283f, 1.085f, 9.027f, 1.832f);
+        //    dataTableBuilder.AddRow(418.883f, 2.390f, 1.676f, 4.865f);
+        //    dataTableBuilder.AddRow(247.439f, 1.356f, 31.244f, 2.728f);
+        //    dataTableBuilder.AddRow(19.478f, 0.115f, 1.739f, 0.125f);
+        //    dataTableBuilder.AddRow(537.540f, 2.591f, 104.584f, 9.685f);
+        //    dataTableBuilder.AddRow(605.507f, 2.789f, 82.296f, 8.727f);
+        //    dataTableBuilder.AddRow(174.765f, 0.933f, 21.990f, 2.239f);
+        //    dataTableBuilder.AddRow(946.766f, 4.004f, 125.351f, 10.077f);
+        //    dataTableBuilder.AddRow(296.490f, 1.513f, 43.232f, 4.477f);
+        //    dataTableBuilder.AddRow(645.690f, 2.540f, 75.581f, 7.037f);
+        //    dataTableBuilder.AddRow(288.975f, 1.416f, 42.037f, 3.507f);
 
-            var dataTable = dataTableBuilder.BuildRowOriented();
-            var normalized = dataTable.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented();
-            return new LinearTrainer(normalized);
-        }
+        //    var dataTable = dataTableBuilder.BuildRowOriented();
+        //    var normalized = dataTable.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented();
+        //    return new LinearTrainer(normalized);
+        //}
 
-        public static BicyclesTrainer Bicycles(this IBrightDataContext context)
+        public static BicyclesTrainer Bicycles(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
             using var completeTable = context.ParseCsv(hoursData, true);
 
             // drop the first six columns (index and date features)
-            using var filteredTable = completeTable.CopyColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
+            using var filteredTable = completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i)).ToArray());
+            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
             using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
 
             ret.SetTargetColumn(ret.ColumnCount-1);
-            return new BicyclesTrainer(context, ret.AsRowOriented());
+            return new BicyclesTrainer(ret);
         }
 
-        public static EmotionsTrainer Emotions(this IBrightDataContext context)
+        public static EmotionsTrainer Emotions(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
             var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
             var test = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
             var training = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
-            return new EmotionsTrainer(context, table, training, test);
+            return new EmotionsTrainer(table, training, test);
         }
 
-        public static AdultTrainer Adult(this IBrightDataContext context)
+        public static AdultTrainer Adult(this BrightDataContext context)
         {
             static string AdjustString(string str)
             {
@@ -291,33 +295,33 @@ namespace ExampleCode.DataSet
                 return str;
             }
 
-            static IRowOrientedDataTable ConvertTable(IColumnOrientedDataTable table, string path)
+            static BrightDataTable ConvertTable(BrightDataTable table, string path)
             {
                 using var converted = table.Convert(
                     // convert numeric columns
-                    ColumnConversionType.ToNumeric.ConvertColumn(0), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(2), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(4), 
-                    ColumnConversionType.ToNumeric.ConvertColumn(10),
-                    ColumnConversionType.ToNumeric.ConvertColumn(11),
-                    ColumnConversionType.ToNumeric.ConvertColumn(12),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(0), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(2), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(4), 
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(10),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(11),
+                    ColumnConversionOperation.ToNumeric.ConvertColumn(12),
 
                     // convert to categorical index
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(1),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(3),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(5),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(6),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(7),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(8),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(9),
-                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(13),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(1),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(3),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(5),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(6),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(7),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(8),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(9),
+                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(13),
 
-                    table.CreateCustomColumnConverter<string, string>(14, AdjustString)
+                    table.CreateCustomColumnMutator<string, string>(14, AdjustString)
                 );
                 converted.SetTargetColumn(14);
                 using var normalized = converted.Normalize(NormalizationType.Standard);
 
-                return normalized.AsRowOriented(path);
+                return normalized.Clone(path);
             }
 
             var adultTraining = GetDataTable(context, "adult_data.table", path => {
@@ -338,13 +342,9 @@ namespace ExampleCode.DataSet
             return new AdultTrainer(null, adultTraining, adultTest);
         }
 
-        static string GetDataFilePath(this IBrightDataContext context, string name)
+        static string GetDataFilePath(this BrightDataContext context, string name)
         {
-            var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
-
-            // no directory specified
-            if (dataDirectory == null)
-                throw new Exception("DataFileDirectory not set");
+            var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory") ?? throw new Exception("DataFileDirectory not set");
 
             // try to create the directory if it doesn't exist
             if (!dataDirectory.Exists)
@@ -363,21 +363,21 @@ namespace ExampleCode.DataSet
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static IRowOrientedDataTable GetDataTable(this IBrightDataContext context, string fileName, Func<string, IRowOrientedDataTable> createTable)
+        static BrightDataTable GetDataTable(this BrightDataContext context, string fileName, Func<string, BrightDataTable> createTable)
         {
             var path = GetDataFilePath(context, fileName);
             if (!File.Exists(path))
                 return createTable(path);
 
-            return (IRowOrientedDataTable)context.LoadTable(path);
+            return context.LoadTable(path);
         }
 
-        static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string? remoteUrl = null)
+        static StreamReader GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
         {
             return new(GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this IBrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
+        static Stream GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
         {
             var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
@@ -422,7 +422,7 @@ namespace ExampleCode.DataSet
             return new FileStream(filePath, FileMode.Open, FileAccess.Read);
         }
 
-        static DirectoryInfo ExtractToDirectory(IBrightDataContext context, string directoryName, string localName, string remoteUrl)
+        static DirectoryInfo ExtractToDirectory(BrightDataContext context, string directoryName, string localName, string remoteUrl)
         {
             var directoryPath = GetDataFilePath(context, directoryName);
             if (!Directory.Exists(directoryPath))

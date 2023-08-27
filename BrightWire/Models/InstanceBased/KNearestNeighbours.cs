@@ -10,12 +10,12 @@ namespace BrightWire.Models.InstanceBased
     /// <summary>
     /// K Nearest Neighbour Model
     /// </summary>
-    public class KNearestNeighbours : ISerializable
+    public class KNearestNeighbours : IAmSerializable
     {
         /// <summary>
         /// The list of vectors to match against
         /// </summary>
-        public Vector<float>[] Instance { get; set; } = Array.Empty<Vector<float>>();
+        public float[][] Instance { get; set; } = Array.Empty<float[]>();
 
         /// <summary>
         /// The corresponding list of classifications
@@ -38,7 +38,7 @@ namespace BrightWire.Models.InstanceBased
         /// <param name="lap">The linear algebra provider</param>
         /// <param name="k">The number of instances to consider</param>
         /// <param name="distanceMetric">The distance metric to compare each row with each instance</param>
-        public IRowClassifier CreateClassifier(ILinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public IRowClassifier CreateClassifier(LinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             return new KnnClassifier(lap, this, k, distanceMetric);
         }
@@ -47,6 +47,6 @@ namespace BrightWire.Models.InstanceBased
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

@@ -4,19 +4,19 @@ using BrightData;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class IntegerAdditionTrainer : DataTableTrainer
     {
-        public IntegerAdditionTrainer(IRowOrientedDataTable data, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(data, training, test)
+        public IntegerAdditionTrainer(BrightDataTable data, BrightDataTable training, BrightDataTable test) : base(data, training, test)
         {
         }
 
         public void TrainRecurrentNeuralNetwork(bool writeResults = true)
         {
-            var context = Table.Context;
-            var graph = context.CreateGraphFactory();
+            var graph = _context.CreateGraphFactory();
 
             // binary classification rounds each output to either 0 or 1
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -30,12 +30,12 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 16);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.001f, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 20, TRAINING_ITERATIONS = 10;
+            const int hiddenLayerSize = 20, trainingIterations = 50;
             graph.Connect(engine)
-                .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
+                .AddSimpleRecurrent(graph.ReluActivation(), hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.ReluActivation())
                 .AddBackpropagationThroughTime()
@@ -43,24 +43,24 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, bn => bestGraph = bn.Graph);
+            engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(context, 8));
-                var results = executionEngine.Execute(testData2).ToArray();
+                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(_context, 8));
+                var results = executionEngine.Execute(testData2, 128, null, true).ToArray();
 
                 // group the output
                 var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];
-                for (var i = 0; i < 8; i++) {
+                for (uint i = 0; i < 8; i++) {
                     var input = new float[32][];
                     var target = new float[32][];
                     var output = new float[32][];
-                    for (var j = 0; j < 32; j++) {
-                        input[j] = results[j].Input![i];
-                        target[j] = results[j].Target![i];
-                        output[j] = results[j].Output[i];
+                    for (uint j = 0; j < 32; j++) {
+                        input[j] = results[j].Input![i].ToArray();
+                        target[j] = results[j].Target![i].ToArray();
+                        output[j] = results[j].Output[i].ToArray();
                     }
 
                     groupedResults[i] = (input, target, output);

@@ -12,12 +12,12 @@ namespace BrightWire.Models
     /// <summary>
     /// A serialised execution graph
     /// </summary>
-    public class ExecutionGraphModel : ISerializable
+    public class ExecutionGraphModel : IAmSerializable
     {
         /// <summary>
         /// A node within the graph
         /// </summary>
-        public class Node : ISerializable
+        public class Node : IAmSerializable
         {
             /// <summary>
             /// Default constructor
@@ -71,28 +71,28 @@ namespace BrightWire.Models
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// Wires connect nodes (aka edges)
         /// </summary>
-        public class Wire : ISerializable
+        public class Wire : IAmSerializable
         {
             /// <summary>
             /// The source node id
             /// </summary>
-            public string FromId { get; set; } = "";
+            public string FromId { get; internal set; } = "";
 
             /// <summary>
             /// The target node id
             /// </summary>
-            public string ToId { get; set; } = "";
+            public string ToId { get; internal set; } = "";
 
             /// <summary>
             /// The channel on the target node to send the source node's output
             /// </summary>
-            public uint InputChannel { get; set; }
+            public uint InputChannel { get; internal set; }
 
             /// <inheritdoc />
 	        public override string ToString()
@@ -101,7 +101,7 @@ namespace BrightWire.Models
             }
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -124,7 +124,7 @@ namespace BrightWire.Models
         /// <summary>
         /// Segment contract version number
         /// </summary>
-        public string Version { get; set; } = "3.0";
+        public string Version { get; set; } = "4.0";
 
         /// <summary>
         /// The name of the graph
@@ -150,7 +150,7 @@ namespace BrightWire.Models
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
 
         /// <summary>
         /// Visits each node in the graph

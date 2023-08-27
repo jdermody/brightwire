@@ -9,8 +9,10 @@ using System.Xml;
 
 namespace BrightData
 {
-    /// <inheritdoc />
-    public class MetaData : IMetaData
+    /// <summary>
+    /// Unstructured meta data store
+    /// </summary>
+    public class MetaData
     {
         readonly Dictionary<string, IConvertible> _values = new();
         readonly List<string> _orderedValues = new();
@@ -20,10 +22,10 @@ namespace BrightData
         /// </summary>
         /// <param name="metaData">Existing meta data to copy from</param>
         /// <param name="keys">Keys to copy (or all if none specified)</param>
-        public MetaData(IMetaData? metaData = null, params string[] keys)
+        public MetaData(MetaData? metaData = null, params string[] keys)
         {
             if (metaData != null) {
-                var md = (MetaData)metaData;
+                var md = metaData;
                 foreach (var item in keys) {
                     if(md._values.TryGetValue(item, out var val))
                         _values.Add(item, val);
@@ -34,7 +36,11 @@ namespace BrightData
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="keys"></param>
         public MetaData(IHaveMetaData metaData, params string[] keys) : this(metaData.MetaData, keys) { }
 
         /// <summary>
@@ -46,10 +52,13 @@ namespace BrightData
             ReadFrom(reader);
         }
 
-        /// <inheritdoc />
-        public void CopyTo(IMetaData metadata)
+        /// <summary>
+        /// Copies this to another meta data store
+        /// </summary>
+        /// <param name="metadata">Other meta data store</param>
+        public void CopyTo(MetaData metadata)
         {
-            var other = (MetaData)metadata;
+            var other = metadata;
             var keys = _orderedValues.ToList();
 
             foreach (var key in keys) {
@@ -62,10 +71,14 @@ namespace BrightData
             }
         }
 
-        /// <inheritdoc />
-        public void CopyTo(IMetaData metadata, params string[] keysToCopy)
+        /// <summary>
+        /// Copies the specified values to another meta data store
+        /// </summary>
+        /// <param name="metadata">Other meta data store</param>
+        /// <param name="keysToCopy">Values to copy</param>
+        public void CopyTo(MetaData metadata, params string[] keysToCopy)
         {
-            var other = (MetaData) metadata;
+            var other = metadata;
             var keySet = new HashSet<string>(keysToCopy);
             var keys = _orderedValues.AsEnumerable().Where(k => keySet.Contains(k));
 
@@ -79,14 +92,22 @@ namespace BrightData
             }
         }
 
-        /// <inheritdoc />
-        public void CopyAllExcept(IMetaData metadata, params string[] keys)
+        /// <summary>
+        /// Copies all except for the specified values to another meta data store
+        /// </summary>
+        /// <param name="metadata">Other meta data store</param>
+        /// <param name="keys">Values NOT to copy (i.e. skip)</param>
+        public void CopyAllExcept(MetaData metadata, params string[] keys)
         {
             var except = new HashSet<string>(keys);
             CopyTo(metadata, _orderedValues.Where(v => !except.Contains(v)).ToArray());
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a value
+        /// </summary>
+        /// <param name="name">Name of the value</param>
+        /// <returns></returns>
         public object? Get(string name)
         {
             if (_values.TryGetValue(name, out var obj))
@@ -94,15 +115,26 @@ namespace BrightData
             return null;
         }
 
-        /// <inheritdoc />
-        public T? GetNullable<T>(string name) where T : struct
+        /// <summary>
+        /// Returns a typed nullable value
+        /// </summary>
+        /// <param name="name">Name of the value</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T? GetNullable<T>(string name)
         {
             if (_values.TryGetValue(name, out var obj))
                 return (T)obj;
-            return null;
+            return default;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a typed value
+        /// </summary>
+        /// <param name="name">Name of the value</param>
+        /// <param name="valueIfMissing">Value to return if the value has not been set</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T Get<T>(string name, T valueIfMissing) 
             where T : IConvertible
         {
@@ -111,7 +143,12 @@ namespace BrightData
             return valueIfMissing;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns an existing value (throws if not found)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of the value</param>
+        /// <returns></returns>
         public T Get<T>(string name) where T : IConvertible
         {
             if (_values.TryGetValue(name, out var obj))
@@ -119,14 +156,22 @@ namespace BrightData
             throw new Exception("Named value not found");
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a named value
+        /// </summary>
+        /// <param name="name">Name of the value</param>
+        /// <param name="value">Value</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T Set<T>(string name, T value) where T : IConvertible
         {
             Set(name, (IConvertible) value);
             return value;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// XML representation of the meta data
+        /// </summary>
         public string AsXml
         {
             get
@@ -140,7 +185,7 @@ namespace BrightData
                     foreach (var item in GetNonEmpty()) {
                         writer.WriteStartElement("item");
                         writer.WriteAttributeString("name", item.Name);
-                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
+                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
                         writer.WriteValue(item.String);
                         writer.WriteEndElement();
                     }
@@ -159,7 +204,10 @@ namespace BrightData
             _values[name] = value;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Writes meta data
+        /// </summary>
+        /// <param name="writer"></param>
         public void WriteTo(BinaryWriter writer)
         {
             var items = GetNonEmpty().ToList();
@@ -172,7 +220,10 @@ namespace BrightData
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Reads values from a binary reader
+        /// </summary>
+        /// <param name="reader"></param>
         public void ReadFrom(BinaryReader reader)
         {
             var count = reader.ReadInt32();
@@ -181,16 +232,17 @@ namespace BrightData
                 var typeCode = (TypeCode)reader.ReadByte();
                 var str = reader.ReadString();
                 var type = typeCode.ToType();
-
-                if (type != null) {
-                    var typeConverter = TypeDescriptor.GetConverter(type);
-                    if(typeConverter.ConvertFromString(str) is IConvertible obj)
-                        Set(name, obj);
-                }
+                var typeConverter = TypeDescriptor.GetConverter(type);
+                if(typeConverter.ConvertFromString(str) is IConvertible obj)
+                    Set(name, obj);
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns all value names with the specified prefix
+        /// </summary>
+        /// <param name="prefix">Prefix to query</param>
+        /// <returns></returns>
         public IEnumerable<string> GetStringsWithPrefix(string prefix)
         {
             return _values
@@ -210,7 +262,11 @@ namespace BrightData
             };
         }
 
-        IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
+        /// <summary>
+        /// Returns non empty metadata
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
         {
             var nonNull = _values.ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {
@@ -228,21 +284,32 @@ namespace BrightData
             return string.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Checks if a value has been set
+        /// </summary>
+        /// <param name="key">Name of the value</param>
+        /// <returns></returns>
         public bool Has(string key) => _values.ContainsKey(key);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Removes a value
+        /// </summary>
+        /// <param name="key">Name of the value</param>
         public void Remove(string key)
         {
             if(_values.Remove(key))
                 _orderedValues.Remove(key);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns all keys that have been set
+        /// </summary>
         public IEnumerable<string> AllKeys => _orderedValues;
 
-        /// <inheritdoc />
-        public IMetaData Clone()
+        /// <summary>
+        /// Creates a clone of the current metadata
+        /// </summary>
+        public MetaData Clone()
         {
             var ret = new MetaData();
             CopyTo(ret);

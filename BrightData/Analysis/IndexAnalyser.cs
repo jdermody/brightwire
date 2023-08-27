@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Index based type analysis
+    /// </summary>
     internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
         readonly uint _writeCount, _maxCount;
@@ -42,7 +45,7 @@ namespace BrightData.Analysis
                 Add(indexed);
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             if (_min != uint.MaxValue)

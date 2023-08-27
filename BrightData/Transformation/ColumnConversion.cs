@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using BrightData.Buffer;
 using BrightData.Converter;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 
 namespace BrightData.Transformation
 {
@@ -15,7 +12,7 @@ namespace BrightData.Transformation
     /// </summary>
     internal class ColumnConversion : IColumnTransformationParam
     {
-        class Converter<TF, TT> : ITransformColumn<TF, TT> where TF: notnull where TT: notnull
+        class Converter<TF, TT> : IConvertColumn<TF, TT> where TF: notnull where TT: notnull
         {
             readonly Func<TF, TT> _converter;
 
@@ -24,14 +21,14 @@ namespace BrightData.Transformation
                 _converter = converter;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 var converted = _converter(input);
-                buffer.Add(converted, index);
+                buffer.Add(converted);
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 var columnType = To.GetBrightDataType();
                 if (columnType.IsNumeric())
@@ -42,17 +39,17 @@ namespace BrightData.Transformation
             public Type To { get; } = typeof(TT);
         }
 
-        abstract class ConvertViaString<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        abstract class ConvertViaString<TF, TT> : IConvertColumn<TF, TT> where TF : notnull where TT : notnull
         {
             protected abstract TT Convert(string str);
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
-                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")), index);
+                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")));
                 return true;
             }
 
-            public virtual void Finalise(IMetaData metaData)
+            public virtual void Finalise(MetaData metaData)
             {
                 // nop
             }
@@ -60,15 +57,15 @@ namespace BrightData.Transformation
             public Type To { get; } = typeof(TT);
         }
 
-        class AnyToString<T> : ITransformColumn<T, string> where T : notnull
+        class AnyToString<T> : IConvertColumn<T, string> where T : notnull
         {
-            public bool Convert(T input, IHybridBuffer<string> buffer, uint index)
+            public bool Convert(T input, ICompositeBuffer<string> buffer, uint index)
             {
-                buffer.Add(input.ToString() ?? throw new Exception("String was null"), index);
+                buffer.Add(input.ToString() ?? throw new Exception("String was null"));
                 return true;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 // nop
             }
@@ -76,7 +73,7 @@ namespace BrightData.Transformation
             public Type To { get; } = typeof(string);
         }
 
-        class NumericConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        class NumericConverter<TF, TT> : IConvertColumn<TF, TT> where TF : notnull where TT : notnull
         {
             readonly IEnumerator<TT> _list;
 
@@ -87,17 +84,17 @@ namespace BrightData.Transformation
 
             public Type From { get; } = typeof(TF);
             public Type To { get; } = typeof(TT);
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
                 if (_list.MoveNext()) {
-                    buffer.Add(_list.Current, index);
+                    buffer.Add(_list.Current);
                     return true;
                 }
 
                 return false;
             }
 
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
             }
@@ -115,7 +112,7 @@ namespace BrightData.Transformation
                 return index;
             }
 
-            public override void Finalise(IMetaData metaData)
+            public override void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
                 metaData.SetType(BrightDataType.Int);
@@ -126,28 +123,26 @@ namespace BrightData.Transformation
             }
         }
 
-        class StringTokeniser : ITransformColumn<string, IndexList>
+        class StringTokeniser : IConvertColumn<string, IndexList>
         {
-            readonly IBrightDataContext _context;
             readonly Func<string, StringIndexer, IEnumerable<uint>> _tokeniser;
             readonly StringIndexer _stringIndexer = new();
 
-            public StringTokeniser(IBrightDataContext context, Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
+            public StringTokeniser(Func<string, StringIndexer, IEnumerable<uint>> tokeniser)
             {
-                _context = context;
                 _tokeniser = tokeniser;
             }
 
-            public bool Convert(string input, IHybridBuffer<IndexList> buffer, uint index)
+            public bool Convert(string input, ICompositeBuffer<IndexList> buffer, uint index)
             {
-                var indexList = IndexList.Create(_context, _tokeniser(input, _stringIndexer));
-                buffer.Add(indexList, index);
+                var indexList = IndexList.Create(_tokeniser(input, _stringIndexer));
+                buffer.Add(indexList);
                 return true;
             }
 
             public Type From { get; } = typeof(string);
             public Type To { get; } = typeof(IndexList);
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.SetType(BrightDataType.IndexList);
                 metaData.SetIsCategorical(true);
@@ -158,7 +153,7 @@ namespace BrightData.Transformation
             }
         }
 
-        class StandardConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        class StandardConverter<TF, TT> : IConvertColumn<TF, TT> where TF : notnull where TT : notnull
         {
             readonly ICanConvert<TF, TT> _converter;
 
@@ -167,74 +162,70 @@ namespace BrightData.Transformation
                 _converter = StaticConverters.GetConverter<TF, TT>();
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter.Convert(input), index);
+                buffer.Add(_converter.Convert(input));
                 return true;
             }
 
             public Type From { get; } = typeof(TF);
             public Type To { get; } = typeof(TT);
-            public void Finalise(IMetaData metaData)
+            public void Finalise(MetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
             }
         }
 
-        public class CustomConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        public class CustomConverter<TF, TT> : IConvertColumn<TF, TT> where TF : notnull where TT : notnull
         {
             readonly Func<TF, TT> _converter;
-            readonly Action<IMetaData>? _finalise;
+            readonly Action<MetaData>? _finalise;
 
-            public CustomConverter(Func<TF, TT> converter, Action<IMetaData>? finalise)
+            public CustomConverter(Func<TF, TT> converter, Action<MetaData>? finalise)
             {
                 _converter = converter;
                 _finalise = finalise;
             }
 
-            public bool Convert(TF input, IHybridBuffer<TT> buffer, uint index)
+            public bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index)
             {
-                buffer.Add(_converter(input), index);
+                buffer.Add(_converter(input));
                 return true;
             }
 
             public Type From => typeof(TF);
             public Type To => typeof(TT);
-            public void Finalise(IMetaData metaData) => _finalise?.Invoke(metaData);
+            public void Finalise(MetaData metaData) => _finalise?.Invoke(metaData);
         }
 
-        readonly ColumnConversionType _toType;
-        readonly ITransformColumn? _converter;
+        readonly ColumnConversionOperation _toType;
+        readonly IConvertColumn? _converter;
 
         static readonly HashSet<string> TrueStrings = new() { "Y", "YES", "TRUE", "T", "1" };
-        static readonly ITransformColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
-        static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(ParseDate);
-        static readonly ITransformColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
-        static readonly ITransformColumn VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
-        static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense());
-        static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense());
-        static readonly ITransformColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
-        static readonly ITransformColumn VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
+        static readonly IConvertColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
+        static readonly IConvertColumn StringToDate = new Converter<string, DateTime>(ParseDate);
+        static readonly IConvertColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
+        static readonly IConvertColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Indices.Select(ind => (ind, 1f))));
 
-        static DateTime ParseDate(string str)
+        public static DateTime ParseDate(string str)
         {
-            if (DateTime.TryParse(str, out var ret))
-                return ret;
-
-            if (DateTime.TryParse(str, new DateTimeFormatInfo(), DateTimeStyles.AllowWhiteSpaces, out ret))
-                return ret;
-
-            throw new Exception($"{str} was not recognised as a valid date");
+            try {
+                return str.ToDateTime();
+            }
+            catch {
+                // return placeholder date
+                return DateTime.MinValue;
+            }
         }
 
-        public ColumnConversion(uint? columnIndex, ColumnConversionType type)
+        public ColumnConversion(uint? columnIndex, ColumnConversionOperation type)
         {
             ColumnIndex = columnIndex;
             _toType = type;
             _converter = null;
         }
 
-        public ColumnConversion(uint? columnIndex, ITransformColumn converter)
+        public ColumnConversion(uint? columnIndex, IConvertColumn converter)
         {
             ColumnIndex = columnIndex;
             _converter = converter;
@@ -244,40 +235,41 @@ namespace BrightData.Transformation
         public uint? ColumnIndex { get; }
 
         /// <inheritdoc />
-        public ITransformColumn? GetTransformer(BrightDataType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public IConvertColumn? GetTransformer(BrightDataContext context, BrightDataType fromType, ITableSegment column, Func<MetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;
 
+            var lap = context.LinearAlgebraProvider;
             switch (_toType) {
-                case ColumnConversionType.Unchanged:
+                case ColumnConversionOperation.Unchanged:
                     return null;
 
                 // to boolean
-                case ColumnConversionType.ToBoolean when fromType == BrightDataType.Boolean:
+                case ColumnConversionOperation.ToBoolean when fromType == BrightDataType.Boolean:
                     return null;
-                case ColumnConversionType.ToBoolean when fromType == BrightDataType.String:
+                case ColumnConversionOperation.ToBoolean when fromType == BrightDataType.String:
                     return StringToBool;
 
                 // to date
-                case ColumnConversionType.ToDate when fromType == BrightDataType.Date:
+                case ColumnConversionOperation.ToDate when fromType == BrightDataType.Date:
                     return null;
-                case ColumnConversionType.ToDate when fromType == BrightDataType.String:
+                case ColumnConversionOperation.ToDate when fromType == BrightDataType.String:
                     return StringToDate;
 
                 // to string
-                case ColumnConversionType.ToString when fromType == BrightDataType.String:
+                case ColumnConversionOperation.ToString when fromType == BrightDataType.String:
                     return null;
-                case ColumnConversionType.ToString:
-                    return GenericActivator.Create<ITransformColumn>(typeof(AnyToString<>).MakeGenericType(fromType.GetDataType()));
+                case ColumnConversionOperation.ToString:
+                    return GenericActivator.Create<IConvertColumn>(typeof(AnyToString<>).MakeGenericType(fromType.GetDataType()));
 
                 // to numeric
-                case ColumnConversionType.ToNumeric: {
-                    var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount);
+                case ColumnConversionOperation.ToNumeric: {
+                    var buffer = tempStreams.CreateCompositeStructBuffer<double>(inMemoryRowCount);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     uint index = 0;
-                    foreach (var val in column.Enumerate()) {
+                    foreach (var val in column.Values) {
                         var str = val.ToString();
                         if (double.TryParse(str, out var num)) {
                             if (num < min)
@@ -286,9 +278,9 @@ namespace BrightData.Transformation
                                 max = num;
                             if (isInteger && Math.Abs(num % 1) > FloatMath.AlmostZero)
                                 isInteger = false;
-                            buffer.Add(num, index);
+                            buffer.Add(num);
                         } else
-                            buffer.Add(double.NaN, index);
+                            buffer.Add(double.NaN);
 
                         ++index;
                     }
@@ -309,63 +301,63 @@ namespace BrightData.Transformation
                             toType = BrightDataType.Double;
                     }
                 
-                    var enumerable = GetEnumerableNumbers(toType, buffer.EnumerateTyped());
+                    var enumerable = GetEnumerableNumbers(toType, buffer.Values);
                     var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
-                    return GenericActivator.Create<ITransformColumn>(converterType, enumerable);
+                    return GenericActivator.Create<IConvertColumn>(converterType, enumerable);
                 }
 
-                case ColumnConversionType.ToByte:
+                case ColumnConversionOperation.ToByte:
                     return GetStandardConverter(fromType, BrightDataType.SByte);
-                case ColumnConversionType.ToShort:
+                case ColumnConversionOperation.ToShort:
                     return GetStandardConverter(fromType, BrightDataType.Short);
-                case ColumnConversionType.ToInt:
+                case ColumnConversionOperation.ToInt:
                     return GetStandardConverter(fromType, BrightDataType.Int);
-                case ColumnConversionType.ToLong:
+                case ColumnConversionOperation.ToLong:
                     return GetStandardConverter(fromType, BrightDataType.Long);
-                case ColumnConversionType.ToFloat:
+                case ColumnConversionOperation.ToFloat:
                     return GetStandardConverter(fromType, BrightDataType.Float);
-                case ColumnConversionType.ToDouble:
+                case ColumnConversionOperation.ToDouble:
                     return GetStandardConverter(fromType, BrightDataType.Double);
-                case ColumnConversionType.ToDecimal:
+                case ColumnConversionOperation.ToDecimal:
                     return GetStandardConverter(fromType, BrightDataType.Decimal);
 
                 // to categorical index
-                case ColumnConversionType.ToCategoricalIndex:
-                    return GenericActivator.Create<ITransformColumn>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
+                case ColumnConversionOperation.ToCategoricalIndex:
+                    return GenericActivator.Create<IConvertColumn>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
 
                 // index list
-                case ColumnConversionType.ToIndexList when fromType == BrightDataType.IndexList:
+                case ColumnConversionOperation.ToIndexList when fromType == BrightDataType.IndexList:
                     return null;
-                case ColumnConversionType.ToIndexList when fromType == BrightDataType.WeightedIndexList:
+                case ColumnConversionOperation.ToIndexList when fromType == BrightDataType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
-                case ColumnConversionType.ToIndexList when fromType == BrightDataType.Vector:
-                    return VectorToIndexList;
+                case ColumnConversionOperation.ToIndexList when fromType == BrightDataType.Vector:
+                    return new Converter<IVector, IndexList>(v => v.Segment.ToSparse().AsIndexList());
 
                 // vector
-                case ColumnConversionType.ToVector when fromType == BrightDataType.Vector:
+                case ColumnConversionOperation.ToVector when fromType == BrightDataType.Vector:
                     return null;
-                case ColumnConversionType.ToVector when fromType == BrightDataType.WeightedIndexList:
-                    return WeightedIndexListToVector;
-                case ColumnConversionType.ToVector when fromType == BrightDataType.IndexList:
-                    return IndexListToVector;
+                case ColumnConversionOperation.ToVector when fromType == BrightDataType.WeightedIndexList:
+                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
+                case ColumnConversionOperation.ToVector when fromType == BrightDataType.IndexList:
+                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
 
                 // weighted index list
-                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:
+                case ColumnConversionOperation.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:
                     return null;
-                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.IndexList:
+                case ColumnConversionOperation.ToWeightedIndexList when fromType == BrightDataType.IndexList:
                     return IndexListToWeightedIndexList;
-                case ColumnConversionType.ToWeightedIndexList when fromType == BrightDataType.Vector:
-                    return VectorToWeightedIndexList;
+                case ColumnConversionOperation.ToWeightedIndexList when fromType == BrightDataType.Vector:
+                    return new Converter<IVector, WeightedIndexList>(v => v.Segment.ToSparse());
 
                 default:
                     throw new Exception($"Converting from {fromType} to {_toType} is not supported");
             }
         }
 
-        static ITransformColumn GetStandardConverter(BrightDataType fromType, BrightDataType toType)
+        static IConvertColumn GetStandardConverter(BrightDataType fromType, BrightDataType toType)
         {
             var converterType = typeof(StandardConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
-            return GenericActivator.Create<ITransformColumn>(converterType);
+            return GenericActivator.Create<IConvertColumn>(converterType);
         }
 
         static IEnumerable GetEnumerableNumbers(BrightDataType toType, IEnumerable<double> numbers)
@@ -387,17 +379,17 @@ namespace BrightData.Transformation
             };
         }
 
-        public static implicit operator ColumnConversion(ColumnConversionType type)
+        public static implicit operator ColumnConversion(ColumnConversionOperation type)
         {
             return new(null, type);
         }
 
-        public static implicit operator ColumnConversion((uint Index, ColumnConversionType Type) column)
+        public static implicit operator ColumnConversion((uint Index, ColumnConversionOperation Type) column)
         {
             return new(column.Index, column.Type);
         }
 
-        public static implicit operator ColumnConversion((uint Index, ITransformColumn Converter) column)
+        public static implicit operator ColumnConversion((uint Index, IConvertColumn Converter) column)
         {
             return new(column.Index, column.Converter);
         }

@@ -2,9 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
+using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Memory;
+using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
+using CommunityToolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Helpers;
 
 namespace BrightData
 {
@@ -13,456 +21,219 @@ namespace BrightData
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <param name="_"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initializer">Callback to initialize each value (optional)</param>
+        /// <returns></returns>
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, uint size, Func<uint, float>? initializer) => initializer is not null
+            ? new ReadOnlyVector(size, initializer)
+            : new ReadOnlyVector(size)
+        ;
+
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
         /// <param name="context"></param>
         /// <param name="size">Size of vector</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T>? initializer) where T : struct
-        {
-            var segment = context.CreateSegment<T>(size);
-            if (initializer != null)
-                segment.Initialize(initializer);
-            return new Vector<T>(segment);
-        }
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateReadOnlyVector(context, (uint)size, initializer);
 
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <param name="_"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initialValue">Initial value of each element</param>
+        /// <returns></returns>
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, uint size, float initialValue = 0f) => initialValue == 0f
+            ? new ReadOnlyVector(size)
+            : new ReadOnlyVector(size, _ => initialValue)
+        ;
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
         /// <param name="context"></param>
         /// <param name="size">Size of vector</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initialValue = default) where T : struct
-        {
-            var segment = context.CreateSegment<T>(size);
-            segment.Initialize(initialValue);
-            return new Vector<T>(segment);
-        }
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, float initialValue = 0f) => CreateReadOnlyVector(context, (uint)size, initialValue);
 
         /// <summary>
         /// Creates a vector
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] initialData) where T : struct
-        {
-            var segment = context.CreateSegment<T>((uint)initialData.Length);
-            if (initialData.Any())
-                segment.Initialize(initialData);
-            return new Vector<T>(segment);
-        }
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new ReadOnlyVector(initialData);
 
         /// <summary>
         /// Creates a vector from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
         {
-            return new(context, reader);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyVector));
+            ret.Initialize(context, reader);
+            return (IReadOnlyVector)ret;
         }
 
 
         /// <summary>
         /// Creates a matrix
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T>? initializer = null) where T : struct
-        {
-            var segment = context.CreateSegment<T>(rows * columns);
-            if (initializer != null)
-                segment.Initialize(i => initializer(i / columns, i % columns));
-            return new Matrix<T>(segment, rows, columns);
-        }
+        public static IReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
+            ? new ReadOnlyMatrix(rows, columns, initializer)
+            : new ReadOnlyMatrix(rows, columns)
+        ;
 
         /// <summary>
         /// Creates a matrix
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows">Number of rows</param>
         /// <param name="columns">Number of columns</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initialValue) where T : struct
-        {
-            var segment = context.CreateSegment<T>(rows * columns);
-            segment.Initialize(initialValue);
-            return new Matrix<T>(segment, rows, columns);
-        }
-
-        /// <summary>
-        /// Creates a matrix from a segment
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <param name="segment">Segment</param>
-        /// <returns></returns>
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, ITensorSegment<T> segment) where T : struct => new(segment, rows, columns);
+        public static IReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
+            ? new ReadOnlyMatrix(rows, columns)
+            : new ReadOnlyMatrix(rows, columns, (_, _) => initialValue)
+        ;
 
         /// <summary>
         /// Creates a matrix from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        public static IReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext context, BinaryReader reader)
         {
-            return new(context, reader);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyMatrix));
+            ret.Initialize(context, reader);
+            return (IReadOnlyMatrix)ret;
         }
 
         /// <summary>
         /// Creates a matrix from vectors (each will become a row)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T : struct
+        public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
         {
-            var columns = rows.First().Size;
-            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
+            var columns = rows[0].Size;
+            var ret = new ReadOnlyMatrix(new float[rows.Length * columns], (uint)rows.Length, columns);
+            for (var i = 0; i < rows.Length; i++) {
+                var source = rows[i];
+                var target = ret.Row((uint)i);
+                source.ReadOnlySegment.CopyTo(target);
+            } 
+            return ret;
         }
 
         /// <summary>
         /// Creates a matrix from rows (each will become a row)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params T[][] rows) where T : struct
+        public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params float[][] rows)
         {
-            var columns = (uint)rows.First().Length;
-            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
+            var columns = (uint)rows[0].Length;
+            var ret = new ReadOnlyMatrix((uint)rows.Length, columns);
+            for (var i = 0; i < rows.Length; i++) {
+                var source = rows[i];
+                var target = ret.Row((uint)i);
+                target.CopyFrom(source.AsSpan(), 0);
+            } 
+            return ret;
         }
 
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T : struct
+        public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params IReadOnlyVector[] columns)
         {
-            var rows = columns.First().Size;
-            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
+            var rows = columns[0].Size;
+            var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
+            for (var i = 0; i < columns.Length; i++) {
+                var source = columns[i];
+                var target = ret.Column((uint)i);
+                source.ReadOnlySegment.CopyTo(target);
+            } 
+            return ret;
         }
 
         /// <summary>
         /// Creates a matrix from vectors (each will become a column)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params T[][] columns) where T : struct
+        public static IReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params float[][] columns)
         {
-            var rows = (uint)columns.First().Length;
-            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
-        }
-
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="depth">Number of matrices</param>
-        /// <param name="rows">Number of rows in each matrix</param>
-        /// <param name="columns">Number of columns in each matrix</param>
-        /// <returns></returns>
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
-        {
-            var segment = context.CreateSegment<T>(depth * rows * columns);
-            return new Tensor3D<T>(segment, depth, rows, columns);
+            var rows = (uint)columns[0].Length;
+            var ret = new ReadOnlyMatrix(rows, (uint)columns.Length);
+            for (var i = 0; i < columns.Length; i++) {
+                var source = columns[i];
+                var target = ret.Column((uint)i);
+                target.CopyFrom(source.AsSpan(), 0);
+            } 
+            return ret;
         }
 
         /// <summary>
         /// Creates a 3D tensor from matrices
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="slices"></param>
+        /// <param name="_"></param>
+        /// <param name="matrices"></param>
         /// <returns></returns>
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, params Matrix<T>[] slices) where T : struct
-        {
-            var first = slices.First();
-            var depth = (uint)slices.Length;
-            var rows = first.RowCount;
-            var columns = first.ColumnCount;
-
-            var data = context.CreateSegment<T>(depth * rows * columns);
-            var ret = new Tensor3D<T>(data, depth, rows, columns);
-            var allSame = ret.Matrices.Zip(slices, (t, s) => {
-                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
-                {
-                    s.Segment.CopyTo(t.Segment);
-                    return true;
-                }
-                return false;
-            }).All(v => v);
-            if (!allSame)
-                throw new ArgumentException("Input matrices had different sizes");
-            return ret;
-        }
+        public static IReadOnlyTensor3D CreateReadOnlyTensor3D(this BrightDataContext _, params IReadOnlyMatrix[] matrices) => new ReadOnlyTensor3D(matrices);
 
         /// <summary>
         /// Create a 3D tensor from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        public static IReadOnlyTensor3D CreateReadOnlyTensor3D(this BrightDataContext context, BinaryReader reader)
         {
-            return new(context, reader);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor3D));
+            ret.Initialize(context, reader);
+            return (IReadOnlyTensor3D)ret;
         }
 
         /// <summary>
-        /// Creates a 4D tensor
+        /// Creates a 4D tensor from matrices
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="count">Number of 3D tensors</param>
-        /// <param name="depth">Number of matrices in each 3D tensor</param>
-        /// <param name="rows">Number of rows in each matrix</param>
-        /// <param name="columns">Number of columns in each matrix</param>
+        /// <param name="_"></param>
+        /// <param name="tensors"></param>
         /// <returns></returns>
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
-        {
-            var segment = context.CreateSegment<T>(count * depth * rows * columns);
-            return new Tensor4D<T>(segment, count, depth, rows, columns);
-        }
+        public static IReadOnlyTensor4D CreateReadOnlyTensor4D(this BrightDataContext _, params IReadOnlyTensor3D[] tensors) => new ReadOnlyTensor4D(tensors);
 
         /// <summary>
         /// Creates a 4D tensor from a binary reader
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        public static IReadOnlyTensor4D CreateReadOnlyTensor4D(this BrightDataContext context, BinaryReader reader)
         {
-            return new(context, reader);
-        }
-
-        /// <summary>
-        /// Returns the number of columns in this tensor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tensor"></param>
-        /// <returns></returns>
-        public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 1 ? tensor.Shape[^1] : 0;
-        }
-
-        /// <summary>
-        /// Returns the number of rows in this tensor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tensor"></param>
-        /// <returns></returns>
-        public static uint GetRowCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 1 ? tensor.Shape[^2] : 0;
-        }
-
-        /// <summary>
-        /// Returns the number of matrices in this tensor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tensor"></param>
-        /// <returns></returns>
-        public static uint GetDepth<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 2 ? tensor.Shape[^3] : 0;
-        }
-
-        /// <summary>
-        /// Returns the number of 3D tensors in this tensor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tensor"></param>
-        /// <returns></returns>
-        public static uint GetCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 3 ? tensor.Shape[^4] : 0;
-        }
-
-        /// <summary>
-        /// Creates a vector from an enumerable of floats
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="data">The initial values in the vector</param>
-        /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data) => CreateVector(lap, data.ToArray());
-
-        /// <summary>
-		/// Creates a vector
-		/// </summary>
-		/// <param name="lap"></param>
-		/// <param name="data">Indexable vector to copy</param>
-		/// <returns></returns>
-		public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IIndexableFloatVector data)
-        {
-            return lap.CreateVector(data.Count, i => data[i]);
-        }
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="data">Vector to copy</param>
-        /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IFloatVector data) => CreateVector(lap, data.Data);
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="data">Vector to copy</param>
-        /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, Vector<float> data)
-        {
-            var ret = lap.CreateVector(data.Size);
-	        ret.Data = data;
-	        return ret;
-        }
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="data">List of values</param>
-        /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, params float[] data)
-        {
-            return lap.CreateVector((uint)data.Length, i => data[i]);
-        }
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="length">Vector size</param>
-        /// <param name="value">Constant value</param>
-        /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, uint length, float value = 0f)
-        {
-            return lap.CreateVector(length, _ => value);
-        }
-
-		/// <summary>
-		/// Creates a matrix with every element initialized to zero
-		/// </summary>
-		/// <param name="lap"></param>
-		/// <param name="rows">Number of rows</param>
-		/// <param name="columns">Number of columns</param>
-	    public static IFloatMatrix CreateZeroMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, true);
-
-		/// <summary>
-		/// Creates a matrix from an existing matrix
-		/// </summary>
-		/// <param name="lap"></param>
-		/// <param name="matrix">Matrix to copy</param>
-		/// <returns></returns>
-		public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, Matrix<float> matrix)
-		{
-			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount);
-			ret.Data = matrix;
-			return ret;
-		}
-
-        /// <summary>
-        /// Creates a matrix from row vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="rowList">List of vectors (each vector becomes a row in the new matrix)</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, Vector<float>[] rowList)
-        {
-            var rows = (uint)rowList.Length;
-            var columns = rowList[0].Size;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x].Segment[y]);
-        }
-
-        /// <summary>
-        /// Creates a matrix from row vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="rowList">List of indexable vectors (each vector becomes a row in the new matrix)</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IIndexableFloatVector[] rowList)
-        {
-            var rows = (uint)rowList.Length;
-            var columns = rowList[0].Count;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x][y]);
-        }
-
-	    /// <summary>
-	    /// Creates a matrix from column vectors
-	    /// </summary>
-	    /// <param name="lap"></param>
-	    /// <param name="columnList">List of vectors (each vector becomes a column in the new matrix)</param>
-	    /// <returns></returns>
-	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, Vector<float>[] columnList)
-	    {
-		    var columns = (uint)columnList.Length;
-		    var rows = columnList[0].Size;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y].Segment[x]);
-	    }
-
-	    /// <summary>
-	    /// Creates a matrix column vectors
-	    /// </summary>
-	    /// <param name="lap"></param>
-	    /// <param name="columnList">List of indexable vectors (each vector becomes a column in the new matrix)</param>
-	    /// <returns></returns>
-	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IIndexableFloatVector[] columnList)
-	    {
-		    var columns = (uint)columnList.Length;
-		    var rows = columnList[0].Count;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y][x]);
-	    }
-
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <param name="value">Constant value to initialize each element</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns, float value)
-        {
-            return lap.CreateMatrix(rows, columns, (_, _) => value);
-        }
-
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="matrix">Indexable matrix to copy</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, IIndexableFloatMatrix matrix)
-        {
-            return lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix[i, j]);
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor4D));
+            ret.Initialize(context, reader);
+            return (IReadOnlyTensor4D)ret;
         }
 
         /// <summary>
@@ -471,7 +242,7 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="size">Width and height of the new matrix</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateIdentityMatrix(this ILinearAlgebraProvider lap, uint size)
+        public static IMatrix CreateIdentityMatrix(this LinearAlgebraProvider lap, uint size)
         {
             return lap.CreateMatrix(size, size, (x, y) => x == y ? 1f : 0f);
         }
@@ -482,172 +253,21 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="values">Diagonal values</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, params float[] values)
+        public static IMatrix CreateDiagonalMatrix(this LinearAlgebraProvider lap, params float[] values)
         {
             return lap.CreateMatrix((uint)values.Length, (uint)values.Length, (x, y) => x == y ? values[x] : 0f);
         }
 
         /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="tensor">The tensor to copy from</param>
-        /// <returns></returns>
-        public static I3DFloatTensor Create3DTensor(this ILinearAlgebraProvider lap, Tensor3D<float> tensor)
-        {
-	        var ret = lap.Create3DTensor(tensor.RowCount, tensor.ColumnCount, tensor.Depth);
-	        ret.Data = tensor;
-	        return ret;
-        }
-
-	    /// <summary>
-	    /// Creates a 3D tensor from matrices
-	    /// </summary>
-	    /// <param name="lap"></param>
-	    /// <param name="matrices">Matrices to copy fropm</param>
-	    /// <returns></returns>
-	    public static I3DFloatTensor Create3DTensor(this ILinearAlgebraProvider lap, Matrix<float>[] matrices)
-	    {
-		    var first = matrices[0];
-		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, (uint)matrices.Length);
-		    ret.Data = lap.Context.CreateTensor3D(matrices);
-		    return ret;
-	    }
-
-        /// <summary>
-        /// Calculates the distance between two matrices
-        /// </summary>
-        /// <param name="distance">Distance metric (either euclidean or square euclidean)</param>
-        /// <param name="matrix1">First matrix</param>
-        /// <param name="matrix2">Second matrix</param>
-        /// <returns></returns>
-        public static IFloatVector Calculate(this DistanceMetric distance, IFloatMatrix matrix1, IFloatMatrix matrix2)
-        {
-            switch (distance) {
-                case DistanceMetric.Euclidean:
-                    using (var diff = matrix1.Subtract(matrix2))
-                    using (var diffSquared = diff.PointwiseMultiply(diff))
-                    using (var rowSums = diffSquared.RowSums()) {
-                        return rowSums.Sqrt();
-                    }
-                case DistanceMetric.SquaredEuclidean:
-                    using (var diff = matrix1.Subtract(matrix2))
-                    using (var diffSquared = diff.PointwiseMultiply(diff)) {
-                        return diffSquared.RowSums();
-                    }
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// Calculates the distance between two vectors
-        /// </summary>
-        /// <param name="distance">Distance metric</param>
-        /// <param name="vector1">First vector</param>
-        /// <param name="vector2">Second vector</param>
-        public static float Calculate(this DistanceMetric distance, IFloatVector vector1, IFloatVector vector2)
-        {
-            return distance switch {
-                DistanceMetric.Cosine => vector1.CosineDistance(vector2),
-                DistanceMetric.Euclidean => vector1.EuclideanDistance(vector2),
-                DistanceMetric.Manhattan => vector1.ManhattanDistance(vector2),
-                DistanceMetric.SquaredEuclidean => vector1.SquaredEuclidean(vector2),
-                _ => vector1.MeanSquaredDistance(vector2)
-            };
-        }
-
-        /// <summary>
-        /// Creates a matrix from row vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="rows">Row vectors</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> rows) => 
-            lap.CreateMatrixFromRows(rows.ToArray());
-
-        /// <summary>
-        /// Creates a matrix from row vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="rows">Row vectors</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> rows) =>
-            lap.CreateMatrixFromRows(rows.ToArray());
-
-        /// <summary>
-        /// Creates a matrix from column vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="columns">Column vectors</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> columns) =>
-            lap.CreateMatrixFromColumns(columns.ToArray());
-
-        /// <summary>
-        /// Creates a matrix from column vectors
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="columns">Column vectors</param>
-        /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> columns) =>
-            lap.CreateMatrixFromColumns(columns.ToArray());
-
-        /// <summary>
-        /// Converts vectors to float vectors
-        /// </summary>
-        /// <param name="vectors"></param>
-        /// <returns></returns>
-        public static IEnumerable<IFloatVector> AsFloatVectors(this IEnumerable<Vector<float>> vectors)
-        {
-            ILinearAlgebraProvider? lap = null;
-            foreach (var vector in vectors)
-            {
-                lap ??= vector.Context.LinearAlgebraProvider;
-                yield return lap.CreateVector(vector);
-            }
-        }
-
-        /// <summary>
-        /// Sets each element in a tensor
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="getValue"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
-            where T : struct
-        {
-            for (uint i = 0, len = vector.Size; i < len; i++)
-                vector[i] = getValue(i);
-        }
-
-        /// <summary>
-        /// Creates a tensor segment from an existing array
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="block">Array to copy values from</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
-
-        /// <summary>
-        /// Creates a tensor segment
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="size">Size of new segment</param>
-        /// <returns></returns>
-        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, uint size) where T : struct => new TensorSegment<T>(context, context.TensorPool.Get<T>(size));
-
-        /// <summary>
         /// Randomly initialize a tensor
         /// </summary>
         /// <param name="tensor"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
+        public static void InitializeRandomly(this ITensor tensor)
         {
-            var computation = tensor.Computation;
-            tensor.Segment.Initialize(_ => computation.NextRandom());
+            var segment = tensor.Segment;
+            var context = tensor.Context;
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = context.NextRandomFloat();
         }
 
         /// <summary>
@@ -655,96 +275,23 @@ namespace BrightData
         /// </summary>
         /// <param name="tensor"></param>
         /// <param name="value">Value to initialize each element of the tensor</param>
-        /// <typeparam name="T"></typeparam>
-        public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
+        public static void Initialize(this ITensor tensor, float value)
         {
-            tensor.Segment.Initialize(value);
+            var segment = tensor.Segment;
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = value;
         }
 
         /// <summary>
         /// Initialize a tensor using a callback
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="tensor"></param>
         /// <param name="initializer">Callback for each element</param>
-        public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
+        public static void Initialize(this ITensor tensor, Func<uint, float> initializer)
         {
-            tensor.Segment.Initialize(initializer);
-        }
-
-        /// <summary>
-        /// Calculates the cosine distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float CosineDistance(this float[] vector, float[] other)
-        {
-            return Distance.CosineDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
-        /// Calculates euclidean distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float EuclideanDistance(this float[] vector, float[] other)
-        {
-            return Distance.EuclideanDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
-        /// Calculates manhattan distance between two vectors
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float ManhattanDistance(this float[] vector, float[] other)
-        {
-            return Distance.ManhattanDistance.Calculate(vector, other);
-        }
-
-        /// <summary>
-        /// Mutates a vector via a callback
-        /// </summary>
-        /// <param name="vector">Vector to mutate</param>
-        /// <param name="mutator">Callback that can mutate each value of the vector</param>
-        /// <returns>New vector</returns>
-        public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
-        {
-            var context = vector.Context;
-            var segment = context.CreateSegment<float>(vector.Size);
-            segment.Initialize(i => mutator(vector[i]));
-            return new Vector<float>(segment);
-        }
-
-        /// <summary>
-        /// Mutates a vector by combining it with another vector
-        /// </summary>
-        /// <param name="vector">Vector to mutate</param>
-        /// <param name="other">Other vector</param>
-        /// <param name="mutator">Callback that can mutate each value of the vector</param>
-        /// <returns></returns>
-        public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
-        {
-            var context = vector.Context;
-            var segment = context.CreateSegment<float>(vector.Size);
-            segment.Initialize(i => mutator(vector[i], other[i]));
-            return new Vector<float>(segment);
-        }
-
-        /// <summary>
-        /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        public static WeightedIndexList ToSparse(this ITensorSegment<float> segment)
-        {
-            return WeightedIndexList.Create(segment.Context, segment.Values
-                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
-                .Where(d => FloatMath.IsNotZero(d.Weight))
-            );
+            var segment = tensor.Segment;
+            for (uint i = 0, len = segment.Size; i < len; i++)
+                segment[i] = initializer(i);
         }
 
         /// <summary>
@@ -753,7 +300,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Vector<float> ReadVectorFrom(this IBrightDataContext context, BinaryReader reader)
+        public static IReadOnlyVector LoadReadOnlyVectorFrom(this BrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
@@ -761,9 +308,30 @@ namespace BrightData
                 var ret = new float[len];
                 for (var i = 0; i < len; i++)
                     ret[i] = reader.ReadSingle();
-                return context.CreateVector(ret);
+                return context.CreateReadOnlyVector(ret);
             }
-            return new Vector<float>(context, reader);
+            return context.CreateReadOnlyVector(reader);
+        }
+
+        /// <summary>
+        /// Reacts a float array from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static float[] LoadReadOnlyVectorAndThenGetArrayFrom(this BrightDataContext context, BinaryReader reader)
+        {
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false))
+            {
+                var len = reader.ReadInt32();
+                var ret = new float[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = reader.ReadSingle();
+                return ret;
+            }
+            // TODO: refactor this to avoid creating the vector?
+            var temp = context.CreateReadOnlyVector(reader);
+            return temp.ToArray();
         }
 
         /// <summary>
@@ -772,121 +340,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static Matrix<float> ReadMatrixFrom(this IBrightDataContext context, BinaryReader reader)
+        public static IReadOnlyMatrix ReadMatrixFrom(this BrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();
-                var ret = new Vector<float>[len];
+                var ret = new IReadOnlyVector[len];
                 for (var i = 0; i < len; i++)
-                    ret[i] = context.ReadVectorFrom(reader);
-                return context.CreateMatrixFromRows(ret);
+                    ret[i] = context.LoadReadOnlyVectorFrom(reader);
+                return context.CreateReadOnlyMatrixFromRows(ret);
             }
-            return new Matrix<float>(context, reader);
-        }
-
-        /// <summary>
-        /// Sums the columns of each sub-tensor's sub matrix
-        /// </summary>
-        public static IFloatVector ColumnSums(this I4DFloatTensor tensor)
-        {
-            IFloatVector? ret = null;
-            for (uint i = 0, count = tensor.Count; i < count; i++) {
-                var tensorAsMatrix = tensor.GetTensorAt(i).ReshapeAsMatrix();
-                var columnSums = tensorAsMatrix.ColumnSums();
-                if (ret == null)
-                    ret = columnSums;
-                else
-                    ret.AddInPlace(columnSums);
-            }
-            return ret ?? tensor.LinearAlgebraProvider.CreateVector(tensor.ColumnCount);
-        }
-
-        /// <summary>
-        /// Find the minimum value and index in a vector
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns>Tuple containing the minimum value and its index</returns>
-        public static (float Value, uint Index) Minimum(this float[] vector)
-        {
-            var ret = uint.MaxValue;
-            var lowestValue = float.MaxValue;
-
-            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
-                var val = vector[i];
-                if (val < lowestValue) {
-                    lowestValue = val;
-                    ret = i;
-                }
-            }
-
-            return (lowestValue, ret);
-        }
-
-        /// <summary>
-        /// Returns the index of the minimum value within a vector
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns></returns>
-        public static uint MinimumIndex(this float[] vector) => Minimum(vector).Index;
-
-        /// <summary>
-        /// Returns the minimum value
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns></returns>
-        public static float MinimumValue(this float[] vector) => Minimum(vector).Value;
-
-        /// <summary>
-        /// Returns the maximum value and index within a vector
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns>Tuple containing the maximum value and its index</returns>
-        public static (float Value, uint Index) Maximum(this float[] vector)
-        {
-            var ret = uint.MaxValue;
-            var highestValue = float.MinValue;
-
-            for (uint i = 0, len = (uint)vector.Length; i < len; i++) {
-                var val = vector[i];
-                if (val > highestValue) {
-                    highestValue = val;
-                    ret = i;
-                }
-            }
-
-            return (highestValue, ret);
-        }
-
-        /// <summary>
-        /// Returns the maximum value within a vector
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns></returns>
-        public static uint MaximumIndex(this float[] vector) => Maximum(vector).Index;
-
-        /// <summary>
-        /// Returns the index of the maximum value within a vector
-        /// </summary>
-        /// <param name="vector">Vector to analyse</param>
-        /// <returns></returns>
-        public static float MaximumValue(this float[] vector) => Maximum(vector).Value;
-
-        /// <summary>
-        /// Calculates the softmax of a vector
-        /// https://en.wikipedia.org/wiki/Softmax_function
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns></returns>
-        public static float[] Softmax(this float[] vector)
-        {
-            var max = MaximumValue(vector);
-
-            var softmax = vector.Select(v => MathF.Exp(v - max)).ToArray();
-            var sum = softmax.Sum();
-            if (!sum.Equals(0))
-                softmax = softmax.Select(v => v / sum).ToArray();
-            return softmax;
+            return context.CreateReadOnlyMatrix(reader);
         }
 
         /// <summary>
@@ -895,13 +359,13 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="dimensions">Number of dimensions to reduce to</param>
         /// <returns></returns>
-        public static IFloatMatrix ReduceDimensions(this IFloatMatrix matrix, uint dimensions)
+        public static IMatrix ReduceDimensionsWithSvd(this IMatrix matrix, uint dimensions)
         {
             using var matrixT = matrix.Transpose();
             var (u, vector, vt) = matrixT.Svd();
 
             try {
-                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.AsIndexable().Values.Take((int)dimensions).ToArray());
+                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.Segment.Values.Take((int)dimensions).ToArray());
                 using var v2 = vt.GetNewMatrixFromRows(dimensions.AsRange());
                 return s.Multiply(v2);
             }
@@ -913,59 +377,143 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Calculates an average matrix from a collection of matrices
+        /// Calculates an average from a collection of tensors
         /// </summary>
-        /// <param name="matrices">Matrices to average</param>
-        /// <param name="dispose">True to dispose each of the input matrices</param>
+        /// <param name="tensors">Tensors to average</param>
+        /// <param name="dispose">True to dispose each of the input vectors</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IFloatMatrix Average(this IEnumerable<IFloatMatrix> matrices, bool dispose)
+        public static T Average<T>(this IEnumerable<T> tensors, bool dispose)
+            where T: ITensor
         {
-            if(matrices == null)
-                throw new ArgumentException("Null enumerable", nameof(matrices));
-            IFloatMatrix? ret = null;
-            var count = 0;
-            foreach(var item in matrices) {
-                if(ret is null)
-                    ret = CreateMatrix(item.LinearAlgebraProvider, item.RowCount, item.ColumnCount, 0);
-                else
-                    ret.AddInPlace(item);
-                ++count;
-                if(dispose)
-                    item.Dispose();
+            if(tensors == null)
+                throw new ArgumentException("Null enumerable", nameof(tensors));
+            INumericSegment<float>? ret = null;
+            try {
+                var count = 0;
+                LinearAlgebraProvider? lap = null;
+                uint[]? shape = null;
+                foreach (var item in tensors) {
+                    if (ret is null) {
+                        ret = (lap ??= item.LinearAlgebraProvider).CreateSegment(item.TotalSize, false);
+                        item.Segment.CopyTo(ret);
+                        shape = item.Shape;
+                    }
+                    else
+                        ret.GetSpans(item.Segment, (x, y) => x.AddInPlace(y));
+
+                    ++count;
+                    if (dispose)
+                        item.Dispose();
+                }
+
+                if (ret is null || lap is null || shape is null)
+                    throw new ArgumentException("Empty enumerable", nameof(tensors));
+                ret.GetSpan(x => x.MultiplyInPlace(1f / count));
+                return (T)lap.CreateTensor(shape, ret);
             }
-            if(ret is null)
-                throw new ArgumentException("Empty enumerable", nameof(matrices));
-            ret.Multiply(1f / count);
+            catch {
+                ret?.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Applies a distance metric to two vectors and returns the distance between them
+        /// </summary>
+        /// <param name="vector">First vector</param>
+        /// <param name="other">Second vector</param>
+        /// <param name="distance">Distance metric</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static float FindDistance(this IVector vector, IVector other, DistanceMetric distance) => distance switch {
+            DistanceMetric.Cosine => vector.CosineDistance(other),
+            DistanceMetric.Euclidean => vector.EuclideanDistance(other),
+            DistanceMetric.Manhattan => vector.ManhattanDistance(other),
+            DistanceMetric.MeanSquared => vector.MeanSquaredDistance(other),
+            DistanceMetric.SquaredEuclidean => vector.SquaredEuclideanDistance(other),
+            _ => throw new NotImplementedException(distance.ToString())
+        };
+
+        /// <summary>
+        /// Applies a distance metric to this and a list of other vectors
+        /// </summary>
+        /// <param name="compareTo">This vector</param>
+        /// <param name="vectors">List of other vectors</param>
+        /// <param name="distanceMetric">Distance metric</param>
+        /// <returns>A vector in which each value is the distance between this and the corresponding other vector</returns>
+        public static IVector FindDistances(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        {
+            var size = (uint)vectors.Count;
+            var lap = compareTo.LinearAlgebraProvider;
+            var ret = lap.CreateVector(size, false);
+            if (size >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, size, ind => {
+                    lap.BindThread();
+                    ret[ind] = FindDistance(compareTo, vectors[(int)ind], distanceMetric);
+                });
+            }
+            else {
+                for (var i = 0; i < size; i++)
+                    ret[i] = FindDistance(compareTo, vectors[i], distanceMetric);
+            }
+
             return ret;
         }
 
         /// <summary>
-        /// Calculates an average vector from a collection of vectors
+        /// Converts the vector a weighted index list (sparse vector)
         /// </summary>
-        /// <param name="vectors">Vectors to average</param>
-        /// <param name="dispose">True to dispose each of the input vectors</param>
+        /// <param name="vector"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static IFloatVector Average(this IEnumerable<IFloatVector> vectors, bool dispose)
+        public static WeightedIndexList ToSparse(this IVector vector)
         {
-            if(vectors == null)
-                throw new ArgumentException("Null enumerable", nameof(vectors));
-            IFloatVector? ret = null;
-            var count = 0;
-            foreach(var item in vectors) {
-                if(ret is null)
-                    ret = CreateVector(item.LinearAlgebraProvider, item.Count);
-                else
-                    ret.AddInPlace(item);
-                ++count;
-                if(dispose)
-                    item.Dispose();
-            }
-            if(ret is null)
-                throw new ArgumentException("Empty enumerable", nameof(vectors));
-            ret.Multiply(1f / count);
+            return WeightedIndexList.Create(vector.Segment.Values
+                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
+                .Where(d => FloatMath.IsNotZero(d.Weight))
+            );
+        }
+
+        /// <summary>
+        /// Copies all values from this tensor to another tensor
+        /// </summary>
+        /// <param name="tensor">This tensor</param>
+        /// <param name="other">Other tensor</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CopyTo(this ITensor tensor, ITensor other) => tensor.Segment.CopyTo(other.Segment);
+
+        /// <summary>
+        /// Sets the context to use the default linear algebra provider
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static LinearAlgebraProvider UseDefaultLinearAlgebraProvider(this BrightDataContext context)
+        {
+            var ret = new LinearAlgebraProvider(context);
+            ((ISetLinearAlgebraProvider)context).LinearAlgebraProvider = ret;
             return ret;
+        }
+
+        internal static uint[] ResolveShape(this uint total, params uint?[] shape)
+        {
+            uint nonNullTotal = 1;
+            var hasFoundNull = false;
+            foreach (var item in shape) {
+                if (item.HasValue)
+                    nonNullTotal *= item.Value;
+                else if (!hasFoundNull)
+                    hasFoundNull = true;
+                else
+                    throw new ArgumentException("Only one parameter can be null");
+            }
+
+            if (hasFoundNull && nonNullTotal == 0)
+                throw new ArgumentException("Cannot resolve null parameter");
+
+            if (!hasFoundNull && nonNullTotal != total)
+                throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
+
+            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
         }
     }
 }

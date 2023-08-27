@@ -17,10 +17,10 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 _rowCount = rowCount;
             }
 
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var ones = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 1f / _rowCount);
+                using var ones = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => 1f / _rowCount);
                 return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
         }
@@ -29,14 +29,12 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             using var columnSums = input.ColumnSums();
-            columnSums.Multiply(1f / input.RowCount);
-            var mean = columnSums.AsIndexable();
-
-            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (_, j) => mean[j]);
+            columnSums.MultiplyInPlace(1f / input.RowCount);
+            var output = context.GetLinearAlgebraProvider().CreateMatrix(input.RowCount, input.ColumnCount, columnSums.Segment);
             return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }

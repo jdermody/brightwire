@@ -7,26 +7,26 @@ namespace BrightData.Analysis.Readers
     /// </summary>
     public class NumericAnalysis
     {
-        internal NumericAnalysis(IMetaData metaData)
+        internal NumericAnalysis(MetaData metaData)
         {
-            L1Norm = metaData.Get<double>(Consts.L1Norm);
-            L2Norm = metaData.Get<double>(Consts.L2Norm);
-            Min = metaData.Get<double>(Consts.Min);
-            Max = metaData.Get<double>(Consts.Max);
-            Mean = metaData.Get<double>(Consts.Mean);
-            SampleVariance = metaData.GetNullable<double>(Consts.SampleVariance);
-            SampleStdDev = metaData.GetNullable<double>(Consts.SampleStdDev);
+            L1Norm             = metaData.Get<double>(Consts.L1Norm);
+            L2Norm             = metaData.Get<double>(Consts.L2Norm);
+            Min                = metaData.Get<double>(Consts.Min);
+            Max                = metaData.Get<double>(Consts.Max);
+            Mean               = metaData.Get<double>(Consts.Mean);
+            SampleVariance     = metaData.GetNullable<double>(Consts.SampleVariance);
+            SampleStdDev       = metaData.GetNullable<double>(Consts.SampleStdDev);
             PopulationVariance = metaData.GetNullable<double>(Consts.PopulationVariance);
-            PopulationStdDev = metaData.GetNullable<double>(Consts.PopulationStdDev);
-            Median = metaData.GetNullable<double>(Consts.Median);
-            Mode = metaData.GetNullable<double>(Consts.Mode);
-            Total = metaData.Get<ulong>(Consts.Total);
-            NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
-            Frequency = Get(Consts.FrequencyPrefix, metaData);
-            FrequencyRange = Get(Consts.FrequencyRangePrefix, metaData);
+            PopulationStdDev   = metaData.GetNullable<double>(Consts.PopulationStdDev);
+            Median             = metaData.GetNullable<double>(Consts.Median);
+            Mode               = metaData.GetNullable<double>(Consts.Mode);
+            Total              = metaData.Get<ulong>(Consts.Total);
+            NumDistinct        = metaData.GetNullable<uint>(Consts.NumDistinct);
+            Frequency          = Get(Consts.FrequencyPrefix, metaData);
+            FrequencyRange     = Get(Consts.FrequencyRangePrefix, metaData);
         }
 
-        (string Label, double value)[] Get(string prefix, IMetaData metaData)
+        static (string Label, double value)[] Get(string prefix, MetaData metaData)
         {
             return metaData.GetStringsWithPrefix(prefix)
                 .Select(k => (Label: k[prefix.Length..], Value: metaData.Get<double>(k)))

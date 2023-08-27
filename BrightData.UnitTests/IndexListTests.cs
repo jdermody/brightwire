@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
@@ -31,6 +32,10 @@ namespace BrightData.UnitTests
             var first = _context.CreateIndexList(1, 2, 3);
             var second = _context.CreateIndexList(1, 2, 3);
             first.Equals(second).Should().BeTrue();
+            var set = new HashSet<IndexList> {
+                first, second
+            };
+            set.Count.Should().Be(1);
         }
 
         [Fact]
@@ -67,7 +72,7 @@ namespace BrightData.UnitTests
         public void ToDense()
         {
             var first = _context.CreateIndexList(1, 2, 3);
-            var vector = first.AsDense();
+            var vector = first.AsDense(_context.LinearAlgebraProvider);
             vector.Size.Should().Be(4);
 
             vector[0].Should().Be(0f);

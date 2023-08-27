@@ -7,7 +7,7 @@ namespace BrightData.UnitTests.Fixtures
 {
     public class SerialisationFixture : IDisposable
     {
-        public BrightDataContext Context { get; } = new(0);
+        public BrightDataContext Context { get; } = new(null, 0);
         public MemoryStream Stream { get; } = new();
         public BinaryWriter Writer { get; }
         public DataEncoder Encoder { get; }
@@ -20,6 +20,7 @@ namespace BrightData.UnitTests.Fixtures
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             Context.Dispose();
             Stream.Dispose();
         }

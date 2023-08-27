@@ -16,7 +16,7 @@ namespace BrightData.Input
         int _currIndex;
         bool _inQuote;
 
-        public CsvParser(StreamReader stream, char delimiter, char quote = '"', int bufferSize = 32768)
+        public CsvParser(StreamReader stream, char delimiter, char quote = '"', int bufferSize = Consts.DefaultInMemoryBufferSize)
         {
             _stream = stream;
             _delimiter = delimiter;

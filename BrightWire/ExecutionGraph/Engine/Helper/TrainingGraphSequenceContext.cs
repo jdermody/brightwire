@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
+    class TrainingGraphSequenceContext : SequenceContextBase, IGraphContext
     {
         readonly List<ExecutionHistory> _forward = new();
         readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
-            IGraphExecutionContext executionContext,
+            GraphExecutionContext executionContext,
             IMiniBatchSequence batchSequence) : base(batchSequence)
         {
             LearningContext = learningContext;
@@ -29,10 +29,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
         }
 
-        
-        public IGraphExecutionContext ExecutionContext { get; }
+        public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
-        public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
@@ -94,9 +93,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 if (Data.HasValue) {
-                    var ret = new ExecutionResult(BatchSequence, Data.GetMatrix().Data.Rows);
+                    var ret = new ExecutionResult(BatchSequence, Data.GetMatrix(), ExecutionContext.WantInputInExecutionResults);
                     if (ErrorSignal != null)
-                        ret.Error = ErrorSignal.GetMatrix().Data.Rows.Select(d => d.ToArray()).ToArray();
+                        ret.Error = ErrorSignal.GetMatrix().AllRowsAsReadOnly(true);
                     yield return ret;
                 }
             }
@@ -116,9 +115,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             var ret = new StringBuilder();
 
             if (target?.HasValue == true && output.HasValue && error?.HasValue == true) {
-                var t = target.GetMatrix().ReshapeAsVector().Data;
-                var o = output.GetMatrix().ReshapeAsVector().Data;
-                var e = error.GetMatrix().ReshapeAsVector().Data;
+                var t = target.GetMatrix().Segment;
+                var o = output.GetMatrix().Segment;
+                var e = error.GetMatrix().Segment;
                 if (t.Size == o.Size && o.Size == e.Size) {
                     for (uint i = 0, len = t.Size; i < len; i++) {
                         ret.AppendLine($"{i}) output: {o[i]}, target: {t[i]}, error: {e[i]}");

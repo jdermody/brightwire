@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -10,7 +11,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdapter(IRowOrientedDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public DefaultDataTableAdapter(BrightDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -18,7 +19,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new DefaultDataTableAdapter(dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
         }
@@ -30,7 +31,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var rows = GetRows(rowIndices);
             var data = rows
-                .Select(r => (new[] { InputVectoriser!.Vectorise(r) }, OutputVectoriser!.Vectorise(r)))
+                .Select(r => (InputVectoriser!.Vectorise(r), OutputVectoriser!.Vectorise(r)))
                 .ToArray()
             ;
             return GetMiniBatch(rowIndices, data);

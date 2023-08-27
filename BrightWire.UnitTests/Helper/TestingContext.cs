@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData;
+using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
 {
-    internal class TestingContext : IGraphSequenceContext
+    internal class TestingContext : IGraphContext
     {
         public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new();
 
 #pragma warning disable 8618
-        public TestingContext(ILinearAlgebraProvider lap)
+        public TestingContext(LinearAlgebraProvider lap)
 #pragma warning restore 8618
         {
-            LinearAlgebraProvider = lap;
             LearningContext = new MockLearningContext();
+            ExecutionContext = new(new MockGraphEngine(lap));
         }
 
         public void Dispose()
@@ -26,9 +27,8 @@ namespace BrightWire.UnitTests.Helper
 
         public NodeBase Source { get; }
         public IGraphData Data { get; set; }
-        public IGraphExecutionContext ExecutionContext { get; }
+        public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public IMiniBatchSequence BatchSequence { get; }
 

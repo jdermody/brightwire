@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Output
 			_channel = channel;
 		}
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var data = context.Data;
             context.SetOutput(data, _channel);

@@ -1,13 +1,14 @@
 ﻿using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.Helper
 {
 	/// <summary>
 	/// Calculate vector based statistics
 	/// </summary>
-	internal class VectorBasedStatistics
+	internal class VectorBasedStatistics : IHaveSize
 	{
-        public VectorBasedStatistics(ILinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
+        public VectorBasedStatistics(LinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
 		{
 			Size = size;
 			Count = count;
@@ -17,15 +18,15 @@ namespace BrightWire.Helper
 
 		public uint Size { get; }
         public uint Count { get; private set; }
-        public IFloatVector Mean { get; }
-        public IFloatVector M2 { get; }
+        public IVector Mean { get; }
+        public IVector M2 { get; }
 
-		public void Update(IFloatVector data)
+		public void Update(IVector data)
 		{
 			++Count;
             using var delta = data.Subtract(Mean);
             using var diff = delta.Clone();
-            diff.Multiply(1f / Count);
+            diff.MultiplyInPlace(1f / Count);
             Mean.AddInPlace(diff);
 
             using var delta2 = data.Subtract(Mean);
@@ -33,18 +34,16 @@ namespace BrightWire.Helper
             M2.AddInPlace(diff2);
         }
 
-        public IFloatVector GetVariance()
+        public IVector GetVariance()
 		{
-			var ret = M2.Clone();
-			ret.Multiply(1f / Count);
-			return ret;
-		}
+			using var ret = M2.Clone();
+			return ret.Multiply(1f / Count);
+        }
 
-		public IFloatVector GetSampleVariance()
+		public IVector GetSampleVariance()
 		{
-			var ret = M2.Clone();
-			ret.Multiply(1f / (Count-1));
-			return ret;
-		}
+            using var ret = M2.Clone();
+			return ret.Multiply(1f / (Count-1));
+        }
 	}
 }

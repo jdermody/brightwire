@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
+    /// <summary>
+    /// Numeric analysis
+    /// </summary>
     internal class NumericAnalyser : IDataAnalyser<double>
 	{
 		readonly uint _writeCount, _maxCount;
@@ -128,7 +131,7 @@ namespace BrightData.Analysis
             }
         }
 
-        public void WriteTo(IMetaData metadata)
+        public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.IsNumeric, true);

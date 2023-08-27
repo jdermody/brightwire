@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>3.0.3</Version>
+    <Version>4.0.0-rc</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>Bright ML</Product>
@@ -11,11 +11,13 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
-    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
     <PackageTags>machinelearning</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <PackageReleaseNotes>updated to .net 6</PackageReleaseNotes>
+    <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,13 +26,19 @@
 
   <ItemGroup>
     <Compile Remove="LinearAlgebra\**" />
+    <Compile Remove="Linear\**" />
     <Compile Remove="Models\DataTable\**" />
+    <Compile Remove="Models\Linear\**" />
     <Compile Remove="TabularData\**" />
     <EmbeddedResource Remove="LinearAlgebra\**" />
+    <EmbeddedResource Remove="Linear\**" />
     <EmbeddedResource Remove="Models\DataTable\**" />
+    <EmbeddedResource Remove="Models\Linear\**" />
     <EmbeddedResource Remove="TabularData\**" />
     <None Remove="LinearAlgebra\**" />
+    <None Remove="Linear\**" />
     <None Remove="Models\DataTable\**" />
+    <None Remove="Models\Linear\**" />
     <None Remove="TabularData\**" />
     <None Include="..\bw_favicon.png">
       <Pack>True</Pack>
@@ -39,6 +47,10 @@
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

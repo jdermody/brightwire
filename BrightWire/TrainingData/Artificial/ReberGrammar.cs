@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -40,12 +40,12 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static Matrix<float> Encode(IBrightDataContext context, string sequence)
+        public static IReadOnlyMatrix Encode(BrightDataContext context, string sequence)
         {
-            return context.CreateMatrixFromRows(sequence.Select(ch => {
+            return context.CreateReadOnlyMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
                     ret[Ch[ch]] = 1f;
-                    return context.CreateVector(ret);
+                    return context.CreateReadOnlyVector(ret);
                 }).ToArray()
             );
         }
@@ -56,7 +56,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
-        public static IRowOrientedDataTable GetOneHot(IBrightDataContext context, IEnumerable<string> strList)
+        public static BrightDataTable GetOneHot(BrightDataContext context, IEnumerable<string> strList)
         {
 	        var strList2 = strList.ToList();
 
@@ -79,8 +79,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
-                var inputList = new Vector<float>[str.Length];
-                var outputList = new Vector<float>[str.Length];
+                var inputList = new IReadOnlyVector[str.Length];
+                var outputList = new IReadOnlyVector[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {
@@ -93,12 +93,12 @@ namespace BrightWire.TrainingData.Artificial
                         foreach (var item in temp)
                             output[item] = 1f;
                     }
-                    inputList[i] = context.CreateVector(input);
-                    outputList[i] = context.CreateVector(output);
+                    inputList[i] = context.CreateReadOnlyVector(input);
+                    outputList[i] = context.CreateReadOnlyVector(output);
                 }
-                builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
+                builder.AddRow(context.CreateReadOnlyMatrixFromRows(inputList), context.CreateReadOnlyMatrixFromRows(outputList));
             }
-            return builder.BuildRowOriented();
+            return builder.BuildInMemory();
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace BrightWire.TrainingData.Artificial
         /// Generates an unlimited number of reber sequences
         /// </summary>
         /// <param name="minlength">Minimum length of the sequences (optional)</param>
-        /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+        /// <param name="maxLength">Minimum length of the sequences (optional)</param>
         public IEnumerable<string> Get(int? minlength = null, int? maxLength = null)
         {
             while (true) {
@@ -132,13 +132,14 @@ namespace BrightWire.TrainingData.Artificial
 		            continue;
 	            yield return ret;
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
 	    /// <summary>
 	    /// Generates an unlimited number of extended reber sequences
 	    /// </summary>
 	    /// <param name="minlength">Minimum length of the sequences (optional)</param>
-	    /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+	    /// <param name="maxLength">Minimum length of the sequences (optional)</param>
 	    public IEnumerable<string> GetExtended(int? minlength = null, int? maxLength = null)
         {
             while (true) {
@@ -149,6 +150,7 @@ namespace BrightWire.TrainingData.Artificial
 		            continue;
 	            yield return ret;
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         string GenerateExtended()

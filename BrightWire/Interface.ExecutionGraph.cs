@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using BrightData;
-using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -31,7 +32,7 @@ namespace BrightWire
         uint Depth { get; }
 
         /// <summary>
-        /// Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
+        /// Count of 3D tensors (1 if the signal is a matrix or 3D tensor)
         /// </summary>
         uint Count { get; }
 
@@ -39,19 +40,25 @@ namespace BrightWire
         /// Gets the signal as a matrix
         /// </summary>
         /// <returns></returns>
-        IFloatMatrix GetMatrix();
+        IMatrix GetMatrix();
+
+        /// <summary>
+        /// Gets the signal as a 3D tensor
+        /// </summary>
+        /// <returns></returns>
+        ITensor3D? Get3DTensor();
 
         /// <summary>
         /// Gets the signal as a 4D tensor
         /// </summary>
         /// <returns></returns>
-        I4DFloatTensor? Get4DTensor();
+        ITensor4D? Get4DTensor();
 
         /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor meta data)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>
-        IGraphData ReplaceWith(IFloatMatrix matrix);
+        IGraphData ReplaceWith(IMatrix matrix);
 
         /// <summary>
         /// Returns the value at the specified index
@@ -77,7 +84,7 @@ namespace BrightWire
         /// <param name="context">Graph context</param>
         /// <param name="node"></param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node);
+        IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node);
 
         /// <summary>
         /// Serialises the action to a string
@@ -126,9 +133,9 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Represents a single pass through the graph, from a single mini batch sequence
+    /// Represents a single pass through the graph
     /// </summary>
-    public interface IGraphSequenceContext : IDisposable
+    public interface IGraphContext : IDisposable
     {
         /// <summary>
         /// Current signal
@@ -138,17 +145,12 @@ namespace BrightWire
         /// <summary>
         /// Current execution context
         /// </summary>
-        IGraphExecutionContext ExecutionContext { get; }
+        GraphExecutionContext ExecutionContext { get; }
 
         /// <summary>
         /// Current learning context (optional)
         /// </summary>
         ILearningContext? LearningContext { get; }
-
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         /// <summary>
         /// Current mini batch sequence
@@ -220,81 +222,6 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Graph execution context
-    /// </summary>
-    public interface IGraphExecutionContext : IDisposable
-    {
-        /// <summary>
-        /// Writes to a named memory slot
-        /// </summary>
-        /// <param name="slotName">Slot name</param>
-        /// <param name="memory">Segment</param>
-        void SetMemory(string slotName, IFloatMatrix memory);
-
-        /// <summary>
-        /// Reads from a named memory slot
-        /// </summary>
-        /// <param name="slotName">Slot name</param>
-        /// <returns></returns>
-        IFloatMatrix GetMemory(string slotName);
-
-        /// <summary>
-        /// Gets the next queued graph operation (if any)
-        /// </summary>
-        /// <returns></returns>
-        IGraphOperation? GetNextOperation();
-
-        /// <summary>
-        /// Adds a list of graph operations to the queue
-        /// </summary>
-        /// <param name="operationList">List of operations</param>
-        void Add(IEnumerable<IGraphOperation> operationList);
-
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
-        /// <summary>
-        /// How many operations remain queued
-        /// </summary>
-        int RemainingOperationCount { get; }
-
-        /// <summary>
-        /// Registers a continuation that will be executed after the current sequence has been processed in full
-        /// </summary>
-        /// <param name="sequence">Sequence index</param>
-        /// <param name="callback">Continuation</param>
-        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext, CancellationToken> callback);
-
-        /// <summary>
-        /// Registers an additional mini batch to execute after the current mini batch has completed
-        /// </summary>
-        /// <param name="miniBatch">Mini batch to execute</param>
-        /// <param name="data">Initial data</param>
-        /// <param name="startCallback">Callback when starting the batch</param>
-        /// <param name="endCallback">Callback when ending the batch</param>
-        void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData, CancellationToken> startCallback, Action<IGraphSequenceContext[]> endCallback);
-
-        /// <summary>
-        /// True if there are registered continuations or additional mini batches to execute
-        /// </summary>
-        bool HasContinuations { get; }
-
-        /// <summary>
-        /// Execute any registered continuation for this context
-        /// </summary>
-        /// <param name="context">Context with an associated IMiniBatchSequence</param>
-        void Continue(IGraphSequenceContext context);
-
-        /// <summary>
-        /// Executes any additionally registered mini batches
-        /// </summary>
-        /// <param name="learningContext">Learning context (null if executing without training)</param>
-        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext);
-    }
-
-    /// <summary>
     /// A type that can create a graph context
     /// </summary>
     public interface ICreateGraphContext
@@ -302,11 +229,11 @@ namespace BrightWire
         /// <summary>
         /// Creates a graph context
         /// </summary>
-        /// <param name="executionContext">Graph execution cointext</param>
+        /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequence">Mini batch sequence</param>
         /// <param name="learningContext">Learning context (null if executing without training)</param>
         /// <returns></returns>
-        IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
+        IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
     }
 
     /// <summary>
@@ -320,7 +247,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents"></param>
-        IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
+        IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents);
     }
 
     /// <summary>
@@ -360,7 +287,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable">The new data table</param>
         /// <returns></returns>
-        IDataSource CloneWith(IRowOrientedDataTable dataTable);
+        IDataSource CloneWith(BrightDataTable dataTable);
 
         /// <summary>
         /// Table vectoriser to create a feature vector
@@ -445,7 +372,7 @@ namespace BrightWire
         /// <summary>
         /// Graph sequence context that has been executed for this sequence
         /// </summary>
-        IGraphSequenceContext? GraphContext { get; set; }
+        IGraphContext? GraphContext { get; set; }
     }
 
     /// <summary>
@@ -523,21 +450,16 @@ namespace BrightWire
     public interface IGraphOperation
     {
         /// <summary>
-        /// Executes the operation
+        /// Creates the mini batch
         /// </summary>
-        IEnumerable<IGraphSequenceContext> Execute();
+        IMiniBatch GetMiniBatch();
     }
 
     /// <summary>
     /// Graph engines drive execution within a graph
     /// </summary>
-    public interface IGraphEngine : ICreateGraphContext
+    public interface IGraphEngine : ICreateGraphContext, IHaveLinearAlgebraProvider
     {
-        /// <summary>
-        /// Linear algebra provider
-        /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
         /// <summary>
         /// Serialised version of the current graph and its parameters
         /// </summary>
@@ -564,16 +486,17 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataSource">Segment source to process</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
-        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
+        /// <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null);
+        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
 
         /// <summary>
         /// Executes a single vector on the current graph
         /// </summary>
         /// <param name="input">Vector to execute</param>
         /// <returns></returns>
-        ExecutionResult? Execute(float[] input);
+        IEnumerable<ExecutionResult> Execute(float[] input);
 
         /// <summary>
         /// Executes a sequential input on the current graph
@@ -583,7 +506,7 @@ namespace BrightWire
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSingleSequentialStep(IGraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        IEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -596,7 +519,7 @@ namespace BrightWire
         /// Creates a graph execution context
         /// </summary>
         /// <returns></returns>
-        IGraphExecutionContext CreateExecutionContext();
+        GraphExecutionContext CreateExecutionContext();
     }
 
     /// <summary>
@@ -605,12 +528,13 @@ namespace BrightWire
     public interface IGraphTrainingEngine : IGraphEngine
     {
         /// <summary>
-	    /// Executes a training epoch on the graph
-	    /// </summary>
-	    /// <param name="executionContext">Graph execution context</param>
-	    /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
-	    /// <returns>Graph training error</returns>
-	    void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
+        /// Executes a training epoch on the graph
+        /// </summary>
+        /// <param name="executionContext">Graph execution context</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
+        /// <param name="ct"></param>
+        /// <returns>Graph training error</returns>
+        void Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null, CancellationToken ct = default);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -630,7 +554,7 @@ namespace BrightWire
         /// <summary>
         /// Bright data context
         /// </summary>
-        IBrightDataContext Context { get; }
+        BrightDataContext Context { get; }
 
         /// <summary>
         /// Graph learning context
@@ -683,7 +607,7 @@ namespace BrightWire
         /// <summary>
         /// The current state of the memory node
         /// </summary>
-        Vector<float> Data { get; set; }
+        float[] Data { get; set; }
     }
 
     /// <summary>
@@ -709,19 +633,36 @@ namespace BrightWire
         /// <summary>
         /// Bias vector
         /// </summary>
-        IFloatVector Bias { get; }
+        IVector Bias { get; }
 
         /// <summary>
         /// Weight matrix
         /// </summary>
-        IFloatMatrix Weight { get; }
+        IMatrix Weight { get; }
 
         /// <summary>
         /// Updates the weights
         /// </summary>
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
-        void UpdateWeights(IFloatMatrix delta, ILearningContext context);
+        void UpdateWeights(IMatrix delta, ILearningContext context);
+
+        /// <summary>
+        /// Updates the bias
+        /// </summary>
+        /// <param name="delta"></param>
+        /// <param name="context"></param>
+        void UpdateBias(IMatrix delta, ILearningContext context);
+
+        /// <summary>
+        /// Executes the feed forward node
+        /// </summary>
+        /// <param name="signal"></param>
+        /// <param name="channel"></param>
+        /// <param name="context"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source);
     }
 
     /// <summary>

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.Models;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class MnistTensorTrainer : DataTableTrainer
     {
-        public MnistTensorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
+        public MnistTensorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
         {
-
         }
 
         public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
@@ -52,7 +51,7 @@ namespace ExampleCode.DataTableTrainers
                  .TransposeFrom4DTensorToMatrix()
                  .AddFeedForward(hiddenLayerSize)
                  .Add(graph.LeakyReluActivation())
-                 .AddDropOut(dropOutPercentage: 0.5f)
+                 //.AddDropOut(dropOutPercentage: 0.5f)
                  .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                  .Add(graph.SoftMaxActivation())
                  .AddBackpropagation()
@@ -80,11 +79,12 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
-            var tensor = (Tensor3D<float>) Test.Row(0)[0];
-            var singleData = graph.CreateDataSource(new[] { tensor });
+            var firstRow = Test.GetRow(0);
+            var tensor = (IReadOnlyTensor3D) firstRow[0];
+            var singleData = graph.CreateDataSource(new[] { tensor.Create(context.LinearAlgebraProvider) });
             var result = executionEngine.Execute(singleData);
-            var prediction = result.Single().Output.Single().MaximumIndex();
-            var expectedPrediction = ((Vector<float>) Test.Row(0)[1]).MaximumIndex();
+            var prediction = result.Single().Output[0].GetMaximumIndex();
+            var expectedPrediction = ((IReadOnlyVector)firstRow[1]).GetMaximumIndex();
             Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;
         }

@@ -4,14 +4,15 @@ using System.Text;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {
     public class VectorisationTests : UnitTestBase
     {
-        public IColumnOrientedDataTable GetTable()
+        public BrightDataTable GetTable()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.Boolean, "bool");
             builder.AddColumn(BrightDataType.SByte, "byte");
             builder.AddColumn(BrightDataType.Decimal, "decimal");
@@ -25,20 +26,20 @@ namespace BrightData.UnitTests
 
             var indexList = _context.CreateIndexList(1, 2, 3);
             var weightedIndexList = _context.CreateWeightedIndexList((1, 0.1f), (2, 0.5f), (3, 1f));
-            var vector = _context.CreateVector(3, 0.25f);
-            builder.AddRow(false, 1, 2, 3, 4, 5, 6, indexList, weightedIndexList, vector);
-            return builder.BuildColumnOriented();
+            var vector = _context.CreateReadOnlyVector(3, 0.25f);
+            builder.AddRow(false, (sbyte)1, (decimal)2, (double)3, (float)4, 5, (long)6, indexList, weightedIndexList, vector);
+            return builder.BuildInMemory();
         }
 
-        public IColumnOrientedDataTable GetTable2()
+        public BrightDataTable GetTable2()
         {
-            var builder = _context.BuildTable();
+            var builder = _context.CreateTableBuilder();
             builder.AddColumn(BrightDataType.String);
 
             builder.AddRow("a");
             builder.AddRow("b");
             builder.AddRow("c");
-            return builder.BuildColumnOriented();
+            return builder.BuildInMemory();
         }
 
         [Fact]
@@ -64,7 +65,7 @@ namespace BrightData.UnitTests
             var vectoriser2 = table.LoadVectoriser(reader);
             var vector2 = vectoriser2.Enumerate().Single();
 
-            CheckEquivalent(vector1, vector2);
+            vector1.Should().BeEquivalentTo(vector2);
         }
 
         [Fact]
@@ -103,10 +104,10 @@ namespace BrightData.UnitTests
         public void OtherVectorisation()
         {
             var table = GetTable();
-            var row = table.AsRowOriented().Row(0);
+            var row = table.GetRow(0);
             var rowValues = row.ToArray();
             var vectoriser = table.GetVectoriser(false);
-            var vector1 = vectoriser.Enumerate().Single().ToArray();
+            var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();
             var vector2 = vectoriser.Vectorise(row);
             var vector3 = vectoriser.Vectorise(rowValues);
 

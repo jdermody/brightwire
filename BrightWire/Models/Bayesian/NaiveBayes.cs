@@ -9,7 +9,7 @@ namespace BrightWire.Models.Bayesian
     /// <summary>
     /// A naive bayes model
     /// </summary>
-    public class NaiveBayes : ISerializable
+    public class NaiveBayes : IAmSerializable
     {
         /// <summary>
         /// The type of data within the column
@@ -30,7 +30,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A column within the naive bayes model
         /// </summary>
-        public class Column : ISerializable
+        public class Column : IAmSerializable
         {
             /// <summary>
             /// Index within the data set
@@ -55,19 +55,19 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of categories within the column and their probability (categorical only)
             /// </summary>
-            public CategorialProbability[] Probability { get; set; } = Array.Empty<CategorialProbability>();
+            public CategoricalProbability[] Probability { get; set; } = Array.Empty<CategoricalProbability>();
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// A category and its associated log probability
         /// </summary>
-        public class CategorialProbability : ISerializable
+        public class CategoricalProbability : IAmSerializable
         {
             /// <summary>
             /// The category label
@@ -88,13 +88,13 @@ namespace BrightWire.Models.Bayesian
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// A classification and its associated data
         /// </summary>
-        public class ClassSummary : ISerializable
+        public class ClassSummary : IAmSerializable
         {
             /// <summary>
             /// The classification label
@@ -120,7 +120,7 @@ namespace BrightWire.Models.Bayesian
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
-            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
@@ -141,6 +141,6 @@ namespace BrightWire.Models.Bayesian
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+        public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

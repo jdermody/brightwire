@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Helper;
+using CommunityToolkit.HighPerformance.Buffers;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -10,14 +12,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     internal class VectorBasedDataTableAdapter : RowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
+        readonly uint _inputColumnIndex;
 
-        public VectorBasedDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+        public VectorBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            var firstRow = dataTable.Row(0);
-            var input = (Vector<float>)firstRow[_featureColumnIndices.First()];
-            var output = (Vector<float>)firstRow[_targetColumnIndex];
+            var firstRow = dataTable.GetRow(0);
+            var input = (IReadOnlyVector)firstRow[_inputColumnIndex = _featureColumnIndices.Single()];
+            var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
 
             InputSize = input.Size;
             OutputSize = output.Size;
@@ -28,14 +31,34 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
-            var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((Vector<float>)r[i]).ToArray()).ToArray(), ((Vector<float>)r[_targetColumnIndex]).ToArray()))
-                .ToArray()
-            ;
-            return GetMiniBatch(rows, data);
+            var lap = _dataTable.Context.LinearAlgebraProvider;
+            using var inputRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            using var targetRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            var inputRowPtr = inputRows.Span;
+            var targetRowsPtr = targetRows.Span;
+            var index = 0;
+
+            foreach (var row in GetRows(rows)) {
+                inputRowPtr[index] = GetSegment(_inputColumnIndex, row);
+                targetRowsPtr[index] = GetSegment(_targetColumnIndex, row);
+                ++index;
+            }
+
+            var input = lap.CreateMatrixFromRows(inputRowPtr);
+            var output = OutputSize > 0
+                ? lap.CreateMatrixFromRows(targetRowsPtr)
+                : null;
+
+            return new MiniBatch(rows, this, input.AsGraphData(), output?.AsGraphData());
+
+            //var data = GetRows(rows)
+            //    .Select(r => (((IReadOnlyVector)r[_inputColumnIndex]).ToArray(), ((IReadOnlyVector)r[_targetColumnIndex]).ToArray()))
+            //    .ToArray()
+            //;
+            //return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public override IDataSource CloneWith(BrightDataTable dataTable)
         {
             return new VectorBasedDataTableAdapter(dataTable, _featureColumns);
         }

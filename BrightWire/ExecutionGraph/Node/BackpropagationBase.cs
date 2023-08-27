@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="parents"></param>
         /// <returns></returns>
-        protected IEnumerable<(IGraphData signal, IGraphSequenceContext Context, NodeBase toNode)> ErrorTo(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+        protected IEnumerable<(IGraphData signal, IGraphContext Context, NodeBase toNode)> ErrorTo(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
         {
             foreach (var parent in parents)
                 yield return (errorSignal, context, parent);
@@ -64,6 +64,6 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="parents"></param>
         /// <returns></returns>
-        public abstract IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
+        public abstract IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents);
     }
 }

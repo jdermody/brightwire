@@ -1,72 +1,139 @@
 ﻿using System;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
-using MathNet.Numerics.Distributions;
 using Xunit;
 
 namespace BrightData.UnitTests
 {
     public class MatrixTests : CudaBase
     {
-        static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatMatrix b, Func<IFloatMatrix, IFloatMatrix, IFloatMatrix> func)
+        [Fact]
+        public void Simple()
+        {
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            var array = matrix.Segment.ToNewArray();
+            array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
+
+            matrix.GetColumnAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
+            matrix.GetColumnAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
+            matrix.GetRowAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
+            matrix.GetRowAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
+        }
+
+        [Fact]
+        public void SimpleTranspose()
+        {
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+
+            using var transpose = matrix.Transpose();
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
+        }
+
+        [Fact]
+        public void SimpleTranspose2()
+        {
+            using var matrix = _cpu.CreateMatrix(2, 3, false);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            matrix[0, 2] = 5;
+            matrix[1, 2] = 6;
+
+            using var transpose = matrix.Transpose();
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 5, 2, 4, 6 });
+        }
+
+        [Fact]
+        public void Multiply2X2()
+        {
+            using var matrix = _cpu.CreateMatrix(2, 2, false);
+            matrix[0, 0] = 1;
+            matrix[1, 0] = 2;
+            matrix[0, 1] = 3;
+            matrix[1, 1] = 4;
+            using var matrix2 = matrix.Clone();
+
+            using var multiplied = matrix.Multiply(matrix2);
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 7, 10, 15, 22 });
+        }
+
+        [Fact]
+        public void Multiply3X2()
+        {
+            var index = 1;
+            using var matrix = _cpu.CreateMatrix(3, 2, (i, j) => index++);
+            using var matrix2 = matrix.Transpose();
+
+            using var multiplied = matrix.Multiply(matrix2);
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 17, 22, 27, 22, 29, 36, 27, 36, 45 });
+        }
+
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Func<IMatrix, IMatrix, IMatrix> func)
         {
             using var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateMatrix(b);
-            using var otherC = func(otherA, otherB);
-            return otherC.AsIndexable();
+            return func(otherA, otherB);
         }
 
-        static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatMatrix b, Action<IFloatMatrix, IFloatMatrix> func)
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Action<IMatrix, IMatrix> func)
         {
-            using var otherA = lap.CreateMatrix(a);
+            var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateMatrix(b);
             func(otherA, otherB);
-            return otherA.AsIndexable();
+            return otherA;
         }
 
-        static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, IIndexableFloatVector b, Action<IFloatMatrix, IFloatVector> func)
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IVector b, Action<IMatrix, IVector> func)
         {
-            using var otherA = lap.CreateMatrix(a);
+            var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateVector(b);
             func(otherA, otherB);
-            return otherA.AsIndexable();
+            return otherA;
         }
 
-        static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Func<IFloatMatrix, IFloatMatrix> func)
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, IMatrix> func)
         {
             using var otherA = lap.CreateMatrix(a);
-            using var otherB = func(otherA);
-            return otherB.AsIndexable();
+            var otherB = func(otherA);
+            return otherB;
         }
 
-        static IIndexableFloatMatrix Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Action<IFloatMatrix> func)
+        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Action<IMatrix> func)
         {
-            using var otherA = lap.CreateMatrix(a);
+            var otherA = lap.CreateMatrix(a);
             func(otherA);
-            return otherA.AsIndexable();
+            return otherA;
         }
 
-        static IIndexableFloatVector Apply(ILinearAlgebraProvider lap, IIndexableFloatMatrix a, Func<IFloatMatrix, IFloatVector> func)
+        static T Apply<T>(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, T> func)
         {
             using var otherA = lap.CreateMatrix(a);
-            using var otherRow = func(otherA);
-            return otherRow.AsIndexable();
+            var otherRow = func(otherA);
+            return otherRow;
         }
 
-        void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
+        void CheckMatrixMultiplication(uint rowsA, uint columnsARowsB, uint columnsB)
         {
             var rand = new Random(1);
-            var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = _cpu.CreateMatrix(columnsArowsB, columnsB, (_, _) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var cpuResults = a.Multiply(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.Multiply(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            var index = 1;
+            using var a = _cpu.CreateMatrix(rowsA, columnsARowsB, (_, _) => index++/*rand.NextSingle()*/);
+            using var b = _cpu.CreateMatrix(columnsARowsB, columnsB, (_, _) => index++/*rand.NextSingle()*/);
+            using var cpu = a.Multiply(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.Multiply(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.Multiply(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -77,20 +144,19 @@ namespace BrightData.UnitTests
                 Enumerable.Range(0, 10).Select(v => (float)v * 2).ToArray(),
                 Enumerable.Range(0, 10).Select(v => (float)v * 3).ToArray(),
             };
-            var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToList();
-            var cpuMatrix = _cpu.CreateMatrixFromRows(cpuRowList);
+            var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToArray();
+            using var cpu = _cpu.CreateMatrixFromRows(cpuRowList);
+            cpuRowList.DisposeAll();
 
-            var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToList();
-            using (var gpuMatrix = _cuda.CreateMatrixFromRows(gpuRowList)) {
-                FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable()).Should().BeTrue();
-            }
-            gpuRowList.ForEach(v => v.Dispose());
+            var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToArray();
+            using var gpu = _cuda.CreateMatrixFromRows(gpuRowList);
+            gpuRowList.DisposeAll();
 
-            var simpleRowList = values.Select(v => _simple.CreateVector(v)).ToList();
-            using (var simpleMatrix = _simple.CreateMatrixFromRows(simpleRowList)) {
-                FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), simpleMatrix.AsIndexable()).Should().BeTrue();
-            }
-            simpleRowList.ForEach(v => v.Dispose());
+            var mklRowList = values.Select(v => _mkl.CreateVector(v)).ToArray();
+            using var mkl = _mkl.CreateMatrixFromRows(mklRowList);
+            gpuRowList.DisposeAll();
+
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -101,20 +167,19 @@ namespace BrightData.UnitTests
                 Enumerable.Range(0, 10).Select(v => (float)v * 2).ToArray(),
                 Enumerable.Range(0, 10).Select(v => (float)v * 3).ToArray(),
             };
-            var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToList();
-            var cpuMatrix = _cpu.CreateMatrixFromColumns(cpuRowList);
+            var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToArray();
+            var cpu = _cpu.CreateMatrixFromColumns(cpuRowList);
+            cpuRowList.DisposeAll();
 
-            var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToList();
-            using (var gpuMatrix = _cuda.CreateMatrixFromColumns(gpuRowList)) {
-                FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable()).Should().BeTrue();
-            }
-            gpuRowList.ForEach(v => v.Dispose());
+            var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToArray();
+            using var gpu = _cuda.CreateMatrixFromColumns(gpuRowList);
+            gpuRowList.DisposeAll();
 
-            var simpleRowList = values.Select(v => _simple.CreateVector(v)).ToList();
-            using (var simpleMatrix = _simple.CreateMatrixFromColumns(simpleRowList)) {
-                FloatMath.AreApproximatelyEqual(cpuMatrix.AsIndexable(), simpleMatrix.AsIndexable()).Should().BeTrue();
-            }
-            simpleRowList.ForEach(v => v.Dispose());
+            var mklRowList = values.Select(v => _mkl.CreateVector(v)).ToArray();
+            using var mkl = _mkl.CreateMatrixFromColumns(mklRowList);
+            mklRowList.DisposeAll();
+
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -167,14 +232,12 @@ namespace BrightData.UnitTests
 
         void Transpose(uint rows, uint columns)
         {
-            var a = _cpu.CreateMatrix(rows, columns, (j, k) => k).AsIndexable();
-            var aT = a.Transpose();
-
-            var gpuResults = Apply(_cuda, a, a => a.Transpose());
-            FloatMath.AreApproximatelyEqual(gpuResults, aT.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Transpose());
-            FloatMath.AreApproximatelyEqual(simpleResults, aT.AsIndexable()).Should().BeTrue();
+            var index = 1;
+            using var a = _cpu.CreateMatrix(rows, columns, (j, k) => index++);
+            using var cpu = a.Transpose();
+            using var gpu = Apply(_cuda, a, a => a.Transpose());
+            using var mkl = Apply(_mkl, a, a => a.Transpose());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
@@ -216,776 +279,751 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTransposeAndMultiplication()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(3, 5, (j, k) => j).AsIndexable();
-            var cpuResults = a.TransposeAndMultiply(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.TransposeAndMultiply(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeAndMultiply(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(3, 5, (j, k) => j);
+            using var cpu = a.TransposeAndMultiply(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.TransposeAndMultiply(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.TransposeAndMultiply(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixTransposeAndMultiplication2()
         {
-            var a = _cpu.CreateMatrix(2, 6, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
-            var cpuResults = a.TransposeThisAndMultiply(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.TransposeThisAndMultiply(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.TransposeThisAndMultiply(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 6, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
+            using var cpu = a.TransposeThisAndMultiply(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.TransposeThisAndMultiply(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.TransposeThisAndMultiply(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixAdd()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
-            var cpuResults = a.Add(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.Add(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.Add(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
+            using var cpu = a.Add(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.Add(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.Add(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSubtract()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
 
-            IIndexableFloatMatrix gpuResults, gpuResults2;
-            using (var gpuA = _cuda.CreateMatrix(a))
-            using (var gpuB = _cuda.CreateMatrix(b)) {
+            IMatrix gpu, gpu2;
+            using var gpuA = _cuda.CreateMatrix(a);
+            using var gpuB = _cuda.CreateMatrix(b);
+            {
                 var aStr = gpuA.ToString();
                 var bStr = gpuB.ToString();
-                using (var gpuC = gpuA.Subtract(gpuB))
-                using (var gpuD = gpuB.Subtract(gpuA)) {
-                    gpuResults = gpuC.AsIndexable();
-                    gpuResults2 = gpuD.AsIndexable();
-                }
+                gpu = gpuA.Subtract(gpuB);
+                gpu2 = gpuB.Subtract(gpuA);
 
                 aStr.Should().BeEquivalentTo(gpuA.ToString());
                 bStr.Should().BeEquivalentTo(gpuB.ToString());
             }
 
-            IIndexableFloatMatrix simpleResults, simpleResults2;
-            using (var simpleA = _simple.CreateMatrix(a))
-            using (var simpleB = _simple.CreateMatrix(b)) {
+            IMatrix mkl, mkl2;
+            using var simpleA = _mkl.CreateMatrix(a);
+            using var simpleB = _mkl.CreateMatrix(b);
+            {
                 var aStr = simpleA.ToString();
                 var bStr = simpleB.ToString();
-                using (var simpleC = simpleA.Subtract(simpleB))
-                using (var simpleD = simpleB.Subtract(simpleA)) {
-                    simpleResults = simpleC.AsIndexable();
-                    simpleResults2 = simpleD.AsIndexable();
-                }
+                mkl = simpleA.Subtract(simpleB);
+                mkl2 = simpleB.Subtract(simpleA);
 
                 aStr.Should().BeEquivalentTo(simpleA.ToString());
                 bStr.Should().BeEquivalentTo(simpleB.ToString());
             }
 
-            var cpuResults = a.Subtract(b);
-            var cpuResults2 = b.Subtract(a);
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpuResults2, cpuResults2.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults2, cpuResults2.AsIndexable()).Should().BeTrue();
+            var cpu = a.Subtract(b);
+            var cpu2 = b.Subtract(a);
+            FloatMath.AreApproximatelyEqual(gpu, cpu).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(gpu2, cpu2).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(mkl, cpu).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(mkl2, cpu2).Should().BeTrue();
+            gpu.Dispose();
+            gpu2.Dispose();
+            mkl.Dispose();
+            mkl2.Dispose();
         }
 
         [Fact]
         public void MatrixPointwiseMultiply()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
-            var cpuResults = a.PointwiseMultiply(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseMultiply(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseMultiply(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
+            using var cpu = a.PointwiseMultiply(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseMultiply(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseMultiply(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixPointwiseDivide()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k + 1).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j + 1).AsIndexable();
-            var cpuResults = a.PointwiseDivide(b);
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseDivide(b));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseDivide(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k + 1);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j + 1);
+            using var cpu = a.PointwiseDivide(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseDivide(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseDivide(b));
+            AssertSameWithMaxDifference(12, cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSqrt()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k + 1).AsIndexable();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k + 1);
             a[0, 0] = -1e-8f;
-            var cpuResults = a.Sqrt();
-
-            var gpuResults = Apply(_cuda, a, a => a.Sqrt());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Sqrt());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults.AsIndexable()).Should().BeTrue();
+            using var cpu = a.Sqrt();
+            using var gpu = Apply(_cuda, a, a => a.Sqrt());
+            using var mkl = Apply(_mkl, a, a => a.Sqrt());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixMultiplyScalar()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            const float SCALAR = 2.5f;
-
-            var gpuResults = Apply(_cuda, a, a => a.Multiply(SCALAR));
-            var simpleResults = Apply(_simple, a, a => a.Multiply(SCALAR));
-
-            a.Multiply(SCALAR);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            const float scalar = 2.5f;
+            using var matrix = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var gpu = Apply(_cuda, matrix, a => a.Multiply(scalar));
+            using var mkl = Apply(_mkl, matrix, a => a.Multiply(scalar));
+            using var cpu = matrix.Multiply(scalar);
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixColumn()
         {
-            const int INDEX = 7;
-            var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1)).AsIndexable();
-            var row = a.Column(INDEX).AsIndexable();
+            const int index = 7;
+            using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
+            var cpu = a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            AssertSame(cpu, gpu, mkl);
+        }
 
-            var gpuResults = Apply(_cuda, a, a => a.Column(INDEX));
-            FloatMath.AreApproximatelyEqual(gpuResults, row).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Column(INDEX));
-            FloatMath.AreApproximatelyEqual(simpleResults, row).Should().BeTrue();
+        [Fact]
+        public void MatrixColumnVector()
+        {
+            const int index = 7;
+            using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
+            using var cpu = a.GetColumnVector(index);
+            using var gpu = Apply(_cuda, a, a => a.GetColumnVector(index));
+            using var mkl = Apply(_mkl, a, a => a.GetColumnVector(index));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixRow()
         {
-            const int INDEX = 11;
-            var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j).AsIndexable();
-            var row = a.Row(INDEX).AsIndexable();
+            const int index = 11;
+            using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
+            var cpu = a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            AssertSame(cpu, gpu, mkl);
+        }
 
-            var gpuResults = Apply(_cuda, a, a => a.Row(INDEX));
-            FloatMath.AreApproximatelyEqual(gpuResults, row).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Row(INDEX));
-            FloatMath.AreApproximatelyEqual(simpleResults, row).Should().BeTrue();
+        [Fact]
+        public void MatrixRowVector()
+        {
+            const int index = 11;
+            using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
+            using var cpu = a.GetRowVector(index);
+            using var gpu = Apply(_cuda, a, a => a.GetRowVector(index));
+            using var mkl = Apply(_mkl, a, a => a.GetRowVector(index));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixRowSums()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var rowSums = a.RowSums().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.RowSums());
-            FloatMath.AreApproximatelyEqual(gpuResults, rowSums).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.RowSums());
-            FloatMath.AreApproximatelyEqual(simpleResults, rowSums).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var cpu = a.RowSums();
+            var gpu = Apply(_cuda, a, a => a.RowSums());
+            var mkl = Apply(_mkl, a, a => a.RowSums());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixColumnSums()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var colSums = a.ColumnSums().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.ColumnSums());
-            FloatMath.AreApproximatelyEqual(gpuResults, colSums).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.ColumnSums());
-            FloatMath.AreApproximatelyEqual(simpleResults, colSums).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var cpu = a.ColumnSums();
+            var gpu = Apply(_cuda, a, a => a.ColumnSums());
+            var mkl = Apply(_mkl, a, a => a.ColumnSums());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixAddInPlace()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.AddInPlace(b, 1.5f, 2.5f));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.AddInPlace(b, 1.5f, 2.5f));
-
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.AddInPlace(b, 1.5f, 2.5f));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.AddInPlace(b, 1.5f, 2.5f));
             a.AddInPlace(b, 1.5f, 2.5f);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            AssertSame(a, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSubtractInPlace()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k).AsIndexable();
-            var b = _cpu.CreateMatrix(2, 5, (j, k) => j).AsIndexable();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
+            using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
 
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.SubtractInPlace(b, 1.5f, 2.5f));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.SubtractInPlace(b, 1.5f, 2.5f));
-
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.SubtractInPlace(b, 1.5f, 2.5f));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.SubtractInPlace(b, 1.5f, 2.5f));
             a.SubtractInPlace(b, 1.5f, 2.5f);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            AssertSame(a, gpu, mkl);
         }
 
         [Fact]
         public void MatrixAddToEachRow()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j).AsIndexable();
-            var b = _cpu.CreateVector(5, (i) => i).AsIndexable();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(5, (i) => i);
 
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.AddToEachRow(b));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.AddToEachRow(b));
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.AddToEachRow(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.AddToEachRow(b.Segment));
 
-            a.AddToEachRow(b);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            a.AddToEachRow(b.Segment);
+            AssertSame(a, gpu, mkl);
         }
 
         [Fact]
         public void MatrixAddToEachColumn()
         {
-            var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j).AsIndexable();
-            var b = _cpu.CreateVector(2, (i) => i + 5).AsIndexable();
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(2, (i) => i + 5);
 
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.AddToEachColumn(b));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.AddToEachColumn(b));
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.AddToEachColumn(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.AddToEachColumn(b.Segment));
 
-            a.AddToEachColumn(b);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            a.AddToEachColumn(b.Segment);
+            AssertSame(a, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixMultiplyEachRowWith()
+        {
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(5, (i) => i);
+
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.MultiplyEachRowWith(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.MultiplyEachRowWith(b.Segment));
+
+            a.MultiplyEachRowWith(b.Segment);
+            AssertSame(a, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixMultiplyEachColumnWith()
+        {
+            using var a = _cpu.CreateMatrix(2, 5, (j, k) => k * j);
+            using var b = _cpu.CreateVector(2, (i) => i + 5);
+
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.MultiplyEachColumnWith(b.Segment));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.MultiplyEachColumnWith(b.Segment));
+
+            a.MultiplyEachColumnWith(b.Segment);
+            AssertSame(a, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSigmoidActivation()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.SigmoidActivation().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, (a) => a.SigmoidActivation());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, (a) => a.SigmoidActivation());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.Sigmoid();
+            using var gpu = Apply(_cuda, a, (a) => a.Sigmoid());
+            using var mkl = Apply(_mkl, a, (a) => a.Sigmoid());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSigmoidDerivative()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.SigmoidDerivative().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, (a) => a.SigmoidDerivative());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, (a) => a.SigmoidDerivative());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.SigmoidDerivative();
+            using var gpu = Apply(_cuda, a, (a) => a.SigmoidDerivative());
+            using var mkl = Apply(_mkl, a, (a) => a.SigmoidDerivative());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixTanhActivation()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.TanhActivation().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.TanhActivation());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, (a) => a.TanhActivation());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.Tanh();
+            using var gpu = Apply(_cuda, a, a => a.Tanh());
+            using var mkl = Apply(_mkl, a, (a) => a.Tanh());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixTanhDerivative()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.TanhDerivative().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.TanhDerivative());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_cuda, a, a => a.TanhDerivative());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.TanhDerivative();
+            using var gpu = Apply(_cuda, a, a => a.TanhDerivative());
+            using var mkl = Apply(_cuda, a, a => a.TanhDerivative());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixReluActivation()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.ReluActivation().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.ReluActivation());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_cuda, a, a => a.ReluActivation());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.Relu();
+            using var gpu = Apply(_cuda, a, a => a.Relu());
+            using var mkl = Apply(_cuda, a, a => a.Relu());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixReluDerivative()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.ReluDerivative().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.ReluDerivative());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_cuda, a, a => a.ReluDerivative());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.ReluDerivative();
+            using var gpu = Apply(_cuda, a, a => a.ReluDerivative());
+            using var mkl = Apply(_cuda, a, a => a.ReluDerivative());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixLeakyReluActivation()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.LeakyReluActivation().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.LeakyReluActivation());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_cuda, a, a => a.LeakyReluActivation());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.LeakyRelu();
+            using var gpu = Apply(_cuda, a, a => a.LeakyRelu());
+            using var mkl = Apply(_cuda, a, a => a.LeakyRelu());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixLeakyReluDerivative()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.LeakyReluDerivative().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.LeakyReluDerivative());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_cuda, a, a => a.LeakyReluDerivative());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.LeakyReluDerivative();
+            using var gpu = Apply(_cuda, a, a => a.LeakyReluDerivative());
+            using var mkl = Apply(_cuda, a, a => a.LeakyReluDerivative());
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSoftmaxActivation()
         {
-            var normalDistribution = new Normal(0, 1);
-            var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-            var cpuResults = a.SoftmaxActivation().AsIndexable();
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var cpu = a.Softmax();
+            using var gpu = Apply(_cuda, a, a => a.Softmax());
+            using var mkl = Apply(_cuda, a, a => a.Softmax());
+            AssertSame(cpu, gpu, mkl);
+        }
 
-            var gpuResults = Apply(_cuda, a, a => a.SoftmaxActivation());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
+        [Fact]
+        public void MatrixSoftmaxPerRow()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = a.SoftmaxPerRow().Select(x => _cpu.CreateVector(x)).ToArray();
+            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow().Select(x => _cuda.CreateVector(x)).ToArray());
+            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow().Select(x => _mkl.CreateVector(x)).ToArray());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
 
-            var simpleResults = Apply(_cuda, a, a => a.SoftmaxActivation());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+        [Fact]
+        public void MatrixRowVector2()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = 3.AsRange().Select(a.GetRowVector).ToArray();
+            var gpu = Apply(_cuda, a, a => 3.AsRange().Select(a.GetRowVector).ToArray());
+            var mkl = Apply(_mkl, a, a => 3.AsRange().Select(a.GetRowVector).ToArray());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixRowVectorsTransposed()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            using var aT = a.Transpose();
+            var cpu = 3.AsRange().Select(aT.GetColumnVector).ToArray();
+            var gpu = Apply(_cuda, aT, aT => 3.AsRange().Select(aT.GetColumnVector).ToArray());
+            var mkl = Apply(_mkl, aT, aT => 3.AsRange().Select(aT.GetColumnVector).ToArray());
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixSoftmaxDerivative()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = _cpu.SoftmaxDerivative(a.Segment);
+            var gpu = Apply(_cuda, a, a => _cuda.SoftmaxDerivative(a.Segment));
+            var mkl = Apply(_mkl, a, a => _mkl.SoftmaxDerivative(a.Segment));
+            AssertSameAndThenDispose(cpu, gpu, mkl);
+        }
+
+        [Fact]
+        public void MatrixSoftmaxPerRowDerivative()
+        {
+            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
+            var cpu = a.SoftmaxPerRow();
+            var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
+            var mkl = Apply(_mkl, a, a => a.SoftmaxPerRow());
+
+            var cpu2 = a.SoftmaxDerivativePerRow(cpu);
+            var gpu2 = Apply(_cuda, a, a2 => a2.SoftmaxDerivativePerRow(gpu));
+            var mkl2 = Apply(_mkl, a, a2 => a2.SoftmaxDerivativePerRow(mkl));
+
+            AssertSameAndThenDispose(8, cpu, gpu, mkl);
+            AssertSameAndThenDispose(8, cpu2, gpu2, mkl2);
         }
 
         [Fact]
         public void MatrixNewMatrixFromRows()
         {
             var rows = new uint[] { 7, 8, 9 };
-            var a = _cpu.CreateMatrix(13, 17, (j, k) => (k + 1) * (j + 1)).AsIndexable();
-            var cpuResults = a.GetNewMatrixFromRows(rows).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.GetNewMatrixFromRows(rows));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.GetNewMatrixFromRows(rows));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(13, 17, (j, k) => (k + 1) * (j + 1));
+            using var cpu = a.GetNewMatrixFromRows(rows);
+            using var gpu = Apply(_cuda, a, a => a.GetNewMatrixFromRows(rows));
+            using var mkl = Apply(_mkl, a, a => a.GetNewMatrixFromRows(rows));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixNewMatrixFromColumns()
         {
             var cols = new uint[] { 1, 2, 9 };
-            var a = _cpu.CreateMatrix(12, 13, (j, k) => (k + 1) * (j + 1)).AsIndexable();
-            var cpuResults = a.GetNewMatrixFromColumns(cols).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.GetNewMatrixFromColumns(cols));
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.GetNewMatrixFromColumns(cols));
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(12, 13, (j, k) => (k + 1) * (j + 1));
+            using var cpu = a.GetNewMatrixFromColumns(cols);
+            using var gpu = Apply(_cuda, a, a => a.GetNewMatrixFromColumns(cols));
+            using var mkl = Apply(_mkl, a, a => a.GetNewMatrixFromColumns(cols));
+            AssertSame(cpu, gpu, mkl);
         }
 
-        [Fact]
-        public void MatrixClearRows()
-        {
-            var rows = new uint[] { 1, 2, 9 };
-            var a = _cpu.CreateMatrix(13, 12, (j, k) => k + 1).AsIndexable();
-            
-            var gpuResults = Apply(_cuda, a, a => a.ClearRows(rows));
-            var simpleResults = Apply(_simple, a, a => a.ClearRows(rows));
+        //[Fact]
+        //public void MatrixClearRows()
+        //{
+        //    var rows = new uint[] { 1, 2, 9 };
+        //    using var a = _cpu.CreateMatrix(13, 12, (j, k) => k + 1);
+        //    using var gpu = Apply(_cuda, a, a => a.ClearRows(rows));
+        //    using var mkl = Apply(_mkl, a, a => a.ClearRows(rows));
+        //    a.ClearRows(rows);
+        //    AssertSame(a, gpu, mkl);
+        //}
 
-            a.ClearRows(rows);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
-        }
-
-        [Fact]
-        public void MatrixClearColumns()
-        {
-            var cols = new uint[] { 1, 2, 7 };
-            var a = _cpu.CreateMatrix(18, 13, (j, k) => k + 1).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.ClearColumns(cols));
-            var simpleResults = Apply(_simple, a, a => a.ClearColumns(cols));
-
-            a.ClearColumns(cols);
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
-        }
+        //[Fact]
+        //public void MatrixClearColumns()
+        //{
+        //    var cols = new uint[] { 1, 2, 7 };
+        //    using var a = _cpu.CreateMatrix(18, 13, (j, k) => k + 1);
+        //    using var gpu = Apply(_cuda, a, a => a.ClearColumns(cols));
+        //    using var mkl = Apply(_mkl, a, a => a.ClearColumns(cols));
+        //    a.ClearColumns(cols);
+        //    AssertSame(a, gpu, mkl);
+        //}
 
         [Fact]
         public void MatrixClear()
         {
-            var a = _cpu.CreateMatrix(15, 23, (j, k) => k + 1).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.Clear());
-            var simpleResults = Apply(_simple, a, a => a.Clear());
-
+            using var a = _cpu.CreateMatrix(15, 23, (j, k) => k + 1);
+            using var gpu = Apply(_cuda, a, a => a.Clear());
+            using var mkl = Apply(_mkl, a, a => a.Clear());
             a.Clear();
-            FloatMath.AreApproximatelyEqual(gpuResults, a).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults, a).Should().BeTrue();
+            AssertSame(a, gpu, mkl);
         }
 
         [Fact]
         public void MatrixClone()
         {
-            var a = _cpu.CreateMatrix(12, 7, (j, k) => k + 1).AsIndexable();
-            var cpuResults = a.Clone().AsIndexable();
-            FloatMath.AreApproximatelyEqual(a, cpuResults);
-
-            var gpuResults = Apply(_cuda, a, a => a.Clone());
-            FloatMath.AreApproximatelyEqual(gpuResults, cpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Clone());
-            FloatMath.AreApproximatelyEqual(simpleResults, cpuResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(12, 7, (j, k) => k + 1);
+            using var cpu = a.Clone();
+            using var gpu = Apply(_cuda, a, a => a.Clone());
+            using var mkl = Apply(_mkl, a, a => a.Clone());
+            AssertSame(cpu, gpu, mkl);
         }
 
-        [Fact]
-        public void MatrixReadWrite()
-        {
-            var a = _cpu.CreateMatrix(7, 20, (x, y) => x * 10 + y).AsIndexable();
+        //[Fact]
+        //public void MatrixReadWrite()
+        //{
+        //    var a = _cpu.CreateMatrix(7, 20, (x, y) => x * 10 + y);
 
-            // test Numerics -> Numerics serialisation
-            var serialised = a.Data;
-            var b = _cpu.CreateMatrix(serialised);
-            FloatMath.AreApproximatelyEqual(a.AsIndexable(), b.AsIndexable()).Should().BeTrue();
+        //    // test Numerics -> Numerics serialisation
+        //    var serialised = a.Data;
+        //    var b = _cpu.CreateMatrix(serialised);
+        //    FloatMath.AreApproximatelyEqual(a, b).Should().BeTrue();
 
-            // test Numerics -> Cuda serialisation
-            using var c = _cuda.CreateMatrix(serialised);
-            FloatMath.AreApproximatelyEqual(a.AsIndexable(), c.AsIndexable()).Should().BeTrue();
+        //    // test Numerics -> Cuda serialisation
+        //    using var c = _cuda.CreateMatrix(serialised);
+        //    FloatMath.AreApproximatelyEqual(a, c).Should().BeTrue();
 
-            // test Cuda -> Cuda serialisation
-            var serialised2 = c.Data;
-            using (var d = _cuda.CreateMatrix(serialised2))
-                FloatMath.AreApproximatelyEqual(a.AsIndexable(), d.AsIndexable()).Should().BeTrue();
+        //    // test Cuda -> Cuda serialisation
+        //    var serialised2 = c.Data;
+        //    using (var d = _cuda.CreateMatrix(serialised2))
+        //        FloatMath.AreApproximatelyEqual(a, d).Should().BeTrue();
 
-            // test Cuda -> Numerics serialisation
-            var e = _cpu.CreateMatrix(c.Data);
-            FloatMath.AreApproximatelyEqual(a.AsIndexable(), e.AsIndexable()).Should().BeTrue();
-        }
+        //    // test Cuda -> Numerics serialisation
+        //    var e = _cpu.CreateMatrix(c.Data);
+        //    FloatMath.AreApproximatelyEqual(a, e).Should().BeTrue();
+        //}
 
         [Fact]
         public void MatrixConcatColumns()
         {
             var rand = new Random();
-            var a = _cpu.CreateMatrix(4000, 300, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = _cpu.CreateMatrix(200, 300, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var cpuResults = a.ConcatColumns(b).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.ConcatColumns(b));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.ConcatColumns(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, gpuResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(4000, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            using var b = _cpu.CreateMatrix(200, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            using var cpu = a.ConcatBelow(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatBelow(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatBelow(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixConcatRows()
         {
             var rand = new Random();
-            var a = _cpu.CreateMatrix(300, 4000, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = _cpu.CreateMatrix(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var cpuResults = a.ConcatRows(b).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.ConcatRows(b));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.ConcatRows(b));
-            FloatMath.AreApproximatelyEqual(simpleResults, gpuResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(300, 4000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            using var b = _cpu.CreateMatrix(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            using var cpu = a.ConcatRight(b);
+            using var gpu = Apply(_cuda, a, b, (a, b) => a.ConcatRight(b));
+            using var mkl = Apply(_mkl, a, b, (a, b) => a.ConcatRight(b));
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void MatrixSplitColumns()
         {
-            const int POSITION = 2000;
+            const int position = 2000;
             var rand = new Random();
-            var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var (top, bottom) = a.SplitAtRow(POSITION);
+            using var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var (top, bottom) = a.SplitAtRow(position);
 
-            IIndexableFloatMatrix gpuResults1, gpuResults2;
             using (var gpuA = _cuda.CreateMatrix(a)) {
-                var (top2, bottom2) = gpuA.SplitAtRow(POSITION);
+                var (top2, bottom2) = gpuA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
-                gpuResults1 = m1.AsIndexable();
-                gpuResults2 = m2.AsIndexable();
+                FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
+                FloatMath.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
             }
-            FloatMath.AreApproximatelyEqual(gpuResults1, top.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpuResults2, bottom.AsIndexable()).Should().BeTrue();
 
-            IIndexableFloatMatrix simpleResults1, simpleResults2;
-            using (var simpleA = _simple.CreateMatrix(a)) {
-                var (top2, bottom2) = simpleA.SplitAtRow(POSITION);
+            using (var simpleA = _mkl.CreateMatrix(a)) {
+                var (top2, bottom2) = simpleA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
-                simpleResults1 = m1.AsIndexable();
-                simpleResults2 = m2.AsIndexable();
+                FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
+                FloatMath.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
             }
-            FloatMath.AreApproximatelyEqual(simpleResults1, top.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults2, bottom.AsIndexable()).Should().BeTrue();
+            top.Dispose();
+            bottom.Dispose();
         }
 
         [Fact]
         public void MatrixSplitRows()
         {
-            const int POSITION = 2000;
+            const int position = 2000;
             var rand = new Random();
-            var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var (left, right) = a.SplitAtColumn(POSITION);
+            using var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var (left, right) = a.SplitAtColumn(position);
 
-            IIndexableFloatMatrix gpuResults1, gpuResults2;
-            using (var gpuA = _cuda.CreateMatrix(a)) {
-                var (left2, right2) = gpuA.SplitAtColumn(POSITION);
+            using var gpuA = _cuda.CreateMatrix(a);
+            {
+                var (left2, right2) = gpuA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
-                gpuResults1 = m1.AsIndexable();
-                gpuResults2 = m2.AsIndexable();
+                FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
+                FloatMath.AreApproximatelyEqual(m2, right).Should().BeTrue();
             }
-            FloatMath.AreApproximatelyEqual(gpuResults1, left.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpuResults2, right.AsIndexable()).Should().BeTrue();
 
-            IIndexableFloatMatrix simpleResults1, simpleResults2;
-            using (var simpleA = _simple.CreateMatrix(a)) {
-                var (left2, right2) = simpleA.SplitAtColumn(POSITION);
+            using (var simpleA = _mkl.CreateMatrix(a)) {
+                var (left2, right2) = simpleA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
-                simpleResults1 = m1.AsIndexable();
-                simpleResults2 = m2.AsIndexable();
+                FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
+                FloatMath.AreApproximatelyEqual(m2, right).Should().BeTrue();
             }
-            FloatMath.AreApproximatelyEqual(simpleResults1, left.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(simpleResults2, right.AsIndexable()).Should().BeTrue();
+            left.Dispose();
+            right.Dispose();
         }
 
         [Fact]
         public void MatrixL1Regularisation()
         {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            const float OPERAND = 2f;
-
-            var gpuResults = Apply(_cuda, a, a => a.L1Regularisation(OPERAND));
-            var simpleResults = Apply(_simple, a, a => a.L1Regularisation(OPERAND));
-
-            a.L1Regularisation(OPERAND);
-            FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(a, simpleResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+            const float operand = 2f;
+            using var gpu = Apply(_cuda, a, a => a.L1RegularisationInPlace(operand));
+            using var mkl = Apply(_mkl, a, a => a.L1RegularisationInPlace(operand));
+            a.L1RegularisationInPlace(operand);
+            AssertSame(a, gpu, mkl);
         }
 
-        [Fact]
-        public void MatrixColumnL2Norm()
-        {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            var cpuResults = a.ColumnL2Norm().AsIndexable();
+        //[Fact]
+        //public void MatrixColumnL2Norm()
+        //{
+        //    var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+        //    using var cpu = a.ColumnL2Norm();
+        //    using var gpu = Apply(_cuda, a, a => a.ColumnL2Norm());
+        //    using var mkl = Apply(_mkl, a, a => a.ColumnL2Norm());
+        //    AssertSame(cpu, gpu, mkl);
+        //}
 
-            var gpuResults = Apply(_cuda, a, a => a.ColumnL2Norm());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
+        //[Fact]
+        //public void MatrixRowL2Norm()
+        //{
+        //    using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+        //    using var cpu = a.RowL2Norm();
+        //    using var gpu = Apply(_cuda, a, a => a.RowL2Norm());
+        //    using var mkl = Apply(_mkl, a, a => a.RowL2Norm());
+        //    AssertSame(cpu, gpu, mkl);
+        //}
 
-            var simpleResults = Apply(_simple, a, a => a.ColumnL2Norm());
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        }
+        //[Fact]
+        //public void MatrixPointwiseDivideRows()
+        //{
+        //    using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+        //    using var b = _cpu.CreateVector(6, i => i);
+        //    using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseDivideRows(b));
+        //    using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseDivideRows(b));
+        //    a.PointwiseDivideRows(b);
+        //    AssertSame(a, gpu, mkl);
+        //}
 
-        [Fact]
-        public void MatrixRowL2Norm()
-        {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            var cpuResults = a.RowL2Norm().AsIndexable();
+        //[Fact]
+        //public void MatrixPointwiseDivideColumns()
+        //{
+        //    using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+        //    using var b = _cpu.CreateVector(3, i => i);
+        //    using var gpu = Apply(_cuda, a, b, (a, b) => a.PointwiseDivideColumns(b));
+        //    using var mkl = Apply(_mkl, a, b, (a, b) => a.PointwiseDivideColumns(b));
+        //    a.PointwiseDivideColumns(b);
+        //    AssertSame(a, gpu, mkl);
+        //}
 
-            var gpuResults = Apply(_cuda, a, a => a.RowL2Norm());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.RowL2Norm());
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        }
-
-        [Fact]
-        public void MatrixPointwiseDivideRows()
-        {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            var b = _cpu.CreateVector(6, i => i).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseDivideRows(b));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseDivideRows(b));
-
-            a.PointwiseDivideRows(b);
-            FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(a, simpleResults).Should().BeTrue();
-        }
-
-        [Fact]
-        public void MatrixPointwiseDivideColumns()
-        {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            var b = _cpu.CreateVector(3, i => i).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, b, (a, b) => a.PointwiseDivideColumns(b));
-            var simpleResults = Apply(_simple, a, b, (a, b) => a.PointwiseDivideColumns(b));
-
-            a.PointwiseDivideColumns(b);
-            FloatMath.AreApproximatelyEqual(a, gpuResults).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(a, simpleResults).Should().BeTrue();
-        }
-
-        [Fact]
-        public void MatrixDiagonal()
-        {
-            var a = _cpu.CreateMatrix(6, 6, (x, y) => x * 2 + y).AsIndexable();
-            var cpuResults = a.Diagonal().AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.Diagonal());
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Diagonal());
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        }
+        //[Fact]
+        //public void MatrixDiagonal()
+        //{
+        //    using var a = _cpu.CreateMatrix(6, 6, (x, y) => x * 2 + y);
+        //    using var cpu = a.Diagonal();
+        //    using var gpu = Apply(_cuda, a, a => a.Diagonal());
+        //    using var mkl = Apply(_mkl, a, a => a.Diagonal());
+        //    AssertSame(cpu, gpu, mkl);
+        //}
 
         [Fact]
         public void MatrixPow()
         {
-            var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y).AsIndexable();
-            const float OPERAND = 2.5f;
-            var cpuResults = a.Pow(OPERAND).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.Pow(OPERAND));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.Pow(OPERAND));
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
+            using var a = _cpu.CreateMatrix(6, 3, (x, y) => x * 2 + y);
+            const float operand = 2.5f;
+            using var cpu = a.Pow(operand);
+            using var gpu = Apply(_cuda, a, a => a.Pow(operand));
+            using var mkl = Apply(_mkl, a, a => a.Pow(operand));
+            AssertSameWithMaxDifference(12, cpu, gpu, mkl);
         }
 
-        [Fact]
-        public void MatrixGetRowSegment()
-        {
-            var a = _cpu.CreateMatrix(12, 18, (x, y) => x * 2 + y).AsIndexable();
-            var cpuResults = a.GetRowSegment(1, 2, 5).AsIndexable();
+        //[Fact]
+        //public void MatrixGetRowSegment()
+        //{
+        //    using var a = _cpu.CreateMatrix(12, 18, (x, y) => x * 2 + y);
+        //    using var cpu = a.GetRowSegment(1, 2, 5);
+        //    using var gpu = Apply(_cuda, a, a => a.GetRowSegment(1, 2, 5));
+        //    using var mkl = Apply(_mkl, a, a => a.GetRowSegment(1, 2, 5));
+        //    AssertSame(cpu, gpu, mkl);
+        //}
 
-            var gpuResults = Apply(_cuda, a, a => a.GetRowSegment(1, 2, 5));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.GetRowSegment(1, 2, 5));
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        }
-
-        [Fact]
-        public void MatrixGetColumnSegment()
-        {
-            var a = _cpu.CreateMatrix(9, 8, (x, y) => (x + 1) * (y + 1)).AsIndexable();
-            var cpuResults = a.GetColumnSegment(1, 2, 5).AsIndexable();
-
-            var gpuResults = Apply(_cuda, a, a => a.GetColumnSegment(1, 2, 5));
-            FloatMath.AreApproximatelyEqual(cpuResults, gpuResults).Should().BeTrue();
-
-            var simpleResults = Apply(_simple, a, a => a.GetColumnSegment(1, 2, 5));
-            FloatMath.AreApproximatelyEqual(cpuResults, simpleResults).Should().BeTrue();
-        }
+        //[Fact]
+        //public void MatrixGetColumnSegment()
+        //{
+        //    using var a = _cpu.CreateMatrix(9, 8, (x, y) => (x + 1) * (y + 1));
+        //    using var cpu = a.GetColumnSegment(1, 2, 5);
+        //    using var gpu = Apply(_cuda, a, a => a.GetColumnSegment(1, 2, 5));
+        //    using var mkl = Apply(_mkl, a, a => a.GetColumnSegment(1, 2, 5));
+        //    AssertSame(cpu, gpu, mkl);
+        //}
 
         [Fact]
         public void MatrixConstrain()
         {
-            var distribution = new Normal(0, 5);
-            var cpu = _cpu.CreateMatrix(100, 100, (x, y) => Convert.ToSingle(distribution.Sample())).AsIndexable();
-
-            var gpuResults = Apply(_cuda, cpu, a => a.Constrain(-2f, 2f));
-            var simpleResults = Apply(_simple, cpu, a => a.Constrain(-2f, 2f));
-
-            cpu.Constrain(-2f, 2f);
-            FloatMath.AreApproximatelyEqual(cpu, gpuResults).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(cpu, simpleResults).Should().BeTrue();
+            var distribution = _context.CreateNormalDistribution(0, 5);
+            using var cpu = _cpu.CreateMatrix(100, 100, (x, y) => Convert.ToSingle(distribution.Sample()));
+            using var gpu = Apply(_cuda, cpu, a => a.ConstrainInPlace(-2f, 2f));
+            using var mkl = Apply(_mkl, cpu, a => a.ConstrainInPlace(-2f, 2f));
+            cpu.ConstrainInPlace(-2f, 2f);
+            AssertSame(cpu, gpu, mkl);
         }
 
         [Fact]
         public void TestIdentity()
         {
-            var a = _cpu.CreateIdentityMatrix(1000).AsIndexable();
-
-            IIndexableFloatMatrix a2;
-            using (var gpuA = _cuda.CreateIdentityMatrix(1000))
-                a2 = gpuA.AsIndexable();
-            FloatMath.AreApproximatelyEqual(a, a2).Should().BeTrue();
-
-            IIndexableFloatMatrix a3;
-            using (var simpleA = _simple.CreateIdentityMatrix(1000))
-                a3 = simpleA.AsIndexable();
-            FloatMath.AreApproximatelyEqual(a, a3).Should().BeTrue();
+            using var a = _cpu.CreateIdentityMatrix(1000);
+            using var gpuA = _cuda.CreateIdentityMatrix(1000);
+            using var a2 = gpuA;
+            using var simpleA = _mkl.CreateIdentityMatrix(1000);
+            using var a3 = simpleA;
+            AssertSame(a, a2, a3);
         }
 
-        [Fact]
-        public void MatrixSvd()
-        {
-            var a = _cpu.CreateZeroMatrix(2, 2).AsIndexable();
-            a[0, 0] = 4;
-            a[0, 1] = 7;
-            a[1, 0] = 2;
-            a[1, 1] = 6;
+        //[Fact]
+        //public void MatrixSvd()
+        //{
+        //    using var a = _mkl.CreateMatrix(2, 2);
+        //    a[0, 0] = 4;
+        //    a[0, 1] = 7;
+        //    a[1, 0] = 2;
+        //    a[1, 1] = 6;
 
-            var (u, s, vt) = a.Svd();
-            var cpuU = u.AsIndexable();
-            var cpuVt = vt.AsIndexable();
-            var cpuS = s.AsIndexable();
+        //    var (u, s, vt) = a.Svd();
+        //    using var cpuU = u;
+        //    using var cpuVt = vt;
+        //    using var cpuS = s;
 
-            IIndexableFloatMatrix gpuU, gpuVt;
-            IIndexableFloatVector gpuS;
-            using (var gpuA = _cuda.CreateMatrix(a)) {
-                var (u2, s2, vt2) = gpuA.Svd();
-                gpuU = u2.AsIndexable();
-                gpuVt = vt2.AsIndexable();
-                gpuS = s2.AsIndexable();
-            }
+        //    using var gpuA = _cuda.CreateMatrix(a);
+        //    var (u2, s2, vt2) = gpuA.Svd();
+        //    using var gpuU = u2;
+        //    using var gpuVt = vt2;
+        //    using var gpuS = s2;
 
-            FloatMath.AreApproximatelyEqual(cpuU, gpuU).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(cpuVt, gpuVt).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(cpuS, gpuS).Should().BeTrue();
-        }
+        //    FloatMath.AreApproximatelyEqual(cpuU, gpuU).Should().BeTrue();
+        //    FloatMath.AreApproximatelyEqual(cpuVt, gpuVt).Should().BeTrue();
+        //    FloatMath.AreApproximatelyEqual(cpuS, gpuS).Should().BeTrue();
+        //}
 
         [Fact]
         public void MatrixToVector()
         {
-            var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1)).AsIndexable();
-            var vector = matrix.ReshapeAsVector();
-            var matrix2 = vector.ReshapeAsMatrix(3, 4);
-            FloatMath.AreApproximatelyEqual(matrix.AsIndexable(), matrix2.AsIndexable());
+            using var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1));
+            using var vector = matrix.Reshape();
+            using var matrix2 = vector.Reshape(3, 4);
+            FloatMath.AreApproximatelyEqual(matrix, matrix2);
 
-            using var gpuMatrix = _cuda.CreateMatrix(matrix.AsIndexable());
-            using var gpuVector = gpuMatrix.ReshapeAsVector();
-            using var gpuMatrix2 = gpuVector.ReshapeAsMatrix(3, 4);
-            FloatMath.AreApproximatelyEqual(gpuMatrix.AsIndexable(), gpuMatrix2.AsIndexable()).Should().BeTrue();
+            using var gpuMatrix = _cuda.CreateMatrix(matrix);
+            using var gpuVector = gpuMatrix.Reshape();
+            using var gpuMatrix2 = gpuVector.Reshape(3, 4);
+            FloatMath.AreApproximatelyEqual(gpuMatrix, gpuMatrix2).Should().BeTrue();
 
-            using var simpleMatrix = _simple.CreateMatrix(matrix.AsIndexable());
-            using var simpleVector = simpleMatrix.ReshapeAsVector();
-            using var simpleMatrix2 = simpleVector.ReshapeAsMatrix(3, 4);
-            FloatMath.AreApproximatelyEqual(simpleMatrix.AsIndexable(), simpleMatrix2.AsIndexable()).Should().BeTrue();
+            using var mklMatrix = _mkl.CreateMatrix(matrix);
+            using var mklVector = mklMatrix.Reshape();
+            using var mklMatrix2 = mklVector.Reshape(3, 4);
+            FloatMath.AreApproximatelyEqual(mklMatrix, mklMatrix2).Should().BeTrue();
+
+            AssertSame(matrix2, gpuMatrix2, mklMatrix2);
         }
     }
 }

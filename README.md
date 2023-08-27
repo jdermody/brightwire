@@ -1,26 +1,25 @@
 ![image](https://user-images.githubusercontent.com/1952388/177148366-bb4f2d2f-92af-4f60-a0de-ce5e3b08f135.png)
 
-Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
+Bright Wire is an extensible machine learning library for .NET with optional MKL and GPU support (via CUDA).
 
 ## Getting Started
 
-Bright Wire is a .net 6 class library.
+Bright Wire is a .net 7 class library.
 
 The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire-v2
 
 Bright Wire runs "out of the box" for CPU based computation. For GPU based computation, you will need to install
-[NVIDIA CUDA Toolkit 11](https://developer.nvidia.com/cuda-downloads) 
+[NVIDIA CUDA Toolkit 12](https://developer.nvidia.com/cuda-downloads) 
 (and have a [Kepler or better NVIDIA GPU](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
-To enable higher performance CPU based computation, Bright Wire also supports the Intel Math Kernel Library (MKL) 
-via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
+To enable higher performance CPU based computation, Bright Wire also supports the Intel Math Kernel Library (MKL).
 
 ## Tutorials
 
 * [Getting Started](https://github.com/jdermody/brightwire/wiki/0.-Getting-Started)
 * [Introduction](https://github.com/jdermody/brightwire/wiki/01.-Introduction)
 * [Classification Overview](https://github.com/jdermody/brightwire/wiki/02.-Classification-Overview)
-* [Building a Language Model](https://github.com/jdermody/brightwire/wiki/03.-Generating-Text-with-Markov-Chains)
+* [Building a Simple Language Model](https://github.com/jdermody/brightwire/wiki/03.-Generating-Text-with-Markov-Chains)
 * [Recognising Handwritten Digits (MNIST)](https://github.com/jdermody/brightwire/wiki/04.-Recognising-Handwritten-Digits-(MNIST))
 * [Sentiment Analysis](https://github.com/jdermody/brightwire/wiki/05.-Sentiment-Analysis)
 * [Text Clustering](https://github.com/jdermody/brightwire/wiki/06.-Text-Clustering-Four-Ways)
@@ -35,7 +34,13 @@ To install the cpu version (no CUDA support) use:
 
 ```
 Install-Package BrightWire
-Install-Package BrightData.Numerics
+```
+
+To add MKL support use:
+
+```
+Install-Package BrightWire
+Install-Package BrightData.MKL
 ```
 
 To add CUDA support use:
@@ -64,14 +69,9 @@ Install-Package BrightData.Cuda
 
 ### Unsupervised
 * K Means clustering
-* Hierachical clustering
+* Hierarchical clustering
 * Non Negative Matrix Factorisation
 * Random Projection
-
-### Linear
-* Regression
-* Logistic Regression
-* Multinomial Logistic Regression
 
 ### Tree Based
 * Decision Trees
@@ -83,7 +83,3 @@ Install-Package BrightData.Cuda
 ### Other
 * K Nearest Neighbour classification
 * In-memory and file based data processing
-
-## Dependencies
-* [ManagedCuda](https://github.com/kunzmi/managedCuda) (for CUDA version of BrightWire)
-* [MathNet.Numerics](https://github.com/mathnet/mathnet-numerics)

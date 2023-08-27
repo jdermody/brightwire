@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -11,11 +12,11 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         readonly IContinuousDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;
         readonly GaussianVarianceCount _varianceCount;
-        readonly ILinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider _lap;
         readonly bool _zeroBias;
 
         public Gaussian(
-            ILinearAlgebraProvider lap, 
+            LinearAlgebraProvider lap, 
             bool zeroInitialBias = true, 
             float stdDev = 0.1f, 
             GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
@@ -36,9 +37,9 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         float GetWeight(uint inputSize, uint outputSize)
         {
             uint n = 0;
-            if (_varianceCount == GaussianVarianceCount.FanIn || _varianceCount == GaussianVarianceCount.FanInFanOut)
+            if (_varianceCount is GaussianVarianceCount.FanIn or GaussianVarianceCount.FanInFanOut)
                 n += inputSize;
-            if (_varianceCount == GaussianVarianceCount.FanOut || _varianceCount == GaussianVarianceCount.FanInFanOut)
+            if (_varianceCount is GaussianVarianceCount.FanOut or GaussianVarianceCount.FanInFanOut)
                 n += outputSize;
 
             var sample = _distribution.Sample();
@@ -52,12 +53,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return sample;
         }
 
-        public IFloatVector CreateBias(uint size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, _ => GetBias());
         }
 
-        public IFloatMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }

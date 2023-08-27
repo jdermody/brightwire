@@ -3,39 +3,108 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
+using static BrightData.WeightedIndexList;
 
 namespace BrightData
 {
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public class IndexList : IHaveIndices, ISerializable, IHaveDataContext
+    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>
     {
-        internal IndexList(IBrightDataContext context, uint[] indices)
-        {
-            Context = context;
-            Indices = indices;
-        }
-
-        /// <inheritdoc />
-        public IBrightDataContext Context { get; private set; }
+        readonly uint[] _indices;
 
         /// <summary>
-        /// The list of indices
+        /// Index iterator
         /// </summary>
-        public uint[] Indices { get; private set; }
+        public ref struct ItemIterator
+        {
+            readonly uint[] _items;
+            int _pos = -1;
 
-        internal static IndexList Create(IBrightDataContext context, params uint[] indices) => new(context, indices);
-        internal static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new(context, indices.ToArray());
+            internal ItemIterator(uint[] items) => _items = items;
+
+            /// <summary>
+            /// Current value
+            /// </summary>
+            public readonly uint Current
+            {
+                get
+                {
+                    if (_pos < _items.Length)
+                        return _items[_pos];
+                    return uint.MaxValue;
+                }
+            }
+
+            /// <summary>
+            /// Advances the iterator
+            /// </summary>
+            /// <returns></returns>
+            public bool MoveNext() => ++_pos < _items.Length;
+
+            /// <summary>
+            /// Get enumerator
+            /// </summary>
+            /// <returns></returns>
+            public readonly ItemIterator GetEnumerator() => this;
+        }
+
+        /// <summary>
+        /// Enumerates the indices in the list
+        /// </summary>
+        /// <returns></returns>
+        public ItemIterator GetEnumerator() => new(_indices);
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="indices">Initial indices</param>
+        public IndexList(params uint[] indices)
+        {
+            _indices = indices;
+        }
+
+        /// <summary>
+        /// Current indices in list
+        /// </summary>
+        public IReadOnlyList<uint> Indices => _indices;
+
+        /// <summary>
+        /// Indices as a span
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlySpan<uint> AsSpan() => new(_indices);
+
+        /// <summary>
+        /// Creates an index list
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
+        public static IndexList Create(params uint[] indices) => new(indices);
+
+        /// <summary>
+        /// Creates an index list
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
+        public static IndexList Create(ReadOnlySpan<uint> indices) => new(indices.ToArray());
+
+        /// <summary>
+        /// Creates an index list
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <returns></returns>
+        public static IndexList Create(IEnumerable<uint> indices) => new(indices.ToArray());
 
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => Indices.Length;
+        public int Count => _indices.Length;
 
         /// <summary>
         /// ToString override
@@ -49,37 +118,50 @@ namespace BrightData
             return $"IndexList ({Count} indices)";
         }
 
+        /// <inheritdoc />
+        public bool Equals(IndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is IndexList other && Equals(other);
+        }
+
+        /// <summary>
+        /// Checks for index list equality
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator ==(IndexList lhs, IndexList rhs) => lhs.Equals(rhs);
+
+        /// <summary>
+        /// Checks for index list inequality
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static bool operator !=(IndexList lhs, IndexList rhs) => !(lhs.Equals(rhs));
+
         /// <summary>
         /// Merges a sequence of index lists into a single index list
         /// </summary>
         /// <param name="lists">Lists to merge</param>
         public static IndexList Merge(IEnumerable<IndexList> lists)
         {
-            IBrightDataContext? context = null;
             var items = new HashSet<uint>();
             foreach (var list in lists) {
-                context = list.Context;
                 foreach (var index in list.Indices)
                     items.Add(index);
             }
 
             return new IndexList(
-                context ?? throw new ArgumentException("No valid index lists were supplied"), 
                 items.OrderBy(d => d).ToArray()
             );
         }
 
         /// <inheritdoc />
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
-        public override int GetHashCode() => Indices.GetHashCode();
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is IndexList other)
-                return StructuralComparisons.StructuralEqualityComparer.Equals(Indices, other.Indices);
-            return false;
-        }
+        public override int GetHashCode() => ((IStructuralEquatable)_indices).GetHashCode(EqualityComparer<uint>.Default);
 
         /// <summary>
         /// Writes the data to an XML writer
@@ -100,17 +182,17 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
-            fixed (uint* ptr = Indices) {
-                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(uint)));
+            fixed (uint* ptr = _indices) {
+                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Count * sizeof(uint)));
             }
         }
 
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            Indices = reader.BaseStream.ReadArray<uint>(len);
-            Context = context;
+            ref var array = ref Unsafe.AsRef(_indices);
+            array = reader.BaseStream.ReadArray<uint>(len);
         }
 
         /// <summary>
@@ -154,11 +236,12 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts to a vector
+        /// Converts to a dense vector in which each set index is 1
         /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public Vector<float> AsDense(uint? maxIndex = null)
+        public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
@@ -170,8 +253,8 @@ namespace BrightData
             }
 
             if(indices.Any())
-                return Context.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return Context.CreateVector(maxIndex ?? 0, 0f);
+                return lap.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
+            return lap.CreateVector(maxIndex ?? 0, 0f);
         }
 
         /// <summary>
@@ -181,7 +264,18 @@ namespace BrightData
         /// <returns></returns>
         public bool HasIndex(uint index) => Indices.Contains(index);
 
-        // TODO: pearson similarity, overlap similarity
-        // use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
+        /// <summary>
+        /// Calculates the overlap similarity between this and another index list
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public float OverlapSimilarity(IndexList other)
+        {
+            var set = new HashSet<uint>(_indices);
+            var overlap = other.Indices.Where(set.Contains).Count();
+            return (float)overlap / Math.Min(Count, other.Count);
+        }
+
+        // TODO: use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
     }
 }

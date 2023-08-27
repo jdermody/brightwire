@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
@@ -8,15 +7,15 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class OneHotEncoding : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(Vector<float> output, Vector<float> expectedOutput)
+        public float Compute(IVectorData output, IVectorData expectedOutput)
         {
-            var outputIndex = output.MaximumIndex();
-            var expectedIndex = expectedOutput.MaximumIndex();
+            var outputIndex = output.GetMaximumIndex();
+            var expectedIndex = expectedOutput.GetMaximumIndex();
             return outputIndex == expectedIndex ? 1f : 0f;
         }
 

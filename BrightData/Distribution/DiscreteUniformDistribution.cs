@@ -4,9 +4,9 @@ namespace BrightData.Distribution
 {
     internal class DiscreteUniformDistribution : IDiscreteDistribution
     {
-        readonly IBrightDataContext _context;
+        readonly BrightDataContext _context;
 
-        public DiscreteUniformDistribution(IBrightDataContext context, int inclusiveLowerBound, int exclusiveUpperBound)
+        public DiscreteUniformDistribution(BrightDataContext context, int inclusiveLowerBound, int exclusiveUpperBound)
         {
             if(inclusiveLowerBound > exclusiveUpperBound)
                 throw new ArgumentException("Lower bound was greater than upper bound");

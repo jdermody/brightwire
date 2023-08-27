@@ -3,7 +3,9 @@ using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
+using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -13,16 +15,16 @@ namespace BrightWire.ExecutionGraph.DataSource
     internal class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly Matrix<float>[] _data;
-        readonly ILinearAlgebraProvider _lap;
+	    readonly IMatrix[] _data;
+        readonly LinearAlgebraProvider _lap;
 
-        public SequentialDataSource(ILinearAlgebraProvider lap, Matrix<float>[] matrixList)
+        public SequentialDataSource(LinearAlgebraProvider lap, IMatrix[] matrixList)
         {
             _lap = lap;
             _data = matrixList;
             OutputSize = null;
 
-            int index = 0;
+            var index = 0;
             _rowDepth = new uint[matrixList.Length];
             foreach (var item in matrixList) {
                 if(index == 0)
@@ -31,8 +33,6 @@ namespace BrightWire.ExecutionGraph.DataSource
             }
         }
 
-        public uint InputCount => 1;
-        public bool IsSequential => true;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
@@ -41,19 +41,18 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<Vector<float>>>();
+            var inputData = new Dictionary<uint /* sequence index */, List<IReadOnlyNumericSegment<float>>>();
             foreach (var item in data) {
-                var input = item;
-                for (uint i = 0, len = input.RowCount; i < len; i++) {
+                for (uint i = 0, len = item.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(input.Row(i));
+                        inputData.Add(i, temp = new());
+                    temp.Add(item.GetRowAsReadOnly(i).ReadOnlySegment);
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.CreateMatrixFromRows(item.Value);
+                var input = _lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)
@@ -75,7 +74,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             ;
         }
 
-        public IDataSource CloneWith(IRowOrientedDataTable dataTable)
+        public IDataSource CloneWith(BrightDataTable dataTable)
         {
             throw new NotImplementedException();
         }

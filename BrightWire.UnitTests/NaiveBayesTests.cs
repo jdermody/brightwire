@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
@@ -8,16 +7,16 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    public class NaiveBayesTests : NumericsBase
+    public class NaiveBayesTests : CpuBase
     {
         [Fact]
         public void TestNaiveBayes()
         {
-            var dataTable = _context.BuildTable();
+            var dataTable = _context.CreateTableBuilder();
             dataTable.AddColumn(BrightDataType.Float, "height");
             dataTable.AddColumn(BrightDataType.Int, "weight");
             dataTable.AddColumn(BrightDataType.Int, "foot-size");
-            dataTable.AddColumn(BrightDataType.String, "gender").SetTarget(true);
+            dataTable.AddColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");
@@ -28,20 +27,21 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.BuildRowOriented();
+            var index = dataTable.BuildInMemory();
 
-            var testData = _context.BuildTable();
+            var testData = _context.CreateTableBuilder();
             testData.CopyColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.BuildRowOriented().AsConvertible();
+            var testDataTable = testData.BuildInMemory();
 
             var model = index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
-            var classification = classifier.Classify(testDataTable.Row(0));
+            var row = testDataTable.GetRow(0);
+            var classification = classifier.Classify(row);
             classification.First().Label.Should().Be("female");
         }
 
-        public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(IBrightDataContext context, StringTableBuilder stringTableBuilder)
+        public static IndexListWithLabel<string>[] GetSimpleChineseSet(BrightDataContext context, StringTableBuilder stringTableBuilder)
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             var data = new[] {
@@ -51,10 +51,10 @@ namespace BrightWire.UnitTests
                 (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
 
-            return data.Select(r => (r.Item2 ? "china" : "japan", context.CreateIndexList(r.Item1.Select(stringTableBuilder.GetIndex)))).ToList();
+            return data.Select(r => new IndexListWithLabel<string>(r.Item2 ? "china" : "japan", context.CreateIndexList(r.Item1.Select(stringTableBuilder.GetIndex)))).ToArray();
         }
 
-        public static IndexList GetTestRow(IBrightDataContext context, StringTableBuilder stringTableBuilder)
+        public static IndexList GetTestRow(BrightDataContext context, StringTableBuilder stringTableBuilder)
         {
             return context.CreateIndexList(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
         }
@@ -67,7 +67,7 @@ namespace BrightWire.UnitTests
             var model = data.TrainMultinomialNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(_context, stringTableBuilder));
-            classification.OrderByDescending(c => c.Weight).First().Label.Should().Be("china");
+            classification.MaxBy(c => c.Weight).Label.Should().Be("china");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace BrightWire.UnitTests
             var model = data.TrainBernoulliNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(_context, stringTableBuilder));
-            classification.OrderByDescending(c => c.Weight).First().Label.Should().Be("japan");
+            classification.MaxBy(c => c.Weight).Label.Should().Be("japan");
         }
     }
 }

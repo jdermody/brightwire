@@ -1,6 +1,5 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
-using System.Diagnostics;
 using System.IO;
 using BrightData;
 
@@ -14,10 +13,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	{
 		class Backpropagation : SingleBackpropagationBase<Convolutional>
 		{
-			readonly I3DFloatTensor _im2Col;
+			readonly ITensor3D _im2Col;
 			readonly uint _inputWidth, _inputHeight, _inputDepth, _newWidth, _newHeight;
 
-			public Backpropagation(Convolutional source, I3DFloatTensor im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint newWidth, uint newHeight)
+			public Backpropagation(Convolutional source, ITensor3D im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint newWidth, uint newHeight)
 				: base(source)
 			{
 				_im2Col = im2Col;
@@ -28,24 +27,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_inputDepth = inputDepth;
 			}
 
-			void UpdateBias(IFloatVector delta, ILearningContext context)
-			{
-				_source._bias.AddInPlace(delta, 1f, context.BatchLearningRate);
-			}
-
-            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
+                var tensor = errorSignal.GetMatrix().Reshape(null, _source._filter.ColumnCount, _newHeight, _newWidth);
                 var padding = _source._padding;
 
                 // calculate the weight and bias updates
                 using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
-                    var weightUpdate = update.CombineDepthSlices();
+                    var weightUpdate = update.AddAllMatrices();
                     var biasUpdate = tensor.ColumnSums();
 
                     var learningContext = context.LearningContext!;
-                    learningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, learningContext));
-                    learningContext.StoreUpdate(_source, biasUpdate, bu => UpdateBias(bu, learningContext));
+                    learningContext.AddError(NodeErrorType.Weight, _source, weightUpdate);
+                    learningContext.AddError(NodeErrorType.Bias, _source, biasUpdate);
                 }
 
                 if (_source._shouldBackpropagate) {
@@ -67,21 +61,24 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         delta.Dispose();
                         delta = delta2;
                     }
-                    return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
+
+                    var deltaMatrix = delta.ReshapeAsMatrix();
+                    var ret = new Tensor4DGraphData(deltaMatrix, _inputHeight, _inputWidth, inputDepth);
+                    return ret;
                 }
                 return GraphData.Null;
             }
         }
 		IGradientDescentOptimisation? _updater;
 		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
-		IFloatMatrix _filter;
-		IFloatVector _bias;
+		IMatrix _filter;
+		IVector _bias;
 		bool _shouldBackpropagate;
 
 		public Convolutional(
 			bool shouldBackpropagate,
 			IWeightInitialisation weightInitialisation,
-			Func<IFloatMatrix, IGradientDescentOptimisation> updater,
+			Func<IMatrix, IGradientDescentOptimisation> updater,
 			uint inputDepth,
 			uint filterCount,
 			uint padding,
@@ -112,14 +109,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-		public void Update(IFloatMatrix delta, ILearningContext context)
-		{
-			_updater!.Update(_filter, delta, context);
-		}
-
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {
-            var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
+            if(type == NodeErrorType.Bias)
+                _bias.AddInPlace(delta, 1f, context.LearningRate);
+			else if (type == NodeErrorType.Weight)
+                _updater!.Update(_filter, (IMatrix)delta, context);
+            else
+                throw new NotImplementedException();
+        }
+
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
+        {
+            var tensor = signal.GetMatrix().Reshape(null, signal.Depth, signal.Rows, signal.Columns);
 
             var inputWidth = tensor.ColumnCount;
             var inputHeight = tensor.RowCount;
@@ -130,10 +132,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 tensor = tensor.AddPadding(_padding);
 
             var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _xStride, _yStride);
-            var outputSignal = im2Col.Multiply(_filter);
+            var outputSignal = im2Col.MultiplyEachMatrixBy(_filter);
             outputSignal.AddToEachRow(_bias);
-            var outputTensor = outputSignal.ReshapeAs4DTensor(newHeight, newWidth);
-            Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
+            var outputTensor = outputSignal.Reshape(tensor.Count, FilterCount, newHeight, newWidth);
 
             var graphData = new Tensor4DGraphData(outputTensor);
             return (this, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));
@@ -157,22 +158,22 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_shouldBackpropagate = reader.ReadBoolean();
 
 			// read the bias parameters
-			var bias = factory.Context.ReadVectorFrom(reader);
+			var bias = factory.Context.LoadReadOnlyVectorFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
-				_bias = lap.CreateVector(bias);
-			else
-				_bias.Data = bias;
+                _bias = bias.Create(lap);
+            else
+                bias.CopyTo(_bias);
 
-			// read the weight parameters
+            // read the weight parameters
 			var weight = factory.Context.ReadMatrixFrom(reader);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_filter == null)
-				_filter = lap.CreateMatrix(weight);
-			else
-				_filter.Data = weight;
+				_filter = weight.Create(lap);
+            else
+                weight.CopyTo(_filter);
 
-			// read the updater
+            // read the updater
 			_updater ??= factory.CreateWeightUpdater(_filter);
 		}
 
@@ -186,8 +187,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			writer.Write(_inputDepth);
 			writer.Write(_shouldBackpropagate);
 
-			_bias.Data.WriteTo(writer);
-			_filter.Data.WriteTo(writer);
+			_bias.WriteTo(writer);
+			_filter.WriteTo(writer);
 		}
 	}
 }
