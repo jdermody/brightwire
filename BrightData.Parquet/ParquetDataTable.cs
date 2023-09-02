@@ -60,6 +60,11 @@ namespace BrightData.Parquet
             throw new NotImplementedException();
         }
 
+        public Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices)
+        {
+            throw new NotImplementedException();
+        }
+
         public MetaData MetaData => _metaData.Value;
     }
 }

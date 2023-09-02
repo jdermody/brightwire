@@ -14,13 +14,12 @@ namespace BrightData.DataTable
         /// </summary>
         /// <param name="columnIndex">Column index</param>
         /// <param name="writeCount">Number of items to write in metadata</param>
-        /// <param name="maxDistinctCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public IOperation<(uint, MetaData)> CreateColumnAnalyser(uint columnIndex, uint writeCount, uint maxDistinctCount)
+        public IOperation<(uint, MetaData)> CreateColumnAnalyser(uint columnIndex, uint writeCount)
         {
             var metaData = GetColumnMetaData(columnIndex);
             var type = metaData.GetColumnType();
-            var analyser = type.GetColumnAnalyser(metaData, writeCount, maxDistinctCount);
+            var analyser = type.GetColumnAnalyser(metaData, writeCount);
             var reader = GetColumnReader(columnIndex, _header.RowCount);
             var dataType = type.GetDataType();
             var dataType2 = type switch {

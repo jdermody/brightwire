@@ -9,6 +9,7 @@ using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
+using CommunityToolkit.HighPerformance.Buffers;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
 using ExtensionMethods = BrightData.Table.ExtensionMethods;
@@ -37,13 +38,14 @@ namespace ExampleCode
 
         static void Main()
         {
-            static async Task Test<T>(BrightData.Table.ICompositeBuffer<T> buffer) where T: notnull
+            using var context = new BrightDataContext(null, RandomSeed);
+
+            static async Task Test<T>(BrightData.Table.ICompositeBuffer<T> buffer) where T : notnull
             {
                 await foreach (var item in buffer) {
                     Console.WriteLine(item.ToString());
                 }
             }
-            using var context = new BrightDataContext(null, RandomSeed);
             var vectorBuffer = ExtensionMethods.CreateCompositeBuffer<TestClass>(x => new(x), null, 2, 0);
             vectorBuffer.Add(new TestClass(new byte[] { 1, 2, 3 }));
             vectorBuffer.Add(new TestClass(new byte[] { 4, 5, 6 }));
@@ -79,6 +81,8 @@ namespace ExampleCode
                 foreach (var num in block)
                     Console.WriteLine(num);
             });
+            var test = ExtensionMethods.ToNumeric(test2, null, 256).Result;
+
             foreach (var item in ExtensionMethods.GetEnumerator(test2))
                 Console.WriteLine(item);
             Test(test2).Wait();
@@ -86,6 +90,7 @@ namespace ExampleCode
                 var block = test2.GetBlock(i).Result;
             }
             var table = ExtensionMethods.CreateTableInMemory(context, stringBuffer, test2).Result;
+            var metaData = table.GetColumnAnalysis().Result;
             var strs = ExtensionMethods.AsReadOnlySequence(table.GetColumn<string>(0)).Result;
             var nums = ExtensionMethods.AsReadOnlySequence(table.GetColumn<int>(1)).Result;
             foreach (var item in strs) {
@@ -109,31 +114,31 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            if (useMkl && useCuda)
-                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            else if (useMkl)
-                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            else
-                PerformanceTest.Run(new LinearAlgebraProvider(context));
+            //if (useMkl && useCuda)
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //else if (useMkl)
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //else
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            Xor(context, useMkl);
-            IrisClassification(context, useMkl);
-            IrisClustering(context, useMkl);
-            MarkovChains(context, useMkl);
-            TextClustering(context, useMkl);
-            IntegerAddition(context, useMkl);
-            ReberPrediction(context, useMkl);
-            OneToMany(context, useMkl);
-            ManyToOne(context, useMkl);
-            SequenceToSequence(context, useMkl);
-            StockData(context, useMkl, useCuda);
-            PredictBicyclesWithNeuralNetwork(context, useMkl);
-            MultiLabelSingleClassifier(context, useMkl);
-            MultiLabelMultiClassifiers(context, useMkl);
-            MnistFeedForward(context, useMkl);
-            MnistConvolutional(context, useMkl, useCuda);
-            TrainIncomePrediction(context, useMkl);
-            SentimentClassification(context, useMkl);
+            //Xor(context, useMkl);
+            //IrisClassification(context, useMkl);
+            //IrisClustering(context, useMkl);
+            //MarkovChains(context, useMkl);
+            //TextClustering(context, useMkl);
+            //IntegerAddition(context, useMkl);
+            //ReberPrediction(context, useMkl);
+            //OneToMany(context, useMkl);
+            //ManyToOne(context, useMkl);
+            //SequenceToSequence(context, useMkl);
+            //StockData(context, useMkl, useCuda);
+            //PredictBicyclesWithNeuralNetwork(context, useMkl);
+            //MultiLabelSingleClassifier(context, useMkl);
+            //MultiLabelMultiClassifiers(context, useMkl);
+            //MnistFeedForward(context, useMkl);
+            //MnistConvolutional(context, useMkl, useCuda);
+            //TrainIncomePrediction(context, useMkl);
+            //SentimentClassification(context, useMkl);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")

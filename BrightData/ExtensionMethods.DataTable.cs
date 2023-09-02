@@ -110,7 +110,7 @@ namespace BrightData
             if (dataType == typeof(BinaryData))
                 return BrightDataType.BinaryData;
 
-            throw new ArgumentException($"{dataType} has no corresponding bright data type");
+            return BrightDataType.Unknown;
         }
 
         /// <summary>
@@ -243,30 +243,32 @@ namespace BrightData
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
         /// <param name="maxDistinctCount">Maximum number of distinct items to track</param>
         /// <returns></returns>
-        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
             if (dataType.HasFlag(ColumnClass.Categorical)) {
                 if (type == BrightDataType.String)
-                    return StaticAnalysers.CreateStringAnalyser(maxDistinctCount, writeCount);
-                return StaticAnalysers.CreateFrequencyAnalyser(type.GetDataType(), maxDistinctCount, writeCount);
+                    return StaticAnalysers.CreateStringAnalyser(writeCount);
+                return StaticAnalysers.CreateFrequencyAnalyser(type.GetDataType(), writeCount);
             }
             if (dataType.HasFlag(ColumnClass.IndexBased))
-                return StaticAnalysers.CreateIndexAnalyser(maxDistinctCount, writeCount);
+                return StaticAnalysers.CreateIndexAnalyser(writeCount);
             if (dataType.HasFlag(ColumnClass.Tensor))
-                return StaticAnalysers.CreateDimensionAnalyser(maxDistinctCount);
+                return StaticAnalysers.CreateDimensionAnalyser();
 
             return type switch
             {
-                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxDistinctCount, writeCount),
-                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxDistinctCount, writeCount),
-                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxDistinctCount, writeCount),
-                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxDistinctCount, writeCount),
-                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxDistinctCount, writeCount),
-                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxDistinctCount, writeCount),
-                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxDistinctCount, writeCount),
+                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(writeCount),
+                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(writeCount),
+                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(writeCount),
+                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(writeCount),
+                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(writeCount),
+                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(writeCount),
+                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(writeCount),
                 BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
-                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxDistinctCount, writeCount),
+                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(writeCount),
+                BrightDataType.DateOnly => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(writeCount),
+                BrightDataType.TimeOnly => StaticAnalysers.CreateFrequencyAnalyser<TimeOnly>(writeCount),
                 _                         => throw new NotImplementedException()
             };
         }

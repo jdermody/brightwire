@@ -10,11 +10,9 @@ namespace BrightData.Analysis
     internal class DateTimeAnalyser : FrequencyAnalyser<DateTime>
     {
         readonly HashSet<long> _distinct = new();
-        readonly uint _maxCount;
 
-        public DateTimeAnalyser(uint maxCount = Consts.MaxDistinct)
+        public DateTimeAnalyser()
         {
-            _maxCount = maxCount;
         }
 
         public override void Add(DateTime date)
@@ -26,8 +24,7 @@ namespace BrightData.Analysis
 
             AddString(date.ToString(CultureInfo.InvariantCulture));
             var ticks = date.Ticks;
-            if (_distinct.Count < _maxCount)
-                _distinct.Add(ticks);
+            _distinct.Add(ticks);
         }
 
         public DateTime? MinDate { get; private set; }
@@ -38,8 +35,7 @@ namespace BrightData.Analysis
             base.WriteTo(metadata);
             metadata.SetIfNotNull(Consts.MinDate, MinDate);
             metadata.SetIfNotNull(Consts.MaxDate, MaxDate);
-            if(_distinct.Count < _maxCount)
-                metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
+            metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
         }
     }
 }

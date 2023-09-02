@@ -173,7 +173,7 @@ namespace ExampleCode.DataTableTrainers
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(lap, maxIndex);
+                var features = indexList.AsDense(maxIndex).Create(lap);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
@@ -204,7 +204,7 @@ namespace ExampleCode.DataTableTrainers
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(lap, maxIndex);
+                var features = indexList.AsDense(maxIndex).Create(lap);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
@@ -326,11 +326,11 @@ namespace ExampleCode.DataTableTrainers
         static float[]? GetInputVector(float c1, float c2, string word)
         {
             var embedding = Data.Embeddings.Get(word);
-            if(embedding == null && word.StartsWith("not_"))
+            if(embedding == ReadOnlySpan<float>.Empty && word.StartsWith("not_"))
                 embedding = Data.Embeddings.Get(word[4..]);
-            if (embedding != null) {
+            if (embedding != ReadOnlySpan<float>.Empty) {
                 var ret = new float[embedding.Length + 2];
-                Array.Copy(embedding, ret, embedding.Length);
+                embedding.CopyTo(ret);
                 ret[embedding.Length] = c1;
                 ret[embedding.Length + 1] = c2;
                 return ret;

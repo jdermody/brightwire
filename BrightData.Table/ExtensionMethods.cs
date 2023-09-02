@@ -1,10 +1,20 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using BrightData.Analysis;
+using BrightData.Converter;
+using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Table.Buffer.Composite;
+using BrightData.Table.Buffer.Helper;
 using BrightData.Table.ByteBlockReaders;
 using BrightData.Table.Helper;
+using BrightData.Table.Operation;
+using BrightData.Table.Operation.Conversion;
+using BrightData.Table.Operation.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
+using Microsoft.VisualBasic;
 
 namespace BrightData.Table
 {
@@ -43,6 +53,8 @@ namespace BrightData.Table
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) where T: unmanaged => new UnmanagedCompositeBuffer<T>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+
+        public static IBufferWriter<T> AsBufferWriter<T>(this ICompositeBuffer<T> buffer, int bufferSize = 256) where T : notnull => new CompositeBufferWriter<T>(buffer, bufferSize);
 
         public static bool CanEncode<T>(this ICompositeBuffer<T> buffer) where T : notnull => buffer.DistinctItems.HasValue;
 
@@ -323,6 +335,334 @@ namespace BrightData.Table
             for(var i = 1; i < buffer.BlockCount; i++)
                 last = last.Append(await buffer.GetBlock(1));
             return new ReadOnlySequence<T>(first, 0, last, last.Memory.Length);
+        }
+
+        /// <summary>
+        /// Creates a column analyser
+        /// </summary>
+        /// <param name="buffer">Buffer to analyse</param>
+        /// <param name="maxMetaDataWriteCount">Maximum count to write to meta data</param>
+        /// <returns></returns>
+        public static IDataAnalyser GetAnalyser(this IReadOnlyBuffer buffer, MetaData metaData, uint maxMetaDataWriteCount = Consts.MaxMetaDataWriteCount)
+        {
+            var dataType = buffer.DataType.GetBrightDataType();
+            var columnType = ColumnTypeClassifier.GetClass(dataType, metaData);
+            if (columnType.HasFlag(ColumnClass.Categorical)) {
+                if (dataType == BrightDataType.String)
+                    return StaticAnalysers.CreateStringAnalyser(maxMetaDataWriteCount);
+                return StaticAnalysers.CreateFrequencyAnalyser(buffer.DataType, maxMetaDataWriteCount);
+            }
+
+            if (columnType.HasFlag(ColumnClass.IndexBased))
+                return StaticAnalysers.CreateIndexAnalyser(maxMetaDataWriteCount);
+
+            if (columnType.HasFlag(ColumnClass.Tensor))
+                return StaticAnalysers.CreateDimensionAnalyser();
+
+            return dataType switch
+            {
+                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxMetaDataWriteCount),
+                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxMetaDataWriteCount),
+                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxMetaDataWriteCount),
+                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxMetaDataWriteCount),
+                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxMetaDataWriteCount),
+                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxMetaDataWriteCount),
+                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxMetaDataWriteCount),
+                BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
+                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxMetaDataWriteCount),
+                BrightDataType.DateOnly   => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(maxMetaDataWriteCount),
+                BrightDataType.TimeOnly   => StaticAnalysers.CreateFrequencyAnalyser<TimeOnly>(maxMetaDataWriteCount),
+                _                         => throw new NotImplementedException()
+            };
+        }
+        public static IOperation Analyse(this IReadOnlyBuffer buffer, MetaData metaData, bool force)
+        {
+            if (force || !metaData.Get(Consts.HasBeenAnalysed, false)) {
+                var analyser = buffer.GetAnalyser(metaData);
+                return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, () => analyser.WriteTo(metaData));
+            }
+            return new NopOperation();
+        }
+        
+        public static async Task<ICompositeBuffer> ToNumeric(this IReadOnlyBuffer buffer, 
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            if(Type.GetTypeCode(buffer.DataType) is TypeCode.DBNull or TypeCode.Empty or TypeCode.Object)
+                throw new NotSupportedException();
+
+            var analysis = GenericActivator.Create<ICastToNumericAnalysis>(typeof(CastToNumericAnalysis<>).MakeGenericType(buffer.DataType), buffer);
+            await analysis.Process();
+
+            BrightDataType toType;
+            if (analysis.IsInteger) {
+                toType = analysis switch 
+                {
+                    { MinValue: >= sbyte.MinValue, MaxValue: <= sbyte.MaxValue } => BrightDataType.SByte,
+                    { MinValue: >= short.MinValue, MaxValue: <= short.MaxValue } => BrightDataType.Short,
+                    { MinValue: >= int.MinValue, MaxValue: <= int.MaxValue } => BrightDataType.Int,
+                    _ => BrightDataType.Long
+                };
+            } else {
+                toType = analysis is { MinValue: >= float.MinValue, MaxValue: <= float.MaxValue } 
+                    ? BrightDataType.Float 
+                    : BrightDataType.Double;
+            }
+
+            var output = GenericActivator.Create<ICompositeBuffer>(typeof(UnmanagedCompositeBuffer<>).MakeGenericType(toType.GetDataType()), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, toType.GetDataType()), buffer, output);
+            await conversion.Process();
+            return output;
+        }
+
+        static readonly HashSet<string> TrueStrings = new() { "Y", "YES", "TRUE", "T", "1" };
+        public static async Task<ICompositeBuffer<bool>> ToBoolean(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+            ) {
+            var output = CreateCompositeBuffer<bool>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = (buffer.DataType == typeof(string))
+                ? new CustomConversion<string, bool>(StringToBool, (IReadOnlyBuffer<string>)buffer, output)
+                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
+            ;
+            await conversion.Process();
+            return output;
+            static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
+        }
+
+        public static async Task<ICompositeBuffer<string>> ToString(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = GenericActivator.Create<IOperation>(typeof(ToStringConversion<>).MakeGenericType(buffer.DataType), buffer, output);
+            await conversion.Process();
+            return output;
+        }
+
+        public static async Task<ICompositeBuffer<DateTime>> ToDateTime(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = (buffer.DataType == typeof(string))
+                ? new CustomConversion<string, DateTime>(StringToDate, (IReadOnlyBuffer<string>)buffer, output)
+                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
+            ;
+            await conversion.Process();
+            return output;
+
+            static DateTime StringToDate(string str)
+            {
+                try {
+                    return str.ToDateTime();
+                }
+                catch {
+                    // return placeholder date
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public static async Task<ICompositeBuffer<DateOnly>> ToDate(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = (buffer.DataType == typeof(string))
+                ? new CustomConversion<string, DateOnly>(StringToDate, (IReadOnlyBuffer<string>)buffer, output)
+                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
+            ;
+            await conversion.Process();
+            return output;
+
+            static DateOnly StringToDate(string str)
+            {
+                try {
+                    return DateOnly.Parse(str);
+                }
+                catch {
+                    // return placeholder date
+                    return DateOnly.MinValue;
+                }
+            }
+        }
+
+        public static async Task<ICompositeBuffer<TimeOnly>> ToTime(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = (buffer.DataType == typeof(string))
+                ? new CustomConversion<string, TimeOnly>(StringToTime, (IReadOnlyBuffer<string>)buffer, output)
+                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
+            ;
+            await conversion.Process();
+            return output;
+
+            static TimeOnly StringToTime(string str)
+            {
+                try {
+                    return TimeOnly.Parse(str);
+                }
+                catch {
+                    // return placeholder date
+                    return TimeOnly.MinValue;
+                }
+            }
+        }
+
+        public static async Task<ICompositeBuffer<int>> ToCategoricalIndex(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            
+            var output = CreateCompositeBuffer<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = GenericActivator.Create<IOperation>(typeof(ToCategoricalIndexConversion<>).MakeGenericType(buffer.DataType), buffer, output);
+            await conversion.Process();
+            return output;
+        }
+
+        public static async Task<ICompositeBuffer<IndexList>> ToIndexList(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<IndexList>(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            IOperation conversion;
+            if (buffer.DataType == typeof(IndexList))
+                conversion = new NopConversion<IndexList>((IReadOnlyBuffer<IndexList>)buffer, output);
+            else if (buffer.DataType == typeof(WeightedIndexList))
+                conversion = new CustomConversion<WeightedIndexList, IndexList>(WeightedIndexListToIndexList, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
+            else if (buffer.DataType == typeof(ReadOnlyVector))
+                conversion = new CustomConversion<ReadOnlyVector, IndexList>(VectorToIndexList, (IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            else
+                throw new NotSupportedException("Only weighted index lists and vectors can be converted to index lists");
+            await conversion.Process();
+            return output;
+
+            static IndexList VectorToIndexList(ReadOnlyVector vector) => vector.ReadOnlySegment.ToSparse().AsIndexList();
+            static IndexList WeightedIndexListToIndexList(WeightedIndexList weightedIndexList) => weightedIndexList.AsIndexList();
+        }
+
+        public static async Task<ICompositeBuffer<ReadOnlyVector>> ToVector(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<ReadOnlyVector>(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            IOperation conversion;
+            if (buffer.DataType == typeof(ReadOnlyVector))
+                conversion = new NopConversion<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            else if (buffer.DataType == typeof(WeightedIndexList))
+                conversion = new CustomConversion<WeightedIndexList, ReadOnlyVector>(WeightedIndexListToVector, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
+            else if (buffer.DataType == typeof(IndexList))
+                conversion = new CustomConversion<IndexList, ReadOnlyVector>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
+            else
+                throw new NotSupportedException("Only weighted index lists, index lists and vectors can be converted to vectors");
+            await conversion.Process();
+            return output;
+
+            static ReadOnlyVector WeightedIndexListToVector(WeightedIndexList weightedIndexList) => weightedIndexList.AsDense();
+            static ReadOnlyVector IndexListToVector(IndexList indexList) => indexList.AsDense();
+        }
+
+        public static async Task<ICompositeBuffer<WeightedIndexList>> ToWeightedIndexList(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+            var output = CreateCompositeBuffer<WeightedIndexList>(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            IOperation conversion;
+            if (buffer.DataType == typeof(WeightedIndexList))
+                conversion = new NopConversion<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, output);
+            else if (buffer.DataType == typeof(ReadOnlyVector))
+                conversion = new CustomConversion<ReadOnlyVector, WeightedIndexList>(VectorToWeightedIndexList, (IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            else if (buffer.DataType == typeof(IndexList))
+                conversion = new CustomConversion<IndexList, WeightedIndexList>(IndexListToWeightedIndexList, (IReadOnlyBuffer<IndexList>)buffer, output);
+            else
+                throw new NotSupportedException("Only weighted index lists, index lists and vectors can be converted to vectors");
+            await conversion.Process();
+            return output;
+
+            static WeightedIndexList IndexListToWeightedIndexList(IndexList indexList) => indexList.AsWeightedIndexList();
+            static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector vector) => vector.ToSparse();
+        }
+
+        class AggregateNotification : INotifyUser
+        {
+            readonly int _count;
+            readonly Guid _id = Guid.NewGuid();
+            readonly Dictionary<Guid, float> _taskProgress = new();
+            readonly HashSet<Guid> _completed = new();
+            readonly INotifyUser _notify;
+            readonly CancellationToken _ct;
+            readonly string? _msg;
+            int _progressNotifications = 0;
+
+            public AggregateNotification(int count, INotifyUser notify, string? msg, CancellationToken ct)
+            {
+                _count = count;
+                _notify = notify;
+                _msg = msg;
+                _ct = ct;
+            }
+
+            public void OnStartOperation(Guid operationId, string? msg = null)
+            {
+                _taskProgress.Add(operationId, 0f);
+                if(_taskProgress.Count == _count)
+                    _notify.OnStartOperation(_id, _msg);
+            }
+
+            public void OnOperationProgress(Guid operationId, float progressPercent)
+            {
+                _taskProgress[operationId] = progressPercent;
+                if (++_progressNotifications % _count == 0) {
+                    var aggregateProgress = _taskProgress.Values.Average();
+                    _notify.OnOperationProgress(_id, aggregateProgress);
+                }
+            }
+
+            public void OnCompleteOperation(Guid operationId, bool wasCancelled)
+            {
+                _taskProgress[operationId] = 1f;
+                if(_completed.Add(operationId) && _completed.Count == _count)
+                    _notify.OnCompleteOperation(_id, _ct.IsCancellationRequested);
+            }
+
+            public void OnMessage(string msg)
+            {
+                // ignore
+            }
+        }
+        public static Task Process(this IOperation[] operations, INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        {
+            if (operations.Length == 1)
+                return operations[0].Process(notify, msg, ct);
+            if (operations.Length > 1) {
+                if (notify is not null)
+                    notify = new AggregateNotification(operations.Length, notify, msg, ct);
+                return Task.WhenAll(operations.Select(x => x.Process(notify, null, ct)));
+            }
+            return Task.CompletedTask;
         }
     }
 }

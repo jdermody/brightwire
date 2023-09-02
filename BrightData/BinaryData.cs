@@ -11,9 +11,16 @@ namespace BrightData
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public readonly struct BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader, IEquatable<BinaryData>, IHaveDataAsReadOnlyByteSpan, IHaveSize, IHaveReadOnlyContiguousSpan<byte>
+    public readonly struct BinaryData : 
+        ICanWriteToBinaryWriter, 
+        ICanInitializeFromBinaryReader, 
+        IEquatable<BinaryData>, 
+        IHaveDataAsReadOnlyByteSpan, 
+        IHaveSize, 
+        IHaveReadOnlyContiguousSpan<byte>,
+        IHaveMemory<byte>
     {
-        readonly Memory<byte> _data;
+        readonly ReadOnlyMemory<byte> _data;
 
         /// <summary>
         /// Constructor
@@ -21,7 +28,7 @@ namespace BrightData
         /// <param name="data">Binary data blob</param>
         public BinaryData(params byte[] data) => _data = data;
 
-        public BinaryData(Memory<byte> data) => _data = data;
+        public BinaryData(ReadOnlyMemory<byte> data) => _data = data;
 
         /// <summary>
         /// Constructor
@@ -101,5 +108,6 @@ namespace BrightData
 
         public uint Size => (uint)_data.Length;
         public ReadOnlySpan<byte> ReadOnlySpan => _data.Span;
+        public ReadOnlyMemory<byte> ReadOnlyMemory => _data;
     }
 }

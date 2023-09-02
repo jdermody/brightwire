@@ -12,11 +12,14 @@ namespace BrightData.Table.Operation
     {
         readonly IReadOnlyBuffer<FT> _from;
         readonly IAppendToBuffer<T> _to;
-        readonly Mutator _mutator;
+        readonly IWriteMutatedBlocks _mutator;
 
-        public delegate void Mutator(ReadOnlySpan<FT> from, IAppendToBuffer<T> to);
+        internal interface IWriteMutatedBlocks
+        {
+            void Write(ReadOnlySpan<FT> from, IAppendToBuffer<T> to);
+        }
 
-        public OneToOneMutation(IReadOnlyBuffer<FT> from, IAppendToBuffer<T> to, Mutator mutator)
+        public OneToOneMutation(IReadOnlyBuffer<FT> from, IAppendToBuffer<T> to, IWriteMutatedBlocks mutator)
         {
             _from = from;
             _to = to;
@@ -25,7 +28,7 @@ namespace BrightData.Table.Operation
 
         public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            return _from.ForEachBlock(x => _mutator(x, _to), notify, msg, ct);
+            return _from.ForEachBlock(x => _mutator.Write(x, _to), notify, msg, ct);
         }
     }
 }

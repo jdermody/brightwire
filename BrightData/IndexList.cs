@@ -7,16 +7,24 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using static BrightData.WeightedIndexList;
 
 namespace BrightData
 {
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public readonly struct IndexList : IHaveIndices, IAmSerializable, IEquatable<IndexList>, IHaveDataAsReadOnlyByteSpan, IHaveReadOnlyContiguousSpan<uint>, IHaveSpanOf<uint>, IHaveSize
+    public readonly struct IndexList : 
+        IHaveIndices, 
+        IAmSerializable, 
+        IEquatable<IndexList>, 
+        IHaveDataAsReadOnlyByteSpan, 
+        IHaveReadOnlyContiguousSpan<uint>, 
+        IHaveSpanOf<uint>, 
+        IHaveSize,
+        IHaveMemory<uint>
     {
         readonly ReadOnlyMemory<uint> _indices;
 
@@ -82,7 +90,10 @@ namespace BrightData
             _indices = data.Cast<byte, uint>().ToArray();
         }
 
-        public ReadOnlyMemory<uint> ReadOnlyMemory { get; }
+        /// <summary>
+        /// Returns the indices
+        /// </summary>
+        public ReadOnlyMemory<uint> ReadOnlyMemory => _indices;
 
         /// <summary>
         /// Current indices in list
@@ -272,10 +283,9 @@ namespace BrightData
         /// <summary>
         /// Converts to a dense vector in which each set index is 1
         /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)
+        public ReadOnlyVector AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
@@ -286,9 +296,9 @@ namespace BrightData
                 indices.Add(item);
             }
 
-            if(indices.Any())
-                return lap.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return lap.CreateVector(maxIndex ?? 0, 0f);
+            return indices.Any() 
+                ? new ReadOnlyVector(max + 1, i => indices.Contains(i) ? 1f : 0f) 
+                : new ReadOnlyVector(maxIndex ?? 0);
         }
 
         /// <summary>
@@ -317,5 +327,11 @@ namespace BrightData
 
         /// <inheritdoc />
         public ReadOnlySpan<uint> ReadOnlySpan => _indices.Span;
+
+        /// <summary>
+        /// Converts to a weighted index list
+        /// </summary>
+        /// <returns></returns>
+        public WeightedIndexList AsWeightedIndexList() => WeightedIndexList.Create(Indices.Select(ind => (ind, 1f)));
     }
 }

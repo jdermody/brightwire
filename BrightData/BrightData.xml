@@ -261,77 +261,68 @@
             Static methods to create analyzers
             </summary>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDateAnalyser(System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDateAnalyser">
             <summary>
             Creates a date analyzer
             </summary>
-            <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser``1(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser``1(System.UInt32)">
             <summary>
             Creates a numeric analyzer
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="maxCount">Maximum number of distinct items to track</param>
             <param name="writeCount">Number of items to write in histogram</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateConvertToStringAnalyser``1(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateConvertToStringAnalyser``1(System.UInt32)">
             <summary>
             Creates an analyzer that will convert each item to a string
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDimensionAnalyser(System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDimensionAnalyser">
             <summary>
             Creates a dimension analyzer (to analyze the shape of tensors)
             </summary>
-            <param name="maxCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser``1(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser``1(System.UInt32)">
             <summary>
             Creates an analyzer that tracks observed frequency of items
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateIndexAnalyser(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateIndexAnalyser(System.UInt32)">
             <summary>
             Creates an analyzer that tracks observed indices (for index lists and weighted index lists)
             </summary>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser(System.UInt32)">
             <summary>
             Creates a numeric analyzer
             </summary>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateStringAnalyser(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateStringAnalyser(System.UInt32)">
             <summary>
             Creates a string analyzer
             </summary>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser(System.Type,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser(System.Type,System.UInt32)">
             <summary>
             Creates a frequency analyzer (each item will be converted to a string)
             </summary>
             <param name="type"></param>
-            <param name="maxCount"></param>
             <param name="writeCount"></param>
             <returns></returns>
         </member>
@@ -903,26 +894,24 @@
             <param name="columnIndex"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.DataTable.BrightDataTable.GetColumnAnalysis(System.UInt32,System.Boolean,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.DataTable.BrightDataTable.GetColumnAnalysis(System.UInt32,System.Boolean,System.UInt32)">
             <summary>
             Analyses column data
             </summary>
             <param name="columnIndex">Column index to analyse</param>
             <param name="force">True to reanalyse data</param>
             <param name="writeCount">Maximum size of meta data output</param>
-            <param name="maxDistinctCount">Maximum number of distinct items</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.DataTable.BrightDataTable.GetColumnAnalysis(System.Collections.Generic.IEnumerable{System.UInt32},System.UInt32,System.UInt32)">
+        <member name="M:BrightData.DataTable.BrightDataTable.GetColumnAnalysis(System.Collections.Generic.IEnumerable{System.UInt32},System.UInt32)">
             <summary>
             Gets column analysis for columns
             </summary>
             <param name="columnIndices">Column indices to analyse</param>
             <param name="writeCount">Maximum size of meta data output</param>
-            <param name="maxDistinctCount">Maximum number of distinct items</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.DataTable.BrightDataTable.AllColumnAnalysis(System.UInt32,System.UInt32)">
+        <member name="M:BrightData.DataTable.BrightDataTable.AllColumnAnalysis(System.UInt32)">
             <summary>
             Analysis for all columns
             </summary>
@@ -988,13 +977,12 @@
         <member name="M:BrightData.DataTable.BrightDataTable.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable.BrightDataTable.CreateColumnAnalyser(System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.DataTable.BrightDataTable.CreateColumnAnalyser(System.UInt32,System.UInt32)">
             <summary>
             Creates a column analyzer
             </summary>
             <param name="columnIndex">Column index</param>
             <param name="writeCount">Number of items to write in metadata</param>
-            <param name="maxDistinctCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.DataTable.BrightDataTable.GroupBy(BrightData.IProvideTempStreams,System.UInt32[])">
@@ -1471,89 +1459,6 @@
             Extensions that work with a span of numbers
             </summary>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDateAnalyser(BrightData.BrightDataContext,System.UInt32)">
-            <summary>
-            Creates a date analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a numeric analyzer
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetConvertToStringAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a frequency analyzer
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalyser(BrightData.BrightDataContext,System.UInt32)">
-            <summary>
-            Creates a dimension analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser``1(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a frequency analyzer
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetIndexAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates an index analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a numeric analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetStringAnalyser(BrightData.BrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a string analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser(BrightData.BrightDataContext,System.Type,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a frequency analyzer
-            </summary>
-            <param name="_"></param>
-            <param name="type"></param>
-            <param name="maxCount">Max distinct items</param>
-            <param name="writeCount">Maximum count to write to meta data</param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.MetaData)">
             <summary>
             Gets the date analysis that was stored in meta data
@@ -2024,7 +1929,7 @@
             <param name="writable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyUser,System.String,System.UInt32,System.UInt32,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyUser,System.Guid,System.UInt32,System.UInt32,System.Single)">
             <summary>
             Notifies about the progress of a multi part operation
             </summary>
@@ -2274,7 +2179,7 @@
             <typeparam name="T3"></typeparam>
             <param name="dataTable"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.BrightDataType,BrightData.MetaData,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.BrightDataType,BrightData.MetaData,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
@@ -4487,13 +4392,13 @@
             Writes progress notifications to the console
             </summary>
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnStartOperation(System.String,System.String)">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnStartOperation(System.Guid,System.String)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnOperationProgress(System.String,System.Single)">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnOperationProgress(System.Guid,System.Single)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnCompleteOperation(System.String,System.Boolean)">
+        <member name="M:BrightData.Helper.ConsoleProgressNotification.OnCompleteOperation(System.Guid,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.ConsoleProgressNotification.OnMessage(System.String)">
@@ -4901,6 +4806,11 @@
             Creates an index list from a byte span
             </summary>
             <param name="data"></param>
+        </member>
+        <member name="P:BrightData.IndexList.ReadOnlyMemory">
+            <summary>
+            Returns the indices
+            </summary>
         </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
@@ -5573,21 +5483,21 @@
             Notifies the user of operations and messages
             </summary>
         </member>
-        <member name="M:BrightData.INotifyUser.OnStartOperation(System.String,System.String)">
+        <member name="M:BrightData.INotifyUser.OnStartOperation(System.Guid,System.String)">
             <summary>
             Called at the start of an operation
             </summary>
             <param name="operationId">Unique id for this operation</param>
             <param name="msg">Optional message associated with the operation</param>
         </member>
-        <member name="M:BrightData.INotifyUser.OnOperationProgress(System.String,System.Single)">
+        <member name="M:BrightData.INotifyUser.OnOperationProgress(System.Guid,System.Single)">
             <summary>
             Called when the operation has progressed
             </summary>
             <param name="operationId">Unique id for this operation</param>
             <param name="progressPercent">Progress percentage (between 0 and 1)</param>
         </member>
-        <member name="M:BrightData.INotifyUser.OnCompleteOperation(System.String,System.Boolean)">
+        <member name="M:BrightData.INotifyUser.OnCompleteOperation(System.Guid,System.Boolean)">
             <summary>
             Called when the operation has completed
             </summary>
@@ -10857,6 +10767,11 @@
         <member name="P:BrightData.WeightedIndexList.Size">
             <summary>
             The number of items in the list
+            </summary>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.ReadOnlyMemory">
+            <summary>
+            Returns the indices
             </summary>
         </member>
         <member name="M:BrightData.WeightedIndexList.ToString">

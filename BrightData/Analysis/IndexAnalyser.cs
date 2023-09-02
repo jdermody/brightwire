@@ -9,14 +9,13 @@ namespace BrightData.Analysis
     /// </summary>
     internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
-        readonly uint _writeCount, _maxCount;
+        readonly uint _writeCount;
         readonly Dictionary<uint, uint> _indexFrequency = new();
         uint _min = uint.MaxValue, _max = uint.MinValue;
 
-        public IndexAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
+        public IndexAnalyser(uint writeCount = Consts.MaxWriteCount)
         {
             _writeCount = writeCount;
-            _maxCount = maxCount;
         }
 
         public void Add(IHaveIndices obj)
@@ -38,12 +37,10 @@ namespace BrightData.Analysis
             if(index > _max)
                 _max = index;
 
-            if (_indexFrequency.Count < _maxCount) {
-                if (_indexFrequency.TryGetValue(index, out var count))
-                    _indexFrequency[index] = count + 1;
-                else
-                    _indexFrequency.Add(index, 1);
-            }
+            if (_indexFrequency.TryGetValue(index, out var count))
+                _indexFrequency[index] = count + 1;
+            else
+                _indexFrequency.Add(index, 1);
         }
 
         public void AddObject(object obj)
@@ -60,12 +57,10 @@ namespace BrightData.Analysis
             if(_max != uint.MinValue)
                 metadata.Set(Consts.MaxIndex, _max);
 
-            if (_indexFrequency.Count < _maxCount) {
-                metadata.Set(Consts.NumDistinct, (uint)_indexFrequency.Count);
-                var total = (double) _indexFrequency.Count;
-                foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
-                    metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
-            }
+            metadata.Set(Consts.NumDistinct, (uint)_indexFrequency.Count);
+            var total = (double) _indexFrequency.Count;
+            foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
+                metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
         }
     }
 }

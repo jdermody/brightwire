@@ -9,7 +9,7 @@ namespace BrightData.Analysis
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
 
-        public StringAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct) : base(writeCount, maxCount)
+        public StringAnalyser(uint writeCount = Consts.MaxWriteCount) : base(writeCount)
         {
         }
 

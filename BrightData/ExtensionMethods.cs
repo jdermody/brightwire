@@ -481,7 +481,8 @@ namespace BrightData
         ) {
             return type.GetMethods(bindingFlags)
                 .Where(m => m.IsGenericMethod)
-                .ToDictionary(m => m.Name)
+                .GroupBy(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First())
             ;
         }
 

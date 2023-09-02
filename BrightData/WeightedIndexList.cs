@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -16,7 +17,15 @@ namespace BrightData
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public readonly struct WeightedIndexList : IHaveIndices, IAmSerializable, IEquatable<WeightedIndexList>, IHaveDataAsReadOnlyByteSpan, IHaveSize, IHaveSpanOf<WeightedIndexList.Item>, IHaveReadOnlyContiguousSpan<WeightedIndexList.Item>
+    public readonly struct WeightedIndexList : 
+        IHaveIndices, 
+        IAmSerializable, 
+        IEquatable<WeightedIndexList>, 
+        IHaveDataAsReadOnlyByteSpan, 
+        IHaveSize, 
+        IHaveSpanOf<WeightedIndexList.Item>, 
+        IHaveReadOnlyContiguousSpan<WeightedIndexList.Item>,
+        IHaveMemory<WeightedIndexList.Item>
     {
         readonly ReadOnlyMemory<Item> _indices;
 
@@ -175,6 +184,11 @@ namespace BrightData
         /// The number of items in the list
         /// </summary>
         public uint Size => (uint)_indices.Length;
+
+        /// <summary>
+        /// Returns the indices
+        /// </summary>
+        public ReadOnlyMemory<Item> ReadOnlyMemory => _indices;
 
         /// <summary>
         /// ToString override
@@ -366,10 +380,9 @@ namespace BrightData
         /// <summary>
         /// Converts to a vector
         /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
-        public IVector AsDense(LinearAlgebraProvider lap, uint? maxIndex = null)
+        public ReadOnlyVector AsDense(uint? maxIndex = null)
         {
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
@@ -382,10 +395,9 @@ namespace BrightData
                     max = item.Index;
                 indices.Add(item.Index, item.Weight);
             }
-
-            if (indices.Any())
-                return lap.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
-            return lap.CreateVector(maxIndex ?? 0, _ => 0f);
+            return indices.Any() 
+                ? new ReadOnlyVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f) 
+                : new ReadOnlyVector(maxIndex ?? 0, _ => 0f);
         }
 
         /// <inheritdoc />

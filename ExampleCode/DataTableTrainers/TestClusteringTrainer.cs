@@ -75,7 +75,7 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
             var lap = context.LinearAlgebraProvider;
             (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
-            _vectors = data.Select(d => d.Data.AsDense(lap, _stringTable.Size + 1)).ToArray();
+            _vectors = data.Select(d => d.Data.AsDense(_stringTable.Size + 1).Create(lap)).ToArray();
             foreach(var (first, second) in _vectors.Zip(documents))
                 _documentTable.Add(first, second);
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using BrightData.LinearAlgebra.ReadOnly;
 using System;
+using System.Buffers;
 using BrightData.Table.Buffer.Composite;
 
 namespace BrightData.Table.Helper
@@ -76,7 +77,7 @@ namespace BrightData.Table.Helper
                 else if (dataType == BrightDataType.String)
                     await WriteStringData((ICompositeBuffer<string>)columnSegment, stringWriter.Value, output);
                 else if (dataType == BrightDataType.Vector)
-                    await WriteVectors((ICompositeBuffer<ReadOnlyVector>)columnSegment, floatWriter.Value, output);
+                        await WriteVectors((ICompositeBuffer<ReadOnlyVector>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Matrix)
                     await WriteMatrices((ICompositeBuffer<ReadOnlyMatrix>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Tensor3D)
@@ -84,7 +85,7 @@ namespace BrightData.Table.Helper
                 else if (dataType == BrightDataType.Tensor4D)
                     await WriteTensors((ICompositeBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
                 else
-                    await (Task)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
+                    await (Task<bool>)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
             }
             header.DataSizeBytes = (uint)(output.Position - header.DataOffset);
 
@@ -189,31 +190,36 @@ namespace BrightData.Table.Helper
             where T : notnull
             where CT : unmanaged
         {
-            var encodingTable = buffer.DistinctItems.HasValue
-                ? new Dictionary<T, CT>((int)buffer.DistinctItems.Value)
-                : null; 
+            if (buffer.DistinctItems.HasValue) {
+                var encodingTable = new Dictionary<T, CT>((int)buffer.DistinctItems.Value);
+
+                return buffer.ForEachBlock(block => {
+                    using var temp = SpanOwner<CT>.Allocate(block.Length);
+                    var span = temp.Span;
+                    var index = 0;
+                    foreach (ref readonly var item in block) {
+                        if (encodingTable.TryGetValue(item, out var existing))
+                            span[index++] = existing;
+                        else {
+                            ref var converted = ref span[index++];
+                            filler(item, ref converted);
+                            encodingTable.Add(item, converted);
+                        }
+                    }
+                });
+            }
 
             return buffer.ForEachBlock(block => {
                 using var temp = SpanOwner<CT>.Allocate(block.Length);
                 var span = temp.Span;
                 var index = 0;
-                foreach (ref readonly var item in block) {
-                    if (encodingTable != null) {
-                        if (!encodingTable.TryGetValue(item, out var existing)) {
-                            ref var next = ref span[index++];
-                            filler(item, ref next);
-                            encodingTable.Add(item, next);
-                        }
-                        else
-                            span[index++] = existing;
-                    }else
-                        filler(item, ref span[index++]);
-                }
+                foreach (ref readonly var item in block)
+                    filler(item, ref span[index++]);
                 stream.Write(span.AsBytes());
             });
         }
         delegate ReadOnlySpan<IT> GetArray<T, IT>(in T item) where IT : unmanaged;
-        static Task WriteDataRange<T, IT>(ICompositeBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream, GetArray<T, IT> getArray)
+        static Task WriteDataRange<T, IT>(ICompositeBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
             where T : IHaveSize, IHaveReadOnlyContiguousSpan<IT>
             where IT : unmanaged
         {
@@ -253,16 +259,16 @@ namespace BrightData.Table.Helper
         }
 
         Task WriteIndexLists(ICompositeBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream, (in IndexList data) => data.AsSpan());
+            WriteDataRange(buffer, indices, stream);
 
         Task WriteWeightedIndexLists(ICompositeBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream, (in WeightedIndexList data) => data.AsSpan());
+            WriteDataRange(buffer, indices, stream);
 
         Task WriteBinaryData(ICompositeBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream, (in BinaryData data) => data.Data);
+            WriteDataRange(buffer, indices, stream);
 
         Task WriteVectors(ICompositeBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) =>
-            WriteDataRange(buffer, floats, stream, (in ReadOnlyVector data) => data.ReadOnlySpan);
+            WriteDataRange(buffer, floats, stream);
 
         Task WriteMatrices(ICompositeBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
         {

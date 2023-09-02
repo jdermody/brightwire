@@ -11,27 +11,26 @@ namespace BrightData.Analysis
     internal class FrequencyAnalyser<T> : IDataAnalyser<T>
         where T: notnull
     {
-        readonly uint _writeCount, _maxCount;
+        readonly uint _writeCount;
         readonly Dictionary<string, ulong> _valueCount = new();
 
         ulong _highestCount = 0;
         string? _mostFrequent = null;
 
-        public FrequencyAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
+        public FrequencyAnalyser(uint writeCount = Consts.MaxWriteCount)
         {
             _writeCount = writeCount;
-            _maxCount = maxCount;
         }
 
-        public uint? NumDistinct => _valueCount.Count < _maxCount ? (uint?)_valueCount.Count : null;
-        public string? MostFrequent => _valueCount.Count < _maxCount ? _mostFrequent : null;
+        public uint NumDistinct => (uint)_valueCount.Count;
+        public string? MostFrequent => _valueCount.Count > 0 ? _mostFrequent : null;
         public ulong Total { get; private set; } = 0;
         public virtual void Add(T obj) => AddString(obj.ToString());
         public IEnumerable<KeyValuePair<string, ulong>> ItemFrequency => _valueCount;
 
         protected void AddString(string? str)
         {
-            if (str != null && _valueCount.Count < _maxCount) {
+            if (str != null) {
                 if (_valueCount.TryGetValue(str, out var count))
                     _valueCount[str] = count + 1;
                 else
@@ -57,11 +56,10 @@ namespace BrightData.Analysis
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.Total, Total);
             metadata.SetIfNotNull(Consts.MostFrequent, MostFrequent);
-            if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {
-                var total = (double)Total;
-                foreach (var item in _valueCount.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
-                    metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
-            }
+            metadata.Set(Consts.NumDistinct, NumDistinct);
+            var total = (double)Total;
+            foreach (var item in _valueCount.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
+                metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
         }
     }
 }

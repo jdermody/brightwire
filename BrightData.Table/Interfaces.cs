@@ -18,6 +18,7 @@ namespace BrightData.Table
         DataTableOrientation Orientation { get; }
         void PersistMetaData();
         IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
+        Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
     }
 
     public interface ITempData : IDisposable, IHaveSize
@@ -61,7 +62,7 @@ namespace BrightData.Table
     {
     }
 
-    public interface ICompositeBuffer : IHaveSize, IReadOnlyBufferWithMetaData
+    public interface ICompositeBuffer : IReadOnlyBufferWithMetaData
     {
         public Guid Id { get; }
         uint? DistinctItems { get; }

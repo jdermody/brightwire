@@ -10,7 +10,6 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Table.Buffer.Composite;
 using BrightData.Table.Buffer.ReadOnly;
 using CommunityToolkit.HighPerformance;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightData.Table.Helper
 {
@@ -20,7 +19,6 @@ namespace BrightData.Table.Helper
         {
             public BrightDataType DataType;
             public uint DataTypeSize;
-
             public override string ToString() => $"{DataType} ({DataTypeSize})";
         }
         protected readonly IByteBlockReader                         _reader;
@@ -245,6 +243,22 @@ namespace BrightData.Table.Helper
 
             var memory = new Memory<byte>(tempBuffer.GetBuffer(), 0, (int)tempBuffer.Length);
             _reader.Update(_header.MetaDataOffset, memory);
+        }
+
+        protected IEnumerable<uint> AllOrSpecifiedColumnIndices(uint[] indices, bool distinct) => indices.Length == 0 
+            ? ColumnCount.AsRange() 
+            : distinct 
+                ? indices.Order().Distinct()
+                : indices
+        ;
+
+        public async Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices)
+        {
+            if (!AllOrSpecifiedColumnIndices(columnIndices, true).All(i => _columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
+                var operations = AllOrSpecifiedColumnIndices(columnIndices, true).Select(i => GetColumn(i).Analyse(_columnMetaData[i], false)).ToArray();
+                await operations.Process();
+            }
+            return AllOrSpecifiedColumnIndices(columnIndices, false).Select(x => _columnMetaData[x]).ToArray();
         }
 
         public record Row(object[] Values);

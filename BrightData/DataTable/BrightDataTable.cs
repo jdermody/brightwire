@@ -264,13 +264,12 @@ namespace BrightData.DataTable
         /// <param name="columnIndex">Column index to analyse</param>
         /// <param name="force">True to reanalyse data</param>
         /// <param name="writeCount">Maximum size of meta data output</param>
-        /// <param name="maxDistinctCount">Maximum number of distinct items</param>
         /// <returns></returns>
-        public MetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        public MetaData GetColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount)
         {
             var ret = GetColumnMetaData(columnIndex);
             if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
-                using var operation = CreateColumnAnalyser(columnIndex, writeCount, maxDistinctCount);
+                using var operation = CreateColumnAnalyser(columnIndex, writeCount);
                 operation.Complete(null, CancellationToken.None);
             }
 
@@ -282,15 +281,14 @@ namespace BrightData.DataTable
         /// </summary>
         /// <param name="columnIndices">Column indices to analyse</param>
         /// <param name="writeCount">Maximum size of meta data output</param>
-        /// <param name="maxDistinctCount">Maximum number of distinct items</param>
         /// <returns></returns>
-        public IEnumerable<(uint ColumnIndex, MetaData MetaData)> GetColumnAnalysis(IEnumerable<uint> columnIndices, uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct)
+        public IEnumerable<(uint ColumnIndex, MetaData MetaData)> GetColumnAnalysis(IEnumerable<uint> columnIndices, uint writeCount = Consts.MaxWriteCount)
         {
             var operations = new List<IOperation<(uint ColumnIndex, MetaData MetaData)>>();
             foreach (var ci in columnIndices) {
                 var metaData = GetColumnMetaData(ci);
                 operations.Add(!metaData.Get(Consts.HasBeenAnalysed, false) 
-                    ? CreateColumnAnalyser(ci, writeCount, maxDistinctCount) 
+                    ? CreateColumnAnalyser(ci, writeCount) 
                     : new NopMetaDataOperation(ci, metaData)
                 );
             }
@@ -305,7 +303,7 @@ namespace BrightData.DataTable
         /// <param name="writeCount">Maximum size of meta data output</param>
         /// <param name="maxDistinctCount">Maximum number of distinct items</param>
         /// <returns></returns>
-        public MetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxDistinctCount = Consts.MaxDistinct) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount, maxDistinctCount).Select(d => d.MetaData).ToArray();
+        public MetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount).Select(d => d.MetaData).ToArray();
 
         /// <summary>
         /// Saves current meta data into the underlying stream

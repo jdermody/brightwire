@@ -11,9 +11,9 @@ namespace BrightData.Analysis
     {
         readonly ConvertToDouble<T> _converter = new();
 
-        public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
+        public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount)
         {
-            Analysis = new NumericAnalyser(writeCount, maxCount);
+            Analysis = new NumericAnalyser(writeCount);
         }
 
         public NumericAnalyser Analysis { get; }

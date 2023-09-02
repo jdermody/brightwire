@@ -337,9 +337,9 @@ namespace BrightData.Transformation
                 case ColumnConversionOperation.ToVector when fromType == BrightDataType.Vector:
                     return null;
                 case ColumnConversionOperation.ToVector when fromType == BrightDataType.WeightedIndexList:
-                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
+                    return new Converter<IndexList, IVector>(v => v.AsDense().Create(lap));
                 case ColumnConversionOperation.ToVector when fromType == BrightDataType.IndexList:
-                    return new Converter<IndexList, IVector>(v => v.AsDense(lap));
+                    return new Converter<IndexList, IVector>(v => v.AsDense().Create(lap));
 
                 // weighted index list
                 case ColumnConversionOperation.ToWeightedIndexList when fromType == BrightDataType.WeightedIndexList:

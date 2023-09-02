@@ -47,6 +47,11 @@ namespace BrightData
         ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed);
     }
 
+    public interface IHaveMemory<T>
+    {
+        ReadOnlyMemory<T> ReadOnlyMemory { get; }
+    }
+
     /// <summary>
     /// Indicates that the type can serialize to a binary writer
     /// </summary>
@@ -149,13 +154,17 @@ namespace BrightData
         void Add(T obj);
     }
 
+    public interface IAcceptBlock<T>
+    {
+        void Add(ReadOnlySpan<T> block);
+    }
+
     /// <summary>
     /// Typed data analyser
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IDataAnalyser where T : notnull
+    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IAcceptBlock<T>, IDataAnalyser where T : notnull
     {
-        void Add(ReadOnlySpan<T> block);
     }
 
     /// <summary>

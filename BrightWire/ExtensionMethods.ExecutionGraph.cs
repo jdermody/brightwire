@@ -32,7 +32,7 @@ namespace BrightWire
             var userNotifications = engine.Context.UserNotifications;
 
 #if !DEBUG
-            var testId = Guid.NewGuid().ToString("n");
+            var testId = Guid.NewGuid();
             userNotifications?.OnStartOperation(testId);
             engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
             userNotifications?.OnCompleteOperation(testId, false);

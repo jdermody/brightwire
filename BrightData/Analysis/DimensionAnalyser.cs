@@ -8,12 +8,10 @@ namespace BrightData.Analysis
     /// </summary>
     internal class DimensionAnalyser : IDataAnalyser<ITensor>
     {
-        readonly uint _maxCount;
         readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new();
 
-        public DimensionAnalyser(uint maxCount = Consts.MaxDistinct)
+        public DimensionAnalyser()
         {
-            _maxCount = maxCount;
         }
 
         public uint? XDimension { get; private set; }
@@ -41,8 +39,7 @@ namespace BrightData.Analysis
             } else
                 throw new NotImplementedException();
 
-            if (_distinct.Count < _maxCount)
-                _distinct.Add((x, y, z));
+            _distinct.Add((x, y, z));
         }
 
         public void AddObject(object obj)
@@ -65,8 +62,7 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.XDimension, XDimension);
             metadata.SetIfNotNull(Consts.YDimension, YDimension);
             metadata.SetIfNotNull(Consts.ZDimension, ZDimension);
-            if (_distinct.Count < _maxCount)
-                metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
+            metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
 
             var size = (XDimension ?? 1) * (YDimension ?? 1) * (ZDimension ?? 1);
             metadata.Set(Consts.Size, size);

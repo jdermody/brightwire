@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="embeddings.txt" />
     <None Remove="XmlDocumentation.tt" />
   </ItemGroup>
 
@@ -17,10 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Embeddings.tt">
-      <LastGenOutput>Embeddings.cs</LastGenOutput>
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
+    <EmbeddedResource Include="embeddings.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="XmlDocumentation.xml">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -30,14 +31,6 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Embeddings.cs">
-      <DependentUpon>Embeddings.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
   </ItemGroup>
 
 </Project>
