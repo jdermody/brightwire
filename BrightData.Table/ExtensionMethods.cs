@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Buffers;
+using System.ComponentModel;
+using System.Linq.Expressions;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BrightData.Analysis;
@@ -7,14 +10,14 @@ using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Table.Buffer.Composite;
-using BrightData.Table.Buffer.Helper;
+using BrightData.Table.Buffer.ReadOnly.Converter;
 using BrightData.Table.ByteBlockReaders;
 using BrightData.Table.Helper;
 using BrightData.Table.Operation;
 using BrightData.Table.Operation.Conversion;
 using BrightData.Table.Operation.Helper;
+using BrightData.Transformation;
 using CommunityToolkit.HighPerformance.Buffers;
-using Microsoft.VisualBasic;
 
 namespace BrightData.Table
 {
@@ -341,6 +344,7 @@ namespace BrightData.Table
         /// Creates a column analyser
         /// </summary>
         /// <param name="buffer">Buffer to analyse</param>
+        /// <param name="metaData"></param>
         /// <param name="maxMetaDataWriteCount">Maximum count to write to meta data</param>
         /// <returns></returns>
         public static IDataAnalyser GetAnalyser(this IReadOnlyBuffer buffer, MetaData metaData, uint maxMetaDataWriteCount = Consts.MaxMetaDataWriteCount)
@@ -375,11 +379,23 @@ namespace BrightData.Table
                 _                         => throw new NotImplementedException()
             };
         }
-        public static IOperation Analyse(this IReadOnlyBuffer buffer, MetaData metaData, bool force)
+        public static IOperation Analyse(this MetaData metaData, bool force, params IReadOnlyBuffer[] buffers)
         {
             if (force || !metaData.Get(Consts.HasBeenAnalysed, false)) {
-                var analyser = buffer.GetAnalyser(metaData);
-                return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, () => analyser.WriteTo(metaData));
+                if (buffers.Length == 1) {
+                    var buffer = buffers[0];
+                    var analyser = buffer.GetAnalyser(metaData);
+                    return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser);
+                }
+                if (buffers.Length > 1) {
+                    var analysers = buffers.Select(x => x.GetAnalyser(metaData)).ToArray();
+                    var analyser = analysers[0];
+                    if (analysers.Skip(1).Any(x => x.GetType() != analyser.GetType()))
+                        throw new InvalidOperationException("Expected all buffers to be in same analysis category");
+
+                    var operations = buffers.Select(x => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(x.DataType), x, analyser)).ToArray();
+                    return new AggregateOperation(operations);
+                }
             }
             return new NopOperation();
         }
@@ -574,8 +590,11 @@ namespace BrightData.Table
                 conversion = new CustomConversion<WeightedIndexList, ReadOnlyVector>(WeightedIndexListToVector, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
             else if (buffer.DataType == typeof(IndexList))
                 conversion = new CustomConversion<IndexList, ReadOnlyVector>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
-            else
-                throw new NotSupportedException("Only weighted index lists, index lists and vectors can be converted to vectors");
+            else {
+                var index = GenericActivator.Create<IOperation>(typeof(TypedIndexer<>).MakeGenericType(buffer.DataType), buffer);
+                await index.Process();
+                conversion = GenericActivator.Create<IOperation>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), buffer, index, output);
+            }
             await conversion.Process();
             return output;
 
@@ -606,53 +625,7 @@ namespace BrightData.Table
             static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector vector) => vector.ToSparse();
         }
 
-        class AggregateNotification : INotifyUser
-        {
-            readonly int _count;
-            readonly Guid _id = Guid.NewGuid();
-            readonly Dictionary<Guid, float> _taskProgress = new();
-            readonly HashSet<Guid> _completed = new();
-            readonly INotifyUser _notify;
-            readonly CancellationToken _ct;
-            readonly string? _msg;
-            int _progressNotifications = 0;
-
-            public AggregateNotification(int count, INotifyUser notify, string? msg, CancellationToken ct)
-            {
-                _count = count;
-                _notify = notify;
-                _msg = msg;
-                _ct = ct;
-            }
-
-            public void OnStartOperation(Guid operationId, string? msg = null)
-            {
-                _taskProgress.Add(operationId, 0f);
-                if(_taskProgress.Count == _count)
-                    _notify.OnStartOperation(_id, _msg);
-            }
-
-            public void OnOperationProgress(Guid operationId, float progressPercent)
-            {
-                _taskProgress[operationId] = progressPercent;
-                if (++_progressNotifications % _count == 0) {
-                    var aggregateProgress = _taskProgress.Values.Average();
-                    _notify.OnOperationProgress(_id, aggregateProgress);
-                }
-            }
-
-            public void OnCompleteOperation(Guid operationId, bool wasCancelled)
-            {
-                _taskProgress[operationId] = 1f;
-                if(_completed.Add(operationId) && _completed.Count == _count)
-                    _notify.OnCompleteOperation(_id, _ct.IsCancellationRequested);
-            }
-
-            public void OnMessage(string msg)
-            {
-                // ignore
-            }
-        }
+        
         public static Task Process(this IOperation[] operations, INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
             if (operations.Length == 1)
@@ -663,6 +636,39 @@ namespace BrightData.Table
                 return Task.WhenAll(operations.Select(x => x.Process(notify, null, ct)));
             }
             return Task.CompletedTask;
+        }
+
+        public static IReadOnlyBuffer<T> ConvertTo<T>(this IReadOnlyBuffer buffer) where T: unmanaged
+        {
+            var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(buffer.DataType, typeof(T)).Invoke(null, null);
+            return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, converter);
+        }
+
+        public static async Task<NormalizeTransformation> GetNormalization(this MetaData metaData, NormalizationType type, params IReadOnlyBuffer[] buffers)
+        {
+            if (metaData.Get(Consts.NormalizationType, NormalizationType.None) == type)
+                return metaData.GetNormalization();
+
+            if (!buffers.All(x => x.DataType.GetBrightDataType().IsNumeric()))
+                throw new NotSupportedException("Only numeric buffers can be normalized");
+
+            if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
+                var analyzer = StaticAnalysers.CreateNumericAnalyser();
+                foreach (var buffer in buffers) {
+                    var toDouble = ConvertTo<double>(buffer);
+                    await toDouble.ForEachBlock(analyzer.Add);
+                }
+                analyzer.WriteTo(metaData);
+            }
+
+            var ret = new NormalizeTransformation(type, metaData);
+            ret.WriteTo(metaData);
+            return ret;
+        }
+
+        public static IReadOnlyBuffer<T> Normalize<T>(this IReadOnlyBuffer<T> buffer, INormalize normalize) where T : unmanaged, INumber<T>
+        {
+            return new NormalizationConverter<T>(buffer, normalize);
         }
     }
 }

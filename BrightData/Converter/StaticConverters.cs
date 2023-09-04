@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace BrightData.Converter
 {
@@ -75,5 +76,7 @@ namespace BrightData.Converter
                 _                => throw new NotImplementedException()
             };
         }
+
+        public static MethodInfo GetConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetConverter), BindingFlags.Static | BindingFlags.Public)!;
     }
 }

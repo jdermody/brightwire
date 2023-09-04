@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightData.Table.Buffer.Helper
+namespace BrightData.Table.Buffer.Composite
 {
-    internal class CompositeBufferWriter<T> : IBufferWriter<T> where T: notnull
+    internal class CompositeBufferWriter<T> : IBufferWriter<T> where T : notnull
     {
         readonly int _bufferSize;
         readonly ICompositeBuffer<T> _buffer;

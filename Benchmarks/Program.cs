@@ -12,27 +12,43 @@ namespace Benchmarks
 {
     public class Program
     {
-        static unsafe void Main(string[] args)
+        static void Main(string[] args)
+        {
+            //BenchmarkSetProperty();
+            //BenchmarkSum();
+            //BenchmarkDot();
+        }
+
+        static void BenchmarkSetProperty()
+        {
+            BenchmarkRunner.Run<SetPropertyFromExpression>();
+        }
+
+        static void BenchmarkSum()
+        {
+            var data1 = Enumerable.Range(0, 256).Select(x => (float)x).ToArray();
+            Console.WriteLine($"Sum Baseline:       {Sum.SimpleSum(data1):N0}");
+            Console.WriteLine($"Vector Sum:         {Sum.VectorSum(data1):N0}");
+            Console.WriteLine($"Vector Sum 2:       {Sum.VectorSum2(data1):N0}");
+            Console.WriteLine($"Vector Sum 3:       {Sum.VectorSum3(data1):N0}");
+            Console.WriteLine($"Vector Aligned:     {Sum.VectorAligned(data1):N0}");
+            Console.WriteLine($"Vector Bulk Aligned:{Sum.VectorBulkAligned(data1):N0}");
+            BenchmarkRunner.Run<Sum>();
+        }
+
+        static unsafe void BenchmarkDot()
         {
             var data1 = Enumerable.Range(0, 256).Select(x => (float)x).ToArray();
             var data2 = Enumerable.Range(0, 256).Select(x => (float)(x+1)).ToArray();
-            var alignedPtr1 = DotBenchmark.GetAligned(data1);
-            var alignedPtr2 = DotBenchmark.GetAligned(data2);
+            var alignedPtr1 = Dot.GetAligned(data1);
+            var alignedPtr2 = Dot.GetAligned(data2);
             try {
-                //Console.WriteLine($"Sum Baseline:       {SumBenchmark.SimpleSum(data1):N0}");
-                //Console.WriteLine($"Vector Sum:         {SumBenchmark.VectorSum(data1):N0}");
-                //Console.WriteLine($"Vector Sum 2:       {SumBenchmark.VectorSum2(data1):N0}");
-                //Console.WriteLine($"Vector Sum 3:       {SumBenchmark.VectorSum3(data1):N0}");
-                //Console.WriteLine($"Vector Aligned:     {SumBenchmark.VectorAligned(data1):N0}");
-                //Console.WriteLine($"Vector Bulk Aligned:{SumBenchmark.VectorBulkAligned(data1):N0}");
-                //BenchmarkRunner.Run<SumBenchmark>();
-
-                Console.WriteLine($"Baseline:           {DotBenchmark.SimpleDot(data1, data2):N0}");
-                Console.WriteLine($"Vector Dot:         {DotBenchmark.VectorDot(data1, data2):N0}");
-                Console.WriteLine($"Vector Dot Aligned: {DotBenchmark.VectorAligned(data1, data2):N0}");
-                Console.WriteLine($"Vector Dot Aligned2:{DotBenchmark.VectorAligned2(alignedPtr1, alignedPtr2, 256):N0}");
-                Console.WriteLine($"Vector Dot Aligned3:{DotBenchmark.VectorAligned3(alignedPtr1, alignedPtr2, 256):N0}");
-                //BenchmarkRunner.Run<DotBenchmark>();
+                Console.WriteLine($"Baseline:           {Dot.SimpleDot(data1, data2):N0}");
+                Console.WriteLine($"Vector Dot:         {Dot.VectorDot(data1, data2):N0}");
+                Console.WriteLine($"Vector Dot Aligned: {Dot.VectorAligned(data1, data2):N0}");
+                Console.WriteLine($"Vector Dot Aligned2:{Dot.VectorAligned2(alignedPtr1, alignedPtr2, 256):N0}");
+                Console.WriteLine($"Vector Dot Aligned3:{Dot.VectorAligned3(alignedPtr1, alignedPtr2, 256):N0}");
+                BenchmarkRunner.Run<Dot>();
             }
             finally {
                 NativeMemory.Free(alignedPtr1);

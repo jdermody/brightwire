@@ -255,7 +255,7 @@ namespace BrightData.Table.Helper
         public async Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices)
         {
             if (!AllOrSpecifiedColumnIndices(columnIndices, true).All(i => _columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
-                var operations = AllOrSpecifiedColumnIndices(columnIndices, true).Select(i => GetColumn(i).Analyse(_columnMetaData[i], false)).ToArray();
+                var operations = AllOrSpecifiedColumnIndices(columnIndices, true).Select(i => _columnMetaData[i].Analyse(false, GetColumn(i))).ToArray();
                 await operations.Process();
             }
             return AllOrSpecifiedColumnIndices(columnIndices, false).Select(x => _columnMetaData[x]).ToArray();

@@ -13,7 +13,7 @@ namespace ExampleCode
         public static void Run(params LinearAlgebraProvider[] laps)
         {
             var headers = new ColumnHeader("Operation").ToEnumerable()
-                .Concat(laps.Select(lap => new ColumnHeader(lap.ProviderName + " (ms)", Alignment.Right)))
+                .Concat(laps.Select(lap => new ColumnHeader(lap.ProviderName + " (μs)", Alignment.Right)))
                 .ToArray();
 
             var table = new Table(new TableConfiguration(Style.Unicode), headers);
@@ -48,7 +48,7 @@ namespace ExampleCode
             Console.CursorLeft = 0;
             Console.CursorTop = 0;
             table.AddRow(name.ToEnumerable()
-                .Concat(results.Select(r => $"{r.TotalMilliseconds:N0}"))
+                .Concat(results.Select(r => $"{r.TotalMicroseconds:N0}"))
                 .Cast<object>()
                 .ToArray()
             );

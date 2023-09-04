@@ -4916,11 +4916,10 @@
             <param name="other">Index list to compare to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IndexList.AsDense(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.IndexList.AsDense(System.Nullable{System.UInt32})">
             <summary>
             Converts to a dense vector in which each set index is 1
             </summary>
-            <param name="lap">Linear algebra provider</param>
             <param name="maxIndex">Maximum index to include</param>
             <returns></returns>
         </member>
@@ -4943,6 +4942,12 @@
         </member>
         <member name="P:BrightData.IndexList.ReadOnlySpan">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.IndexList.AsWeightedIndexList">
+            <summary>
+            Converts to a weighted index list
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.IHaveBrightDataContext">
             <summary>
@@ -10858,11 +10863,10 @@
             </summary>
             <param name="other">Other list to compare</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsDense(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.WeightedIndexList.AsDense(System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>
-            <param name="lap">Linear algebra provider</param>
             <param name="maxIndex">Inclusive highest index to copy (optional)</param>
             <returns></returns>
         </member>

@@ -18,5 +18,6 @@ namespace BrightData.Table
         public const string HasBeenAnalysed                  = "HasBeenAnalysed";
         public const string IsNumeric                        = "IsNumeric";
         public const string CategoryPrefix                   = "Category:";
+        public const string NormalizationType                = "NormalizationType";
     }
 }
