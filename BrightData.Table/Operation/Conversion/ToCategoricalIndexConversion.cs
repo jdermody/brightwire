@@ -8,7 +8,7 @@ namespace BrightData.Table.Operation.Conversion
 {
     internal class ToCategoricalIndexConversion<T> : ConversionBase<T, int> where T : notnull
     {
-        readonly Dictionary<T, int> _categoryIndex = new();
+        readonly Dictionary<string, int> _categoryIndex = new();
         readonly IHaveMetaData _metaData;
 
         public ToCategoricalIndexConversion(IReadOnlyBuffer<T> input, IAppendToBuffer<int> output) : base(input, output)
@@ -25,14 +25,14 @@ namespace BrightData.Table.Operation.Conversion
             metaData.SetIsCategorical(true);
 
             foreach (var category in _categoryIndex.OrderBy(d => d.Value))
-                metaData.Set(Consts.CategoryPrefix + category.Value, category.Key.ToString() ?? "<null value>");
+                metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
         }
 
         protected override int Convert(T from)
         {
-            if(_categoryIndex.TryGetValue(from, out var ret))
-                return ret;
-            _categoryIndex.Add(from, ret = _categoryIndex.Count);
+            var str = from.ToString() ?? string.Empty;
+            if(!_categoryIndex.TryGetValue(str, out var ret))
+                _categoryIndex.Add(str, ret = _categoryIndex.Count);
             return ret;
         }
     }

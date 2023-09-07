@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
@@ -16,6 +17,7 @@ using BrightData.Table.Helper;
 using BrightData.Table.Operation;
 using BrightData.Table.Operation.Conversion;
 using BrightData.Table.Operation.Helper;
+using BrightData.Table.Operation.Vectorisation;
 using BrightData.Transformation;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -593,7 +595,7 @@ namespace BrightData.Table
             else {
                 var index = GenericActivator.Create<IOperation>(typeof(TypedIndexer<>).MakeGenericType(buffer.DataType), buffer);
                 await index.Process();
-                conversion = GenericActivator.Create<IOperation>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), buffer, index, output);
+                conversion = GenericActivator.Create<IOperation>(typeof(OneHotConversion<>).MakeGenericType(buffer.DataType), buffer, index, output);
             }
             await conversion.Process();
             return output;
@@ -669,6 +671,89 @@ namespace BrightData.Table
         public static IReadOnlyBuffer<T> Normalize<T>(this IReadOnlyBuffer<T> buffer, INormalize normalize) where T : unmanaged, INumber<T>
         {
             return new NormalizationConverter<T>(buffer, normalize);
+        }
+
+        public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
+        {
+            var dataType = buffer.DataType.GetBrightDataType();
+            return ColumnTypeClassifier.GetClass(dataType, metaData) switch {
+                ColumnClass.Numeric => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType)),
+                ColumnClass.Categorical when oneHotEncodeCategoricalData => await GetOneHotEncoder(buffer, metaData),
+                ColumnClass.Categorical => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType)),
+                ColumnClass.IndexBased => await GetIndexBasedVectoriser(buffer, metaData),
+                _ => throw new NotSupportedException()
+            };
+
+            static async Task<ICanVectorise> GetIndexBasedVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
+            {
+                await metaData.Analyse(false, buffer).Process();
+                var maxIndex = metaData.GetIndexAnalysis().MaxIndex ?? 0;
+                if(maxIndex == 0)
+                    throw new Exception("Expected to find a max index size");
+                if(buffer.DataType == typeof(IndexList))
+                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), maxIndex);
+                if(buffer.DataType == typeof(WeightedIndexList))
+                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), maxIndex);
+                throw new NotSupportedException();
+            }
+
+            static async Task<ICanVectorise> GetOneHotEncoder(IReadOnlyBuffer buffer, MetaData metaData)
+            {
+                await metaData.Analyse(false, buffer).Process();
+                var size = metaData.Get<uint>(BrightData.Consts.NumDistinct, 0);
+                if (size == 0)
+                    throw new Exception("Expected to find a distinct size of items");
+                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), size);
+            }
+        }
+
+        public static async IAsyncEnumerable<float[,]> Vectorise<T>(this IReadOnlyBuffer[] buffers, bool oneHotEncodeCategoricalData, params MetaData[] metaData)
+        {
+            var first = buffers[0];
+            if (buffers.Skip(1).Any(x => x.Size != first.Size || x.BlockSize != first.BlockSize))
+                throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
+
+            Task<ICanVectorise>[] createTasks;
+            var shouldUpdateMetaData = false;
+            if (metaData.Length == buffers.Length) {
+                createTasks = buffers.Select((x, i) => GetVectoriser(x, metaData[i], oneHotEncodeCategoricalData)).ToArray();
+                shouldUpdateMetaData = true;
+            }else switch (metaData.Length) {
+                case 0: {
+                    var tempMetaData = new MetaData();
+                    createTasks = buffers.Select(x => GetVectoriser(x, tempMetaData, oneHotEncodeCategoricalData)).ToArray();
+                    break;
+                }
+                case 1: {
+                    var firstMetaData = metaData[0];
+                    createTasks = buffers.Select(x => GetVectoriser(x, firstMetaData, oneHotEncodeCategoricalData)).ToArray();
+                    break;
+                }
+                default:
+                    throw new ArgumentException("Expected either one, zero or a matching count of meta data", nameof(metaData));
+            }
+
+            await Task.WhenAll(createTasks);
+            var vectorisers = createTasks.Select(x => x.Result).ToArray();
+            var outputSize = vectorisers.Sum(x => x.OutputSize);
+            var tasks = new Task[vectorisers.Length];
+
+            for (uint i = 0; i < first.BlockCount; i++) {
+                var buffer = new float[first.BlockSize, outputSize];
+                uint offset = 0;
+                var index = 0;
+                foreach (var vectoriser in vectorisers) {
+                    tasks[index++] = vectoriser.WriteBlock(i, offset, buffer);
+                    offset += vectoriser.OutputSize;
+                }
+                await Task.WhenAll(tasks);
+                yield return buffer;
+            }
+
+            if (shouldUpdateMetaData) {
+                for (var i = 0; i < vectorisers.Length; i++)
+                    vectorisers[i].WriteTo(metaData[i]);
+            }
         }
     }
 }

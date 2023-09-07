@@ -8,11 +8,11 @@ using BrightData.Table.Operation.Helper;
 
 namespace BrightData.Table.Operation.Conversion
 {
-    internal class OneHotVectoriser<T> : ConversionBase<T, ReadOnlyVector> where T: notnull
+    internal class OneHotConversion<T> : ConversionBase<T, ReadOnlyVector> where T: notnull
     {
         readonly ICanIndex<T> _indexer;
 
-        public OneHotVectoriser(IReadOnlyBuffer<T> input, ICanIndex<T> indexer, IAppendToBuffer<ReadOnlyVector> output) : base(input, output)
+        public OneHotConversion(IReadOnlyBuffer<T> input, ICanIndex<T> indexer, IAppendToBuffer<ReadOnlyVector> output) : base(input, output)
         {
             _indexer = indexer;
         }

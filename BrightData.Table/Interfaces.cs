@@ -110,4 +110,20 @@ namespace BrightData.Table
     {
         Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default);
     }
+
+    public interface ICanIndex<T> : IHaveSize
+    {
+        uint GetIndex(in T item);
+    }
+
+    public interface IReadFromMetaData
+    {
+        void ReadFrom(MetaData metaData);
+    }
+
+    public interface ICanVectorise : IWriteToMetaData, IReadFromMetaData
+    {
+        uint OutputSize { get; }
+        Task WriteBlock(uint blockIndex, uint offset, float[,] output);
+    }
 }

@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace BrightData.Table.Operation.Helper
 {
-    internal interface ICanIndex<T> : IHaveSize
-    {
-        uint GetIndex(in T item);
-    }
-
     internal class TypedIndexer<T> : IOperation, ICanIndex<T>, IAcceptBlock<T> where T : notnull
     {
         readonly BufferScan<T> _scan;
