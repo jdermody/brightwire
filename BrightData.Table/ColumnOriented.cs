@@ -1,6 +1,10 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using BrightData.Converter;
+using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Table.Buffer.ReadOnly;
+using BrightData.Table.Buffer.ReadOnly.Converter;
 using BrightData.Table.Helper;
 
 namespace BrightData.Table
@@ -19,20 +23,39 @@ namespace BrightData.Table
             _columnReader = new IReadOnlyBuffer[ColumnCount];
             var prevOffset = _header.DataOffset;
             for (uint i = 1; i < _columns.Length; i++) {
-                var (prevType, prevSize) = ColumnTypes[i - 1].GetColumnType();
+                var prevColumnType = ColumnTypes[i - 1];
+                var (prevType, prevSize) = prevColumnType.GetColumnType();
                 var nextOffset = prevOffset + prevSize * RowCount;
-                CreateColumnReader(createColumnReader, i - 1, prevOffset, nextOffset - prevOffset);
+                CreateColumnReader(createColumnReader, prevColumnType, prevType, i - 1, prevOffset, nextOffset - prevOffset);
                 prevOffset = nextOffset;
             }
-            CreateColumnReader(createColumnReader, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
+            var lastColumnType = ColumnTypes[_columns.Length - 1];
+            var (lastColumnDataType, _) = lastColumnType.GetColumnType();
+            CreateColumnReader(createColumnReader, lastColumnType, lastColumnDataType, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
         }
 
-        void CreateColumnReader(MethodInfo createColumnReader, uint columnIndex, uint offset, uint size)
+        public override Task<T> Get<T>(uint columnIndex, uint rowIndex)
         {
-            var columnType = ColumnTypes[columnIndex];
-            var (prevType, prevSize) = columnType.GetColumnType();
-            var reader = (IReadOnlyBuffer)createColumnReader.MakeGenericMethod(prevType).Invoke(this, new object[] { columnIndex, offset, size })!;
-            _columnReader[columnIndex] = columnType switch {
+            var column = _columnReader[columnIndex];
+            if (column.DataType != typeof(T))
+                throw new ArgumentException($"Column {columnIndex} is {column.DataType} but requested {typeof(T)}");
+            var reader = (IReadOnlyBuffer<T>)column;
+            return reader.GetItem(rowIndex);
+        }
+
+        public override Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices)
+        {
+            var column = _columnReader[columnIndex];
+            if (column.DataType != typeof(T))
+                throw new ArgumentException($"Column {columnIndex} is {column.DataType} but requested {typeof(T)}");
+            var reader = (IReadOnlyBuffer<T>)column;
+            return reader.GetItems(rowIndices);
+        }
+
+        void CreateColumnReader(MethodInfo createColumnReader, BrightDataType dataType, Type type, uint columnIndex, uint offset, uint size)
+        {
+            var reader = (IReadOnlyBuffer)createColumnReader.MakeGenericMethod(type).Invoke(this, new object[] { columnIndex, offset, size })!;
+            _columnReader[columnIndex] = dataType switch {
                 BrightDataType.String            => new MappedReadOnlyBuffer<uint, string>((IReadOnlyBufferWithMetaData<uint>)reader, GetStrings),
                 BrightDataType.BinaryData        => new MappedReadOnlyBuffer<DataRangeColumnType, BinaryData>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetBinaryData),
                 BrightDataType.IndexList         => new MappedReadOnlyBuffer<DataRangeColumnType, IndexList>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetIndexLists),
@@ -45,8 +68,28 @@ namespace BrightData.Table
             };
         }
 
-        public override IReadOnlyBuffer<T> GetColumn<T>(uint index) => (IReadOnlyBuffer<T>)_columnReader[index];
-        protected override IReadOnlyBuffer GetColumn(uint index) => _columnReader[index];
+        public override IReadOnlyBuffer<T> GetColumn<T>(uint index)
+        {
+            var typeofT = typeof(T);
+            var reader = _columnReader[index];
+            var dataType = reader.DataType;
+
+            if(dataType == typeofT)
+                return (IReadOnlyBuffer<T>)_columnReader[index];
+            if (typeofT == typeof(object))
+                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(ToObjectConverter<>).MakeGenericType(dataType), reader);
+            if (typeofT == typeof(string))
+                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(ToStringConverter<>).MakeGenericType(dataType), reader);
+            if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo()))
+                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(CastConverter<,>).MakeGenericType(dataType, typeof(T)), reader);
+            if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
+                var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(dataType, typeof(T)).Invoke(null, null);
+                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(dataType, typeof(T)), reader, converter);
+            }
+
+            throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
+        }
+        public override IReadOnlyBuffer GetColumn(uint index) => _columnReader[index];
 
         IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
             new BlockReaderReadOnlyBuffer<T>(_columnMetaData[columnIndex], _reader, offset, size, ReaderBlockSize);

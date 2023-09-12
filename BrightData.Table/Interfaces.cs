@@ -11,12 +11,19 @@ using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Table
 {
+    public interface IConvertObjects
+    {
+        T ConvertObjectTo<T>(object ret) where T : notnull;
+    }
+
     public interface IDataTable : IDisposable, IHaveMetaData
     {
         uint RowCount { get; }
         uint ColumnCount { get; }
         DataTableOrientation Orientation { get; }
+        BrightDataType[] ColumnTypes { get; }
         void PersistMetaData();
+        IReadOnlyBuffer GetColumn(uint index);
         IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
         Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
     }
@@ -50,7 +57,7 @@ namespace BrightData.Table
     public interface IReadOnlyBuffer<T> : IReadOnlyBuffer where T : notnull
     {
         Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default);
-        Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex);
+        Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex);
         IAsyncEnumerable<T> EnumerateAllTyped();
         IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default);
     }

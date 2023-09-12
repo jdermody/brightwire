@@ -35,7 +35,7 @@ namespace BrightData.Table.Buffer.ReadOnly
             }, notify, msg, ct);
         }
 
-        public async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
+        public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;
@@ -43,10 +43,16 @@ namespace BrightData.Table.Buffer.ReadOnly
                 return _lastBlock.Value;
 
             _lastBlockIndex = blockIndex;
-            var indices = await _index.GetBlock(blockIndex);
+            var indices = await _index.GetTypedBlock(blockIndex);
             var ret = _mapper(indices.Span);
             _lastBlock = ret;
             return ret;
+        }
+
+        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
+        {
+            var block = await GetTypedBlock(blockIndex);
+            return block.AsObjects();
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
@@ -54,7 +60,7 @@ namespace BrightData.Table.Buffer.ReadOnly
         public async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < BlockCount; i++) {
-                var block = await GetBlock(i);
+                var block = await GetTypedBlock(i);
                 for (var j = 0; j < block.Length; j++)
                     yield return block.Span[j];
             }

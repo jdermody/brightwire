@@ -44,13 +44,19 @@ namespace BrightData.Table.Buffer.ReadOnly.Converter
             }, notify, message, ct);
         }
 
-        public async Task<ReadOnlyMemory<TT>> GetBlock(uint blockIndex)
+        public async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)
         {
-            var block = await _from.GetBlock(blockIndex);
+            var block = await _from.GetTypedBlock(blockIndex);
             var ret = new Memory<TT>(new TT[block.Length]);
             for (var i = 0; i < block.Length; i++)
                 Convert(block.Span[i], ref ret.Span[i]);
             return ret;
+        }
+
+        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
+        {
+            var block = await GetTypedBlock(blockIndex);
+            return block.AsObjects();
         }
 
         public async IAsyncEnumerable<TT> EnumerateAllTyped()

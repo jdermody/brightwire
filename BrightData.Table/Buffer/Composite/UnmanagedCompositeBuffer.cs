@@ -79,7 +79,7 @@ namespace BrightData.Table.Buffer.Composite
         //        callback(_currBlock.WrittenSpan);
         //}
 
-        public override async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");

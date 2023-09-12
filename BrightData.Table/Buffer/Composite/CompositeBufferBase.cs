@@ -1,5 +1,6 @@
 ﻿using BrightData.Table.Helper;
 using Microsoft.Win32.SafeHandles;
+using System;
 
 namespace BrightData.Table.Buffer.Composite
 {
@@ -130,7 +131,13 @@ namespace BrightData.Table.Buffer.Composite
                 yield return item;
         }
 
-        public virtual async Task<ReadOnlyMemory<T>> GetBlock(uint blockIndex)
+        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
+        {
+            var block = await GetTypedBlock(blockIndex);
+            return block.AsObjects();
+        }
+
+        public virtual async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             uint currentIndex = 0;
 

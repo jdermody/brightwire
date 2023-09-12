@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Table.Helper
 {
-    internal abstract class TableBase : IDataTable
+    internal abstract partial class TableBase : IDataTable
     {
         internal struct Column
         {
@@ -29,7 +30,7 @@ namespace BrightData.Table.Helper
         readonly Lazy<Task<ReadOnlyMemory<byte>>>                   _data;
         readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
         readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
-        protected readonly MetaData[] _columnMetaData;
+        protected readonly MetaData[]                               _columnMetaData;
 
         protected unsafe TableBase(IByteBlockReader reader, DataTableOrientation expectedOrientation)
         {
@@ -63,6 +64,7 @@ namespace BrightData.Table.Helper
                 else
                     _columnMetaData[i-1] = new(metadataReader);
             }
+            MetaData ??= new();
 
             // create data readers
             _strings         = new(() => ReadStrings(_header.StringOffset, _header.StringSizeBytes));
@@ -209,7 +211,9 @@ namespace BrightData.Table.Helper
         public uint ColumnCount => _header.ColumnCount;
         public DataTableOrientation Orientation => _header.Orientation;
         public abstract IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
-        protected abstract IReadOnlyBuffer GetColumn(uint index);
+        public abstract IReadOnlyBuffer GetColumn(uint index);
+        public abstract Task<T> Get<T>(uint columnIndex, uint rowIndex) where T : notnull;
+        public abstract Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull;
 
         public BrightDataType[] ColumnTypes { get; }
 
@@ -252,6 +256,21 @@ namespace BrightData.Table.Helper
                 : indices
         ;
 
+        /// <summary>
+        /// Enumerates row indices
+        /// </summary>
+        public IEnumerable<uint> AllRowIndices => _header.RowCount.AsRange();
+
+        /// <summary>
+        /// Enumerates specified row indices (or all if none specified)
+        /// </summary>
+        /// <param name="indices">Row indices (optional)</param>
+        /// <returns></returns>
+        public IEnumerable<uint> AllOrSpecifiedRowIndices(params uint[]? indices) => (indices is null || indices.Length == 0)
+            ? AllRowIndices
+            : indices
+        ;
+
         public async Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices)
         {
             if (!AllOrSpecifiedColumnIndices(columnIndices, true).All(i => _columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
@@ -286,64 +305,6 @@ namespace BrightData.Table.Helper
                 for (var i = 0; i < size; i++)
                     curr[i] = enumerators[i].Current;
                 yield return new Row(curr);
-            }
-        }
-
-        public record Row<T1, T2>(T1 C1, T2 C2) where T1: notnull where T2: notnull;
-        public async IAsyncEnumerable<Row<T1, T2>> Enumerate<T1, T2>(uint firstColumnIndex = 0, uint secondColumnIndex = 1, [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1 : notnull 
-            where T2 : notnull
-        {
-            const int size = 2;
-            var e1 = GetColumn<T1>(firstColumnIndex).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(secondColumnIndex).GetAsyncEnumerator(ct);
-            var currentTasks = new ValueTask<bool>[size];
-            var isValid = true;
-
-            while (!ct.IsCancellationRequested && isValid) {
-                currentTasks[0] = e1.MoveNextAsync();
-                currentTasks[1] = e1.MoveNextAsync();
-                for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
-                        isValid = false;
-                        break;
-                    }
-                }
-                var row = new Row<T1, T2>(e1.Current, e2.Current);
-                yield return row;
-            }
-        }
-
-        public record Row<T1, T2, T3>(T1 C1, T2 C2, T3 C3) where T1: notnull where T2: notnull where T3: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3>> Enumerate<T1, T2, T3>(
-            uint firstColumnIndex = 0, 
-            uint secondColumnIndex = 1, 
-            uint thirdColumnIndex = 1, 
-            [EnumeratorCancellation] CancellationToken ct = default
-        )
-            where T1 : notnull 
-            where T2 : notnull
-            where T3 : notnull
-        {
-            const int size = 3;
-            var e1 = GetColumn<T1>(firstColumnIndex).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(secondColumnIndex).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(thirdColumnIndex).GetAsyncEnumerator(ct);
-            var currentTasks = new ValueTask<bool>[size];
-            var isValid = true;
-
-            while (!ct.IsCancellationRequested && isValid) {
-                currentTasks[0] = e1.MoveNextAsync();
-                currentTasks[1] = e1.MoveNextAsync();
-                currentTasks[2] = e2.MoveNextAsync();
-                for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
-                        isValid = false;
-                        break;
-                    }
-                }
-                var row = new Row<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
-                yield return row;
             }
         }
     }

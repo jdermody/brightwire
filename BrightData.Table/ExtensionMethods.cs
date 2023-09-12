@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using BrightData.Analysis;
 using BrightData.Converter;
 using BrightData.Helper;
@@ -146,7 +147,7 @@ namespace BrightData.Table
                     return true;
 
                 while(_blockIndex < _buffer.BlockCount) {
-                    _currentBlock = _buffer.GetBlock(_blockIndex++).Result;
+                    _currentBlock = _buffer.GetTypedBlock(_blockIndex++).Result;
                     if (_currentBlock.Length > 0) {
                         _position = 0;
                         return true;
@@ -293,7 +294,7 @@ namespace BrightData.Table
         public static async Task<T> GetItem<T>(this IReadOnlyBuffer<T> buffer, uint index) where T: notnull
         {
             var blockIndex = index / buffer.BlockSize;
-            var blockMemory = await buffer.GetBlock(blockIndex);
+            var blockMemory = await buffer.GetTypedBlock(blockIndex);
             return blockMemory.Span[(int)(index % buffer.BlockSize)];
         }
 
@@ -305,7 +306,7 @@ namespace BrightData.Table
             ;
             var ret = new T[indices.Length];
             foreach (var block in blocks) {
-                var blockMemory = await buffer.GetBlock(block.Key);
+                var blockMemory = await buffer.GetTypedBlock(block.Key);
                 Add(blockMemory, block, ret);
             }
             return ret;
@@ -335,10 +336,10 @@ namespace BrightData.Table
             if(buffer.BlockCount == 0)
                 return ReadOnlySequence<T>.Empty;
 
-            var first = new MemorySegment<T>(await buffer.GetBlock(0));
+            var first = new MemorySegment<T>(await buffer.GetTypedBlock(0));
             var last = first;
             for(var i = 1; i < buffer.BlockCount; i++)
-                last = last.Append(await buffer.GetBlock(1));
+                last = last.Append(await buffer.GetTypedBlock(1));
             return new ReadOnlySequence<T>(first, 0, last, last.Memory.Length);
         }
 
@@ -754,6 +755,43 @@ namespace BrightData.Table
                 for (var i = 0; i < vectorisers.Length; i++)
                     vectorisers[i].WriteTo(metaData[i]);
             }
+        }
+
+        public static async Task<Dictionary<string, List<uint>>> GetGroups(this IReadOnlyBuffer[] buffers)
+        {
+            var enumerators = buffers.Select(x => x.EnumerateAll().GetAsyncEnumerator()).ToArray();
+            var shouldContinue = true;
+            var sb = new StringBuilder();
+            Dictionary<string, List<uint>> ret = new();
+            uint rowIndex = 0;
+
+            while (shouldContinue) {
+                sb.Clear();
+                foreach (var enumerator in enumerators) {
+                    if (!await enumerator.MoveNextAsync()) {
+                        shouldContinue = false; 
+                        break;
+                    }
+                    if (sb.Length > 0)
+                        sb.Append('|');
+                    sb.Append(enumerator.Current);
+                }
+                var str = sb.ToString();
+                if(!ret.TryGetValue(str, out var list))
+                    ret.Add(str, list = new());
+                list.Add(rowIndex++);
+            }
+
+            return ret;
+        }
+
+        public static ReadOnlyMemory<object> AsObjects<T>(this ReadOnlyMemory<T> block) where T: notnull
+        {
+            var index = 0;
+            var ret = new object[block.Length];
+            foreach (ref readonly var item in block.Span)
+                ret[index++] = item;
+            return ret;
         }
     }
 }

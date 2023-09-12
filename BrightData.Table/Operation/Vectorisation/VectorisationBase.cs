@@ -24,7 +24,7 @@ namespace BrightData.Table.Operation.Vectorisation
 
         public async Task WriteBlock(uint blockIndex, uint offset, float[,] output)
         {
-            var block = await _buffer.GetBlock(blockIndex);
+            var block = await _buffer.GetTypedBlock(blockIndex);
             WriteBlock(block.Span, offset, output.AsSpan2D());
         }
 

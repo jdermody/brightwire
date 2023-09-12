@@ -46,11 +46,11 @@ namespace BrightData.Table.Buffer.Composite
         {
         }
 
-        public override Task<ReadOnlyMemory<string>> GetBlock(uint blockIndex)
+        public override Task<ReadOnlyMemory<string>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
-            return base.GetBlock(blockIndex);
+            return base.GetTypedBlock(blockIndex);
         }
 
         public override void Add(in string item)

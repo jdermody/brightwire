@@ -301,7 +301,6 @@ namespace BrightData.DataTable
         /// Analysis for all columns
         /// </summary>
         /// <param name="writeCount">Maximum size of meta data output</param>
-        /// <param name="maxDistinctCount">Maximum number of distinct items</param>
         /// <returns></returns>
         public MetaData[] AllColumnAnalysis(uint writeCount = Consts.MaxWriteCount) => GetColumnAnalysis(ColumnCount.AsRange(), writeCount).Select(d => d.MetaData).ToArray();
 

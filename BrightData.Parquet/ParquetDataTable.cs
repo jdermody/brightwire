@@ -50,7 +50,14 @@ namespace BrightData.Parquet
         public uint RowCount { get; }
         public uint ColumnCount { get; }
         public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
+        public BrightDataType[] ColumnTypes { get; }
+
         public void PersistMetaData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Table.IReadOnlyBuffer GetColumn(uint index)
         {
             throw new NotImplementedException();
         }
@@ -66,5 +73,9 @@ namespace BrightData.Parquet
         }
 
         public MetaData MetaData => _metaData.Value;
+        public T ConvertObjectTo<T>(uint index, object ret) where T : notnull
+        {
+            throw new NotImplementedException();
+        }
     }
 }

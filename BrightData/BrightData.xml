@@ -916,7 +916,6 @@
             Analysis for all columns
             </summary>
             <param name="writeCount">Maximum size of meta data output</param>
-            <param name="maxDistinctCount">Maximum number of distinct items</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.DataTable.BrightDataTable.PersistMetaData">
