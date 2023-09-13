@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Table.Buffer.Composite;
-using BrightData.Table.Buffer.ReadOnly;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Table.Helper
@@ -31,6 +23,7 @@ namespace BrightData.Table.Helper
         readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
         readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
         protected readonly MetaData[]                               _columnMetaData;
+        ITensorDataProvider                                         _tensorDataProvider;
 
         protected unsafe TableBase(IByteBlockReader reader, DataTableOrientation expectedOrientation)
         {
@@ -72,6 +65,7 @@ namespace BrightData.Table.Helper
             _data            = new(() => GetBlock<byte>(_header.DataOffset, _header.DataSizeBytes));
             _indices         = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
             _weightedIndices = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
+            _tensorDataProvider = this;
         }
 
         public MetaData MetaData { get; }
@@ -121,60 +115,40 @@ namespace BrightData.Table.Helper
         {
             var index = 0;
             var ret = new ReadOnlyVector[span.Length];
-            var data = _tensors.Value.Result;
+            var data = _tensorDataProvider.GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size));
             return ret;
-        }
-        protected ReadOnlyVector GetVector(in DataRangeColumnType dataRange)
-        {
-            var data = _tensors.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new ReadOnlyVector(data);
         }
 
         protected ReadOnlyMemory<ReadOnlyMatrix> GetMatrices(ReadOnlySpan<MatrixColumnType> span)
         {
             var index = 0;
             var ret = new ReadOnlyMatrix[span.Length];
-            var data = _tensors.Value.Result;
+            var data = _tensorDataProvider.GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyMatrix(data.Slice((int)item.StartIndex, (int)item.Size), item.RowCount, item.ColumnCount);
             return ret;
-        }
-        protected ReadOnlyMatrix GetMatrix(in MatrixColumnType dataRange)
-        {
-            var data = _tensors.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new ReadOnlyMatrix(data, dataRange.RowCount, dataRange.ColumnCount);
         }
 
         protected ReadOnlyMemory<ReadOnlyTensor3D> GetTensors(ReadOnlySpan<Tensor3DColumnType> span)
         {
             var index = 0;
             var ret = new ReadOnlyTensor3D[span.Length];
-            var data = _tensors.Value.Result;
+            var data = _tensorDataProvider.GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyTensor3D(data.Slice((int)item.StartIndex, (int)item.Size), item.Depth, item.RowCount, item.ColumnCount);
             return ret;
-        }
-        protected ReadOnlyTensor3D GetTensor(in Tensor3DColumnType dataRange)
-        {
-            var data = _tensors.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new ReadOnlyTensor3D(data, dataRange.Depth, dataRange.RowCount, dataRange.ColumnCount);
         }
 
         protected ReadOnlyMemory<ReadOnlyTensor4D> GetTensors(ReadOnlySpan<Tensor4DColumnType> span)
         {
             var index = 0;
             var ret = new ReadOnlyTensor4D[span.Length];
-            var data = _tensors.Value.Result;
+            var data = _tensorDataProvider.GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyTensor4D(data.Slice((int)item.StartIndex, (int)item.Size), item.Count, item.Depth, item.RowCount, item.ColumnCount);
             return ret;
-        }
-        protected ReadOnlyTensor4D GetTensor(in Tensor4DColumnType dataRange)
-        {
-            var data = _tensors.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new ReadOnlyTensor4D(data, dataRange.Count, dataRange.Depth, dataRange.RowCount, dataRange.ColumnCount);
         }
 
         protected ReadOnlyMemory<IndexList> GetIndexLists(ReadOnlySpan<DataRangeColumnType> span)
@@ -211,7 +185,7 @@ namespace BrightData.Table.Helper
         public uint ColumnCount => _header.ColumnCount;
         public DataTableOrientation Orientation => _header.Orientation;
         public abstract IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
-        public abstract IReadOnlyBuffer GetColumn(uint index);
+        public abstract IReadOnlyBufferWithMetaData GetColumn(uint index);
         public abstract Task<T> Get<T>(uint columnIndex, uint rowIndex) where T : notnull;
         public abstract Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull;
 
@@ -280,6 +254,8 @@ namespace BrightData.Table.Helper
             return AllOrSpecifiedColumnIndices(columnIndices, false).Select(x => _columnMetaData[x]).ToArray();
         }
 
+        public void SetTensorData(ITensorDataProvider dataProvider) => _tensorDataProvider = dataProvider;
+
         public record Row(object[] Values);
         public async IAsyncEnumerable<Row> Enumerate([EnumeratorCancellation] CancellationToken ct = default)
         {
@@ -307,5 +283,31 @@ namespace BrightData.Table.Helper
                 yield return new Row(curr);
             }
         }
+
+        public IReadOnlyBufferWithMetaData[] GetColumns(params uint[] columnIndices)
+        {
+            IReadOnlyBufferWithMetaData[] ret;
+            if (columnIndices.Length == 0) {
+                ret = new IReadOnlyBufferWithMetaData[ColumnCount];
+                for (uint i = 0; i < ColumnCount; i++)
+                    ret[i] = GetColumn(i);
+            }
+            else {
+                var ind = 0;
+                ret = new IReadOnlyBufferWithMetaData[columnIndices.Length];
+                foreach(var index in columnIndices)
+                    ret[ind++] = GetColumn(index);
+            }
+
+            return ret;
+        }
+
+        public async Task WriteTo(Stream stream, params uint[] columnIndices)
+        {
+            var builder = new ColumnOrientedTableBuilder();
+            await builder.Write(MetaData, GetColumns(columnIndices), stream);
+        }
+
+        public ReadOnlyMemory<float> GetTensorData() => _tensors.Value.Result;
     }
 }

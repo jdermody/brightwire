@@ -17,6 +17,7 @@ namespace BrightData.Parquet
             _reader = reader;
             _fields = _reader.Schema.DataFields;
             ColumnCount = (uint)_fields.Length;
+            ColumnTypes = _fields.Select(x => x.ClrType.GetBrightDataType()).ToArray();
             _rowGroups = new RowGroup[reader.RowGroupCount];
 
             uint offset = 0;
@@ -51,13 +52,14 @@ namespace BrightData.Parquet
         public uint ColumnCount { get; }
         public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
         public BrightDataType[] ColumnTypes { get; }
+        public MetaData MetaData => _metaData.Value;
 
         public void PersistMetaData()
         {
             throw new NotImplementedException();
         }
 
-        public Table.IReadOnlyBuffer GetColumn(uint index)
+        public IReadOnlyBufferWithMetaData GetColumn(uint index)
         {
             throw new NotImplementedException();
         }
@@ -72,8 +74,12 @@ namespace BrightData.Parquet
             throw new NotImplementedException();
         }
 
-        public MetaData MetaData => _metaData.Value;
-        public T ConvertObjectTo<T>(uint index, object ret) where T : notnull
+        public void SetTensorData(ITensorDataProvider dataProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ReadOnlyMemory<float> GetTensorData()
         {
             throw new NotImplementedException();
         }

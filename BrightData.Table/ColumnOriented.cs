@@ -12,7 +12,7 @@ namespace BrightData.Table
     internal class ColumnOriented : TableBase
     {
         const int ReaderBlockSize = 8;
-        readonly IReadOnlyBuffer[] _columnReader;
+        readonly IReadOnlyBufferWithMetaData[] _columnReader;
 
         public ColumnOriented(IByteBlockReader data) : base(data, DataTableOrientation.ColumnOriented)
         {
@@ -20,7 +20,7 @@ namespace BrightData.Table
             var createColumnReader          = genericMethods[nameof(CreateColumnReader)];
 
             // create column readers
-            _columnReader = new IReadOnlyBuffer[ColumnCount];
+            _columnReader = new IReadOnlyBufferWithMetaData[ColumnCount];
             var prevOffset = _header.DataOffset;
             for (uint i = 1; i < _columns.Length; i++) {
                 var prevColumnType = ColumnTypes[i - 1];
@@ -54,7 +54,7 @@ namespace BrightData.Table
 
         void CreateColumnReader(MethodInfo createColumnReader, BrightDataType dataType, Type type, uint columnIndex, uint offset, uint size)
         {
-            var reader = (IReadOnlyBuffer)createColumnReader.MakeGenericMethod(type).Invoke(this, new object[] { columnIndex, offset, size })!;
+            var reader = (IReadOnlyBufferWithMetaData)createColumnReader.MakeGenericMethod(type).Invoke(this, new object[] { columnIndex, offset, size })!;
             _columnReader[columnIndex] = dataType switch {
                 BrightDataType.String            => new MappedReadOnlyBuffer<uint, string>((IReadOnlyBufferWithMetaData<uint>)reader, GetStrings),
                 BrightDataType.BinaryData        => new MappedReadOnlyBuffer<DataRangeColumnType, BinaryData>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetBinaryData),
@@ -75,21 +75,21 @@ namespace BrightData.Table
             var dataType = reader.DataType;
 
             if(dataType == typeofT)
-                return (IReadOnlyBuffer<T>)_columnReader[index];
+                return (IReadOnlyBufferWithMetaData<T>)_columnReader[index];
             if (typeofT == typeof(object))
-                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(ToObjectConverter<>).MakeGenericType(dataType), reader);
+                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(ToObjectConverter<>).MakeGenericType(dataType), reader);
             if (typeofT == typeof(string))
-                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(ToStringConverter<>).MakeGenericType(dataType), reader);
+                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(ToStringConverter<>).MakeGenericType(dataType), reader);
             if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo()))
-                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(CastConverter<,>).MakeGenericType(dataType, typeof(T)), reader);
+                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(CastConverter<,>).MakeGenericType(dataType, typeof(T)), reader);
             if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
                 var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(dataType, typeof(T)).Invoke(null, null);
-                return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(dataType, typeof(T)), reader, converter);
+                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(TypeConverter<,>).MakeGenericType(dataType, typeof(T)), reader, converter);
             }
 
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
         }
-        public override IReadOnlyBuffer GetColumn(uint index) => _columnReader[index];
+        public override IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
 
         IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
             new BlockReaderReadOnlyBuffer<T>(_columnMetaData[columnIndex], _reader, offset, size, ReaderBlockSize);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 
-namespace BrightData.Table.ByteBlockReaders
+namespace BrightData.Table.Buffer.ByteBlockReaders
 {
     internal class FileByteBlockReader : IByteBlockReader
     {
@@ -22,11 +22,12 @@ namespace BrightData.Table.ByteBlockReaders
 
         public async Task<ReadOnlyMemory<byte>> GetBlock(uint offset, uint numBytes)
         {
-            if(numBytes == 0)
+            if (numBytes == 0)
                 return ReadOnlyMemory<byte>.Empty;
             Memory<byte> ret = new(new byte[numBytes]);
             var readOffset = 0;
-            do {
+            do
+            {
                 readOffset += await RandomAccess.ReadAsync(_file, ret[readOffset..], offset + readOffset);
             } while (readOffset < numBytes);
             return ret;

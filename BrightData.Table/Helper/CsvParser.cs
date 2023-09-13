@@ -26,42 +26,66 @@ namespace BrightData.Table.Helper
                 var start = 0;
                 for (int i = 0, len = data.Length; i < len; i++) {
                     var ch = data[i];
-                    if (ch == '\n' && !_inQuote) {
-                        if (_columnData != null) {
-                            while(_columnData.Count <= _columnIndex)
-                                _columnData.Add(new StringBuilder());
-                            _columnData[_columnIndex].Append(data[start..(i - 1)]);
-                            for (var j = 0; j <= _columnIndex; j++) {
-                                var sb = _columnData[j];
-                                while ((Columns ??= new()).Count <= j)
-                                    Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
-                                if (_isFirstRow && _parser._firstRowIsHeader)
-                                    Columns[j].MetaData.SetName(sb.ToString().Trim());
-                                else
-                                    Columns[j].Add(sb.ToString());
-                                sb.Clear();
-                            }
 
-                            // finish any columns that might have been missed
-                            if (Columns?.Count > (_columnIndex+1)) {
-                                for (var j = _columnIndex+1; j < Columns.Count; j++) {
-                                    if (_isFirstRow && _parser._firstRowIsHeader)
-                                        Columns[j].MetaData.SetName(string.Empty);
-                                    else
-                                        Columns[j].Add(String.Empty);
-                                }
-                            }
-                            _isFirstRow = false;
-                        }
+                    // check for new line
+                    if (ch == '\n' && !_inQuote) {
+                        FinishLine(data[start..i]);
                         _columnIndex = 0;
                         start = i+1;
-                    }else if (ch == _parser._delimiter && !_inQuote) {
+                    }
+                    
+                    // check for a delimiter, such as a comma
+                    else if (ch == _parser._delimiter && !_inQuote) {
                         while((_columnData ??= new()).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(data[start..i]);
                         start = i+1;
-                    }else if (ch == _parser._quote)
+                    }
+                    
+                    // check for quote characters
+                    else if (ch == _parser._quote)
                         _inQuote = !_inQuote;
+                }
+
+                // handle case where last line might not have a new line character
+                if (start < data.Length)
+                    FinishLine(data[start..]);
+            }
+            void FinishLine(ReadOnlySpan<char> data)
+            {
+                if (_columnData != null) {
+                    // add string builders if needed
+                    while(_columnData.Count <= _columnIndex)
+                        _columnData.Add(new StringBuilder());
+
+                    // add the text to the current string builder
+                    _columnData[_columnIndex].Append(data);
+
+                    // flush the string builders to the column buffers
+                    for (var j = 0; j <= _columnIndex; j++) {
+                        var sb = _columnData[j];
+                        while ((Columns ??= new()).Count <= j)
+                            Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
+
+                        // set the column name if needed
+                        if (_isFirstRow && _parser._firstRowIsHeader)
+                            Columns[j].MetaData.SetName(sb.ToString().Trim());
+                        else
+                            Columns[j].Add(sb.ToString());
+                        sb.Clear();
+                    }
+
+                    // finish any columns that might have been missed
+                    if (Columns?.Count > _columnIndex+1) {
+                        for (var j = _columnIndex+1; j < Columns.Count; j++) {
+                            if (_isFirstRow && _parser._firstRowIsHeader)
+                                Columns[j].MetaData.SetName(string.Empty);
+                            else
+                                Columns[j].Add(String.Empty);
+                        }
+                    }
+                    if(_isFirstRow)
+                        _isFirstRow = false;
                 }
             }
         }

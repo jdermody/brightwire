@@ -11,9 +11,9 @@ using BrightData.Analysis;
 using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.Table.Buffer.ByteBlockReaders;
 using BrightData.Table.Buffer.Composite;
 using BrightData.Table.Buffer.ReadOnly.Converter;
-using BrightData.Table.ByteBlockReaders;
 using BrightData.Table.Helper;
 using BrightData.Table.Operation;
 using BrightData.Table.Operation.Conversion;
@@ -27,15 +27,29 @@ namespace BrightData.Table
     public static class ExtensionMethods
     {
         public static async Task<IDataTable> CreateTableInMemory(
-            this BrightDataContext _,
-            params ICompositeBuffer[] buffers
+            this IReadOnlyBufferWithMetaData[] buffers,
+            MetaData? tableMetaData = null
         )
         {
-            var builder = new ColumnOrientedTableBuilder();
             var ret = new MemoryStream();
-            await builder.Write(new(), buffers, ret);
+            var builder = new ColumnOrientedTableBuilder();
+            await builder.Write(tableMetaData ?? new(), buffers, ret);
             var memory = new Memory<byte>(ret.GetBuffer(), 0, (int)ret.Length);
             return new ColumnOriented(new MemoryByteBlockReader(memory, ret));
+        }
+
+        public static async Task<IDataTable> CreateTable(
+            this IReadOnlyBufferWithMetaData[] buffers,
+            string filePath,
+            MetaData? tableMetaData = null
+        )
+        {
+            {
+                var builder = new ColumnOrientedTableBuilder();
+                await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                await builder.Write(tableMetaData ?? new(), buffers, stream);
+            }
+            return new ColumnOriented(new FileByteBlockReader(filePath));
         }
 
         public static ICompositeBuffer<string> CreateCompositeBuffer(
@@ -122,7 +136,7 @@ namespace BrightData.Table
             return (ret, data);
         }
 
-        public static T[] ToArray<T>(this ICompositeBuffer<T> buffer) where T : notnull
+        public static T[] ToArray<T>(this IReadOnlyBuffer<T> buffer) where T : notnull
         {
             var ret = new T[buffer.Size];
             var offset = 0;
@@ -133,13 +147,13 @@ namespace BrightData.Table
             return ret;
         }
 
-        public ref struct CompositeBufferIterator<T> where T: notnull
+        public ref struct ReadOnlyBufferIterator<T> where T: notnull
         {
-            readonly ICompositeBuffer<T> _buffer;
+            readonly IReadOnlyBuffer<T> _buffer;
             ReadOnlyMemory<T> _currentBlock = ReadOnlyMemory<T>.Empty;
             uint _blockIndex = 0, _position = 0;
 
-            public CompositeBufferIterator(ICompositeBuffer<T> buffer) => _buffer = buffer;
+            public ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
 
             public bool MoveNext()
             {
@@ -157,9 +171,9 @@ namespace BrightData.Table
             }
 
             public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
-            public readonly CompositeBufferIterator<T> GetEnumerator() => this;
+            public readonly ReadOnlyBufferIterator<T> GetEnumerator() => this;
         }
-        public static CompositeBufferIterator<T> GetEnumerator<T>(this ICompositeBuffer<T> buffer) where T: notnull => new(buffer);
+        public static ReadOnlyBufferIterator<T> GetEnumerator<T>(this IReadOnlyBuffer<T> buffer) where T: notnull => new(buffer);
 
         static (Type, uint) GetTypeAndSize<T>() => (typeof(T), (uint)Unsafe.SizeOf<T>());
 
@@ -295,7 +309,8 @@ namespace BrightData.Table
         {
             var blockIndex = index / buffer.BlockSize;
             var blockMemory = await buffer.GetTypedBlock(blockIndex);
-            return blockMemory.Span[(int)(index % buffer.BlockSize)];
+            var ret = blockMemory.Span[(int)(index % buffer.BlockSize)];
+            return ret;
         }
 
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull

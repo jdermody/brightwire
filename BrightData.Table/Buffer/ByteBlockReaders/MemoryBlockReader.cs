@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-namespace BrightData.Table.ByteBlockReaders
+namespace BrightData.Table.Buffer.ByteBlockReaders
 {
     internal class MemoryByteBlockReader : IByteBlockReader
     {
@@ -28,7 +28,7 @@ namespace BrightData.Table.ByteBlockReaders
 
         public Task<ReadOnlyMemory<byte>> GetBlock(uint offset, uint numBytes)
         {
-            if(numBytes == 0 || _memory.IsEmpty)
+            if (numBytes == 0 || _memory.IsEmpty)
                 return Task.FromResult(ReadOnlyMemory<byte>.Empty);
             return Task.FromResult(_memory.Slice((int)offset, (int)numBytes));
         }

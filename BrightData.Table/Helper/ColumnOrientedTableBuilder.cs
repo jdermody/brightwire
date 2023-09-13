@@ -26,7 +26,7 @@ namespace BrightData.Table.Helper
             _writeStructs = methods[nameof(WriteStructs)];
         }
 
-        public async Task Write(MetaData tableMetaData, ICompositeBuffer[] buffers, Stream output)
+        public async Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output)
         {
             // check that all columns have the same number of rows
             var firstColumn = buffers[0];
@@ -69,21 +69,21 @@ namespace BrightData.Table.Helper
                 var dataType = columnType.GetTableDataType();
 
                 if (dataType == BrightDataType.IndexList)
-                    await WriteIndexLists((ICompositeBuffer<IndexList>)columnSegment, indexWriter.Value, output);
+                    await WriteIndexLists((IReadOnlyBuffer<IndexList>)columnSegment, indexWriter.Value, output);
                 else if (dataType == BrightDataType.WeightedIndexList)
-                    await WriteWeightedIndexLists((ICompositeBuffer<WeightedIndexList>)columnSegment, weightedIndexWriter.Value, output);
+                    await WriteWeightedIndexLists((IReadOnlyBuffer<WeightedIndexList>)columnSegment, weightedIndexWriter.Value, output);
                 else if (dataType == BrightDataType.BinaryData)
-                    await WriteBinaryData((ICompositeBuffer<BinaryData>)columnSegment, byteWriter.Value, output);
+                    await WriteBinaryData((IReadOnlyBuffer<BinaryData>)columnSegment, byteWriter.Value, output);
                 else if (dataType == BrightDataType.String)
-                    await WriteStringData((ICompositeBuffer<string>)columnSegment, stringWriter.Value, output);
+                    await WriteStringData((IReadOnlyBuffer<string>)columnSegment, stringWriter.Value, output);
                 else if (dataType == BrightDataType.Vector)
-                        await WriteVectors((ICompositeBuffer<ReadOnlyVector>)columnSegment, floatWriter.Value, output);
+                        await WriteVectors((IReadOnlyBuffer<ReadOnlyVector>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Matrix)
-                    await WriteMatrices((ICompositeBuffer<ReadOnlyMatrix>)columnSegment, floatWriter.Value, output);
+                    await WriteMatrices((IReadOnlyBuffer<ReadOnlyMatrix>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Tensor3D)
-                    await WriteTensors((ICompositeBuffer<ReadOnlyTensor3D>)columnSegment, floatWriter.Value, output);
+                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor3D>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Tensor4D)
-                    await WriteTensors((ICompositeBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
+                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
                 else
                     await (Task<bool>)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
             }
@@ -163,21 +163,21 @@ namespace BrightData.Table.Helper
             output.Seek(0, SeekOrigin.End);
         }
 
-        static TableBase.Column[] GetColumns(ICompositeBuffer[] buffers, BinaryWriter metaDataWriter)
+        static TableBase.Column[] GetColumns(IReadOnlyBufferWithMetaData[] buffers, BinaryWriter metaDataWriter)
         {
             var ret = new TableBase.Column[buffers.Length];
             var index = 0;
             foreach (var columnSegment in buffers) {
                 ref var c = ref ret[index++];
                 c.DataType = columnSegment.DataType.GetTableDataType();
-                (var type, c.DataTypeSize) = c.DataType.GetColumnType();
+                (_, c.DataTypeSize) = c.DataType.GetColumnType();
                 columnSegment.MetaData.SetType(c.DataType);
                 columnSegment.MetaData.WriteTo(metaDataWriter);
             }
             return ret;
         }
 
-        static Task WriteStructs<T>(ICompositeBuffer<T> input, Stream stream) where T : unmanaged
+        static Task WriteStructs<T>(IReadOnlyBuffer<T> input, Stream stream) where T : unmanaged
         {
             return input.ForEachBlock(block => stream.Write(MemoryMarshal.AsBytes(block)));
         }
@@ -186,12 +186,12 @@ namespace BrightData.Table.Helper
             where T : notnull 
             where CT : unmanaged
         ;
-        static Task Convert<T, CT>(ICompositeBuffer<T> buffer, Stream stream, CopyDelegate<CT, T> filler)
+        static Task Convert<T, CT>(IReadOnlyBuffer<T> buffer, Stream stream, CopyDelegate<CT, T> filler)
             where T : notnull
             where CT : unmanaged
         {
-            if (buffer.DistinctItems.HasValue) {
-                var encodingTable = new Dictionary<T, CT>((int)buffer.DistinctItems.Value);
+            if (buffer is IHaveDistinctItemCount { DistinctItems: not null } hasDistinctItems) {
+                var encodingTable = new Dictionary<T, CT>((int)hasDistinctItems.DistinctItems.Value);
 
                 return buffer.ForEachBlock(block => {
                     using var temp = SpanOwner<CT>.Allocate(block.Length);
@@ -218,8 +218,8 @@ namespace BrightData.Table.Helper
                 stream.Write(span.AsBytes());
             });
         }
-        delegate ReadOnlySpan<IT> GetArray<T, IT>(in T item) where IT : unmanaged;
-        static Task WriteDataRange<T, IT>(ICompositeBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
+
+        static Task WriteDataRange<T, IT>(IReadOnlyBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
             where T : IHaveSize, IHaveReadOnlyContiguousSpan<IT>
             where IT : unmanaged
         {
@@ -231,12 +231,12 @@ namespace BrightData.Table.Helper
         }
 
         async Task WriteStringData(
-            ICompositeBuffer<string> buffer,
+            IReadOnlyBuffer<string> buffer,
             ICompositeBuffer<string> indices,
             Stream stream)
         {
-            var stringTable = buffer.DistinctItems.HasValue
-                ? new Dictionary<string, uint>((int)buffer.DistinctItems.Value)
+            var stringTable = buffer is IHaveDistinctItemCount { DistinctItems: not null } distinctItems
+                ? new Dictionary<string, uint>((int)distinctItems.DistinctItems.Value)
                 : null;
 
             await Convert(buffer, stream, (in string str, ref uint to) => {
@@ -258,19 +258,12 @@ namespace BrightData.Table.Helper
             }
         }
 
-        Task WriteIndexLists(ICompositeBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream);
+        Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
 
-        Task WriteWeightedIndexLists(ICompositeBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream);
-
-        Task WriteBinaryData(ICompositeBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) =>
-            WriteDataRange(buffer, indices, stream);
-
-        Task WriteVectors(ICompositeBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) =>
-            WriteDataRange(buffer, floats, stream);
-
-        Task WriteMatrices(ICompositeBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
+        Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyMatrix matrix, ref MatrixColumnType data) => {
                 data.StartIndex = floats.Size;
@@ -280,7 +273,7 @@ namespace BrightData.Table.Helper
             });
         }
 
-        Task WriteTensors(ICompositeBuffer<ReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyTensor3D tensor, ref Tensor3DColumnType data) => {
                 data.StartIndex = floats.Size;
@@ -291,7 +284,7 @@ namespace BrightData.Table.Helper
             });
         }
 
-        Task WriteTensors(ICompositeBuffer<ReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyTensor4D tensor, ref Tensor4DColumnType data) => {
                 data.StartIndex = floats.Size;

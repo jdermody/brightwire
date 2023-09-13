@@ -16,16 +16,22 @@ namespace BrightData.Table
         T ConvertObjectTo<T>(object ret) where T : notnull;
     }
 
-    public interface IDataTable : IDisposable, IHaveMetaData
+    public interface ITensorDataProvider
+    {
+        ReadOnlyMemory<float> GetTensorData();
+    }
+
+    public interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider
     {
         uint RowCount { get; }
         uint ColumnCount { get; }
         DataTableOrientation Orientation { get; }
         BrightDataType[] ColumnTypes { get; }
         void PersistMetaData();
-        IReadOnlyBuffer GetColumn(uint index);
+        IReadOnlyBufferWithMetaData GetColumn(uint index);
         IReadOnlyBuffer<T> GetColumn<T>(uint index) where T : notnull;
         Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
+        void SetTensorData(ITensorDataProvider dataProvider);
     }
 
     public interface ITempData : IDisposable, IHaveSize
@@ -65,14 +71,18 @@ namespace BrightData.Table
     public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData
     {
     }
-    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IHaveMetaData where T : notnull
+    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IReadOnlyBufferWithMetaData where T : notnull
     {
     }
 
-    public interface ICompositeBuffer : IReadOnlyBufferWithMetaData
+    public interface IHaveDistinctItemCount
+    {
+        uint? DistinctItems { get; }
+    }
+
+    public interface ICompositeBuffer : IReadOnlyBufferWithMetaData, IHaveDistinctItemCount
     {
         public Guid Id { get; }
-        uint? DistinctItems { get; }
     }
 
     public interface IAppendToBuffer<T> where T: notnull
@@ -85,7 +95,7 @@ namespace BrightData.Table
     /// Composite buffers add data in memory until a pre specified limit and then store the remainder in a temp file
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBuffer<T>, IAppendToBuffer<T> where T: notnull
+    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBufferWithMetaData<T>, IAppendToBuffer<T> where T: notnull
     {
         IReadOnlySet<T>? DistinctSet { get; }
     }
