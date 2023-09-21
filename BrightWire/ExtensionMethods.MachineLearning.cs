@@ -14,7 +14,6 @@ using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -112,7 +111,7 @@ namespace BrightWire
         /// K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
         /// </summary>
         /// <param name="data">The training data</param>
-        public static KNearestNeighbours TrainKNearestNeighbours(this BrightDataTable data)
+        public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
         {
             return KnnClassificationTrainer.Train(data);
         }

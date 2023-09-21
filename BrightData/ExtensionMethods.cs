@@ -585,7 +585,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static BrightDataTableBuilder CreateTableBuilder(this BrightDataContext context) => new(context);
+        public static IBuildDataTables CreateTableBuilder(this BrightDataContext context) => new ColumnOrientedDataTableBuilder(context);
 
         /// <summary>
         /// Disposes a collection of disposables

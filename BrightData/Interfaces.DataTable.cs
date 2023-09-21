@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Runtime.CompilerServices;
+using System.IO;
+using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightData
 {
@@ -183,31 +188,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// A segment (series of values) in a table of which each element has the same type
-    /// </summary>
-    public interface ITableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable, IHaveSize, ICanEnumerate, IHaveBrightDataContext
-    {
-        /// <summary>
-        /// The single type of the segment
-        /// </summary>
-        BrightDataType SegmentType { get; }
-    }
-
-    /// <summary>
-    /// Typed data table segment (all of the same type)
-    /// </summary>
-    /// <typeparam name="T">Data type of values within the segment</typeparam>
-    public interface ITableSegment<out T> : ITableSegment
-        where T : notnull
-    {
-        /// <summary>
-        /// Enumerates the values
-        /// </summary>
-        /// <returns></returns>
-        new IEnumerable<T> Values { get; }
-    }
-
-    /// <summary>
     /// Single column conversion options
     /// </summary>
     public enum ColumnConversionOperation
@@ -325,61 +305,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Information about a column transformation
-    /// </summary>
-    public interface IColumnTransformationParam
-    {
-        /// <summary>
-        /// Column index
-        /// </summary>
-        public uint? ColumnIndex { get; }
-
-        /// <summary>
-        /// Gets a column transformer
-        /// </summary>
-        /// <param name="context">Bright data context</param>
-        /// <param name="fromType">Convert from column type</param>
-        /// <param name="column">Column to convert</param>
-        /// <param name="analysedMetaData">Function to produce analysed column meta data if needed</param>
-        /// <param name="tempStreams">Temp stream provider</param>
-        /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
-        /// <returns></returns>
-        public IConvertColumn? GetTransformer(
-            BrightDataContext context, 
-            BrightDataType fromType, 
-            ITableSegment column, 
-            Func<MetaData> analysedMetaData, 
-            IProvideTempStreams tempStreams, 
-            uint inMemoryRowCount = Consts.DefaultTableRowCacheSize
-        );
-    }
-
-    /// <summary>
-    /// Interface that 
-    /// </summary>
-    public interface IConsumeColumnData
-    {
-        /// <summary>
-        /// Column index that will be consumed
-        /// </summary>
-        uint ColumnIndex { get; }
-
-        /// <summary>
-        /// Column type of incoming data
-        /// </summary>
-        BrightDataType ColumnType { get; }
-    }
-
-    /// <summary>
-    /// Typed column consumer that writes to a buffer
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IConsumeColumnData<in T> : IConsumeColumnData, IAcceptSequentialTypedData<T>
-        where T : notnull
-    {
-    }
-
-    /// <summary>
     /// Data table vectoriser
     /// </summary>
     public interface IDataTableVectoriser : ICanWriteToBinaryWriter, IDisposable
@@ -418,24 +343,265 @@ namespace BrightData
         IEnumerable<IVector> Enumerate();
     }
 
+    public interface IConvertObjects
+    {
+        T ConvertObjectTo<T>(object ret) where T : notnull;
+    }
+
+    public interface ITensorDataProvider
+    {
+        ReadOnlyMemory<float> GetTensorData();
+    }
+
+    public readonly record struct TableRow(uint RowIndex, object[] Values);
+
+    public interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
+    {
+        uint RowCount { get; }
+        uint ColumnCount { get; }
+        DataTableOrientation Orientation { get; }
+        BrightDataType[] ColumnTypes { get; }
+        MetaData[] ColumnMetaData { get; }
+        void PersistMetaData();
+        IReadOnlyBufferWithMetaData GetColumn(uint index);
+        IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T : notnull;
+        Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
+        void SetTensorData(ITensorDataProvider dataProvider);
+        Task<T> Get<T>(uint columnIndex, uint rowIndex) where T : notnull;
+        Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull;
+        IAsyncEnumerable<TableRow> EnumerateRows(CancellationToken ct = default);
+        IReadOnlyBufferWithMetaData[] GetColumns(params uint[] columnIndices);
+        IReadOnlyBufferWithMetaData[] GetColumns(IEnumerable<uint> columnIndices);
+        Task WriteColumnsTo(Stream stream, params uint[] columnIndices);
+        Task WriteRowsTo(Stream stream, params uint[] rowIndices);
+        Task<TableRow[]> GetRows(params uint[] rowIndices);
+    }
+
+    public interface ITempData : IDisposable, IHaveSize
+    {
+        public Guid Id { get; }
+        void Write(ReadOnlySpan<byte> data, uint offset);
+        ValueTask WriteAsync(ReadOnlyMemory<byte> data, uint offset);
+        uint Read(Span<byte> data, uint offset);
+        Task<uint> ReadAsync(Memory<byte> data, uint offset);
+    }
+
+    public interface IProvideTempData : IDisposable
+    {
+        ITempData Get(Guid id);
+        void Clear();
+    }
+
+    public delegate void BlockCallback<T>(ReadOnlySpan<T> block);
+    public delegate T CreateFromReadOnlyByteSpan<out T>(ReadOnlySpan<byte> data) where T: IHaveDataAsReadOnlyByteSpan;
+
+    public interface IReadOnlyBuffer : IHaveSize
+    {
+        public uint BlockSize { get; }
+        public uint BlockCount { get; }
+        Type DataType { get; }
+        IAsyncEnumerable<object> EnumerateAll();
+    }
+
+    public interface IReadOnlyBuffer<T> : IReadOnlyBuffer where T : notnull
+    {
+        Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default);
+        Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex);
+        IAsyncEnumerable<T> EnumerateAllTyped();
+        IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default);
+    }
+
+    public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData
+    {
+    }
+    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IReadOnlyBufferWithMetaData where T : notnull
+    {
+    }
+
+    public interface IHaveDistinctItemCount
+    {
+        uint? DistinctItems { get; }
+    }
+
+    public interface IAppendToBuffer
+    {
+        void AddObject(object obj);
+    }
+
+    public interface ICompositeBuffer : IReadOnlyBufferWithMetaData, IHaveDistinctItemCount, IAppendToBuffer
+    {
+        public Guid Id { get; }
+    }
+
+    public interface IAppendToBuffer<T> where T: notnull
+    {
+        void Add(in T item);
+        void Add(ReadOnlySpan<T> inputBlock);
+    }
+
+    public interface IConstraintValidator<T> where T : notnull
+    {
+        bool Allow(in T item);
+    }
+
     /// <summary>
-    /// Reinterpret columns parameters
+    /// Composite buffers add data in memory until a pre specified limit and then store the remainder in a temp file
     /// </summary>
-    public interface IReinterpretColumns
+    /// <typeparam name="T"></typeparam>
+    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBufferWithMetaData<T>, IAppendToBuffer<T> where T: notnull
+    {
+        IReadOnlySet<T>? DistinctSet { get; }
+        IConstraintValidator<T>? ConstraintValidator { get; set; }
+    }
+
+    public interface IByteBlockReader : IDisposable, IHaveSize
+    {
+        Task<ReadOnlyMemory<byte>> GetBlock(uint byteOffset, uint numBytes);
+        Task Update(uint byteOffset, ReadOnlyMemory<byte> data);
+    }
+
+    internal record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;
+
+    internal record struct MatrixColumnType(uint StartIndex, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => RowCount * ColumnCount;
+    }
+
+    internal record struct Tensor3DColumnType(uint StartIndex, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => Depth * RowCount * ColumnCount;
+    }
+
+    internal record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    {
+        public readonly uint Size => Count * Depth * RowCount * ColumnCount;
+    }
+
+    public interface IOperation
+    {
+        Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default);
+    }
+
+    public interface ICanIndex<T> : IHaveSize
+    {
+        uint GetIndex(in T item);
+    }
+
+    public interface IReadFromMetaData
+    {
+        void ReadFrom(MetaData metaData);
+    }
+
+    public enum VectorisationType : byte
+    {
+        Unknown = 0,
+        CategoricalIndex,
+        IndexList,
+        Numeric,
+        OneHot,
+        Tensor,
+        WeightedIndexList
+    }
+
+    public interface ICanVectorise : IWriteToMetaData, IReadFromMetaData
+    {
+        VectorisationType Type { get; }
+        uint OutputSize { get; }
+        Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output);
+        void Vectorise(object obj, Span<float> output);
+    }
+
+    public interface IBuildDataTables : IHaveBrightDataContext
     {
         /// <summary>
-        /// Source column indices
+        /// Table level meta data
         /// </summary>
-        uint[] SourceColumnIndices { get; }
+        MetaData TableMetaData { get; }
 
         /// <summary>
-        /// Gets new column operations
+        /// Copies existing column definitions from another table
         /// </summary>
-        /// <param name="context">Bright data context</param>
-        /// <param name="tempStreams">Temp stream provider</param>
-        /// <param name="rowCount">Number of rows</param>
-        /// <param name="columns">Source column data</param>
+        /// <param name="table">Other table</param>
+        /// <param name="columnIndices">Indices of column definitions to copy</param>
+        ICompositeBuffer[] AddColumnsFrom(IDataTable table, params uint[] columnIndices);
+
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <param name="type">New column type</param>
+        /// <param name="name">New column name</param>
         /// <returns></returns>
-        IEnumerable<IOperation<ITableSegment?>> GetNewColumnOperations(BrightDataContext context, IProvideTempStreams tempStreams, uint rowCount, ICanEnumerateDisposable[] columns);
+        ICompositeBuffer AddColumn(BrightDataType type, string? name = null);
+
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <param name="type">New column type</param>
+        /// <param name="metaData">Column meta data</param>
+        /// <returns></returns>
+        ICompositeBuffer AddColumn(BrightDataType type, MetaData metaData);
+
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">New column name</param>
+        /// <returns></returns>
+        ICompositeBuffer<T> AddColumn<T>(string? name = null) where T : notnull;
+
+        /// <summary>
+        /// Adds a row to the table
+        /// </summary>
+        /// <param name="items"></param>
+        void AddRow(params object[] items);
+
+        /// <summary>
+        /// Writes the data table to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        Task WriteTo(Stream stream);
+
+        /// <summary>
+        /// Adds a fixed size vector column
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        /// <param name="name">New column name</param>
+        /// <returns></returns>
+        ICompositeBuffer<ReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name);
+
+        /// <summary>
+        /// Adds a fixed size matrix column
+        /// </summary>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="name">New column name</param>
+        /// <returns></returns>
+        ICompositeBuffer<ReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name);
+
+        /// <summary>
+        /// Adds a fixed size 3D tensor column 
+        /// </summary>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="name">New column name</param>
+        /// <returns></returns>
+        ICompositeBuffer<ReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name);
+
+        /// <summary>
+        /// Adds a fixed size 4D tensor column
+        /// </summary>
+        /// <param name="count">Number of 3D tensors</param>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="name">New column name</param>
+        /// <returns></returns>
+        ICompositeBuffer<ReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
+    }
+
+    public interface IWriteDataTables
+    {
+        Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -136,6 +137,7 @@ namespace BrightData
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size);
         
         /// <summary>
         /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
@@ -1583,6 +1585,51 @@ namespace BrightData
                 }
             });
             return new(segment, CollectionsMarshal.AsSpan(results));
+        }
+
+        /// <summary>
+        /// Calculate the matrix transpose
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
+        {
+            var ret = Allocate<T>(columnCount * rowCount);
+            fixed (T* matrixPtr = matrix)
+            fixed (T* retPtr = ret.Span) {
+                CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
+            }
+            return (ret, columnCount, rowCount);
+        }
+
+        public static unsafe void TransposeInPlace<T>(this Span<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
+        {
+            using var ret = Allocate<T>(columnCount * rowCount);
+            fixed (T* matrixPtr = matrix)
+            fixed (T* retPtr = ret.Span) {
+                CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
+            }
+            ret.Span.CopyTo(matrix);
+        }
+
+        static unsafe void CacheTranspose<T>(T* from, uint rows, uint columns, uint rb, uint re, uint cb, uint ce, T* to) where T : unmanaged
+        {
+            uint r = re - rb, c = ce - cb;
+            if (r <= 16 && c <= 16) {
+                for (var i = rb; i < re; i++) {
+                    for (var j = cb; j < ce; j++) {
+                        to[i * columns + j] = from[j * rows + i];
+                    }
+                }
+            }
+            else if (r >= c) {
+                CacheTranspose(from, rows, columns, rb, rb + (r / 2), cb, ce, to);
+                CacheTranspose(from, rows, columns, rb + (r / 2), re, cb, ce, to);
+            }
+            else {
+                CacheTranspose(from, rows, columns, rb, re, cb, cb + (c / 2), to);
+                CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
+            }
         }
     }
 }

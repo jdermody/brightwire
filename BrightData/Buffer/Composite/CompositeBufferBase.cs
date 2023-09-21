@@ -1,133 +1,235 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using BrightData.Buffer.EncodedStream;
-using CommunityToolkit.HighPerformance.Buffers;
+using System.Threading;
+using System.Threading.Tasks;
+using BrightData.Table.Helper;
 
 namespace BrightData.Buffer.Composite
 {
-    /// <summary>
-    /// Composite buffers write to disk after their in memory cache is exhausted
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal abstract class CompositeBufferBase<T> : ICompositeBuffer<T> where T : notnull
+    internal interface ICompositeBufferBlock<T>
     {
-        protected record Block(T[] Data)
+        uint Size { get; }
+        void WriteTo(ITempData file);
+        bool HasFreeCapacity { get; }
+        ReadOnlySpan<T> WrittenSpan { get; }
+        ReadOnlyMemory<T> WrittenMemory { get; }
+        ref T GetNext();
+    }
+    internal abstract class CompositeBufferBase<T, BT> : ICompositeBuffer<T>
+        where T : notnull
+        where BT : ICompositeBufferBlock<T>
+    {
+        protected readonly int   _blockSize;
+        protected readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
+        readonly Func<T[], BT>   _blockFactory;
+        IProvideTempData?        _tempStreams;
+        protected ITempData?     _tempData;
+        protected List<BT>?      _inMemoryBlocks;
+        protected BT?            _currBlock;
+        protected HashSet<T>?    _distinct;
+        protected uint           _blocksInFile;
+
+        protected CompositeBufferBase(
+            Func<T[], BT> blockFactory,
+            IProvideTempData? tempStreams = null,
+            int blockSize = Consts.DefaultBlockSize,
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        )
         {
-            public uint Size { get; private set; }
-            public ref T GetNext() => ref Data[Size++];
-            public bool HasFreeCapacity => Size < Data.Length;
-            public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
-        }
+            _blockFactory      = blockFactory;
+            _tempStreams       = tempStreams;
+            _blockSize         = blockSize;
+            _maxInMemoryBlocks = maxInMemoryBlocks;
 
-        readonly int                 _itemSize;
-        readonly uint                _blockSize;
-        readonly IProvideTempStreams _tempStream;
-        readonly string              _id;
-        readonly ushort              _maxDistinct = 0;
-        List<Block>?                 _inMemoryBlocks;
-        Block?                       _currBlock;
-
-        protected CompositeBufferBase(IProvideTempStreams tempStream, uint blockSize, ushort? maxDistinct)
-        {
-            var test = new ArrayPoolBufferWriter<T>();
-
-            _id = Guid.NewGuid().ToString("n");
-            _tempStream = tempStream;
-            _blockSize = blockSize;
-            _inMemoryBlocks = new();
-            _itemSize = Unsafe.SizeOf<T>();
-
-            if (maxDistinct > 0) {
-                DistinctItems = new Dictionary<T, uint>();
-                _maxDistinct = maxDistinct.Value;
+            if ((_maxDistinctItems = maxDistinctItems) > 0)
+            {
+                _distinct = new HashSet<T>((int)maxDistinctItems!.Value / 32);
             }
         }
 
-        public Predicate<T>? ConstraintValidator { get; set; } = null;
+        public Guid Id { get; } = Guid.NewGuid();
+        public MetaData MetaData { get; set; } = new();
+        public uint Size { get; protected set; }
+        public uint BlockCount { get; private set; }
+        public uint BlockSize => (uint)_blockSize;
+        public uint? DistinctItems => (uint?)_distinct?.Count;
+        public Type DataType => typeof(T);
 
-        public void Add(T item)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
         {
-            if (!ConstraintValidator?.Invoke(item) == false)
-                throw new InvalidOperationException($"Failed to add item to buffer as it failed validation: {item}");
+            var guid = Guid.NewGuid();
+            notify?.OnStartOperation(guid, message);
+            var count = 0;
 
-            if (_currBlock?.HasFreeCapacity != true) {
-                if(_currBlock is not null)
-                    (_inMemoryBlocks ??= new()).Add(_currBlock);
-                var wasRetried = false;
-                while (!wasRetried) {
-                    try {
-                        using var memoryCheck = new MemoryFailPoint(Math.Max(1, _itemSize * (int)_blockSize / 1024 / 1024));
-                        _currBlock = new(new T[_blockSize]);
+            // read from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                foreach (var block in _inMemoryBlocks) {
+                    if (ct.IsCancellationRequested)
                         break;
-                    }
-                    catch(InsufficientMemoryException) {
-                        // try to recover by writing everything in memory to disk and then retrying the allocation
-                        if (!wasRetried && _inMemoryBlocks is not null) {
-                            var stream = _tempStream.Get(_id);
-                            stream.Seek(0, SeekOrigin.End);
-                            foreach(var block in _inMemoryBlocks)
-                                WriteTo(block.WrittenSpan, stream);
-                            _inMemoryBlocks.Clear();
-                            GC.Collect();
-                            wasRetried = true;
-                        }else
-                            throw;
+                    callback(block.WrittenSpan);
+                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
+                }
+            }
+
+            // read from the file
+            if (_tempData != null)
+            {
+                uint fileLength = _tempData.Size, offset = 0;
+                while (offset < fileLength && !ct.IsCancellationRequested)
+                {
+                    offset += await GetBlockFromFile(_tempData, offset, callback);
+                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
+                }
+            }
+
+            // then from the current block
+            if (_currBlock is not null && !ct.IsCancellationRequested) {
+                callback(_currBlock.WrittenSpan);
+                notify?.OnOperationProgress(guid, (float)++count / BlockCount);
+            }
+            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
+        }
+
+        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        {
+            // read from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                foreach (var block in _inMemoryBlocks)
+                {
+                    var data = block.WrittenMemory;
+                    for (var i = 0; i < data.Length; i++) {
+                        yield return data.Span[i];
                     }
                 }
             }
 
-            _currBlock!.GetNext() = item;
-            if (DistinctItems?.TryAdd(item, Size) == true && DistinctItems.Count > _maxDistinct)
-                DistinctItems = null;
+            // read from the file
+            if (_tempData != null)
+            {
+                uint fileLength = _tempData.Size, offset = 0;
+                while (offset < fileLength)
+                {
+                    var (size, block) = await GetBlockFromFile(_tempData, offset);
+                    for (var i = 0; i < block.Length; i++) {
+                        yield return block.Span[i];
+                    }
+                    offset += size;
+                }
+            }
+
+            if (_currBlock is not null) {
+                for (var i = 0; i < _currBlock.WrittenMemory.Length; i++) {
+                    yield return _currBlock.WrittenMemory.Span[i];
+                }
+            }
+        }
+
+        public async IAsyncEnumerable<object> EnumerateAll()
+        {
+            await foreach(var item in EnumerateAllTyped())
+                yield return item;
+        }
+
+        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
+        {
+            var block = await GetTypedBlock(blockIndex);
+            return block.AsObjects();
+        }
+
+        public virtual async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        {
+            uint currentIndex = 0;
+
+            // read from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
+                {
+                    foreach (var block in _inMemoryBlocks)
+                    {
+                        if (currentIndex++ == blockIndex)
+                        {
+                            return block.WrittenMemory;
+                        }
+                    }
+                }
+                else
+                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
+            }
+
+            // read from the file
+            if (_tempData != null)
+            {
+                if (blockIndex < _blocksInFile)
+                {
+                    uint fileLength = _tempData.Size, offset = 0;
+                    while (offset < fileLength)
+                    {
+                        if (currentIndex++ == blockIndex)
+                            return (await GetBlockFromFile(_tempData, offset)).Block;
+                        offset += await SkipFileBlock(_tempData, offset);
+                    }
+                }
+                else
+                    currentIndex = _blocksInFile;
+            }
+
+            // then from the current block
+            if (_currBlock is not null && currentIndex == blockIndex)
+                return _currBlock.WrittenMemory;
+            throw new Exception("Unexpected - failed to find block");
+        }
+
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+        public virtual void Add(in T item)
+        {
+            if (ConstraintValidator?.Allow(item) == false)
+                return;
+
+            EnsureCurrentBlock().GetNext() = item;
+            if (_distinct?.Add(item) == true && _distinct.Count >= _maxDistinctItems)
+                _distinct = null;
             ++Size;
         }
 
-        public IEnumerable<T> Values
+        public virtual void Add(ReadOnlySpan<T> inputBlock)
         {
-            get
-            {
-                // read from the stream
-                if (_tempStream.HasStream(_id)) {
-                    var stream = _tempStream.Get(_id);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var buffer = new T[_blockSize];
-                    while (stream.Position < stream.Length) {
-                        var count = ReadTo(stream, _blockSize, buffer);
-                        for (uint i = 0; i < count; i++)
-                            yield return buffer[i];
-                    }
-                }
-
-                // then from the in memory blocks
-                if (_inMemoryBlocks is not null) {
-                    foreach (var block in _inMemoryBlocks) {
-                        for(var i = 0; i < block.Size; i++)
-                            yield return block.Data[i];
-                    }
-                }
-
-                // then from the current block
-                if (_currBlock is not null) {
-                    for (var i = 0; i < _currBlock.Size; i++)
-                        yield return _currBlock.Data[i];
-                }
-            }
+            foreach (var item in inputBlock)
+                Add(item);
         }
 
-        public void CopyTo(Stream stream) => EncodedStreamWriter.CopyTo(this, stream);
+        public IReadOnlySet<T>? DistinctSet => _distinct;
+        public IConstraintValidator<T>? ConstraintValidator { get; set; }
 
-        IEnumerable<object> ICanEnumerate.Values => Values.Select(o => (object)o);
-        public uint Size { get; private set; } = 0;
-        public uint? NumDistinct => (uint?)DistinctItems?.Count;
+        protected BT EnsureCurrentBlock()
+        {
+            if (_currBlock?.HasFreeCapacity != true)
+            {
+                if (_currBlock is not null)
+                {
+                    if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value)
+                    {
+                        _tempData ??= (_tempStreams ??= new TempFileProvider()).Get(Id);
+                        _currBlock.WriteTo(_tempData);
+                        ++_blocksInFile;
+                    }
+                    else
+                        (_inMemoryBlocks ??= new()).Add(_currBlock);
+                }
+                _currBlock = _blockFactory(new T[_blockSize]);
+                ++BlockCount;
+            }
+            return _currBlock!;
+        }
+
+        protected abstract Task<uint> SkipFileBlock(ITempData file, uint offset);
+        protected abstract Task<(uint Offset, ReadOnlyMemory<T> Block)> GetBlockFromFile(ITempData file, uint offset);
+        protected abstract Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback);
+        public override string ToString() => $"Composite buffer ({typeof(T).Name})|{MetaData.GetName(Id.ToString("n"))}|count={Size:N0}";
         public void AddObject(object obj) => Add((T)obj);
-        public Type DataType { get; } = typeof(T);
-        protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
-        protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);
-        public Dictionary<T, uint>? DistinctItems { get; private set; } = null;
     }
 }

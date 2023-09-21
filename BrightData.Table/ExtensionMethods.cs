@@ -19,7 +19,6 @@ using BrightData.Table.Operation;
 using BrightData.Table.Operation.Conversion;
 using BrightData.Table.Operation.Helper;
 using BrightData.Table.Operation.Vectorisation;
-using BrightData.Transformation;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Table
@@ -662,7 +661,7 @@ namespace BrightData.Table
             return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, converter);
         }
 
-        public static async Task<NormalizeTransformation> GetNormalization(this MetaData metaData, NormalizationType type, params IReadOnlyBuffer[] buffers)
+        public static async Task<NormalisationModel> GetNormalization(this MetaData metaData, NormalizationType type, params IReadOnlyBuffer[] buffers)
         {
             if (metaData.Get(Consts.NormalizationType, NormalizationType.None) == type)
                 return metaData.GetNormalization();
@@ -679,7 +678,7 @@ namespace BrightData.Table
                 analyzer.WriteTo(metaData);
             }
 
-            var ret = new NormalizeTransformation(type, metaData);
+            var ret = new NormalisationModel(type, metaData);
             ret.WriteTo(metaData);
             return ret;
         }

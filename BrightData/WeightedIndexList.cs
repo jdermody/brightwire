@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -35,6 +34,10 @@ namespace BrightData
         /// <param name="indices">Weighted indices</param>
         public WeightedIndexList(params Item[] indices) => _indices = indices;
 
+        /// <summary>
+        /// Creates a weighted index list from a buffer of items
+        /// </summary>
+        /// <param name="indices"></param>
         public WeightedIndexList(ReadOnlyMemory<Item> indices) => _indices = indices;
 
         /// <summary>
@@ -432,6 +435,7 @@ namespace BrightData
         /// <inheritdoc />
         public bool Equals(WeightedIndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
 
+        /// <inheritdoc />
         public ReadOnlySpan<Item> GetSpan(ref SpanOwner<Item> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
@@ -463,6 +467,7 @@ namespace BrightData
         /// <inheritdoc />
         public ReadOnlySpan<byte> DataAsBytes => _indices.Span.AsBytes();
 
+        /// <inheritdoc />
         public ReadOnlySpan<Item> ReadOnlySpan => _indices.Span;
     }
 }

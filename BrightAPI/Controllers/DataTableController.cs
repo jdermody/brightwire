@@ -245,7 +245,7 @@ namespace BrightAPI.Controllers
                     reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name);
                 }
 
-                using var tempStreams = _context.CreateTempStreamProvider();
+                using var tempStreams = _context.CreateTempFileProvider();
                 var newTable = table.ReinterpretColumns(tempStreams, path, reinterpretColumns);
                 newTable.GetColumnAnalysis(newTable.ColumnIndices);
                 newTable.PersistMetaData();

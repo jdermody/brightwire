@@ -67,7 +67,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
-        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new ReadOnlyVector(initialData);
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new ReadOnlyVector(initialData);
 
         /// <summary>
         /// Creates a vector from a binary reader
@@ -75,11 +75,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static IReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
         {
             var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyVector));
             ret.Initialize(context, reader);
-            return (IReadOnlyVector)ret;
+            return (ReadOnlyVector)ret;
         }
 
 
@@ -91,7 +91,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static IReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
+        public static ReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
             ? new ReadOnlyMatrix(rows, columns, initializer)
             : new ReadOnlyMatrix(rows, columns)
         ;
@@ -104,7 +104,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static IReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
+        public static ReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
             ? new ReadOnlyMatrix(rows, columns)
             : new ReadOnlyMatrix(rows, columns, (_, _) => initialValue)
         ;
@@ -128,7 +128,19 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static IReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
+        public static ReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
+        {
+            var columns = rows[0].Size;
+            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
+        }
+
+        /// <summary>
+        /// Creates a matrix from vectors (each will become a row)
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public static ReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params ReadOnlyVector[] rows)
         {
             var columns = rows[0].Size;
             return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);

@@ -2,7 +2,6 @@
 using System.Linq;
 using BrightData;
 using BrightWire.Models.InstanceBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.InstanceBased.Training
 {
@@ -11,7 +10,7 @@ namespace BrightWire.InstanceBased.Training
     /// </summary>
     internal static class KnnClassificationTrainer
     {
-        public static KNearestNeighbours Train(BrightDataTable table)
+        public static KNearestNeighbours Train(IDataTable table)
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var featureColumns = table.ColumnIndicesOfFeatures().ToArray();

@@ -29,6 +29,22 @@
   </PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="_Buffer\**" />
+	  <Compile Remove="_DataTable\**" />
+	  <Compile Remove="_Transformation\**" />
+	  <EmbeddedResource Remove="_Buffer\**" />
+	  <EmbeddedResource Remove="_DataTable\**" />
+	  <EmbeddedResource Remove="_Transformation\**" />
+	  <None Remove="_Buffer\**" />
+	  <None Remove="_DataTable\**" />
+	  <None Remove="_Transformation\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Helper\TempStreamManager.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
@@ -45,6 +61,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DataTable\TableBase.RowReaders.tt">
+      <LastGenOutput>TableBase.RowReaders.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
     <None Update="readme.md">
       <PackagePath>\</PackagePath>
       <Pack>True</Pack>
@@ -53,5 +73,17 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataTable\TableBase.RowReaders.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TableBase.RowReaders.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

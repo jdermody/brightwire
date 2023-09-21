@@ -1,12 +1,11 @@
 ﻿using System.Linq;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.DataTypeSpecification
 {
-    class DataTableSpecification : DataTypeSpecificationBase<BrightDataTable>
+    class DataTableSpecification : DataTypeSpecificationBase<IDataTable>
     {
-        public DataTableSpecification(BrightDataTable dataTable) : base(
-            dataTable.TableMetaData.GetName(), 
+        public DataTableSpecification(IDataTable dataTable) : base(
+            dataTable.MetaData.GetName(), 
             DataSpecificationType.Composite,
             false,
             dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)

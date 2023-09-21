@@ -6,7 +6,7 @@ using BrightData.UnitTests.Helper;
 using BrightWire;
 using FluentAssertions;
 using Xunit;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightDataTable = BrightData.IDataTable;
 
 namespace BrightData.UnitTests
 {
@@ -558,7 +558,7 @@ namespace BrightData.UnitTests
             builder.AddRow(0.1f, 0.2f);
             builder.AddRow(0.3f, 0.4f);
 
-            using var tempStreams = _context.CreateTempStreamProvider();
+            using var tempStreams = _context.CreateTempFileProvider();
             var manyToOne = new uint[] { 0, 1 }.ReinterpretColumns(BrightDataType.Vector, "Data");
 
             var table = builder.BuildInMemory();

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.Table.Helper;
 
 namespace BrightData
 {
@@ -71,7 +72,7 @@ namespace BrightData
         /// Creates a new temp stream provider
         /// </summary>
         /// <returns></returns>
-        public IProvideTempStreams CreateTempStreamProvider() => new TempStreamManager(Get<string>(Consts.BaseTempPath));
+        public IProvideTempData CreateTempFileProvider() => new TempFileProvider(Get<string>(Consts.BaseTempPath));
 
         /// <summary>
         /// Returns a typed property from the context

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData.DataTypeSpecification;
 using BrightData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData
 {
@@ -44,7 +43,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IDataTypeSpecification GetTypeSpecification(this BrightDataTable dataTable) => new DataTableSpecification(dataTable);
+        public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
 
         class ColumnFilter<T> : IConsumeColumnData<T> where T: notnull
         {
@@ -82,9 +81,9 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, BrightDataTable dataTable)
+        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
         {
-            if (typeInfo.UnderlyingType != typeof(BrightDataTable))
+            if (typeInfo.UnderlyingType != typeof(IDataTable))
                 throw new ArgumentException("Expected data table specification");
             if(typeInfo.Children?.Length != dataTable.ColumnCount)
                 throw new ArgumentException("Expected data table and type info column count to match");

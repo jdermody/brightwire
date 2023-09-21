@@ -39,7 +39,7 @@ namespace ExampleCode.DataTableTrainers
             using var converted = table.Convert(columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var tempStreams = context.CreateTempStreamProvider();
+            using var tempStreams = context.CreateTempFileProvider();
             var reinterpreted = converted.ReinterpretColumns(tempStreams, null, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
             reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
 

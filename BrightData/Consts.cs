@@ -43,12 +43,24 @@
         /// <summary>
         /// Default size of a small buffer
         /// </summary>
-        public const int DefaultSmallBufferSize = 1024;
+        public const int DefaultBlockSize = 1024;
+
+        /// <summary>
+        /// Default maximum number of blocks to keep in memory
+        /// </summary>
+        public const int DefaultMaxBlocksInMemory = 4096;
 
         /// <summary>
         /// Default max number of distinct items
         /// </summary>
         public const ushort DefaultMaxDistinctCount = 32768;
+
+        /// <summary>
+        /// Default max write count
+        /// </summary>
+        public const uint MaxMetaDataWriteCount = 100;
+
+        public const int MaxStackAllocSize = 512;
 
 #pragma warning disable 1591
         public const string ColumnIndex                      = "ColumnIndex";
@@ -99,6 +111,8 @@
         public const string DateTimeCreated                  = "DateTimeCreated";
         public const string CustomColumnReaders              = "CustomColumnReaders";
         public const string DefaultLinearAlgebraProviderName = "default";
+        public const string VectorisationType                = "VectorisationType";
+        public const string VectorisationSize                = "VectorisationSize";
 #pragma warning restore 1591
 
         /// <summary>
