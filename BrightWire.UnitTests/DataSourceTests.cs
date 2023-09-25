@@ -20,10 +20,10 @@ namespace BrightWire.UnitTests
 		public void DefaultDataSource()
 		{
 			var builder = _context.CreateTableBuilder();
-			builder.AddColumn(BrightDataType.Float, "val1");
-			builder.AddColumn(BrightDataType.Double, "val2");
-			builder.AddColumn(BrightDataType.String, "val3");
-			builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+			builder.CreateColumn(BrightDataType.Float, "val1");
+			builder.CreateColumn(BrightDataType.Double, "val2");
+			builder.CreateColumn(BrightDataType.String, "val3");
+			builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
 			builder.AddRow(0.5f, 1.1, "d", "a");
 			builder.AddRow(0.2f, 1.5, "c", "b");

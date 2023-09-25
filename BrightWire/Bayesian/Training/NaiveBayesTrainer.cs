@@ -4,7 +4,6 @@ using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using BrightData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -17,7 +16,7 @@ namespace BrightWire.Bayesian.Training
         {
             readonly Dictionary<uint, IDataAnalyser> _column = new();
 
-            public FrequencyAnalysis(BrightDataTable table, uint ignoreColumnIndex)
+            public FrequencyAnalysis(IDataTable table, uint ignoreColumnIndex)
             {
                 uint index = 0;
                 var metaData = table.ColumnMetaData;
@@ -49,7 +48,7 @@ namespace BrightWire.Bayesian.Training
             public ulong Total { get; private set; } = 0;
         }
 
-        public static NaiveBayes Train(BrightDataTable table)
+        public static NaiveBayes Train(IDataTable table)
         {
             // analyse the table to get the set of class values
             var targetColumn = table.GetTargetColumnOrThrow();

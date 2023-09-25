@@ -13,8 +13,8 @@ namespace BrightWire.UnitTests
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float, "x");
-            builder.AddColumn(BrightDataType.Float, "y").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "x");
+            builder.CreateColumn(BrightDataType.Float, "y").MetaData.SetTarget(true);
             builder.AddRow(0.1f, 0.2f);
             builder.AddRow(0.2f, 0.4f);
             builder.AddRow(0.3f, 0.6f);
@@ -47,8 +47,8 @@ namespace BrightWire.UnitTests
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Int, "x");
-            builder.AddColumn(BrightDataType.Int, "y").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Int, "x");
+            builder.CreateColumn(BrightDataType.Int, "y").MetaData.SetTarget(true);
             builder.AddRow(1000, 2000);
             builder.AddRow(2000, 4000);
             builder.AddRow(3000, 6000);

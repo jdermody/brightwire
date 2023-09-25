@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
@@ -12,7 +13,6 @@ using ExampleCode.DataTableTrainers;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
@@ -188,8 +188,8 @@ namespace ExampleCode.DataSet
             var grammar = new SequenceGenerator(context, dictionarySize: dictionarySize, minSize: size-1, maxSize: size+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix, "Sequence");
-            builder.AddColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix, "Sequence");
+            builder.CreateColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences) {
                 var index = 0;
@@ -215,8 +215,8 @@ namespace ExampleCode.DataSet
             var grammar = new SequenceGenerator(context, 3, sequenceLength-1, sequenceLength+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix, "Input");
-            builder.AddColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix, "Input");
+            builder.CreateColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -295,7 +295,7 @@ namespace ExampleCode.DataSet
                 return str;
             }
 
-            static BrightDataTable ConvertTable(BrightDataTable table, string path)
+            static Task<IDataTable> ConvertTable(IDataTable table, string path)
             {
                 using var converted = table.Convert(
                     // convert numeric columns
@@ -363,7 +363,7 @@ namespace ExampleCode.DataSet
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static BrightDataTable GetDataTable(this BrightDataContext context, string fileName, Func<string, BrightDataTable> createTable)
+        static IDataTable GetDataTable(this BrightDataContext context, string fileName, Func<string, IDataTable> createTable)
         {
             var path = GetDataFilePath(context, fileName);
             if (!File.Exists(path))

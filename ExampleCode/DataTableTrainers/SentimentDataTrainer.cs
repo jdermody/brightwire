@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.Helper;
 using BrightWire;
@@ -9,7 +10,6 @@ using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -166,7 +166,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -197,7 +197,7 @@ namespace ExampleCode.DataTableTrainers
             ;
         }
 
-        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -210,8 +210,8 @@ namespace ExampleCode.DataTableTrainers
                 if (addColumns) {
                     addColumns = false;
                     builder.AddFixedSizeVectorColumn(features.Size, "Vector");
-                    builder.AddColumn(BrightDataType.IndexList, "Index List");
-                    builder.AddColumn(BrightDataType.String, "Target");
+                    builder.CreateColumn(BrightDataType.IndexList, "Index List");
+                    builder.CreateColumn(BrightDataType.String, "Target");
                     builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, indexList, classification, context.CreateReadOnlyVector(vector));
@@ -304,11 +304,11 @@ namespace ExampleCode.DataTableTrainers
             return engine.CreateExecutionEngine(bestGraph);
         }
 
-        BrightDataTable CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        Task<IDataTable> CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix);
-            builder.AddColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix);
+            builder.CreateColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
 
             var empty = new float[102];
             foreach (var (classification, indexList) in data) {

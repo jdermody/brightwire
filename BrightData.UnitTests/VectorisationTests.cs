@@ -1,27 +1,27 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {
     public class VectorisationTests : UnitTestBase
     {
-        public BrightDataTable GetTable()
+        public Task<IDataTable> GetTable()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Boolean, "bool");
-            builder.AddColumn(BrightDataType.SByte, "byte");
-            builder.AddColumn(BrightDataType.Decimal, "decimal");
-            builder.AddColumn(BrightDataType.Double, "double");
-            builder.AddColumn(BrightDataType.Float, "float");
-            builder.AddColumn(BrightDataType.Int, "int");
-            builder.AddColumn(BrightDataType.Long, "long");
-            builder.AddColumn(BrightDataType.IndexList, "index-list");
-            builder.AddColumn(BrightDataType.WeightedIndexList, "weighted-index-list");
+            builder.CreateColumn(BrightDataType.Boolean, "bool");
+            builder.CreateColumn(BrightDataType.SByte, "byte");
+            builder.CreateColumn(BrightDataType.Decimal, "decimal");
+            builder.CreateColumn(BrightDataType.Double, "double");
+            builder.CreateColumn(BrightDataType.Float, "float");
+            builder.CreateColumn(BrightDataType.Int, "int");
+            builder.CreateColumn(BrightDataType.Long, "long");
+            builder.CreateColumn(BrightDataType.IndexList, "index-list");
+            builder.CreateColumn(BrightDataType.WeightedIndexList, "weighted-index-list");
             builder.AddFixedSizeVectorColumn(3, "vector");
 
             var indexList = _context.CreateIndexList(1, 2, 3);
@@ -31,10 +31,10 @@ namespace BrightData.UnitTests
             return builder.BuildInMemory();
         }
 
-        public BrightDataTable GetTable2()
+        public Task<IDataTable> GetTable2()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.String);
 
             builder.AddRow("a");
             builder.AddRow("b");

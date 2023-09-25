@@ -353,7 +353,10 @@ namespace BrightData
         ReadOnlyMemory<float> GetTensorData();
     }
 
-    public readonly record struct TableRow(uint RowIndex, object[] Values);
+    public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values)
+    {
+        public uint Size => (uint)Values.Length;
+    }
 
     public interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
     {
@@ -523,7 +526,7 @@ namespace BrightData
         /// </summary>
         /// <param name="table">Other table</param>
         /// <param name="columnIndices">Indices of column definitions to copy</param>
-        ICompositeBuffer[] AddColumnsFrom(IDataTable table, params uint[] columnIndices);
+        ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices);
 
         /// <summary>
         /// Adds a new column
@@ -531,7 +534,7 @@ namespace BrightData
         /// <param name="type">New column type</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer AddColumn(BrightDataType type, string? name = null);
+        ICompositeBuffer CreateColumn(BrightDataType type, string? name = null);
 
         /// <summary>
         /// Adds a new column
@@ -539,7 +542,7 @@ namespace BrightData
         /// <param name="type">New column type</param>
         /// <param name="metaData">Column meta data</param>
         /// <returns></returns>
-        ICompositeBuffer AddColumn(BrightDataType type, MetaData metaData);
+        ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData);
 
         /// <summary>
         /// Adds a new column
@@ -547,7 +550,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<T> AddColumn<T>(string? name = null) where T : notnull;
+        ICompositeBuffer<T> CreateColumn<T>(string? name = null) where T : notnull;
 
         /// <summary>
         /// Adds a row to the table

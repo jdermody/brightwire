@@ -155,7 +155,7 @@ namespace BrightAPI.Controllers
                         Metadata = AsModel(metaData)
                     };
                 }).ToArray(),
-                Metadata = AsModel(table.TableMetaData),
+                Metadata = AsModel(table.MetaData),
                 RowCount = table.RowCount
             };
             return ret;
@@ -375,7 +375,7 @@ namespace BrightAPI.Controllers
             }
         }
 
-        async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<BrightDataTable /* input */, string /* path */, BrightDataTable /* output */> callback)
+        async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<IDataTable /* input */, string /* path */, IDataTable /* output */> callback)
         {
             var dataTableResult = await LoadDataTable(id);
             if (dataTableResult.Result is not null)
@@ -399,14 +399,14 @@ namespace BrightAPI.Controllers
             return await CreateTable(id, dataTableInfo, request, newTableSuffix, newTableId, path, newTable);
         }
 
-        async Task<NamedItemModel> CreateTable<T>(string sourceId, DataTable sourceDataTableInfo, T request, string newTableSuffix, Guid newTableId, string path, BrightDataTable newTable)
+        async Task<NamedItemModel> CreateTable<T>(string sourceId, DataTable sourceDataTableInfo, T request, string newTableSuffix, Guid newTableId, string path, IDataTable newTable)
         {
             // set table metadata
             var requestJson = JsonSerializer.Serialize(request);
             newTable.GetColumnAnalysis(newTable.ColumnIndices);
-            newTable.TableMetaData.Set("based-on-table-id", sourceId);
-            newTable.TableMetaData.Set("transformation-request", requestJson);
-            newTable.TableMetaData.Set("date-created", DateTime.UtcNow);
+            newTable.MetaData.Set("based-on-table-id", sourceId);
+            newTable.MetaData.Set("transformation-request", requestJson);
+            newTable.MetaData.Set("date-created", DateTime.UtcNow);
             newTable.PersistMetaData();
 
             var newTableInfo = await _databaseManager.CreateDataTable(sourceDataTableInfo.Name + $" [{newTableSuffix}]", newTableId, path, newTable.RowCount);

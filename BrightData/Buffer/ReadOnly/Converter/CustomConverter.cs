@@ -1,22 +1,19 @@
-﻿namespace BrightData.Buffer.ReadOnly.Converter
+﻿using System;
+
+namespace BrightData.Buffer.ReadOnly.Converter
 {
     internal class CustomConverter<FT, TT> : ReadOnlyConverterBase<FT, TT>
         where FT : notnull
         where TT: notnull
     {
-        readonly ConvertInPlaceDelegate _inPlace;
-        readonly ConvertDelegate _convert;
+        readonly Func<FT, TT> _converter;
 
-        public delegate void ConvertInPlaceDelegate(in FT from, ref TT to);
-        public delegate TT ConvertDelegate(in FT from);
-
-        public CustomConverter(IReadOnlyBuffer<FT> from, ConvertInPlaceDelegate inPlace, ConvertDelegate convert) : base(from)
+        public CustomConverter(IReadOnlyBuffer<FT> from, Func<FT, TT> converter) : base(from)
         {
-            _inPlace = inPlace;
-            _convert = convert;
+            _converter = converter;
         }
 
-        protected override void Convert(in FT from, ref TT to) => _inPlace(from, ref to);
-        protected override TT Convert(in FT from) => _convert(from);
+        protected override void Convert(in FT from, ref TT to) => to = _converter(from);
+        protected override TT Convert(in FT from) => _converter(from);
     }
 }

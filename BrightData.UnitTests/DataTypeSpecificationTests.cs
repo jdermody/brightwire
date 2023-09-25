@@ -10,7 +10,7 @@ namespace BrightData.UnitTests
         public void FilterDataTable()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String, "str");
+            builder.CreateColumn(BrightDataType.String, "str");
             builder.AddRow("str1");
             builder.AddRow("str2");
             var table = builder.BuildInMemory();

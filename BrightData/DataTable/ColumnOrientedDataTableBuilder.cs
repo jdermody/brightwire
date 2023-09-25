@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BrightData.ConstraintValidation;
 using BrightData.LinearAlgebra.ReadOnly;
-using static BrightData.DataTable.TableBase;
+using BrightData.Operation;
 
 namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Builds a data table dynamically
+    /// </summary>
     internal class ColumnOrientedDataTableBuilder : IBuildDataTables
     {
         readonly int                   _blockSize;
@@ -37,7 +40,7 @@ namespace BrightData.DataTable
             return String.IsNullOrWhiteSpace(name) ? $"Column {numColumns + 1}" : name;
         }
 
-        public ICompositeBuffer AddColumn(BrightDataType type, string? name = null)
+        public ICompositeBuffer CreateColumn(BrightDataType type, string? name = null)
         {
             var columnMetaData = new MetaData();
             columnMetaData.Set(Consts.Name, DefaultColumnName(name, _columns.Count));
@@ -46,10 +49,10 @@ namespace BrightData.DataTable
             if (type.IsNumeric())
                 columnMetaData.Set(Consts.IsNumeric, true);
 
-            return AddColumn(type, columnMetaData);
+            return CreateColumn(type, columnMetaData);
         }
 
-        public ICompositeBuffer AddColumn(BrightDataType type, MetaData metaData)
+        public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData)
         {
             var buffer = type.CreateCompositeBuffer(_tempData, _blockSize, _maxInMemoryBlocks);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
@@ -57,7 +60,7 @@ namespace BrightData.DataTable
             return buffer;
         }
 
-        public ICompositeBuffer[] AddColumnsFrom(IDataTable table, params uint[] columnIndices)
+        public ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices)
         {
             var columnSet = new HashSet<uint>(table.AllOrSpecifiedColumnIndices(false, columnIndices));
             var columnTypes = table.ColumnTypes.Zip(table.ColumnMetaData, (t, m) => (Type: t, MetaData: m))
@@ -72,21 +75,31 @@ namespace BrightData.DataTable
             var index = 0;
             var ret = new ICompositeBuffer[wantedColumnTypes.Count];
             foreach (var column in wantedColumnTypes)
-                ret[index++] = AddColumn(column.Type, column.MetaData);
+                ret[index++] = CreateColumn(column.Type, column.MetaData);
             return ret;
         }
 
-        public ICompositeBuffer<T> AddColumn<T>(string? name = null)
+        public ICompositeBuffer<T> CreateColumn<T>(string? name = null)
             where T : notnull
         {
             var type = typeof(T).GetBrightDataType();
-            return (ICompositeBuffer<T>)AddColumn(type, name);
+            return (ICompositeBuffer<T>)CreateColumn(type, name);
         }
 
         public void AddRow(params object[] items)
         {
             for(int i = 0, len = items.Length; i < len; i++)
                 _columns[i].AddObject(items[i]);
+        }
+
+        public Task Add(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
+        {
+            return new ManyToManyCopy(buffers, _columns).Process(null, null, ct);
+        }
+
+        public Task Add(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
+        {
+            return new ManyToManyCopy(buffers, _columns).Process(null, null, ct);
         }
 
         public Task WriteTo(Stream stream)
@@ -101,7 +114,7 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer<ReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
         {
-            var ret = AddColumn<ReadOnlyVector>(name);
+            var ret = CreateColumn<ReadOnlyVector>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyVector>((in ReadOnlyVector tensor) => tensor.Size == size);
             return ret;
         }
@@ -109,7 +122,7 @@ namespace BrightData.DataTable
         
         public ICompositeBuffer<ReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<ReadOnlyMatrix>(name);
+            var ret = CreateColumn<ReadOnlyMatrix>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyMatrix>((in ReadOnlyMatrix tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 
@@ -119,7 +132,7 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer<ReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<ReadOnlyTensor3D>(name);
+            var ret = CreateColumn<ReadOnlyTensor3D>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor3D>((in ReadOnlyTensor3D tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 
@@ -130,7 +143,7 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer<ReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
-            var ret = AddColumn<ReadOnlyTensor4D>(name);
+            var ret = CreateColumn<ReadOnlyTensor4D>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor4D>((in ReadOnlyTensor4D tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 

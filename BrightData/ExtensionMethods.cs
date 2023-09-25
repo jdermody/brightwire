@@ -670,5 +670,10 @@ namespace BrightData
 
             throw new Exception($"{str} was not recognised as a valid date");
         }
+
+        public static IEnumerable<T> AsEnumerable<T>(this T item)
+        {
+            yield return item;
+        }
     }
 }

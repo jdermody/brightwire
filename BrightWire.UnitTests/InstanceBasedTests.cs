@@ -12,10 +12,10 @@ namespace BrightWire.UnitTests
         public void Knn()
         {
             var dataTable = _context.CreateTableBuilder();
-            dataTable.AddColumn(BrightDataType.Float, "height");
-            dataTable.AddColumn(BrightDataType.Int, "weight");
-            dataTable.AddColumn(BrightDataType.Int, "foot-size");
-            dataTable.AddColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
+            dataTable.CreateColumn(BrightDataType.Float, "height");
+            dataTable.CreateColumn(BrightDataType.Int, "weight");
+            dataTable.CreateColumn(BrightDataType.Int, "foot-size");
+            dataTable.CreateColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");

@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -474,20 +475,20 @@ namespace BrightData
                 var validationRows = folds[i1];
 
                 var writer1 = context.CreateTableBuilder();
-                writer1.AddColumnsFrom(table);
+                writer1.CreateColumnsFrom(table);
                 foreach (var row in await table.GetRows(trainingRows))
                     writer1.AddRow(row);
 
                 var writer2 = context.CreateTableBuilder();
-                writer2.AddColumnsFrom(table);
-                foreach (var (_, row) in await table.GetRows(validationRows))
+                writer2.CreateColumnsFrom(table);
+                foreach (var (_, _, row) in await table.GetRows(validationRows))
                     writer2.AddRow(row);
 
                 yield return (await writer1.BuildInMemory(), await writer2.BuildInMemory());
             }
         }
 
-        static async Task<IDataTable> BuildInMemory(this IBuildDataTables builder)
+        public static async Task<IDataTable> BuildInMemory(this IBuildDataTables builder)
         {
             var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -641,8 +642,8 @@ namespace BrightData
         public static Task<IDataTable> ConvertToTable(this Span<IndexListWithLabel<string>> data, BrightDataContext context)
         {
             var builder = new ColumnOrientedDataTableBuilder(context);
-            builder.AddColumn(BrightDataType.IndexList, "Index");
-            builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.IndexList, "Index");
+            builder.CreateColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
             foreach (var (label, indexList) in data)
                 builder.AddRow(indexList, label);
@@ -658,8 +659,8 @@ namespace BrightData
         public static Task<IDataTable> ConvertToTable(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var builder = new ColumnOrientedDataTableBuilder(context);
-            builder.AddColumn(BrightDataType.WeightedIndexList, "Weighted Index");
-            builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.WeightedIndexList, "Weighted Index");
+            builder.CreateColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
             foreach (var (label, weightedIndexList) in data)
                 builder.AddRow(weightedIndexList, label);
@@ -680,7 +681,7 @@ namespace BrightData
             if (preserveVectors) {
                 var first = data[0].Data;
                 builder.AddFixedSizeVectorColumn(first.Size, "Vector");
-                builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
+                builder.CreateColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
                 foreach (var (label, vector) in data)
                     builder.AddRow(vector, label);
@@ -689,8 +690,8 @@ namespace BrightData
             else {
                 var size = data[0].Data.Size;
                 for (var i = 1; i <= size; i++)
-                    builder.AddColumn(BrightDataType.Float, "Value " + i);
-                builder.AddColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
+                    builder.CreateColumn(BrightDataType.Float, "Value " + i);
+                builder.CreateColumn(BrightDataType.String, "Label").MetaData.SetTarget(true);
 
                 foreach (var (label, vector) in data) {
                     var row = new List<object>();
@@ -749,42 +750,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Loads a previously created data table vectoriser
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="reader">Reader to load parameters from</param>
-        /// <returns></returns>
-        public static IDataTableVectoriser LoadVectoriser(this IDataTable dataTable, BinaryReader reader) => new DataTableVectoriser(dataTable, reader);
-
-        /// <summary>
-        /// Creates a column conversion parameter
-        /// </summary>
-        /// <param name="type">Type of column conversion</param>
-        /// <param name="columnIndex"></param>
-        /// <returns></returns>
-        public static IColumnTransformationParam ConvertColumn(this ColumnConversionOperation type, uint columnIndex) => new ColumnConversion(columnIndex, type);
-
-        /// <summary>
-        /// Creates a column normalization parameter
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="columnIndex"></param>
-        /// <returns></returns>
-        public static IColumnTransformationParam ConvertColumn(this NormalizationType type, uint columnIndex) => new ColumnNormalization(columnIndex, type);
-
-        /// <summary>
-        /// Creates a reinterpret columns parameter
-        /// </summary>
-        /// <param name="sourceColumnIndices"></param>
-        /// <param name="newColumnType"></param>
-        /// <param name="newColumnName"></param>
-        /// <returns></returns>
-        public static IReinterpretColumns ReinterpretColumns(this uint[] sourceColumnIndices, BrightDataType newColumnType, string newColumnName)
-        {
-            return new ManyToOneColumn(newColumnType, newColumnName, sourceColumnIndices);
-        }
-
-        /// <summary>
         /// Converts the segment to an array
         /// </summary>
         /// <param name="row"></param>
@@ -813,92 +778,10 @@ namespace BrightData
         /// <param name="table"></param>
         /// <param name="sampleSize">Number of rows to sample</param>
         /// <returns></returns>
-        public static IEnumerable<BrightDataTableRow> Sample(this IDataTable table, uint sampleSize)
+        public static Task<TableRow[]> Sample(this IDataTable table, uint sampleSize)
         {
             var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int)sampleSize).OrderBy(i => i).ToArray();
-            return table(rows);
-        }
-
-        /// <summary>
-        /// Creates a custom column mutator
-        /// </summary>
-        /// <param name="table"></param>
-        /// <param name="columnIndex">Column index to convert</param>
-        /// <param name="converter">Column converter</param>
-        /// <param name="columnFinaliser">Called after each row </param>
-        /// <typeparam name="TF"></typeparam>
-        /// <typeparam name="TT"></typeparam>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static IDataTable CreateCustomColumnMutator<TF, TT>(this IDataTable table, uint columnIndex, Func<TF, TT> converter, Action<MetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
-        {
-            var type = table.ColumnTypes[columnIndex].GetDataType();
-            if (type != typeof(TF))
-                throw new ArgumentException("Invalid from data type");
-            if (typeof(TT).GetBrightDataType() == BrightDataType.Unknown)
-                throw new ArgumentException("Invalid to data type");
-
-            var transformer = new ColumnConversion.CustomConverter<TF, TT>(converter, columnFinaliser);
-            return new ColumnConversion(columnIndex, transformer);
-        }
-
-        /// <summary>
-        /// Creates a new table with columns that have been converted
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to save new table (optional)</param>
-        /// <param name="conversion">Column conversion parameters</param>
-        /// <returns></returns>
-        public static BrightDataTable Convert(this BrightDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, filePath, conversion);
-
-        /// <summary>
-        /// Creates a new table with columns that have been converted
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="conversion">Column transformation parameters</param>
-        /// <returns></returns>
-        public static BrightDataTable Convert(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
-
-
-        /// <summary>
-        /// Creates a new table with columns that have been converted
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="conversionOperations">Array of column conversion operations (one for each column)</param>
-        /// <returns></returns>
-        public static BrightDataTable Convert(this BrightDataTable dataTable, params ColumnConversionOperation[] conversionOperations) => MutateColumns(dataTable, null, conversionOperations.Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
-
-        /// <summary>
-        /// Normalizes the table data per column
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="conversion">Column normalization parameters</param>
-        /// <returns></returns>
-        public static BrightDataTable Normalize(this BrightDataTable dataTable, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, null, conversion);
-
-
-        /// <summary>
-        /// Normalizes the table data per column
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to save new table (optional)</param>
-        /// <param name="conversion">Column normalization parameters</param>
-        /// <returns></returns>
-        public static BrightDataTable Normalize(this BrightDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversion) => MutateColumns(dataTable, filePath, conversion);
-
-        /// <summary>
-        /// Many to one or one to many style column transformations
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to save new table (optional)</param>
-        /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
-        /// <param name="tempStreams">Temp stream provider</param>
-        /// <returns></returns>
-        public static IDataTable ReinterpretColumns(this IDataTable dataTable, IProvideTempStreams tempStreams, string? filePath, params IReinterpretColumns[] columns)
-        {
-            var ops = dataTable.ReinterpretColumns(tempStreams, columns).ToArray();
-            var newColumns = EnsureAllCompleted(CompleteInParallel(ops));
-            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, newColumns, GetMemoryOrFileStream(filePath));
+            return table.GetRows(rows);
         }
 
         /// <summary>
@@ -908,11 +791,23 @@ namespace BrightData
         /// <param name="filePath">File path to save new table (optional)</param>
         /// <param name="others">Other data tables</param>
         /// <returns></returns>
-        public static IDataTable ConcatenateColumns(this IDataTable table, string? filePath, params IDataTable[] others)
+        public static async Task<IDataTable> ConcatenateColumns(this IDataTable table, string? filePath, params IDataTable[] others)
         {
-            var stream = GetMemoryOrFileStream(filePath);
-            table.ConcatenateColumns(stream, others);
-            return table.Context.LoadTableFromStream(stream);
+            if(others.Any(x => x.RowCount != table.RowCount))
+                throw new ArgumentException("Expected all tables to have same row count", nameof(others));
+
+            var builder = new ColumnOrientedDataTableBuilder(table.Context);
+            var input = table.GetColumns().ToList();
+            builder.CreateColumnsFrom(table);
+            foreach (var other in others) {
+                input.AddRange(other.GetColumns());
+                builder.CreateColumnsFrom(other);
+            }
+            await builder.Add(input);
+
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await builder.WriteTo(stream);
+            return LoadTableFromStream(table.Context, stream);
         }
 
         /// <summary>
@@ -922,11 +817,25 @@ namespace BrightData
         /// <param name="filePath">File path to save new table (optional)</param>
         /// <param name="others">Other data tables</param>
         /// <returns></returns>
-        public static IDataTable ConcatenateRows(this IDataTable table, string? filePath, params IDataTable[] others)
+        public static async Task<IDataTable> ConcatenateRows(this IDataTable table, string? filePath, params IDataTable[] others)
         {
-            using var operation = table.ConcatenateRows(GetMemoryOrFileStream(filePath), others);
-            var stream = EnsureCompleted(operation.Complete(null, CancellationToken.None));
-            return table.Context.LoadTableFromStream(stream);
+            var signature = table.GetTableSignature();
+            if (others.Any(other => other.GetTableSignature() != signature))
+                throw new ArgumentException("Expected all tables to have same signature", nameof(others));
+
+            var builder = new ColumnOrientedDataTableBuilder(table.Context);
+            var columns = builder.CreateColumnsFrom(table);
+            var operations = CopyToBuffers(table, columns).AsEnumerable().Concat(others.Select(x => CopyToBuffers(x, columns))).ToArray();
+            await operations.Process();
+
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await builder.WriteTo(stream);
+            return LoadTableFromStream(table.Context, stream);
+
+            static IOperation CopyToBuffers(IDataTable dataTable, ICompositeBuffer[] buffers)
+            {
+                return new ManyToManyCopy(dataTable.GetColumns(), buffers);
+            }
         }
 
         /// <summary>
@@ -936,10 +845,10 @@ namespace BrightData
         /// <param name="filePath"></param>
         /// <param name="rowIndices">Row indices to copy</param>
         /// <returns></returns>
-        public static IDataTable CopyRowsToNewTable(this IDataTable dataTable, string? filePath, params uint[] rowIndices)
+        public static async Task<IDataTable> CopyRowsToNewTable(this IDataTable dataTable, string? filePath, params uint[] rowIndices)
         {
-            using var op = dataTable.WriteRowsTo(GetMemoryOrFileStream(filePath), rowIndices);
-            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await dataTable.WriteRowsTo(stream, rowIndices);
             return dataTable.Context.LoadTableFromStream(stream);
         }
 
@@ -958,54 +867,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Gets column transformers
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="temp">Temp stream provider</param>
-        /// <param name="input">Column transformation parameter objects</param>
-        /// <returns></returns>
-        public static IEnumerable<(uint ColumnIndex, IConvertColumn Transformer)> GetColumnTransformers(this IDataTable dataTable, IProvideTempData? temp, IEnumerable<IColumnTransformationParam> input)
-        {
-            var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
-
-            // build the map of columns to transform
-            uint nextIndex = 0;
-            foreach (var item in input) {
-                if (item.ColumnIndex.HasValue && item.ColumnIndex.Value < dataTable.ColumnCount) {
-                    columnConversionTable[item.ColumnIndex.Value] = item;
-                    nextIndex = item.ColumnIndex.Value + 1;
-                }
-                else if (nextIndex < dataTable.ColumnCount)
-                    columnConversionTable[nextIndex++] = item;
-            }
-
-            foreach (var ci in dataTable.ColumnIndices) {
-                if (columnConversionTable.TryGetValue(ci, out var conversion)) {
-                    var columnIndex = ci;
-                    var converter = conversion.GetTransformer(dataTable.Context, dataTable.ColumnTypes[ci], dataTable.GetColumn(ci), () => dataTable.GetColumnAnalysis(columnIndex), temp);
-                    if (converter is not null)
-                        yield return (ci, converter);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Mutates table columns
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to save new table (optional)</param>
-        /// <param name="conversionParams">Column transformation parameters</param>
-        /// <returns></returns>
-        public static IDataTable MutateColumns(this IDataTable dataTable, string? filePath, params IColumnTransformationParam[] conversionParams)
-        {
-            using var tempStream = dataTable.Context.CreateTempStreamProvider();
-            var transformers = dataTable.GetColumnTransformers(tempStream, conversionParams);
-            var operations = dataTable.ConvertColumns(tempStream, transformers);
-            var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
-            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
-        }
-
-        /// <summary>
         /// Returns column information
         /// </summary>
         /// <param name="dataTable"></param>
@@ -1017,40 +878,38 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Normalizes the data in all columns of the table
+        /// Normalizes the data in specified columns of the table
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="type">Normalization type</param>
         /// <returns></returns>
-        public static IDataTable Normalize(this IDataTable dataTable, NormalizationType type, string? filePath = null)
+        public static async Task<IDataTable> Normalize(this IDataTable dataTable, NormalizationType type, string? filePath = null, params uint[] columnIndices)
         {
             if (type == NormalizationType.None)
                 return dataTable;
 
+            var columnMutationTable = columnIndices
+                .Select(i => (Index: i, Task: GetNormalization(dataTable.GetColumn(i), type)))
+                .ToDictionary(x => x.Index, async x => await x.Task);
+
             using var tempStream = dataTable.Context.CreateTempFileProvider();
-            var transformers = GetColumnTransformers(dataTable, tempStream, dataTable.GetColumnInfo()
-                .Where(c => !c.MetaData.IsCategorical() && c.Type.IsNumeric())
-                .Select(c => new ColumnNormalization(c.Index, type))
-            );
-            var operations = dataTable.ConvertColumns(tempStream, transformers);
-            var results = EnsureAllCompleted(CompleteInParallel(operations.ToArray()));
-            return BuildDataTable(dataTable.Context, dataTable.TableMetaData, results, GetMemoryOrFileStream(filePath));
+            var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
+            writer.CreateColumnsFrom(dataTable);
+            var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
+            for (uint i = 0; i < dataTable.ColumnCount; i++) {
+                var column = dataTable.GetColumn(i);
+                if (columnMutationTable.TryGetValue(i, out var model))
+                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataTable.ColumnTypes[i].GetDataType()), column, model);
+                else
+                    columns[i] = column;
+            }
+            await writer.Add(columns);
 
-        }
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await writer.WriteTo(stream);
+            return LoadTableFromStream(dataTable.Context, stream);
 
-        /// <summary>
-        /// Projects (transforms) table data to a new table
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="filePath">File path to save new table (optional)</param>
-        /// <param name="projector">Projection function</param>
-        /// <returns></returns>
-        public static IDataTable Project(this IDataTable dataTable, string? filePath, Func<object[], object[]?> projector)
-        {
-            using var op = dataTable.Project(projector);
-            var builder = EnsureCompleted(op.Complete(null, CancellationToken.None));
-            return builder.Build(filePath);
         }
 
         /// <summary>
@@ -1060,11 +919,10 @@ namespace BrightData
         /// <param name="filePath">File path to save new table (optional)</param>
         /// <param name="sampleCount">Number of rows to sample</param>
         /// <returns></returns>
-        public static IDataTable Bag(this IDataTable dataTable, string? filePath, uint sampleCount)
+        public static Task<IDataTable> Bag(this IDataTable dataTable, string? filePath, uint sampleCount)
         {
-            using var op = dataTable.BagToStream(sampleCount, GetMemoryOrFileStream(filePath));
-            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
-            return dataTable.Context.LoadTableFromStream(stream);
+            var rowIndices = dataTable.RowCount.AsRange().ToArray().Bag(sampleCount, dataTable.Context.Random).ToArray();
+            return dataTable.CopyRowsToNewTable(filePath, rowIndices);
         }
 
         /// <summary>
@@ -1073,11 +931,10 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="filePath">File path to save new table (optional)</param>
         /// <returns></returns>
-        public static IDataTable Shuffle(this IDataTable dataTable, string? filePath)
+        public static Task<IDataTable> Shuffle(this IDataTable dataTable, string? filePath)
         {
-            using var op = dataTable.ShuffleToStream(GetMemoryOrFileStream(filePath));
-            var stream = EnsureCompleted(op.Complete(null, CancellationToken.None));
-            return dataTable.Context.LoadTableFromStream(stream);
+            var rowIndices = dataTable.RowCount.AsRange().Shuffle(dataTable.Context.Random).ToArray();
+            return dataTable.CopyRowsToNewTable(filePath, rowIndices);
         }
 
         /// <summary>
@@ -1117,7 +974,7 @@ namespace BrightData
             uint index = 0;
             foreach (var (label, columnData) in groups) {
                 var writer = new ColumnOrientedDataTableBuilder(context);
-                var newColumns = writer.AddColumnsFrom(dataTable);
+                var newColumns = writer.CreateColumnsFrom(dataTable);
                 var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), columns[i], x, columnData));
                 await operations.Process();
                 var outputStream = GetMemoryOrFileStream(filePathProvider?.Invoke(label));
@@ -1973,31 +1830,25 @@ namespace BrightData
             return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, converter);
         }
 
-        public static async Task<NormalisationModel> GetNormalization(this MetaData metaData, NormalizationType type, params IReadOnlyBuffer[] buffers)
+        public static async Task<NormalisationModel> GetNormalization(this IReadOnlyBufferWithMetaData buffer, NormalizationType type)
         {
+            var metaData = buffer.MetaData;
             if (metaData.Get(Consts.NormalizationType, NormalizationType.None) == type)
                 return metaData.GetNormalization();
 
-            if (!buffers.All(x => x.DataType.GetBrightDataType().IsNumeric()))
+            if (buffer.DataType.GetBrightDataType().IsNumeric())
                 throw new NotSupportedException("Only numeric buffers can be normalized");
 
             if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
                 var analyzer = StaticAnalysers.CreateNumericAnalyser();
-                foreach (var buffer in buffers) {
-                    var toDouble = ConvertTo<double>(buffer);
-                    await toDouble.ForEachBlock(analyzer.Add);
-                }
+                var toDouble = ConvertTo<double>(buffer);
+                await toDouble.ForEachBlock(analyzer.Add);
                 analyzer.WriteTo(metaData);
             }
 
             var ret = new NormalisationModel(type, metaData);
             ret.WriteTo(metaData);
             return ret;
-        }
-
-        public static IReadOnlyBuffer<T> Normalize<T>(this IReadOnlyBuffer<T> buffer, INormalize normalize) where T : unmanaged, INumber<T>
-        {
-            return new NormalizationConverter<T>(buffer, normalize);
         }
 
         public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
@@ -2207,6 +2058,13 @@ namespace BrightData
             if (buffer.DataType == typeof(string))
                 return (IReadOnlyBuffer<string>)buffer;
             return GenericActivator.Create<IReadOnlyBuffer<string>>(typeof(ToStringConverter<>).MakeGenericType(typeof(string)), buffer);
+        }
+
+        public static IReadOnlyBuffer<TT> Convert<FT, TT>(this IReadOnlyBuffer<FT> buffer, Func<FT, TT> converter)
+            where FT: notnull
+            where TT: notnull
+        {
+            return GenericActivator.Create<IReadOnlyBuffer<TT>>(typeof(CustomConverter<,>).MakeGenericType(typeof(FT), typeof(TT)), buffer, converter);
         }
     }
 }

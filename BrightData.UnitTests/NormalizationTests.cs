@@ -4,23 +4,24 @@ using BrightData.DataTable;
 using BrightData.Helper;
 using FluentAssertions;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace BrightData.UnitTests
 {
     public class NormalizationTests : UnitTestBase
     {
-        BrightDataTable GetTable()
+        Task<IDataTable> GetTable()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Double);
-            builder.AddColumn(BrightDataType.Double);
+            builder.CreateColumn(BrightDataType.Double);
+            builder.CreateColumn(BrightDataType.Double);
             builder.AddRow(100d, 200d);
             builder.AddRow(200d, 300d);
             builder.AddRow(-50d, -100d);
             return builder.BuildInMemory();
         }
 
-        static void ValidateNormalization(BrightDataTable normalized, BrightDataTable original)
+        static void ValidateNormalization(IDataTable normalized, IDataTable original)
         {
             var normalization = normalized.ColumnMetaData.Select(x => x.GetNormalization()).ToArray();
 

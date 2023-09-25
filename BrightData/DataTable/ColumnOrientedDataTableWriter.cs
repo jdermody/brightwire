@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Buffer.ByteBlockReaders;
 using BrightData.Buffer.Composite;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -14,6 +13,9 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Writes buffers to a data table
+    /// </summary>
     internal class ColumnOrientedDataTableWriter : IWriteDataTables
     {
         readonly BrightDataContext _context;

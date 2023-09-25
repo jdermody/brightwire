@@ -6,33 +6,28 @@ using System.Threading.Tasks;
 
 namespace BrightData.Operation
 {
-    internal class ManyToManyFilter<T> : IOperation
-        where T: notnull
+    internal class ManyToManyCopy : IOperation
     {
         readonly uint _size, _blockSize;
-        readonly IReadOnlyBuffer<T>[] _from;
-        readonly IAppendToBuffer<T>[] _to;
-        readonly Filter _filter;
-        public delegate void Filter(T[] from, IAppendToBuffer<T>[] to);
+        readonly IReadOnlyList<IReadOnlyBuffer> _from;
+        readonly IReadOnlyList<IAppendToBuffer> _to;
 
-        public ManyToManyFilter(IEnumerable<IReadOnlyBuffer<T>> from, IEnumerable<IAppendToBuffer<T>> to, Filter filter)
+        public ManyToManyCopy(IReadOnlyList<IReadOnlyBuffer> from, IReadOnlyList<IAppendToBuffer> to)
         {
-            _from = from.ToArray();
+            _from = from;
             _size = _from.First().Size;
             if (_from.Any(x => x.Size != _size))
                 throw new ArgumentException("Expected all input buffers to have the same size", nameof(from));
             _blockSize = (uint)_from.Average(x => x.BlockSize);
-            _to = to.ToArray();
-            _filter = filter;                                                                                                                                           
+            _to = to;
         }
 
         public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);
-            var enumerators = _from.Select(x => x.GetAsyncEnumerator(ct)).ToArray();
+            var enumerators = _from.Select(x => x.EnumerateAll().GetAsyncEnumerator(ct)).ToArray();
             var currentTasks = new ValueTask<bool>[_size];
-            var curr = new T[_size];
             uint index = 0;
             var isValid = true;
 
@@ -46,8 +41,8 @@ namespace BrightData.Operation
                     }
                 }
                 for (var i = 0; i < _size; i++)
-                    curr[i] = enumerators[i].Current;
-                _filter(curr, _to);
+                    _to[i].AddObject(enumerators[i].Current);
+
                 if(++index % _blockSize == 0)
                     notify?.OnOperationProgress(id, (float)index / _size);
             }

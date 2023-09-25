@@ -125,7 +125,7 @@ namespace BrightWire
         /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this BrightDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
+        public static RandomForest TrainRandomForest(this IDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
@@ -136,7 +136,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this BrightDataTable data, DecisionTreeTrainer.Config? config = null)
+        public static DecisionTree TrainDecisionTree(this IDataTable data, DecisionTreeTrainer.Config? config = null)
         {
             return DecisionTreeTrainer.Train(data, config);
         }
@@ -159,7 +159,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
 		/// <returns></returns>
-	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this BrightDataTable table)
+	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IDataTable table)
 		{
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
@@ -190,7 +190,7 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="table">The training data table that must have an index-list based column</param>
 	    /// <returns>A model that can be used for classification</returns>
-	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this BrightDataTable table)
+	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IDataTable table)
 	    {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
@@ -206,7 +206,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">The training data provider</param>
         /// <returns>A naive bayes model</returns>
-        public static NaiveBayes TrainNaiveBayes(this BrightDataTable table)
+        public static NaiveBayes TrainNaiveBayes(this IDataTable table)
         {
             return NaiveBayesTrainer.Train(table);
         }
@@ -237,8 +237,8 @@ namespace BrightWire
         /// <param name="weightInitialisation"></param>
         /// <returns></returns>
         public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
-            BrightDataTable trainingTable,
-            BrightDataTable testTable,
+            IDataTable trainingTable,
+            IDataTable testTable,
             IErrorMetric errorMetric,
             float learningRate,
             uint batchSize,

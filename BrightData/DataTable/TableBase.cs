@@ -272,7 +272,7 @@ namespace BrightData.DataTable
                 var curr = new object[size];
                 for (var i = 0; i < size; i++)
                     curr[i] = enumerators[i].Current;
-                yield return new TableRow(rowIndex++, curr);
+                yield return new TableRow(this, rowIndex++, curr);
             }
         }
 
@@ -311,7 +311,7 @@ namespace BrightData.DataTable
         public async Task WriteRowsTo(Stream stream, params uint[] rowIndices)
         {
             var writer = new ColumnOrientedDataTableBuilder(Context);
-            var newColumns = writer.AddColumnsFrom(this);
+            var newColumns = writer.CreateColumnsFrom(this);
             var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : RowCount.AsRange().ToArray();
             var operations = newColumns
                 .Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), GetColumn((uint)i), x, wantedRowIndices))
@@ -342,7 +342,7 @@ namespace BrightData.DataTable
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
-            var ret = rowIndices.Select(x => new TableRow(x, new object[len])).ToArray();
+            var ret = rowIndices.Select(x => new TableRow(this, x, new object[len])).ToArray();
             var tasks = new Task<ReadOnlyMemory<object>>[len];
             foreach (var block in blocks) {
                 for(var i = 0; i < len; i++)

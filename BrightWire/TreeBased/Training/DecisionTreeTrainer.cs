@@ -5,7 +5,6 @@ using BrightData;
 using BrightData.DataTable;
 using BrightData.Helper;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TreeBased.Training
 {
@@ -85,7 +84,7 @@ namespace BrightWire.TreeBased.Training
 	        readonly Dictionary<uint, string> _category = new();
             readonly Dictionary<uint, double> _continuous = new();
 
-            public InMemoryRow(BrightDataTableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
+            public InMemoryRow(TableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
                 ClassificationLabel = row.Get<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)
@@ -109,7 +108,7 @@ namespace BrightWire.TreeBased.Training
             readonly HashSet<uint> _categorical = new();
             readonly HashSet<uint> _continuous = new();
 
-            public TableInfo(BrightDataTable table)
+            public TableInfo(IDataTable table)
             {
                 ClassColumnIndex = table.GetTargetColumnOrThrow();
                 var metaData = table.ColumnMetaData;
@@ -275,7 +274,7 @@ namespace BrightWire.TreeBased.Training
         /// <param name="table">Training data</param>
         /// <param name="config">Decision tree configuration</param>
         /// <returns></returns>
-        public static DecisionTree Train(BrightDataTable table, Config? config = null)
+        public static DecisionTree Train(IDataTable table, Config? config = null)
         {
             var tableInfo = new TableInfo(table);
             var root = new Node(tableInfo, tableInfo.Data, null);

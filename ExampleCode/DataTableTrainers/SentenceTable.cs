@@ -6,13 +6,12 @@ using BrightData;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class SentenceTable
     {
-        readonly BrightDataTable _sentenceTable;
+        readonly IDataTable _sentenceTable;
         readonly Dictionary<string, uint> _stringIndex = new();
         readonly List<string> _strings = new();
         readonly uint _empty;
@@ -23,10 +22,10 @@ namespace ExampleCode.DataTableTrainers
             _empty = GetStringIndex("");
 
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.IndexList, "Sentences");
+            builder.CreateColumn(BrightDataType.IndexList, "Sentences");
             foreach(var sentence in sentences)
                 builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
-            _sentenceTable = builder.BuildInMemory();
+            _sentenceTable = builder.BuildInMemory().Result;
         }
 
         public uint GetStringIndex(string str)
