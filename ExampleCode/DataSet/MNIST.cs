@@ -8,7 +8,6 @@ using BrightData.Cuda.Helper;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
@@ -168,7 +167,7 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public static BrightDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
+        public static IDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a vector => vector mapping
             var builder = context.CreateTwoColumnVectorTableBuilder();
@@ -181,10 +180,10 @@ namespace ExampleCode.DataSet
             var ret = builder.BuildInMemory();
             //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
             //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
-            return ret;
+            return ret.Result;
         }
 
-        public BrightDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
+        public IDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
         {
             // create a 3D tensor => vector mapping
             var builder = context.Create3DTensorToVectorTableBuilder();
@@ -194,7 +193,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(tensor, label);
             }
 
-            var ret = builder.BuildInMemory();
+            var ret = builder.BuildInMemory().Result;
             if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
                 _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
             return ret;

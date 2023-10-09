@@ -6,11 +6,6 @@
         {
         }
 
-        protected override void Convert(in FT from, ref object to)
-        {
-            to = from;
-        }
-
         protected override object Convert(in FT from)
         {
             return from;

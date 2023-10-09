@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 
-namespace BrightData.Operation.Vectorisation
+namespace BrightData.Operations.Vectorisation
 {
     internal abstract class VectorisationBase<T> : ICanVectorise where T: notnull
     {

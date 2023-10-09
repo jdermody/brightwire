@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.DataTypeSpecification;
 using BrightData.Helper;
 
@@ -45,7 +46,7 @@ namespace BrightData
         /// <returns></returns>
         public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
 
-        class ColumnFilter<T> : IConsumeColumnData<T> where T: notnull
+        class ColumnFilter<T> : IAcceptBlock<T> where T: notnull
         {
             readonly IDataTypeSpecification<T> _filter;
             readonly HashSet<uint> _nonConformingRowIndices;
@@ -61,17 +62,21 @@ namespace BrightData
 
             public uint ColumnIndex { get; }
             public BrightDataType ColumnType { get; }
-            public void Add(T value)
+
+            public void Add(ReadOnlySpan<T> inputBlock)
             {
-                if(!_filter.IsValid(value))
-                    _nonConformingRowIndices.Add(_index);
-                ++_index;
+                foreach (var item in inputBlock) {
+                    if (!_filter.IsValid(item))
+                        _nonConformingRowIndices.Add(_index);
+                    ++_index;
+                }
             }
+            public Type BlockType => typeof(T);
         }
 
-        static IConsumeColumnData GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
+        static IAcceptBlock GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
         {
-            return GenericActivator.Create<IConsumeColumnData>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
+            return GenericActivator.Create<IAcceptBlock>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
         }
 
         /// <summary>
@@ -81,7 +86,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static HashSet<uint> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
+        public static async Task<HashSet<uint>> FindNonConformingRows(this IDataTypeSpecification typeInfo, IDataTable dataTable)
         {
             if (typeInfo.UnderlyingType != typeof(IDataTable))
                 throw new ArgumentException("Expected data table specification");
@@ -89,8 +94,8 @@ namespace BrightData
                 throw new ArgumentException("Expected data table and type info column count to match");
 
             var ret = new HashSet<uint>();
-            var ops = dataTable.CopyToColumnConsumers(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts))).ToArray();
-            EnsureAllCompleted(CompleteInParallel(ops));
+            var ops = dataTable.CopyTo(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts)).ToArray());
+            await ops.Process();
             return ret;
         }
     }

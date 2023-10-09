@@ -46,7 +46,7 @@ namespace BrightData.Cuda.Helper
                 var ret = _cache[index];
                 if (ret is null) {
                     _source.Get(index, out var item);
-                    var ptr = _data.Offset(item.StartIndex, item.Count);
+                    var ptr = _data.Offset(item.StartIndex, item.Size);
                     ret = _cache[index] = new CudaVector(new CudaTensorSegment(ptr), _lap);
                     ret.Segment.AddRef();
                 }
@@ -181,7 +181,7 @@ namespace BrightData.Cuda.Helper
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="table"></param>
-        public CudaTensorDataCache(CudaLinearAlgebraProvider lap, BrightDataTable table)
+        public CudaTensorDataCache(CudaLinearAlgebraProvider lap, IDataTable table)
         {
             // copy entire tensor block into CUDA device
             var span = table.TensorDataBlock.GetSpan(0, table.TensorDataBlock.Size);

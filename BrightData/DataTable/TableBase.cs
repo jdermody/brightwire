@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -13,7 +11,7 @@ using BrightData.Buffer.Composite;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Operation;
+using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.DataTable
@@ -34,6 +32,7 @@ namespace BrightData.DataTable
         readonly Lazy<Task<ReadOnlyMemory<byte>>>                   _data;
         readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
         readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
+        readonly Lazy<IReadOnlyBufferWithMetaData<object>[]>        _genericColumns;
         protected readonly MetaData[]                               _columnMetaData;
         ITensorDataProvider                                         _tensorDataProvider;
 
@@ -79,6 +78,8 @@ namespace BrightData.DataTable
             _indices         = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
             _weightedIndices = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
             _tensorDataProvider = this;
+
+            _genericColumns = new(GetColumnsAsObjectBuffers());
         }
 
         public MetaData MetaData { get; }
@@ -333,7 +334,7 @@ namespace BrightData.DataTable
 
         public async Task<TableRow[]> GetRows(params uint[] rowIndices)
         {
-            var columns = GetColumnsAsObjectBuffers();
+            var columns = _genericColumns.Value;
             var len = columns.Length;
             var blockSize = columns[0].BlockSize;
             Debug.Assert(columns.Skip(1).All(x => x.BlockSize == blockSize));
@@ -355,6 +356,17 @@ namespace BrightData.DataTable
                 }
             }
             return ret;
+        }
+
+        public TableRow this[uint index]
+        {
+            get
+            {
+                var columns = _genericColumns.Value;
+                var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
+                Task.WhenAll(fetchTasks).Wait();
+                return new TableRow(this, index, fetchTasks.Select(x => x.Result).ToArray());
+            }
         }
     }
 }

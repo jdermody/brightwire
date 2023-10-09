@@ -1,6 +1,6 @@
 ﻿using BrightData.LinearAlgebra.ReadOnly;
 
-namespace BrightData.Operation.Conversion
+namespace BrightData.Operations.Conversion
 {
     internal class OneHotConversion<T> : ConversionBase<T, ReadOnlyVector> where T: notnull
     {

@@ -1,4 +1,4 @@
-﻿namespace BrightData.Operation.Conversion
+﻿namespace BrightData.Operations.Conversion
 {
     internal class NopConversion<T> : ConversionBase<T, T> where T: notnull
     {

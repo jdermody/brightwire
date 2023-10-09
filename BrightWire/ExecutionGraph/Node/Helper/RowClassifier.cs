@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -28,11 +27,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             readonly Dictionary<string, uint> _targetLabel;
 
-            public DefaultIndexer(BrightDataTable dataTable)
+            public DefaultIndexer(IDataTable dataTable)
             {
                 var targetColumn = dataTable.GetTargetColumnOrThrow();
-                using var column = dataTable.GetColumn(targetColumn);
-                _targetLabel = column.Values
+                var column = dataTable.GetColumn(targetColumn);
+                _targetLabel = column.GetValues()
                     .Select(o => o.ToString()!)
                     .Distinct()
                     .Select((v, i) => (Classification: v, Index: (uint)i))
@@ -44,12 +43,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public uint OutputSize => (uint)_targetLabel.Count;
         }
 
-        readonly BrightDataTable _dataTable;
+        readonly IDataTable _dataTable;
         readonly LinearAlgebraProvider _lap;
         readonly IRowClassifier _classifier;
         readonly IIndexStrings _indexer;
 
-        public RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, BrightDataTable dataTable, string? name = null)
+        public RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, IDataTable dataTable, string? name = null)
             : base(name)
         {
             _lap = lap;
@@ -62,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            var rows = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows);
+            var rows = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows).Result;
             var resultList = rows
                 .Select(row => _classifier.Classify(row)
                     .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))

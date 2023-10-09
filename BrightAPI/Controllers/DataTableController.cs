@@ -7,6 +7,7 @@ using BrightAPI.Models.DataTable;
 using BrightAPI.Models.DataTable.Requests;
 using BrightData;
 using BrightData.DataTable;
+using BrightData.LinearAlgebra.ReadOnly;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrightAPI.Controllers
@@ -35,7 +36,7 @@ namespace BrightAPI.Controllers
         [HttpPost, Route("csv/preview")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<DataTablePreviewModel> GetPreviewFromCsv([FromBody] DataTableCsvPreviewRequest request)
+        public async Task<ActionResult<DataTablePreviewModel>> GetPreviewFromCsv([FromBody] DataTableCsvPreviewRequest request)
         {
             var filePreview = string.Join('\n', request.Lines);
             if (string.IsNullOrWhiteSpace(filePreview))
@@ -43,7 +44,7 @@ namespace BrightAPI.Controllers
 
             try {
                 using var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(filePreview)));
-                using var table = _context.ParseCsvIntoMemory(reader, request.HasHeader, request.Delimiter);
+                using var table = await _context.ParseCsv(reader, request.HasHeader, request.Delimiter);
                 var columns = new DataTableColumnModel[table.ColumnCount];
                 for (uint i = 0; i < table.ColumnCount; i++) {
                     var metaData = table.ColumnMetaData[i];
@@ -57,7 +58,7 @@ namespace BrightAPI.Controllers
                 }
                 return new DataTablePreviewModel {
                     Columns = columns,
-                    PreviewRows = table.AllRows.Select(r => r.ToArray().Select(x => x.ToString()!).ToArray()).ToArray()
+                    PreviewRows = table.GetAllRows().Result.Select(r => r.Values.Select(x => x.ToString()!).ToArray()).ToArray()
                 };
             }
             catch (Exception ex) {
@@ -98,7 +99,7 @@ namespace BrightAPI.Controllers
             string fileData)
         {
             using var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileData)));
-            using var table = context.ParseCsvIntoMemory(reader, hasHeader, delimiter);
+            using var table = await context.ParseCsv(reader, hasHeader, delimiter);
             if (targetIndex.HasValue)
                 table.SetTargetColumn(targetIndex.Value);
 
@@ -111,10 +112,10 @@ namespace BrightAPI.Controllers
             }
 
             // analyse table data
-            table.GetColumnAnalysis(table.ColumnIndices);
+            await table.GetColumnAnalysis();
             if (fileName is not null)
-                table.TableMetaData.Set("file-name", fileName);
-            table.TableMetaData.Set("date-created", DateTime.UtcNow);
+                table.MetaData.Set("file-name", fileName);
+            table.MetaData.Set("date-created", DateTime.UtcNow);
             table.PersistMetaData();
 
             // save table to disk and the DB
@@ -173,7 +174,7 @@ namespace BrightAPI.Controllers
             var dataTableInfo = dataTableResult.Value!;
 
             using var table = _context.LoadTable(dataTableInfo.LocalPath);
-            var ret = table.GetSlice(start, count).Select(r => r.ToArray().Select(x => x.ToString() ?? "-").ToArray()).ToArray();
+            var ret = table.GetSlice(start, count).Result.Select(r => r.Values.Select(x => x.ToString() ?? "-").ToArray()).ToArray();
             return ret;
         }
 
@@ -235,19 +236,34 @@ namespace BrightAPI.Controllers
             if (request.Columns.Length == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Reinterpreted", (table, path) => {
-                var reinterpretColumns = new IReinterpretColumns[request.Columns.Length];
-                var index = 0;
+            return await Transform(id, request, "Reinterpreted", async (table, path) => {
+                using var tempStreams = _context.CreateTempFileProvider();
+                var inputColumnIndices = new HashSet<uint>();
+                var newColumns = new Dictionary<uint, List<ICompositeBuffer>>();
                 foreach (var column in request.Columns) {
                     if(column.ColumnIndices.Any(x => x > table.ColumnCount))
                         throw new BadHttpRequestException("Column index exceeded column count");
-
-                    reinterpretColumns[index++] = column.ColumnIndices.ReinterpretColumns(column.NewType, column.Name);
+                    var inputColumns = column.ColumnIndices.Select(table.GetColumn).Cast<IReadOnlyBuffer>().ToArray();
+                    var buffer = await inputColumns.Vectorise(tempStreams);
+                    buffer.MetaData.SetName(column.Name);
+                    foreach (var columnIndex in column.ColumnIndices)
+                        inputColumnIndices.Add(columnIndex);
+                    if(!newColumns.TryGetValue(column.ColumnIndices[0], out var list))
+                        newColumns.Add(column.ColumnIndices[0], list = new());
+                    list.Add(buffer);
                 }
 
-                using var tempStreams = _context.CreateTempFileProvider();
-                var newTable = table.ReinterpretColumns(tempStreams, path, reinterpretColumns);
-                newTable.GetColumnAnalysis(newTable.ColumnIndices);
+                var finalColumns = new List<IReadOnlyBufferWithMetaData>();
+                for (uint i = 0; i < table.ColumnCount; i++) {
+                    if(!inputColumnIndices.Contains(i))
+                        finalColumns.Add(table.GetColumn(i));
+                    else if(newColumns.TryGetValue(i, out var list))
+                        finalColumns.AddRange(list);
+                }
+
+                await using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+                var newTable = await table.Context.BuildDataTable(table.MetaData, finalColumns.ToArray(), stream);
+                await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;
             });
@@ -262,9 +278,9 @@ namespace BrightAPI.Controllers
             if (request.ColumnIndices.Length == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Vectorised", (table, path) => {
-                var newTable = table.Vectorise(request.OneHotEncodeToMultipleColumns, request.ColumnIndices, path);
-                newTable.GetColumnAnalysis(newTable.ColumnIndices);
+            return await Transform(id, request, "Vectorised", async (table, path) => {
+                var newTable = await table.Vectorise(request.OneHotEncodeToMultipleColumns, request.ColumnIndices, path);
+                await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;
             });
@@ -301,9 +317,9 @@ namespace BrightAPI.Controllers
             if (!rows.Any())
                 return BadRequest();
 
-            return await Transform(id, request, "Row Subset", (table, path) => {
-                var newTable = table.CopyRowsToNewTable(path, rows.ToArray());
-                newTable.GetColumnAnalysis(table.ColumnIndices);
+            return await Transform(id, request, "Row Subset", async (table, path) => {
+                var newTable = await table.CopyRowsToNewTable(path, rows.ToArray());
+                await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;
             });
@@ -326,9 +342,9 @@ namespace BrightAPI.Controllers
             if (request.RowCount == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Bagged", (table, path) => {
-                var newTable = table.Bag(path, request.RowCount);
-                newTable.GetColumnAnalysis(table.ColumnIndices);
+            return await Transform(id, request, "Bagged", async (table, path) => {
+                var newTable = await table.Bag(path, request.RowCount);
+                await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;
             });
@@ -353,12 +369,10 @@ namespace BrightAPI.Controllers
             var (path1, newTableId1) = _tempFileManager.GetNewTempPath();
             var (path2, newTableId2) = _tempFileManager.GetNewTempPath();
 
-            var (trainingTable, testTable) = table.Split(request.TrainingPercentage / 100, path1, path2);
+            var (trainingTable, testTable) = await table.Split(request.TrainingPercentage / 100, path1, path2);
             try {
-                trainingTable.GetColumnAnalysis(table.ColumnIndices);
+                await Task.WhenAll(trainingTable.GetColumnAnalysis(), testTable.GetColumnAnalysis());
                 trainingTable.PersistMetaData();
-
-                testTable.GetColumnAnalysis(table.ColumnIndices);
                 testTable.PersistMetaData();
 
                 var training = await CreateTable(id, dataTableInfo, request, "Training", newTableId1, path1, trainingTable);
@@ -375,7 +389,7 @@ namespace BrightAPI.Controllers
             }
         }
 
-        async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<IDataTable /* input */, string /* path */, IDataTable /* output */> callback)
+        async Task<ActionResult<NamedItemModel>> Transform<T>(string id, T request, string newTableSuffix, Func<IDataTable /* input */, string /* path */, Task<IDataTable> /* output */> callback)
         {
             var dataTableResult = await LoadDataTable(id);
             if (dataTableResult.Result is not null)
@@ -386,7 +400,7 @@ namespace BrightAPI.Controllers
 
             // create a new converted table
             var (path, newTableId) = _tempFileManager.GetNewTempPath();
-            using var newTable = callback(table, path);
+            using var newTable = await callback(table, path);
 
             // maybe there was nothing to transform
             if (newTable == table) {
@@ -403,7 +417,7 @@ namespace BrightAPI.Controllers
         {
             // set table metadata
             var requestJson = JsonSerializer.Serialize(request);
-            newTable.GetColumnAnalysis(newTable.ColumnIndices);
+            await newTable.GetColumnAnalysis();
             newTable.MetaData.Set("based-on-table-id", sourceId);
             newTable.MetaData.Set("transformation-request", requestJson);
             newTable.MetaData.Set("date-created", DateTime.UtcNow);
@@ -453,7 +467,7 @@ namespace BrightAPI.Controllers
             var dataTable = dataTableResult.Value!;
 
             {
-                using var table = _context.LoadTable(dataTable.LocalPath, forModification: true);
+                using var table = _context.LoadTable(dataTable.LocalPath);
                 foreach (var item in nameTable)
                     table.ColumnMetaData[item.Key].SetName(item.Value);
                 table.PersistMetaData();
@@ -474,7 +488,7 @@ namespace BrightAPI.Controllers
             var dataTable = dataTableResult.Value!;
 
             {
-                using var table = _context.LoadTable(dataTable.LocalPath, forModification: true);
+                using var table = _context.LoadTable(dataTable.LocalPath);
                 uint index = 0;
                 foreach (var column in table.ColumnMetaData)
                     column.SetTarget(index++ == request.TargetColumn);

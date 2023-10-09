@@ -11,9 +11,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
+using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -671,9 +674,24 @@ namespace BrightData
             throw new Exception($"{str} was not recognised as a valid date");
         }
 
-        public static IEnumerable<T> AsEnumerable<T>(this T item)
+        public static ReadOnlyMemory<object> AsObjects<T>(this ReadOnlyMemory<T> block) where T: notnull
         {
-            yield return item;
+            var index = 0;
+            var ret = new object[block.Length];
+            foreach (ref readonly var item in block.Span)
+                ret[index++] = item;
+            return ret;
+        }
+
+        static (Type, uint) GetTypeAndSize<T>() => (typeof(T), (uint)Unsafe.SizeOf<T>());
+
+        public static Task Process(this IOperation[] operations, INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        {
+            if (operations.Length == 1)
+                return operations[0].Process(notify, msg, ct);
+            if (operations.Length > 1)
+                return new AggregateOperation(operations).Process(notify, msg, ct);
+            return Task.CompletedTask;
         }
     }
 }

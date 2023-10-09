@@ -9,6 +9,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
+using Operation = BrightData.Cuda.CudaToolkit.Operation;
 
 namespace BrightData.Cuda
 {

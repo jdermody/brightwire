@@ -11,11 +11,6 @@
             _converter = converter;
         }
 
-        protected override void Convert(in FT from, ref TT to)
-        {
-            to = _converter.Convert(from);
-        }
-
         protected override TT Convert(in FT from) => _converter.Convert(from);
     }
 }

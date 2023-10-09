@@ -7,7 +7,6 @@ namespace BrightAPI.Models.DataTable.Requests
     {
         public class NewColumnFromExistingColumnsModel : DataTableColumnsRequest
         {
-            [Required] public BrightDataType NewType { get; set; }
             [Required] public string Name { get; set; } = string.Empty;
         }
 

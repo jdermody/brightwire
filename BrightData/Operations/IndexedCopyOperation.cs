@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operation
+namespace BrightData.Operations
 {
     internal class IndexedCopyOperation<T> : IOperation
         where T: notnull

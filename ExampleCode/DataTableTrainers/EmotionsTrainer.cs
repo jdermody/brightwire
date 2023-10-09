@@ -5,17 +5,16 @@ using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class EmotionsTrainer : DataTableTrainer
     {
-        public EmotionsTrainer(BrightDataTable table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
+        public EmotionsTrainer(IDataTable table, IDataTable training, IDataTable test) : base(table, training, test)
         {
         }
 
-        public static BrightDataTable Parse(BrightDataContext context, string filePath)
+        public static IDataTable Parse(BrightDataContext context, string filePath)
         {
             const int targetColumnCount = 6;
 
@@ -27,7 +26,7 @@ namespace ExampleCode.DataTableTrainers
                 if (line == "@data")
                     break;
             }
-            using var table = context.ParseCsvIntoMemory(reader, false);
+            using var table = context.ParseCsv(reader, false).Result;
 
             // convert the feature columns to numeric and the target columns to boolean
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
@@ -47,7 +46,7 @@ namespace ExampleCode.DataTableTrainers
 
         }
 
-        static BrightDataTable ConvertToBinary(BrightDataTable table, uint indexOffset)
+        static IDataTable ConvertToBinary(IDataTable table, uint indexOffset)
         {
             // converts the index list to a boolean based on if the flag is set
             var ret = table.Project(null, r => {

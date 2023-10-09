@@ -19,7 +19,6 @@ namespace BrightData.Buffer.ReadOnly.Converter
 
         public NormalizationType Type { get; }
 
-        protected override void Convert(in T from, ref T to) => to = (from - _subtract) / (_divideByZero ? T.One : _divide);
         protected override T Convert(in T from) => (from - _subtract) / (_divideByZero ? T.One : _divide);
     }
 }

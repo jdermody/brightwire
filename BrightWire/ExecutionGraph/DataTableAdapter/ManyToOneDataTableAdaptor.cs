@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -17,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _rowDepth;
         readonly uint _outputSize;
 
-	    public ManyToOneDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
+	    public ManyToOneDataTableAdapter(IDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
@@ -42,7 +41,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputSize = _outputSize = outputVector.Size;
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new ManyToOneDataTableAdapter(dataTable, _featureColumns);
         }

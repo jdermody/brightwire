@@ -4,13 +4,12 @@ using BrightData;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class IntegerAdditionTrainer : DataTableTrainer
     {
-        public IntegerAdditionTrainer(BrightDataTable data, BrightDataTable training, BrightDataTable test) : base(data, training, test)
+        public IntegerAdditionTrainer(IDataTable data, IDataTable training, IDataTable test) : base(data, training, test)
         {
         }
 

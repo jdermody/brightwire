@@ -18,12 +18,12 @@ namespace ExampleCode.DataSet
 {
     internal static class SimpleDataSets
     {
-        public static DataTableTrainer Iris(this BrightDataContext context)
+        public static async Task<DataTableTrainer> Iris(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try
             {
-                using var table = context.ParseCsv(reader, false);
+                using var table = await context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
                 using var numericTable = table.Convert(
                     ColumnConversionOperation.ToNumeric,
@@ -41,12 +41,12 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static StockDataTrainer StockData(this BrightDataContext context)
+        public static async Task<DataTableTrainer> StockData(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
-                using var table = context.ParseCsv(reader, true);
+                using var table = await context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
                 using var numericTable = table.Convert(
                     ColumnConversionOperation.ToNumeric,
@@ -63,21 +63,21 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static XorTrainer Xor(this BrightDataContext context)
+        public static async Task<XorTrainer> Xor(this BrightDataContext context)
         {
             // Some training data that the network will learn.  The XOR pattern looks like:
             // 0 0 => 0
             // 1 0 => 1
             // 0 1 => 1
             // 1 1 => 0
-            var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
+            var table = await BrightWire.TrainingData.Artificial.Xor.Get(context);
             return new XorTrainer(table);
         }
 
-        public static IntegerAdditionTrainer IntegerAddition(this BrightDataContext context)
+        public static async Task<IntegerAdditionTrainer> IntegerAddition(this BrightDataContext context)
         {
-            var data = BinaryIntegers.Addition(context, 1000);
-            var (training, test) = data.Split();
+            var data = await BinaryIntegers.Addition(context, 1000);
+            var (training, test) = await data.Split();
             return new IntegerAdditionTrainer(data, training, test);
         }
 
@@ -147,7 +147,7 @@ namespace ExampleCode.DataSet
             return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, trainingData));
         }
 
-        public static SequenceToSequenceTrainer OneToMany(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> OneToMany(this BrightDataContext context)
         {
             var grammar = new SequenceGenerator(context, dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
@@ -173,16 +173,16 @@ namespace ExampleCode.DataSet
                 var output = context.CreateReadOnlyMatrixFromRows(rows);
                 if (addTableColumns) {
                     addTableColumns = false;
-                    builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
-                    builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn(summary.Size, "Summary");
+                    builder.CreateFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
                 }
                 builder.AddRow(summary, output);
             }
 
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
-        public static SequenceToSequenceTrainer ManyToOne(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> ManyToOne(this BrightDataContext context)
         {
             const int size = 5, dictionarySize = 16;
             var grammar = new SequenceGenerator(context, dictionarySize: dictionarySize, minSize: size-1, maxSize: size+1);
@@ -204,12 +204,12 @@ namespace ExampleCode.DataSet
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateReadOnlyMatrixFromRows(rows), target);
             }
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
         static string Reverse(string str) => new(str.Reverse().ToArray());
 
-        public static SequenceToSequenceTrainer SequenceToSequence(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> SequenceToSequence(this BrightDataContext context)
         {
             const int sequenceLength = 5;
             var grammar = new SequenceGenerator(context, 3, sequenceLength-1, sequenceLength+1, false);
@@ -225,7 +225,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(encodedSequence, encodedSequence2);
             }
 
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
         //public static LinearTrainer SimpleLinear(this BrightDataContext context)

@@ -1,4 +1,4 @@
-﻿namespace BrightData.Operation.Conversion
+﻿namespace BrightData.Operations.Conversion
 {
     internal class ToStringConversion<T> : ConversionBase<T, string>
         where T : notnull

@@ -1,7 +1,7 @@
 ﻿using System;
 using BrightData.Converter;
 
-namespace BrightData.Operation.Vectorisation
+namespace BrightData.Operations.Vectorisation
 {
     internal class NumericVectoriser<T> : VectorisationBase<T> where T : notnull
     {

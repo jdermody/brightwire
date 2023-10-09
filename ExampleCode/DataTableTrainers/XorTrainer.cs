@@ -3,13 +3,12 @@ using System.Linq;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class XorTrainer : DataTableTrainer
     {
-        public XorTrainer(BrightDataTable table) : base(table, table, table)
+        public XorTrainer(IDataTable table) : base(table, table, table)
         {
         }
 

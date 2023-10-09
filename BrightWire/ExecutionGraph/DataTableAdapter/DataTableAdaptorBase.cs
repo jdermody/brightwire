@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using BrightWire.ExecutionGraph.Helper;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -26,14 +25,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// <summary>
 		/// Data table
 		/// </summary>
-        protected readonly BrightDataTable _dataTable;
+        protected readonly IDataTable _dataTable;
 
         /// <summary>
 	    /// Constructor
 	    /// </summary>
         /// <param name="dataTable"></param>
 	    /// <param name="featureColumns"></param>
-	    protected DataTableAdapterBase(BrightDataTable dataTable, uint[] featureColumns)
+	    protected DataTableAdapterBase(IDataTable dataTable, uint[] featureColumns)
         {
             _dataTable = dataTable;
             _targetColumnIndex = dataTable.GetTargetColumnOrThrow();
@@ -52,7 +51,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public abstract IMiniBatch Get(uint[] rows);
 
         /// <inheritdoc />
-        public abstract IDataSource CloneWith(BrightDataTable dataTable);
+        public abstract IDataSource CloneWith(IDataTable dataTable);
 
         /// <inheritdoc />
         public IDataTableVectoriser? InputVectoriser { get; protected set; } = null;

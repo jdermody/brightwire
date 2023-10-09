@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.Operation.Vectorisation
+namespace BrightData.Operations.Vectorisation
 {
     internal class CategoricalIndexVectorisation<T> : OneHotVectoriser<T> where T: notnull
     {

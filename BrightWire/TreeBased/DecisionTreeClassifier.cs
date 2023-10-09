@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightData.DataTable;
 using BrightWire.Models.TreeBased;
 
@@ -18,7 +19,7 @@ namespace BrightWire.TreeBased
             _tree = tree;
         }
 
-        public IEnumerable<string> ClassifyInternal(BrightDataTableRow row)
+        public IEnumerable<string> ClassifyInternal(TableRow row)
         {
             var p = _tree.Root;
             while(true) {
@@ -42,7 +43,7 @@ namespace BrightWire.TreeBased
             }
         }
 
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(TableRow row)
         {
             var classification = ClassifyInternal(row).First();
             return new[] {

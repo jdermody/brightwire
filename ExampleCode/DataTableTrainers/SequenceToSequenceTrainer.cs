@@ -5,7 +5,6 @@ using BrightData;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -13,7 +12,7 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly SequenceGenerator _sequenceGenerator;
 
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IDataTable dataTable) : base(dataTable)
         {
             _sequenceGenerator = sequenceGenerator;
         }
@@ -146,7 +145,7 @@ namespace ExampleCode.DataTableTrainers
             const float trainingRate = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
-            Training.TableMetaData.Set("Seq2Seq", true);
+            Training.MetaData.Set("Seq2Seq", true);
 
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);

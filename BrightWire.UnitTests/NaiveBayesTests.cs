@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
@@ -10,7 +11,7 @@ namespace BrightWire.UnitTests
     public class NaiveBayesTests : CpuBase
     {
         [Fact]
-        public void TestNaiveBayes()
+        public async Task TestNaiveBayes()
         {
             var dataTable = _context.CreateTableBuilder();
             dataTable.CreateColumn(BrightDataType.Float, "height");
@@ -27,16 +28,16 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.BuildInMemory();
+            var index = await dataTable.BuildInMemory();
 
             var testData = _context.CreateTableBuilder();
-            testData.CopyColumnsFrom(index);
+            testData.CreateColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.BuildInMemory();
+            var testDataTable = await testData.BuildInMemory();
 
             var model = index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
-            var row = testDataTable.GetRow(0);
+            var row = testDataTable[0];
             var classification = classifier.Classify(row);
             classification.First().Label.Should().Be("female");
         }

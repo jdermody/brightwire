@@ -15,7 +15,7 @@ namespace BrightWire.Adaptors
             Indexer = indexer;
         }
 
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(TableRow row)
         {
             var indexList = row.Get<IndexList>(ColumnIndex);
             return Classifier.Classify(indexList);

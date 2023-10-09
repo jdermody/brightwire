@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrightData.ConstraintValidation;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Operation;
+using BrightData.Operations;
 
 namespace BrightData.DataTable
 {
@@ -112,7 +112,7 @@ namespace BrightData.DataTable
             );
         }
 
-        public ICompositeBuffer<ReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name)
+        public ICompositeBuffer<ReadOnlyVector> CreateFixedSizeVectorColumn(uint size, string? name)
         {
             var ret = CreateColumn<ReadOnlyVector>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyVector>((in ReadOnlyVector tensor) => tensor.Size == size);
@@ -120,7 +120,7 @@ namespace BrightData.DataTable
         }
 
         
-        public ICompositeBuffer<ReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyMatrix> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
             var ret = CreateColumn<ReadOnlyMatrix>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyMatrix>((in ReadOnlyMatrix tensor) => 
@@ -130,7 +130,7 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public ICompositeBuffer<ReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyTensor3D> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
             var ret = CreateColumn<ReadOnlyTensor3D>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor3D>((in ReadOnlyTensor3D tensor) => 
@@ -141,7 +141,7 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public ICompositeBuffer<ReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyTensor4D> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
             var ret = CreateColumn<ReadOnlyTensor4D>(name);
             ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor4D>((in ReadOnlyTensor4D tensor) => 

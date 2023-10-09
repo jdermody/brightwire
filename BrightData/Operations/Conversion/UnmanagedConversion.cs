@@ -1,6 +1,6 @@
 ﻿using BrightData.Converter;
 
-namespace BrightData.Operation.Conversion
+namespace BrightData.Operations.Conversion
 {
     internal class UnmanagedConversion<FT, T> : ConversionBase<FT, T>
         where FT : notnull

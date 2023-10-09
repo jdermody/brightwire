@@ -17,7 +17,6 @@ namespace BrightData.Buffer.ReadOnly.Converter
             _from = from;
         }
 
-        protected abstract void Convert(in FT from, ref TT to);
         protected abstract TT Convert(in FT from);
 
         public uint Size => _from.Size;
@@ -38,7 +37,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
                 using var temp = SpanOwner<TT>.Allocate(x.Length);
                 var span = temp.Span;
                 for (var i = 0; i < x.Length; i++)
-                    Convert(x[i], ref span[i]);
+                    span[i] = Convert(x[i]);
                 callback(span);
             }, notify, message, ct);
         }
@@ -48,7 +47,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
             var block = await _from.GetTypedBlock(blockIndex);
             var ret = new Memory<TT>(new TT[block.Length]);
             for (var i = 0; i < block.Length; i++)
-                Convert(block.Span[i], ref ret.Span[i]);
+                ret.Span[i] = Convert(block.Span[i]);
             return ret;
         }
 

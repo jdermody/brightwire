@@ -13,7 +13,6 @@ namespace BrightData.Buffer.ReadOnly.Converter
             _converter = converter;
         }
 
-        protected override void Convert(in FT from, ref TT to) => to = _converter(from);
         protected override TT Convert(in FT from) => _converter(from);
     }
 }

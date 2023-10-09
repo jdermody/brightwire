@@ -8,11 +8,6 @@
         {
         }
 
-        protected override void Convert(in FT from, ref TT to)
-        {
-            to = (TT)(object)from;
-        }
-
         protected override TT Convert(in FT from)
         {
             return (TT)(object)from;

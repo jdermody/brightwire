@@ -4,13 +4,12 @@ using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class ReberSequenceTrainer : DataTableTrainer
     {
-        public ReberSequenceTrainer(BrightDataTable dataTable) : base(dataTable)
+        public ReberSequenceTrainer(IDataTable dataTable) : base(dataTable)
         {
         }
 

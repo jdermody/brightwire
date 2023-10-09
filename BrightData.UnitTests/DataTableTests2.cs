@@ -3,7 +3,6 @@ using System.Linq;
 using BrightData.DataTable;
 using FluentAssertions;
 using Xunit;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {
@@ -14,7 +13,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryColumnOriented()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var stringColumnBuilder = builder.AddColumn<string>("string column");
             stringColumnBuilder.Add("a row");
             stringColumnBuilder.Add("another row");
@@ -49,7 +48,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryIndexList()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.AddColumn<IndexList>("index list");
             var sampleIndexList = _context.CreateIndexList(1, 2, 3, 4, 5);
             indexListBuilder.Add(sampleIndexList);
@@ -66,7 +65,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryWeightedIndexList()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.AddColumn<WeightedIndexList>("weighted index list");
             var sampleIndexList = _context.CreateWeightedIndexList((1, 1f), (2, 0.1f), (3, 0.75f), (4, 0.25f), (5, 0.77f));
             indexListBuilder.Add(sampleIndexList);
@@ -88,7 +87,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryVector()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var vectorBuilder = builder.AddColumn<IVectorData>("vector");
             var firstVector = _context.CreateReadOnlyVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
@@ -109,7 +108,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryMatrix()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var matrixBuilder = builder.AddColumn<IMatrixData>("matrix");
             var firstMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
@@ -136,7 +135,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryTensor3D()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var tensorBuilder = builder.AddColumn<ITensor3DData>("tensor");
             var firstTensor = _context.CreateReadOnlyTensor3D(
                 _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
@@ -156,7 +155,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void InMemoryTensor4D()
         {
-            using var builder = new BrightDataTableBuilder(_context);
+            var builder = _context.CreateTableBuilder();
             var tensorBuilder = builder.AddColumn<ITensor4DData>("tensor");
             var firstTensor = _context.CreateReadOnlyTensor4D(
                 _context.CreateReadOnlyTensor3D(

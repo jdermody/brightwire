@@ -12,7 +12,6 @@ using BrightWire;
 using CommunityToolkit.HighPerformance.Buffers;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
-using ExtensionMethods = BrightData.Table.ExtensionMethods;
 
 namespace ExampleCode
 {

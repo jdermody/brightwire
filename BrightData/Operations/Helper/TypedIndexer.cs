@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operation.Helper
+namespace BrightData.Operations.Helper
 {
     internal class TypedIndexer<T> : IOperation, ICanIndex<T>, IAcceptBlock<T> where T : notnull
     {

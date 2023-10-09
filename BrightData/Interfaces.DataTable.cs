@@ -5,6 +5,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.IO;
 using BrightData.LinearAlgebra.ReadOnly;
+using static BrightData.DataTable.TableBase;
 
 namespace BrightData
 {
@@ -274,37 +275,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Transforms columns
-    /// </summary>
-    public interface IConvertColumn : ICanConvert
-    {
-        /// <summary>
-        /// Complete the transformation
-        /// </summary>
-        /// <param name="metaData">Meta data store to receive transformation information</param>
-        void Finalise(MetaData metaData);
-    }
-
-    /// <summary>
-    /// Typed column transformer
-    /// </summary>
-    /// <typeparam name="TF"></typeparam>
-    /// <typeparam name="TT"></typeparam>
-    public interface IConvertColumn<in TF, TT> : IConvertColumn
-        where TT : notnull
-        where TF : notnull
-    {
-        /// <summary>
-        /// Writes the converted input to the buffer
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="buffer"></param>
-        /// <param name="index">Index within the buffer</param>
-        /// <returns></returns>
-        bool Convert(TF input, ICompositeBuffer<TT> buffer, uint index);
-    }
-
-    /// <summary>
     /// Data table vectoriser
     /// </summary>
     public interface IDataTableVectoriser : ICanWriteToBinaryWriter, IDisposable
@@ -343,11 +313,6 @@ namespace BrightData
         IEnumerable<IVector> Enumerate();
     }
 
-    public interface IConvertObjects
-    {
-        T ConvertObjectTo<T>(object ret) where T : notnull;
-    }
-
     public interface ITensorDataProvider
     {
         ReadOnlyMemory<float> GetTensorData();
@@ -356,6 +321,14 @@ namespace BrightData
     public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values)
     {
         public uint Size => (uint)Values.Length;
+
+        public T Get<T>(uint columnIndex)
+        {
+            var ret = Values[columnIndex];
+            if (ret.GetType() != typeof(T))
+                throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)}");
+            return (T)ret;
+        }
     }
 
     public interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
@@ -378,6 +351,7 @@ namespace BrightData
         Task WriteColumnsTo(Stream stream, params uint[] columnIndices);
         Task WriteRowsTo(Stream stream, params uint[] rowIndices);
         Task<TableRow[]> GetRows(params uint[] rowIndices);
+        TableRow this[uint index] { get; }
     }
 
     public interface ITempData : IDisposable, IHaveSize
@@ -436,7 +410,7 @@ namespace BrightData
         public Guid Id { get; }
     }
 
-    public interface IAppendToBuffer<T> where T: notnull
+    public interface IAppendToBuffer<T> : IAppendToBuffer where T: notnull
     {
         void Add(in T item);
         void Add(ReadOnlySpan<T> inputBlock);
@@ -463,19 +437,19 @@ namespace BrightData
         Task Update(uint byteOffset, ReadOnlyMemory<byte> data);
     }
 
-    internal record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;
+    public record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;
 
-    internal record struct MatrixColumnType(uint StartIndex, uint RowCount, uint ColumnCount) : IHaveSize
+    public record struct MatrixColumnType(uint StartIndex, uint RowCount, uint ColumnCount) : IHaveSize
     {
         public readonly uint Size => RowCount * ColumnCount;
     }
 
-    internal record struct Tensor3DColumnType(uint StartIndex, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    public record struct Tensor3DColumnType(uint StartIndex, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
     {
         public readonly uint Size => Depth * RowCount * ColumnCount;
     }
 
-    internal record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
+    public record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
     {
         public readonly uint Size => Count * Depth * RowCount * ColumnCount;
     }
@@ -570,7 +544,7 @@ namespace BrightData
         /// <param name="size">Size of the vector</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyVector> AddFixedSizeVectorColumn(uint size, string? name);
+        ICompositeBuffer<ReadOnlyVector> CreateFixedSizeVectorColumn(uint size, string? name);
 
         /// <summary>
         /// Adds a fixed size matrix column
@@ -579,7 +553,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyMatrix> AddFixedSizeMatrixColumn(uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyMatrix> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name);
 
         /// <summary>
         /// Adds a fixed size 3D tensor column 
@@ -589,7 +563,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyTensor3D> AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyTensor3D> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name);
 
         /// <summary>
         /// Adds a fixed size 4D tensor column
@@ -600,7 +574,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyTensor4D> AddFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyTensor4D> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
     }
 
     public interface IWriteDataTables

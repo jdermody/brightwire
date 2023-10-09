@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
@@ -9,7 +10,7 @@ namespace BrightWire.UnitTests
     public class InstanceBasedTests : CpuBase
     {
         [Fact]
-        public void Knn()
+        public async Task Knn()
         {
             var dataTable = _context.CreateTableBuilder();
             dataTable.CreateColumn(BrightDataType.Float, "height");
@@ -26,16 +27,16 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.BuildInMemory();
+            var index = await dataTable.BuildInMemory();
 
             var testData = _context.CreateTableBuilder();
-            testData.CopyColumnsFrom(index);
+            testData.CreateColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.BuildInMemory();
+            var testDataTable = await testData.BuildInMemory();
 
             var model = index.TrainKNearestNeighbours();
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider, 2);
-            var row = testDataTable.GetRow(0);
+            var row = testDataTable[0];
             var classification = classifier.Classify(row);
             classification.MaxBy(c => c.Weight).Label.Should().Be("female");
         }

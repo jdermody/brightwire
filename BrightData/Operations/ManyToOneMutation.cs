@@ -4,21 +4,25 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operation
+namespace BrightData.Operations
 {
-    internal class ManyToManyCopy : IOperation
+    internal class ManyToOneMutation<FT, TT> : IOperation
+        where FT : notnull
+        where TT : notnull
     {
         readonly uint _size, _blockSize;
-        readonly IReadOnlyList<IReadOnlyBuffer> _from;
-        readonly IReadOnlyList<IAppendToBuffer> _to;
+        readonly IReadOnlyBuffer<FT>[] _from;
+        readonly Func<FT[], TT> _mutator;
+        readonly IAppendToBuffer<TT> _to;
 
-        public ManyToManyCopy(IReadOnlyList<IReadOnlyBuffer> from, IReadOnlyList<IAppendToBuffer> to)
+        public ManyToOneMutation(IEnumerable<IReadOnlyBuffer<FT>> from, IAppendToBuffer<TT> to, Func<FT[], TT> mutator)
         {
-            _from = from;
+            _from = from.ToArray();
             _size = _from.First().Size;
             if (_from.Any(x => x.Size != _size))
                 throw new ArgumentException("Expected all input buffers to have the same size", nameof(from));
             _blockSize = (uint)_from.Average(x => x.BlockSize);
+            _mutator = mutator;
             _to = to;
         }
 
@@ -26,8 +30,9 @@ namespace BrightData.Operation
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);
-            var enumerators = _from.Select(x => x.EnumerateAll().GetAsyncEnumerator(ct)).ToArray();
+            var enumerators = _from.Select(x => x.GetAsyncEnumerator(ct)).ToArray();
             var currentTasks = new ValueTask<bool>[_size];
+            var curr = new FT[_size];
             uint index = 0;
             var isValid = true;
 
@@ -41,8 +46,8 @@ namespace BrightData.Operation
                     }
                 }
                 for (var i = 0; i < _size; i++)
-                    _to[i].AddObject(enumerators[i].Current);
-
+                    curr[i] = enumerators[i].Current;
+                _to.Add(_mutator(curr));
                 if(++index % _blockSize == 0)
                     notify?.OnOperationProgress(id, (float)index / _size);
             }

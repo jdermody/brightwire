@@ -52,6 +52,7 @@ namespace BrightData.Parquet
         public uint ColumnCount { get; }
         public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
         public BrightDataType[] ColumnTypes { get; }
+        public MetaData[] ColumnMetaData { get; }
         public MetaData MetaData => _metaData.Value;
 
         public void PersistMetaData()
@@ -60,6 +61,11 @@ namespace BrightData.Parquet
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        IReadOnlyBufferWithMetaData<T> IDataTable.GetColumn<T>(uint index)
         {
             throw new NotImplementedException();
         }
@@ -79,9 +85,53 @@ namespace BrightData.Parquet
             throw new NotImplementedException();
         }
 
+        public Task<T> Get<T>(uint columnIndex, uint rowIndex) where T : notnull
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<TableRow> EnumerateRows(CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyBufferWithMetaData[] GetColumns(params uint[] columnIndices)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyBufferWithMetaData[] GetColumns(IEnumerable<uint> columnIndices)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WriteColumnsTo(Stream stream, params uint[] columnIndices)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WriteRowsTo(Stream stream, params uint[] rowIndices)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TableRow[]> GetRows(params uint[] rowIndices)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TableRow this[uint index] => throw new NotImplementedException();
+
         public ReadOnlyMemory<float> GetTensorData()
         {
             throw new NotImplementedException();
         }
+
+        public BrightDataContext Context { get; }
     }
 }

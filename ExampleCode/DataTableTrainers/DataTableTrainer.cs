@@ -6,7 +6,6 @@ using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -14,14 +13,14 @@ namespace ExampleCode.DataTableTrainers
     {
         protected readonly BrightDataContext _context;
 
-        public DataTableTrainer(BrightDataTable table)
+        public DataTableTrainer(IDataTable table)
         {
             try {
-                var shuffled = table.Shuffle(null);
+                var shuffled = table.Shuffle(null).Result;
                 _context = table.Context;
                 TargetColumn = table.GetTargetColumnOrThrow();
                 Table = new(shuffled);
-                var (training, test) = shuffled.Split();
+                var (training, test) = shuffled.Split().Result;
                 Training = training;
                 Test = test;
             }
@@ -30,14 +29,14 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
+        public DataTableTrainer(IDataTable? table, IDataTable training, IDataTable test)
         {
             _context = training.Context;
             TargetColumn = training.GetTargetColumnOrThrow();
             Training = training;
             Test = test;
             if (table is null)
-                Table = new(() => training.ConcatenateRows(test));
+                Table = new(() => training.ConcatenateRows(null, test).Result);
             else
                 Table = new(table);
         }
@@ -51,9 +50,9 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public uint TargetColumn { get; }
-        public Lazy<BrightDataTable> Table { get; }
-        public BrightDataTable Training { get; }
-        public BrightDataTable Test { get; }
+        public Lazy<IDataTable> Table { get; }
+        public IDataTable Training { get; }
+        public IDataTable Test { get; }
 
         public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.Value.KMeans(k));
         public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.Value.HierarchicalCluster(k));
@@ -119,8 +118,8 @@ namespace ExampleCode.DataTableTrainers
         void WriteResults(string type, ITableClassifier classifier)
         {
             var results = classifier.Classify(Test).ToList();
-            using var column = Test.GetColumn(TargetColumn);
-            var expectedLabels = column.Values.Select(o => o.ToString()).ToArray();
+            var column = Test.GetColumn(TargetColumn);
+            var expectedLabels = column.GetValues().Select(o => o.ToString()).ToArray();
             var score = results
                 .Average(d => expectedLabels[d.RowIndex] == d.Predictions.MaxBy(c => c.Weight).Classification ? 1.0 : 0.0);
 

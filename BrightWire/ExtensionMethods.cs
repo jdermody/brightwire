@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra;
@@ -8,7 +9,6 @@ using BrightWire.Adaptors;
 using BrightWire.Bayesian.Training;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -42,24 +42,15 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Gets the strongly typed fields from a convertible row as an array
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="indices">Column indices to retrieve</param>
-        /// <typeparam name="T">Type to convert to</typeparam>
-        /// <returns></returns>
-        public static T[] GetFields<T>(this BrightDataTableRow row, params uint[] indices) where T: notnull => indices.Select(row.Get<T>).ToArray();
-
-        /// <summary>
         /// Classifies each row in the data table
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
-        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
+        public static IEnumerable<(TableRow Row, (string Label, float Weight)[] Classification)> Classify(this IDataTable dataTable, IRowClassifier classifier)
         {
             for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
-                var row = dataTable.GetRow(i);
+                var row = dataTable[i];
                 yield return (row, classifier.Classify(row));
             }
         }
@@ -69,9 +60,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this BrightDataTable dataTable)
+        public static IEnumerable<(IReadOnlyNumericSegment<float> Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable, bool oneHotEncode)
         {
-            return dataTable.GetVectorisedFeatures()
+            return dataTable.GetVectorisedFeatures(oneHotEncode).ToBlockingEnumerable()
                 .Select((r, i) => (Vector: r.Numeric, RowIndex: (uint) i, r.Label));
         }
 
@@ -81,9 +72,9 @@ namespace BrightWire
         /// <param name="dataTable"></param>
         /// <param name="k">Number of clusters</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this BrightDataTable dataTable, uint k)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
-            var data = dataTable.GetRowsAsLabeledFeatures()
+            var data = dataTable.GetRowsAsLabeledFeatures(true)
                 .ToDictionary(d => d.Vector);
             return data.Keys.HierarchicalCluster(k)
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
@@ -97,7 +88,7 @@ namespace BrightWire
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this BrightDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             var data = dataTable.GetRowsAsLabeledFeatures().ToDictionary(d => d.Vector, x => (x.RowIndex, x.Label));
             var clusters = data.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric);
@@ -112,7 +103,7 @@ namespace BrightWire
         /// <param name="k">Number of clusters</param>
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this BrightDataTable dataTable, uint k, uint maxIterations = 1000)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
             var data = dataTable.GetRowsAsLabeledFeatures()
@@ -151,7 +142,7 @@ namespace BrightWire
         /// <param name="windowSize">The number of rows in each matrix</param>
         /// <param name="columnIndices">Column indices to select</param>
         /// <returns></returns>
-        public static BrightDataTable CreateSequentialWindow(this BrightDataTable dataTable, uint windowSize, params uint[] columnIndices)
+        public static IDataTable CreateSequentialWindow(this IDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
             var builder = new BrightDataTableBuilder(dataTable.Context);
             var hasAddedColumns = false;
@@ -181,7 +172,7 @@ namespace BrightWire
         /// <param name="dataTable">Data table</param>
         /// <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
         /// <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
-        public static ConfusionMatrix CreateConfusionMatrix(this BrightDataTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
+        public static ConfusionMatrix CreateConfusionMatrix(this IDataTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
         {
             var labels = new Dictionary<string, int>();
             var classifications = new Dictionary<int, Dictionary<int, uint>>();

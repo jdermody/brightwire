@@ -3,13 +3,12 @@ using System.Linq;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class SequentialWindowStockDataTrainer : DataTableTrainer
     {
-        public SequentialWindowStockDataTrainer(BrightDataTable table) : base(table)
+        public SequentialWindowStockDataTrainer(IDataTable table) : base(table)
         {
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TreeBased.Training
 {
@@ -13,7 +12,7 @@ namespace BrightWire.TreeBased.Training
     /// </summary>
     internal static class RandomForestTrainer
     {
-        public static RandomForest Train(BrightDataTable table, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
+        public static RandomForest Train(IDataTable table, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             config ??= new DecisionTreeTrainer.Config();
 

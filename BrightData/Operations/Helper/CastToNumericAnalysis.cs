@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BrightData.Converter;
 using BrightData.Helper;
 
-namespace BrightData.Operation.Helper
+namespace BrightData.Operations.Helper
 {
     internal interface ICastToNumericAnalysis : IOperation
     {

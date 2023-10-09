@@ -12,7 +12,6 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -66,7 +65,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, BrightDataTable dataTable)
+        public static IEnumerable<(TableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }

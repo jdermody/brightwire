@@ -1,7 +1,6 @@
 ﻿using BrightData;
 using BrightWire.ExecutionGraph.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -13,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _featureColumns;
         readonly uint _inputSize, _outputSize, _inputColumnIndex;
 
-        public Tensor3DBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns)
+        public Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -27,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             Depth = input.Depth;
         }
 
-        Tensor3DBasedDataTableAdapter(BrightDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
+        Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _inputSize = inputSize;
@@ -38,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _featureColumns = featureColumns;
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new Tensor3DBasedDataTableAdapter(dataTable, _inputSize, _outputSize, Height, Width, Depth, _featureColumns);
         }

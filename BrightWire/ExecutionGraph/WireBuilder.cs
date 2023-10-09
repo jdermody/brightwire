@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
@@ -6,7 +7,6 @@ using BrightWire.ExecutionGraph.Node.Attention;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -111,7 +111,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddClassifier(IRowClassifier classifier, BrightDataTable dataTable, string? name = null)
+        public WireBuilder AddClassifier(IRowClassifier classifier, IDataTable dataTable, string? name = null)
         {
             var node = _factory.CreateClassifier(classifier, dataTable, name);
             SetNode(node.RowClassifier);

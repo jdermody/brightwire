@@ -3,13 +3,12 @@ using System.Linq;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class MnistTensorTrainer : DataTableTrainer
     {
-        public MnistTensorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
+        public MnistTensorTrainer(IDataTable training, IDataTable test) : base(null, training, test)
         {
         }
 
@@ -79,7 +78,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
-            var firstRow = Test.GetRow(0);
+            var firstRow = Test[0];
             var tensor = (IReadOnlyTensor3D) firstRow[0];
             var singleData = graph.CreateDataSource(new[] { tensor.Create(context.LinearAlgebraProvider) });
             var result = executionEngine.Execute(singleData);

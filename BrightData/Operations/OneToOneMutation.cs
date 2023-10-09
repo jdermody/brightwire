@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operation
+namespace BrightData.Operations
 {
     internal class OneToOneMutation<FT, T> : IOperation
         where FT : notnull

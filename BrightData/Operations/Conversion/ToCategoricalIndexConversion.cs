@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.Operation.Conversion
+namespace BrightData.Operations.Conversion
 {
     internal class ToCategoricalIndexConversion<T> : ConversionBase<T, int> where T : notnull
     {

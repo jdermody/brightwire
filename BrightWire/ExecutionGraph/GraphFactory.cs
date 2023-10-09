@@ -23,7 +23,6 @@ using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Output;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -196,7 +195,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table to convert</param>
         /// <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
         /// <returns></returns>
-        public IDataSource CreateDataSource(BrightDataTable dataTable, params uint[] featureColumns)
+        public IDataSource CreateDataSource(IDataTable dataTable, params uint[] featureColumns)
 		{
 			var columns = dataTable.ColumnTypes;
 			var targetColumn = dataTable.GetTargetColumnOrThrow();
@@ -252,7 +251,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public (NodeBase RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, BrightDataTable dataTable, string? name = null)
+        public (NodeBase RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IDataTable dataTable, string? name = null)
         {
             var ret = new RowClassifier(LinearAlgebraProvider, classifier, dataTable, name);
             return (ret, ret.OutputSize);

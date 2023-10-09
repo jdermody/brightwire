@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -10,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     public abstract class RowBasedDataTableAdapterBase : DataTableAdapterBase<ICanRandomlyAccessData>
     {
         /// <inheritdoc />
-	    protected RowBasedDataTableAdapterBase(BrightDataTable dataTable, uint[] featureColumns) 
+	    protected RowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
         }

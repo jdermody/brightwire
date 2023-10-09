@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
+using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class MnistVectorTrainer : DataTableTrainer
     {
-        public MnistVectorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
+        public MnistVectorTrainer(IDataTable training, IDataTable test) : base(null, training, test)
         {
 
         }

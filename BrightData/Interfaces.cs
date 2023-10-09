@@ -154,7 +154,11 @@ namespace BrightData
         void Add(T obj);
     }
 
-    public interface IAcceptBlock<T>
+    public interface IAcceptBlock
+    {
+    }
+
+    public interface IAcceptBlock<T> : IAcceptBlock
     {
         void Add(ReadOnlySpan<T> block);
     }
@@ -354,17 +358,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type has a string table
-    /// </summary>
-    public interface IHaveStringTable
-    {
-        /// <summary>
-        /// Current string table
-        /// </summary>
-        string[] StringTable { get; }
-    }
-
-    /// <summary>
     /// Type of data specification
     /// </summary>
     public enum DataSpecificationType
@@ -491,25 +484,6 @@ namespace BrightData
         /// Checks if there is still a valid reference count (and that the data has not been released)
         /// </summary>
         bool IsValid { get; }
-    }
-
-    /// <summary>
-    /// Indicates that the type can iterate data
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ICanIterateData<T> : IDisposable where T: unmanaged
-    {
-        /// <summary>
-        /// Iterates the data
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<T> Enumerate();
-
-        /// <summary>
-        /// Returns an enumerator
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyUnmanagedEnumerator<T> GetEnumerator();
     }
 
     /// <summary>

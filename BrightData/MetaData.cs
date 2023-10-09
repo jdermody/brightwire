@@ -72,38 +72,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Copies the specified values to another meta data store
-        /// </summary>
-        /// <param name="metadata">Other meta data store</param>
-        /// <param name="keysToCopy">Values to copy</param>
-        public void CopyTo(MetaData metadata, params string[] keysToCopy)
-        {
-            var other = metadata;
-            var keySet = new HashSet<string>(keysToCopy);
-            var keys = _orderedValues.AsEnumerable().Where(k => keySet.Contains(k));
-
-            foreach (var key in keys) {
-                if (other._values.ContainsKey(key))
-                    other._values[key] = _values[key];
-                else {
-                    other._orderedValues.Add(key);
-                    other._values.Add(key, _values[key]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all except for the specified values to another meta data store
-        /// </summary>
-        /// <param name="metadata">Other meta data store</param>
-        /// <param name="keys">Values NOT to copy (i.e. skip)</param>
-        public void CopyAllExcept(MetaData metadata, params string[] keys)
-        {
-            var except = new HashSet<string>(keys);
-            CopyTo(metadata, _orderedValues.Where(v => !except.Contains(v)).ToArray());
-        }
-
-        /// <summary>
         /// Returns a value
         /// </summary>
         /// <param name="name">Name of the value</param>

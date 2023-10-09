@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.Operation.Conversion
+namespace BrightData.Operations.Conversion
 {
     internal class CustomConversion<FT, T> : ConversionBase<FT, T>
         where FT : notnull

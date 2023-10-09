@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operation
+namespace BrightData.Operations
 {
     class AggregateNotification : INotifyUser
     {

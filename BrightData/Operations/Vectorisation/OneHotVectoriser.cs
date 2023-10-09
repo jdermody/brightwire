@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.Operation.Vectorisation
+namespace BrightData.Operations.Vectorisation
 {
     internal class OneHotVectoriser<T> : VectorisationBase<T> where T: notnull
     {

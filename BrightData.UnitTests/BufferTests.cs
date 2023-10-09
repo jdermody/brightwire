@@ -4,14 +4,15 @@ using System.IO;
 using System.Text;
 using Xunit;
 using FluentAssertions;
+using System.Xml;
 
 namespace BrightData.UnitTests
 {
     public class BufferTests
     {
-        public class InMemoryStreamProvider : IProvideTempStreams
+        public class InMemoryStreamProvider : IProvideTempData
         {
-            readonly Dictionary<string, MemoryStream> _streams = new();
+            readonly Dictionary<Guid, MemoryStream> _streams = new();
 
             public void Dispose()
             {
@@ -26,14 +27,18 @@ namespace BrightData.UnitTests
                 throw new NotImplementedException();
             }
 
-            public Stream Get(string uniqueId)
+            public bool HasStream(string uniqueId) => _streams.ContainsKey(uniqueId);
+            public ITempData Get(Guid id)
             {
-                if(!_streams.TryGetValue(uniqueId, out var ret))
-                    _streams.Add(uniqueId, ret = new MemoryStream());
+                if(!_streams.TryGetValue(id, out var ret))
+                    _streams.Add(id, ret = new MemoryStream());
                 return ret;
             }
 
-            public bool HasStream(string uniqueId) => _streams.ContainsKey(uniqueId);
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
         }
         readonly InMemoryStreamProvider _streamProvider = new();
 

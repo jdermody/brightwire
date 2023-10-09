@@ -1,11 +1,11 @@
-﻿using BrightWire;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+﻿using BrightData;
+using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class StockDataTrainer : DataTableTrainer
     {
-        public StockDataTrainer(BrightDataTable table) : base(table)
+        public StockDataTrainer(IDataTable table) : base(table)
         {
         }
 

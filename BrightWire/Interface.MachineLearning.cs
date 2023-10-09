@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using BrightData.DataTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -493,7 +492,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row to classify</param>
 		/// <returns></returns>
-        (string Label, float Weight)[] Classify(BrightDataTableRow row);
+        (string Label, float Weight)[] Classify(TableRow row);
 	}
 
     /// <summary>
@@ -506,7 +505,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">Table to classify</param>
         /// <returns></returns>
-        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(BrightDataTable table);
+        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(IDataTable table);
 	}
 
     /// <summary>

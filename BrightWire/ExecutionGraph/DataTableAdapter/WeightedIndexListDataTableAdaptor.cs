@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -13,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public WeightedIndexListDataTableAdapter(BrightDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public WeightedIndexListDataTableAdapter(IDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -51,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new WeightedIndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns);
         }

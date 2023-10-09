@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -18,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly bool _sequenceLengthsAreVaried = false;
         readonly uint _featureColumnIndex;
 
-	    public SequentialDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
+	    public SequentialDataTableAdapter(IDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
             : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
@@ -59,7 +58,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new SequentialDataTableAdapter(dataTable, _featureColumns, _sequenceLengthsAreVaried);
         }

@@ -178,8 +178,8 @@ namespace ExampleCode.DataTableTrainers
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
                     addColumns = false;
-                    builder.AddFixedSizeVectorColumn(features.Size, "Features");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn(features.Size, "Features");
+                    builder.CreateFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, context.CreateReadOnlyVector(vector));
             }
@@ -209,10 +209,10 @@ namespace ExampleCode.DataTableTrainers
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
                     addColumns = false;
-                    builder.AddFixedSizeVectorColumn(features.Size, "Vector");
+                    builder.CreateFixedSizeVectorColumn(features.Size, "Vector");
                     builder.CreateColumn(BrightDataType.IndexList, "Index List");
                     builder.CreateColumn(BrightDataType.String, "Target");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, indexList, classification, context.CreateReadOnlyVector(vector));
             }

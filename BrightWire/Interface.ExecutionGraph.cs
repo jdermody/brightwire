@@ -7,7 +7,6 @@ using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -287,7 +286,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable">The new data table</param>
         /// <returns></returns>
-        IDataSource CloneWith(BrightDataTable dataTable);
+        IDataSource CloneWith(IDataTable dataTable);
 
         /// <summary>
         /// Table vectoriser to create a feature vector

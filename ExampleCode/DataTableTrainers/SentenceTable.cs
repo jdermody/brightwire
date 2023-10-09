@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models.Bayesian;
@@ -55,8 +56,8 @@ namespace ExampleCode.DataTableTrainers
             // create a markov trainer that uses a window of size 3
             var context = _sentenceTable.Context;
             var trainer = context.CreateMarkovTrainer3(_empty);
-            using var column = _sentenceTable.GetColumn<IndexList>(0);
-            foreach(var sentence in column.Values)
+            var column = _sentenceTable.GetColumn<IndexList>(0);
+            foreach(var sentence in column.EnumerateAllTyped().ToBlockingEnumerable())
                 trainer.Add(sentence.Indices);
 
             var ret = trainer.Build();

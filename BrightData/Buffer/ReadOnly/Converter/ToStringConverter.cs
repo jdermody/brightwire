@@ -6,11 +6,6 @@
         {
         }
 
-        protected override void Convert(in FT from, ref string to)
-        {
-            to = from.ToString() ?? string.Empty;
-        }
-
         protected override string Convert(in FT from)
         {
             return from.ToString() ?? string.Empty;
