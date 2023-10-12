@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightData.Analysis;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -26,8 +27,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint? OutputSize { get; } = null;
         public uint RowCount => 1;
         public uint InputCount { get; }
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser { get; } = null;
+        public VectorisationModel? OutputVectoriser { get; } = null;
 
         public IDataSource CloneWith(IDataTable dataTable)
         {

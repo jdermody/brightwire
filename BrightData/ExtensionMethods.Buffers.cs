@@ -46,12 +46,12 @@ namespace BrightData
             return buffer.EnumerateAll().ToBlockingEnumerable();
         }
 
-        public static IEnumerable<T> GetValues<T>(this IReadOnlyBuffer buffer) where T: notnull
+        public static IAsyncEnumerable<T> GetValues<T>(this IReadOnlyBuffer buffer) where T: notnull
         {
             if (buffer.DataType != typeof(T))
                 throw new ArgumentException($"Buffer is of type {buffer.DataType} but requested {typeof(T)}");
             var typedBuffer = (IReadOnlyBuffer<T>)buffer;
-            return typedBuffer.EnumerateAllTyped().ToBlockingEnumerable();
+            return typedBuffer.EnumerateAllTyped();
         }
 
         public static IReadOnlyBuffer<string> ToReadOnlyStringBuffer(this IReadOnlyBuffer buffer)
@@ -625,6 +625,18 @@ namespace BrightData
             static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector vector) => vector.ToSparse();
         }
 
+        public static async Task<ICompositeBuffer<T>> To<T>(this IReadOnlyBuffer buffer,
+            IProvideTempData? tempStreams = null,
+            int blockSize = Consts.DefaultBlockSize,
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null) where T: unmanaged
+        {
+            var output = CreateCompositeBuffer<T>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
+            await conversion.Process();
+            return output;
+        }
+
         public static async Task<ICompositeBuffer<ReadOnlyVector>> Vectorise(this IReadOnlyBuffer[] buffers,
             IProvideTempData? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
@@ -636,6 +648,15 @@ namespace BrightData
             var conversion = new ManyToOneMutation<float, ReadOnlyVector>(floatBuffers, output, x => new(x));
             await conversion.Process();
             return output;
+        }
+
+        public static async Task<T[]> ToArray<T>(this IReadOnlyBuffer buffer) where T : notnull
+        {
+            var ret = new T[buffer.Size];
+            var index = 0;
+            await foreach(var item in buffer.GetValues<T>())
+                ret[index++] = item;
+            return ret;
         }
     }
 }

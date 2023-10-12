@@ -3,13 +3,112 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+#pragma warning disable CA2012
+
+namespace BrightData
+{
+    public readonly record struct TableRow<T1, T2>(T1 C1, T2 C2) where T1: notnull where T2: notnull;
+    public readonly record struct TableRow<T1, T2, T3>(T1 C1, T2 C2, T3 C3) where T1: notnull where T2: notnull where T3: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4>(T1 C1, T2 C2, T3 C3, T4 C4) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5, T6>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
+    public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
+
+    public partial interface IDataTable
+    {
+        IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            uint columnIndex6 = 5, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            uint columnIndex6 = 5, 
+            uint columnIndex7 = 6, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            uint columnIndex6 = 5, 
+            uint columnIndex7 = 6, 
+            uint columnIndex8 = 7, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            uint columnIndex6 = 5, 
+            uint columnIndex7 = 6, 
+            uint columnIndex8 = 7, 
+            uint columnIndex9 = 8, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
+        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            uint columnIndex1 = 0, 
+            uint columnIndex2 = 1, 
+            uint columnIndex3 = 2, 
+            uint columnIndex4 = 3, 
+            uint columnIndex5 = 4, 
+            uint columnIndex6 = 5, 
+            uint columnIndex7 = 6, 
+            uint columnIndex8 = 7, 
+            uint columnIndex9 = 8, 
+            uint columnIndex10 = 9, 
+            CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
+    }
+}
 
 namespace BrightData.DataTable
 {
     internal abstract partial class TableBase
     {
-        public readonly record struct Row<T1, T2>(T1 C1, T2 C2) where T1: notnull where T2: notnull;
-        public async IAsyncEnumerable<Row<T1, T2>> Enumerate<T1, T2>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             [EnumeratorCancellation] CancellationToken ct = default) 
@@ -30,12 +129,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2>(e1.Current, e2.Current);
+                var row = new TableRow<T1, T2>(e1.Current, e2.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2> : IReadOnlyBuffer<Row<T1, T2>> where T1: notnull where T2: notnull
+        class RowReader<T1, T2> : IReadOnlyBuffer<TableRow<T1, T2>> where T1: notnull where T2: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -52,7 +151,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2>);
+                DataType = typeof(TableRow<T1, T2>);
                 _input1 = input1;
                 _input2 = input2;
             }
@@ -67,7 +166,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -75,7 +174,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -84,18 +183,18 @@ namespace BrightData.DataTable
                 var block2 = b2.Result;
                 if (block1.Length != block2.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
-                var ret = new Row<T1, T2>[block1.Length];
+                var ret = new TableRow<T1, T2>[block1.Length];
                 Copy(block1.Span, block2.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, Span<Row<T1, T2>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, Span<TableRow<T1, T2>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2>(span1[i], span2[i]);
+                    output[i] = new TableRow<T1, T2>(span1[i], span2[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2>> EnumerateAllTyped()
             {
                 const int size = 2;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -112,14 +211,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2>(e1.Current, e2.Current);
+                    var row = new TableRow<T1, T2>(e1.Current, e2.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2>> GetRowReader<T1, T2>(
+        public IReadOnlyBuffer<TableRow<T1, T2>> GetRowReader<T1, T2>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1
         ) 
@@ -127,8 +226,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2));
         }
-        public readonly record struct Row<T1, T2, T3>(T1 C1, T2 C2, T3 C3) where T1: notnull where T2: notnull where T3: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3>> Enumerate<T1, T2, T3>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -152,12 +251,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
+                var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3> : IReadOnlyBuffer<Row<T1, T2, T3>> where T1: notnull where T2: notnull where T3: notnull
+        class RowReader<T1, T2, T3> : IReadOnlyBuffer<TableRow<T1, T2, T3>> where T1: notnull where T2: notnull where T3: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -181,7 +280,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3>);
+                DataType = typeof(TableRow<T1, T2, T3>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -197,7 +296,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -205,7 +304,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -218,18 +317,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
-                var ret = new Row<T1, T2, T3>[block1.Length];
+                var ret = new TableRow<T1, T2, T3>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, Span<Row<T1, T2, T3>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, Span<TableRow<T1, T2, T3>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3>(span1[i], span2[i], span3[i]);
+                    output[i] = new TableRow<T1, T2, T3>(span1[i], span2[i], span3[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3>> EnumerateAllTyped()
             {
                 const int size = 3;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -248,14 +347,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
+                    var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3>> GetRowReader<T1, T2, T3>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowReader<T1, T2, T3>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2
@@ -264,8 +363,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3));
         }
-        public readonly record struct Row<T1, T2, T3, T4>(T1 C1, T2 C2, T3 C3, T4 C4) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -292,12 +391,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
+                var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4> : IReadOnlyBuffer<Row<T1, T2, T3, T4>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull
+        class RowReader<T1, T2, T3, T4> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -328,7 +427,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4>);
+                DataType = typeof(TableRow<T1, T2, T3, T4>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -345,7 +444,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -353,7 +452,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -370,18 +469,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
-                var ret = new Row<T1, T2, T3, T4>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, Span<Row<T1, T2, T3, T4>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, Span<TableRow<T1, T2, T3, T4>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4>(span1[i], span2[i], span3[i], span4[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4>(span1[i], span2[i], span3[i], span4[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4>> EnumerateAllTyped()
             {
                 const int size = 4;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -402,14 +501,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
+                    var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4>> GetRowReader<T1, T2, T3, T4>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowReader<T1, T2, T3, T4>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -419,8 +518,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -450,12 +549,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
+        class RowReader<T1, T2, T3, T4, T5> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -493,7 +592,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -511,7 +610,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -519,7 +618,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -540,18 +639,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, Span<Row<T1, T2, T3, T4, T5>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, Span<TableRow<T1, T2, T3, T4, T5>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5>(span1[i], span2[i], span3[i], span4[i], span5[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5>(span1[i], span2[i], span3[i], span4[i], span5[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> EnumerateAllTyped()
             {
                 const int size = 5;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -574,14 +673,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5>> GetRowReader<T1, T2, T3, T4, T5>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowReader<T1, T2, T3, T4, T5>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -592,8 +691,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4, T5>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5, T6>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -626,12 +725,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -676,7 +775,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5, T6>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -695,7 +794,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5, T6>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -703,7 +802,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5, T6>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5, T6>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -728,18 +827,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5, T6>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, Span<Row<T1, T2, T3, T4, T5, T6>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, Span<TableRow<T1, T2, T3, T4, T5, T6>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5, T6>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5, T6>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> EnumerateAllTyped()
             {
                 const int size = 6;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -764,14 +863,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5, T6>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6>> GetRowReader<T1, T2, T3, T4, T5, T6>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowReader<T1, T2, T3, T4, T5, T6>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -783,8 +882,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4, T5, T6>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5, T6, T7>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -820,12 +919,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -877,7 +976,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5, T6, T7>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -897,7 +996,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5, T6, T7>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -905,7 +1004,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5, T6, T7>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5, T6, T7>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -934,18 +1033,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 if (block1.Length != block7.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5, T6, T7>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, Span<Row<T1, T2, T3, T4, T5, T6, T7>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, Span<TableRow<T1, T2, T3, T4, T5, T6, T7>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5, T6, T7>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> EnumerateAllTyped()
             {
                 const int size = 7;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -972,14 +1071,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5, T6, T7>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7>> GetRowReader<T1, T2, T3, T4, T5, T6, T7>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowReader<T1, T2, T3, T4, T5, T6, T7>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -992,8 +1091,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5, T6, T7, T8>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1032,12 +1131,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -1096,7 +1195,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5, T6, T7, T8>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -1117,7 +1216,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5, T6, T7, T8>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1125,7 +1224,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5, T6, T7, T8>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -1158,18 +1257,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 if (block1.Length != block8.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5, T6, T7, T8>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, Span<Row<T1, T2, T3, T4, T5, T6, T7, T8>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, Span<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5, T6, T7, T8>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> EnumerateAllTyped()
             {
                 const int size = 8;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -1198,14 +1297,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5, T6, T7, T8>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1219,8 +1318,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7), GetColumn<T8>(columnIndex8));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1262,12 +1361,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -1333,7 +1432,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -1355,7 +1454,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1363,7 +1462,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -1400,18 +1499,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
                 if (block1.Length != block9.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, ReadOnlySpan<T9> span9, Span<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, ReadOnlySpan<T9> span9, Span<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i], span9[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i], span9[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> EnumerateAllTyped()
             {
                 const int size = 9;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -1442,14 +1541,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1464,8 +1563,8 @@ namespace BrightData.DataTable
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7), GetColumn<T8>(columnIndex8), GetColumn<T9>(columnIndex9));
         }
-        public readonly record struct Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
-        public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+      
+        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1510,12 +1609,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
+                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
                 yield return row;
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
         {
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
@@ -1588,7 +1687,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>);
+                DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>);
                 _input1 = input1;
                 _input2 = input2;
                 _input3 = input3;
@@ -1611,7 +1710,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1619,7 +1718,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>> GetTypedBlock(uint blockIndex)
             {
                 var b1 = _input1.GetTypedBlock(blockIndex);
                 var b2 = _input2.GetTypedBlock(blockIndex);
@@ -1660,18 +1759,18 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
                 if (block1.Length != block10.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block10:{block10.Length})");
-                var ret = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[block1.Length];
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[block1.Length];
                 Copy(block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, block10.Span, ret);
                 return ret;
             }
 
-            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, ReadOnlySpan<T9> span9, ReadOnlySpan<T10> span10, Span<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> output)
+            static void Copy(ReadOnlySpan<T1> span1, ReadOnlySpan<T2> span2, ReadOnlySpan<T3> span3, ReadOnlySpan<T4> span4, ReadOnlySpan<T5> span5, ReadOnlySpan<T6> span6, ReadOnlySpan<T7> span7, ReadOnlySpan<T8> span8, ReadOnlySpan<T9> span9, ReadOnlySpan<T10> span10, Span<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i], span9[i], span10[i]);
+                    output[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(span1[i], span2[i], span3[i], span4[i], span5[i], span6[i], span7[i], span8[i], span9[i], span10[i]);
             }
 
-            public async IAsyncEnumerable<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> EnumerateAllTyped()
             {
                 const int size = 10;
                 var e1 = _input1.GetAsyncEnumerator();
@@ -1704,14 +1803,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,

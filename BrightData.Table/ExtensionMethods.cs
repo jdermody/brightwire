@@ -250,16 +250,16 @@ namespace BrightData.Table
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(IVectorData))
+            if (dataType == typeof(ReadOnlyVector))
                 return BrightDataType.Vector;
 
-            if (dataType == typeof(IMatrixData))
+            if (dataType == typeof(ReadOnlyMatrix))
                 return BrightDataType.Matrix;
 
-            if (dataType == typeof(ITensor3DData))
+            if (dataType == typeof(ReadOnlyTensor3D))
                 return BrightDataType.Tensor3D;
 
-            if (dataType == typeof(ITensor4DData))
+            if (dataType == typeof(ReadOnlyTensor4D))
                 return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))

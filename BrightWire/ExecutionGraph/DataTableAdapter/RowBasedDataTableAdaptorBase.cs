@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
@@ -26,6 +27,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<ICanRandomlyAccessData> GetRows(uint[] rows) => _dataTable.GetRows(rows);
+        protected override IEnumerable<ICanRandomlyAccessData> GetRows(uint[] rows) => _dataTable.GetRows(rows).Result.Cast<ICanRandomlyAccessData>();
     }
 }

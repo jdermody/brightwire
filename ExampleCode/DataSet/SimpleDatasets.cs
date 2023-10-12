@@ -25,14 +25,13 @@ namespace ExampleCode.DataSet
             {
                 using var table = await context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
-                using var numericTable = table.Convert(
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric, 
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric
+                using var numericTable = await table.Convert(
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric, 
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric
                 );
-                using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
-                using var column = table.GetColumn(4);
+                using var normalized = await numericTable.Normalize(NormalizationType.FeatureScale);
                 return new DataTableTrainer(normalized);
             }
             finally
@@ -48,14 +47,14 @@ namespace ExampleCode.DataSet
                 // load and normalise the data
                 using var table = await context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
-                using var numericTable = table.Convert(
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToDate);
-                using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
+                using var numericTable = await table.Convert(
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToDate);
+                using var normalised = await numericTable.Normalize(NormalizationType.FeatureScale);
                 return new StockDataTrainer(normalised);
             }
             finally {
@@ -81,10 +80,10 @@ namespace ExampleCode.DataSet
             return new IntegerAdditionTrainer(data, training, test);
         }
 
-        public static SentenceTable BeautifulandDamned(this BrightDataContext context)
+        public static async Task<SentenceTable> BeautifulandDamned(this BrightDataContext context)
         {
             using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
-            var data = reader.ReadToEnd();
+            var data = await reader.ReadToEndAsync();
             var pos = data.IndexOf("CHAPTER I", StringComparison.Ordinal);
             var mainText = data[(pos + 9)..].Trim();
 
@@ -114,17 +113,17 @@ namespace ExampleCode.DataSet
             return new SentimentDataTrainer(context, directory);
         }
 
-        public static TestClusteringTrainer TextClustering(this BrightDataContext context)
+        public static async Task<TestClusteringTrainer> TextClustering(this BrightDataContext context)
         {
             using var reader = GetStreamReader(context, "aaai-accepted-papers.csv",
                 "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv");
-            using var table = context.ParseCsv(reader, true);
+            using var table = await context.ParseCsv(reader, true);
 
             var keywordSplit = " \n".ToCharArray();
             var topicSplit = "\n".ToCharArray();
 
             var docList = new List<TestClusteringTrainer.AaaiDocument>();
-            foreach (var (_, row) in table.GetAllRowData()) {
+            await foreach (var row in table.EnumerateRows()) {
                 docList.Add(new TestClusteringTrainer.AaaiDocument(
                     (string)row[0],
                     ((string)row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
@@ -137,14 +136,14 @@ namespace ExampleCode.DataSet
             return new TestClusteringTrainer(context, docList);
         }
 
-        public static ReberSequenceTrainer ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
+        public static async Task<ReberSequenceTrainer> ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
         {
             var grammar = new ReberGrammar(context.Random);
             var sequences = extended
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
             var trainingData = sequences.Take(2000).ToArray();
-            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, trainingData));
+            return new ReberSequenceTrainer(await ReberGrammar.GetOneHot(context, trainingData));
         }
 
         public static async Task<SequenceToSequenceTrainer> OneToMany(this BrightDataContext context)
@@ -258,7 +257,7 @@ namespace ExampleCode.DataSet
         //    return new LinearTrainer(normalized);
         //}
 
-        public static BicyclesTrainer Bicycles(this BrightDataContext context)
+        public static async Task<BicyclesTrainer> Bicycles(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
@@ -267,7 +266,7 @@ namespace ExampleCode.DataSet
             // drop the first six columns (index and date features)
             using var filteredTable = completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i)).ToArray());
+            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversion.ToNumeric.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
             using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
@@ -276,7 +275,7 @@ namespace ExampleCode.DataSet
             return new BicyclesTrainer(ret);
         }
 
-        public static EmotionsTrainer Emotions(this BrightDataContext context)
+        public static async Task<EmotionsTrainer> Emotions(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
             var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
@@ -285,7 +284,7 @@ namespace ExampleCode.DataSet
             return new EmotionsTrainer(table, training, test);
         }
 
-        public static AdultTrainer Adult(this BrightDataContext context)
+        public static async Task<AdultTrainer> Adult(this BrightDataContext context)
         {
             static string AdjustString(string str)
             {
@@ -295,26 +294,26 @@ namespace ExampleCode.DataSet
                 return str;
             }
 
-            static Task<IDataTable> ConvertTable(IDataTable table, string path)
+            static async Task<IDataTable> ConvertTable(IDataTable table, string path)
             {
-                using var converted = table.Convert(
+                using var converted = await table.Convert(
                     // convert numeric columns
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(0), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(2), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(4), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(10),
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(11),
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(12),
+                    ColumnConversion.ToNumeric.ConvertColumn(0), 
+                    ColumnConversion.ToNumeric.ConvertColumn(2), 
+                    ColumnConversion.ToNumeric.ConvertColumn(4), 
+                    ColumnConversion.ToNumeric.ConvertColumn(10),
+                    ColumnConversion.ToNumeric.ConvertColumn(11),
+                    ColumnConversion.ToNumeric.ConvertColumn(12),
 
                     // convert to categorical index
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(1),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(3),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(5),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(6),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(7),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(8),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(9),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(13),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(1),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(3),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(5),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(6),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(7),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(8),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(9),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(13),
 
                     table.CreateCustomColumnMutator<string, string>(14, AdjustString)
                 );

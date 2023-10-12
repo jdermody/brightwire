@@ -3,6 +3,7 @@ using BrightData.Analysis;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BrightData.Helper;
 
 namespace BrightWire.Bayesian.Training
@@ -36,7 +37,7 @@ namespace BrightWire.Bayesian.Training
                 }
             }
 
-            public void Process(object[] row)
+            public void Process(TableRow row)
             {
                 foreach (var (key, value) in _column)
                     value.AddObject(row[key]);
@@ -48,7 +49,7 @@ namespace BrightWire.Bayesian.Training
             public ulong Total { get; private set; } = 0;
         }
 
-        public static NaiveBayes Train(IDataTable table)
+        public static async Task<NaiveBayes> Train(IDataTable table)
         {
             // analyse the table to get the set of class values
             var targetColumn = table.GetTargetColumnOrThrow();
@@ -56,7 +57,7 @@ namespace BrightWire.Bayesian.Training
             // analyse each row by its classification
             var rowsByClassification = new Dictionary<string, FrequencyAnalysis>();
             ulong rowCount = 0;
-            foreach(var (_, row) in table.GetAllRowData()) {
+            await foreach(var row in table.EnumerateRows()) {
                 var target = row[targetColumn].ToString();
                 if (target != null) {
                     if (!rowsByClassification.TryGetValue(target, out var analysis))

@@ -560,7 +560,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="matrices"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public ITensor3D CreateTensor3D<T>(Span<T> matrices) where T : IMatrixData
+        public ITensor3D CreateTensor3D<T>(Span<T> matrices) where T : IReadOnlyMatrix
         {
             var first = matrices[0];
             var depth = (uint)matrices.Length;

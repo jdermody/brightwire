@@ -46,10 +46,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.Vector            => typeof(IVectorData),
-                BrightDataType.Matrix            => typeof(IMatrixData),
-                BrightDataType.Tensor3D          => typeof(ITensor3DData),
-                BrightDataType.Tensor4D          => typeof(ITensor4DData),
+                BrightDataType.Vector            => typeof(ReadOnlyVector),
+                BrightDataType.Matrix            => typeof(ReadOnlyMatrix),
+                BrightDataType.Tensor3D          => typeof(ReadOnlyTensor3D),
+                BrightDataType.Tensor4D          => typeof(ReadOnlyTensor4D),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -99,16 +99,16 @@ namespace BrightData
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(IVectorData))
+            if (dataType == typeof(ReadOnlyVector))
                 return BrightDataType.Vector;
 
-            if (dataType == typeof(IMatrixData))
+            if (dataType == typeof(ReadOnlyMatrix))
                 return BrightDataType.Matrix;
 
-            if (dataType == typeof(ITensor3DData))
+            if (dataType == typeof(ReadOnlyTensor3D))
                 return BrightDataType.Tensor3D;
 
-            if (dataType == typeof(ITensor4DData))
+            if (dataType == typeof(ReadOnlyTensor4D))
                 return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))
@@ -236,8 +236,8 @@ namespace BrightData
                 BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(writeCount),
                 BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
                 BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(writeCount),
-                BrightDataType.DateOnly => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(writeCount),
-                BrightDataType.TimeOnly => StaticAnalysers.CreateFrequencyAnalyser<TimeOnly>(writeCount),
+                BrightDataType.DateOnly   => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(writeCount),
+                BrightDataType.TimeOnly   => StaticAnalysers.CreateFrequencyAnalyser<TimeOnly>(writeCount),
                 _                         => throw new NotImplementedException()
             };
         }
@@ -396,7 +396,9 @@ namespace BrightData
             await foreach (var blockData in vectoriser.Vectorise(featureColumns)) {
                 var len = blockData.GetLength(0);
                 var block = Unsafe.As<float[]>(blockData).AsMemory();
-                var targetBlock = targetColumn is null ? null : await targetColumn.GetTypedBlock(blockIndex++);
+                var targetBlock = targetColumn is null 
+                    ? null 
+                    : await targetColumn.GetTypedBlock(blockIndex++);
                 uint offset = 0;
                 for (var i = 0; i < len; i++) {
                     yield return (new ReadOnlyMemoryTensorSegment(block.Slice((int)offset, (int)rowSize), offset, rowSize), targetColumn is null ? null : targetBlock.Span[i]);
@@ -702,6 +704,13 @@ namespace BrightData
         {
             var size = data.GetMaxIndex() + 1;
             var lap = context.LinearAlgebraProvider;
+            var index = 0;
+            var ret = new (string Classification, IVector Data)[data.Length];
+
+            foreach (ref var item in data)
+                ret[index++] = (item.Label, Create(item.Data));
+            return ret;
+
             IVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
@@ -709,12 +718,6 @@ namespace BrightData
                     ret[item.Index] = item.Weight;
                 return lap.CreateVector(ret);
             }
-
-            var index = 0;
-            var ret = new (string Classification, IVector Data)[data.Length];
-            foreach (ref var item in data)
-                ret[index++] = (item.Label, Create(item.Data));
-            return ret;
         }
 
         /// <summary>
@@ -879,7 +882,7 @@ namespace BrightData
 
             var columnMutationTable = columnIndices
                 .Select(i => (Index: i, Task: GetNormalization(dataTable.GetColumn(i), type)))
-                .ToDictionary(x => x.Index, async x => await x.Task);
+                .ToDictionary(x => x.Index, x => x.Task);
 
             using var tempStream = dataTable.Context.CreateTempFileProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
@@ -897,7 +900,101 @@ namespace BrightData
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
             return LoadTableFromStream(dataTable.Context, stream);
+        }
 
+        /// <summary>
+        /// Normalizes the data in specified columns of the table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnNormalizationTypes">Normalization types per column</param>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <returns></returns>
+        public static async Task<IDataTable> Normalize(this IDataTable dataTable, string? filePath = null, params NormalizationType[] columnNormalizationTypes)
+        {
+            var columnMutationTable = columnNormalizationTypes
+                .Select((x, i) => (Index: (uint)i, Task: GetNormalization(dataTable.GetColumn((uint)i), x)))
+                .ToDictionary(x => x.Index, x => x.Task);
+
+            using var tempStream = dataTable.Context.CreateTempFileProvider();
+            var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
+            writer.CreateColumnsFrom(dataTable);
+            var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
+            for (uint i = 0; i < dataTable.ColumnCount; i++) {
+                var column = dataTable.GetColumn(i);
+                if (columnMutationTable.TryGetValue(i, out var model))
+                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataTable.ColumnTypes[i].GetDataType()), column, model);
+                else
+                    columns[i] = column;
+            }
+            await writer.Add(columns);
+
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await writer.WriteTo(stream);
+            return LoadTableFromStream(dataTable.Context, stream);
+        }
+
+        public static async Task<IReadOnlyBufferWithMetaData> Convert(
+            this IReadOnlyBufferWithMetaData buffer, 
+            ColumnConversion conversion,
+            IProvideTempData? tempStreams = null, 
+            int blockSize = Consts.DefaultBlockSize, 
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        )
+        {
+            return conversion switch {
+                ColumnConversion.Unchanged           => buffer,
+                ColumnConversion.ToBoolean           => await buffer.ToBoolean(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToByte              => await buffer.To<byte>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToCategoricalIndex  => await buffer.ToCategoricalIndex(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToDate              => await buffer.ToDate(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToDecimal           => await buffer.To<decimal>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToDouble            => await buffer.To<double>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToFloat             => await buffer.To<float>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToIndexList         => await buffer.ToIndexList(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToInt               => await buffer.To<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToLong              => await buffer.To<long>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToNumeric           => await buffer.ToNumeric(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToString            => await buffer.ToString(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToWeightedIndexList => await buffer.ToWeightedIndexList(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToVector            => await buffer.ToVector(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToShort             => await buffer.To<short>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                _                                    => throw new ArgumentOutOfRangeException(nameof(conversion), conversion, null)
+            };
+        }
+
+        public static async Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversion[] conversions)
+        {
+            var newColumnTable = conversions
+                .Select((x, i) => (Index: (uint)i, Task: dataTable.GetColumn((uint)i).Convert(x)))
+                .ToDictionary(x => x.Index, x => x.Task);
+
+            using var tempStream = dataTable.Context.CreateTempFileProvider();
+            var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
+            writer.CreateColumnsFrom(dataTable);
+            var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
+            for (uint i = 0; i < dataTable.ColumnCount; i++) {
+                var column = dataTable.GetColumn(i);
+                if (newColumnTable.TryGetValue(i, out var newColumn))
+                    columns[i] = await newColumn;
+                else
+                    columns[i] = column;
+            }
+            await writer.Add(columns);
+
+            await using var stream = GetMemoryOrFileStream(filePath);
+            await writer.WriteTo(stream);
+            return LoadTableFromStream(dataTable.Context, stream);
+        }
+
+        public static (uint ColumnIndex, ColumnConversion Conversion) ConvertColumn(this ColumnConversion conversion, uint columnIndex) => new(columnIndex, conversion);
+
+        public static Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params (uint ColumnIndex, ColumnConversion Conversion)[] indexedConversions)
+        {
+            var conversions = new ColumnConversion[dataTable.ColumnCount];
+            foreach(var (index, conversion) in indexedConversions)
+                conversions[index] = conversion;
+            return dataTable.Convert(filePath, conversions);
         }
 
         /// <summary>
@@ -1249,16 +1346,16 @@ namespace BrightData
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(IVectorData))
+            if (dataType == typeof(ReadOnlyVector))
                 return BrightDataType.Vector;
 
-            if (dataType == typeof(IMatrixData))
+            if (dataType == typeof(ReadOnlyMatrix))
                 return BrightDataType.Matrix;
 
-            if (dataType == typeof(ITensor3DData))
+            if (dataType == typeof(ReadOnlyTensor3D))
                 return BrightDataType.Tensor3D;
 
-            if (dataType == typeof(ITensor4DData))
+            if (dataType == typeof(ReadOnlyTensor4D))
                 return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))
@@ -1488,6 +1585,30 @@ namespace BrightData
         public static Task<TableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
         {
             return dataTable.GetRows(count.AsRange(start).ToArray());
+        }
+
+        public static async Task<IBuildDataTables> Project(this IDataTable dataTable, Func<TableRow, object[]?> projection, CancellationToken ct = default)
+        {
+            var builder = dataTable.Context.CreateTableBuilder();
+            var isFirst = true;
+
+            await foreach (var row in dataTable.EnumerateRows(ct)) {
+                var result = projection(row);
+                if(result is null)
+                    continue;
+
+                if (isFirst) {
+                    foreach (var item in result) {
+                        var type = item.GetType().GetBrightDataType();
+                        if (type == BrightDataType.Unknown)
+                            throw new Exception($"{item.GetType()} cannot be stored in a data table");
+                        builder.CreateColumn(type);
+                    }
+                    isFirst = false;
+                }
+                builder.AddRow(result);
+            }
+            return builder;
         }
     }
 }

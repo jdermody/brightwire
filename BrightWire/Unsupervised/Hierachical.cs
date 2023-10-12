@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightWire.Unsupervised
 {
@@ -15,13 +16,13 @@ namespace BrightWire.Unsupervised
         {
             readonly Centroid? _left = null, _right = null;
 
-            public IVector Center { get; }
-            public IVector[] Data { get; }
+            public IReadOnlyNumericSegment<float> Center { get; private set; }
+            public IReadOnlyVector[] Data { get; }
 
-            public Centroid(IVector data)
+            public Centroid(IReadOnlyVector data)
             {
                 Data = new[] { data };
-                Center = data.Clone();
+                Center = data.ReadOnlySegment;
             }
             public Centroid(Centroid left, Centroid right)
             {
@@ -30,8 +31,7 @@ namespace BrightWire.Unsupervised
                 Data = left.Data.Concat(right.Data).ToArray();
 
                 // average the two centroid vectors
-                Center = left.Center;
-                Center.AddInPlace(right.Center, 0.5f, 0.5f);
+                Center = left.Center.Add(right.Center, 0.5f, 0.5f);
             }
             public void Dispose()
             {
@@ -79,7 +79,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new();
         readonly List<Centroid> _centroid;
 
-        public Hierarchical(uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierarchical(uint k, IEnumerable<IReadOnlyVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;

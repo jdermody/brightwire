@@ -25,7 +25,7 @@ namespace BrightData.UnitTests
         {
             var normalization = normalized.ColumnMetaData.Select(x => x.GetNormalization()).ToArray();
 
-            foreach(var (normalizedRow, originalRow) in normalized.AllRows.Zip(original.AllRows)) {
+            foreach(var (normalizedRow, originalRow) in normalized.EnumerateRows().ToBlockingEnumerable().Zip(original.EnumerateRows().ToBlockingEnumerable())) {
                 for (uint i = 0; i < original.ColumnCount; i++) {
                     var originalValue = originalRow.Get<double>(i);
                     var normalizedValue = normalizedRow.Get<double>(i);
@@ -37,34 +37,34 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void EuclideanNormalization()
+        public async Task EuclideanNormalization()
         {
-            using var table = GetTable();
-            using var normalized = table.Normalize(NormalizationType.Euclidean);
+            using var table = await GetTable();
+            using var normalized = await table.Normalize(NormalizationType.Euclidean);
             ValidateNormalization(normalized, table);
         }
 
         [Fact]
-        public void FeatureScaleNormalization()
+        public async Task FeatureScaleNormalization()
         {
-            using var table = GetTable();
-            using var normalized = table.Normalize(NormalizationType.FeatureScale);
+            using var table = await GetTable();
+            using var normalized = await table.Normalize(NormalizationType.FeatureScale);
             ValidateNormalization(normalized, table);
         }
 
         [Fact]
-        public void ManhattanNormalization()
+        public async Task ManhattanNormalization()
         {
-            using var table = GetTable();
-            using var normalized = table.Normalize(NormalizationType.Manhattan);
+            using var table = await GetTable();
+            using var normalized = await table.Normalize(NormalizationType.Manhattan);
             ValidateNormalization(normalized, table);
         }
 
         [Fact]
-        public void StandardNormalization()
+        public async Task StandardNormalization()
         {
-            using var table = GetTable();
-            using var normalized = table.Normalize(NormalizationType.Standard);
+            using var table = await GetTable();
+            using var normalized = await table.Normalize(NormalizationType.Standard);
             ValidateNormalization(normalized, table);
         }
     }

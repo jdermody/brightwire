@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.Analysis;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataSource
@@ -78,7 +79,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser { get; } = null;
+        public VectorisationModel? OutputVectoriser { get; } = null;
     }
 }

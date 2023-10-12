@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData;
+using BrightData.Analysis;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
@@ -78,8 +79,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint? OutputSize => throw new NotImplementedException();
         public uint RowCount => 1;
         public uint InputCount => 1;
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser { get; } = null;
+        public VectorisationModel? OutputVectoriser { get; } = null;
 
         public IDataSource CloneWith(IDataTable dataTable)
         {

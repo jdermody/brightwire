@@ -7,8 +7,10 @@ using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
@@ -72,7 +74,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] Nnmf(this IEnumerable<IVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static IReadOnlyVector[][] Nnmf(this IEnumerable<IReadOnlyVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -84,7 +86,7 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] HierarchicalCluster(this IEnumerable<IVector> data, uint k)
+        public static IReadOnlyVector[][] HierarchicalCluster(this IEnumerable<IReadOnlyVector> data, uint k)
         {
             using var clusterer = new Hierarchical(k, data);
             clusterer.Cluster();
@@ -100,7 +102,7 @@ namespace BrightWire
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] KMeans(this IEnumerable<IVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IReadOnlyVector[][] KMeans(this IEnumerable<IReadOnlyVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
@@ -111,7 +113,7 @@ namespace BrightWire
         /// K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
         /// </summary>
         /// <param name="data">The training data</param>
-        public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
+        public static Task<KNearestNeighbours> TrainKNearestNeighbours(this IDataTable data)
         {
             return KnnClassificationTrainer.Train(data);
         }
@@ -125,7 +127,7 @@ namespace BrightWire
         /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this IDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
+        public static Task<RandomForest> TrainRandomForest(this IDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
@@ -159,7 +161,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
 		/// <returns></returns>
-	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IDataTable table)
+	    public static async Task<MultinomialNaiveBayes> TrainMultinomialNaiveBayes(this IDataTable table)
 		{
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
@@ -168,7 +170,7 @@ namespace BrightWire
             if (indexListColumn.Index == targetColumnIndex)
                 throw new ArgumentException("No index list column of features");
 
-            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
+            var data = await table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainMultinomialNaiveBayes();
         }
 
@@ -190,14 +192,14 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="table">The training data table that must have an index-list based column</param>
 	    /// <returns>A model that can be used for classification</returns>
-	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IDataTable table)
+	    public static async Task<BernoulliNaiveBayes> TrainBernoulliNaiveBayes(this IDataTable table)
 	    {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
                 .Single(c => c.ColumnType == BrightDataType.IndexList);
 
-            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
+            var data = await table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainBernoulliNaiveBayes();
         }
 
@@ -206,7 +208,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">The training data provider</param>
         /// <returns>A naive bayes model</returns>
-        public static NaiveBayes TrainNaiveBayes(this IDataTable table)
+        public static Task<NaiveBayes> TrainNaiveBayes(this IDataTable table)
         {
             return NaiveBayesTrainer.Train(table);
         }

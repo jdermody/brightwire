@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.Models.InstanceBased;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightWire.InstanceBased.Training
 {
@@ -10,19 +12,32 @@ namespace BrightWire.InstanceBased.Training
     /// </summary>
     internal static class KnnClassificationTrainer
     {
-        public static KNearestNeighbours Train(IDataTable table)
+        public static async Task<KNearestNeighbours> Train(IDataTable table)
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
-            var featureColumns = table.ColumnIndicesOfFeatures().ToArray();
-            using var vectoriser = table.GetVectoriser(true, featureColumns);
-            var columnReader = table.GetColumn(targetColumnIndex);
+            var featureColumnIndices = table.ColumnIndicesOfFeatures().ToArray();
+            var vectoriser = await table.GetVectoriser(true, featureColumnIndices);
+            var targetColumn = table.GetColumn(targetColumnIndex).ToReadOnlyStringBuffer();
+            var featureColumns = table.GetColumns(featureColumnIndices);
+
+            uint offset = 0;
+            var input = new float[table.ColumnCount][];
+            await foreach (var block in vectoriser.Vectorise(featureColumns))
+                Copy(block, input, ref offset);
 
             return new KNearestNeighbours {
-                Instance = vectoriser.Enumerate().Select(d => d.Segment.ToNewArray()).ToArray(),
-                Classification = columnReader.Values.Select(v => v.ToString() ?? throw new Exception("Cannot convert to string")).ToArray(),
-                DataColumns = featureColumns,
+                Instance = input,
+                Classification = await targetColumn.ToArray(),
+                DataColumns = featureColumnIndices,
                 TargetColumn = targetColumnIndex
             };
+
+            static void Copy(float[,] vectorised, float[][] input, ref uint offset)
+            {
+                var span = new Span2D<float>(vectorised);
+                for (var i = 0; i < span.Length; i++)
+                    input[offset++] = span.GetRowSpan(i).ToArray();
+            }
         }
     }
 }

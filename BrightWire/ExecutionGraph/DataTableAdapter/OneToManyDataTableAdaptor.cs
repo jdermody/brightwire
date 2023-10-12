@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -26,10 +27,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _rowDepth = new uint[dataTable.RowCount];
             IReadOnlyVector? inputVector = null;
             IReadOnlyMatrix? outputMatrix = null;
-            foreach(var (i, row) in dataTable.GetAllRowData()) {
+            foreach(var row in dataTable.EnumerateRows().ToBlockingEnumerable()) {
                 inputVector = (IReadOnlyVector)row[_featureColumnIndices[0]];
                 outputMatrix = (IReadOnlyMatrix)row[_targetColumnIndex];
-                _rowDepth[i] = outputMatrix.RowCount;
+                _rowDepth[row.RowIndex] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
             }

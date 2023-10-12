@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
 using BrightData.Helper;
@@ -123,7 +124,7 @@ namespace BrightWire.TreeBased.Training
                             _continuous.Add(i);
                     }
                 }
-                foreach(var row in table.GetRows()) {
+                foreach(var row in table.EnumerateRows().ToBlockingEnumerable()) {
                     Data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex));
                 }
             }

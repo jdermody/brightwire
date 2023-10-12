@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.TrainingData.Helper;
 
@@ -55,7 +56,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
-        public static IDataTable GetOneHot(BrightDataContext context, IEnumerable<string> strList)
+        public static Task<IDataTable> GetOneHot(BrightDataContext context, IEnumerable<string> strList)
         {
 	        var strList2 = strList.ToList();
 

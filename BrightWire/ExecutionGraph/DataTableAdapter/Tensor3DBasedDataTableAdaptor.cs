@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            var firstRow = dataTable.GetRow(0);
+            var firstRow = dataTable[0];
             var input = (IReadOnlyTensor3D)firstRow[_inputColumnIndex = _featureColumnIndices[0]];
             var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
             _outputSize = output.Size;

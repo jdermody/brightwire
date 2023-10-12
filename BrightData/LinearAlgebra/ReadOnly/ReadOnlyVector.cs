@@ -29,6 +29,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ReadOnlyVector(uint size, Func<uint, float> initializer) : this(size.AsRange().Select(initializer).ToArray())
         {
         }
+        public ReadOnlyVector(IReadOnlyVector vector) : this(vector.ToArray())
+        {
+        }
 
         public void WriteTo(BinaryWriter writer)
         {
@@ -52,7 +55,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         public uint Size => (uint)_data.Length;
-        public bool IsReadOnly => true;
         public float this[int index] => _data.Span[index];
         public float this[uint index] => _data.Span[(int)index];
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data.Span);

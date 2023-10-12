@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
 
@@ -24,17 +25,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
             _featureColumnIndex = _featureColumnIndices.Single();
 
-            if (dataTable.TableMetaData.Get("Seq2Seq", false))
+            if (dataTable.MetaData.Get("Seq2Seq", false))
                 sequenceLengthsAreVaried = true;
             _featureColumns = featureColumns;
             _rowDepth = new uint[dataTable.RowCount];
 
             // find the number of sequences of each row
             var foundData = false;
-            foreach(var (i, row) in dataTable.GetAllRowData()) {
+            foreach(var row in dataTable.EnumerateRows().ToBlockingEnumerable()) {
                 var inputMatrix = (IReadOnlyMatrix) row[_featureColumnIndices[0]];
                 var outputMatrix = (IReadOnlyMatrix) row[_targetColumnIndex];
-                _rowDepth[i] = inputMatrix.RowCount;
+                _rowDepth[row.RowIndex] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
                 if (!foundData) {
@@ -51,7 +52,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(IReadOnlyMatrix Input, IReadOnlyMatrix? Output)> GetRows(uint[] rows)
         {
-            foreach (var row in _dataTable.GetRows(rows)) {
+            foreach (var row in _dataTable.GetRows(rows).Result) {
                 var input = (IReadOnlyMatrix)row[_featureColumnIndex];
                 var output = (IReadOnlyMatrix?)row[_targetColumnIndex];
                 yield return (input, output);

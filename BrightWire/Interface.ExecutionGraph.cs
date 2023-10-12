@@ -7,6 +7,7 @@ using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
+using BrightData.Analysis;
 
 namespace BrightWire
 {
@@ -291,12 +292,12 @@ namespace BrightWire
         /// <summary>
         /// Table vectoriser to create a feature vector
         /// </summary>
-        IDataTableVectoriser? InputVectoriser { get; }
+        VectorisationModel? InputVectoriser { get; }
 
         /// <summary>
         /// Table vectoriser to create a target vector
         /// </summary>
-        IDataTableVectoriser? OutputVectoriser { get; }
+        VectorisationModel? OutputVectoriser { get; }
     }
 
     /// <summary>

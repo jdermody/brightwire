@@ -16,9 +16,10 @@ namespace BrightWire.Unsupervised
 		List<(uint[] DataIndices, IVector Cluster)> _clusters = new();
 		readonly IVector[] _data;
 
-		public KMeans(BrightDataContext context, uint k, IEnumerable<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
-		{
-			_data = data.ToArray();
+		public KMeans(BrightDataContext context, uint k, IEnumerable<IReadOnlyVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        {
+            var lap = context.LinearAlgebraProvider;
+			_data = data.Select(x => x.Create(lap)).ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);
 
 			// use kmeans++ to find best initial positions
@@ -108,6 +109,6 @@ namespace BrightWire.Unsupervised
 			}
 		}
 
-		public IVector[][] Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToArray()).ToArray();
+		public IReadOnlyVector[][] Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToArray()).ToArray();
     }
 }

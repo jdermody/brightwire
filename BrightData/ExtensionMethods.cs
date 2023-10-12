@@ -693,5 +693,15 @@ namespace BrightData
                 return new AggregateOperation(operations).Process(notify, msg, ct);
             return Task.CompletedTask;
         }
+
+        public static async Task<ReadOnlyMemory<T>> ToMemory<T>(this IAsyncEnumerable<T> enumerable)
+        {
+            using var buffer = new ArrayPoolBufferWriter<T>();
+            await foreach (var item in enumerable) {
+                buffer.GetSpan(1)[0] = item;
+                buffer.Advance(1);
+            }
+            return buffer.WrittenMemory;
+        }
     }
 }

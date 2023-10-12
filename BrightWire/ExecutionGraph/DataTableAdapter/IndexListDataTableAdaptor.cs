@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Analysis;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -12,14 +13,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public IndexListDataTableAdapter(IDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public IndexListDataTableAdapter(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()).Result;
             OutputSize = OutputVectoriser.OutputSize;
 
-            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
+            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Result.Select(m => m.GetIndexAnalysis());
             InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
         }
 
@@ -27,6 +28,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             return _dataTable
                 .GetRows(rows)
+                .Result
                 .Select(tableRow => (Combine(_featureColumnIndices.Select(i => (IndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
         }
 

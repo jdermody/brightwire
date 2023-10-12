@@ -4,17 +4,48 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
+<# var COUNT = 11; #>
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+#pragma warning disable CA2012
+
+namespace BrightData
+{
+<# for(var i = 2; i < COUNT; i++) {
+        var range = Enumerable.Range(1, i).ToList();
+        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
+#>
+    public readonly record struct TableRow<<#= typeString #>>(<#= parameters #>) <#= where #>;
+<# } #>
+
+    public partial interface IDataTable
+    {
+<# for(var i = 2; i < COUNT; i++) {
+        var range = Enumerable.Range(1, i).ToList();
+        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
+#>
+        IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #>, 
+<# } #>
+            CancellationToken ct = default
+        ) <#= where #>;
+<# } #>
+    }
+}
 
 namespace BrightData.DataTable
 {
     internal abstract partial class TableBase
     {
-<# for(var i = 2; i < 11; i++) {
+<# for(var i = 2; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();
         var typeString = String.Join(", ", range.Select(x => $"T{x}"));
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
@@ -27,9 +58,8 @@ namespace BrightData.DataTable
         var allBlockSpans = String.Join(", ", range.Select(x => $"block{x}.Span"));
         var allReadOnlySpans = String.Join(", ", range.Select(x => $"ReadOnlySpan<T{x}> span{x}"));
         var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
-#>
-        public readonly record struct Row<<#= typeString #>>(<#= parameters #>) <#= where #>;
-        public async IAsyncEnumerable<Row<<#= typeString #>>> Enumerate<<#= typeString #>>(
+#>      
+        public async IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #>, 
 <# } #>
@@ -53,12 +83,12 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new Row<<#= typeString #>>(<#= rowParams #>);
+                var row = new TableRow<<#= typeString #>>(<#= rowParams #>);
                 yield return row;
             }
         }
 
-        class RowReader<<#= typeString #>> : IReadOnlyBuffer<Row<<#= typeString #>>> <#= where #>
+        class RowReader<<#= typeString #>> : IReadOnlyBuffer<TableRow<<#= typeString #>>> <#= where #>
         {
 <# for(var j = 1; j <= i; j++) { #>
             readonly IReadOnlyBuffer<T<#= j #>> _input<#= j #>;
@@ -78,7 +108,7 @@ namespace BrightData.DataTable
                 Size = input1.Size;
                 BlockSize = input1.BlockSize;
                 BlockCount = input1.BlockCount;
-                DataType = typeof(Row<<#= typeString #>>);
+                DataType = typeof(TableRow<<#= typeString #>>);
 <# for(var j = 1; j <= i; j++) { #>
                 _input<#= j #> = input<#= j #>;
 <# } #>
@@ -94,7 +124,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<Row<<#= typeString #>>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -102,7 +132,7 @@ namespace BrightData.DataTable
                 }
             }
 
-            public async Task<ReadOnlyMemory<Row<<#= typeString #>>>> GetTypedBlock(uint blockIndex)
+            public async Task<ReadOnlyMemory<TableRow<<#= typeString #>>>> GetTypedBlock(uint blockIndex)
             {
 <# for(var j = 1; j <= i; j++) { #>
                 var b<#= j #> = _input<#= j #>.GetTypedBlock(blockIndex);
@@ -115,18 +145,18 @@ namespace BrightData.DataTable
                 if (block1.Length != block<#= j #>.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block<#= j #>:{block<#= j #>.Length})");
 <# } #>
-                var ret = new Row<<#= typeString #>>[block1.Length];
+                var ret = new TableRow<<#= typeString #>>[block1.Length];
                 Copy(<#= allBlockSpans #>, ret);
                 return ret;
             }
 
-            static void Copy(<#= allReadOnlySpans #>, Span<Row<<#= typeString #>>> output)
+            static void Copy(<#= allReadOnlySpans #>, Span<TableRow<<#= typeString #>>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new Row<<#= typeString #>>(<#= allSpans #>);
+                    output[i] = new TableRow<<#= typeString #>>(<#= allSpans #>);
             }
 
-            public async IAsyncEnumerable<Row<<#= typeString #>>> EnumerateAllTyped()
+            public async IAsyncEnumerable<TableRow<<#= typeString #>>> EnumerateAllTyped()
             {
                 const int size = <#= i #>;
 <# for(var j = 1; j <= i; j++) { #>
@@ -145,14 +175,14 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new Row<<#= typeString #>>(<#= currentValues #>);
+                    var row = new TableRow<<#= typeString #>>(<#= currentValues #>);
                     yield return row;
                 }
             }
 
-            public IAsyncEnumerator<Row<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+            public IAsyncEnumerator<TableRow<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<Row<<#= typeString #>>> GetRowReader<<#= typeString #>>(
+        public IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowReader<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
 <# } #>

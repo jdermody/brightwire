@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Analysis;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -12,14 +13,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public WeightedIndexListDataTableAdapter(IDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public WeightedIndexListDataTableAdapter(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()).Result;
             OutputSize = OutputVectoriser.OutputSize;
 
-            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
+            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Result.Select(m => m.GetIndexAnalysis());
             InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
         }
 
@@ -28,7 +29,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         protected override IEnumerable<(WeightedIndexList IndexList, float[] Output)> GetRows(uint[] rows)
         {
-            return _dataTable.GetRows(rows).Select(tableRow => (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
+            return _dataTable.GetRows(rows).Result.Select(tableRow => (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
         }
 
         public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists) => WeightedIndexList.Merge(lists);

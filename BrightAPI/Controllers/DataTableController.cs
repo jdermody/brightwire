@@ -188,8 +188,8 @@ namespace BrightAPI.Controllers
             if ((len = request.ColumnIndices.Length) != request.ColumnConversions.Length || len == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Converted", (table, path) => {
-                var columnConversions = new ColumnConversionOperation[table.ColumnCount];
+            return await Transform(id, request, "Converted", async (table, path) => {
+                var columnConversions = new ColumnConversion[table.ColumnCount];
                 for (uint i = 0; i < len; i++) {
                     if (i > table.ColumnCount)
                         throw new BadHttpRequestException($"Column index exceeded column count: {i}");
@@ -197,10 +197,9 @@ namespace BrightAPI.Controllers
                 }
 
                 // check if there is anything to convert
-                return columnConversions.All(x => x == ColumnConversionOperation.Unchanged) 
-                    ? table 
-                    : table.Convert(path, columnConversions.Where(x => x != ColumnConversionOperation.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray())
-                ;
+                if(columnConversions.All(x => x == ColumnConversion.Unchanged))
+                    return table;
+                return await table.Convert(path, columnConversions.Where(x => x != ColumnConversion.Unchanged).Select((c, i) => c.ConvertColumn((uint)i)).ToArray());
             });
         }
 
@@ -214,16 +213,14 @@ namespace BrightAPI.Controllers
             if ((len = request.ColumnIndices.Length) != request.Columns.Length || len == 0)
                 return BadRequest();
 
-            return await Transform(id, request, "Normalized", (table, path) => {
+            return await Transform(id, request, "Normalized", async (table, path) => {
                 var columnConversions = new NormalizationType[table.ColumnCount];
                 for (uint i = 0; i < len; i++) {
                     if (i > table.ColumnCount)
                         throw new BadHttpRequestException($"Column index exceeded column count: {i}");
                     columnConversions[request.ColumnIndices[i]] = request.Columns[i];
                 }
-
-                var conversions = columnConversions.Select((c, i) => (Column: c, Index: (uint)i)).Where(c => c.Column != NormalizationType.None).Select(c => c.Column.ConvertColumn(c.Index)).ToArray();
-                return table.Normalize(path, conversions);
+                return await table.Normalize(path, columnConversions);
             });
         }
 

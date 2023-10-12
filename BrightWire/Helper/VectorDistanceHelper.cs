@@ -29,8 +29,9 @@ namespace BrightWire.Helper
 
 		void IDisposable.Dispose()
 		{
-			_comparison.ForEach(c => c.Dispose());
-			_comparison.Clear();
+            _comparison.ForEach(x => x.Dispose());
+			Array.ForEach(_data, x => x.Dispose());
+            _comparison.Clear();
 		}
 
 		/// <summary>

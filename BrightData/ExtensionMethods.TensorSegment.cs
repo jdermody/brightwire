@@ -364,5 +364,15 @@ namespace BrightData
                     temp.Dispose();
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static INumericSegment<float> Apply(IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other, OnReadOnlySpans<float, MemoryOwner<float>> mutator)
+        {
+            var result = vector.GetReadOnlySpans(other, mutator);
+            return new ArrayPoolTensorSegment(result);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => Apply(vector, other, (x, y) => x.Add(y));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other, float coefficient1, float coefficient2) => Apply(vector, other, (x, y) => x.Add(y, coefficient1, coefficient2));
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightWire.Unsupervised
 {
@@ -23,7 +24,7 @@ namespace BrightWire.Unsupervised
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IVector[][] Cluster(IEnumerable<IVector> data, uint numIterations, float errorThreshold = 0.001f)
+        public IReadOnlyVector[][] Cluster(IEnumerable<IReadOnlyVector> data, uint numIterations, float errorThreshold = 0.001f)
         {
             var dataArray = data.ToArray();
 

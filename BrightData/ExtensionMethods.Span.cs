@@ -1386,7 +1386,7 @@ namespace BrightData
         /// <param name="distance">Distance metric</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance)where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch {
+        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch {
             DistanceMetric.Cosine => vector.CosineDistance(other),
             DistanceMetric.Euclidean => vector.EuclideanDistance(other),
             DistanceMetric.Manhattan => vector.ManhattanDistance(other),

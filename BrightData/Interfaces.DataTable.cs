@@ -191,7 +191,7 @@ namespace BrightData
     /// <summary>
     /// Single column conversion options
     /// </summary>
-    public enum ColumnConversionOperation
+    public enum ColumnConversion
     {
         /// <summary>
         /// Leave the column unchanged (nop)
@@ -318,7 +318,7 @@ namespace BrightData
         ReadOnlyMemory<float> GetTensorData();
     }
 
-    public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values)
+    public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values) : ICanRandomlyAccessData
     {
         public uint Size => (uint)Values.Length;
 
@@ -329,9 +329,25 @@ namespace BrightData
                 throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)}");
             return (T)ret;
         }
+
+        public T[] GetMany<T>(params uint[] columnIndices)
+        {
+            var ret = new T[columnIndices.Length];
+            var index = 0;
+            foreach (var columnIndex in columnIndices)
+                ret[index++] = Get<T>(columnIndex);
+            return ret;
+        }
+
+        public object this[int index] => Values[index];
+        public object this[uint index] => Values[index];
+        public void Dispose()
+        {
+            // nop
+        }
     }
 
-    public interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
+    public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
     {
         uint RowCount { get; }
         uint ColumnCount { get; }

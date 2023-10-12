@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using BrightWire.ExecutionGraph.Helper;
 using BrightData;
+using BrightData.Analysis;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -54,10 +55,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public abstract IDataSource CloneWith(IDataTable dataTable);
 
         /// <inheritdoc />
-        public IDataTableVectoriser? InputVectoriser { get; protected set; } = null;
+        public VectorisationModel? InputVectoriser { get; protected set; } = null;
 
         /// <inheritdoc />
-        public IDataTableVectoriser? OutputVectoriser { get; protected set; } = null;
+        public VectorisationModel? OutputVectoriser { get; protected set; } = null;
 
         /// <inheritdoc />
         public virtual uint[][] GetSequentialBatches()

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightData.Analysis;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -10,12 +11,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdapter(IDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices);
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
+            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices).Result;
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()).Result;
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)

@@ -178,16 +178,17 @@ namespace ExampleCode
             Console.WriteLine("---------------------------------------------");
         }
 
-        static void Xor(BrightDataContext context, bool useMkl)
+        static async Task Xor(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.Xor().Train(4, 100, 0.5f, 4);
+            using var trainer = await context.Xor();
+            trainer.Train(4, 100, 0.5f, 4);
         }
 
-        static void IrisClassification(BrightDataContext context, bool useMkl)
+        static async Task IrisClassification(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var iris = context.Iris();
+            using var iris = await context.Iris();
             iris.TrainNaiveBayes();
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
@@ -196,19 +197,11 @@ namespace ExampleCode
             iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
 
-        static void IrisClustering(BrightDataContext context, bool useMkl)
+        static async Task IrisClustering(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var iris = context.Iris();
-
+            using var iris = await context.Iris();
             var irisTable = iris.Table.Value;
-
-            static void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
-            {
-                var clusters = items.Select(c => c.Select(r => r.Label).GroupAndCount().Format());
-                foreach (var cluster in clusters)
-                    Console.WriteLine(cluster);
-            }
 
             Console.WriteLine("K Means...");
             WriteSeparator();
@@ -226,15 +219,24 @@ namespace ExampleCode
             WriteSeparator();
             Write(irisTable.NonNegativeMatrixFactorisation(3));
             WriteSeparator();
+            return;
+
+            static void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
+            {
+                var clusters = items.Select(c => c.Select(r => r.Label).GroupAndCount().Format());
+                foreach (var cluster in clusters)
+                    Console.WriteLine(cluster);
+            }
         }
 
-        static void MarkovChains(BrightDataContext context, bool useMkl)
+        static async Task MarkovChains(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.BeautifulandDamned().TrainMarkovModel();
+            var trainer = await context.BeautifulandDamned();
+            trainer.TrainMarkovModel();
         }
 
-        static void MnistFeedForward(BrightDataContext context, bool useMkl)
+        static async Task MnistFeedForward(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             using var mnist = context.Mnist();
@@ -264,10 +266,10 @@ namespace ExampleCode
             sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
-        static void TextClustering(BrightDataContext context, bool useMkl)
+        static async Task TextClustering(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var textClustering = context.TextClustering();
+            var textClustering = await context.TextClustering();
             textClustering.KMeans();
             textClustering.Nnmf();
             textClustering.RandomProjection();
@@ -275,38 +277,39 @@ namespace ExampleCode
                 textClustering.LatentSemanticAnalysis();
         }
 
-        static void IntegerAddition(BrightDataContext context, bool useMkl)
+        static async Task IntegerAddition(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.IntegerAddition().TrainRecurrentNeuralNetwork();
+            using var trainer = await context.IntegerAddition();
+            trainer.TrainRecurrentNeuralNetwork();
         }
 
-        static void ReberPrediction(BrightDataContext context, bool useMkl)
+        static async Task ReberPrediction(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var reber = context.ReberSequencePrediction(extended: true, minLength:10, maxLength:10);
+            using var reber = await context.ReberSequencePrediction(extended: true, minLength:10, maxLength:10);
             var engine = reber.TrainLstm();
             ReberSequenceTrainer.GenerateSequences(engine);
         }
 
-        static void OneToMany(BrightDataContext context, bool useMkl)
+        static async Task OneToMany(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var sequences = context.OneToMany();
+            using var sequences = await context.OneToMany();
             sequences.TrainOneToMany();
         }
 
-        static void ManyToOne(BrightDataContext context, bool useMkl)
+        static async Task ManyToOne(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var sequences = context.ManyToOne();
+            using var sequences = await context.ManyToOne();
             sequences.TrainManyToOne();
         }
 
-        static void SequenceToSequence(BrightDataContext context, bool useMkl)
+        static async Task SequenceToSequence(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var sequences = context.SequenceToSequence();
+            using var sequences = await context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
         }
 
@@ -322,35 +325,39 @@ namespace ExampleCode
         //    context.Bicycles().TrainLinearModel();
         //}
 
-        static void PredictBicyclesWithNeuralNetwork(BrightDataContext context, bool useMkl)
+        static async Task PredictBicyclesWithNeuralNetwork(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.Bicycles().TrainNeuralNetwork();
+            using var trainer = await context.Bicycles();
+            trainer.TrainNeuralNetwork();
         }
 
-        static void MultiLabelSingleClassifier(BrightDataContext context, bool useMkl)
+        static async Task MultiLabelSingleClassifier(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.Emotions().TrainNeuralNetwork();
+            using var trainer = await context.Emotions();
+            trainer.TrainNeuralNetwork();
         }
 
-        static void MultiLabelMultiClassifiers(BrightDataContext context, bool useMkl)
+        static async Task MultiLabelMultiClassifiers(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            context.Emotions().TrainMultiClassifiers();
+            using var trainer = await context.Emotions();
+            trainer.TrainMultiClassifiers();
         }
 
-        static void StockData(BrightDataContext context, bool useMkl, bool useCuda)
+        static async Task StockData(BrightDataContext context, bool useMkl, bool useCuda)
         {
             Start(context, useMkl, useCuda);
-            var stockData = context.StockData().GetSequentialWindow();
+            using var trainer = await context.StockData();
+            var stockData = trainer.GetSequentialWindow();
             stockData.TrainLstm(256);
         }
 
-        static void TrainIncomePrediction(BrightDataContext context, bool useMkl)
+        static async Task TrainIncomePrediction(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var adult = context.Adult();
+            using var adult = await context.Adult();
             adult.TrainNeuralNetwork();
             //adult.TrainNaiveBayes();
         }
