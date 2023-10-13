@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
@@ -13,7 +14,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public void TrainRecurrentNeuralNetwork(bool writeResults = true)
+        public async Task TrainRecurrentNeuralNetwork(bool writeResults = true)
         {
             var graph = _context.CreateGraphFactory();
 
@@ -47,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(_context, 8));
+                var testData2 = graph.CreateDataSource(await BinaryIntegers.Addition(_context, 8));
                 var results = executionEngine.Execute(testData2, 128, null, true).ToArray();
 
                 // group the output

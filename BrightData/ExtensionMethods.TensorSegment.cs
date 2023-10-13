@@ -313,66 +313,56 @@ namespace BrightData
             }
         }
 
-        /// <summary>
-        /// Callback that takes a single readonly span
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="span"></param>
-        public delegate void OnReadOnlySpan<T>(ReadOnlySpan<T> span);
+        ///// <summary>
+        ///// Callback that takes a single readonly span
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="span"></param>
+        //public delegate void OnReadOnlySpan<T>(ReadOnlySpan<T> span);
 
-        /// <summary>
-        /// Passes the segment as a readonly span into a callback function
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <param name="callback"></param>
-        /// <typeparam name="CT"></typeparam>
-        public static void GetReadOnlySpan<CT>(this IReadOnlyNumericSegment<float> segment, OnReadOnlySpan<float> callback)
-        {
-            var contiguous = segment.Contiguous;
-            if (contiguous is not null)
-                callback(contiguous.ReadOnlySpan);
-            else {
-                GetReadOnlySpan(segment, callback);
-                var temp = SpanOwner<float>.Empty;
-                var wasTempUsed = false;
-                try {
-                    var span = segment.GetSpan(ref temp, out wasTempUsed);
-                    callback(span);
-                }
-                finally {
-                    if (wasTempUsed)
-                        temp.Dispose();
-                }
-            }
-        }
+        ///// <summary>
+        ///// Passes the segment as a readonly span into a callback function
+        ///// </summary>
+        ///// <param name="segment"></param>
+        ///// <param name="callback"></param>
+        ///// <typeparam name="CT"></typeparam>
+        //public static void GetReadOnlySpan<CT>(this IReadOnlyNumericSegment<float> segment, OnReadOnlySpan<float> callback)
+        //{
+        //    var contiguous = segment.Contiguous;
+        //    if (contiguous is not null)
+        //        callback(contiguous.ReadOnlySpan);
+        //    else {
+        //        GetReadOnlySpan(segment, callback);
+        //        var temp = SpanOwner<float>.Empty;
+        //        var wasTempUsed = false;
+        //        try {
+        //            var span = segment.GetSpan(ref temp, out wasTempUsed);
+        //            callback(span);
+        //        }
+        //        finally {
+        //            if (wasTempUsed)
+        //                temp.Dispose();
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// Invokes the callback with the contents of the span
-        /// </summary>
-        /// <param name="spanContainer"></param>
-        /// <param name="callback"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void GetReadOnlySpan<T>(this IHaveSpanOf<T> spanContainer, OnReadOnlySpan<T> callback)
-        {
-            var temp = SpanOwner<T>.Empty;
-            var wasTempUsed = false;
-            try {
-                callback(spanContainer.GetSpan(ref temp, out wasTempUsed));
-            }
-            finally {
-                if (wasTempUsed)
-                    temp.Dispose();
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static INumericSegment<float> Apply(IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other, OnReadOnlySpans<float, MemoryOwner<float>> mutator)
-        {
-            var result = vector.GetReadOnlySpans(other, mutator);
-            return new ArrayPoolTensorSegment(result);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => Apply(vector, other, (x, y) => x.Add(y));
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other, float coefficient1, float coefficient2) => Apply(vector, other, (x, y) => x.Add(y, coefficient1, coefficient2));
+        ///// <summary>
+        ///// Invokes the callback with the contents of the span
+        ///// </summary>
+        ///// <param name="spanContainer"></param>
+        ///// <param name="callback"></param>
+        ///// <typeparam name="T"></typeparam>
+        //public static void GetReadOnlySpan<T>(this IHaveSpanOf<T> spanContainer, OnReadOnlySpan<T> callback)
+        //{
+        //    var temp = SpanOwner<T>.Empty;
+        //    var wasTempUsed = false;
+        //    try {
+        //        callback(spanContainer.GetSpan(ref temp, out wasTempUsed));
+        //    }
+        //    finally {
+        //        if (wasTempUsed)
+        //            temp.Dispose();
+        //    }
+        //}
     }
 }

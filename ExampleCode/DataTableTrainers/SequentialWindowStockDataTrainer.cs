@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.Models;
 
@@ -12,7 +14,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public void TrainLstm(uint hiddenLayerSize)
+        public async Task TrainLstm(uint hiddenLayerSize)
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
@@ -41,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
-                var expectedOutput = Test.GetColumn<IVectorData>(1).ToArray();
+                var expectedOutput = await Test.GetColumn<ReadOnlyVector>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
                 Console.WriteLine($"Final quadratic prediction error: {score}");

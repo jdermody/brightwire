@@ -74,11 +74,11 @@ namespace ExampleCode.DataTableTrainers
             return multinomial;
         }
 
-        public (IGraphExecutionEngine, WireBuilder, IGraphTrainingEngine) TrainNeuralNetwork(uint numIterations)
+        public async Task<(IGraphExecutionEngine, WireBuilder, IGraphTrainingEngine)> TrainNeuralNetwork(uint numIterations)
         {
             var indexer = GetIndexer();
-            var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
-            var testTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
+            var trainingTable = await GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
+            var testTable = await GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
             var graph = _context.CreateGraphFactory();
 
             var trainingData = graph.CreateDataSource(trainingTable);
@@ -110,15 +110,15 @@ namespace ExampleCode.DataTableTrainers
             return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, engine);
         }
 
-        public IGraphEngine StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public async Task<IGraphEngine> StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             // create combined data tables with both index lists and encoded vectors
             var graph = engine.LearningContext.GraphFactory;
             var context = graph.Context;
             var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             var indexer = GetIndexer();
-            var training = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
-            var test = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
+            var training = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
+            var test = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
             var trainingData = graph.CreateDataSource(training, 0);
             var testData = trainingData.CloneWith(test);
             var outputSize = trainingData.GetOutputSizeOrThrow();
@@ -268,11 +268,11 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public IGraphExecutionEngine TrainBiLstm(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public async Task<IGraphExecutionEngine> TrainBiLstm(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var graph = _context.CreateGraphFactory();
-            var trainingTable = CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
-            var testTable = CreateTable(_indexedSentencesTest, bernoulli, multinomial);
+            var trainingTable = await CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
+            var testTable = await CreateTable(_indexedSentencesTest, bernoulli, multinomial);
             var training = graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;

@@ -271,7 +271,12 @@ namespace BrightData
         /// <summary>
         /// Convert to decimal
         /// </summary>
-        ToDecimal
+        ToDecimal,
+
+        /// <summary>
+        /// Custom conversion
+        /// </summary>
+        Custom
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
@@ -14,7 +15,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public static IDataTable Parse(BrightDataContext context, string filePath)
+        public static async Task<IDataTable> Parse(BrightDataContext context, string filePath)
         {
             const int targetColumnCount = 6;
 
@@ -22,11 +23,11 @@ namespace ExampleCode.DataTableTrainers
             using var reader = new StreamReader(filePath);
             while (!reader.EndOfStream)
             {
-                var line = reader.ReadLine();
+                var line = await reader.ReadLineAsync();
                 if (line == "@data")
                     break;
             }
-            using var table = context.ParseCsv(reader, false).Result;
+            using var table = await context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
@@ -46,10 +47,10 @@ namespace ExampleCode.DataTableTrainers
 
         }
 
-        static IDataTable ConvertToBinary(IDataTable table, uint indexOffset)
+        static async Task<IDataTable> ConvertToBinary(IDataTable table, uint indexOffset)
         {
             // converts the index list to a boolean based on if the flag is set
-            var ret = table.Project(null, r => {
+            var ret = await table.Project(r => {
                 var ret2 = (object[]) r.Clone();
                 var indexList = (IndexList) ret2[r.Length - 1];
                 ret2[r.Length - 1] = indexList.HasIndex(indexOffset);
@@ -114,7 +115,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public void TrainMultiClassifiers()
+        public async Task TrainMultiClassifiers()
         {
             var classificationLabel = new[] {
                 "amazed-suprised",
@@ -125,10 +126,10 @@ namespace ExampleCode.DataTableTrainers
                 "angry-aggresive"
             };
             var trainingTables = classificationLabel
-                .Select((c, i) => (Table: ConvertToBinary(Training, (uint) i), Label: c))
+                .Select((c, i) => (Table: ConvertToBinary(Training, (uint) i).Result, Label: c))
                 .ToArray();
             var testTables = classificationLabel
-                .Select((c, i) => (Table: ConvertToBinary(Test, (uint)i), Label: c))
+                .Select((c, i) => (Table: ConvertToBinary(Test, (uint)i).Result, Label: c))
                 .ToArray();
 
             var graph = _context.CreateGraphFactory();
@@ -148,7 +149,7 @@ namespace ExampleCode.DataTableTrainers
                 Console.WriteLine("Training on {0}", item.Training.Label);
 
                 // train and evaluate a naive bayes classifier
-                var naiveBayes = item.Training.Table.TrainNaiveBayes().CreateClassifier();
+                var naiveBayes = (await item.Training.Table.TrainNaiveBayes()).CreateClassifier();
                 Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
                     .Classify(naiveBayes)
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
@@ -166,7 +167,7 @@ namespace ExampleCode.DataTableTrainers
                 //);
 
                 // train and evaluate k nearest neighbours
-                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider, 10);
+                var knn = (await item.Training.Table.TrainKNearestNeighbours()).CreateClassifier(_context.LinearAlgebraProvider, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)

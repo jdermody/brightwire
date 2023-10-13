@@ -86,9 +86,9 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IReadOnlyVector[][] HierarchicalCluster(this IEnumerable<IReadOnlyVector> data, uint k)
+        public static IReadOnlyVector[][] HierarchicalCluster(this IEnumerable<IReadOnlyVector> data, LinearAlgebraProvider lap, uint k)
         {
-            using var clusterer = new Hierarchical(k, data);
+            using var clusterer = new Hierarchical(lap, k, data);
             clusterer.Cluster();
             return clusterer.Clusters;
         }

@@ -25,7 +25,7 @@ namespace ExampleCode.DataSet
             {
                 using var table = await context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
-                using var numericTable = await table.Convert(
+                using var numericTable = await table.Convert(null, 
                     ColumnConversion.ToNumeric,
                     ColumnConversion.ToNumeric, 
                     ColumnConversion.ToNumeric,
@@ -40,14 +40,14 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static async Task<DataTableTrainer> StockData(this BrightDataContext context)
+        public static async Task<StockDataTrainer> StockData(this BrightDataContext context)
         {
             var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
                 using var table = await context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
-                using var numericTable = await table.Convert(
+                using var numericTable = await table.Convert(null, 
                     ColumnConversion.ToNumeric,
                     ColumnConversion.ToNumeric,
                     ColumnConversion.ToNumeric,
@@ -261,15 +261,15 @@ namespace ExampleCode.DataSet
         {
             var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
-            using var completeTable = context.ParseCsv(hoursData, true);
+            using var completeTable = await context.ParseCsv(hoursData, true);
 
             // drop the first six columns (index and date features)
-            using var filteredTable = completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
+            using var filteredTable = await completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversion.ToNumeric.ConvertColumn(i)).ToArray());
+            using var converted = await filteredTable.Convert(null, dataColumns.Select(i => ColumnConversion.ToNumeric.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
-            using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
+            using var ret = await converted.Normalize(NormalizationType.Standard);
 
             ret.SetTargetColumn(ret.ColumnCount-1);
             return new BicyclesTrainer(ret);
@@ -278,9 +278,9 @@ namespace ExampleCode.DataSet
         public static async Task<EmotionsTrainer> Emotions(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
-            var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
-            var test = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
-            var training = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
+            var table = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
+            var test = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
+            var training = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
             return new EmotionsTrainer(table, training, test);
         }
 
@@ -296,7 +296,7 @@ namespace ExampleCode.DataSet
 
             static async Task<IDataTable> ConvertTable(IDataTable table, string path)
             {
-                using var converted = await table.Convert(
+                using var converted = await table.Convert(null,
                     // convert numeric columns
                     ColumnConversion.ToNumeric.ConvertColumn(0), 
                     ColumnConversion.ToNumeric.ConvertColumn(2), 
@@ -315,27 +315,27 @@ namespace ExampleCode.DataSet
                     ColumnConversion.ToCategoricalIndex.ConvertColumn(9),
                     ColumnConversion.ToCategoricalIndex.ConvertColumn(13),
 
-                    table.CreateCustomColumnMutator<string, string>(14, AdjustString)
+                    ColumnConversion.Custom.ConvertColumn<string, string>(14, AdjustString)
                 );
                 converted.SetTargetColumn(14);
-                using var normalized = converted.Normalize(NormalizationType.Standard);
-
-                return normalized.Clone(path);
+                var normalized = await converted.Normalize(NormalizationType.Standard);
+                await normalized.WriteTo(path);
+                return normalized;
             }
 
-            var adultTraining = GetDataTable(context, "adult_data.table", path => {
+            var adultTraining = await GetDataTable(context, "adult_data.table", async path => {
                 using var reader = GetStreamReader(context, "adult.data.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data");
-                using var data = context.ParseCsv(reader, false);
-                return ConvertTable(data, path);
+                using var data = await context.ParseCsv(reader, false);
+                return await ConvertTable(data, path);
             });
 
-            var adultTest = GetDataTable(context, "adult_test.table", path => {
+            var adultTest = await GetDataTable(context, "adult_test.table", async path => {
                 using var reader2 = GetStreamReader(context, "adult.test.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test");
-                reader2.ReadLine();
-                using var test = context.ParseCsv(reader2, false);
-                return ConvertTable(test, path);
+                await reader2.ReadLineAsync();
+                using var test = await context.ParseCsv(reader2, false);
+                return await ConvertTable(test, path);
             });
 
             return new AdultTrainer(null, adultTraining, adultTest);
@@ -362,11 +362,11 @@ namespace ExampleCode.DataSet
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static IDataTable GetDataTable(this BrightDataContext context, string fileName, Func<string, IDataTable> createTable)
+        static async Task<IDataTable> GetDataTable(this BrightDataContext context, string fileName, Func<string, Task<IDataTable>> createTable)
         {
             var path = GetDataFilePath(context, fileName);
             if (!File.Exists(path))
-                return createTable(path);
+                return await createTable(path);
 
             return context.LoadTable(path);
         }

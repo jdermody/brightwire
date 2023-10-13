@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.TrainingData.Helper;
 
@@ -67,7 +68,7 @@ namespace ExampleCode.DataTableTrainers
         }
         readonly StringTableBuilder _stringTable = new();
         readonly IVector[] _vectors;
-        readonly Dictionary<IVector, AaaiDocument> _documentTable = new();
+        readonly Dictionary<IReadOnlyVector, AaaiDocument> _documentTable = new();
         readonly uint _groupCount;
 
         public TestClusteringTrainer(BrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
@@ -109,7 +110,7 @@ namespace ExampleCode.DataTableTrainers
             using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
             var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.GetRowAsReadOnly(i).Create(lap)).ToList();
-            var lookupTable2 = vectorList2.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
+            var lookupTable2 = vectorList2.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => (IReadOnlyVector)d.Vector, d => _documentTable[d.DocumentVector]);
             Console.Write("done...");
 
             Console.Write("Kmeans clustering of random projection...");
@@ -140,7 +141,7 @@ namespace ExampleCode.DataTableTrainers
                 s.Dispose();
 
                 var vectorList3 = sv2.AllColumnsAsReadOnly(false).Select(c => c.Create(lap)).ToList();
-                var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => d.Vector, d => _documentTable[d.DocumentVector]);
+                var lookupTable3 = vectorList3.Select((v, i) => (Vector: v, DocumentVector: _vectors[i])).ToDictionary(d => (IReadOnlyVector)d.Vector, d => _documentTable[d.DocumentVector]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");
                 WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);
@@ -154,7 +155,7 @@ namespace ExampleCode.DataTableTrainers
 
         string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
-        static void WriteClusters(string filePath, IVector[][] clusters, Dictionary<IVector, AaaiDocument> lookupTable)
+        static void WriteClusters(string filePath, IReadOnlyVector[][] clusters, Dictionary<IReadOnlyVector, AaaiDocument> lookupTable)
         {
             new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);

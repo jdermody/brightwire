@@ -43,22 +43,22 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void SimpleVectorisation()
+        public async Task SimpleVectorisation()
         {
-            var table = GetTable();
-            var vectoriser = table.GetVectoriser(false);
+            var table = await GetTable();
+            var vectoriser = await table.GetVectoriser(false);
             vectoriser.OutputSize.Should().Be(18);
 
-            var vector = vectoriser.Enumerate().Single();
-            vector[0].Should().Be(0);
-            vector[1].Should().Be(1);
+            var vector = vectoriser.Vectorise(table.GetColumns()).ToBlockingEnumerable().Single();
+            vector[0, 0].Should().Be(0);
+            vector[1, 0].Should().Be(1);
         }
 
         [Fact]
-        public void VectorisationSerialisation()
+        public async Task VectorisationSerialisation()
         {
-            var table = GetTable();
-            var vectoriser1 = table.GetVectoriser(false);
+            var table = await GetTable();
+            var vectoriser1 = await table.GetVectoriser(false);
             var vector1 = vectoriser1.Enumerate().Single();
 
             var reader = new BinaryReader(new MemoryStream(vectoriser1.GetData()), Encoding.UTF8);
@@ -69,10 +69,10 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void OneHotEncodeSingle()
+        public async Task OneHotEncodeSingle()
         {
-            var table = GetTable2();
-            var vectoriser = table.GetVectoriser(false, 0);
+            var table = await GetTable2();
+            var vectoriser = await table.GetVectoriser(false, 0);
             var output = vectoriser.Enumerate().ToList();
             output.Count.Should().Be(3);
             output[0].Size.Should().Be(1);
@@ -85,10 +85,10 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void OneHotEncodeVector()
+        public async Task OneHotEncodeVector()
         {
-            var table = GetTable2();
-            var vectoriser = table.GetVectoriser(true, 0);
+            var table = await GetTable2();
+            var vectoriser = await table.GetVectoriser(true, 0);
             var output = vectoriser.Enumerate().ToList();
             output.Count.Should().Be(3);
             output[0].Size.Should().Be(3);
@@ -101,10 +101,10 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void OtherVectorisation()
+        public async Task OtherVectorisation()
         {
-            var table = GetTable();
-            var row = table.GetRow(0);
+            var table = await GetTable();
+            var row = table[0];
             var rowValues = row.ToArray();
             var vectoriser = table.GetVectoriser(false);
             var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();

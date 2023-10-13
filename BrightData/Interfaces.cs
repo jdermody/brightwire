@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using BrightData.Helper;
+using BrightData.Operations.Conversion;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
@@ -641,4 +644,27 @@ namespace BrightData
     /// <param name="Label"></param>
     /// <param name="Data"></param>
     public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
+
+    public record ColumnConversionInfo(uint ColumnIndex, ColumnConversion Conversion)
+    {
+        public virtual Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
+        {
+            var column = dataTable.GetColumn(ColumnIndex);
+            return column.Convert(Conversion);
+        }
+    }
+
+    public record CustomColumnConversionInfo<FT, TT>(uint ColumnIndex, Func<FT, TT> Converter) : ColumnConversionInfo(ColumnIndex, ColumnConversion.Custom)
+    {
+        public override async Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
+        {
+            var column = dataTable.GetColumn(ColumnIndex);
+            if (column.DataType != typeof(FT))
+                throw new Exception($"Expected column {ColumnIndex} to be of type {typeof(FT)} but found {column.DataType}");
+            var output = column.DataType.GetBrightDataType().CreateCompositeBuffer();
+            var conversion = GenericActivator.Create<IOperation>(typeof(CustomConversion<,>).MakeGenericType(column.DataType, typeof(TT)), Converter, column, output);
+            await conversion.Process();
+            return output;
+        }
+    }
 }

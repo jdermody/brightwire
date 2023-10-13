@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models.Bayesian;
@@ -68,9 +69,9 @@ namespace ExampleCode.DataTableTrainers
                 .Select(g => $"{g.Label ?? "<<NULL>>"} ({g.Count})")
             ));
 
-        public NaiveBayes TrainNaiveBayes(bool writeResults = true)
+        public async Task<NaiveBayes> TrainNaiveBayes(bool writeResults = true)
         {
-            var ret = Training.TrainNaiveBayes();
+            var ret = await Training.TrainNaiveBayes();
             if (writeResults)
                 WriteResults("Naive bayes", ret.CreateClassifier());
             return ret;
@@ -84,17 +85,17 @@ namespace ExampleCode.DataTableTrainers
             return ret;
         }
 
-        public RandomForest TrainRandomForest(uint numTrees, uint? baggedRowCount = null, bool writeResults = true)
+        public async Task<RandomForest> TrainRandomForest(uint numTrees, uint? baggedRowCount = null, bool writeResults = true)
         {
-            var ret = Training.TrainRandomForest(numTrees, baggedRowCount);
+            var ret = await Training.TrainRandomForest(numTrees, baggedRowCount);
             if(writeResults)
                 WriteResults("Random forest", ret.CreateClassifier());
             return ret;
         }
 
-        public KNearestNeighbours TrainKNearestNeighbours(uint k, bool writeResults = true)
+        public async Task<KNearestNeighbours> TrainKNearestNeighbours(uint k, bool writeResults = true)
         {
-            var ret = Training.TrainKNearestNeighbours();
+            var ret = await Training.TrainKNearestNeighbours();
             if (writeResults)
                 WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
             return ret;

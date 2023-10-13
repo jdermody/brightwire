@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData.DataTable;
+using BrightData.LinearAlgebra.ReadOnly;
 using FluentAssertions;
 using Xunit;
 
@@ -24,26 +25,24 @@ namespace BrightData.UnitTests
             intColumnBuilder.Add(234);
 
             using var stream = new MemoryStream();
-            builder.WriteTo(stream);
+            await builder.WriteTo(stream);
 
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            using var stringReader = dataTable.ReadColumn<string>(0);
-            stringReader.Values.Count().Should().Be(2);
-            stringReader.Values.Count().Should().Be(2);
+            var stringReader = await dataTable.GetColumn<string>(0).ToArray();
+            stringReader.Length.Should().Be(2);
 
-            using var intReader = dataTable.ReadColumn<int>(1);
-            intReader.Values.Count().Should().Be(2);
-            intReader.Values.Count().Should().Be(2);
+            var intReader = await dataTable.GetColumn<int>(1).ToArray();
+            intReader.Length.Should().Be(2);
 
             var str = dataTable.Get<string>(0, 0);
             var str2 = dataTable.Get<string>(1, 0);
             var val1 = dataTable.Get<int>(0, 1);
             var val2 = dataTable.Get<int>(1, 1);
 
-            var row1 = dataTable.GetRow(0);
-            var row2 = dataTable.GetRow(1);
+            var row1 = dataTable[0];
+            var row2 = dataTable[1];
         }
 
         [Fact]
@@ -55,7 +54,7 @@ namespace BrightData.UnitTests
             indexListBuilder.Add(sampleIndexList);
 
             using var stream = new MemoryStream();
-            builder.WriteTo(stream);
+            await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
@@ -72,7 +71,7 @@ namespace BrightData.UnitTests
             indexListBuilder.Add(sampleIndexList);
 
             using var stream = new MemoryStream();
-            builder.WriteTo(stream);
+            await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
@@ -96,13 +95,15 @@ namespace BrightData.UnitTests
             vectorBuilder.Add(secondVector);
 
             using var stream = new MemoryStream();
-            builder.WriteTo(stream);
+            await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
+            var column = dataTable.GetColumn<ReadOnlyVector>(0);
+            var columnItems = await column.ToArray();
 
-            using var fromTable = dataTable.Get<IReadOnlyVector>(0, 0).Create(_context.LinearAlgebraProvider);
+            using var fromTable = columnItems[0].Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstVector);
-            using var fromTable2 = dataTable.Get<IReadOnlyVector>(1, 0).Create(_context.LinearAlgebraProvider);
+            using var fromTable2 = columnItems[1].Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable2, secondVector);
         }
 
@@ -121,16 +122,16 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            var column = dataTable.GetColumn(0);
-            var columnItems = column.AsDataTableSegment<IReadOnlyMatrix>().Values.ToList();
+            var column = dataTable.GetColumn<ReadOnlyMatrix>(0);
+            var columnItems = await column.ToArray();
             columnItems.Last().Should().BeEquivalentTo(secondMatrix);
 
-            using var fromTable = dataTable.Get<IReadOnlyMatrix>(0, 0).Create(_context.LinearAlgebraProvider);
+            using var fromTable = columnItems[0].Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstMatrix);
-            var fromTable2 = await dataTable.Get<IReadOnlyMatrix>(1, 0);
+            var fromTable2 = columnItems[1];
             CheckSame(fromTable2, secondMatrix);
 
-            dataTable.GetRow(1)[0].Should().BeEquivalentTo(secondMatrix);
+            dataTable[1][0].Should().BeEquivalentTo(secondMatrix);
         }
 
         [Fact]
@@ -175,7 +176,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            using var fromTable = dataTable.Get<IReadOnlyTensor4D>(0, 0).Create(_context.LinearAlgebraProvider);
+            using var fromTable = (await dataTable.Get<IReadOnlyTensor4D>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);
         }
     }

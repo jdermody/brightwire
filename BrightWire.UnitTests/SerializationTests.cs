@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
@@ -23,7 +24,7 @@ namespace BrightWire.UnitTests
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IVectorData output, IVectorData targetOutput)
+            public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
             {
                 return output.GetMaximumIndex() == targetOutput.GetMaximumIndex() ? 1 : 0;
             }
@@ -33,16 +34,16 @@ namespace BrightWire.UnitTests
 
         static GraphModel? _bestNetwork = null;
 
-        static (GraphFactory, IDataSource) MakeGraphAndData(BrightDataContext context)
+        static async Task<(GraphFactory, IDataSource)> MakeGraphAndData(BrightDataContext context)
         {
             var graph = new GraphFactory(context.LinearAlgebraProvider);
-            var data = graph.CreateDataSource(And.Get(context));
+            var data = graph.CreateDataSource(await And.Get(context));
             return (graph, data);
         }
 
         public SerializationTests()
         {
-            var (graph, data) = MakeGraphAndData(_context);
+            var (graph, data) = MakeGraphAndData(_context).Result;
             var errorMetric = new CustomErrorMetric();
             var engine = graph.CreateTrainingEngine(data, errorMetric);
 
@@ -66,9 +67,9 @@ namespace BrightWire.UnitTests
         }
 
         [Fact]
-        public void CreateFromExecutionGraph()
+        public async Task CreateFromExecutionGraph()
         {
-            var (graph, data) = MakeGraphAndData(_context);
+            var (graph, data) = await MakeGraphAndData(_context);
             var engine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(engine, data);
         }

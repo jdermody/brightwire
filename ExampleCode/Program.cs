@@ -250,7 +250,7 @@ namespace ExampleCode
             mnist.TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(BrightDataContext context, bool useMkl)
+        static async Task SentimentClassification(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             var sentiment = context.SentimentData();
@@ -261,7 +261,7 @@ namespace ExampleCode
             // train a multinomial naive bayes classifier
             var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
 
-            var recurrent = sentiment.TrainBiLstm(bernoulli, multinomial);
+            var recurrent = await sentiment.TrainBiLstm(bernoulli, multinomial);
 
             sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }

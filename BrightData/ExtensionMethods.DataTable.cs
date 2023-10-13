@@ -19,6 +19,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Operations;
 using BrightData.Operations.Vectorisation;
+using Microsoft.VisualBasic;
 
 namespace BrightData
 {
@@ -963,10 +964,27 @@ namespace BrightData
             };
         }
 
-        public static async Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversion[] conversions)
+        public static ColumnConversionInfo ConvertColumn(this ColumnConversion conversion, uint columnIndex) => new(columnIndex, conversion);
+
+        public static ColumnConversionInfo ConvertColumn<FT, TT>(this ColumnConversion conversion, uint columnIndex, Func<FT, TT> converter) where FT : notnull where TT : notnull
+        {
+            if (conversion != ColumnConversion.Custom)
+                throw new ArgumentException("Expected custom column conversion");
+            return new CustomColumnConversionInfo<FT, TT>(columnIndex, converter);
+        }
+
+        public static Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversion[] conversions)
+        {
+            return dataTable.Convert(filePath, conversions
+                .Select((x, i) => x.ConvertColumn((uint)i))
+                .ToArray()
+            );
+        }
+
+        public static async Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversionInfo[] conversions)
         {
             var newColumnTable = conversions
-                .Select((x, i) => (Index: (uint)i, Task: dataTable.GetColumn((uint)i).Convert(x)))
+                .Select(x => (Index: x.ColumnIndex, Task: x.Convert(dataTable)))
                 .ToDictionary(x => x.Index, x => x.Task);
 
             using var tempStream = dataTable.Context.CreateTempFileProvider();
@@ -985,16 +1003,6 @@ namespace BrightData
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
             return LoadTableFromStream(dataTable.Context, stream);
-        }
-
-        public static (uint ColumnIndex, ColumnConversion Conversion) ConvertColumn(this ColumnConversion conversion, uint columnIndex) => new(columnIndex, conversion);
-
-        public static Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params (uint ColumnIndex, ColumnConversion Conversion)[] indexedConversions)
-        {
-            var conversions = new ColumnConversion[dataTable.ColumnCount];
-            foreach(var (index, conversion) in indexedConversions)
-                conversions[index] = conversion;
-            return dataTable.Convert(filePath, conversions);
         }
 
         /// <summary>

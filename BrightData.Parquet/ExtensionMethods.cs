@@ -9,6 +9,6 @@ namespace BrightData.Parquet
 {
     public static class ExtensionMethods
     {
-        public static async Task<IDataTable> LoadParquet(this BrightDataContext _, Stream stream) => await ParquetDataTable.Create(stream);
+        //public static async Task<IDataTable> LoadParquet(this BrightDataContext _, Stream stream) => await ParquetDataTable.Create(stream);
     }
 }
