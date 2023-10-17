@@ -4,7 +4,7 @@ namespace BrightData.Operations.Vectorisation
 {
     internal class CategoricalIndexVectorisation<T> : OneHotVectoriser<T> where T: notnull
     {
-        public CategoricalIndexVectorisation() : base(1)
+        public CategoricalIndexVectorisation(bool isOutput) : base(isOutput, 1)
         {
         }
 

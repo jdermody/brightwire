@@ -4,7 +4,7 @@ namespace BrightData.Operations.Vectorisation
 {
     internal class IndexListVectoriser : VectorisationBase<IndexList>
     {
-        public IndexListVectoriser(uint maxIndex) : base(maxIndex + 1)
+        public IndexListVectoriser(bool isOutput, uint maxIndex) : base(isOutput, maxIndex + 1)
         {
         }
 

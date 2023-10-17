@@ -4,7 +4,7 @@ namespace BrightData.Operations.Vectorisation
 {
     internal class TensorVectoriser<T> : VectorisationBase<T> where T: IHaveReadOnlyContiguousSpan<float>
     {
-        public TensorVectoriser(uint outputSize) : base(outputSize)
+        public TensorVectoriser(bool isOutput, uint outputSize) : base(isOutput, outputSize)
         {
         }
 

@@ -34,7 +34,7 @@ namespace BrightWire.UnitTests
             testData.AddRow(6f, 130, 8, "?");
             var testDataTable = await testData.BuildInMemory();
 
-            var model = index.TrainKNearestNeighbours();
+            var model = await index.TrainKNearestNeighbours();
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider, 2);
             var row = testDataTable[0];
             var classification = classifier.Classify(row);

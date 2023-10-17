@@ -22,6 +22,8 @@ namespace BrightData.Operations
             _to = to;
         }
 
+        public uint CopiedCount { get; private set; }
+
         public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var id = Guid.NewGuid();
@@ -40,8 +42,11 @@ namespace BrightData.Operations
                         break;
                     }
                 }
-                for (var i = 0; i < _size; i++)
+
+                for (var i = 0; i < _size; i++) {
                     _to[i].AddObject(enumerators[i].Current);
+                    ++CopiedCount;
+                }
 
                 if(++index % _blockSize == 0)
                     notify?.OnOperationProgress(id, (float)index / _size);

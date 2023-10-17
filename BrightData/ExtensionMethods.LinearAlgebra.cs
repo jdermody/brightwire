@@ -67,7 +67,11 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new ReadOnlyVector(initialData);
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new(initialData);
+
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, Span<float> data) => new(data.ToArray());
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, ReadOnlySpan<float> data) => new(data.ToArray());
+
 
         /// <summary>
         /// Creates a vector from a binary reader

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -299,12 +300,9 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="size">Number of rows to return</param>
         /// <returns></returns>
-        public static List<object[]> Head(this IDataTable dataTable, uint size = 10) => dataTable
+        public static Task<TableRow[]> Head(this IDataTable dataTable, uint size = 10) => dataTable
             .EnumerateRows()
-            .ToBlockingEnumerable()
-            .Select(d => d.Values)
-            .Take((int)size)
-            .ToList()
+            .ToArray(size)
         ;
 
         /// <summary>
@@ -316,16 +314,22 @@ namespace BrightData
         public static IDataTable LoadTable(this BrightDataContext context, string filePath) => new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
 
         /// <summary>
-        /// Sets the target column of the data table
+        /// Sets the target column across an array of meta data
         /// </summary>
-        /// <param name="table"></param>
+        /// <param name="metaData"></param>
         /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
-        public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
+        public static void SetTargetColumn(this MetaData[] metaData, uint? columnIndex)
         {
-            var metaData = table.ColumnMetaData;
             for (int i = 0, len = metaData.Length; i < len; i++)
                 metaData[i].Set(Consts.IsTarget, i == columnIndex);
         }
+
+        /// <summary>
+        /// Sets the target column of the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
+        public static void SetTargetColumn(this IDataTable dataTable, uint? columnIndex) => dataTable.ColumnMetaData.SetTargetColumn(columnIndex);
 
         /// <summary>
         /// Returns the target column of the data table
@@ -477,13 +481,6 @@ namespace BrightData
 
                 yield return (await writer1.BuildInMemory(), await writer2.BuildInMemory());
             }
-        }
-
-        public static async Task<IDataTable> BuildInMemory(this IBuildDataTables builder)
-        {
-            var stream = new MemoryStream();
-            await builder.WriteTo(stream);
-            return LoadTableFromStream(builder.Context, stream);
         }
 
         /// <summary>
@@ -701,23 +698,22 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static (string Classification, IVector Data)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
+        public static (string Classification, IReadOnlyVector Data)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            var lap = context.LinearAlgebraProvider;
             var index = 0;
-            var ret = new (string Classification, IVector Data)[data.Length];
+            var ret = new (string Classification, IReadOnlyVector Data)[data.Length];
 
             foreach (ref var item in data)
                 ret[index++] = (item.Label, Create(item.Data));
             return ret;
 
-            IVector Create(WeightedIndexList weightedIndexList)
+            IReadOnlyVector Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
                 foreach (ref readonly var item in weightedIndexList.ReadOnlySpan)
                     ret[item.Index] = item.Weight;
-                return lap.CreateVector(ret);
+                return context.CreateReadOnlyVector(ret);
             }
         }
 
@@ -1228,7 +1224,7 @@ namespace BrightData
         {
             var ret = new T[dataTable.RowCount];
             uint index = 0;
-            await foreach (var row in dataTable.EnumerateRows().WithCancellation(ct)) {
+            await foreach (var row in dataTable.EnumerateRows(ct)) {
                 ret[index++] = mapper(row);
             }
             return ret;
@@ -1426,9 +1422,9 @@ namespace BrightData
                 }
 
                 if(buffer.DataType == typeof(IndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), size);
+                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), metaData.IsTarget(), size);
                 if(buffer.DataType == typeof(WeightedIndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), size);
+                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), metaData.IsTarget(), size);
                 throw new NotSupportedException();
             }
 
@@ -1441,7 +1437,7 @@ namespace BrightData
                     if (size == 0)
                         throw new Exception("Expected to find a distinct size of items");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), size);
+                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget(), size);
             }
 
             static async Task<ICanVectorise> GetTensorVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
@@ -1453,7 +1449,7 @@ namespace BrightData
                     if (size == 0)
                         throw new Exception("Expected to find non empty tensors");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(buffer.DataType), size);
+                return GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget(), size);
             }
         }
 
@@ -1471,36 +1467,34 @@ namespace BrightData
             return new VectorisationModel(vectorisers);
         }
 
-        public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBuffer[] buffers, bool oneHotEncodeCategoricalData, params MetaData[] metaData)
-        {
-            var first = buffers[0];
-            if (buffers.Skip(1).Any(x => x.Size != first.Size || x.BlockSize != first.BlockSize))
-                throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
+        //public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBuffer[] buffers, bool oneHotEncodeCategoricalData, params MetaData[] metaData)
+        //{
+        //    var first = buffers[0];
+        //    if (buffers.Skip(1).Any(x => x.Size != first.Size || x.BlockSize != first.BlockSize))
+        //        throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
 
-            Task<ICanVectorise>[] createTasks;
-            var shouldUpdateMetaData = false;
-            if (metaData.Length == buffers.Length) {
-                createTasks = buffers.Select((x, i) => GetVectoriser(x, metaData[i], oneHotEncodeCategoricalData)).ToArray();
-                shouldUpdateMetaData = true;
-            }else switch (metaData.Length) {
-                case 0: {
-                    var tempMetaData = new MetaData();
-                    createTasks = buffers.Select(x => GetVectoriser(x, tempMetaData, oneHotEncodeCategoricalData)).ToArray();
-                    break;
-                }
-                case 1: {
-                    var firstMetaData = metaData[0];
-                    createTasks = buffers.Select(x => GetVectoriser(x, firstMetaData, oneHotEncodeCategoricalData)).ToArray();
-                    break;
-                }
-                default:
-                    throw new ArgumentException("Expected either one, zero or a matching count of meta data", nameof(metaData));
-            }
+        //    Task<ICanVectorise>[] createTasks;
+        //    if (metaData.Length == buffers.Length) {
+        //        createTasks = buffers.Select((x, i) => GetVectoriser(x, metaData[i], oneHotEncodeCategoricalData)).ToArray();
+        //    }else switch (metaData.Length) {
+        //        case 0: {
+        //            var tempMetaData = new MetaData();
+        //            createTasks = buffers.Select(x => GetVectoriser(x, tempMetaData, oneHotEncodeCategoricalData)).ToArray();
+        //            break;
+        //        }
+        //        case 1: {
+        //            var firstMetaData = metaData[0];
+        //            createTasks = buffers.Select(x => GetVectoriser(x, firstMetaData, oneHotEncodeCategoricalData)).ToArray();
+        //            break;
+        //        }
+        //        default:
+        //            throw new ArgumentException("Expected either one, zero or a matching count of meta data", nameof(metaData));
+        //    }
 
-            await Task.WhenAll(createTasks);
-            var vectorisers = createTasks.Select(x => x.Result).ToArray();
-            return new VectorisationModel(vectorisers);
-        }
+        //    await Task.WhenAll(createTasks);
+        //    var vectorisers = createTasks.Select(x => x.Result).ToArray();
+        //    return new VectorisationModel(vectorisers);
+        //}
 
         public static VectorisationModel GetVectoriser(this MetaData[] metaData)
         {
@@ -1515,16 +1509,18 @@ namespace BrightData
                 if(size == 0)
                     throw new ArgumentException("Expected meta data to contain a vectorisation size");
                 var dataType = item.GetColumnType().GetDataType();
+                var isOutput = item.IsTarget();
 
-                vectorisers[index++] = type switch {
-                    VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), size),
-                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(size),
-                    VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType)),
-                    VectorisationType.IndexList         => new IndexListVectoriser(size),
-                    VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType)),
-                    VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), size),
+                var vectoriser = vectorisers[index++] = type switch {
+                    VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), isOutput, size),
+                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(isOutput, size),
+                    VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType), isOutput),
+                    VectorisationType.IndexList         => new IndexListVectoriser(isOutput, size),
+                    VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType), isOutput),
+                    VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), isOutput, size),
                     _                                   => throw new NotImplementedException()
                 };
+                vectoriser.ReadFrom(item);
             }
 
             return new VectorisationModel(vectorisers);
@@ -1618,5 +1614,30 @@ namespace BrightData
             }
             return builder;
         }
+
+        public static async Task<IDataTable> CreateTable(this BrightDataContext context, IReadOnlyBufferWithMetaData[] buffers, MetaData? tableMetaData = null, string? filePath = null)
+        {
+            var builder = context.CreateTableBuilder();
+            builder.CreateColumnsFrom(buffers);
+            tableMetaData?.CopyTo(builder.TableMetaData);
+            await builder.Add(buffers);
+            return await builder.Build(filePath);
+        }
+
+        public static async Task<IDataTable> Build(this IBuildDataTables builder, string? filePath)
+        {
+            await using Stream stream = (filePath is null)
+                ? new MemoryStream()
+                : new FileStream(filePath, FileMode.Create, FileAccess.Write);
+            await builder.WriteTo(stream);
+            return LoadTableFromStream(builder.Context, stream);
+        }
+
+        /// <summary>
+        /// Builds a data table in memory
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static Task<IDataTable> BuildInMemory(this IBuildDataTables builder) => Build(builder, null);
     }
 }

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
@@ -17,7 +18,7 @@ namespace BrightWire.UnitTests
 		}
 
         [Fact]
-		public void DefaultDataSource()
+		public async Task DefaultDataSource()
 		{
 			var builder = _context.CreateTableBuilder();
 			builder.CreateColumn(BrightDataType.Float, "val1");
@@ -30,7 +31,7 @@ namespace BrightWire.UnitTests
 			builder.AddRow(0.7f, 0.5, "b", "c");
 			builder.AddRow(0.2f, 0.6, "a", "d");
 
-			var table = builder.BuildInMemory();
+			var table = await builder.BuildInMemory();
             var dataSource = _factory.CreateDataSource(table);
 			var miniBatch = dataSource.Get(new uint[] { 1 });
 			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetRowAsReadOnly(0);

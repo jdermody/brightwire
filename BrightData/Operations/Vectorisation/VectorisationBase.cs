@@ -8,14 +8,16 @@ namespace BrightData.Operations.Vectorisation
     {
         readonly float[] _output;
 
-        protected VectorisationBase(uint outputSize)
+        protected VectorisationBase(bool isOutput, uint outputSize)
         {
             _output = new float[outputSize];
+            IsOutput = isOutput;
         }
 
         public uint OutputSize => (uint)_output.Length;
 
         protected abstract void Vectorise(in T item, Span<float> buffer);
+        public bool IsOutput { get; }
         public abstract VectorisationType Type { get; }
 
         public async Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output)
@@ -27,6 +29,7 @@ namespace BrightData.Operations.Vectorisation
         }
 
         public void Vectorise(object obj, Span<float> output) => Vectorise((T)obj, output);
+        public virtual string? ReverseVectorise(uint index) => null;
 
         void WriteBlock(ReadOnlySpan<T> block, uint offset, Span2D<float> output)
         {

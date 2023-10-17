@@ -15,8 +15,8 @@ namespace BrightData.DataTable
     /// </summary>
     internal class ColumnOrientedDataTableBuilder : IBuildDataTables
     {
-        readonly int                   _blockSize;
-        readonly uint?                 _maxInMemoryBlocks;
+        readonly int                    _blockSize;
+        readonly uint?                  _maxInMemoryBlocks;
         readonly IProvideTempData?      _tempData;
         readonly List<ICompositeBuffer> _columns = new();
 
@@ -33,6 +33,9 @@ namespace BrightData.DataTable
         }
 
         public MetaData TableMetaData { get; } = new();
+        public MetaData[] ColumnMetaData => _columns.Select(x => x.MetaData).ToArray();
+        public uint RowCount { get; private set; }
+        public uint ColumnCount => (uint)_columns.Count;
         public BrightDataContext Context { get; }
 
         internal static string DefaultColumnName(string? name, int numColumns)
@@ -79,6 +82,11 @@ namespace BrightData.DataTable
             return ret;
         }
 
+        public ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers)
+        {
+            return buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData)).ToArray();
+        }
+
         public ICompositeBuffer<T> CreateColumn<T>(string? name = null)
             where T : notnull
         {
@@ -90,16 +98,19 @@ namespace BrightData.DataTable
         {
             for(int i = 0, len = items.Length; i < len; i++)
                 _columns[i].AddObject(items[i]);
+            ++RowCount;
         }
 
         public Task Add(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
         {
-            return new ManyToManyCopy(buffers, _columns).Process(null, null, ct);
+            var copy = new ManyToManyCopy(buffers, _columns);
+            return copy.Process(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
         }
 
         public Task Add(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
         {
-            return new ManyToManyCopy(buffers, _columns).Process(null, null, ct);
+            var copy = new ManyToManyCopy(buffers, _columns);
+            return copy.Process(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
         }
 
         public Task WriteTo(Stream stream)

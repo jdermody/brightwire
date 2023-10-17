@@ -1,9 +1,6 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 
@@ -71,6 +68,14 @@ namespace BrightData.Analysis
 
             for (int i = 0, len = buffers.Length; i < len; i++)
                 _vectorisers[i].WriteTo(buffers[i].MetaData);
+        }
+
+        public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(columnIndices));
+
+        public virtual string? GetOutputLabel(uint index)
+        {
+            var outputVectoriser = _vectorisers.SingleOrDefault(x => x.IsOutput);
+            return outputVectoriser?.ReverseVectorise(index);
         }
 
         async IAsyncEnumerable<float[,]> Vectorise<T>(T[] buffers) where T: IReadOnlyBuffer

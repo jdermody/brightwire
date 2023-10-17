@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
@@ -9,7 +10,7 @@ namespace BrightWire.UnitTests
     public class NeuralNetworkTests : UnitTestBase
     {
         [Fact]
-        public void SimpleLinear()
+        public async Task SimpleLinear()
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
@@ -20,7 +21,7 @@ namespace BrightWire.UnitTests
             builder.AddRow(0.3f, 0.6f);
             builder.AddRow(0.4f, 0.8f);
             builder.AddRow(0.5f, 1f);
-            using var table = builder.BuildInMemory();
+            using var table = await builder.BuildInMemory();
 
             // train a simple neural network
             var graph = _context.CreateGraphFactory();
@@ -43,7 +44,7 @@ namespace BrightWire.UnitTests
         }
 
         [Fact]
-        public void SimpleLinearNormalised()
+        public async Task SimpleLinearNormalised()
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
@@ -54,10 +55,10 @@ namespace BrightWire.UnitTests
             builder.AddRow(3000, 6000);
             builder.AddRow(4000, 8000);
             builder.AddRow(5000, 10000);
-            using var table = builder.BuildInMemory();
+            using var table = await builder.BuildInMemory();
 
             // normalize the inputs
-            using var normalized = table.Normalize(NormalizationType.FeatureScale);
+            using var normalized = await table.Normalize(NormalizationType.FeatureScale);
             var inputNormalization = normalized.GetColumnNormalization(0);
             var outputNormalization = normalized.GetColumnNormalization(1);
 

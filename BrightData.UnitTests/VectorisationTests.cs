@@ -59,13 +59,12 @@ namespace BrightData.UnitTests
         {
             var table = await GetTable();
             var vectoriser1 = await table.GetVectoriser(false);
-            var vector1 = vectoriser1.Enumerate().Single();
+            var vector1 = await vectoriser1.Vectorise(table).ToFloatVectors();
 
-            var reader = new BinaryReader(new MemoryStream(vectoriser1.GetData()), Encoding.UTF8);
-            var vectoriser2 = table.LoadVectoriser(reader);
-            var vector2 = vectoriser2.Enumerate().Single();
+            var vectoriser2 = table.ColumnMetaData.GetVectoriser();
+            var vector2 = vectoriser2.Vectorise(table).ToFloatVectors();
 
-            vector1.Should().BeEquivalentTo(vector2);
+            vector1.Should().AllBeEquivalentTo(vector2);
         }
 
         [Fact]
@@ -73,9 +72,9 @@ namespace BrightData.UnitTests
         {
             var table = await GetTable2();
             var vectoriser = await table.GetVectoriser(false, 0);
-            var output = vectoriser.Enumerate().ToList();
+            var output = await vectoriser.Vectorise(table).ToFloatVectors();
             output.Count.Should().Be(3);
-            output[0].Size.Should().Be(1);
+            output[0].Length.Should().Be(1);
             output[0][0].Should().Be(0);
             output[2][0].Should().Be(2);
 
@@ -89,9 +88,9 @@ namespace BrightData.UnitTests
         {
             var table = await GetTable2();
             var vectoriser = await table.GetVectoriser(true, 0);
-            var output = vectoriser.Enumerate().ToList();
+            var output = await vectoriser.Vectorise(table).ToFloatVectors();
             output.Count.Should().Be(3);
-            output[0].Size.Should().Be(3);
+            output[0].Length.Should().Be(3);
             output[0][0].Should().Be(1);
             output[2][2].Should().Be(1);
 
@@ -106,8 +105,8 @@ namespace BrightData.UnitTests
             var table = await GetTable();
             var row = table[0];
             var rowValues = row.ToArray();
-            var vectoriser = table.GetVectoriser(false);
-            var vector1 = vectoriser.Enumerate().Single().Segment.ToNewArray();
+            var vectoriser = await table.GetVectoriser(false);
+            var vector1 = await vectoriser.Vectorise(table).ToFloatVectors();
             var vector2 = vectoriser.Vectorise(row);
             var vector3 = vectoriser.Vectorise(rowValues);
 

@@ -8,7 +8,7 @@ namespace BrightData.Operations.Vectorisation
     {
         protected readonly Dictionary<string, uint> _table = new();
         
-        public OneHotVectoriser(uint maxSize) : base(maxSize)
+        public OneHotVectoriser(bool isOutput, uint maxSize) : base(isOutput, maxSize)
         {
         }
 
@@ -22,6 +22,8 @@ namespace BrightData.Operations.Vectorisation
             }
             buffer[(int)index] = 1f;
         }
+
+        public override string? ReverseVectorise(uint index) => _table.Where(x => x.Value == index).Select(x => x.Key).FirstOrDefault();
 
         public override VectorisationType Type => VectorisationType.OneHot;
 

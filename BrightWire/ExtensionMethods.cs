@@ -75,7 +75,7 @@ namespace BrightWire
         public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
             var data = dataTable.GetRowsAsLabeledFeatures(true).ToDictionary(d => d.Vector.ToReadOnlyVector());
-            return data.Keys.HierarchicalCluster(k)
+            return data.Keys.HierarchicalCluster(dataTable.Context.LinearAlgebraProvider, k)
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 

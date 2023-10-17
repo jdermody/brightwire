@@ -49,6 +49,18 @@ namespace BrightData
             _indices = data.Cast<byte, Item>().ToArray();
         }
 
+        public WeightedIndexList(ReadOnlySpan<float> data)
+        {
+            var list = new List<Item>();
+            uint index = 0;
+            foreach (var item in data) {
+                if (FloatMath.IsNotZero(item))
+                    list.Add(new (index, item));
+                ++index;
+            }
+            _indices = list.ToArray();
+        }
+
         /// <summary>
         /// Weighted indices
         /// </summary>

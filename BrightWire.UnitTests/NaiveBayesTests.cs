@@ -35,7 +35,7 @@ namespace BrightWire.UnitTests
             testData.AddRow(6f, 130, 8, "?");
             var testDataTable = await testData.BuildInMemory();
 
-            var model = index.TrainNaiveBayes();
+            var model = await index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
             var row = testDataTable[0];
             var classification = classifier.Classify(row);

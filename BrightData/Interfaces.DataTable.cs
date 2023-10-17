@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -503,10 +504,12 @@ namespace BrightData
 
     public interface ICanVectorise : IWriteToMetaData, IReadFromMetaData
     {
+        bool IsOutput { get; }
         VectorisationType Type { get; }
         uint OutputSize { get; }
         Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output);
         void Vectorise(object obj, Span<float> output);
+        string? ReverseVectorise(uint index);
     }
 
     public interface IBuildDataTables : IHaveBrightDataContext
@@ -517,11 +520,22 @@ namespace BrightData
         MetaData TableMetaData { get; }
 
         /// <summary>
+        /// Per column meta data
+        /// </summary>
+        MetaData[] ColumnMetaData { get; }
+
+        uint RowCount { get; }
+
+        uint ColumnCount { get; }
+
+        /// <summary>
         /// Copies existing column definitions from another table
         /// </summary>
         /// <param name="table">Other table</param>
         /// <param name="columnIndices">Indices of column definitions to copy</param>
         ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices);
+
+        ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers);
 
         /// <summary>
         /// Adds a new column
@@ -552,6 +566,9 @@ namespace BrightData
         /// </summary>
         /// <param name="items"></param>
         void AddRow(params object[] items);
+
+        Task Add(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default);
+        public Task Add(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default);
 
         /// <summary>
         /// Writes the data table to a stream

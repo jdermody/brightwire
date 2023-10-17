@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
+using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -80,6 +81,18 @@ namespace BrightData
         }
 
         public IndexList(ReadOnlyMemory<uint> indices) => _indices = indices;
+
+        public IndexList(ReadOnlySpan<float> data)
+        {
+            var list = new List<uint>();
+            uint index = 0;
+            foreach (var item in data) {
+                if (FloatMath.IsNotZero(item))
+                    list.Add(index);
+                ++index;
+            }
+            _indices = list.ToArray();
+        }
 
         /// <summary>
         /// Creates an index list from a byte span

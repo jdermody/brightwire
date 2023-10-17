@@ -16,6 +16,7 @@ using System.Threading;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -702,6 +703,74 @@ namespace BrightData
                 buffer.Advance(1);
             }
             return buffer.WrittenMemory;
+        }
+
+        public static async Task<T[]> ToArray<T>(this IAsyncEnumerable<T> enumerable, uint size)
+        {
+            var ret = new T[size];
+            var index = 0;
+            await foreach (var item in enumerable) {
+                if (index >= ret.Length)
+                    break;
+                ret[index++] = item;
+            }
+            return ret;
+        }
+
+        public static async Task<List<float[]>> ToFloatVectors(this IAsyncEnumerable<float[,]> vectorData)
+        {
+            var ret = new List<float[]>();
+            await foreach (var vector in vectorData)
+                AddRows(vector, ret);
+            return ret;
+
+            static void AddRows(Span2D<float> data, List<float[]> output)
+            {
+                for(var i = 0; i < data.Height; i++)
+                    output.Add(data.GetRowSpan(i).ToArray());
+            }
+        }
+
+        public static async Task<IReadOnlyBufferWithMetaData<ReadOnlyVector>> ToVectors(this IAsyncEnumerable<float[,]> vectorData)
+        {
+            var ret = (ICompositeBuffer<ReadOnlyVector>)BrightDataType.Vector.CreateCompositeBuffer();
+            await foreach (var vector in vectorData)
+                AddRows(vector, ret);
+            return ret;
+
+            static void AddRows(Span2D<float> data, ICompositeBuffer<ReadOnlyVector> output)
+            {
+                for(var i = 0; i < data.Height; i++)
+                    output.Add(new ReadOnlyVector(data.GetRowSpan(i).ToArray()));
+            }
+        }
+
+        public static async Task<IReadOnlyBufferWithMetaData<IndexList>> ToIndexLists(this IAsyncEnumerable<float[,]> vectorData)
+        {
+            var ret = (ICompositeBuffer<IndexList>)BrightDataType.IndexList.CreateCompositeBuffer();
+            await foreach (var vector in vectorData)
+                AddRows(vector, ret);
+            return ret;
+
+            static void AddRows(Span2D<float> data, ICompositeBuffer<IndexList> output)
+            {
+                for(var i = 0; i < data.Height; i++)
+                    output.Add(new IndexList(data.GetRowSpan(i)));
+            }
+        }
+
+        public static async Task<IReadOnlyBufferWithMetaData<WeightedIndexList>> ToWeightedIndexLists(this IAsyncEnumerable<float[,]> vectorData)
+        {
+            var ret = (ICompositeBuffer<WeightedIndexList>)BrightDataType.IndexList.CreateCompositeBuffer();
+            await foreach (var vector in vectorData)
+                AddRows(vector, ret);
+            return ret;
+
+            static void AddRows(Span2D<float> data, ICompositeBuffer<WeightedIndexList> output)
+            {
+                for(var i = 0; i < data.Height; i++)
+                    output.Add(new WeightedIndexList(data.GetRowSpan(i)));
+            }
         }
     }
 }

@@ -36,14 +36,19 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => ColumnConversion.ToNumeric.ConvertColumn(i))
                 .Concat(targetColumns.Select(i => ColumnConversion.ToBoolean.ConvertColumn(i)))
                 .ToArray();
-            using var converted = table.Convert(columnConversions);
+            using var converted = await table.Convert(null, columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
             using var tempStreams = context.CreateTempFileProvider();
-            var reinterpreted = converted.ReinterpretColumns(tempStreams, null, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
-            reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
-
-            return reinterpreted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
+            var vectoriser = await converted.GetColumns(featureColumns).GetVectoriser(true);
+            var featureIndexLists = await vectoriser.Vectorise(converted.GetColumns(featureColumns)).ToIndexLists();
+            var targetIndexLists = await vectoriser.Vectorise(converted.GetColumns(targetColumns)).ToIndexLists();
+            var finalTable = await context.CreateTable(new IReadOnlyBufferWithMetaData [] {
+                featureIndexLists, 
+                targetIndexLists
+            }, converted.MetaData);
+            finalTable.SetTargetColumn(finalTable.ColumnCount-1);
+            return finalTable;
 
         }
 
@@ -51,13 +56,13 @@ namespace ExampleCode.DataTableTrainers
         {
             // converts the index list to a boolean based on if the flag is set
             var ret = await table.Project(r => {
-                var ret2 = (object[]) r.Clone();
-                var indexList = (IndexList) ret2[r.Length - 1];
-                ret2[r.Length - 1] = indexList.HasIndex(indexOffset);
-                return ret2;
+                var ret = r.Values;
+                var indexList = (IndexList) ret[r.Size - 1];
+                ret[r.Size - 1] = indexList.HasIndex(indexOffset);
+                return ret;
             });
-            ret.SetTargetColumn(ret.ColumnCount-1);
-            return ret;
+            ret.ColumnMetaData.SetTargetColumn(ret.ColumnCount-1);
+            return await ret.BuildInMemory();
         }
 
         public void TrainNeuralNetwork()

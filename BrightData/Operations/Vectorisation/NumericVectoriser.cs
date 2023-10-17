@@ -7,7 +7,7 @@ namespace BrightData.Operations.Vectorisation
     {
         readonly ICanConvert<T, float> _converter;
 
-        public NumericVectoriser() : base(1)
+        public NumericVectoriser(bool isOutput) : base(isOutput, 1)
         {
             _converter = StaticConverters.GetConverterToFloat<T>();
         }

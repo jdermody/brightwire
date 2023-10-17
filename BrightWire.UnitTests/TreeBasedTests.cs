@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
             var data = await NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false).AsSpan()
                 .ConvertToTable(_context);
-            var model = data.TrainRandomForest();
+            var model = await data.TrainRandomForest();
             var classifier = model.CreateClassifier();
             var testRows = (await data.GetRows()).ToArray();
             classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
