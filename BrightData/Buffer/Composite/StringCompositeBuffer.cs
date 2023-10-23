@@ -8,16 +8,22 @@ namespace BrightData.Buffer.Composite
 {
     class StringCompositeBuffer : CompositeBufferBase<string, StringCompositeBuffer.Block>
     {
-        const int HeaderSize = 8;
+        internal const int HeaderSize = 8;
         internal record Block(string[] Data) : ICompositeBufferBlock<string>
         {
+            public Block(string[] data, bool existing) : this(data)
+            {
+                if (existing)
+                    Size = (uint)data.Length;
+            }
+
             public uint Size { get; private set; }
             public ref string GetNext() => ref Data[Size++];
             public bool HasFreeCapacity => Size < Data.Length;
             public ReadOnlySpan<string> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<string> WrittenMemory => new(Data, 0, (int)Size);
 
-            public void WriteTo(ITempData file)
+            public ValueTask WriteTo(IDataBlock file)
             {
                 var offset = file.Size;
                 var startOffset = offset += HeaderSize;
@@ -29,20 +35,20 @@ namespace BrightData.Buffer.Composite
                         offset += (uint)bytes.Length;
                     });
                 }
-                var blockSize = (uint)(offset - startOffset);
-                Span<byte> lengthBytes = stackalloc byte[8];
-                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes, blockSize);
-                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes[4..], Size);
-                file.Write(lengthBytes, startOffset - HeaderSize);
+                var blockSize = offset - startOffset;
+                Memory<byte> lengthBytes = new byte[8];
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span, blockSize);
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span[4..], Size);
+                return file.WriteAsync(lengthBytes, startOffset - HeaderSize);
             }
         }
 
         public StringCompositeBuffer(
-            IProvideTempData? tempStreams = null,
+            IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
         }
 
@@ -60,14 +66,14 @@ namespace BrightData.Buffer.Composite
             base.Add(item);
         }
 
-        protected override async Task<uint> SkipFileBlock(ITempData file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IDataBlock file, uint offset)
         {
             var lengthBytes = new byte[4];
             await file.ReadAsync(lengthBytes, offset);
             return HeaderSize + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<string>)> GetBlockFromFile(ITempData file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<string>)> GetBlockFromFile(IDataBlock file, uint offset)
         {
             var (numStrings, block) = await ReadBlock(file, offset);
             try
@@ -87,7 +93,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<string> callback)
+        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<string> callback)
         {
             var (numStrings, block) = await ReadBlock(file, offset);
             try
@@ -108,7 +114,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(ITempData file, uint offset)
+        async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IDataBlock file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);

@@ -881,7 +881,7 @@ namespace BrightData
                 .Select(i => (Index: i, Task: GetNormalization(dataTable.GetColumn(i), type)))
                 .ToDictionary(x => x.Index, x => x.Task);
 
-            using var tempStream = dataTable.Context.CreateTempFileProvider();
+            using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
             writer.CreateColumnsFrom(dataTable);
             var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
@@ -912,7 +912,7 @@ namespace BrightData
                 .Select((x, i) => (Index: (uint)i, Task: GetNormalization(dataTable.GetColumn((uint)i), x)))
                 .ToDictionary(x => x.Index, x => x.Task);
 
-            using var tempStream = dataTable.Context.CreateTempFileProvider();
+            using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
             writer.CreateColumnsFrom(dataTable);
             var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
@@ -933,7 +933,7 @@ namespace BrightData
         public static async Task<IReadOnlyBufferWithMetaData> Convert(
             this IReadOnlyBufferWithMetaData buffer, 
             ColumnConversion conversion,
-            IProvideTempData? tempStreams = null, 
+            IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
@@ -983,7 +983,7 @@ namespace BrightData
                 .Select(x => (Index: x.ColumnIndex, Task: x.Convert(dataTable)))
                 .ToDictionary(x => x.Index, x => x.Task);
 
-            using var tempStream = dataTable.Context.CreateTempFileProvider();
+            using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
             writer.CreateColumnsFrom(dataTable);
             var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
@@ -1169,7 +1169,7 @@ namespace BrightData
                 foreach (var column in columns)
                     column.MetaData.Set(Consts.ColumnIndex, columnIndex++);
 
-                using var tempStream = context.CreateTempFileProvider();
+                using var tempStream = context.CreateTempDataBlockProvider();
                 var writer = new ColumnOrientedDataTableWriter(context, tempStream);
                 return writer.Write(tableMetaData, columns, stream);
             }

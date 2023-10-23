@@ -376,7 +376,7 @@ namespace BrightData
         TableRow this[uint index] { get; }
     }
 
-    public interface ITempData : IDisposable, IHaveSize
+    public interface IDataBlock : IDisposable, IHaveSize
     {
         public Guid Id { get; }
         void Write(ReadOnlySpan<byte> data, uint offset);
@@ -385,9 +385,9 @@ namespace BrightData
         Task<uint> ReadAsync(Memory<byte> data, uint offset);
     }
 
-    public interface IProvideTempData : IDisposable
+    public interface IProvideDataBlocks : IDisposable
     {
-        ITempData Get(Guid id);
+        IDataBlock Get(Guid id);
         void Clear();
     }
 
@@ -430,6 +430,7 @@ namespace BrightData
     public interface ICompositeBuffer : IReadOnlyBufferWithMetaData, IHaveDistinctItemCount, IAppendToBuffer
     {
         public Guid Id { get; }
+        Task WriteTo(Stream stream);
     }
 
     public interface IAppendToBuffer<T> : IAppendToBuffer where T: notnull

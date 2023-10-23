@@ -39,7 +39,7 @@ namespace ExampleCode.DataTableTrainers
             using var converted = await table.Convert(null, columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var tempStreams = context.CreateTempFileProvider();
+            using var tempStreams = context.CreateTempDataBlockProvider();
             var vectoriser = await converted.GetColumns(featureColumns).GetVectoriser(true);
             var featureIndexLists = await vectoriser.Vectorise(converted.GetColumns(featureColumns)).ToIndexLists();
             var targetIndexLists = await vectoriser.Vectorise(converted.GetColumns(targetColumns)).ToIndexLists();

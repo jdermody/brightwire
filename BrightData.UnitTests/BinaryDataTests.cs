@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using BrightData.Serialisation;
 using Xunit;
+using System;
 
 namespace BrightData.UnitTests
 {

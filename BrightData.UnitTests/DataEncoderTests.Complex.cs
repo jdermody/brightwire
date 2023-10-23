@@ -74,30 +74,30 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeIndexList()
         {
-            Encode(_context.Context.CreateIndexList(1, 2, 3), options => options.ComparingByMembers<IndexList>());
+            Encode(IndexList.Create(1, 2, 3), options => options.ComparingByMembers<IndexList>());
         }
 
         [Fact]
         public void EncodeIndexListArray()
         {
             EncodeArray(new [] {
-                _context.Context.CreateIndexList(1, 2, 3),
-                _context.Context.CreateIndexList(2, 3, 4)
+                IndexList.Create(1, 2, 3),
+                IndexList.Create(2, 3, 4)
             }, options => options.ComparingByMembers<IndexList>());
         }
 
         [Fact]
         public void EncodeWeightedIndexList()
         {
-            Encode(_context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)), options => options.ComparingByMembers<WeightedIndexList>());
+            Encode(WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)), options => options.ComparingByMembers<WeightedIndexList>());
         }
 
         [Fact]
         public void EncodeWeightedIndexListArray()
         {
             EncodeArray(new [] {
-                _context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)),
-                _context.Context.CreateWeightedIndexList((2, 1f), (3, 0.5f), (4, 0f)),
+                WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)),
+                WeightedIndexList.Create((2, 1f), (3, 0.5f), (4, 0f)),
             }, options => options.ComparingByMembers<WeightedIndexList>());
         }
 

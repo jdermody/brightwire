@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Buffer.ReadOnly
+namespace BrightData.Buffer.ReadOnly.Helper
 {
     public delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
-    internal class MappedReadOnlyBuffer<IT, T> : IReadOnlyBufferWithMetaData<T> 
+    internal class MappedReadOnlyBuffer<IT, T> : IReadOnlyBufferWithMetaData<T>
         where IT : notnull
-        where T : notnull 
+        where T : notnull
     {
         readonly IReadOnlyBufferWithMetaData<IT> _index;
         readonly BlockMapper<IT, T> _mapper;
@@ -28,7 +28,8 @@ namespace BrightData.Buffer.ReadOnly
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify, string? msg, CancellationToken ct = default)
         {
-            await _index.ForEachBlock(x => {
+            await _index.ForEachBlock(x =>
+            {
                 var mapped = _mapper(x);
                 callback(mapped.Span);
             }, notify, msg, ct);
@@ -58,7 +59,8 @@ namespace BrightData.Buffer.ReadOnly
 
         public async IAsyncEnumerable<T> EnumerateAllTyped()
         {
-            for (uint i = 0; i < BlockCount; i++) {
+            for (uint i = 0; i < BlockCount; i++)
+            {
                 var block = await GetTypedBlock(i);
                 for (var j = 0; j < block.Length; j++)
                     yield return block.Span[j];
@@ -67,7 +69,7 @@ namespace BrightData.Buffer.ReadOnly
 
         public async IAsyncEnumerable<object> EnumerateAll()
         {
-            await foreach(var item in EnumerateAllTyped())
+            await foreach (var item in EnumerateAllTyped())
                 yield return item;
         }
 

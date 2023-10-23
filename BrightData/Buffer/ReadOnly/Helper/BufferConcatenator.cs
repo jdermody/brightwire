@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Buffer.ReadOnly
+namespace BrightData.Buffer.ReadOnly.Helper
 {
-    internal class BufferConcatenator<T> : IReadOnlyBufferWithMetaData<T> where T: notnull
+    internal class BufferConcatenator<T> : IReadOnlyBufferWithMetaData<T> where T : notnull
     {
         readonly IReadOnlyBufferWithMetaData<T>[] _buffers;
 
@@ -17,7 +17,8 @@ namespace BrightData.Buffer.ReadOnly
             var size = first.Size;
             var blockCount = first.BlockCount;
             MetaData = first.MetaData;
-            foreach (var buffer in buffers.Skip(1)) {
+            foreach (var buffer in buffers.Skip(1))
+            {
                 if (first.BlockSize != buffer.BlockSize)
                     throw new ArgumentException("All buffer block sizes must be the same");
                 size += buffer.Size;
@@ -37,8 +38,9 @@ namespace BrightData.Buffer.ReadOnly
 
         public async IAsyncEnumerable<object> EnumerateAll()
         {
-            foreach (var buffer in _buffers) {
-                await foreach(var item in buffer.EnumerateAll())
+            foreach (var buffer in _buffers)
+            {
+                await foreach (var item in buffer.EnumerateAll())
                     yield return item;
             }
         }
@@ -52,7 +54,8 @@ namespace BrightData.Buffer.ReadOnly
         public Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             uint curr = 0;
-            foreach (var buffer in _buffers) {
+            foreach (var buffer in _buffers)
+            {
                 if (blockIndex < curr + buffer.BlockCount)
                     return buffer.GetTypedBlock(curr - blockIndex);
                 curr += buffer.BlockCount;
@@ -62,8 +65,9 @@ namespace BrightData.Buffer.ReadOnly
 
         public async IAsyncEnumerable<T> EnumerateAllTyped()
         {
-            foreach (var buffer in _buffers) {
-                await foreach(var item in buffer.EnumerateAllTyped())
+            foreach (var buffer in _buffers)
+            {
+                await foreach (var item in buffer.EnumerateAllTyped())
                     yield return item;
             }
         }

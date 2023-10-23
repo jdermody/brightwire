@@ -19,12 +19,12 @@ namespace BrightData.DataTable
     internal class ColumnOrientedDataTableWriter : IWriteDataTables
     {
         readonly BrightDataContext _context;
-        readonly IProvideTempData? _tempData;
+        readonly IProvideDataBlocks? _tempData;
         readonly int               _blockSize;
         readonly uint?             _maxInMemoryBlocks;
         readonly MethodInfo        _writeStructs;
 
-        public ColumnOrientedDataTableWriter(BrightDataContext context, IProvideTempData? tempData = null, int blockSize = Consts.DefaultBlockSize, uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
+        public ColumnOrientedDataTableWriter(BrightDataContext context, IProvideDataBlocks? tempData = null, int blockSize = Consts.DefaultBlockSize, uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         {
             _context = context;
             _tempData = tempData;
@@ -65,11 +65,11 @@ namespace BrightData.DataTable
             header.InfoSizeBytes = (uint)(output.Position - header.InfoOffset);
             header.DataOffset = (uint)output.Position;
 
-            var indexWriter         = new Lazy<ICompositeBuffer<uint>>(() => ExtensionMethods.CreateCompositeBuffer<uint>(_tempData, _blockSize, _maxInMemoryBlocks));
-            var weightedIndexWriter = new Lazy<ICompositeBuffer<WeightedIndexList.Item>>(() => ExtensionMethods.CreateCompositeBuffer<WeightedIndexList.Item>(_tempData, _blockSize, _maxInMemoryBlocks));
-            var byteWriter          = new Lazy<ICompositeBuffer<byte>>(() => ExtensionMethods.CreateCompositeBuffer<byte>(_tempData, _blockSize, _maxInMemoryBlocks));
-            var stringWriter        = new Lazy<ICompositeBuffer<string>>(() => ExtensionMethods.CreateCompositeBuffer(_tempData, _blockSize, _maxInMemoryBlocks));
-            var floatWriter         = new Lazy<ICompositeBuffer<float>>(() => ExtensionMethods.CreateCompositeBuffer<float>(_tempData, _blockSize, _maxInMemoryBlocks));
+            var indexWriter         = new Lazy<ICompositeBuffer<uint>>(() => _tempData.CreateCompositeBuffer<uint>(_blockSize, _maxInMemoryBlocks));
+            var weightedIndexWriter = new Lazy<ICompositeBuffer<WeightedIndexList.Item>>(() => _tempData.CreateCompositeBuffer<WeightedIndexList.Item>(_blockSize, _maxInMemoryBlocks));
+            var byteWriter          = new Lazy<ICompositeBuffer<byte>>(() => _tempData.CreateCompositeBuffer<byte>(_blockSize, _maxInMemoryBlocks));
+            var stringWriter        = new Lazy<ICompositeBuffer<string>>(() => _tempData.CreateCompositeBuffer(_blockSize, _maxInMemoryBlocks));
+            var floatWriter         = new Lazy<ICompositeBuffer<float>>(() => _tempData.CreateCompositeBuffer<float>(_blockSize, _maxInMemoryBlocks));
 
             // write the data (column oriented)
             foreach (var columnSegment in buffers) {
@@ -266,12 +266,12 @@ namespace BrightData.DataTable
             }
         }
 
-        Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
-        Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
-        Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
-        Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
+        static Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        static Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        static Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        static Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
 
-        Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyMatrix matrix, ref MatrixColumnType data) => {
                 data.StartIndex = floats.Size;
@@ -281,7 +281,7 @@ namespace BrightData.DataTable
             });
         }
 
-        Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyTensor3D tensor, ref Tensor3DColumnType data) => {
                 data.StartIndex = floats.Size;
@@ -292,7 +292,7 @@ namespace BrightData.DataTable
             });
         }
 
-        Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
             return Convert(buffer, stream, (in ReadOnlyTensor4D tensor, ref Tensor4DColumnType data) => {
                 data.StartIndex = floats.Size;

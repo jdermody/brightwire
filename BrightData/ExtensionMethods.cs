@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
@@ -772,5 +773,7 @@ namespace BrightData
                     output.Add(new WeightedIndexList(data.GetRowSpan(i)));
             }
         }
+
+        public static IDataBlock AsDataBlock(this Stream stream, Guid? id = null) => new StreamDataBlock(id ?? Guid.NewGuid(), stream);
     }
 }

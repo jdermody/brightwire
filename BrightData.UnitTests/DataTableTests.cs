@@ -558,7 +558,7 @@ namespace BrightData.UnitTests
             builder.AddRow(0.1f, 0.2f);
             builder.AddRow(0.3f, 0.4f);
 
-            using var tempStreams = _context.CreateTempFileProvider();
+            using var tempStreams = _context.CreateTempDataBlockProvider();
 
             var table = await builder.BuildInMemory();
             var inputColumns = table.GetColumns(0, 1).Cast<IReadOnlyBuffer>().ToArray();

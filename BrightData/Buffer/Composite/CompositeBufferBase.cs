@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Table.Helper;
@@ -9,7 +11,7 @@ namespace BrightData.Buffer.Composite
     internal interface ICompositeBufferBlock<T>
     {
         uint Size { get; }
-        void WriteTo(ITempData file);
+        ValueTask WriteTo(IDataBlock file);
         bool HasFreeCapacity { get; }
         ReadOnlySpan<T> WrittenSpan { get; }
         ReadOnlyMemory<T> WrittenMemory { get; }
@@ -19,33 +21,31 @@ namespace BrightData.Buffer.Composite
         where T : notnull
         where BT : ICompositeBufferBlock<T>
     {
-        protected readonly int   _blockSize;
-        protected readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
-        readonly Func<T[], BT>   _blockFactory;
-        IProvideTempData?        _tempStreams;
-        protected ITempData?     _tempData;
-        protected List<BT>?      _inMemoryBlocks;
-        protected BT?            _currBlock;
-        protected HashSet<T>?    _distinct;
-        protected uint           _blocksInFile;
+        protected readonly int        _blockSize;
+        protected readonly uint?      _maxInMemoryBlocks, _maxDistinctItems;
+        readonly Func<T[], bool , BT> _blockFactory;
+        IProvideDataBlocks?           _dataBlockProvider;
+        protected IDataBlock?         _currentDataBlock;
+        protected List<BT>?           _inMemoryBlocks;
+        protected BT?                 _currBlock;
+        protected HashSet<T>?         _distinct;
+        protected uint                _blocksInFile;
 
         protected CompositeBufferBase(
-            Func<T[], BT> blockFactory,
-            IProvideTempData? tempStreams = null,
+            Func<T[], bool, BT> blockFactory,
+            IProvideDataBlocks? dataBlockProvider = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         )
         {
             _blockFactory      = blockFactory;
-            _tempStreams       = tempStreams;
+            _dataBlockProvider = dataBlockProvider;
             _blockSize         = blockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
 
             if ((_maxDistinctItems = maxDistinctItems) > 0)
-            {
                 _distinct = new HashSet<T>((int)maxDistinctItems!.Value / 32);
-            }
         }
 
         public Guid Id { get; } = Guid.NewGuid();
@@ -74,12 +74,12 @@ namespace BrightData.Buffer.Composite
             }
 
             // read from the file
-            if (_tempData != null)
+            if (_currentDataBlock != null)
             {
-                uint fileLength = _tempData.Size, offset = 0;
+                uint fileLength = _currentDataBlock.Size, offset = 0;
                 while (offset < fileLength && !ct.IsCancellationRequested)
                 {
-                    offset += await GetBlockFromFile(_tempData, offset, callback);
+                    offset += await GetBlockFromFile(_currentDataBlock, offset, callback);
                     notify?.OnOperationProgress(guid, (float)++count / BlockCount);
                 }
             }
@@ -107,12 +107,12 @@ namespace BrightData.Buffer.Composite
             }
 
             // read from the file
-            if (_tempData != null)
+            if (_currentDataBlock != null)
             {
-                uint fileLength = _tempData.Size, offset = 0;
+                uint fileLength = _currentDataBlock.Size, offset = 0;
                 while (offset < fileLength)
                 {
-                    var (size, block) = await GetBlockFromFile(_tempData, offset);
+                    var (size, block) = await GetBlockFromFile(_currentDataBlock, offset);
                     for (var i = 0; i < block.Length; i++) {
                         yield return block.Span[i];
                     }
@@ -161,16 +161,16 @@ namespace BrightData.Buffer.Composite
             }
 
             // read from the file
-            if (_tempData != null)
+            if (_currentDataBlock != null)
             {
                 if (blockIndex < _blocksInFile)
                 {
-                    uint fileLength = _tempData.Size, offset = 0;
+                    uint fileLength = _currentDataBlock.Size, offset = 0;
                     while (offset < fileLength)
                     {
                         if (currentIndex++ == blockIndex)
-                            return (await GetBlockFromFile(_tempData, offset)).Block;
-                        offset += await SkipFileBlock(_tempData, offset);
+                            return (await GetBlockFromFile(_currentDataBlock, offset)).Block;
+                        offset += await SkipFileBlock(_currentDataBlock, offset);
                     }
                 }
                 else
@@ -213,23 +213,82 @@ namespace BrightData.Buffer.Composite
                 {
                     if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value)
                     {
-                        _tempData ??= (_tempStreams ??= new TempFileProvider()).Get(Id);
-                        _currBlock.WriteTo(_tempData);
+                        _currentDataBlock ??= (_dataBlockProvider ??= new TempFileProvider()).Get(Id);
+                        _currBlock.WriteTo(_currentDataBlock);
                         ++_blocksInFile;
                     }
                     else
                         (_inMemoryBlocks ??= new()).Add(_currBlock);
                 }
-                _currBlock = _blockFactory(new T[_blockSize]);
+                _currBlock = _blockFactory(new T[_blockSize], false);
                 ++BlockCount;
             }
             return _currBlock!;
         }
 
-        protected abstract Task<uint> SkipFileBlock(ITempData file, uint offset);
-        protected abstract Task<(uint Offset, ReadOnlyMemory<T> Block)> GetBlockFromFile(ITempData file, uint offset);
-        protected abstract Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback);
-        public override string ToString() => $"Composite buffer ({typeof(T).Name})|{MetaData.GetName(Id.ToString("n"))}|count={Size:N0}";
         public void AddObject(object obj) => Add((T)obj);
+
+        public async Task WriteTo(Stream stream)
+        {
+            // write the header
+            await using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+            writer.Write(Size);
+            writer.Write(BlockSize);
+            writer.Write(BlockCount);
+            writer.Flush();
+
+            var headerPosition = stream.Position;
+            var blockPositions = new (long Offset, uint Size)[BlockCount];
+            stream.Seek((sizeof(long) + sizeof(uint)) * BlockCount, SeekOrigin.Current);
+            stream.SetLength(stream.Position);
+            var index = 0;
+            var dataBlock = stream.AsDataBlock();
+
+            // write from in memory blocks
+            if (_inMemoryBlocks is not null)
+            {
+                foreach (var block in _inMemoryBlocks) {
+                    var pos = stream.Position;
+                    await block.WriteTo(dataBlock);
+                    blockPositions[index++] = (pos, (uint)(stream.Position - pos));
+                }
+            }
+
+            // write from the file
+            if (_currentDataBlock != null)
+            {
+                uint fileLength = _currentDataBlock.Size, offset = 0;
+                while (offset < fileLength)
+                {
+                    var pos = stream.Position;
+                    var (size, blockData) = await GetBlockFromFile(_currentDataBlock, offset);
+                    var block = _blockFactory(blockData.ToArray(), true);
+                    await block.WriteTo(dataBlock);
+                    offset += size;
+                    blockPositions[index++] = (pos, (uint)(stream.Position - pos));
+                }
+            }
+
+            // write current block
+            if (_currBlock is not null) {
+                var pos = stream.Position;
+                await _currBlock.WriteTo(dataBlock);
+                blockPositions[index] = (pos, (uint)(stream.Position - pos));
+            }
+
+            stream.Seek(headerPosition, SeekOrigin.Begin);
+            foreach (var (pos, size) in blockPositions) {
+                writer.Write(pos);
+                writer.Write(size);
+            }
+
+            // move the stream position to the end position
+            stream.Seek(0, SeekOrigin.End);
+        }
+
+        protected abstract Task<uint> SkipFileBlock(IDataBlock file, uint offset);
+        protected abstract Task<(uint Offset, ReadOnlyMemory<T> Block)> GetBlockFromFile(IDataBlock file, uint offset);
+        protected abstract Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback);
+        public override string ToString() => $"Composite buffer ({typeof(T).Name})|{MetaData.GetName(Id.ToString("n"))}|count={Size:N0}";
     }
 }

@@ -192,7 +192,7 @@ namespace ExampleCode.DataTableTrainers
         static IndexListWithLabel<string>[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => new IndexListWithLabel<string>(d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
+                .Select(d => new IndexListWithLabel<string>(d.Item2, IndexList.Create(d.Item1.Select(stringTable.GetIndex).ToArray())))
                 .ToArray()
             ;
         }
@@ -244,7 +244,7 @@ namespace ExampleCode.DataTableTrainers
                 }
                 if (indices.Any())
                 {
-                    var indexList = _context.CreateIndexList(indices);
+                    var indexList = IndexList.Create(indices);
                     var bc = bernoulli.Classify(indexList).First().Label;
                     var mc = multinomial.Classify(indexList).First().Label;
                     Console.WriteLine("Bernoulli classification: " + bc);

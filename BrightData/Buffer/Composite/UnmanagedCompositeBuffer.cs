@@ -14,6 +14,12 @@ namespace BrightData.Buffer.Composite
     {
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
         {
+            public Block(T[] data, bool existing) : this(data)
+            {
+                if (existing)
+                    Size = (uint)data.Length;
+            }
+
             public uint Size { get; private set; }
             public ref T GetNext() => ref Data[Size++];
             public bool HasFreeCapacity => Size < Data.Length;
@@ -21,10 +27,10 @@ namespace BrightData.Buffer.Composite
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public void WriteTo(ITempData file)
+            public ValueTask WriteTo(IDataBlock file)
             {
-                var bytes = WrittenSpan.Cast<T, byte>();
-                file.Write(bytes, file.Size);
+                var bytes = WrittenMemory.Cast<T, byte>();
+                return file.WriteAsync(bytes, file.Size);
             }
 
             public void Write(ReadOnlySpan<T> data)
@@ -36,11 +42,11 @@ namespace BrightData.Buffer.Composite
         readonly int _sizeOfT;
 
         public UnmanagedCompositeBuffer(
-            IProvideTempData? tempStreams = null,
+            IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
             _sizeOfT = Unsafe.SizeOf<T>();
         }
@@ -101,15 +107,15 @@ namespace BrightData.Buffer.Composite
             }
 
             // read from the file
-            if (_tempData != null)
+            if (_currentDataBlock != null)
             {
                 if (blockIndex < _blocksInFile)
                 {
-                    uint fileLength = _tempData.Size, offset = 0;
+                    uint fileLength = _currentDataBlock.Size, offset = 0;
                     while (offset < fileLength)
                     {
                         if (currentIndex++ == blockIndex)
-                            return (await GetBlockFromFile(_tempData, offset)).Item2;
+                            return (await GetBlockFromFile(_currentDataBlock, offset)).Item2;
                         offset += (uint)(_blockSize * _sizeOfT);
                     }
                 }
@@ -147,12 +153,12 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override Task<uint> SkipFileBlock(ITempData file, uint offset)
+        protected override Task<uint> SkipFileBlock(IDataBlock file, uint offset)
         {
             return Task.FromResult((uint)_blockSize * (uint)_sizeOfT);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(ITempData file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IDataBlock file, uint offset)
         {
             var ret = new Memory<T>(new T[_blockSize]);
             var buffer = ret.Cast<T, byte>();
@@ -164,7 +170,7 @@ namespace BrightData.Buffer.Composite
             return ((uint)_blockSize * (uint)_sizeOfT, ret);
         }
 
-        protected override async Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback)
         {
             using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
             uint readCount = 0;

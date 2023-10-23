@@ -11,13 +11,19 @@ namespace BrightData.Buffer.Composite
         const int HeaderSize = 4;
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
         {
+            public Block(T[] data, bool existing) : this(data)
+            {
+                if (existing)
+                    Size = (uint)data.Length;
+            }
+
             public uint Size { get; private set; }
             public ref T GetNext() => ref Data[Size++];
             public bool HasFreeCapacity => Size < Data.Length;
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public void WriteTo(ITempData file)
+            public ValueTask WriteTo(IDataBlock file)
             {
                 var offset = file.Size;
                 using var writer = new ArrayPoolBufferWriter<byte>();
@@ -34,7 +40,7 @@ namespace BrightData.Buffer.Composite
                     size += itemData.Length + 4;
                 }
                 BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, (uint)size);
-                file.Write(writer.WrittenSpan, offset);
+                return file.WriteAsync(writer.WrittenMemory, offset);
             }
         }
 
@@ -42,16 +48,16 @@ namespace BrightData.Buffer.Composite
 
         public ManagedCompositeBuffer(
             CreateFromReadOnlyByteSpan<T> createItem,
-            IProvideTempData? tempStreams = null,
+            IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) : base(x => new(x), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         {
             _createItem = createItem;
         }
 
-        protected override async Task<uint> SkipFileBlock(ITempData file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IDataBlock file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);
@@ -59,7 +65,7 @@ namespace BrightData.Buffer.Composite
             return blockSize + HeaderSize;
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(ITempData file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IDataBlock file, uint offset)
         {
             var (blockSize, buffer) = await ReadBuffer(file, offset);
             try
@@ -74,7 +80,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> GetBlockFromFile(ITempData file, uint offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback)
         {
             var (blockSize, buffer) = await ReadBuffer(file, offset);
             try
@@ -101,7 +107,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(ITempData file, uint offset)
+        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(IDataBlock file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);

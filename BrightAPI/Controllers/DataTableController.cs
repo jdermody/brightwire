@@ -234,7 +234,7 @@ namespace BrightAPI.Controllers
                 return BadRequest();
 
             return await Transform(id, request, "Reinterpreted", async (table, path) => {
-                using var tempStreams = _context.CreateTempFileProvider();
+                using var tempStreams = _context.CreateTempDataBlockProvider();
                 var inputColumnIndices = new HashSet<uint>();
                 var newColumns = new Dictionary<uint, List<ICompositeBuffer>>();
                 foreach (var column in request.Columns) {

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
+using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
@@ -92,6 +93,6 @@ namespace BrightData.DataTable
         public override IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
 
         IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
-            new BlockReaderReadOnlyBuffer<T>(_columnMetaData[columnIndex], _reader, offset, size, ReaderBlockSize);
+            new BlockReaderReadOnlyBuffer<T>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
     }
 }

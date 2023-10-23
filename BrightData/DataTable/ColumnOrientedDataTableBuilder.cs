@@ -17,12 +17,12 @@ namespace BrightData.DataTable
     {
         readonly int                    _blockSize;
         readonly uint?                  _maxInMemoryBlocks;
-        readonly IProvideTempData?      _tempData;
+        readonly IProvideDataBlocks?      _tempData;
         readonly List<ICompositeBuffer> _columns = new();
 
         public ColumnOrientedDataTableBuilder(
             BrightDataContext context, 
-            IProvideTempData? tempData = null,
+            IProvideDataBlocks? tempData = null,
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         {

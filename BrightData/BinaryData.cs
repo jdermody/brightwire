@@ -20,15 +20,13 @@ namespace BrightData
         IHaveReadOnlyContiguousSpan<byte>,
         IHaveMemory<byte>
     {
-        readonly ReadOnlyMemory<byte> _data;
+        readonly byte[] _data;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Binary data blob</param>
         public BinaryData(params byte[] data) => _data = data;
-
-        public BinaryData(ReadOnlyMemory<byte> data) => _data = data;
 
         /// <summary>
         /// Constructor
@@ -39,7 +37,7 @@ namespace BrightData
         /// <summary>
         /// Returns the data as a span
         /// </summary>
-        public ReadOnlySpan<byte> Data => _data.Span;
+        public ReadOnlySpan<byte> Data => _data.AsSpan();
 
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
@@ -53,13 +51,13 @@ namespace BrightData
         public void WriteTo(BinaryWriter writer)
         {
             writer.Write(_data.Length);
-            writer.Write(_data.Span);
+            writer.Write(Data);
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            var binaryHash = SHA512.HashData(_data.Span);
+            var binaryHash = SHA512.HashData(Data);
 
             var sb = new StringBuilder();
             for (var i = 0; i < binaryHash.Length; i++) {
@@ -82,7 +80,7 @@ namespace BrightData
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
-            foreach (var item in _data.Span)
+            foreach (var item in Data)
                 hashCode.Add(item);
             return hashCode.ToHashCode();
         }
@@ -104,10 +102,10 @@ namespace BrightData
         public static bool operator !=(BinaryData obj1, BinaryData obj2) => !obj1.Equals(obj2);
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => _data.Span;
+        public ReadOnlySpan<byte> DataAsBytes => Data;
 
         public uint Size => (uint)_data.Length;
-        public ReadOnlySpan<byte> ReadOnlySpan => _data.Span;
+        public ReadOnlySpan<byte> ReadOnlySpan => Data;
         public ReadOnlyMemory<byte> ReadOnlyMemory => _data;
     }
 }

@@ -12,8 +12,8 @@ namespace BrightData.UnitTests
         [Fact]
         public void Merge()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
-            var second = _context.CreateIndexList(2, 3, 4);
+            var first = IndexList.Create(1, 2, 3);
+            var second = IndexList.Create(2, 3, 4);
             var merged = IndexList.Merge(new[] {first, second});
             merged.Size.Should().Be(4);
         }
@@ -21,16 +21,16 @@ namespace BrightData.UnitTests
         [Fact]
         public void Inequality()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
-            var second = _context.CreateIndexList(2, 3, 4);
+            var first = IndexList.Create(1, 2, 3);
+            var second = IndexList.Create(2, 3, 4);
             first.Equals(second).Should().BeFalse();
         }
 
         [Fact]
         public void Equality()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
-            var second = _context.CreateIndexList(1, 2, 3);
+            var first = IndexList.Create(1, 2, 3);
+            var second = IndexList.Create(1, 2, 3);
             first.Equals(second).Should().BeTrue();
             var set = new HashSet<IndexList> {
                 first, second
@@ -41,7 +41,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Serialisation()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
+            var first = IndexList.Create(1, 2, 3);
             var data = first.GetData();
             var reader = new BinaryReader(new MemoryStream(data));
             var second = _context.CreateIndexList(reader);
@@ -51,8 +51,8 @@ namespace BrightData.UnitTests
         [Fact]
         public void JaccardSimilarity()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
-            var second = _context.CreateIndexList(1, 2, 3);
+            var first = IndexList.Create(1, 2, 3);
+            var second = IndexList.Create(1, 2, 3);
             var similarity = first.JaccardSimilarity(second);
             similarity.Should().Be(1);
         }
@@ -60,7 +60,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Serialisation2()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
+            var first = IndexList.Create(1, 2, 3);
             var data = first.GetData();
             var reader = new BinaryReader(new MemoryStream(data));
             var second = GenericActivator.CreateUninitialized<IndexList>();
@@ -71,7 +71,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void ToDense()
         {
-            var first = _context.CreateIndexList(1, 2, 3);
+            var first = IndexList.Create(1, 2, 3);
             var vector = first.AsDense();
             vector.Size.Should().Be(4);
 

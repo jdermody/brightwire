@@ -50,7 +50,7 @@ namespace BrightData.UnitTests
         {
             var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.CreateColumn<IndexList>("index list");
-            var sampleIndexList = _context.CreateIndexList(1, 2, 3, 4, 5);
+            var sampleIndexList = IndexList.Create(1, 2, 3, 4, 5);
             indexListBuilder.Add(sampleIndexList);
 
             using var stream = new MemoryStream();
@@ -67,7 +67,7 @@ namespace BrightData.UnitTests
         {
             var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.CreateColumn<WeightedIndexList>("weighted index list");
-            var sampleIndexList = _context.CreateWeightedIndexList((1, 1f), (2, 0.1f), (3, 0.75f), (4, 0.25f), (5, 0.77f));
+            var sampleIndexList = WeightedIndexList.Create((1, 1f), (2, 0.1f), (3, 0.75f), (4, 0.25f), (5, 0.77f));
             indexListBuilder.Add(sampleIndexList);
 
             using var stream = new MemoryStream();

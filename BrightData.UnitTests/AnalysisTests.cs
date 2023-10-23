@@ -83,10 +83,9 @@ namespace BrightData.UnitTests
         [Fact]
         public void IndexAnalysis()
         {
-            using var context = new BrightDataContext();
             var analysis = new IHaveIndices[] {
-                context.CreateIndexList(1, 2, 3),
-                context.CreateIndexList(4, 5, 6),
+                IndexList.Create(1, 2, 3),
+                IndexList.Create(4, 5, 6),
             }.Analyze();
             analysis.MinIndex.Should().Be(1);
             analysis.MaxIndex.Should().Be(6);
@@ -98,8 +97,8 @@ namespace BrightData.UnitTests
         {
             using var context = new BrightDataContext();
             var analysis = new IHaveIndices[] {
-                context.CreateIndexList(1, 2, 3),
-                context.CreateWeightedIndexList((4, 1f), (5, 2f), (6, 3f)),
+                IndexList.Create(1, 2, 3),
+                WeightedIndexList.Create((4, 1f), (5, 2f), (6, 3f)),
             }.Analyze();
             analysis.MinIndex.Should().Be(1);
             analysis.MaxIndex.Should().Be(6);

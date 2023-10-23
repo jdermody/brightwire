@@ -52,12 +52,12 @@ namespace BrightWire.UnitTests
                 (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
 
-            return data.Select(r => new IndexListWithLabel<string>(r.Item2 ? "china" : "japan", context.CreateIndexList(r.Item1.Select(stringTableBuilder.GetIndex)))).ToArray();
+            return data.Select(r => new IndexListWithLabel<string>(r.Item2 ? "china" : "japan", IndexList.Create(r.Item1.Select(stringTableBuilder.GetIndex)))).ToArray();
         }
 
         public static IndexList GetTestRow(BrightDataContext context, StringTableBuilder stringTableBuilder)
         {
-            return context.CreateIndexList(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
+            return IndexList.Create(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
         }
 
         [Fact]

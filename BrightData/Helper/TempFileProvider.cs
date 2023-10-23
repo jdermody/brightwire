@@ -11,9 +11,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Table.Helper
 {
-    internal class TempFileProvider : IProvideTempData
+    internal class TempFileProvider : IProvideDataBlocks
     {
-        class TempData : ITempData
+        class TempData : IDataBlock
         {
             readonly SafeFileHandle _file;
 
@@ -52,7 +52,7 @@ namespace BrightData.Table.Helper
         }
         readonly string _basePath;
         // lazy to prevent multiple files from being created per key
-        readonly ConcurrentDictionary<Guid, Lazy<ITempData>> _fileTable = new();
+        readonly ConcurrentDictionary<Guid, Lazy<IDataBlock>> _fileTable = new();
 
         public TempFileProvider(string? basePath = null)
         {
@@ -79,10 +79,10 @@ namespace BrightData.Table.Helper
             _fileTable.Clear();
         }
 
-        public ITempData Get(Guid id)
+        public IDataBlock Get(Guid id)
         {
             return _fileTable.GetOrAdd(id, fid => 
-                new Lazy<ITempData>(() => new TempData(id, Path.Combine(_basePath, fid.ToString("n"))))
+                new Lazy<IDataBlock>(() => new TempData(id, Path.Combine(_basePath, fid.ToString("n"))))
             ).Value;
         }
     }

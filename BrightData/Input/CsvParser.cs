@@ -93,28 +93,28 @@ namespace BrightData.Input
             }
         }
 
-        readonly bool _firstRowIsHeader;
-        readonly char _delimiter, _quote;
-        readonly IProvideTempData? _tempStreams;
-        readonly int _blockSize;
-        readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
+        readonly bool                _firstRowIsHeader;
+        readonly char                _delimiter, _quote;
+        readonly IProvideDataBlocks? _tempStreams;
+        readonly int                 _blockSize;
+        readonly uint?               _maxInMemoryBlocks, _maxDistinctItems;
 
         public CsvParser(
             bool firstRowIsHeader,
             char delimiter, 
             char quote = '"',
-            IProvideTempData? tempStreams = null,
+            IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) {
-            _firstRowIsHeader = firstRowIsHeader;
-            _delimiter = delimiter;
-            _quote = quote;
-            _tempStreams = tempStreams;
-            _blockSize = blockSize;
+            _firstRowIsHeader  = firstRowIsHeader;
+            _delimiter         = delimiter;
+            _quote             = quote;
+            _tempStreams       = tempStreams;
+            _blockSize         = blockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
-            _maxDistinctItems = maxDistinctItems;
+            _maxDistinctItems  = maxDistinctItems;
         }
 
         public Action<float>? OnProgress { get; set; }

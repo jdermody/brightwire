@@ -72,7 +72,7 @@ namespace BrightData
         /// Creates a new temp stream provider
         /// </summary>
         /// <returns></returns>
-        public IProvideTempData CreateTempFileProvider() => new TempFileProvider(Get<string>(Consts.BaseTempPath));
+        public IProvideDataBlocks CreateTempDataBlockProvider() => new TempFileProvider(Get<string>(Consts.BaseTempPath));
 
         /// <summary>
         /// Returns a typed property from the context
