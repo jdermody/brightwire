@@ -61,8 +61,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataTable\TableBase.RowReaders.tt">
-      <LastGenOutput>TableBase.RowReaders.cs</LastGenOutput>
+    <None Update="DataTable\ColumnOrientedDataTable.RowReaders.tt">
+      <LastGenOutput>ColumnOrientedDataTable.RowReaders.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
     </None>
     <None Update="readme.md">
@@ -80,10 +80,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DataTable\TableBase.RowReaders.cs">
+    <Compile Update="DataTable\ColumnOrientedDataTable.RowReaders.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>TableBase.RowReaders.tt</DependentUpon>
+      <DependentUpon>ColumnOrientedDataTable.RowReaders.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

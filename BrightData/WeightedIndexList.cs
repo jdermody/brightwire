@@ -445,7 +445,7 @@ namespace BrightData
         public IEnumerable<float> Weights => Indices.Select(d => d.Weight);
 
         /// <inheritdoc />
-        public bool Equals(WeightedIndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+        public bool Equals(WeightedIndexList other) => DataAsBytes.SequenceEqual(other.DataAsBytes);
 
         /// <inheritdoc />
         public ReadOnlySpan<Item> GetSpan(ref SpanOwner<Item> temp, out bool wasTempUsed)

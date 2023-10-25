@@ -78,9 +78,9 @@ namespace BrightData.UnitTests
             output[0][0].Should().Be(0);
             output[2][0].Should().Be(2);
 
-            vectoriser.GetOutputLabel(0).Should().Be("a");
-            vectoriser.GetOutputLabel(1).Should().Be("b");
-            vectoriser.GetOutputLabel(2).Should().Be("c");
+            vectoriser.Vectorisers[0].ReverseVectorise(0).Should().Be("a");
+            vectoriser.Vectorisers[0].ReverseVectorise(1).Should().Be("b");
+            vectoriser.Vectorisers[0].ReverseVectorise(2).Should().Be("c");
         }
 
         [Fact]
@@ -94,9 +94,9 @@ namespace BrightData.UnitTests
             output[0][0].Should().Be(1);
             output[2][2].Should().Be(1);
 
-            vectoriser.GetOutputLabel(0).Should().Be("a");
-            vectoriser.GetOutputLabel(1).Should().Be("b");
-            vectoriser.GetOutputLabel(2).Should().Be("c");
+            vectoriser.Vectorisers[0].ReverseVectorise(0).Should().Be("a");
+            vectoriser.Vectorisers[0].ReverseVectorise(1).Should().Be("b");
+            vectoriser.Vectorisers[0].ReverseVectorise(2).Should().Be("c");
         }
 
         [Fact]

@@ -1241,8 +1241,8 @@ namespace BrightData
 
         public static async Task<IDataTable> CreateTableInMemory(
             this BrightDataContext context,
-            IReadOnlyBufferWithMetaData[] buffers,
-            MetaData? tableMetaData = null
+            MetaData? tableMetaData = null,
+            params IReadOnlyBufferWithMetaData[] buffers
         )
         {
             var ret = new MemoryStream();
@@ -1254,16 +1254,14 @@ namespace BrightData
 
         public static async Task<IDataTable> CreateTable(
             this BrightDataContext context,
-            IReadOnlyBufferWithMetaData[] buffers,
             string filePath,
-            MetaData? tableMetaData = null
+            MetaData? tableMetaData = null,
+            params IReadOnlyBufferWithMetaData[] buffers
         )
         {
-            {
-                var builder = new ColumnOrientedDataTableWriter(context);
-                await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                await builder.Write(tableMetaData ?? new(), buffers, stream);
-            }
+            var builder = new ColumnOrientedDataTableWriter(context);
+            await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+            await builder.Write(tableMetaData ?? new(), buffers, stream);
             return new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
         }
 
@@ -1401,9 +1399,9 @@ namespace BrightData
         {
             var dataType = buffer.DataType.GetBrightDataType();
             var ret = ColumnTypeClassifier.GetClass(dataType, metaData) switch {
-                ColumnClass.Numeric => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType)),
+                ColumnClass.Numeric => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget()),
                 ColumnClass.Categorical when oneHotEncodeCategoricalData => await GetOneHotEncoder(buffer, metaData),
-                ColumnClass.Categorical => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType)),
+                ColumnClass.Categorical => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType), metaData.IsTarget()),
                 ColumnClass.IndexBased => await GetIndexBasedVectoriser(buffer, metaData),
                 ColumnClass.Tensor => await GetTensorVectoriser(buffer, metaData),
                 _ => throw new NotSupportedException()
@@ -1567,7 +1565,7 @@ namespace BrightData
         public static IOperation[] CopyTo(this IDataTable dataTable, params IAcceptBlock[] buffers)
         {
             return dataTable.ColumnCount.AsRange()
-                .Select(i => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(dataTable.GetColumnType(i)), dataTable.GetColumn(i), buffers[i]))
+                .Select(i => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(dataTable.GetColumnType(i)), dataTable.GetColumn(i), buffers[i], null))
                 .ToArray()
             ;
         }

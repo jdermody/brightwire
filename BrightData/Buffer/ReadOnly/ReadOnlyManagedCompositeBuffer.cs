@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightData.Buffer.Composite;
+using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
@@ -21,14 +22,15 @@ namespace BrightData.Buffer.ReadOnly
         {
             var span = byteData.Span;
             var count = BinaryPrimitives.ReadUInt32LittleEndian(span);
+            span = span[ManagedCompositeBuffer<T>.HeaderSize..];
             var ret = new T[count];
             var index = 0;
 
-            span = span[4..];
             for(var i = 0; i < count; i++) {
                 var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(span);
-                var item = _createItem(span[4..]);
-                span = span[(4 + (int)blockSize)..];
+                span = span[4..];
+                var item = _createItem(span[..(int)blockSize]);
+                span = span[(int)blockSize..];
                 ret[index++] = item;
             }
 

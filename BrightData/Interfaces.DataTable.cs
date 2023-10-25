@@ -6,7 +6,6 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.IO;
 using BrightData.LinearAlgebra.ReadOnly;
-using static BrightData.DataTable.TableBase;
 
 namespace BrightData
 {

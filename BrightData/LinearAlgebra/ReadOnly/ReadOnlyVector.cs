@@ -11,7 +11,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 {
     public class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
-        readonly ReadOnlyValueSemantics<ReadOnlyVector, float> _valueSemantics;
+        ReadOnlyValueSemantics<ReadOnlyVector, float> _valueSemantics;
         ReadOnlyMemoryTensorSegment? _segment = null;
         ReadOnlyMemory<float> _data;
 
@@ -46,6 +46,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
             _data = reader.BaseStream.ReadArray<float>(size);
+            _valueSemantics = new(this);
         }
 
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)

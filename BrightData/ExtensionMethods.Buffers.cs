@@ -385,7 +385,7 @@ namespace BrightData
                 if (buffers.Length == 1) {
                     var buffer = buffers[0];
                     var analyser = buffer.GetAnalyser(metaData);
-                    return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser);
+                    return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, null);
                 }
                 if (buffers.Length > 1) {
                     var analysers = buffers.Select(x => x.GetAnalyser(metaData)).ToArray();

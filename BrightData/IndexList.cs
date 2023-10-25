@@ -164,7 +164,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public bool Equals(IndexList other) => StructuralComparisons.StructuralEqualityComparer.Equals(_indices, other._indices);
+        public bool Equals(IndexList other) => DataAsBytes.SequenceEqual(other.DataAsBytes);
 
         /// <inheritdoc />
         public ReadOnlySpan<uint> GetSpan(ref SpanOwner<uint> temp, out bool wasTempUsed)

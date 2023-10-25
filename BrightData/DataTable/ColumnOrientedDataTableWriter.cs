@@ -61,7 +61,7 @@ namespace BrightData.DataTable
 
             // write the headers
             header.InfoOffset = (uint)output.Position;
-            output.Write(MemoryMarshal.AsBytes<TableBase.Column>(columns));
+            output.Write(MemoryMarshal.AsBytes<ColumnOrientedDataTable.Column>(columns));
             header.InfoSizeBytes = (uint)(output.Position - header.InfoOffset);
             header.DataOffset = (uint)output.Position;
 
@@ -93,7 +93,7 @@ namespace BrightData.DataTable
                 else if (dataType == BrightDataType.Tensor4D)
                     await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
                 else
-                    await (Task<bool>)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
+                    await (Task)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
             }
             header.DataSizeBytes = (uint)(output.Position - header.DataOffset);
 
@@ -171,9 +171,9 @@ namespace BrightData.DataTable
             output.Seek(0, SeekOrigin.Begin);
         }
 
-        static TableBase.Column[] GetColumns(IReadOnlyBufferWithMetaData[] buffers, BinaryWriter metaDataWriter)
+        static ColumnOrientedDataTable.Column[] GetColumns(IReadOnlyBufferWithMetaData[] buffers, BinaryWriter metaDataWriter)
         {
-            var ret = new TableBase.Column[buffers.Length];
+            var ret = new ColumnOrientedDataTable.Column[buffers.Length];
             var index = 0;
             foreach (var columnSegment in buffers) {
                 ref var c = ref ret[index++];

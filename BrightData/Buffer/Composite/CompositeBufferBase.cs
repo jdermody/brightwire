@@ -11,7 +11,7 @@ namespace BrightData.Buffer.Composite
     internal interface ICompositeBufferBlock<T>
     {
         uint Size { get; }
-        ValueTask WriteTo(IDataBlock file);
+        Task<uint> WriteTo(IDataBlock file);
         bool HasFreeCapacity { get; }
         ReadOnlySpan<T> WrittenSpan { get; }
         ReadOnlyMemory<T> WrittenMemory { get; }
@@ -243,14 +243,15 @@ namespace BrightData.Buffer.Composite
             stream.SetLength(stream.Position);
             var index = 0;
             var dataBlock = stream.AsDataBlock();
+            var pos = (uint)stream.Position;
 
             // write from in memory blocks
             if (_inMemoryBlocks is not null)
             {
                 foreach (var block in _inMemoryBlocks) {
-                    var pos = stream.Position;
-                    await block.WriteTo(dataBlock);
-                    blockPositions[index++] = (pos, (uint)(stream.Position - pos));
+                    var blockSize = await block.WriteTo(dataBlock);
+                    blockPositions[index++] = (pos, blockSize);
+                    pos += blockSize;
                 }
             }
 
@@ -260,25 +261,25 @@ namespace BrightData.Buffer.Composite
                 uint fileLength = _currentDataBlock.Size, offset = 0;
                 while (offset < fileLength)
                 {
-                    var pos = stream.Position;
                     var (size, blockData) = await GetBlockFromFile(_currentDataBlock, offset);
                     var block = _blockFactory(blockData.ToArray(), true);
-                    await block.WriteTo(dataBlock);
+                    var blockSize = await block.WriteTo(dataBlock);
                     offset += size;
-                    blockPositions[index++] = (pos, (uint)(stream.Position - pos));
+                    blockPositions[index++] = (pos, blockSize);
+                    pos += blockSize;
                 }
             }
 
             // write current block
             if (_currBlock is not null) {
-                var pos = stream.Position;
-                await _currBlock.WriteTo(dataBlock);
-                blockPositions[index] = (pos, (uint)(stream.Position - pos));
+                var blockSize = await _currBlock.WriteTo(dataBlock);
+                blockPositions[index] = (pos, blockSize);
+                pos += blockSize;
             }
 
             stream.Seek(headerPosition, SeekOrigin.Begin);
-            foreach (var (pos, size) in blockPositions) {
-                writer.Write(pos);
+            foreach (var (startPos, size) in blockPositions) {
+                writer.Write(startPos);
                 writer.Write(size);
             }
 

@@ -40,7 +40,7 @@ namespace BrightWire.UnitTests
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
             expectedOutput.Size.Should().Be(4);
-            dataSource.OutputVectoriser!.GetOutputLabel(expectedOutput.GetMaximumIndex()).Should().Be("b");
+            dataSource.OutputVectoriser.Vectorisers[0].ReverseVectorise(expectedOutput.GetMaximumIndex()).Should().Be("b");
 		}
 
         static float[] GetArray(uint value, uint size)

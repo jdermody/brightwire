@@ -43,7 +43,7 @@ namespace BrightData
 
 namespace BrightData.DataTable
 {
-    internal abstract partial class TableBase
+    internal partial class ColumnOrientedDataTable
     {
 <# for(var i = 2; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();

@@ -134,8 +134,26 @@ namespace BrightData.UnitTests
             writer.Flush();
             buffer.Seek(0, SeekOrigin.Begin);
 
-            _context.Create<IVector>(reader).Should().BeEquivalentTo(vector);
-            _context.Create<IMatrix>(reader).Should().BeEquivalentTo(matrix);
+            _context.Create<IVector>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
+        }
+
+        [Fact]
+        public void ReadOnlyTensorSerialisation()
+        {
+            using var buffer = new MemoryStream();
+            using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
+            using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
+
+            var vector = _context.CreateReadOnlyVector(1f, 2f, 3f);
+            var matrix = _context.CreateReadOnlyMatrix(2, 2, (i, j) => i + j);
+            vector.WriteTo(writer);
+            matrix.WriteTo(writer);
+            writer.Flush();
+            buffer.Seek(0, SeekOrigin.Begin);
+
+            _context.Create<IVector>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
         }
 
         [Fact]

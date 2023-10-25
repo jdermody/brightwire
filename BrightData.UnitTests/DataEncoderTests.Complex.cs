@@ -74,7 +74,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeIndexList()
         {
-            Encode(IndexList.Create(1, 2, 3), options => options.ComparingByMembers<IndexList>());
+            Encode(IndexList.Create(1, 2, 3));
         }
 
         [Fact]
@@ -83,13 +83,13 @@ namespace BrightData.UnitTests
             EncodeArray(new [] {
                 IndexList.Create(1, 2, 3),
                 IndexList.Create(2, 3, 4)
-            }, options => options.ComparingByMembers<IndexList>());
+            });
         }
 
         [Fact]
         public void EncodeWeightedIndexList()
         {
-            Encode(WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)), options => options.ComparingByMembers<WeightedIndexList>());
+            Encode(WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)));
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace BrightData.UnitTests
             EncodeArray(new [] {
                 WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)),
                 WeightedIndexList.Create((2, 1f), (3, 0.5f), (4, 0f)),
-            }, options => options.ComparingByMembers<WeightedIndexList>());
+            });
         }
 
         [Fact]

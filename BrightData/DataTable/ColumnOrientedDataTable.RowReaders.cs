@@ -105,7 +105,7 @@ namespace BrightData
 
 namespace BrightData.DataTable
 {
-    internal abstract partial class TableBase
+    internal partial class ColumnOrientedDataTable
     {
       
         public async IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
