@@ -28,7 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BrightData.Cuda\BrightData.Cuda.csproj" />
     <ProjectReference Include="..\BrightData.MKL\BrightData.MKL.csproj" />
-    <ProjectReference Include="..\BrightData.Table\BrightData.Table.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
   </ItemGroup>

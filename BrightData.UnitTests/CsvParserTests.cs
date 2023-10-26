@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Input;
 using BrightData.Table;
 using BrightData.Table.Helper;
 using FluentAssertions;
@@ -14,7 +15,7 @@ namespace BrightData.UnitTests
     public class CsvParserTests
     {
         [Fact]
-        public void Parse_WhenValidCsvString_ReturnsExpectedResult()
+        public async Task Parse_WhenValidCsvString_ReturnsExpectedResult()
         {
             // Arrange
             var csvParser = new CsvParser(true, ',');
@@ -29,7 +30,7 @@ namespace BrightData.UnitTests
 
             var firstColumn = result![0];
             firstColumn.MetaData.GetName().Should().Be("Name");
-            var firstColumnData = firstColumn.ToArray();
+            var firstColumnData = await firstColumn.ToArray();
             firstColumnData.Should().NotBeNull();
             firstColumnData.Should().HaveCount(2);
             firstColumnData[0].Should().Be("John");
@@ -37,7 +38,7 @@ namespace BrightData.UnitTests
 
             var secondColumn = result[1];
             secondColumn.MetaData.GetName().Should().Be("Age");
-            var secondColumnData = secondColumn.ToArray();
+            var secondColumnData = await secondColumn.ToArray();
             secondColumnData.Should().NotBeNull();
             secondColumnData.Should().HaveCount(2);
             secondColumnData[0].Should().Be("30");
@@ -63,7 +64,7 @@ namespace BrightData.UnitTests
             result.Should().HaveCount(2);
 
             var firstColumn = result![0];
-            var firstColumnData = firstColumn.ToArray();
+            var firstColumnData = await firstColumn.ToArray();
             firstColumnData.Should().NotBeNull();
             firstColumnData.Should().HaveCount(3);
             firstColumnData[0].Should().Be("Name");
@@ -71,7 +72,7 @@ namespace BrightData.UnitTests
             firstColumnData[2].Should().Be("Alice");
 
             var secondColumn = result[1];
-            var secondColumnData = secondColumn.ToArray();
+            var secondColumnData = await secondColumn.ToArray();
             secondColumnData.Should().NotBeNull();
             secondColumnData.Should().HaveCount(3);
             secondColumnData[0].Should().Be("Age");

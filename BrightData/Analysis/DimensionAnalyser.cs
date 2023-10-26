@@ -6,7 +6,7 @@ namespace BrightData.Analysis
     /// <summary>
     /// Tensor analysis
     /// </summary>
-    internal class DimensionAnalyser : IDataAnalyser<ITensor>
+    internal class DimensionAnalyser : IDataAnalyser<IReadOnlyTensor>
     {
         readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new();
 
@@ -18,7 +18,7 @@ namespace BrightData.Analysis
         public uint? YDimension { get; private set; }
         public uint? ZDimension { get; private set; }
 
-        public void Add(ITensor obj)
+        public void Add(IReadOnlyTensor obj)
         {
             uint x = 0, y = 0, z = 0;
             if (obj is IReadOnlyVector vector) {
@@ -44,13 +44,13 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj)
         {
-            if (obj is ITensor tensor)
+            if (obj is IReadOnlyTensor tensor)
                 Add(tensor);
             else
                 throw new ArgumentException("Expected a tensor", nameof(obj));
         }
 
-        public void Add(ReadOnlySpan<ITensor> block)
+        public void Add(ReadOnlySpan<IReadOnlyTensor> block)
         {
             foreach(ref readonly var item in block)
                 Add(item);

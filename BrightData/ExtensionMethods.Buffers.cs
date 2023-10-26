@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -223,8 +224,8 @@ namespace BrightData
                 BrightDataType.Boolean           => CreateCompositeBuffer<bool>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.Date              => CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.DateOnly          => CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.Decimal           => CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.SByte             => CreateCompositeBuffer<byte>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.Decimal           => CreateCompositeBuffer<decimal>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.SByte             => CreateCompositeBuffer<sbyte>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.Short             => CreateCompositeBuffer<short>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.Int               => CreateCompositeBuffer<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.Long              => CreateCompositeBuffer<long>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
@@ -349,56 +350,37 @@ namespace BrightData
         /// <returns></returns>
         public static IDataAnalyser GetAnalyser(this IReadOnlyBuffer buffer, MetaData metaData, uint maxMetaDataWriteCount = Consts.MaxMetaDataWriteCount)
         {
-            var dataType = buffer.DataType.GetBrightDataType();
-            var columnType = ColumnTypeClassifier.GetClass(dataType, metaData);
-            if (columnType.HasFlag(ColumnClass.Categorical)) {
-                if (dataType == BrightDataType.String)
-                    return StaticAnalysers.CreateStringAnalyser(maxMetaDataWriteCount);
-                return StaticAnalysers.CreateFrequencyAnalyser(buffer.DataType, maxMetaDataWriteCount);
-            }
-
-            if (columnType.HasFlag(ColumnClass.IndexBased))
-                return StaticAnalysers.CreateIndexAnalyser(maxMetaDataWriteCount);
-
-            if (columnType.HasFlag(ColumnClass.Tensor))
-                return StaticAnalysers.CreateDimensionAnalyser();
-
-            return dataType switch
-            {
-                BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(maxMetaDataWriteCount),
-                BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(maxMetaDataWriteCount),
-                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyser<decimal>(maxMetaDataWriteCount),
-                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyser<sbyte>(maxMetaDataWriteCount),
-                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyser<int>(maxMetaDataWriteCount),
-                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyser<long>(maxMetaDataWriteCount),
-                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyser<short>(maxMetaDataWriteCount),
-                BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
-                BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxMetaDataWriteCount),
-                BrightDataType.DateOnly   => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(maxMetaDataWriteCount),
-                BrightDataType.TimeOnly   => StaticAnalysers.CreateFrequencyAnalyser<TimeOnly>(maxMetaDataWriteCount),
-                _                         => throw new NotImplementedException()
-            };
+            return buffer.DataType.GetBrightDataType().GetAnalyser(metaData, maxMetaDataWriteCount);
         }
-        public static IOperation Analyse(this MetaData metaData, bool force, params IReadOnlyBuffer[] buffers)
+
+        public static IOperation Analyse(this MetaData metaData, bool force, IReadOnlyBuffer buffer)
         {
             if (force || !metaData.Get(Consts.HasBeenAnalysed, false)) {
-                if (buffers.Length == 1) {
-                    var buffer = buffers[0];
-                    var analyser = buffer.GetAnalyser(metaData);
-                    return GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, null);
-                }
-                if (buffers.Length > 1) {
-                    var analysers = buffers.Select(x => x.GetAnalyser(metaData)).ToArray();
-                    var analyser = analysers[0];
-                    if (analysers.Skip(1).Any(x => x.GetType() != analyser.GetType()))
-                        throw new InvalidOperationException("Expected all buffers to be in same analysis category");
+                var analyser = buffer.GetAnalyser(metaData);
+                var writeToMetaData = () => analyser.WriteTo(metaData);
 
-                    var operations = buffers.Select(x => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(x.DataType), x, analyser)).ToArray();
-                    return new AggregateOperation(operations);
-                }
+                return buffer.DataType.GetBrightDataType() switch {
+                    BrightDataType.IndexList => Cast<IndexList, IHaveIndices>(buffer, analyser, writeToMetaData),
+                    BrightDataType.WeightedIndexList => Cast<WeightedIndexList, IHaveIndices>(buffer, analyser, writeToMetaData),
+                    BrightDataType.Vector => Cast<ReadOnlyVector, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
+                    BrightDataType.Matrix => Cast<ReadOnlyMatrix, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
+                    BrightDataType.Tensor3D => Cast<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
+                    BrightDataType.Tensor4D => Cast<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
+                    _ => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, writeToMetaData)
+                };
             }
             return new NopOperation();
+
+            static BufferScan<CT> Cast<T, CT>(IReadOnlyBuffer buffer, IDataAnalyser analyser, Action action) where T: notnull where CT: notnull
+            {
+                var buffer2 = (IReadOnlyBufferWithMetaData<T>)buffer;
+                var buffer3 = buffer2.Cast<T, CT>();
+                var dataAnalyser2 = (IDataAnalyser<CT>)analyser;
+                return new BufferScan<CT>(buffer3, dataAnalyser2, action);
+            }
         }
+
+        public static IOperation Analyse(this IReadOnlyBufferWithMetaData buffer, bool force) => Analyse(buffer.MetaData, force, buffer);
         
         public static async Task<ICompositeBuffer> ToNumeric(this IReadOnlyBuffer buffer, 
             IProvideDataBlocks? tempStreams = null, 
@@ -672,6 +654,11 @@ namespace BrightData
         public static IReadOnlyBuffer<T> GetReadOnlyCompositeBuffer<T>(this Stream stream, CreateFromReadOnlyByteSpan<T> createItem) where T : IHaveDataAsReadOnlyByteSpan
         {
             return new ReadOnlyManagedCompositeBuffer<T>(createItem, stream);
+        }
+
+        public static IReadOnlyBuffer<TT> Cast<FT, TT>(this IReadOnlyBuffer<FT> buffer) where FT : notnull where TT : notnull
+        {
+            return new CastConverter<FT, TT>(buffer);
         }
     }
 }

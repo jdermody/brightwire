@@ -107,7 +107,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensors"></param>
         /// <returns></returns>
-        public static DimensionAnalysis Analyze(this IEnumerable<ITensor> tensors)
+        public static DimensionAnalysis Analyze(this IEnumerable<IReadOnlyTensor> tensors)
         {
             var analysis = new DimensionAnalyser();
             foreach (var item in tensors)

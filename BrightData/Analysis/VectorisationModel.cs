@@ -54,7 +54,7 @@ namespace BrightData.Analysis
             uint index = 0;
             for(int i = 0, len = Vectorisers.Length; i < len; i++) {
                 var vectoriser = Vectorisers[i];
-                vectoriser.Vectorise(values[i], span[..(int)index]);
+                vectoriser.Vectorise(values[i], span.Slice((int)index, (int)vectoriser.OutputSize));
                 index += vectoriser.OutputSize;
             }
             return ret;

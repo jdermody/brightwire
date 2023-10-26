@@ -499,7 +499,8 @@ namespace BrightData
         Numeric,
         OneHot,
         Tensor,
-        WeightedIndexList
+        WeightedIndexList,
+        Boolean
     }
 
     public interface ICanVectorise : IWriteToMetaData, IReadFromMetaData

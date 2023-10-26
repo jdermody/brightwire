@@ -120,7 +120,7 @@ namespace BrightData.Input
         public Action<float>? OnProgress { get; set; }
         public Action? OnComplete { get; set; }
 
-        public async Task<List<ICompositeBuffer<string>>?> Parse(StreamReader reader, uint maxLines, CancellationToken ct = default)
+        public async Task<List<ICompositeBuffer<string>>?> Parse(StreamReader reader, uint maxLines = uint.MaxValue, CancellationToken ct = default)
         {
             var parseState = new ParseState(this);
             using var buffer = MemoryOwner<char>.Allocate(_blockSize);
@@ -137,7 +137,7 @@ namespace BrightData.Input
             return parseState.Columns;
         }
 
-        public List<ICompositeBuffer<string>>? Parse(string str, uint maxLines, CancellationToken ct = default)
+        public List<ICompositeBuffer<string>>? Parse(string str, uint maxLines = uint.MaxValue, CancellationToken ct = default)
         {
             var parseState = new ParseState(this);
             parseState.Parse(str, maxLines, ct);

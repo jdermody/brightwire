@@ -238,10 +238,14 @@ namespace BrightData
         ReadOnlySpan<T> ReadOnlySpan { get; }
     }
 
+    public interface IReadOnlyTensor : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
+    {
+    }
+
     /// <summary>
     /// Vector that cannot be modified
     /// </summary>
-    public interface IReadOnlyVector : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
+    public interface IReadOnlyVector : IReadOnlyTensor
     {
         /// <summary>
         /// Returns a value at the index
@@ -284,7 +288,7 @@ namespace BrightData
     /// <summary>
     /// Matrix that cannot be modified
     /// </summary>
-    public interface IReadOnlyMatrix : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveMatrixDimensions
+    public interface IReadOnlyMatrix : IReadOnlyTensor, IHaveMatrixDimensions
     {
         /// <summary>
         /// Returns a value from the matrix
@@ -355,7 +359,7 @@ namespace BrightData
     /// <summary>
     /// 3D tensor that cannot be modified
     /// </summary>
-    public interface IReadOnlyTensor3D : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor3DDimensions
+    public interface IReadOnlyTensor3D : IReadOnlyTensor, IHaveTensor3DDimensions
     {
         /// <summary>
         /// Returns a value from the 3D tensor
@@ -415,7 +419,7 @@ namespace BrightData
     /// <summary>
     /// 4D tensor that cannot be modified
     /// </summary>
-    public interface IReadOnlyTensor4D : IHaveSpanOf<float>, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensor4DDimensions
+    public interface IReadOnlyTensor4D : IReadOnlyTensor, IHaveTensor4DDimensions
     {
         /// <summary>
         /// Returns a value from the 4D tensor

@@ -421,7 +421,7 @@ namespace BrightData.DataTable
             };
         }
 
-        public IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index)
+        public IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T: notnull
         {
             var typeofT = typeof(T);
             var reader = _columnReader[index];

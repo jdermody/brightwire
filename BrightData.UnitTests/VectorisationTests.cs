@@ -51,7 +51,7 @@ namespace BrightData.UnitTests
 
             var vector = vectoriser.Vectorise(table.GetColumns()).ToBlockingEnumerable().Single();
             vector[0, 0].Should().Be(0);
-            vector[1, 0].Should().Be(1);
+            vector[0, 1].Should().Be(1);
         }
 
         [Fact]
@@ -62,9 +62,9 @@ namespace BrightData.UnitTests
             var vector1 = await vectoriser1.Vectorise(table).ToFloatVectors();
 
             var vectoriser2 = table.ColumnMetaData.GetVectoriser();
-            var vector2 = vectoriser2.Vectorise(table).ToFloatVectors();
+            var vector2 = await vectoriser2.Vectorise(table).ToFloatVectors();
 
-            vector1.Should().AllBeEquivalentTo(vector2);
+            vector1[0].Should().BeEquivalentTo(vector2[0]);
         }
 
         [Fact]
@@ -104,14 +104,11 @@ namespace BrightData.UnitTests
         {
             var table = await GetTable();
             var row = table[0];
-            var rowValues = row.ToArray();
             var vectoriser = await table.GetVectoriser(false);
             var vector1 = await vectoriser.Vectorise(table).ToFloatVectors();
-            var vector2 = vectoriser.Vectorise(row);
-            var vector3 = vectoriser.Vectorise(rowValues);
+            var vector2 = vectoriser.Vectorise(row.Values);
 
-            vector1.Should().BeEquivalentTo(vector2);
-            vector2.Should().BeEquivalentTo(vector3);
+            vector1[0].Should().BeEquivalentTo(vector2);
         }
     }
 }

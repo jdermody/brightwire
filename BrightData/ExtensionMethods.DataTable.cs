@@ -20,6 +20,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Operations;
 using BrightData.Operations.Vectorisation;
+using CommunityToolkit.HighPerformance.Buffers;
 using Microsoft.VisualBasic;
 
 namespace BrightData
@@ -214,7 +215,7 @@ namespace BrightData
         /// <param name="metaData">Column meta data</param>
         /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser GetColumnAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount)
+        public static IDataAnalyser GetAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
             if (dataType.HasFlag(ColumnClass.Categorical)) {
@@ -1398,14 +1399,25 @@ namespace BrightData
         public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
         {
             var dataType = buffer.DataType.GetBrightDataType();
-            var ret = ColumnTypeClassifier.GetClass(dataType, metaData) switch {
-                ColumnClass.Numeric => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget()),
-                ColumnClass.Categorical when oneHotEncodeCategoricalData => await GetOneHotEncoder(buffer, metaData),
-                ColumnClass.Categorical => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType), metaData.IsTarget()),
-                ColumnClass.IndexBased => await GetIndexBasedVectoriser(buffer, metaData),
-                ColumnClass.Tensor => await GetTensorVectoriser(buffer, metaData),
-                _ => throw new NotSupportedException()
-            };
+            var cls = ColumnTypeClassifier.GetClass(dataType, metaData);
+            ICanVectorise? ret = null;
+
+            if (dataType == BrightDataType.Boolean)
+                ret = new BooleanVectoriser(metaData.IsTarget());
+            else if (cls.HasFlag(ColumnClass.Numeric))
+                ret = GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget());
+            else if (cls.HasFlag(ColumnClass.Categorical)) {
+                if (oneHotEncodeCategoricalData)
+                    ret = await GetOneHotEncoder(buffer, metaData);
+                else
+                    ret = GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType), metaData.IsTarget());
+            }
+            else if (cls.HasFlag(ColumnClass.IndexBased))
+                ret = await GetIndexBasedVectoriser(buffer, metaData);
+            else if (cls.HasFlag(ColumnClass.Tensor))
+                ret = await GetTensorVectoriser(buffer, metaData);
+            else
+                throw new NotImplementedException();
             ret.ReadFrom(metaData);
             return ret;
 
@@ -1516,6 +1528,7 @@ namespace BrightData
                     VectorisationType.IndexList         => new IndexListVectoriser(isOutput, size),
                     VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType), isOutput),
                     VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), isOutput, size),
+                    VectorisationType.Boolean           => new BooleanVectoriser(isOutput),
                     _                                   => throw new NotImplementedException()
                 };
                 vectoriser.ReadFrom(item);
