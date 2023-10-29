@@ -135,7 +135,7 @@ namespace BrightData
     /// <summary>
     /// Base data analyzer type
     /// </summary>
-    public interface IDataAnalyser : IWriteToMetaData
+    public interface IDataAnalyser : IWriteToMetaData, IAcceptBlock
     {
         /// <summary>
         /// Adds an object to analyze

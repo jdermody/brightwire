@@ -83,8 +83,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<<#= typeString #>>(<#= rowParams #>);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<<#= typeString #>>(<#= rowParams #>);
+                    yield return row;
+                }
             }
         }
 
@@ -175,8 +177,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<<#= typeString #>>(<#= currentValues #>);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<<#= typeString #>>(<#= currentValues #>);
+                        yield return row;
+                    }
                 }
             }
 

@@ -129,8 +129,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2>(e1.Current, e2.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2>(e1.Current, e2.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -211,8 +213,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2>(e1.Current, e2.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2>(e1.Current, e2.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -251,8 +255,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -347,8 +353,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3>(e1.Current, e2.Current, e3.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -391,8 +399,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -501,8 +511,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4>(e1.Current, e2.Current, e3.Current, e4.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -549,8 +561,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -673,8 +687,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -725,8 +741,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -863,8 +881,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5, T6>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -919,8 +939,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -1071,8 +1093,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -1131,8 +1155,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -1297,8 +1323,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -1361,8 +1389,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -1541,8 +1571,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
+                        yield return row;
+                    }
                 }
             }
 
@@ -1609,8 +1641,10 @@ namespace BrightData.DataTable
                         break;
                     }
                 }
-                var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
-                yield return row;
+                if(isValid) {
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
+                    yield return row;
+                }
             }
         }
 
@@ -1803,8 +1837,10 @@ namespace BrightData.DataTable
                             break;
                         }
                     }
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
-                    yield return row;
+                    if(isValid) {
+                        var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
+                        yield return row;
+                    }
                 }
             }
 

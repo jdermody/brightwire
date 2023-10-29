@@ -44,13 +44,15 @@ namespace BrightData.Operations
                     }
                 }
 
-                for (var i = 0; i < _size; i++) {
-                    _to[i].AddObject(enumerators[i].Current);
-                    ++CopiedCount;
-                }
+                if (isValid) {
+                    for (var i = 0; i < _size; i++) {
+                        _to[i].AddObject(enumerators[i].Current);
+                        ++CopiedCount;
+                    }
 
-                if(++index % _blockSize == 0)
-                    notify?.OnOperationProgress(id, (float)index / _size);
+                    if (++index % _blockSize == 0)
+                        notify?.OnOperationProgress(id, (float)index / _size);
+                }
             }
 
             notify?.OnCompleteOperation(id, ct.IsCancellationRequested);

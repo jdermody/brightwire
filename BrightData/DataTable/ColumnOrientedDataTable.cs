@@ -288,10 +288,12 @@ namespace BrightData.DataTable
                     }
                 }
 
-                var curr = new object[size];
-                for (var i = 0; i < size; i++)
-                    curr[i] = enumerators[i].Current;
-                yield return new TableRow(this, rowIndex++, curr);
+                if (isValid) {
+                    var curr = new object[size];
+                    for (var i = 0; i < size; i++)
+                        curr[i] = enumerators[i].Current;
+                    yield return new TableRow(this, rowIndex++, curr);
+                }
             }
         }
 

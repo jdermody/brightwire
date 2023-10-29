@@ -878,9 +878,9 @@ namespace BrightData
             if (type == NormalizationType.None)
                 return dataTable;
 
-            var columnMutationTable = columnIndices
-                .Select(i => (Index: i, Task: GetNormalization(dataTable.GetColumn(i), type)))
-                .ToDictionary(x => x.Index, x => x.Task);
+            var columnMutationTasks = await Task.WhenAll(dataTable.AllOrSpecifiedColumnIndices(true, columnIndices)
+                .Select(async i => (Index: i, Task: await GetNormalization(dataTable.GetColumn(i), type))));
+            var columnMutationTable = columnMutationTasks.ToDictionary(x => x.Index, x => x.Task);
 
             using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
@@ -894,6 +894,10 @@ namespace BrightData
                     columns[i] = column;
             }
             await writer.Add(columns);
+
+            // copy normalisation data to new columns
+            foreach(var (index, model) in columnMutationTable)
+                model.WriteTo(writer.ColumnMetaData[index]);
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
@@ -1381,7 +1385,7 @@ namespace BrightData
             if (metaData.Get(Consts.NormalizationType, NormalizationType.None) == type)
                 return metaData.GetNormalization();
 
-            if (buffer.DataType.GetBrightDataType().IsNumeric())
+            if (!buffer.DataType.GetBrightDataType().IsNumeric())
                 throw new NotSupportedException("Only numeric buffers can be normalized");
 
             if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
@@ -1578,7 +1582,7 @@ namespace BrightData
         public static IOperation[] CopyTo(this IDataTable dataTable, params IAcceptBlock[] buffers)
         {
             return dataTable.ColumnCount.AsRange()
-                .Select(i => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(dataTable.GetColumnType(i)), dataTable.GetColumn(i), buffers[i], null))
+                .Select(i => dataTable.GetColumn(i).CreateBufferScan(buffers[i]))
                 .ToArray()
             ;
         }

@@ -89,10 +89,13 @@ namespace BrightData
                         sb.Append('|');
                     sb.Append(enumerator.Current);
                 }
-                var str = sb.ToString();
-                if(!ret.TryGetValue(str, out var list))
-                    ret.Add(str, list = new());
-                list.Add(rowIndex++);
+
+                if (shouldContinue) {
+                    var str = sb.ToString();
+                    if (!ret.TryGetValue(str, out var list))
+                        ret.Add(str, list = new());
+                    list.Add(rowIndex++);
+                }
             }
 
             return ret;
@@ -357,26 +360,30 @@ namespace BrightData
         {
             if (force || !metaData.Get(Consts.HasBeenAnalysed, false)) {
                 var analyser = buffer.GetAnalyser(metaData);
-                var writeToMetaData = () => analyser.WriteTo(metaData);
-
-                return buffer.DataType.GetBrightDataType() switch {
-                    BrightDataType.IndexList => Cast<IndexList, IHaveIndices>(buffer, analyser, writeToMetaData),
-                    BrightDataType.WeightedIndexList => Cast<WeightedIndexList, IHaveIndices>(buffer, analyser, writeToMetaData),
-                    BrightDataType.Vector => Cast<ReadOnlyVector, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
-                    BrightDataType.Matrix => Cast<ReadOnlyMatrix, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
-                    BrightDataType.Tensor3D => Cast<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
-                    BrightDataType.Tensor4D => Cast<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, analyser, writeToMetaData),
-                    _ => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, analyser, writeToMetaData)
-                };
+                void WriteToMetaData() => analyser.WriteTo(metaData);
+                return buffer.CreateBufferScan(analyser, WriteToMetaData);
             }
             return new NopOperation();
+        }
 
-            static BufferScan<CT> Cast<T, CT>(IReadOnlyBuffer buffer, IDataAnalyser analyser, Action action) where T: notnull where CT: notnull
+        public static IOperation CreateBufferScan(this IReadOnlyBuffer buffer, IAcceptBlock output, Action? action = null)
+        {
+            return buffer.DataType.GetBrightDataType() switch {
+                BrightDataType.IndexList         => CastBuffer<IndexList, IHaveIndices>(buffer, output, action),
+                BrightDataType.WeightedIndexList => CastBuffer<WeightedIndexList, IHaveIndices>(buffer, output, action),
+                BrightDataType.Vector            => CastBuffer<ReadOnlyVector, IReadOnlyTensor>(buffer, output, action),
+                BrightDataType.Matrix            => CastBuffer<ReadOnlyMatrix, IReadOnlyTensor>(buffer, output, action),
+                BrightDataType.Tensor3D          => CastBuffer<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, output, action),
+                BrightDataType.Tensor4D          => CastBuffer<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, output, action),
+                _                                => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, output, action)
+            };
+
+            static BufferScan<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAcceptBlock analyser, Action? action = null) where T2 : notnull where CT2 : notnull
             {
-                var buffer2 = (IReadOnlyBufferWithMetaData<T>)buffer;
-                var buffer3 = buffer2.Cast<T, CT>();
-                var dataAnalyser2 = (IDataAnalyser<CT>)analyser;
-                return new BufferScan<CT>(buffer3, dataAnalyser2, action);
+                var buffer2 = (IReadOnlyBuffer<T2>)buffer;
+                var buffer3 = buffer2.Cast<T2, CT2>();
+                var dataAnalyser2 = (IAcceptBlock<CT2>)analyser;
+                return new BufferScan<CT2>(buffer3, dataAnalyser2, action);
             }
         }
 

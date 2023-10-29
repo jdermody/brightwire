@@ -45,11 +45,14 @@ namespace BrightData.Operations
                         break;
                     }
                 }
-                for (var i = 0; i < _size; i++)
-                    curr[i] = enumerators[i].Current;
-                _to.Add(_mutator(curr));
-                if(++index % _blockSize == 0)
-                    notify?.OnOperationProgress(id, (float)index / _size);
+
+                if (isValid) {
+                    for (var i = 0; i < _size; i++)
+                        curr[i] = enumerators[i].Current;
+                    _to.Add(_mutator(curr));
+                    if (++index % _blockSize == 0)
+                        notify?.OnOperationProgress(id, (float)index / _size);
+                }
             }
 
             notify?.OnCompleteOperation(id, ct.IsCancellationRequested);
