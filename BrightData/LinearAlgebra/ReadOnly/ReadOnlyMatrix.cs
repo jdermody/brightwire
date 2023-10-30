@@ -51,7 +51,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ReadOnlyMemoryTensorSegment(_data);
+        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ReadOnlyMemoryTensorSegment(_data[..(int)Size]);
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)

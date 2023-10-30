@@ -37,8 +37,8 @@ namespace BrightData.UnitTests
             intReader.Length.Should().Be(2);
 
             var str = dataTable.Get<string>(0, 0);
-            var str2 = dataTable.Get<string>(1, 0);
-            var val1 = dataTable.Get<int>(0, 1);
+            var str2 = dataTable.Get<string>(0, 1);
+            var val1 = dataTable.Get<int>(1, 0);
             var val2 = dataTable.Get<int>(1, 1);
 
             var row1 = dataTable[0];
@@ -58,8 +58,8 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            var fromTable = dataTable.Get<IndexList>(0, 0);
-            fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<IndexList>());
+            var fromTable = await dataTable.Get<IndexList>(0, 0);
+            fromTable.Should().BeEquivalentTo(sampleIndexList);
         }
 
         [Fact]
@@ -75,8 +75,8 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            var fromTable = dataTable.Get<WeightedIndexList>(0, 0);
-            fromTable.Should().BeEquivalentTo(sampleIndexList, options => options.ComparingByMembers<WeightedIndexList>());
+            var fromTable = await dataTable.Get<WeightedIndexList>(0, 0);
+            fromTable.Should().BeEquivalentTo(sampleIndexList);
         }
 
         void CheckSame(IHaveReadOnlyTensorSegment<float> tensorSegment1, IHaveReadOnlyTensorSegment<float> tensorSegment2)
@@ -88,7 +88,7 @@ namespace BrightData.UnitTests
         public async Task InMemoryVector()
         {
             var builder = _context.CreateTableBuilder();
-            var vectorBuilder = builder.CreateColumn<IReadOnlyVector>("vector");
+            var vectorBuilder = builder.CreateColumn<ReadOnlyVector>("vector");
             var firstVector = _context.CreateReadOnlyVector(5, i => i + 1);
             vectorBuilder.Add(firstVector);
             var secondVector = _context.CreateReadOnlyVector(5, i => i + 2);
@@ -111,7 +111,7 @@ namespace BrightData.UnitTests
         public async Task InMemoryMatrix()
         {
             var builder = _context.CreateTableBuilder();
-            var matrixBuilder = builder.CreateColumn<IReadOnlyMatrix>("matrix");
+            var matrixBuilder = builder.CreateColumn<ReadOnlyMatrix>("matrix");
             var firstMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j);
             matrixBuilder.Add(firstMatrix);
             var secondMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => (i + j) + 1);
@@ -138,7 +138,7 @@ namespace BrightData.UnitTests
         public async Task InMemoryTensor3D()
         {
             var builder = _context.CreateTableBuilder();
-            var tensorBuilder = builder.CreateColumn<IReadOnlyTensor3D>("tensor");
+            var tensorBuilder = builder.CreateColumn<ReadOnlyTensor3D>("tensor");
             var firstTensor = _context.CreateReadOnlyTensor3D(
                 _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
                 _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
@@ -150,7 +150,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            using var fromTable = (await dataTable.Get<IReadOnlyTensor3D>(0, 0)).Create(_context.LinearAlgebraProvider);
+            using var fromTable = (await dataTable.Get<ReadOnlyTensor3D>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);
         }
 
@@ -158,7 +158,7 @@ namespace BrightData.UnitTests
         public async Task InMemoryTensor4D()
         {
             var builder = _context.CreateTableBuilder();
-            var tensorBuilder = builder.CreateColumn<IReadOnlyTensor4D>("tensor");
+            var tensorBuilder = builder.CreateColumn<ReadOnlyTensor4D>("tensor");
             var firstTensor = _context.CreateReadOnlyTensor4D(
                 _context.CreateReadOnlyTensor3D(
                     _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
@@ -176,7 +176,7 @@ namespace BrightData.UnitTests
             stream.Seek(0, SeekOrigin.Begin);
             var dataTable = _context.LoadTableFromStream(stream);
 
-            using var fromTable = (await dataTable.Get<IReadOnlyTensor4D>(0, 0)).Create(_context.LinearAlgebraProvider);
+            using var fromTable = (await dataTable.Get<ReadOnlyTensor4D>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);
         }
     }

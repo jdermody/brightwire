@@ -58,6 +58,7 @@ namespace BrightData.DataTable
         public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData)
         {
             var buffer = type.CreateCompositeBuffer(_tempData, _blockSize, _maxInMemoryBlocks);
+            metaData.CopyTo(buffer.MetaData, Consts.StandardMetaData);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
             return buffer;
@@ -80,6 +81,11 @@ namespace BrightData.DataTable
             foreach (var column in wantedColumnTypes)
                 ret[index++] = CreateColumn(column.Type, column.MetaData);
             return ret;
+        }
+
+        public ICompositeBuffer CreateColumn(IReadOnlyBufferWithMetaData buffer)
+        {
+            return CreateColumn(buffer.DataType.GetBrightDataType(), buffer.MetaData);
         }
 
         public ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers)

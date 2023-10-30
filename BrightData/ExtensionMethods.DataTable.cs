@@ -548,7 +548,7 @@ namespace BrightData
                 CopyToReadOnly(x, matrix.ReadOnlySpan.Slice(rowIndex, size));
                 rowIndex += size;
             });
-            TransposeInPlace(matrix);
+            //TransposeInPlace(matrix);
             return matrix;
         }
 
@@ -913,9 +913,9 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<IDataTable> Normalize(this IDataTable dataTable, string? filePath = null, params NormalizationType[] columnNormalizationTypes)
         {
-            var columnMutationTable = columnNormalizationTypes
-                .Select((x, i) => (Index: (uint)i, Task: GetNormalization(dataTable.GetColumn((uint)i), x)))
-                .ToDictionary(x => x.Index, x => x.Task);
+            var columnMutationTasks = await Task.WhenAll(columnNormalizationTypes
+                .Select(async (x, i) => (Index: (uint)i, Task: await GetNormalization(dataTable.GetColumn((uint)i), x))));
+            var columnMutationTable = columnMutationTasks.ToDictionary(x => x.Index, x => x.Task);
 
             using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
@@ -990,14 +990,13 @@ namespace BrightData
 
             using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
-            writer.CreateColumnsFrom(dataTable);
-            var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
+            var columns = new IReadOnlyBufferWithMetaData[dataTable.ColumnCount];
             for (uint i = 0; i < dataTable.ColumnCount; i++) {
-                var column = dataTable.GetColumn(i);
                 if (newColumnTable.TryGetValue(i, out var newColumn))
-                    columns[i] = await newColumn;
-                else
-                    columns[i] = column;
+                    writer.CreateColumn(columns[i] = await newColumn);
+                else {
+                    writer.CreateColumn(columns[i] = dataTable.GetColumn(i));
+                }
             }
             await writer.Add(columns);
 

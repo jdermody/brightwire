@@ -56,17 +56,19 @@ namespace BrightData
         /// Copies this to another meta data store
         /// </summary>
         /// <param name="metadata">Other meta data store</param>
-        public void CopyTo(MetaData metadata)
+        /// <param name="keys">Keys to copy (optional)</param>
+        public void CopyTo(MetaData metadata, params string[] keys)
         {
             var other = metadata;
-            var keys = _orderedValues.ToList();
+            if(keys.Length == 0)
+                keys = _orderedValues.ToArray();
 
             foreach (var key in keys) {
                 if (other._values.ContainsKey(key))
                     other._values[key] = _values[key];
-                else {
+                else if(_values.TryGetValue(key, out var value)) {
                     other._orderedValues.Add(key);
-                    other._values.Add(key, _values[key]);
+                    other._values.Add(key, value);
                 }
             }
         }

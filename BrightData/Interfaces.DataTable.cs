@@ -191,7 +191,7 @@ namespace BrightData
     /// <summary>
     /// Single column conversion options
     /// </summary>
-    public enum ColumnConversion
+    public enum ColumnConversion : byte
     {
         /// <summary>
         /// Leave the column unchanged (nop)
@@ -432,10 +432,9 @@ namespace BrightData
         Task WriteTo(Stream stream);
     }
 
-    public interface IAppendToBuffer<T> : IAppendToBuffer where T: notnull
+    public interface IAppendToBuffer<T> : IAcceptBlock<T>, IAppendToBuffer where T: notnull
     {
         void Add(in T item);
-        void Add(ReadOnlySpan<T> inputBlock);
     }
 
     public interface IConstraintValidator<T> where T : notnull

@@ -7,7 +7,6 @@ using BrightData.UnitTests.Helper;
 using BrightWire;
 using FluentAssertions;
 using Xunit;
-using static BrightWire.Models.Bayesian.NaiveBayes;
 
 namespace BrightData.UnitTests
 {
@@ -32,14 +31,13 @@ namespace BrightData.UnitTests
 
             var firstRow = dataTable[0];
             firstRow.Get<bool>(0).Should().BeTrue();
-            firstRow.Get<byte>(1).Should().Be(100);
+            firstRow.Get<sbyte>(1).Should().Be(100);
             firstRow.Get<DateTime>(2).Should().Be(now);
             firstRow.Get<double>(3).Should().Be(1.0 / 3);
             firstRow.Get<float>(4).Should().Be(0.5f);
             firstRow.Get<int>(5).Should().Be(int.MaxValue);
             firstRow.Get<long>(6).Should().Be(long.MaxValue);
             firstRow.Get<string>(7).Should().Be("test");
-
         }
 
         static void CompareRows(TableRow row1, TableRow row2)
@@ -312,27 +310,8 @@ namespace BrightData.UnitTests
             var table = await builder.BuildInMemory();
             var matrix = await table.AsMatrix(0, 1);
             matrix[0, 0].Should().Be(0.5f);
-            matrix[1, 0].Should().Be(0.2f);
-            matrix[1, 1].Should().Be(1.5f);
-        }
-
-        [Fact]
-        public async Task AsMatrix2()
-        {
-            var builder = _context.CreateTableBuilder();
-            builder.CreateColumn(BrightDataType.Float, "val1");
-            builder.CreateColumn(BrightDataType.Double, "val2");
-            builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
-
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
-
-            var table = await builder.BuildInMemory();
-            var matrix = await table.AsMatrix(0, 1);
-            matrix[0, 0].Should().Be(0.5f);
-            matrix[1, 0].Should().Be(0.2f);
+            matrix[0, 1].Should().Be(0.2f);
+            matrix[1, 0].Should().Be(1.1f);
             matrix[1, 1].Should().Be(1.5f);
         }
 

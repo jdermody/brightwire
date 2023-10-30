@@ -13,7 +13,7 @@ namespace BrightData.LinearAlgebra
     /// Row major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix, IReadOnlyMatrix
+    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix
         where LAP: LinearAlgebraProvider
     {
         /// <summary>

@@ -67,7 +67,7 @@ namespace BrightData.UnitTests
             buffer.Seek(0, SeekOrigin.Begin);
             using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
             using var vector2 = _context.Create<IVector>(reader);
-            vector2.Should().BeEquivalentTo(vector);
+            vector2.ToArray().Should().BeEquivalentTo(vector.ToArray());
         }
 
         void Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)

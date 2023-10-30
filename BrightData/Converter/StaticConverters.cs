@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Reflection;
 
 namespace BrightData.Converter
@@ -63,9 +64,10 @@ namespace BrightData.Converter
         /// <typeparam name="TF">Type to convert from</typeparam>
         /// <typeparam name="TT">Type to convert to</typeparam>
         /// <returns></returns>
-        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF: notnull where TT : notnull
+        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF: INumber<TF> where TT : notnull
         {
             return Type.GetTypeCode(typeof(TT)) switch {
+                TypeCode.Boolean => (ICanConvert<TF, TT>) new ConvertToBoolean<TF>(),
                 TypeCode.SByte   => (ICanConvert<TF, TT>) GetConverterToSignedByte<TF>(),
                 TypeCode.Int16   => (ICanConvert<TF, TT>) GetConverterToShort<TF>(),
                 TypeCode.Int32   => (ICanConvert<TF, TT>) GetConverterToInt<TF>(),

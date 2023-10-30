@@ -389,7 +389,7 @@ namespace BrightData.DataTable
             }
         }
 
-        public Task<T> Get<T>(uint columnIndex, uint rowIndex)
+        public Task<T> Get<T>(uint columnIndex, uint rowIndex) where T: notnull
         {
             var column = _columnReader[columnIndex];
             if (column.DataType != typeof(T))
@@ -398,7 +398,7 @@ namespace BrightData.DataTable
             return reader.GetItem(rowIndex);
         }
 
-        public Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices)
+        public Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T: notnull
         {
             var column = _columnReader[columnIndex];
             if (column.DataType != typeof(T))

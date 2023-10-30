@@ -1,9 +1,10 @@
-﻿using BrightData.Converter;
+﻿using System.Numerics;
+using BrightData.Converter;
 
 namespace BrightData.Operations.Conversion
 {
     internal class UnmanagedConversion<FT, T> : ConversionBase<FT, T>
-        where FT : notnull
+        where FT : INumber<FT>
         where T : unmanaged
     {
         readonly ICanConvert<FT, T> _converter;
