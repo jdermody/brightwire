@@ -64,7 +64,7 @@ namespace BrightData.UnitTests
             var vectoriser2 = table.ColumnMetaData.GetVectoriser();
             var vector2 = await vectoriser2.Vectorise(table).ToFloatVectors();
 
-            vector1[0].ToArray().Should().BeEquivalentTo(vector2[0].ToArray());
+            vector1[0].Should().BeEquivalentTo(vector2[0]);
         }
 
         [Fact]

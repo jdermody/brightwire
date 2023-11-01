@@ -51,8 +51,8 @@ namespace BrightData.Buffer.ReadOnly
 
             _lastBlockIndex = blockIndex;
             var start = _offset + blockIndex * BlockSize * _sizeOfT;
-            var end = Math.Min(start + BlockSize * _sizeOfT, _byteSize);
-            var byteBlock = await _reader.GetBlock(start, end);
+            var end = Math.Min(start + BlockSize * _sizeOfT, _byteSize + _offset);
+            var byteBlock = await _reader.GetBlock(start, end - start);
             var ret = byteBlock.Cast<byte, T>();
             _lastBlock = ret;
             return ret;

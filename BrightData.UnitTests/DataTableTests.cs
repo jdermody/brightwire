@@ -123,7 +123,7 @@ namespace BrightData.UnitTests
 
         async Task<IDataTable> GetSimpleTable2()
         {
-            var table = await GetSimpleTable();
+            using var table = await GetSimpleTable();
             var builder = await table.Project(r => new object[] { Convert.ToDouble(r[0]) });
             var table2 = await builder.BuildInMemory();
             table2.ColumnTypes[0].Should().Be(BrightDataType.Double);
@@ -134,7 +134,7 @@ namespace BrightData.UnitTests
         public async Task TestTableSlice()
         {
             using var table = await GetSimpleTable();
-            using var table2 = await table.CopyRowsToNewTable(null, 5000.AsRange(100).ToArray());
+            using var table2 = await table.CopyRowsToNewTable(null, 100.AsRange(5000).ToArray());
             var rows = (await table2.GetRows()).Select(r => r.Get<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)

@@ -398,6 +398,10 @@ namespace BrightData
             if(Type.GetTypeCode(buffer.DataType) is TypeCode.DBNull or TypeCode.Empty or TypeCode.Object)
                 throw new NotSupportedException();
 
+            // convert from strings
+            if (buffer.DataType == typeof(string))
+                buffer = buffer.ConvertTo<double>();
+
             var analysis = GenericActivator.Create<ICastToNumericAnalysis>(typeof(CastToNumericAnalysis<>).MakeGenericType(buffer.DataType), buffer);
             await analysis.Process();
 

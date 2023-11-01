@@ -354,25 +354,34 @@ namespace BrightData.DataTable
 
         public async Task<TableRow[]> GetRows(params uint[] rowIndices)
         {
+            if (rowIndices.Length == 0) {
+                Array.Resize(ref rowIndices, (int)RowCount);
+                for (uint i = 0; i < RowCount; i++)
+                    rowIndices[i] = i;
+            }
+
             var columns = _genericColumns.Value;
             var len = columns.Length;
             var blockSize = columns[0].BlockSize;
             Debug.Assert(columns.Skip(1).All(x => x.BlockSize == blockSize));
 
-            var blocks = rowIndices.Select(x => (Index: x, BlockIndex: x / blockSize, RelativeIndex: x % blockSize))
+            var blocks = rowIndices.Select(x => (SourceIndex: x, BlockIndex: x / blockSize, RelativeBlockIndex: x % blockSize))
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
             var ret = rowIndices.Select(x => new TableRow(this, x, new object[len])).ToArray();
+            var retTable = ret.ToLookup(x => x.RowIndex);
             var tasks = new Task<ReadOnlyMemory<object>>[len];
             foreach (var block in blocks) {
                 for(var i = 0; i < len; i++)
                     tasks[i] = columns[i].GetTypedBlock(block.Key);
                 await Task.WhenAll(tasks);
-                foreach (var (index, _, relativeIndex) in block) {
-                    var row = ret[index].Values;
-                    for (var i = 0; i < len; i++)
-                        row[i] = tasks[i].Result.Span[(int)relativeIndex];
+                foreach (var (sourceIndex, _, relativeBlockIndex) in block) {
+                    foreach (var row in retTable[sourceIndex]) {
+                        var rowValues = row.Values;
+                        for (var i = 0; i < len; i++)
+                            rowValues[i] = tasks[i].Result.Span[(int)relativeBlockIndex];
+                    }
                 }
             }
             return ret;

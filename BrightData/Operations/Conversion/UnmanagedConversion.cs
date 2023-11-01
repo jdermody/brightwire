@@ -11,7 +11,7 @@ namespace BrightData.Operations.Conversion
 
         public UnmanagedConversion(IReadOnlyBuffer<FT> input, IAppendToBuffer<T> output) : base(input, output)
         {
-            _converter = StaticConverters.GetConverter<FT, T>();
+            _converter = StaticConverters.GetNumericConverter<FT, T>();
         }
 
         protected override T Convert(FT from) => _converter.Convert(from);

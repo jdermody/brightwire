@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 using System.Reflection;
 
@@ -64,7 +65,7 @@ namespace BrightData.Converter
         /// <typeparam name="TF">Type to convert from</typeparam>
         /// <typeparam name="TT">Type to convert to</typeparam>
         /// <returns></returns>
-        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF: INumber<TF> where TT : notnull
+        public static ICanConvert<TF, TT> GetNumericConverter<TF, TT>() where TF: INumber<TF> where TT : notnull
         {
             return Type.GetTypeCode(typeof(TT)) switch {
                 TypeCode.Boolean => (ICanConvert<TF, TT>) new ConvertToBoolean<TF>(),
@@ -79,6 +80,24 @@ namespace BrightData.Converter
             };
         }
 
+        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF : notnull where TT : notnull
+        {
+            if (Type.GetTypeCode(typeof(TF)) is TypeCode.String) {
+                return Type.GetTypeCode(typeof(TT)) switch {
+                    TypeCode.SByte   => (ICanConvert<TF, TT>) GetConverterToSignedByte<TF>(),
+                    TypeCode.Int16   => (ICanConvert<TF, TT>) GetConverterToShort<TF>(),
+                    TypeCode.Int32   => (ICanConvert<TF, TT>) GetConverterToInt<TF>(),
+                    TypeCode.Int64   => (ICanConvert<TF, TT>) GetConverterToLong<TF>(),
+                    TypeCode.Single  => (ICanConvert<TF, TT>) GetConverterToFloat<TF>(),
+                    TypeCode.Double  => (ICanConvert<TF, TT>) GetConverterToDouble<TF>(),
+                    TypeCode.Decimal => (ICanConvert<TF, TT>) GetConverterToDecimal<TF>(),
+                    _                => throw new NotImplementedException()
+                };
+            }
+            return (ICanConvert<TF, TT>) StaticConverters.GetNumericConverterMethodInfo.MakeGenericMethod(typeof(TF), typeof(TT)).Invoke(null, null)!;
+        }
+
+        public static MethodInfo GetNumericConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetNumericConverter), BindingFlags.Static | BindingFlags.Public)!;
         public static MethodInfo GetConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetConverter), BindingFlags.Static | BindingFlags.Public)!;
     }
 }

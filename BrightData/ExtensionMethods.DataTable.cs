@@ -472,7 +472,7 @@ namespace BrightData
 
                 var writer1 = context.CreateTableBuilder();
                 writer1.CreateColumnsFrom(table);
-                foreach (var row in await table.GetRows(trainingRows))
+                foreach (var (_, _, row) in await table.GetRows(trainingRows))
                     writer1.AddRow(row);
 
                 var writer2 = context.CreateTableBuilder();
@@ -1068,7 +1068,7 @@ namespace BrightData
             foreach (var (label, columnData) in groups) {
                 var writer = new ColumnOrientedDataTableBuilder(context);
                 var newColumns = writer.CreateColumnsFrom(dataTable);
-                var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), columns[i], x, columnData));
+                var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), dataTable.GetColumn((uint)i), x, columnData));
                 await operations.Process();
                 var outputStream = GetMemoryOrFileStream(filePathProvider?.Invoke(label));
                 await writer.WriteTo(outputStream);
