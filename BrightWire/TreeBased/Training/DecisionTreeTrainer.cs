@@ -91,7 +91,7 @@ namespace BrightWire.TreeBased.Training
                 foreach (var columnIndex in categorical)
                     _category.Add(columnIndex, row.Get<string>(columnIndex));
                 foreach(var columnIndex in continuous)
-                    _continuous.Add(columnIndex, row.Get<double>(columnIndex));
+                    _continuous.Add(columnIndex, row.Get<float>(columnIndex));
             }
             public string ClassificationLabel { get; }
 

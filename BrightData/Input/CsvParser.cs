@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -33,7 +34,6 @@ namespace BrightData.Input
                         FinishLine(data[start..i]);
                         if (++lineCount == maxLines)
                             return;
-                        _columnIndex = 0;
                         start = i+1;
                     }
                     
@@ -54,6 +54,35 @@ namespace BrightData.Input
                 if (start < data.Length)
                     FinishLine(data[start..]);
             }
+
+            public void ParseLine(ReadOnlySpan<char> line)
+            {
+                var start = 0;
+                for (int i = 0, len = line.Length; i < len; i++) {
+                    var ch = line[i];
+
+                    // check for new line
+                    if (ch == '\n' && !_inQuote) {
+                        FinishLine(line[start..i]);
+                        start = i+1;
+                    }
+                    
+                    // check for a delimiter, such as a comma
+                    else if (ch == _parser._delimiter && !_inQuote) {
+                        while((_columnData ??= new()).Count <= _columnIndex)
+                            _columnData.Add(new StringBuilder());
+                        _columnData[_columnIndex++].Append(line[start..i]);
+                        start = i+1;
+                    }
+                    
+                    // check for quote characters
+                    else if (ch == _parser._quote)
+                        _inQuote = !_inQuote;
+                }
+                if (start < line.Length)
+                    FinishLine(line[start..]);
+            }
+
             void FinishLine(ReadOnlySpan<char> data)
             {
                 if (_columnData != null) {
@@ -62,7 +91,8 @@ namespace BrightData.Input
                         _columnData.Add(new StringBuilder());
 
                     // add the text to the current string builder
-                    _columnData[_columnIndex].Append(data);
+                    if(data.Length > 0)
+                        _columnData[_columnIndex].Append(data);
 
                     // flush the string builders to the column buffers
                     for (var j = 0; j <= _columnIndex; j++) {
@@ -90,6 +120,7 @@ namespace BrightData.Input
                     if(_isFirstRow)
                         _isFirstRow = false;
                 }
+                _columnIndex = 0;
             }
         }
 
@@ -124,13 +155,20 @@ namespace BrightData.Input
         {
             var parseState = new ParseState(this);
             using var buffer = MemoryOwner<char>.Allocate(_blockSize);
-            do {
-                var read = await reader.ReadBlockAsync(buffer.Memory, ct);
-                parseState.Parse(buffer.Span[..read], maxLines, ct);
+            var lineCount = 0;
+            while(!reader.EndOfStream) {
+                var line = await reader.ReadLineAsync(ct);
+                if(String.IsNullOrWhiteSpace(line))
+                    continue;
+
+                parseState.ParseLine(line);
 
                 // signal progress
                 OnProgress?.Invoke((float)reader.BaseStream.Position / reader.BaseStream.Length);
-            } while (!reader.EndOfStream);
+
+                if (++lineCount == maxLines)
+                    break;
+            }
 
             // signal complete
             OnComplete?.Invoke();

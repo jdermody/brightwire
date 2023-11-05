@@ -113,6 +113,7 @@
         public const string DefaultLinearAlgebraProviderName = "default";
         public const string VectorisationType                = "VectorisationType";
         public const string VectorisationSize                = "VectorisationSize";
+        public const string VectorisationSourceColumnIndex   = "VectorisationSourceColumnIndex";
 #pragma warning restore 1591
 
         /// <summary>

@@ -483,7 +483,7 @@ namespace BrightData.UnitTests
             AddRow(date.ToString("u"));
             AddRow(date.ToString("U"));
 
-            return CheckTableConversion<DateTime>(builder, ColumnConversion.ToDate, BrightDataType.Date);
+            return CheckTableConversion<DateTime>(builder, ColumnConversion.ToDateTime, BrightDataType.Date);
         }
 
         [Fact]

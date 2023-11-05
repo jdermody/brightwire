@@ -26,7 +26,7 @@ namespace BrightWire.TreeBased
                 if (p.ColumnIndex.HasValue) {
                     string? findChild;
                     if(p.Split.HasValue) {
-                        var val = row.Get<double>(p.ColumnIndex.Value);
+                        var val = row.Get<float>(p.ColumnIndex.Value);
                         findChild = val < p.Split.Value ? "-" : "+";
                     }else
                         findChild = row.Get<string>(p.ColumnIndex.Value);

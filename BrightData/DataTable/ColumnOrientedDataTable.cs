@@ -457,5 +457,7 @@ namespace BrightData.DataTable
 
         IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
             new BlockReaderReadOnlyBuffer<T>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+
+        public TableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
     }
 }

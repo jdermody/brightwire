@@ -106,7 +106,7 @@ namespace BrightData.UnitTests
             var row = table[0];
             var vectoriser = await table.GetVectoriser(false);
             var vector1 = await vectoriser.Vectorise(table).ToFloatVectors();
-            var vector2 = vectoriser.Vectorise(row.Values);
+            var vector2 = vectoriser.Vectorise(row);
 
             vector1[0].Should().BeEquivalentTo(vector2);
         }

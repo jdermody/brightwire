@@ -62,7 +62,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             var ret = new IReadOnlyMatrix[depth];
             var matrixSize = (int)(columns * rows);
             for (uint i = 0; i < depth; i++) {
-                ret[i] = new ReadOnlyMatrix(floats[..matrixSize].ToArray(), rows, depth);
+                ret[i] = new ReadOnlyMatrix(floats[..matrixSize].ToArray(), rows, columns);
                 floats = floats[matrixSize..];
             }
             return ret;

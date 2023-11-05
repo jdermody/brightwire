@@ -453,7 +453,9 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) {
             var output = CreateCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = GenericActivator.Create<IOperation>(typeof(ToStringConversion<>).MakeGenericType(buffer.DataType), buffer, output);
+            var conversion = buffer.DataType == typeof(string) 
+                ? buffer.CreateBufferScan(output) 
+                : GenericActivator.Create<IOperation>(typeof(ToStringConversion<>).MakeGenericType(buffer.DataType), buffer, output);
             await conversion.Process();
             return output;
         }
@@ -465,10 +467,13 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) {
             var output = CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = (buffer.DataType == typeof(string))
-                ? new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output)
-                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
-            ;
+            IOperation conversion;
+            if (buffer.DataType == typeof(DateTime))
+                conversion = buffer.CreateBufferScan(output);
+            else if (buffer.DataType == typeof(string))
+                conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
+            else
+                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateTime)), buffer, output);
             await conversion.Process();
             return output;
 
@@ -491,10 +496,13 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) {
             var output = CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = (buffer.DataType == typeof(string))
-                ? new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output)
-                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
-            ;
+            IOperation conversion;
+            if (buffer.DataType == typeof(DateOnly))
+                conversion = buffer.CreateBufferScan(output);
+            else if (buffer.DataType == typeof(string))
+                conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
+            else
+                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateOnly)), buffer, output);
             await conversion.Process();
             return output;
 
@@ -517,10 +525,13 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) {
             var output = CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = (buffer.DataType == typeof(string))
-                ? new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output)
-                : GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output)
-            ;
+            IOperation conversion;
+            if (buffer.DataType == typeof(TimeOnly))
+                conversion = buffer.CreateBufferScan(output);
+            else if (buffer.DataType == typeof(string))
+                conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output);
+            else
+                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(TimeOnly)), buffer, output);
             await conversion.Process();
             return output;
 

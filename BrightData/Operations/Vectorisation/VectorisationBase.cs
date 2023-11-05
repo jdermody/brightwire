@@ -48,9 +48,13 @@ namespace BrightData.Operations.Vectorisation
 
         public virtual void ReadFrom(MetaData metaData)
         {
-            var type = (VectorisationType)metaData.Get<byte>(Consts.VectorisationType, (byte)VectorisationType.Unknown);
+            var type = (VectorisationType)metaData.Get(Consts.VectorisationType, (byte)VectorisationType.Unknown);
             if (type != VectorisationType.Unknown && type != Type)
                 throw new Exception($"Previously created vectorisation differs from current vectorisation type (previous: {type}, current: {Type})");
+
+            var size = metaData.Get(Consts.VectorisationSize, (uint)0);
+            if (size > 0 && size != OutputSize)
+                throw new Exception($"Previously created vectorisation differs from current vectorisation size (previous: {size}, current: {OutputSize})");
         }
 
         public virtual void WriteTo(MetaData metaData)
@@ -58,5 +62,7 @@ namespace BrightData.Operations.Vectorisation
             metaData.Set(Consts.VectorisationType, (byte)Type);
             metaData.Set(Consts.VectorisationSize, OutputSize);
         }
+
+        public override string ToString() => $"{Type}: {OutputSize}";
     }
 }

@@ -48,7 +48,7 @@ namespace BrightWire.Bayesian
 
             public double GetProbability(TableRow row)
             {
-                var x = row.Get<double>(_column.ColumnIndex);
+                var x = row.Get<float>(_column.ColumnIndex);
                 var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
                 return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
             }

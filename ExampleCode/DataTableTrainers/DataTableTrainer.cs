@@ -135,7 +135,7 @@ namespace ExampleCode.DataTableTrainers
             // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
-            // create the property set (use rmsprop gradient descent optimisation)
+            // create the property set (use rms prop gradient descent optimisation)
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));

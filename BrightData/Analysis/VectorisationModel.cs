@@ -2,12 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BrightData.Operations.Vectorisation;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Analysis
 {
     public class VectorisationModel
     {
+        readonly record struct ArrayWrapper(object[] Values) : ICanRandomlyAccessData
+        {
+            public void Dispose()
+            {
+            }
+
+            public uint Size => (uint)Values.Length;
+            public object this[int index] => Values[index];
+            public object this[uint index] => Values[index];
+        }
+
         public VectorisationModel(ICanVectorise[] vectorisers)
         {
             Vectorisers = vectorisers;
@@ -16,6 +28,7 @@ namespace BrightData.Analysis
 
         public uint OutputSize { get; }
         public ICanVectorise[] Vectorisers { get; }
+        public uint[]? SourceColumnIndices { get; set; }
 
         public async IAsyncEnumerable<float[,]> Vectorise(IReadOnlyBuffer[] buffers, MetaData[]? metaData)
         {
@@ -47,18 +60,27 @@ namespace BrightData.Analysis
             }
         }
 
-        public float[] Vectorise(params object[] values)
+        public float[] Vectorise(ICanRandomlyAccessData data)
         {
             var ret = new float[OutputSize];
             var span = ret.AsSpan();
             uint index = 0;
+
+            var indices = SourceColumnIndices ?? stackalloc uint[(int)data.Size];
+            if (SourceColumnIndices is null) {
+                for(int i = 0; i < data.Size; i++)
+                    indices[i] = (uint)i;
+            }
+
             for(int i = 0, len = Vectorisers.Length; i < len; i++) {
                 var vectoriser = Vectorisers[i];
-                vectoriser.Vectorise(values[i], span.Slice((int)index, (int)vectoriser.OutputSize));
+                vectoriser.Vectorise(data[indices[i]], span.Slice((int)index, (int)vectoriser.OutputSize));
                 index += vectoriser.OutputSize;
             }
             return ret;
         }
+
+        public float[] Vectorise(params object[] values) => Vectorise(new ArrayWrapper(values));
 
         public async IAsyncEnumerable<float[,]> Vectorise(IReadOnlyBufferWithMetaData[] buffers)
         {

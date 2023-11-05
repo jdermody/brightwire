@@ -502,21 +502,6 @@
             <param name="cuda"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.Cuda.Helper.CudaTensorDataCache">
-            <summary>
-            Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
-            </summary>
-        </member>
-        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.#ctor(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.DataTable.BrightDataTable)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="lap"></param>
-            <param name="table"></param>
-        </member>
-        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Dispose">
-            <inheritdoc />
-        </member>
         <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlock">
             <summary>
             Maintains a cache of available device memory

@@ -21,7 +21,7 @@ namespace BrightWire.InstanceBased.Training
             var featureColumns = table.GetColumns(featureColumnIndices);
 
             uint offset = 0;
-            var input = new float[table.ColumnCount][];
+            var input = new float[table.RowCount][];
             await foreach (var block in vectoriser.Vectorise(featureColumns))
                 Copy(block, input, ref offset);
 
@@ -35,7 +35,7 @@ namespace BrightWire.InstanceBased.Training
             static void Copy(float[,] vectorised, float[][] input, ref uint offset)
             {
                 var span = new Span2D<float>(vectorised);
-                for (var i = 0; i < span.Length; i++)
+                for (var i = 0; i < span.Height; i++)
                     input[offset++] = span.GetRowSpan(i).ToArray();
             }
         }

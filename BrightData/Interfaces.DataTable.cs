@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using System.IO;
+using System.Linq;
 using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightData
@@ -204,9 +205,19 @@ namespace BrightData
         ToBoolean,
 
         /// <summary>
+        /// Convert to date time
+        /// </summary>
+        ToDateTime,
+
+        /// <summary>
         /// Convert to date
         /// </summary>
         ToDate,
+
+        /// <summary>
+        /// Convert to time
+        /// </summary>
+        ToTime,
 
         /// <summary>
         /// Convert to numeric (best numeric size will be automatically determined)
@@ -350,6 +361,9 @@ namespace BrightData
         {
             // nop
         }
+
+        /// <inheritdoc />
+        public override string ToString() => String.Join('|', Values.Select(x => x.ToString()));
     }
 
     public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext

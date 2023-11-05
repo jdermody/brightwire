@@ -879,6 +879,7 @@ namespace BrightData
                 return dataTable;
 
             var columnMutationTasks = await Task.WhenAll(dataTable.AllOrSpecifiedColumnIndices(true, columnIndices)
+                .Where(x => dataTable.ColumnTypes[x].IsNumeric())
                 .Select(async i => (Index: i, Task: await GetNormalization(dataTable.GetColumn(i), type))));
             var columnMutationTable = columnMutationTasks.ToDictionary(x => x.Index, x => x.Task);
 
@@ -949,7 +950,9 @@ namespace BrightData
                 ColumnConversion.ToBoolean           => await buffer.ToBoolean(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToByte              => await buffer.To<byte>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToCategoricalIndex  => await buffer.ToCategoricalIndex(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToDateTime          => await buffer.ToDateTime(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToDate              => await buffer.ToDate(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToTime              => await buffer.ToTime(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToDecimal           => await buffer.To<decimal>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToDouble            => await buffer.To<double>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToFloat             => await buffer.To<float>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
@@ -1403,7 +1406,7 @@ namespace BrightData
         {
             var dataType = buffer.DataType.GetBrightDataType();
             var cls = ColumnTypeClassifier.GetClass(dataType, metaData);
-            ICanVectorise? ret = null;
+            ICanVectorise? ret;
 
             if (dataType == BrightDataType.Boolean)
                 ret = new BooleanVectoriser(metaData.IsTarget());
@@ -1466,10 +1469,13 @@ namespace BrightData
             }
         }
 
-        public static Task<VectorisationModel> GetVectoriser(this IDataTable dataTable, bool oneHotEncodeCategoricalData, params uint[] columnIndices)
+        public static async Task<VectorisationModel> GetVectoriser(this IDataTable dataTable, bool oneHotEncodeCategoricalData, params uint[] columnIndices)
         {
-            var buffers = dataTable.AllOrSpecifiedColumnIndices(false, columnIndices).Select(dataTable.GetColumn).ToArray();
-            return buffers.GetVectoriser(oneHotEncodeCategoricalData);
+            var actualColumnIndices = dataTable.AllOrSpecifiedColumnIndices(false, columnIndices).ToArray();
+            var buffers = actualColumnIndices.Select(dataTable.GetColumn).ToArray();
+            var ret = await buffers.GetVectoriser(oneHotEncodeCategoricalData);
+            ret.SourceColumnIndices = actualColumnIndices;
+            return ret;
         }
 
         public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBufferWithMetaData[] buffers, bool oneHotEncodeCategoricalData)
@@ -1526,9 +1532,9 @@ namespace BrightData
 
                 var vectoriser = vectorisers[index++] = type switch {
                     VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), isOutput, size),
-                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(isOutput, size),
+                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(isOutput, size-1),
                     VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType), isOutput),
-                    VectorisationType.IndexList         => new IndexListVectoriser(isOutput, size),
+                    VectorisationType.IndexList         => new IndexListVectoriser(isOutput, size-1),
                     VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType), isOutput),
                     VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), isOutput, size),
                     VectorisationType.Boolean           => new BooleanVectoriser(isOutput),

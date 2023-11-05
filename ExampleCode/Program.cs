@@ -19,7 +19,7 @@ namespace ExampleCode
     {
         const int RandomSeed = 0;
 
-        static void Main()
+        static async Task Main()
         {
             using var context = new BrightDataContext(null, RandomSeed);
             bool useCuda = true, useMkl = true;
@@ -35,15 +35,15 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            if (useMkl && useCuda)
-                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            else if (useMkl)
-                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            else
-                PerformanceTest.Run(new LinearAlgebraProvider(context));
+            //if (useMkl && useCuda)
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //else if (useMkl)
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            //else
+            //    PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            //Xor(context, useMkl);
-            //IrisClassification(context, useMkl);
+            await Xor(context, useMkl);
+            //await IrisClassification(context, useMkl);
             //IrisClustering(context, useMkl);
             //MarkovChains(context, useMkl);
             //TextClustering(context, useMkl);
@@ -99,10 +99,10 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var iris = await context.Iris();
-            iris.TrainNaiveBayes();
+            await iris.TrainNaiveBayes();
             iris.TrainDecisionTree();
-            iris.TrainRandomForest(500, 7);
-            iris.TrainKNearestNeighbours(10);
+            await iris.TrainRandomForest(500, 7);
+            await iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
             iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
