@@ -313,7 +313,7 @@ namespace BrightData
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) => GetCompositeBuffer(GetTableDataType(type), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+        ) => GetCompositeBuffer(GetBrightDataType(type), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
         public static ICompositeBuffer GetCompositeBuffer(this BrightDataType type,
             IProvideDataBlocks? tempStreams = null,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
@@ -188,7 +189,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0).Result;
+                    var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
                     return (
                         Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
                         Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()

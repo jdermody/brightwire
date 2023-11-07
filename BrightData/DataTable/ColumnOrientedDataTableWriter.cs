@@ -74,7 +74,7 @@ namespace BrightData.DataTable
             // write the data (column oriented)
             foreach (var columnSegment in buffers) {
                 var columnType = columnSegment.DataType;
-                var dataType = columnType.GetTableDataType();
+                var dataType = columnType.GetBrightDataType();
 
                 if (dataType == BrightDataType.IndexList)
                     await WriteIndexLists((IReadOnlyBuffer<IndexList>)columnSegment, indexWriter.Value, output);
@@ -177,7 +177,7 @@ namespace BrightData.DataTable
             var index = 0;
             foreach (var columnSegment in buffers) {
                 ref var c = ref ret[index++];
-                c.DataType = columnSegment.DataType.GetTableDataType();
+                c.DataType = columnSegment.DataType.GetBrightDataType();
                 (_, c.DataTypeSize) = c.DataType.GetColumnType();
                 columnSegment.MetaData.SetType(c.DataType);
                 columnSegment.MetaData.WriteTo(metaDataWriter);

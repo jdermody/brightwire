@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.Cuda.CudaToolkit;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.Models;
@@ -16,6 +17,7 @@ namespace ExampleCode.DataTableTrainers
 
         public async Task TrainLstm(uint hiddenLayerSize)
         {
+            _context.LinearAlgebraProvider.BindThread();
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
 

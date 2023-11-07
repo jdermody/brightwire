@@ -20,8 +20,6 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Operations;
 using BrightData.Operations.Vectorisation;
-using CommunityToolkit.HighPerformance.Buffers;
-using Microsoft.VisualBasic;
 
 namespace BrightData
 {
@@ -95,6 +93,12 @@ namespace BrightData
 
             if (typeCode == TypeCode.String)
                 return BrightDataType.String;
+
+            if (dataType == typeof(DateOnly))
+                return BrightDataType.DateOnly;
+
+            if (dataType == typeof(TimeOnly))
+                return BrightDataType.TimeOnly;
 
             if (dataType == typeof(IndexList))
                 return BrightDataType.IndexList;
@@ -404,10 +408,10 @@ namespace BrightData
                 var block = Unsafe.As<float[]>(blockData).AsMemory();
                 var targetBlock = targetColumn is null 
                     ? null 
-                    : await targetColumn.GetTypedBlock(blockIndex++);
+                    : await targetColumn.GetTypedBlock(blockIndex);
                 uint offset = 0;
                 for (var i = 0; i < len; i++) {
-                    yield return (new ReadOnlyMemoryTensorSegment(block.Slice((int)offset, (int)rowSize), offset, rowSize), targetColumn is null ? null : targetBlock.Span[i]);
+                    yield return (new ReadOnlyMemoryTensorSegment(block.Slice((int)offset, (int)rowSize), 0, rowSize), targetColumn is null ? null : targetBlock.Span[i]);
                     offset += rowSize;
                 }
                 ++blockIndex;
@@ -1310,68 +1314,6 @@ namespace BrightData
             BrightDataType.DateOnly          => GetTypeAndSize<DateOnly>(),
             _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
-
-        /// <summary>
-        /// Converts from a Type to a ColumnType
-        /// </summary>
-        /// <param name="dataType"></param>
-        /// <returns></returns>
-        public static BrightDataType GetTableDataType(this Type dataType)
-        {
-            var typeCode = Type.GetTypeCode(dataType);
-            if (typeCode == TypeCode.Boolean)
-                return BrightDataType.Boolean;
-
-            if (typeCode == TypeCode.SByte)
-                return BrightDataType.SByte;
-
-            if (typeCode == TypeCode.DateTime)
-                return BrightDataType.Date;
-
-            if (typeCode == TypeCode.Double)
-                return BrightDataType.Double;
-
-            if (typeCode == TypeCode.Decimal)
-                return BrightDataType.Decimal;
-
-            if (typeCode == TypeCode.Single)
-                return BrightDataType.Float;
-
-            if (typeCode == TypeCode.Int16)
-                return BrightDataType.Short;
-
-            if (typeCode == TypeCode.Int32)
-                return BrightDataType.Int;
-
-            if (typeCode == TypeCode.Int64)
-                return BrightDataType.Long;
-
-            if (typeCode == TypeCode.String)
-                return BrightDataType.String;
-
-            if (dataType == typeof(IndexList))
-                return BrightDataType.IndexList;
-
-            if (dataType == typeof(WeightedIndexList))
-                return BrightDataType.WeightedIndexList;
-
-            if (dataType == typeof(ReadOnlyVector))
-                return BrightDataType.Vector;
-
-            if (dataType == typeof(ReadOnlyMatrix))
-                return BrightDataType.Matrix;
-
-            if (dataType == typeof(ReadOnlyTensor3D))
-                return BrightDataType.Tensor3D;
-
-            if (dataType == typeof(ReadOnlyTensor4D))
-                return BrightDataType.Tensor4D;
-
-            if (dataType == typeof(BinaryData))
-                return BrightDataType.BinaryData;
-
-            throw new ArgumentException($"{dataType} has no corresponding table data type");
-        }
         
         public static IReadOnlyBuffer<T> ConvertTo<T>(this IReadOnlyBuffer buffer) where T: unmanaged
         {

@@ -97,14 +97,18 @@ namespace BrightData.Input
                     // flush the string builders to the column buffers
                     for (var j = 0; j <= _columnIndex; j++) {
                         var sb = _columnData[j];
+                        var text = sb.ToString();
+                        if (text.StartsWith(_parser._quote) && text.EndsWith(_parser._quote))
+                            text = text[1..^1];
+
                         while ((Columns ??= new()).Count <= j)
                             Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
 
                         // set the column name if needed
                         if (_isFirstRow && _parser._firstRowIsHeader)
-                            Columns[j].MetaData.SetName(sb.ToString().Trim());
+                            Columns[j].MetaData.SetName(text.Trim());
                         else
-                            Columns[j].Add(sb.ToString());
+                            Columns[j].Add(text);
                         sb.Clear();
                     }
 

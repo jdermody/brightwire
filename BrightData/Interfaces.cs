@@ -647,10 +647,12 @@ namespace BrightData
 
     public record ColumnConversionInfo(uint ColumnIndex, ColumnConversion Conversion)
     {
-        public virtual Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
+        public virtual async Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
         {
             var column = dataTable.GetColumn(ColumnIndex);
-            return column.Convert(Conversion);
+            var ret = await column.Convert(Conversion);
+            column.MetaData.CopyTo(ret.MetaData, Consts.Name, Consts.IsTarget, Consts.ColumnIndex);
+            return ret;
         }
     }
 
@@ -664,6 +666,7 @@ namespace BrightData
             var output = column.DataType.GetBrightDataType().CreateCompositeBuffer();
             var conversion = GenericActivator.Create<IOperation>(typeof(CustomConversion<,>).MakeGenericType(column.DataType, typeof(TT)), Converter, column, output);
             await conversion.Process();
+            column.MetaData.CopyTo(output.MetaData, Consts.Name, Consts.IsTarget, Consts.ColumnIndex);
             return output;
         }
     }

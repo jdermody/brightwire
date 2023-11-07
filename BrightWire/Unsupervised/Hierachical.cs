@@ -19,17 +19,21 @@ namespace BrightWire.Unsupervised
 
             public IVector Center { get; private set; }
             public IVector[] Data { get; }
+            public List<uint> Indices { get; } = new();
 
-            public Centroid(IVector data)
+            public Centroid(IVector data, uint sourceIndex)
             {
                 Data = new[] { data };
                 Center = data;
+                Indices.Add(sourceIndex);
             }
             public Centroid(Centroid left, Centroid right)
             {
                 _left = left;
                 _right = right;
                 Data = left.Data.Concat(right.Data).ToArray();
+                Indices.AddRange(left.Indices);
+                Indices.AddRange(right.Indices);
 
                 // average the two centroid vectors
                 Center = left.Center.Add(right.Center, 0.5f, 0.5f);
@@ -75,16 +79,18 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        readonly uint _k;
-        readonly DistanceMetric _distanceMetric;
-        readonly DistanceMatrix _distanceMatrix = new();
-        readonly List<Centroid> _centroid;
+        readonly uint              _k;
+        readonly DistanceMetric    _distanceMetric;
+        readonly DistanceMatrix    _distanceMatrix = new();
+        readonly List<Centroid>    _centroid;
+        readonly IReadOnlyVector[] _vectors;
 
         public Hierarchical(LinearAlgebraProvider lap, uint k, IEnumerable<IReadOnlyVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;
-            _centroid = data.Select(v => new Centroid(v.Create(lap))).ToList();
+            _vectors = data.ToArray();
+            _centroid = _vectors.Select((v, i) => new Centroid(v.Create(lap), (uint)i)).ToList();
         }
 
         public void Dispose()
@@ -127,11 +133,6 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        public IVector[][] Clusters
-        {
-            get {
-                return _centroid.Select(c => c.Data).ToArray();
-            }
-        }
+        public IReadOnlyVector[][] Clusters => _centroid.Select(x => x.Indices.Select(y => _vectors[y]).ToArray()).ToArray();
     }
 }

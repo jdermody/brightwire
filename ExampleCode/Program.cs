@@ -44,15 +44,15 @@ namespace ExampleCode
 
             await Xor(context, useMkl);
             //await IrisClassification(context, useMkl);
-            //IrisClustering(context, useMkl);
-            //MarkovChains(context, useMkl);
-            //TextClustering(context, useMkl);
-            //IntegerAddition(context, useMkl);
-            //ReberPrediction(context, useMkl);
-            //OneToMany(context, useMkl);
-            //ManyToOne(context, useMkl);
-            //SequenceToSequence(context, useMkl);
-            //StockData(context, useMkl, useCuda);
+            //await IrisClustering(context, useMkl);
+            //await MarkovChains(context, useMkl);
+            //await TextClustering(context, useMkl);
+            //await IntegerAddition(context, useMkl);
+            //await ReberPrediction(context, useMkl);
+            //await OneToMany(context, useMkl);
+            //await ManyToOne(context, useMkl);
+            //await SequenceToSequence(context, useMkl);
+            //await StockData(context, useMkl, useCuda);
             //PredictBicyclesWithNeuralNetwork(context, useMkl);
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
@@ -191,7 +191,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var trainer = await context.IntegerAddition();
-            trainer.TrainRecurrentNeuralNetwork();
+            await trainer.TrainRecurrentNeuralNetwork();
         }
 
         static async Task ReberPrediction(BrightDataContext context, bool useMkl)
@@ -261,7 +261,7 @@ namespace ExampleCode
             Start(context, useMkl, useCuda);
             using var trainer = await context.StockData();
             var stockData = trainer.GetSequentialWindow();
-            stockData.TrainLstm(256);
+            await stockData.TrainLstm(256);
         }
 
         static async Task TrainIncomePrediction(BrightDataContext context, bool useMkl)

@@ -105,7 +105,10 @@ namespace BrightData.Analysis
             var tasks = new Task[len];
 
             for (uint i = 0; i < first.BlockCount; i++) {
-                var buffer = new float[first.BlockSize, OutputSize];
+                var blockSize = (i+1 == first.BlockCount)
+                    ? first.Size - first.BlockSize * i
+                    : first.BlockSize;
+                var buffer = new float[blockSize, OutputSize];
                 uint offset = 0;
                 var index = 0;
                 for(var j = 0; j < len; j++) {

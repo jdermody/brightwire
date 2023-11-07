@@ -104,9 +104,9 @@ namespace BrightWire
         /// <returns>A list of k clusters</returns>
         public static IReadOnlyVector[][] KMeans(this IEnumerable<IReadOnlyVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using var clusterer = new KMeans(context, k, data, distanceMetric);
-            clusterer.ClusterUntilConverged(maxIterations);
-            return clusterer.Clusters;
+            using var kmeans = new KMeans(context, k, data, distanceMetric);
+            kmeans.ClusterUntilConverged(maxIterations);
+            return kmeans.Clusters;
         }
 
         /// <summary>
