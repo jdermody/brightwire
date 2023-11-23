@@ -1386,13 +1386,16 @@ namespace BrightData
         /// <param name="distance">Distance metric</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch {
-            DistanceMetric.Cosine => vector.CosineDistance(other),
-            DistanceMetric.Euclidean => vector.EuclideanDistance(other),
-            DistanceMetric.Manhattan => vector.ManhattanDistance(other),
-            DistanceMetric.MeanSquared => vector.MeanSquaredDistance(other),
-            DistanceMetric.SquaredEuclidean => vector.SquaredEuclideanDistance(other),
-            _ => throw new NotImplementedException(distance.ToString())
+        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch 
+        {
+            DistanceMetric.Cosine            => vector.CosineDistance(other),
+            DistanceMetric.Angular           => vector.AngularDistance(other),
+            DistanceMetric.Euclidean         => vector.EuclideanDistance(other),
+            DistanceMetric.Manhattan         => vector.ManhattanDistance(other),
+            DistanceMetric.MeanSquared       => vector.MeanSquaredDistance(other),
+            DistanceMetric.SquaredEuclidean  => vector.SquaredEuclideanDistance(other),
+            DistanceMetric.InnerProductSpace => vector.InnerProductSpaceDistance(other),
+            _                                => throw new NotImplementedException(distance.ToString())
         };
 
         /// <summary>
@@ -1441,6 +1444,34 @@ namespace BrightData
                 }
                 return T.One - ab / (T.Sqrt(aa) * T.Sqrt(bb));
             }
+        }
+
+        /// <summary>
+        /// Angular distance between two vectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static T AngularDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            return (T.One - T.Acos(CosineDistance(v1, v2))) / T.Pi;
+        }
+
+        /// <summary>
+        /// Inner space distance between two vectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static T InnerProductSpaceDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            var dot = v1.DotProduct(v2);
+            var magnitude = v1.L1Norm() * v2.L1Norm();
+            return T.Acos(dot / magnitude);
         }
 
         /// <summary>

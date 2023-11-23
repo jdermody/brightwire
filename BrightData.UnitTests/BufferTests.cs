@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
-using static BrightData.WeightedIndexList;
+using static BrightData.Types.WeightedIndexList;
 
 namespace BrightData.UnitTests
 {

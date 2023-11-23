@@ -6,23 +6,24 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
+using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace BrightData
+namespace BrightData.Types
 {
     /// <summary>
     /// A list of weighted indices is a sparse vector
     /// </summary>
-    public readonly struct WeightedIndexList : 
-        IHaveIndices, 
-        IAmSerializable, 
-        IEquatable<WeightedIndexList>, 
-        IHaveDataAsReadOnlyByteSpan, 
-        IHaveSize, 
-        IHaveSpanOf<WeightedIndexList.Item>, 
+    public readonly struct WeightedIndexList :
+        IHaveIndices,
+        IAmSerializable,
+        IEquatable<WeightedIndexList>,
+        IHaveDataAsReadOnlyByteSpan,
+        IHaveSize,
+        IHaveSpanOf<WeightedIndexList.Item>,
         IHaveReadOnlyContiguousSpan<WeightedIndexList.Item>,
         IHaveMemory<WeightedIndexList.Item>
     {
@@ -53,9 +54,10 @@ namespace BrightData
         {
             var list = new List<Item>();
             uint index = 0;
-            foreach (var item in data) {
+            foreach (var item in data)
+            {
                 if (FloatMath.IsNotZero(item))
-                    list.Add(new (index, item));
+                    list.Add(new(index, item));
                 ++index;
             }
             _indices = list.ToArray();
@@ -164,7 +166,7 @@ namespace BrightData
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList Create(params Item[] indexList) => Merge(indexList);
-        
+
         /// <summary>
         /// Creates a new weighted index list
         /// </summary>
@@ -212,7 +214,7 @@ namespace BrightData
         {
             if (Size < 32)
             {
-                var indices = String.Join('|', Indices);
+                var indices = string.Join('|', Indices);
                 return $"Weighted Index List - {indices}";
             }
             return $"Weighted Index List ({Size} indices)";
@@ -243,7 +245,8 @@ namespace BrightData
         public static WeightedIndexList Merge(IEnumerable<Item> items, AggregationType mergeOperation = AggregationType.Average)
         {
             var itemWeights = new Dictionary<uint, List<float>>();
-            foreach (var index in items) {
+            foreach (var index in items)
+            {
                 if (!itemWeights.TryGetValue(index.Index, out var weights))
                     itemWeights.Add(index.Index, weights = new List<float>());
                 weights.Add(index.Weight);
@@ -263,7 +266,7 @@ namespace BrightData
         {
             writer.WriteStartElement(name ?? "weighted-index-list");
 
-            writer.WriteValue(String.Join("|", Indices
+            writer.WriteValue(string.Join("|", Indices
                 .OrderBy(d => d.Index)
                 .Select(c => $"{c.Index}:{c.Weight}")
             ));
@@ -277,7 +280,8 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Size);
-            fixed (Item* ptr = _indices.Span) {
+            fixed (Item* ptr = _indices.Span)
+            {
                 writer.Write(new ReadOnlySpan<byte>(ptr, _indices.Length * sizeof(Item)));
             }
         }
@@ -288,7 +292,8 @@ namespace BrightData
         public string ToXml()
         {
             var sb = new StringBuilder();
-            var settings = new XmlWriterSettings {
+            var settings = new XmlWriterSettings
+            {
                 OmitXmlDeclaration = true
             };
             using var writer = XmlWriter.Create(sb, settings);
@@ -346,7 +351,8 @@ namespace BrightData
             foreach (ref readonly var item in _indices.Span)
                 data[item.Index] = (item.Weight, 0f);
 
-            foreach (ref readonly var item in other._indices.Span) {
+            foreach (ref readonly var item in other._indices.Span)
+            {
                 var index = item.Index;
                 if (data.TryGetValue(index, out var pair))
                     data[index] = (pair.Weight1, item.Weight);
@@ -382,7 +388,7 @@ namespace BrightData
             foreach (var (key, value) in set2)
             {
                 if (set1.TryGetValue(key, out var weight))
-                    intersection += (weight + value);
+                    intersection += weight + value;
                 union += value;
             }
 
@@ -402,7 +408,8 @@ namespace BrightData
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
 
-            foreach (ref readonly var item in _indices.Span) {
+            foreach (ref readonly var item in _indices.Span)
+            {
                 if (maxIndex.HasValue && item.Index > maxIndex.Value)
                     continue;
 
@@ -410,8 +417,8 @@ namespace BrightData
                     max = item.Index;
                 indices.Add(item.Index, item.Weight);
             }
-            return indices.Any() 
-                ? new ReadOnlyVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f) 
+            return indices.Any()
+                ? new ReadOnlyVector(maxIndex ?? max + 1, i => indices.TryGetValue(i, out var val) ? val : 0f)
                 : new ReadOnlyVector(maxIndex ?? 0, _ => 0f);
         }
 
@@ -432,8 +439,8 @@ namespace BrightData
         {
             return new WeightedIndexList(Indices
                 .GroupBy(d => d.Index)
-                .Select(g => new Item(g.Key, g.Count() == 1 
-                    ? g.Single().Weight 
+                .Select(g => new Item(g.Key, g.Count() == 1
+                    ? g.Single().Weight
                     : type.Aggregate(g.Select(d => d.Weight)))
                 ).ToArray()
             );

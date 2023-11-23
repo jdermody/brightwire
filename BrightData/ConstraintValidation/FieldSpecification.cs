@@ -1,6 +1,6 @@
-﻿namespace BrightData.DataTypeSpecification
+﻿namespace BrightData.ConstraintValidation
 {
-    class FieldSpecification<T> : DataTypeSpecificationBase<T> where T: notnull
+    class FieldSpecification<T> : DataTypeSpecificationBase<T> where T : notnull
     {
         public FieldSpecification(string? name, bool canRepeat = false) : base(name, DataSpecificationType.Field, canRepeat, null)
         {

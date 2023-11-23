@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra.Segments;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance.Buffers;
 using static BrightData.ExtensionMethods;
 
@@ -63,6 +64,13 @@ namespace BrightData
         /// <param name="other"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float CosineDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.CosineDistance(y));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float EuclideanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.EuclideanDistance(y));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ManhattanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.ManhattanDistance(y));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float MeanSquaredDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.MeanSquaredDistance(y));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float SquaredEuclideanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.SquaredEuclideanDistance(y));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float FindDistance(this IReadOnlyVector vector, IReadOnlyVector other, DistanceMetric distance) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.FindDistance(y, distance));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static INumericSegment<float> Apply(IReadOnlyVector vector, IReadOnlyVector other, OnReadOnlySpans<float, MemoryOwner<float>> mutator)

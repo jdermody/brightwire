@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.Types;
 
 namespace BrightData
 {

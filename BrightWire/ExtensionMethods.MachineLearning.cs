@@ -16,6 +16,7 @@ using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
 using BrightWire.Models.TreeBased;
+using BrightData.Types;
 
 namespace BrightWire
 {

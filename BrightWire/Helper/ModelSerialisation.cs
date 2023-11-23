@@ -4,7 +4,7 @@ using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
-using BrightData.Serialisation;
+using BrightData.Helper;
 
 namespace BrightWire.Helper
 {

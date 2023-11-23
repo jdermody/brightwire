@@ -1,4 +1,6 @@
-﻿namespace BrightData.Analysis.Readers
+﻿using BrightData.Types;
+
+namespace BrightData.Analysis.Readers
 {
     /// <summary>
     /// String analysis results

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using BrightData.Types;
 
 namespace BrightData.Analysis
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
 {

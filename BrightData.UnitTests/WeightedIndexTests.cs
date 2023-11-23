@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;

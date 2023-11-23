@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData.Operations.Vectorisation;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Analysis

@@ -8,6 +8,7 @@ using BrightAPI.Models.DataTable.Requests;
 using BrightData;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.Types;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrightAPI.Controllers

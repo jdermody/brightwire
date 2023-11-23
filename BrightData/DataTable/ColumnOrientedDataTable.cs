@@ -16,6 +16,7 @@ using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Operations;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.DataTable

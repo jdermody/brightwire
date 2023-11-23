@@ -16,6 +16,7 @@ using BrightData.Operations.Conversion;
 using BrightData.Operations.Helper;
 using BrightData.Operations;
 using CommunityToolkit.HighPerformance.Buffers;
+using BrightData.Types;
 
 namespace BrightData
 {

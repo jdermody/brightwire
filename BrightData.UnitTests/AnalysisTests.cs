@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using BrightData.Types;
 using FluentAssertions;
 using Xunit;
 

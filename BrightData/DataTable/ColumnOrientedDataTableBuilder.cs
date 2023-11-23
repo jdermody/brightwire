@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BrightData.ConstraintValidation;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Operations;
+using BrightData.Types;
 
 namespace BrightData.DataTable
 {

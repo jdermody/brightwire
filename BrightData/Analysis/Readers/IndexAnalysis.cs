@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BrightData.Types;
 
 namespace BrightData.Analysis.Readers
 {

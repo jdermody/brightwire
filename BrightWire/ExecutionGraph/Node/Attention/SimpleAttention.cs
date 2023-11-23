@@ -5,7 +5,7 @@ using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightData.Serialisation;
+using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Attention
 {

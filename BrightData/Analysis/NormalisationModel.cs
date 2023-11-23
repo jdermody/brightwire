@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.Types;
 
 namespace BrightData.Analysis
 {

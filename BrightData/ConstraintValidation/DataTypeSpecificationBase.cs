@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.DataTypeSpecification
+namespace BrightData.ConstraintValidation
 {
-    abstract class DataTypeSpecificationBase<T> : IDataTypeSpecification<T> where T: notnull
+    abstract class DataTypeSpecificationBase<T> : IDataTypeSpecification<T> where T : notnull
     {
         readonly List<Predicate<T>> _predicates = new();
 

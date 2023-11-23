@@ -15,11 +15,11 @@ using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
-using BrightData.Input;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Operations;
 using BrightData.Operations.Vectorisation;
+using BrightData.Types;
 
 namespace BrightData
 {

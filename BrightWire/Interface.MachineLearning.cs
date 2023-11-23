@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using BrightData.DataTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
+using BrightData.Types;
 
 namespace BrightWire
 {
-	/// <summary>
-	/// Error metrics used to quantify machine learning
-	/// </summary>
-	public interface IErrorMetric
+    /// <summary>
+    /// Error metrics used to quantify machine learning
+    /// </summary>
+    public interface IErrorMetric
 	{
 		/// <summary>
 		/// True if the result should be formatted as a percentage

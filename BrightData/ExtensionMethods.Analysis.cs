@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
+using BrightData.Types;
 
 namespace BrightData
 {

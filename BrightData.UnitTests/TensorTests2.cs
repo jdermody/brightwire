@@ -7,7 +7,6 @@ using BrightData.Cuda;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
-using BrightData.Serialisation;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;

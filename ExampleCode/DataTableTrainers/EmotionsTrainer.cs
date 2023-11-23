@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.Types;
 using BrightWire;
 using BrightWire.Models;
 

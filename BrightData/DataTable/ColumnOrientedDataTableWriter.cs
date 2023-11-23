@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 

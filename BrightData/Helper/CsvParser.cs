@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace BrightData.Input
+namespace BrightData.Helper
 {
     public class CsvParser
     {
@@ -26,25 +26,28 @@ namespace BrightData.Input
             {
                 var start = 0;
                 uint lineCount = 0;
-                for (int i = 0, len = data.Length; i < len && !ct.IsCancellationRequested; i++) {
+                for (int i = 0, len = data.Length; i < len && !ct.IsCancellationRequested; i++)
+                {
                     var ch = data[i];
 
                     // check for new line
-                    if (ch == '\n' && !_inQuote) {
+                    if (ch == '\n' && !_inQuote)
+                    {
                         FinishLine(data[start..i]);
                         if (++lineCount == maxLines)
                             return;
-                        start = i+1;
+                        start = i + 1;
                     }
-                    
+
                     // check for a delimiter, such as a comma
-                    else if (ch == _parser._delimiter && !_inQuote) {
-                        while((_columnData ??= new()).Count <= _columnIndex)
+                    else if (ch == _parser._delimiter && !_inQuote)
+                    {
+                        while ((_columnData ??= new()).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(data[start..i]);
-                        start = i+1;
+                        start = i + 1;
                     }
-                    
+
                     // check for quote characters
                     else if (ch == _parser._quote)
                         _inQuote = !_inQuote;
@@ -58,23 +61,26 @@ namespace BrightData.Input
             public void ParseLine(ReadOnlySpan<char> line)
             {
                 var start = 0;
-                for (int i = 0, len = line.Length; i < len; i++) {
+                for (int i = 0, len = line.Length; i < len; i++)
+                {
                     var ch = line[i];
 
                     // check for new line
-                    if (ch == '\n' && !_inQuote) {
+                    if (ch == '\n' && !_inQuote)
+                    {
                         FinishLine(line[start..i]);
-                        start = i+1;
+                        start = i + 1;
                     }
-                    
+
                     // check for a delimiter, such as a comma
-                    else if (ch == _parser._delimiter && !_inQuote) {
-                        while((_columnData ??= new()).Count <= _columnIndex)
+                    else if (ch == _parser._delimiter && !_inQuote)
+                    {
+                        while ((_columnData ??= new()).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(line[start..i]);
-                        start = i+1;
+                        start = i + 1;
                     }
-                    
+
                     // check for quote characters
                     else if (ch == _parser._quote)
                         _inQuote = !_inQuote;
@@ -85,17 +91,19 @@ namespace BrightData.Input
 
             void FinishLine(ReadOnlySpan<char> data)
             {
-                if (_columnData != null) {
+                if (_columnData != null)
+                {
                     // add string builders if needed
-                    while(_columnData.Count <= _columnIndex)
+                    while (_columnData.Count <= _columnIndex)
                         _columnData.Add(new StringBuilder());
 
                     // add the text to the current string builder
-                    if(data.Length > 0)
+                    if (data.Length > 0)
                         _columnData[_columnIndex].Append(data);
 
                     // flush the string builders to the column buffers
-                    for (var j = 0; j <= _columnIndex; j++) {
+                    for (var j = 0; j <= _columnIndex; j++)
+                    {
                         var sb = _columnData[j];
                         var text = sb.ToString();
                         if (text.StartsWith(_parser._quote) && text.EndsWith(_parser._quote))
@@ -113,43 +121,46 @@ namespace BrightData.Input
                     }
 
                     // finish any columns that might have been missed
-                    if (Columns?.Count > _columnIndex+1) {
-                        for (var j = _columnIndex+1; j < Columns.Count; j++) {
+                    if (Columns?.Count > _columnIndex + 1)
+                    {
+                        for (var j = _columnIndex + 1; j < Columns.Count; j++)
+                        {
                             if (_isFirstRow && _parser._firstRowIsHeader)
                                 Columns[j].MetaData.SetName(string.Empty);
                             else
-                                Columns[j].Add(String.Empty);
+                                Columns[j].Add(string.Empty);
                         }
                     }
-                    if(_isFirstRow)
+                    if (_isFirstRow)
                         _isFirstRow = false;
                 }
                 _columnIndex = 0;
             }
         }
 
-        readonly bool                _firstRowIsHeader;
-        readonly char                _delimiter, _quote;
+        readonly bool _firstRowIsHeader;
+        readonly char _delimiter, _quote;
         readonly IProvideDataBlocks? _tempStreams;
-        readonly int                 _blockSize;
-        readonly uint?               _maxInMemoryBlocks, _maxDistinctItems;
+        readonly int _blockSize;
+        readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
 
         public CsvParser(
             bool firstRowIsHeader,
-            char delimiter, 
+            char delimiter,
             char quote = '"',
             IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) {
-            _firstRowIsHeader  = firstRowIsHeader;
-            _delimiter         = delimiter;
-            _quote             = quote;
-            _tempStreams       = tempStreams;
-            _blockSize         = blockSize;
+        )
+        {
+            _firstRowIsHeader = firstRowIsHeader;
+            _delimiter = delimiter;
+            _quote = quote;
+            _tempStreams = tempStreams;
+            _blockSize = blockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
-            _maxDistinctItems  = maxDistinctItems;
+            _maxDistinctItems = maxDistinctItems;
         }
 
         public Action<float>? OnProgress { get; set; }
@@ -160,9 +171,10 @@ namespace BrightData.Input
             var parseState = new ParseState(this);
             using var buffer = MemoryOwner<char>.Allocate(_blockSize);
             var lineCount = 0;
-            while(!reader.EndOfStream) {
+            while (!reader.EndOfStream)
+            {
                 var line = await reader.ReadLineAsync(ct);
-                if(String.IsNullOrWhiteSpace(line))
+                if (string.IsNullOrWhiteSpace(line))
                     continue;
 
                 parseState.ParseLine(line);

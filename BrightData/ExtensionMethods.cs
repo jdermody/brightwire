@@ -21,6 +21,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using BrightData.Types;
 
 namespace BrightData
 {

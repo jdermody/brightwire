@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
 using FluentAssertions;

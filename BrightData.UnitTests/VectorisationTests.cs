@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;

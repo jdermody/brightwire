@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using BrightData.Helper;
 
-namespace BrightData.Serialisation
+namespace BrightData.Helper
 {
     /// <summary>
     /// Serialisation helpers
@@ -82,7 +81,8 @@ namespace BrightData.Serialisation
         public static void WriteTo(this IReadOnlyCollection<ICanWriteToBinaryWriter>? list, BinaryWriter writer)
         {
             writer.Write(list?.Count ?? 0);
-            if (list?.Count > 0) {
+            if (list?.Count > 0)
+            {
                 foreach (var item in list)
                     item.WriteTo(writer);
             }
@@ -97,7 +97,8 @@ namespace BrightData.Serialisation
         public static void WriteTo<T>(this T[]? array, BinaryWriter writer) where T : struct
         {
             writer.Write(array?.Length ?? 0);
-            if (array?.Length > 0) {
+            if (array?.Length > 0)
+            {
                 writer.Flush();
                 writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
             }
@@ -114,9 +115,10 @@ namespace BrightData.Serialisation
             writer.Write(arrayOfArrays?.Length ?? 0);
             writer.Write(arrayOfArrays?.Length > 0 ? arrayOfArrays[0].Length : 0);
 
-            if (arrayOfArrays?.Length > 0 && arrayOfArrays[0].Length > 0) {
+            if (arrayOfArrays?.Length > 0 && arrayOfArrays[0].Length > 0)
+            {
                 writer.Flush();
-                foreach(var array in arrayOfArrays)
+                foreach (var array in arrayOfArrays)
                     writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
             }
         }
@@ -127,7 +129,7 @@ namespace BrightData.Serialisation
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static T[][] ReadArrayOfArrays<T>(this BinaryReader reader) where T: struct
+        public static T[][] ReadArrayOfArrays<T>(this BinaryReader reader) where T : struct
         {
             var count = reader.ReadInt32();
             var size = reader.ReadInt32();
@@ -145,7 +147,8 @@ namespace BrightData.Serialisation
         public static void WriteTo(this string[]? array, BinaryWriter writer)
         {
             writer.Write(array?.Length ?? 0);
-            if (array?.Length > 0) {
+            if (array?.Length > 0)
+            {
                 foreach (var str in array)
                     writer.Write(str);
             }
@@ -162,13 +165,13 @@ namespace BrightData.Serialisation
             where T : ICanInitializeFromBinaryReader
         {
             T ret;
-            if(typeof(T) == typeof(IVector))
+            if (typeof(T) == typeof(IVector))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.VectorType);
-            else if(typeof(T) == typeof(IMatrix))
+            else if (typeof(T) == typeof(IMatrix))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.MatrixType);
-            else if(typeof(T) == typeof(ITensor3D))
+            else if (typeof(T) == typeof(ITensor3D))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor3DType);
-            else if(typeof(T) == typeof(ITensor4D))
+            else if (typeof(T) == typeof(ITensor4D))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor4DType);
             else
                 ret = GenericActivator.CreateUninitialized<T>();
@@ -189,7 +192,7 @@ namespace BrightData.Serialisation
             var len = reader.ReadInt32();
             var ret = new T[len];
             for (var i = 0; i < len; i++)
-                ret[i] = Create<T>(context, reader);
+                ret[i] = context.Create<T>(reader);
             return ret;
         }
 

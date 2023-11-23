@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.Types;
 using FluentAssertions;
 using Xunit;
 

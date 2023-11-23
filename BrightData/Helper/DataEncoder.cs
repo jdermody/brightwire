@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Serialisation;
+using BrightData.Types;
 
 namespace BrightData.Helper
 {

@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BrightData;
 
-namespace BrightData.DataTypeSpecification
+namespace BrightData.ConstraintValidation
 {
     class DataTableSpecification : DataTypeSpecificationBase<IDataTable>
     {
         public DataTableSpecification(IDataTable dataTable) : base(
-            dataTable.MetaData.GetName(), 
+            dataTable.MetaData.GetName(),
             DataSpecificationType.Composite,
             false,
             dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)

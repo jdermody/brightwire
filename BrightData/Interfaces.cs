@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.Operations.Conversion;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData

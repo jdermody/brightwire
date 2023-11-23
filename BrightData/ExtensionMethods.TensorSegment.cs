@@ -9,6 +9,7 @@ using BrightData.LinearAlgebra;
 using System.Runtime.Intrinsics.X86;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
+using BrightData.Types;
 
 namespace BrightData
 {

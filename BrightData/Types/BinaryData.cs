@@ -6,17 +6,17 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace BrightData
+namespace BrightData.Types
 {
     /// <summary>
     /// Blob of binary data
     /// </summary>
-    public readonly struct BinaryData : 
-        ICanWriteToBinaryWriter, 
-        ICanInitializeFromBinaryReader, 
-        IEquatable<BinaryData>, 
-        IHaveDataAsReadOnlyByteSpan, 
-        IHaveSize, 
+    public readonly struct BinaryData :
+        ICanWriteToBinaryWriter,
+        ICanInitializeFromBinaryReader,
+        IEquatable<BinaryData>,
+        IHaveDataAsReadOnlyByteSpan,
+        IHaveSize,
         IHaveReadOnlyContiguousSpan<byte>,
         IHaveMemory<byte>
     {
@@ -60,7 +60,8 @@ namespace BrightData
             var binaryHash = SHA512.HashData(Data);
 
             var sb = new StringBuilder();
-            for (var i = 0; i < binaryHash.Length; i++) {
+            for (var i = 0; i < binaryHash.Length; i++)
+            {
                 sb.Append($"{binaryHash[i]:X2}");
                 if (i % 4 == 3)
                     sb.Append(' ');
@@ -104,8 +105,13 @@ namespace BrightData
         /// <inheritdoc />
         public ReadOnlySpan<byte> DataAsBytes => Data;
 
+        /// <inheritdoc />
         public uint Size => (uint)_data.Length;
+
+        /// <inheritdoc />
         public ReadOnlySpan<byte> ReadOnlySpan => Data;
+
+        /// <inheritdoc />
         public ReadOnlyMemory<byte> ReadOnlyMemory => _data;
     }
 }

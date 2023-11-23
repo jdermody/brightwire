@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
 using BrightData.Helper;
+using BrightData.Types;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Table.Helper;
+using BrightData.Types;
 
 namespace BrightData.Buffer.Composite
 {

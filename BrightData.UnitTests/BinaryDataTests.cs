@@ -3,9 +3,10 @@ using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using System.IO;
 using System.Runtime.CompilerServices;
-using BrightData.Serialisation;
 using Xunit;
 using System;
+using BrightData.Helper;
+using BrightData.Types;
 
 namespace BrightData.UnitTests
 {

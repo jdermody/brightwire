@@ -5,7 +5,6 @@ using System.Linq;
 using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 

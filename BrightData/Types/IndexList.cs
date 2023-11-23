@@ -6,24 +6,25 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
+using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace BrightData
+namespace BrightData.Types
 {
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public readonly struct IndexList : 
-        IHaveIndices, 
-        IAmSerializable, 
-        IEquatable<IndexList>, 
-        IHaveDataAsReadOnlyByteSpan, 
-        IHaveReadOnlyContiguousSpan<uint>, 
-        IHaveSpanOf<uint>, 
+    public readonly struct IndexList :
+        IHaveIndices,
+        IAmSerializable,
+        IEquatable<IndexList>,
+        IHaveDataAsReadOnlyByteSpan,
+        IHaveReadOnlyContiguousSpan<uint>,
+        IHaveSpanOf<uint>,
         IHaveSize,
         IHaveMemory<uint>
     {
@@ -86,7 +87,8 @@ namespace BrightData
         {
             var list = new List<uint>();
             uint index = 0;
-            foreach (var item in data) {
+            foreach (var item in data)
+            {
                 if (FloatMath.IsNotZero(item))
                     list.Add(index);
                 ++index;
@@ -156,10 +158,11 @@ namespace BrightData
         /// </summary>
         public override string ToString()
         {
-            if (Size < 32) {
-                var indices = String.Join('|', Indices);
+            if (Size < 32)
+            {
+                var indices = string.Join('|', Indices);
                 return $"IndexList - {indices}";
-            } 
+            }
             return $"IndexList ({Size} indices)";
         }
 
@@ -193,7 +196,7 @@ namespace BrightData
         /// <param name="lhs"></param>
         /// <param name="rhs"></param>
         /// <returns></returns>
-        public static bool operator !=(IndexList lhs, IndexList rhs) => !(lhs.Equals(rhs));
+        public static bool operator !=(IndexList lhs, IndexList rhs) => !lhs.Equals(rhs);
 
         /// <summary>
         /// Merges a sequence of index lists into a single index list
@@ -202,7 +205,8 @@ namespace BrightData
         public static IndexList Merge(IEnumerable<IndexList> lists)
         {
             var items = new HashSet<uint>();
-            foreach (var list in lists) {
+            foreach (var list in lists)
+            {
                 foreach (var index in list.Indices)
                     items.Add(index);
             }
@@ -229,7 +233,7 @@ namespace BrightData
         public void WriteTo(string? name, XmlWriter writer)
         {
             writer.WriteStartElement(name ?? "index-list");
-            writer.WriteValue(String.Join("|", Indices.OrderBy(d => d).Select(c => c.ToString())));
+            writer.WriteValue(string.Join("|", Indices.OrderBy(d => d).Select(c => c.ToString())));
             writer.WriteEndElement();
         }
 
@@ -240,7 +244,8 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Size);
-            fixed (uint* ptr = _indices.Span) {
+            fixed (uint* ptr = _indices.Span)
+            {
                 writer.Write(new ReadOnlySpan<byte>(ptr, (int)Size * sizeof(uint)));
             }
         }
@@ -259,7 +264,8 @@ namespace BrightData
         public string ToXml()
         {
             var sb = new StringBuilder();
-            var settings = new XmlWriterSettings {
+            var settings = new XmlWriterSettings
+            {
                 OmitXmlDeclaration = true
             };
             using var writer = XmlWriter.Create(sb, settings);
@@ -303,14 +309,15 @@ namespace BrightData
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
 
-            foreach (var item in Indices) {
+            foreach (var item in Indices)
+            {
                 if (!maxIndex.HasValue && item > max)
                     max = item;
                 indices.Add(item);
             }
 
-            return indices.Any() 
-                ? new ReadOnlyVector(max + 1, i => indices.Contains(i) ? 1f : 0f) 
+            return indices.Any()
+                ? new ReadOnlyVector(max + 1, i => indices.Contains(i) ? 1f : 0f)
                 : new ReadOnlyVector(maxIndex ?? 0);
         }
 

@@ -40,17 +40,17 @@ namespace BrightData
     public enum DistanceMetric
     {
         /// <summary>
-        /// Euclidean Distance
+        /// Euclidean Distance - https://en.wikipedia.org/wiki/Euclidean_distance
         /// </summary>
         Euclidean,
 
         /// <summary>
-        /// Cosine Distance Metric
+        /// Cosine Distance Metric - https://en.wikipedia.org/wiki/Cosine_similarity
         /// </summary>
         Cosine,
 
         /// <summary>
-        /// Manhattan Distance
+        /// Manhattan Distance - https://en.wikipedia.org/wiki/Taxicab_geometry
         /// </summary>
         Manhattan,
 
@@ -60,9 +60,19 @@ namespace BrightData
         MeanSquared,
 
         /// <summary>
-        /// Square Euclidean
+        /// Square Euclidean - https://en.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
         /// </summary>
-        SquaredEuclidean
+        SquaredEuclidean,
+
+        /// <summary>
+        /// Angular distance - https://en.wikipedia.org/wiki/Angular_distance
+        /// </summary>
+        Angular,
+
+        /// <summary>
+        /// Inner product distance - https://en.wikipedia.org/wiki/Inner_product_space
+        /// </summary>
+        InnerProductSpace
     }
 
     /// <summary>

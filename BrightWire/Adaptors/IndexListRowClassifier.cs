@@ -1,5 +1,6 @@
 ﻿using BrightData;
 using BrightData.DataTable;
+using BrightData.Types;
 
 namespace BrightWire.Adaptors
 {
