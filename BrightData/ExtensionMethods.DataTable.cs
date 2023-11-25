@@ -1278,8 +1278,12 @@ namespace BrightData
 
         public static IDataTable LoadTableFromStream(this BrightDataContext context, Stream stream)
         {
-            if (stream is FileStream fileStream)
-                return new ColumnOrientedDataTable(context, new FileByteBlockReader(fileStream.Name));
+            if (stream is FileStream fileStream) {
+                var path = fileStream.Name;
+                fileStream.Close();
+                return new ColumnOrientedDataTable(context, new FileByteBlockReader(path));
+            }
+
             if(stream is MemoryStream memoryStream)
                 return new ColumnOrientedDataTable(context, new MemoryByteBlockReader(memoryStream.GetBuffer()));
             return new ColumnOrientedDataTable(context, new StreamByteBlockReader(stream));
@@ -1542,15 +1546,15 @@ namespace BrightData
             await builder.WriteTo(stream);
         }
 
-        public static Task WriteTo(this IDataTable dataTable, string path)
+        public static async Task WriteTo(this IDataTable dataTable, string path)
         {
-            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
-            return WriteTo(dataTable, stream);
+            await using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            await WriteTo(dataTable, stream);
         }
 
         public static Task<TableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
         {
-            return dataTable.GetRows(count.AsRange(start).ToArray());
+            return dataTable.GetRows(count.AsRange(start).Where(x => x < dataTable.RowCount).ToArray());
         }
 
         public static async Task<IBuildDataTables> Project(this IDataTable dataTable, Func<TableRow, object[]?> projection, CancellationToken ct = default)

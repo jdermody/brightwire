@@ -14,7 +14,7 @@ namespace BrightData.Buffer.ByteBlockReaders
             if (!File.Exists(path))
                 throw new ArgumentException("Path does not exist on disk", nameof(path));
             Path = path;
-            _file = File.OpenHandle(Path, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, FileOptions.Asynchronous | FileOptions.RandomAccess);
+            _file = File.OpenHandle(Path, FileMode.Open, FileAccess.ReadWrite, FileShare.None, FileOptions.Asynchronous | FileOptions.RandomAccess);
             Size = (uint)RandomAccess.GetLength(_file);
         }
 

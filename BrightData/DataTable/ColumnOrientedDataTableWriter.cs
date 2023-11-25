@@ -164,7 +164,7 @@ namespace BrightData.DataTable
             header.MetaDataOffset = (uint)output.Position;
             metaDataWriter.Flush();
             tempBuffer.WriteTo(output);
-            header.MetaDataSizeBytes = (uint)output.Position - header.MetaDataOffset;
+            //header.MetaDataSizeBytes = (uint)output.Position - header.MetaDataOffset;
 
             // update the header
             output.Seek(0, SeekOrigin.Begin);

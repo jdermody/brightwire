@@ -68,7 +68,7 @@ namespace BrightData.DataTable
 
             // read the meta data
             _columnMetaData = new MetaData[ColumnCount];
-            var data = _reader.GetBlock(_header.MetaDataOffset, _header.MetaDataSizeBytes).Result;
+            var data = _reader.GetBlock(_header.MetaDataOffset, _reader.Size - _header.MetaDataOffset).Result;
             var metadataReader = new BinaryReader(data.AsStream(), Encoding.UTF8, true);
             for (var i = 0; i < ColumnCount + 1; i++) {
                 if (i == 0)
@@ -233,7 +233,7 @@ namespace BrightData.DataTable
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            
+            InternalDispose();
         }
 
         void InternalDispose()

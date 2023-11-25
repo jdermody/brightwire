@@ -117,11 +117,10 @@ namespace BrightAPI.Controllers
             if (fileName is not null)
                 table.MetaData.Set("file-name", fileName);
             table.MetaData.Set("date-created", DateTime.UtcNow);
-            table.PersistMetaData();
 
             // save table to disk and the DB
             var (path, id) = tempFileManager.GetNewTempPath();
-            table.WriteTo(path);
+            await table.WriteTo(path);
             return await dataBase.CreateDataTable(fileName ?? "", id, path, table.RowCount);
         }
 

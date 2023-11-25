@@ -115,10 +115,5 @@
         public const string VectorisationSize                = "VectorisationSize";
         public const string VectorisationSourceColumnIndex   = "VectorisationSourceColumnIndex";
 #pragma warning restore 1591
-
-        /// <summary>
-        /// Standard metadata
-        /// </summary>
-        public static readonly string[] StandardMetaData = { ColumnIndex, Name, Type, IsNumeric, IsTarget };
     }
 }
