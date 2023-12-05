@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
@@ -1662,5 +1663,8 @@ namespace BrightData
                 CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
             }
         }
+
+        public static IReadOnlyVector ToReadOnlyVector(this ReadOnlySpan<float> span) => new ReadOnlyVector(span.ToArray());
+        public static IReadOnlyVector ToReadOnlyVector(this Span<float> span) => new ReadOnlyVector(span.ToArray());
     }
 }

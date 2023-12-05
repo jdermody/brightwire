@@ -27,6 +27,7 @@ namespace BrightData.Helper
         SpanAggregator(uint size, SpanAggregationOperation<T> operation)
         {
             _delta = SpanOwner<T>.Allocate((int)size);
+            _delta.Span.Clear();
             _operation = operation;
         }
 

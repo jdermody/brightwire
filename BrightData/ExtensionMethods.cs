@@ -10,13 +10,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.Clustering;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
@@ -776,5 +776,8 @@ namespace BrightData
         }
 
         public static IDataBlock AsDataBlock(this Stream stream, Guid? id = null) => new StreamDataBlock(id ?? Guid.NewGuid(), stream);
+
+        public static IClusteringStrategy NewHierachicalClustering(this BrightDataContext _) => new Hierarchical();
+        public static IClusteringStrategy NewKMeansClustering(this BrightDataContext context, uint maxIterations = 1000) => new KMeans(context, maxIterations);
     }
 }

@@ -671,4 +671,9 @@ namespace BrightData
             return output;
         }
     }
+
+    public interface IClusteringStrategy
+    {
+        uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric);
+    }
 }

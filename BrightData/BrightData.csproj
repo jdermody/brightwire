@@ -86,4 +86,8 @@
       <DependentUpon>ColumnOrientedDataTable.RowReaders.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="LinearAlgebra\ErrorMetrics\" />
+  </ItemGroup>
 </Project>

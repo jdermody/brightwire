@@ -267,7 +267,9 @@ namespace BrightData
                     var s1 = segment1.GetSpan(ref temp1, out wasTemp1Used);
                     var s2 = segment2.GetSpan(ref temp2, out wasTemp2Used);
                     fixed (float* ptr = s1) {
-                        callback(new Span<float>(ptr, s1.Length), s2);
+                        var editableSpan = new Span<float>(ptr, s1.Length);
+                        callback(editableSpan, s2);
+                        segment1.CopyFrom(editableSpan);
                     }
                 }
                 finally {
@@ -304,7 +306,9 @@ namespace BrightData
                 try {
                     var span = segment.GetSpan(ref temp, out wasTempUsed);
                     fixed (float* ptr = span) {
-                        callback(new Span<float>(ptr, span.Length));
+                        var editableSpan = new Span<float>(ptr, span.Length);
+                        callback(editableSpan);
+                        segment.CopyFrom(editableSpan);
                     }
                 }
                 finally {
@@ -314,56 +318,6 @@ namespace BrightData
             }
         }
 
-        ///// <summary>
-        ///// Callback that takes a single readonly span
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        ///// <param name="span"></param>
-        //public delegate void OnReadOnlySpan<T>(ReadOnlySpan<T> span);
-
-        ///// <summary>
-        ///// Passes the segment as a readonly span into a callback function
-        ///// </summary>
-        ///// <param name="segment"></param>
-        ///// <param name="callback"></param>
-        ///// <typeparam name="CT"></typeparam>
-        //public static void GetReadOnlySpan<CT>(this IReadOnlyNumericSegment<float> segment, OnReadOnlySpan<float> callback)
-        //{
-        //    var contiguous = segment.Contiguous;
-        //    if (contiguous is not null)
-        //        callback(contiguous.ReadOnlySpan);
-        //    else {
-        //        GetReadOnlySpan(segment, callback);
-        //        var temp = SpanOwner<float>.Empty;
-        //        var wasTempUsed = false;
-        //        try {
-        //            var span = segment.GetSpan(ref temp, out wasTempUsed);
-        //            callback(span);
-        //        }
-        //        finally {
-        //            if (wasTempUsed)
-        //                temp.Dispose();
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Invokes the callback with the contents of the span
-        ///// </summary>
-        ///// <param name="spanContainer"></param>
-        ///// <param name="callback"></param>
-        ///// <typeparam name="T"></typeparam>
-        //public static void GetReadOnlySpan<T>(this IHaveSpanOf<T> spanContainer, OnReadOnlySpan<T> callback)
-        //{
-        //    var temp = SpanOwner<T>.Empty;
-        //    var wasTempUsed = false;
-        //    try {
-        //        callback(spanContainer.GetSpan(ref temp, out wasTempUsed));
-        //    }
-        //    finally {
-        //        if (wasTempUsed)
-        //            temp.Dispose();
-        //    }
-        //}
+        
     }
 }
