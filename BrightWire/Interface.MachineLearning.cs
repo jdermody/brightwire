@@ -38,11 +38,10 @@ namespace BrightWire
 		/// <summary>
 		/// Calculates the gradient of the error function
 		/// </summary>
-		/// <param name="context">The graph context</param>
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput);
+		IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
 	}
 
 	/// <summary>

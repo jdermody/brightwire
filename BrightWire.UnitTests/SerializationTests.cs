@@ -19,7 +19,7 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
+            public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }

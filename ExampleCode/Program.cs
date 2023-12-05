@@ -42,9 +42,9 @@ namespace ExampleCode
             //else
             //    PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            await Xor(context, useMkl);
+            //await Xor(context, useMkl);
             //await IrisClassification(context, useMkl);
-            //await IrisClustering(context, useMkl);
+            await IrisClustering(context, useMkl);
             //await MarkovChains(context, useMkl);
             //await TextClustering(context, useMkl);
             //await IntegerAddition(context, useMkl);
@@ -111,7 +111,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var iris = await context.Iris();
-            var irisTable = iris.Table.Value;
+            var irisTable = iris.OriginalTable;
 
             Console.WriteLine("K Means...");
             WriteSeparator();

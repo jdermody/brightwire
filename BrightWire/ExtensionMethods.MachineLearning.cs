@@ -75,39 +75,10 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IReadOnlyVector[][] Nnmf(this IEnumerable<IReadOnlyVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static uint[][] Nnmf(this IReadOnlyVector[] data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
-            var clusterer = new NonNegativeMatrixFactorisation(lap, k);
-            return clusterer.Cluster(data, maxIterations);
-        }
-
-        /// <summary>
-        /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
-        /// </summary>
-        /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="k">The number of clusters to find</param>
-        /// <returns>A list of k clusters</returns>
-        public static IReadOnlyVector[][] HierarchicalCluster(this IEnumerable<IReadOnlyVector> data, LinearAlgebraProvider lap, uint k)
-        {
-            using var clusterer = new Hierarchical(lap, k, data);
-            clusterer.Cluster();
-            return clusterer.Clusters;
-        }
-
-        /// <summary>
-        /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
-        /// </summary>
-        /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="context">Bright data context</param>
-        /// <param name="k">The number of clusters to find</param>
-        /// <param name="maxIterations">The maximum number of iterations</param>
-        /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
-        /// <returns>A list of k clusters</returns>
-        public static IReadOnlyVector[][] KMeans(this IEnumerable<IReadOnlyVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
-        {
-            using var kmeans = new KMeans(context, k, data, distanceMetric);
-            kmeans.ClusterUntilConverged(maxIterations);
-            return kmeans.Clusters;
+            var clusterer = new NonNegativeMatrixFactorisation(lap, maxIterations);
+            return clusterer.Cluster(data, k, DistanceMetric.Euclidean);
         }
 
         /// <summary>

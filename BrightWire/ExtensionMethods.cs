@@ -75,11 +75,14 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
-            var table = new Dictionary<IReadOnlyVector, (uint RowIndex, string? Label)>(ReferenceEqualityComparer.Instance);
-            foreach(var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true))
-                table.Add(vector.ToReadOnlyVector(), (rowIndex, label));
-            return table.Keys.HierarchicalCluster(dataTable.Context.LinearAlgebraProvider, k)
-                .Select(c => c.Select(v => (table[v].RowIndex, table[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            return vectors.HierarchicalCluster(k)
+                .Select(c => c.Select(v => (v, labels[v])).ToArray());
         }
 
         /// <summary>
@@ -92,11 +95,14 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            var table = new Dictionary<IReadOnlyVector, (uint RowIndex, string? Label)>(ReferenceEqualityComparer.Instance);
-            foreach(var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true))
-                table.Add(vector.ToReadOnlyVector(), (rowIndex, label));
-            var clusters = table.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric);
-            var ret = clusters.Select(c => c.Select(v => (table[v].RowIndex, table[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            var clusters = vectors.KMeansCluster(dataTable.Context, k, maxIterations, distanceMetric);
+            var ret = clusters.Select(c => c.Select(v => (v, labels[v])).ToArray());
             return ret;
         }
 
@@ -110,11 +116,14 @@ namespace BrightWire
         public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
-            var table = new Dictionary<IReadOnlyVector, (uint RowIndex, string? Label)>(ReferenceEqualityComparer.Instance);
-            foreach(var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true))
-                table.Add(vector.ToReadOnlyVector(), (rowIndex, label));
-            return table.Keys.Nnmf(lap, k, maxIterations)
-                .Select(c => c.Select(v => (table[v].RowIndex, table[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            return vectors.Nnmf(lap, k, maxIterations)
+                .Select(c => c.Select(v => (v, labels[v])).ToArray());
         }
 
         /// <summary>

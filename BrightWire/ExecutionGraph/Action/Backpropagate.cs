@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Action
             context.Data = input;
             if (context.LearningContext != null) {
                 var target = context.BatchSequence.Target ?? throw new Exception("Did not find a single target in the batch sequence");
-                var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, input.GetMatrix(), target.GetMatrix());
+                var gradient = context.LearningContext.ErrorMetric.CalculateGradient(input.GetMatrix(), target.GetMatrix());
                 context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;

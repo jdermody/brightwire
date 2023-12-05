@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class OneHotEncoding : IErrorMetric
     {
-        public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

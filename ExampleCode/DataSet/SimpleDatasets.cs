@@ -122,15 +122,16 @@ namespace ExampleCode.DataSet
             var keywordSplit = " \n".ToCharArray();
             var topicSplit = "\n".ToCharArray();
 
-            var docList = new List<TestClusteringTrainer.AaaiDocument>();
+            var docList = new TestClusteringTrainer.AaaiDocument[table.RowCount];
+            var index = 0;
             await foreach (var row in table.EnumerateRows()) {
-                docList.Add(new TestClusteringTrainer.AaaiDocument(
+                docList[index++] = new TestClusteringTrainer.AaaiDocument(
                     (string)row[0],
                     ((string)row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
                     ((string)row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),
                     (string)row[5],
                     ((string)row[2]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries)
-                ));
+                );
             }
 
             return new TestClusteringTrainer(context, docList);

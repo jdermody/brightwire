@@ -3,6 +3,7 @@ using System.Linq;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
+using FluentAssertions;
 using Xunit;
 
 namespace BrightWire.UnitTests
@@ -12,22 +13,22 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestKMeans()
         {
-            var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
                 .ConvertToWeightedIndexList(false).AsSpan()
                 .Vectorise(_context)
-                .ToDictionary(d => d.Data, d => d.Classification)
             ;
             var clusters = data
-                .Select(d => d.Key)
-                .ToList()
-                .KMeans(_context, 2)
+                .Select(d => d.Data)
+                .ToArray()
+                .KMeansCluster(_context, 2)
             ;
             var clusterLabels = clusters
-                .Select(d => d.Select(d2 => data[d2]).ToArray())
-                .ToList()
+                .Select(d => d.Select(d2 => data[d2].Classification).ToArray())
+                .ToArray()
             ;
+            clusterLabels.First().Length.Should().Be(3);
+            clusterLabels.Last().Length.Should().Be(1);
         }
 
         [Fact]
@@ -36,16 +37,17 @@ namespace BrightWire.UnitTests
             var lap = _context.LinearAlgebraProvider;
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)
-                .ConvertToWeightedIndexList(false).AsSpan()
-                .Vectorise(_context)
-                .ToDictionary(d => d.Data, d => d.Classification)
-            ;
+                    .ConvertToWeightedIndexList(false).AsSpan()
+                    .Vectorise(_context)
+                ;
             var clusters = data
-                .Select(d => d.Key)
-                .ToList()
+                .Select(d => d.Data)
+                .ToArray()
                 .Nnmf(lap, 2)
             ;
-            var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
+            var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2].Classification).ToArray()).ToList();
+            clusterLabels.First().Length.Should().Be(3);
+            clusterLabels.Last().Length.Should().Be(1);
         }
     }
 }

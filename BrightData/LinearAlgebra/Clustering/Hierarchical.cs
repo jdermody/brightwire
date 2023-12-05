@@ -25,7 +25,7 @@ namespace BrightData.LinearAlgebra.Clustering
                 _indices.AddRange(right._indices);
                 using var segment = left.Vector.Add(right.Vector);
                 segment.GetSpan(x => x.MultiplyInPlace(0.5f));
-                Vector = segment.ToReadOnlyVector();
+                Vector = segment.ToNewArray().ToReadOnlyVector();
             }
             public IReadOnlyVector Vector { get; }
             public uint[] GetIndices() => _indices.ToArray();

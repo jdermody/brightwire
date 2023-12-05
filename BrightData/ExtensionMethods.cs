@@ -22,6 +22,7 @@ using BrightData.Operations;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
+using BrightData.LinearAlgebra;
 
 namespace BrightData
 {
@@ -779,5 +780,33 @@ namespace BrightData
 
         public static IClusteringStrategy NewHierachicalClustering(this BrightDataContext _) => new Hierarchical();
         public static IClusteringStrategy NewKMeansClustering(this BrightDataContext context, uint maxIterations = 1000) => new KMeans(context, maxIterations);
+
+        /// <summary>
+        /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
+        /// </summary>
+        /// <param name="data">The list of vectors to cluster</param>
+        /// <param name="k">The number of clusters to find</param>
+        /// <returns>A list of k clusters</returns>
+        public static uint[][] HierarchicalCluster(this IReadOnlyVector[] data, uint k, DistanceMetric metric = DistanceMetric.Euclidean)
+        {
+            var clusterer = new Hierarchical();
+            return clusterer.Cluster(data, k, metric);
+        }
+
+        /// <summary>
+        /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
+        /// </summary>
+        /// <param name="data">The list of vectors to cluster</param>
+        /// <param name="context">Bright data context</param>
+        /// <param name="k">The number of clusters to find</param>
+        /// <param name="maxIterations">The maximum number of iterations</param>
+        /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
+        /// <returns>A list of k clusters</returns>
+        public static uint[][] KMeansCluster(this IReadOnlyVector[] data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        {
+            var kmeans = new KMeans(context, maxIterations);
+            return kmeans.Cluster(data, k, distanceMetric);
+
+        }
     }
 }

@@ -16,18 +16,14 @@ namespace ExampleCode.DataTableTrainers
 
         public DataTableTrainer(IDataTable table)
         {
-            try {
-                var shuffled = table.Shuffle(null).Result;
-                _context = table.Context;
-                TargetColumn = table.GetTargetColumnOrThrow();
-                Table = new(shuffled);
-                var (training, test) = shuffled.Split().Result;
-                Training = training;
-                Test = test;
-            }
-            finally {
-                table.Dispose();
-            }
+            OriginalTable = table;
+            var shuffled = table.Shuffle(null).Result;
+            _context = table.Context;
+            TargetColumn = table.GetTargetColumnOrThrow();
+            Table = new(shuffled);
+            var (training, test) = shuffled.Split().Result;
+            Training = training;
+            Test = test;
         }
 
         public DataTableTrainer(IDataTable? table, IDataTable training, IDataTable test)
@@ -44,6 +40,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void Dispose()
         {
+            OriginalTable.Dispose();
             if(Table.IsValueCreated)
                 Table.Value.Dispose();
             Training.Dispose();
@@ -51,6 +48,7 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public uint TargetColumn { get; }
+        public IDataTable OriginalTable { get; }
         public Lazy<IDataTable> Table { get; }
         public IDataTable Training { get; }
         public IDataTable Test { get; }

@@ -703,14 +703,14 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static (string Classification, IReadOnlyVector Data)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
+        public static (string Classification, IReadOnlyVector Data, uint Index)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            var index = 0;
-            var ret = new (string Classification, IReadOnlyVector Data)[data.Length];
+            uint index = 0;
+            var ret = new (string Classification, IReadOnlyVector Data, uint Index)[data.Length];
 
             foreach (ref var item in data)
-                ret[index++] = (item.Label, Create(item.Data));
+                ret[index] = (item.Label, Create(item.Data), index++);
             return ret;
 
             IReadOnlyVector Create(WeightedIndexList weightedIndexList)
