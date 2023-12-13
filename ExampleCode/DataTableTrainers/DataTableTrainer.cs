@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void Dispose()
         {
-            OriginalTable.Dispose();
+            OriginalTable?.Dispose();
             if(Table.IsValueCreated)
                 Table.Value.Dispose();
             Training.Dispose();
@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public uint TargetColumn { get; }
-        public IDataTable OriginalTable { get; }
+        public IDataTable? OriginalTable { get; }
         public Lazy<IDataTable> Table { get; }
         public IDataTable Training { get; }
         public IDataTable Test { get; }

@@ -47,14 +47,14 @@
             Normalization parameters
             </summary>
         </member>
-        <member name="M:BrightData.Analysis.NormalisationModel.#ctor(BrightData.NormalizationType,BrightData.MetaData)">
+        <member name="M:BrightData.Analysis.NormalisationModel.#ctor(BrightData.NormalizationType,BrightData.Types.MetaData)">
             <summary>
             Creates a new set of parameters based on supplied the numeric analysis
             </summary>
             <param name="type">Type of normalization</param>
             <param name="analysedMetaData">Numeric analysis</param>
         </member>
-        <member name="M:BrightData.Analysis.NormalisationModel.WriteTo(BrightData.MetaData)">
+        <member name="M:BrightData.Analysis.NormalisationModel.WriteTo(BrightData.Types.MetaData)">
             <summary>
             Writes the normalization parameters to a meta data store
             </summary>
@@ -378,65 +378,6 @@
             String analysis
             </summary>
         </member>
-        <member name="T:BrightData.BinaryData">
-            <summary>
-            Blob of binary data
-            </summary>
-        </member>
-        <member name="M:BrightData.BinaryData.#ctor(System.Byte[])">
-            <summary>
-            Constructor
-            </summary>
-            <param name="data">Binary data blob</param>
-        </member>
-        <member name="M:BrightData.BinaryData.#ctor(System.ReadOnlySpan{System.Byte})">
-            <summary>
-            Constructor
-            </summary>
-            <param name="data">Binary data blob</param>
-        </member>
-        <member name="P:BrightData.BinaryData.Data">
-            <summary>
-            Returns the data as a span
-            </summary>
-        </member>
-        <member name="M:BrightData.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.Equals(BrightData.BinaryData)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.Equals(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.GetHashCode">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.BinaryData.op_Equality(BrightData.BinaryData,BrightData.BinaryData)">
-            <summary>
-            Binary data equality
-            </summary>
-            <param name="obj1"></param>
-            <param name="obj2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.BinaryData.op_Inequality(BrightData.BinaryData,BrightData.BinaryData)">
-            <summary>
-            Binary data non equality
-            </summary>
-            <param name="obj1"></param>
-            <param name="obj2"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.BinaryData.DataAsBytes">
-            <inheritdoc />
-        </member>
         <member name="T:BrightData.BrightDataContext">
             <summary>
             Bright data context
@@ -605,11 +546,6 @@
             Default max write count
             </summary>
         </member>
-        <member name="F:BrightData.Consts.StandardMetaData">
-            <summary>
-            Standard metadata
-            </summary>
-        </member>
         <member name="T:BrightData.Converter.StaticConverters">
             <summary>
             Static methods to create converters
@@ -695,56 +631,56 @@
             Extensions that work with a span of numbers
             </summary>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the date analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the dimension analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the frequency analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetIndexAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetIndexAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the index analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumericAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the numeric analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetStringAnalysis(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetStringAnalysis(BrightData.Types.MetaData)">
             <summary>
             Gets the string analysis that was stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.Types.MetaData)">
             <summary>
             Gets the categories that were stored in meta data
             </summary>
             <param name="metaData">Meta data store</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.Types.MetaData)">
             <summary>
             Returns a normalization that was previously stored in the metadata
             </summary>
@@ -829,7 +765,7 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetAnalyser(BrightData.IReadOnlyBuffer,BrightData.MetaData,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetAnalyser(BrightData.IReadOnlyBuffer,BrightData.Types.MetaData,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
@@ -845,7 +781,7 @@
             <param name="code">Type code</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.MetaData,System.String,System.Nullable{``0})">
+        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.Types.MetaData,System.String,System.Nullable{``0})">
             <summary>
             Sets a value only if the value is not null
             </summary>
@@ -855,7 +791,7 @@
             <param name="value"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.MetaData,System.String,``0)">
+        <member name="M:BrightData.ExtensionMethods.SetIfNotNull``1(BrightData.Types.MetaData,System.String,``0)">
             <summary>
             Sets a value only if the value is not null
             </summary>
@@ -901,7 +837,7 @@
             <param name="rnd">Random number generator to use</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.MetaData,System.String)">
+        <member name="M:BrightData.ExtensionMethods.GetName(BrightData.Types.MetaData,System.String)">
             <summary>
             Item name
             </summary>
@@ -909,35 +845,35 @@
             <param name="defaultName">Name to use if no name was set</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnIndex(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnIndex(BrightData.Types.MetaData)">
             <summary>
             Item index
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.Types.MetaData)">
             <summary>
             True if the item is numeric
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsTarget(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsTarget(BrightData.Types.MetaData)">
             <summary>
             True if the item is a target
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsCategorical(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsCategorical(BrightData.Types.MetaData)">
             <summary>
             True if the item is categorical
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.IsSequential(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.IsSequential(BrightData.Types.MetaData)">
             <summary>
             True if the item is sequential
             </summary>
@@ -997,7 +933,7 @@
             <param name="data">Data to aggregate</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetTarget(BrightData.MetaData,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.SetTarget(BrightData.Types.MetaData,System.Boolean)">
             <summary>
             Sets this as a target
             </summary>
@@ -1005,7 +941,7 @@
             <param name="isTarget"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetIsCategorical(BrightData.MetaData,System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.SetIsCategorical(BrightData.Types.MetaData,System.Boolean)">
             <summary>
             Sets this as categorical
             </summary>
@@ -1013,14 +949,14 @@
             <param name="isCategorical"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetName(BrightData.MetaData,System.String)">
+        <member name="M:BrightData.ExtensionMethods.SetName(BrightData.Types.MetaData,System.String)">
             <summary>
             Sets the name
             </summary>
             <param name="metaData"></param>
             <param name="name">Name</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetFilePath(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetFilePath(BrightData.Types.MetaData)">
             <summary>
             Returns the file path associated with the meta data (if any)
             </summary>
@@ -1204,6 +1140,25 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
+        <member name="M:BrightData.ExtensionMethods.HierarchicalCluster(BrightData.IReadOnlyVector[],System.UInt32,BrightData.DistanceMetric)">
+            <summary>
+            Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
+            </summary>
+            <param name="data">The list of vectors to cluster</param>
+            <param name="k">The number of clusters to find</param>
+            <returns>A list of k clusters</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.KMeansCluster(BrightData.IReadOnlyVector[],BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
+            <summary>
+            K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
+            </summary>
+            <param name="data">The list of vectors to cluster</param>
+            <param name="context">Bright data context</param>
+            <param name="k">The number of clusters to find</param>
+            <param name="maxIterations">The maximum number of iterations</param>
+            <param name="distanceMetric">Distance metric to use to compare centroids</param>
+            <returns>A list of k clusters</returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
             Converts from a column type to a Type
@@ -1281,7 +1236,7 @@
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetAnalyser(BrightData.BrightDataType,BrightData.MetaData,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetAnalyser(BrightData.BrightDataType,BrightData.Types.MetaData,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
@@ -1320,7 +1275,7 @@
             <param name="filePath">File path on disk</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.MetaData[],System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.Types.MetaData[],System.Nullable{System.UInt32})">
             <summary>
             Sets the target column across an array of meta data
             </summary>
@@ -1355,7 +1310,7 @@
             <param name="table"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.MetaData,BrightData.BrightDataType)">
+        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.Types.MetaData,BrightData.BrightDataType)">
             <summary>
             Sets the column type in a meta data store
             </summary>
@@ -1370,14 +1325,14 @@
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.Types.MetaData)">
             <summary>
             Gets the column type
             </summary>
             <param name="metadata"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetNumDistinct(BrightData.MetaData)">
+        <member name="M:BrightData.ExtensionMethods.GetNumDistinct(BrightData.Types.MetaData)">
             <summary>
             Gets the number of distinct items
             </summary>
@@ -1624,7 +1579,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.WriteDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.IO.Stream)">
+        <member name="M:BrightData.ExtensionMethods.WriteDataTable(BrightData.BrightDataContext,BrightData.Types.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.IO.Stream)">
             <summary>
             Writes a data table to a stream
             </summary>
@@ -1633,7 +1588,7 @@
             <param name="columns">Data table columns</param>
             <param name="stream">Output stream</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.IO.Stream)">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.Types.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.IO.Stream)">
             <summary>
             Builds a data table from an array of typed segments
             </summary>
@@ -1643,7 +1598,7 @@
             <param name="stream">Output stream</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTableInMemory(BrightData.BrightDataContext,BrightData.MetaData,BrightData.IReadOnlyBufferWithMetaData[])">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTableInMemory(BrightData.BrightDataContext,BrightData.Types.MetaData,BrightData.IReadOnlyBufferWithMetaData[])">
             <summary>
             Builds a data table in memory
             </summary>
@@ -1652,7 +1607,7 @@
             <param name="columns">Typed segments (table columns)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildDataTable(BrightData.BrightDataContext,BrightData.Types.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.String)">
             <summary>
             Builds a data table (and writes table data to a file)
             </summary>
@@ -1678,13 +1633,6 @@
             <param name="dataType">Bright data type</param>
             <returns></returns>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetTableDataType(System.Type)">
-            <summary>
-            Converts from a Type to a ColumnType
-            </summary>
-            <param name="dataType"></param>
-            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AllOrSpecifiedRowIndices(BrightData.IDataTable,System.Boolean,System.UInt32[])">
             <summary>
@@ -2885,6 +2833,24 @@
             <returns>Cosine distance between the two vectors</returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
+        <member name="M:BrightData.ExtensionMethods.AngularDistance``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Angular distance between two vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="v1"></param>
+            <param name="v2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.InnerProductSpaceDistance``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Inner space distance between two vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="v1"></param>
+            <param name="v2"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Minimum``1(System.ReadOnlySpan{``0})">
             <summary>
             Find the minimum value and index in a vector
@@ -3197,7 +3163,7 @@
             <param name="columnType">Column type to check</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.BrightDataType,BrightData.MetaData)">
+        <member name="M:BrightData.Helper.ColumnTypeClassifier.GetClass(BrightData.BrightDataType,BrightData.Types.MetaData)">
             <summary>
             Returns the set of possible column classifications
             </summary>
@@ -3358,15 +3324,6 @@
             <param name="type">Type of object to create</param>
             <param name="args">Arguments to pass to constructor</param>
         </member>
-        <member name="F:BrightData.Helper.GenericActivator.TypeCreators">
-            <summary>
-            Creates a new object
-            </summary>
-            <typeparam name="T1">Type to cast created object to</typeparam>
-            <typeparam name="T2">Type to cast created object to</typeparam>
-            <param name="type">Type of object to create</param>
-            <param name="args">Arguments to pass to constructor</param>
-        </member>
         <member name="M:BrightData.Helper.GenericActivator.Create``1">
             <summary>
             Creates a new object (via default constructor)
@@ -3419,6 +3376,135 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Helper.SerialisationHelper">
+            <summary>
+            Serialisation helpers
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.String,System.IO.BinaryWriter)">
+            <summary>
+            Writes the string
+            </summary>
+            <param name="str"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.Int32,System.IO.BinaryWriter)">
+            <summary>
+            Writes the integer
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.UInt32,System.IO.BinaryWriter)">
+            <summary>
+            Writes the uint
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.Double,System.IO.BinaryWriter)">
+            <summary>
+            Writes the double
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.Single,System.IO.BinaryWriter)">
+            <summary>
+            Writes the float
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo``1(System.Nullable{``0},System.IO.BinaryWriter,System.Action{``0})">
+            <summary>
+            Conditionally writes a nullable value
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+            <param name="onWrite"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.ReadNullable``1(System.IO.BinaryReader,System.Func{``0})">
+            <summary>
+            Conditionally reads a nullable value
+            </summary>
+            <param name="reader"></param>
+            <param name="onRead"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.Collections.Generic.IReadOnlyCollection{BrightData.ICanWriteToBinaryWriter},System.IO.BinaryWriter)">
+            <summary>
+            Writes the collection of items
+            </summary>
+            <param name="list"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo``1(``0[],System.IO.BinaryWriter)">
+            <summary>
+            Writes the array
+            </summary>
+            <param name="array"></param>
+            <param name="writer"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo``1(``0[][],System.IO.BinaryWriter)">
+            <summary>
+            Writes an array of arrays to a binary writer
+            </summary>
+            <param name="arrayOfArrays"></param>
+            <param name="writer"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.ReadArrayOfArrays``1(System.IO.BinaryReader)">
+            <summary>
+            Reads an array of arrays from a binary reader
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.WriteTo(System.String[],System.IO.BinaryWriter)">
+            <summary>
+            Writes the array of strings
+            </summary>
+            <param name="array"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.Create``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates a new object after reading its serialized data from the reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.ReadObjectArray``1(System.IO.BinaryReader,BrightData.BrightDataContext)">
+            <summary>
+            Reads an array of objects from the reader
+            </summary>
+            <param name="reader"></param>
+            <param name="context"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.ReadStructArray``1(System.IO.BinaryReader)">
+            <summary>
+            Reads an array of structs from the reader
+            </summary>
+            <param name="reader"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.SerialisationHelper.ReadStringArray(System.IO.BinaryReader)">
+            <summary>
+            Reads an array of strings from the reader
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Helper.SpanAggregationOperation`1">
             <summary>
             Defines a span aggregation operation that will apply to each element within the span
@@ -3435,7 +3521,7 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Helper.SpanAggregator`1.GetOnlineAverage(System.Int32)">
+        <member name="M:BrightData.Helper.SpanAggregator`1.GetOnlineAverage(System.UInt32)">
             <summary>
             Creates a span aggregator that calculates the average of each value (online algorithm)
             </summary>
@@ -3553,193 +3639,6 @@
             <param name="ret">Item that was removed</param>
             <returns>True if there was an item to remove</returns>
         </member>
-        <member name="T:BrightData.IndexList">
-            <summary>
-            Contains a list of indices
-            </summary>
-        </member>
-        <member name="T:BrightData.IndexList.ItemIterator">
-            <summary>
-            Index iterator
-            </summary>
-        </member>
-        <member name="P:BrightData.IndexList.ItemIterator.Current">
-            <summary>
-            Current value
-            </summary>
-        </member>
-        <member name="M:BrightData.IndexList.ItemIterator.MoveNext">
-            <summary>
-            Advances the iterator
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.ItemIterator.GetEnumerator">
-            <summary>
-            Get enumerator
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.GetEnumerator">
-            <summary>
-            Enumerates the indices in the list
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.#ctor(System.UInt32[])">
-            <summary>
-            Creates an index list from an array of indices
-            </summary>
-            <param name="indices">Initial indices</param>
-        </member>
-        <member name="M:BrightData.IndexList.#ctor(System.ReadOnlySpan{System.Byte})">
-            <summary>
-            Creates an index list from a byte span
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="P:BrightData.IndexList.ReadOnlyMemory">
-            <summary>
-            Returns the indices
-            </summary>
-        </member>
-        <member name="P:BrightData.IndexList.Indices">
-            <summary>
-            Current indices in list
-            </summary>
-        </member>
-        <member name="M:BrightData.IndexList.AsSpan">
-            <summary>
-            Indices as a span
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.Create(System.UInt32[])">
-            <summary>
-            Creates an index list
-            </summary>
-            <param name="indices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.Create(System.ReadOnlySpan{System.UInt32})">
-            <summary>
-            Creates an index list
-            </summary>
-            <param name="indices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.Create(System.Collections.Generic.IEnumerable{System.UInt32})">
-            <summary>
-            Creates an index list
-            </summary>
-            <param name="indices"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IndexList.Size">
-            <summary>
-            The number of items in the list
-            </summary>
-        </member>
-        <member name="M:BrightData.IndexList.ToString">
-            <summary>
-            ToString override
-            </summary>
-        </member>
-        <member name="M:BrightData.IndexList.Equals(BrightData.IndexList)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.UInt32}@,System.Boolean@)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.Equals(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.op_Equality(BrightData.IndexList,BrightData.IndexList)">
-            <summary>
-            Checks for index list equality
-            </summary>
-            <param name="lhs"></param>
-            <param name="rhs"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.op_Inequality(BrightData.IndexList,BrightData.IndexList)">
-            <summary>
-            Checks for index list inequality
-            </summary>
-            <param name="lhs"></param>
-            <param name="rhs"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.IndexList})">
-            <summary>
-            Merges a sequence of index lists into a single index list
-            </summary>
-            <param name="lists">Lists to merge</param>
-        </member>
-        <member name="M:BrightData.IndexList.GetHashCode">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.WriteTo(System.String,System.Xml.XmlWriter)">
-            <summary>
-            Writes the data to an XML writer
-            </summary>
-            <param name="name">The name to give the data</param>
-            <param name="writer">The writer to write to</param>
-        </member>
-        <member name="M:BrightData.IndexList.WriteTo(System.IO.BinaryWriter)">
-            <summary>
-            Writes the data to a binary writer
-            </summary>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.IndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.ToXml">
-            <summary>
-            Converts the index list to XML
-            </summary>
-        </member>
-        <member name="M:BrightData.IndexList.JaccardSimilarity(BrightData.IndexList)">
-            <summary>
-            Calculates the jaccard similarity between this and another index list
-            </summary>
-            <param name="other">Index list to compare to</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.AsDense(System.Nullable{System.UInt32})">
-            <summary>
-            Converts to a dense vector in which each set index is 1
-            </summary>
-            <param name="maxIndex">Maximum index to include</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.HasIndex(System.UInt32)">
-            <summary>
-            Checks if the specified index has been set
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IndexList.OverlapSimilarity(BrightData.IndexList)">
-            <summary>
-            Calculates the overlap similarity between this and another index list
-            </summary>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IndexList.DataAsBytes">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.IndexList.ReadOnlySpan">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.IndexList.AsWeightedIndexList">
-            <summary>
-            Converts to a weighted index list
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.IHaveBrightDataContext">
             <summary>
             Indicates that the type has a data context
@@ -3837,7 +3736,7 @@
             Indicates that the type can write values to meta data
             </summary>
         </member>
-        <member name="M:BrightData.IWriteToMetaData.WriteTo(BrightData.MetaData)">
+        <member name="M:BrightData.IWriteToMetaData.WriteTo(BrightData.Types.MetaData)">
             <summary>
             Writes values to meta data
             </summary>
@@ -4299,7 +4198,7 @@
             <param name="Data"></param>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.IndexListWithLabel`1.#ctor(`0,BrightData.IndexList)">
+        <member name="M:BrightData.IndexListWithLabel`1.#ctor(`0,BrightData.Types.IndexList)">
             <summary>
             An index list with a typed label
             </summary>
@@ -4321,7 +4220,7 @@
             <param name="Label"></param>
             <param name="Data"></param>
         </member>
-        <member name="M:BrightData.WeightedIndexListWithLabel`1.#ctor(`0,BrightData.WeightedIndexList)">
+        <member name="M:BrightData.WeightedIndexListWithLabel`1.#ctor(`0,BrightData.Types.WeightedIndexList)">
             <summary>
             A weighted index list with a typed label
             </summary>
@@ -4682,7 +4581,7 @@
             <param name="name">New column name</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IBuildDataTables.CreateColumn(BrightData.BrightDataType,BrightData.MetaData)">
+        <member name="M:BrightData.IBuildDataTables.CreateColumn(BrightData.BrightDataType,BrightData.Types.MetaData)">
             <summary>
             Adds a new column
             </summary>
@@ -4780,17 +4679,17 @@
         </member>
         <member name="F:BrightData.DistanceMetric.Euclidean">
             <summary>
-            Euclidean Distance
+            Euclidean Distance - https://en.wikipedia.org/wiki/Euclidean_distance
             </summary>
         </member>
         <member name="F:BrightData.DistanceMetric.Cosine">
             <summary>
-            Cosine Distance Metric
+            Cosine Distance Metric - https://en.wikipedia.org/wiki/Cosine_similarity
             </summary>
         </member>
         <member name="F:BrightData.DistanceMetric.Manhattan">
             <summary>
-            Manhattan Distance
+            Manhattan Distance - https://en.wikipedia.org/wiki/Taxicab_geometry
             </summary>
         </member>
         <member name="F:BrightData.DistanceMetric.MeanSquared">
@@ -4800,7 +4699,17 @@
         </member>
         <member name="F:BrightData.DistanceMetric.SquaredEuclidean">
             <summary>
-            Square Euclidean
+            Square Euclidean - https://en.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
+            </summary>
+        </member>
+        <member name="F:BrightData.DistanceMetric.Angular">
+            <summary>
+            Angular distance - https://en.wikipedia.org/wiki/Angular_distance
+            </summary>
+        </member>
+        <member name="F:BrightData.DistanceMetric.InnerProductSpace">
+            <summary>
+            Inner product distance - https://en.wikipedia.org/wiki/Inner_product_space
             </summary>
         </member>
         <member name="T:BrightData.IReadOnlyNumericSegment`1">
@@ -8856,46 +8765,301 @@
         <member name="M:BrightData.LinearAlgebra.Segments.TensorSegmentWrapper.ToString">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.MetaData">
+        <member name="T:BrightData.Types.BinaryData">
+            <summary>
+            Blob of binary data
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.BinaryData.#ctor(System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Binary data blob</param>
+        </member>
+        <member name="M:BrightData.Types.BinaryData.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Binary data blob</param>
+        </member>
+        <member name="P:BrightData.Types.BinaryData.Data">
+            <summary>
+            Returns the data as a span
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.Equals(BrightData.Types.BinaryData)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.BinaryData.op_Equality(BrightData.Types.BinaryData,BrightData.Types.BinaryData)">
+            <summary>
+            Binary data equality
+            </summary>
+            <param name="obj1"></param>
+            <param name="obj2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BinaryData.op_Inequality(BrightData.Types.BinaryData,BrightData.Types.BinaryData)">
+            <summary>
+            Binary data non equality
+            </summary>
+            <param name="obj1"></param>
+            <param name="obj2"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Types.BinaryData.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BinaryData.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BinaryData.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BinaryData.ReadOnlyMemory">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.IndexList">
+            <summary>
+            Contains a list of indices
+            </summary>
+        </member>
+        <member name="T:BrightData.Types.IndexList.ItemIterator">
+            <summary>
+            Index iterator
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.IndexList.ItemIterator.Current">
+            <summary>
+            Current value
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.IndexList.ItemIterator.MoveNext">
+            <summary>
+            Advances the iterator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.ItemIterator.GetEnumerator">
+            <summary>
+            Get enumerator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.GetEnumerator">
+            <summary>
+            Enumerates the indices in the list
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.#ctor(System.UInt32[])">
+            <summary>
+            Creates an index list from an array of indices
+            </summary>
+            <param name="indices">Initial indices</param>
+        </member>
+        <member name="M:BrightData.Types.IndexList.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Creates an index list from a byte span
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="P:BrightData.Types.IndexList.ReadOnlyMemory">
+            <summary>
+            Returns the indices
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.IndexList.Indices">
+            <summary>
+            Current indices in list
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.IndexList.AsSpan">
+            <summary>
+            Indices as a span
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Create(System.UInt32[])">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Create(System.ReadOnlySpan{System.UInt32})">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Create(System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Creates an index list
+            </summary>
+            <param name="indices"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Types.IndexList.Size">
+            <summary>
+            The number of items in the list
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.IndexList.ToString">
+            <summary>
+            ToString override
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Equals(BrightData.Types.IndexList)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{System.UInt32}@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.op_Equality(BrightData.Types.IndexList,BrightData.Types.IndexList)">
+            <summary>
+            Checks for index list equality
+            </summary>
+            <param name="lhs"></param>
+            <param name="rhs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.op_Inequality(BrightData.Types.IndexList,BrightData.Types.IndexList)">
+            <summary>
+            Checks for index list inequality
+            </summary>
+            <param name="lhs"></param>
+            <param name="rhs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.Types.IndexList})">
+            <summary>
+            Merges a sequence of index lists into a single index list
+            </summary>
+            <param name="lists">Lists to merge</param>
+        </member>
+        <member name="M:BrightData.Types.IndexList.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.WriteTo(System.String,System.Xml.XmlWriter)">
+            <summary>
+            Writes the data to an XML writer
+            </summary>
+            <param name="name">The name to give the data</param>
+            <param name="writer">The writer to write to</param>
+        </member>
+        <member name="M:BrightData.Types.IndexList.WriteTo(System.IO.BinaryWriter)">
+            <summary>
+            Writes the data to a binary writer
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Types.IndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.ToXml">
+            <summary>
+            Converts the index list to XML
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.IndexList.JaccardSimilarity(BrightData.Types.IndexList)">
+            <summary>
+            Calculates the jaccard similarity between this and another index list
+            </summary>
+            <param name="other">Index list to compare to</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.AsDense(System.Nullable{System.UInt32})">
+            <summary>
+            Converts to a dense vector in which each set index is 1
+            </summary>
+            <param name="maxIndex">Maximum index to include</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.HasIndex(System.UInt32)">
+            <summary>
+            Checks if the specified index has been set
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.OverlapSimilarity(BrightData.Types.IndexList)">
+            <summary>
+            Calculates the overlap similarity between this and another index list
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Types.IndexList.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.IndexList.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.IndexList.AsWeightedIndexList">
+            <summary>
+            Converts to a weighted index list
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Types.MetaData">
             <summary>
             Unstructured meta data store
             </summary>
         </member>
-        <member name="M:BrightData.MetaData.#ctor(BrightData.MetaData,System.String[])">
+        <member name="M:BrightData.Types.MetaData.#ctor(BrightData.Types.MetaData,System.String[])">
             <summary>
             Constructor
             </summary>
             <param name="metaData">Existing meta data to copy from</param>
             <param name="keys">Keys to copy (or all if none specified)</param>
         </member>
-        <member name="M:BrightData.MetaData.#ctor(BrightData.IHaveMetaData,System.String[])">
+        <member name="M:BrightData.Types.MetaData.#ctor(BrightData.IHaveMetaData,System.String[])">
             <summary>
             
             </summary>
             <param name="metaData"></param>
             <param name="keys"></param>
         </member>
-        <member name="M:BrightData.MetaData.#ctor(System.IO.BinaryReader)">
+        <member name="M:BrightData.Types.MetaData.#ctor(System.IO.BinaryReader)">
             <summary>
             Creates meta data from a binary reader
             </summary>
             <param name="reader">Reader</param>
         </member>
-        <member name="M:BrightData.MetaData.CopyTo(BrightData.MetaData,System.String[])">
+        <member name="M:BrightData.Types.MetaData.CopyTo(BrightData.Types.MetaData,System.String[])">
             <summary>
             Copies this to another meta data store
             </summary>
             <param name="metadata">Other meta data store</param>
             <param name="keys">Keys to copy (optional)</param>
         </member>
-        <member name="M:BrightData.MetaData.Get(System.String)">
+        <member name="M:BrightData.Types.MetaData.Get(System.String)">
             <summary>
             Returns a value
             </summary>
             <param name="name">Name of the value</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.GetNullable``1(System.String)">
+        <member name="M:BrightData.Types.MetaData.GetNullable``1(System.String)">
             <summary>
             Returns a typed nullable value
             </summary>
@@ -8903,7 +9067,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.Get``1(System.String,``0)">
+        <member name="M:BrightData.Types.MetaData.Get``1(System.String,``0)">
             <summary>
             Returns a typed value
             </summary>
@@ -8912,7 +9076,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.GetOrThrow``1(System.String)">
+        <member name="M:BrightData.Types.MetaData.GetOrThrow``1(System.String)">
             <summary>
             Returns an existing value (throws if not found)
             </summary>
@@ -8920,7 +9084,7 @@
             <param name="name">Name of the value</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.Set``1(System.String,``0)">
+        <member name="M:BrightData.Types.MetaData.Set``1(System.String,``0)">
             <summary>
             Sets a named value
             </summary>
@@ -8929,338 +9093,214 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="P:BrightData.MetaData.AsXml">
+        <member name="P:BrightData.Types.MetaData.AsXml">
             <summary>
             XML representation of the meta data
             </summary>
         </member>
-        <member name="M:BrightData.MetaData.WriteTo(System.IO.BinaryWriter)">
+        <member name="M:BrightData.Types.MetaData.WriteTo(System.IO.BinaryWriter)">
             <summary>
             Writes meta data
             </summary>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.MetaData.ReadFrom(System.IO.BinaryReader)">
+        <member name="M:BrightData.Types.MetaData.ReadFrom(System.IO.BinaryReader)">
             <summary>
             Reads values from a binary reader
             </summary>
             <param name="reader"></param>
         </member>
-        <member name="M:BrightData.MetaData.GetStringsWithPrefix(System.String)">
+        <member name="M:BrightData.Types.MetaData.GetStringsWithPrefix(System.String)">
             <summary>
             Returns all value names with the specified prefix
             </summary>
             <param name="prefix">Prefix to query</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.GetNonEmpty">
+        <member name="M:BrightData.Types.MetaData.GetNonEmpty">
             <summary>
             Returns non empty metadata
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.ToString">
+        <member name="M:BrightData.Types.MetaData.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.MetaData.Has(System.String)">
+        <member name="M:BrightData.Types.MetaData.Has(System.String)">
             <summary>
             Checks if a value has been set
             </summary>
             <param name="key">Name of the value</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.MetaData.Remove(System.String)">
+        <member name="M:BrightData.Types.MetaData.Remove(System.String)">
             <summary>
             Removes a value
             </summary>
             <param name="key">Name of the value</param>
         </member>
-        <member name="P:BrightData.MetaData.AllKeys">
+        <member name="P:BrightData.Types.MetaData.AllKeys">
             <summary>
             Returns all keys that have been set
             </summary>
         </member>
-        <member name="M:BrightData.MetaData.Clone">
+        <member name="M:BrightData.Types.MetaData.Clone">
             <summary>
             Creates a clone of the current metadata
             </summary>
         </member>
-        <member name="T:BrightData.Serialisation.SerialisationHelper">
+        <member name="T:BrightData.Types.VectorSet">
             <summary>
-            Serialisation helpers
+            Represents a set of vectors
             </summary>
         </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.String,System.IO.BinaryWriter)">
-            <summary>
-            Writes the string
-            </summary>
-            <param name="str"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Int32,System.IO.BinaryWriter)">
-            <summary>
-            Writes the integer
-            </summary>
-            <param name="val"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.UInt32,System.IO.BinaryWriter)">
-            <summary>
-            Writes the uint
-            </summary>
-            <param name="val"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Double,System.IO.BinaryWriter)">
-            <summary>
-            Writes the double
-            </summary>
-            <param name="val"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Single,System.IO.BinaryWriter)">
-            <summary>
-            Writes the float
-            </summary>
-            <param name="val"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo``1(System.Nullable{``0},System.IO.BinaryWriter,System.Action{``0})">
-            <summary>
-            Conditionally writes a nullable value
-            </summary>
-            <param name="val"></param>
-            <param name="writer"></param>
-            <param name="onWrite"></param>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadNullable``1(System.IO.BinaryReader,System.Func{``0})">
-            <summary>
-            Conditionally reads a nullable value
-            </summary>
-            <param name="reader"></param>
-            <param name="onRead"></param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Collections.Generic.IReadOnlyCollection{BrightData.ICanWriteToBinaryWriter},System.IO.BinaryWriter)">
-            <summary>
-            Writes the collection of items
-            </summary>
-            <param name="list"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo``1(``0[],System.IO.BinaryWriter)">
-            <summary>
-            Writes the array
-            </summary>
-            <param name="array"></param>
-            <param name="writer"></param>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo``1(``0[][],System.IO.BinaryWriter)">
-            <summary>
-            Writes an array of arrays to a binary writer
-            </summary>
-            <param name="arrayOfArrays"></param>
-            <param name="writer"></param>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadArrayOfArrays``1(System.IO.BinaryReader)">
-            <summary>
-            Reads an array of arrays from a binary reader
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.String[],System.IO.BinaryWriter)">
-            <summary>
-            Writes the array of strings
-            </summary>
-            <param name="array"></param>
-            <param name="writer"></param>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.Create``1(BrightData.BrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Creates a new object after reading its serialized data from the reader
-            </summary>
-            <param name="context"></param>
-            <param name="reader"></param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadObjectArray``1(System.IO.BinaryReader,BrightData.BrightDataContext)">
-            <summary>
-            Reads an array of objects from the reader
-            </summary>
-            <param name="reader"></param>
-            <param name="context"></param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadStructArray``1(System.IO.BinaryReader)">
-            <summary>
-            Reads an array of structs from the reader
-            </summary>
-            <param name="reader"></param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadStringArray(System.IO.BinaryReader)">
-            <summary>
-            Reads an array of strings from the reader
-            </summary>
-            <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.WeightedIndexList">
+        <member name="T:BrightData.Types.WeightedIndexList">
             <summary>
             A list of weighted indices is a sparse vector
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.#ctor(BrightData.WeightedIndexList.Item[])">
+        <member name="M:BrightData.Types.WeightedIndexList.#ctor(BrightData.Types.WeightedIndexList.Item[])">
             <summary>
             Creates a weighted index list from an array of indices
             </summary>
             <param name="indices">Weighted indices</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.#ctor(System.ReadOnlyMemory{BrightData.WeightedIndexList.Item})">
+        <member name="M:BrightData.Types.WeightedIndexList.#ctor(System.ReadOnlyMemory{BrightData.Types.WeightedIndexList.Item})">
             <summary>
             Creates a weighted index list from a buffer of items
             </summary>
             <param name="indices"></param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.#ctor(System.ReadOnlySpan{System.Byte})">
+        <member name="M:BrightData.Types.WeightedIndexList.#ctor(System.ReadOnlySpan{System.Byte})">
             <summary>
             Creates a weighted index list from a byte span
             </summary>
             <param name="data"></param>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Indices">
+        <member name="P:BrightData.Types.WeightedIndexList.Indices">
             <summary>
             Weighted indices
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsSpan">
+        <member name="M:BrightData.Types.WeightedIndexList.AsSpan">
             <summary>
             Returns a span of the weighted indices
             </summary>
             <returns></returns>
         </member>
-        <member name="T:BrightData.WeightedIndexList.Item">
+        <member name="T:BrightData.Types.WeightedIndexList.Item">
             <summary>
             An item within a weighted index list
             </summary>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Item.Index">
+        <member name="P:BrightData.Types.WeightedIndexList.Item.Index">
             <summary>
             Index of item
             </summary>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Item.Weight">
+        <member name="P:BrightData.Types.WeightedIndexList.Item.Weight">
             <summary>
             Weight of item
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Item.#ctor(System.UInt32,System.Single)">
+        <member name="M:BrightData.Types.WeightedIndexList.Item.#ctor(System.UInt32,System.Single)">
             <summary>
             Constructor
             </summary>
             <param name="index">Index of item</param>
             <param name="weight">Weight of item</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Item.ToString">
+        <member name="M:BrightData.Types.WeightedIndexList.Item.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
+        <member name="M:BrightData.Types.WeightedIndexList.Item.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
+        <member name="M:BrightData.Types.WeightedIndexList.Item.Equals(BrightData.Types.WeightedIndexList.Item)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.WeightedIndexList.ItemIterator">
+        <member name="T:BrightData.Types.WeightedIndexList.ItemIterator">
             <summary>
             Index iterator
             </summary>
         </member>
-        <member name="P:BrightData.WeightedIndexList.ItemIterator.Current">
+        <member name="P:BrightData.Types.WeightedIndexList.ItemIterator.Current">
             <summary>
             Current item
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.ItemIterator.MoveNext">
+        <member name="M:BrightData.Types.WeightedIndexList.ItemIterator.MoveNext">
             <summary>
             Advances the iterator
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.ItemIterator.GetEnumerator">
+        <member name="M:BrightData.Types.WeightedIndexList.ItemIterator.GetEnumerator">
             <summary>
             Get enumerator
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.GetEnumerator">
+        <member name="M:BrightData.Types.WeightedIndexList.GetEnumerator">
             <summary>
             Enumerates the weighted indices in the list
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Create(BrightData.WeightedIndexList.Item[])">
+        <member name="M:BrightData.Types.WeightedIndexList.Create(BrightData.Types.WeightedIndexList.Item[])">
             <summary>
             Creates a new weighted index list
             </summary>
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Create(System.ReadOnlySpan{BrightData.WeightedIndexList.Item})">
+        <member name="M:BrightData.Types.WeightedIndexList.Create(System.ReadOnlySpan{BrightData.Types.WeightedIndexList.Item})">
             <summary>
             Creates a new weighted index list
             </summary>
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Create(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item})">
+        <member name="M:BrightData.Types.WeightedIndexList.Create(System.Collections.Generic.IEnumerable{BrightData.Types.WeightedIndexList.Item})">
             <summary>
             Creates a new weighted index list
             </summary>
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Create(System.ValueTuple{System.UInt32,System.Single}[])">
+        <member name="M:BrightData.Types.WeightedIndexList.Create(System.ValueTuple{System.UInt32,System.Single}[])">
             <summary>
             Creates a new weighted index list
             </summary>
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Create(System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
+        <member name="M:BrightData.Types.WeightedIndexList.Create(System.Collections.Generic.IEnumerable{System.ValueTuple{System.UInt32,System.Single}})">
             <summary>
             Creates a new weighted index list
             </summary>
             <param name="indexList">Weighted indices</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Size">
+        <member name="P:BrightData.Types.WeightedIndexList.Size">
             <summary>
             The number of items in the list
             </summary>
         </member>
-        <member name="P:BrightData.WeightedIndexList.ReadOnlyMemory">
+        <member name="P:BrightData.Types.WeightedIndexList.ReadOnlyMemory">
             <summary>
             Returns the indices
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.ToString">
+        <member name="M:BrightData.Types.WeightedIndexList.ToString">
             <summary>
             ToString override
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
+        <member name="M:BrightData.Types.WeightedIndexList.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList},BrightData.AggregationType)">
+        <member name="M:BrightData.Types.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.Types.WeightedIndexList},BrightData.AggregationType)">
             <summary>
             Merges a sequence of weighted index lists into one list
             </summary>
@@ -9268,7 +9308,7 @@
             <param name="mergeOperation">How to merge item weights</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList.Item},BrightData.AggregationType)">
+        <member name="M:BrightData.Types.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.Types.WeightedIndexList.Item},BrightData.AggregationType)">
             <summary>
             Merges a sequence of weighted index items into one list
             </summary>
@@ -9276,97 +9316,97 @@
             <param name="mergeOperation">How to merge item weights</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.WriteTo(System.String,System.Xml.XmlWriter)">
+        <member name="M:BrightData.Types.WeightedIndexList.WriteTo(System.String,System.Xml.XmlWriter)">
             <summary>
             Writes the data to an XML writer
             </summary>
             <param name="name">The name to give the data</param>
             <param name="writer">The writer to write to</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.WriteTo(System.IO.BinaryWriter)">
+        <member name="M:BrightData.Types.WeightedIndexList.WriteTo(System.IO.BinaryWriter)">
             <summary>
             Writes the data to a binary writer
             </summary>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.ToXml">
+        <member name="M:BrightData.Types.WeightedIndexList.ToXml">
             <summary>
             Converts the weighted index list to XML
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsIndexList">
+        <member name="M:BrightData.Types.WeightedIndexList.AsIndexList">
             <summary>
             Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Dot(BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.Dot(BrightData.Types.WeightedIndexList)">
             <summary>
             Dot product of this combined with the other weighted index list
             </summary>
             <param name="other">Other weighted index list</param>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Magnitude">
+        <member name="P:BrightData.Types.WeightedIndexList.Magnitude">
             <summary>
             Magnitude of weights
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.CosineSimilarity(BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.CosineSimilarity(BrightData.Types.WeightedIndexList)">
             <summary>
             Cosine similarity between this and another weighted index list
             </summary>
             <param name="other">Other list to compare</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.EuclideanDistance(BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.EuclideanDistance(BrightData.Types.WeightedIndexList)">
             <summary>
             Calculates the euclidean distance between this and another weighted index list
             </summary>
             <param name="other">Other list to compare</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.GetMaxWeight">
+        <member name="M:BrightData.Types.WeightedIndexList.GetMaxWeight">
             <summary>
             Returns the index with the highest weight
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.JaccardSimilarity(BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.JaccardSimilarity(BrightData.Types.WeightedIndexList)">
             <summary>
             Computes the jaccard similarity between this and another weighted index list
             </summary>
             <param name="other">Other list to compare</param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.AsDense(System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Types.WeightedIndexList.AsDense(System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>
             <param name="maxIndex">Inclusive highest index to copy (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.GetHashCode">
+        <member name="M:BrightData.Types.WeightedIndexList.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Unique(BrightData.AggregationType)">
+        <member name="M:BrightData.Types.WeightedIndexList.Unique(BrightData.AggregationType)">
             <summary>
             Returns a new weighted index list with unique indices - duplicate values are treated according to the specified aggregation type
             </summary>
             <returns>New weighted index list with unique indices</returns>
         </member>
-        <member name="P:BrightData.WeightedIndexList.Weights">
+        <member name="P:BrightData.Types.WeightedIndexList.Weights">
             <summary>
             All weights
             </summary>
         </member>
-        <member name="M:BrightData.WeightedIndexList.Equals(BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.Equals(BrightData.Types.WeightedIndexList)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{BrightData.WeightedIndexList.Item}@,System.Boolean@)">
+        <member name="M:BrightData.Types.WeightedIndexList.GetSpan(CommunityToolkit.HighPerformance.Buffers.SpanOwner{BrightData.Types.WeightedIndexList.Item}@,System.Boolean@)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
+        <member name="M:BrightData.Types.WeightedIndexList.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.WeightedIndexList.op_Equality(BrightData.WeightedIndexList,BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.op_Equality(BrightData.Types.WeightedIndexList,BrightData.Types.WeightedIndexList)">
             <summary>
             Structural equality operator
             </summary>
@@ -9374,7 +9414,7 @@
             <param name="rhs"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.WeightedIndexList.op_Inequality(BrightData.WeightedIndexList,BrightData.WeightedIndexList)">
+        <member name="M:BrightData.Types.WeightedIndexList.op_Inequality(BrightData.Types.WeightedIndexList,BrightData.Types.WeightedIndexList)">
             <summary>
             Structural inequality operator
             </summary>
@@ -9382,10 +9422,10 @@
             <param name="rhs"></param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.WeightedIndexList.DataAsBytes">
+        <member name="P:BrightData.Types.WeightedIndexList.DataAsBytes">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.WeightedIndexList.ReadOnlySpan">
+        <member name="P:BrightData.Types.WeightedIndexList.ReadOnlySpan">
             <inheritdoc />
         </member>
     </members>

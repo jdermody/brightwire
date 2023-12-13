@@ -44,7 +44,7 @@ namespace ExampleCode
 
             //await Xor(context, useMkl);
             //await IrisClassification(context, useMkl);
-            await IrisClustering(context, useMkl);
+            //await IrisClustering(context, useMkl);
             //await MarkovChains(context, useMkl);
             //await TextClustering(context, useMkl);
             //await IntegerAddition(context, useMkl);
@@ -56,7 +56,7 @@ namespace ExampleCode
             //PredictBicyclesWithNeuralNetwork(context, useMkl);
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
-            //MnistFeedForward(context, useMkl);
+            //await MnistFeedForward(context, useMkl);
             //MnistConvolutional(context, useMkl, useCuda);
             //TrainIncomePrediction(context, useMkl);
             //SentimentClassification(context, useMkl);

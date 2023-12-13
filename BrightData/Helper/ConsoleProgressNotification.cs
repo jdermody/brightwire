@@ -78,17 +78,18 @@ namespace BrightData.Helper
                 sb.Append('\r');
                 var i = 0;
                 for (; i < curr; i++)
-                    sb.Append('█');
+                    sb.Append('▓');
                 var fore = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write(sb.ToString());
 
                 sb.Clear();
                 for (; i < 100; i++)
-                    sb.Append('█');
-                sb.Append($" {progress:P0}");
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+                    sb.Append('▓');
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.Write(sb.ToString());
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write($" {progress:P0}");
 
                 Console.ForegroundColor = fore;
                 Console.Write($" {sw.Elapsed.Minutes:00}:{sw.Elapsed.Seconds:00}:{sw.Elapsed.Milliseconds:0000}");

@@ -9,7 +9,7 @@
             Bernoulli naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.BernoulliNaiveBayesClassifier.Classify(BrightData.IndexList)">
+        <member name="M:BrightWire.Bayesian.BernoulliNaiveBayesClassifier.Classify(BrightData.Types.IndexList)">
             <summary>
              Naive bayes values should only be used for ranking against each other
             </summary>
@@ -19,7 +19,7 @@
             Multinomial naive bayes classifer
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.MultinomialNaiveBayesClassifier.Classify(BrightData.IndexList)">
+        <member name="M:BrightWire.Bayesian.MultinomialNaiveBayesClassifier.Classify(BrightData.Types.IndexList)">
             <summary>
              Naive bayes values should only be used for ranking against each other
             </summary>
@@ -2478,7 +2478,7 @@
             <param name="item3">The third observation</param>
             <returns>The list of state transitions or null if nothing was found</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Nnmf(System.Collections.Generic.IEnumerable{BrightData.IReadOnlyVector},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.Nnmf(BrightData.IReadOnlyVector[],BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
             Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
@@ -2486,25 +2486,6 @@
             <param name="lap">Linear algebra provider</param>
             <param name="k">The number of clusters</param>
             <param name="maxIterations">The maximum number of iterations</param>
-            <returns>A list of k clusters</returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(System.Collections.Generic.IEnumerable{BrightData.IReadOnlyVector},BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32)">
-            <summary>
-            Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
-            </summary>
-            <param name="data">The list of vectors to cluster</param>
-            <param name="k">The number of clusters to find</param>
-            <returns>A list of k clusters</returns>
-        </member>
-        <member name="M:BrightWire.ExtensionMethods.KMeans(System.Collections.Generic.IEnumerable{BrightData.IReadOnlyVector},BrightData.BrightDataContext,System.UInt32,System.UInt32,BrightData.DistanceMetric)">
-            <summary>
-            K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
-            </summary>
-            <param name="data">The list of vectors to cluster</param>
-            <param name="context">Bright data context</param>
-            <param name="k">The number of clusters to find</param>
-            <param name="maxIterations">The maximum number of iterations</param>
-            <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.IDataTable)">
@@ -3372,11 +3353,10 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphContext,BrightData.IMatrix,BrightData.IMatrix)">
+        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightData.IMatrix,BrightData.IMatrix)">
             <summary>
             Calculates the gradient of the error function
             </summary>
-            <param name="context">The graph context</param>
             <param name="output">The mini batch of output vectors</param>
             <param name="targetOutput">The mini batch of expected target vectors</param>
             <returns></returns>
@@ -3773,7 +3753,7 @@
             Encodes index lists to dense vectors
             </summary>
         </member>
-        <member name="M:BrightWire.IIndexListEncoder.Encode(BrightData.IndexList)">
+        <member name="M:BrightWire.IIndexListEncoder.Encode(BrightData.Types.IndexList)">
             <summary>
             Encodes the index lists to a dense vector
             </summary>
@@ -3784,7 +3764,7 @@
             Encodes weighted index lists to dense vectors
             </summary>
         </member>
-        <member name="M:BrightWire.IWeightedIndexListEncoder.Encode(BrightData.WeightedIndexList)">
+        <member name="M:BrightWire.IWeightedIndexListEncoder.Encode(BrightData.Types.WeightedIndexList)">
             <summary>
             Encodes the weighted index list to a dense vector
             </summary>
@@ -3796,7 +3776,7 @@
             A classifier that classifies index lists
             </summary>
         </member>
-        <member name="M:BrightWire.IIndexListClassifier.Classify(BrightData.IndexList)">
+        <member name="M:BrightWire.IIndexListClassifier.Classify(BrightData.Types.IndexList)">
             <summary>
             Classifies the input data and returns the classifications with their weights
             </summary>
@@ -5079,18 +5059,6 @@
             <summary>
             Random forest classifier
             https://en.wikipedia.org/wiki/Random_forest
-            </summary>
-        </member>
-        <member name="T:BrightWire.Unsupervised.Hierarchical">
-            <summary>
-            Hierarchical clustering
-            https://en.wikipedia.org/wiki/Hierarchical_clustering
-            </summary>
-        </member>
-        <member name="T:BrightWire.Unsupervised.KMeans">
-            <summary>
-            K Means clustering
-            https://en.wikipedia.org/wiki/K-means_clustering
             </summary>
         </member>
         <member name="T:BrightWire.Unsupervised.NonNegativeMatrixFactorisation">
