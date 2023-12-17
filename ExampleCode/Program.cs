@@ -52,12 +52,12 @@ namespace ExampleCode
             //await OneToMany(context, useMkl);
             //await ManyToOne(context, useMkl);
             //await SequenceToSequence(context, useMkl);
-            //await StockData(context, useMkl, useCuda);
-            //PredictBicyclesWithNeuralNetwork(context, useMkl);
+            await StockData(context, useMkl, useCuda);
+            //await PredictBicyclesWithNeuralNetwork(context, useMkl);
             //MultiLabelSingleClassifier(context, useMkl);
             //MultiLabelMultiClassifiers(context, useMkl);
             //await MnistFeedForward(context, useMkl);
-            //MnistConvolutional(context, useMkl, useCuda);
+            //await MnistConvolutional(context, useMkl, useCuda);
             //TrainIncomePrediction(context, useMkl);
             //SentimentClassification(context, useMkl);
         }
@@ -149,14 +149,15 @@ namespace ExampleCode
         static async Task MnistFeedForward(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            using var mnist = context.Mnist();
+            using var mnist = await context.Mnist();
             mnist.TrainFeedForwardNeuralNetwork();
         }
 
-        static void MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
+        static async Task MnistConvolutional(BrightDataContext context, bool useMkl, bool useCuda)
         {
             Start(context, useMkl, useCuda);
-            using var mnist = context.Mnist();
+            using var mnist = await context.Mnist();
+            context.LinearAlgebraProvider.BindThread();
             mnist.TrainConvolutionalNeuralNetwork();
         }
 

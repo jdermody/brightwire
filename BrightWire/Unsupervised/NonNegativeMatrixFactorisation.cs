@@ -27,7 +27,6 @@ namespace BrightWire.Unsupervised
             _costFunction   = costFunction ?? new Quadratic();
         }
 
-        
         public uint[][] Cluster(IReadOnlyVector[] data, uint numClusters, DistanceMetric metric)
         {
             // create the main matrix

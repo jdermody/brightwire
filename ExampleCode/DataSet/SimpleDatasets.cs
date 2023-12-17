@@ -20,7 +20,7 @@ namespace ExampleCode.DataSet
     {
         public static async Task<DataTableTrainer> Iris(this BrightDataContext context)
         {
-            var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            var reader = await GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try
             {
                 using var table = await context.ParseCsv(reader, false);
@@ -42,7 +42,7 @@ namespace ExampleCode.DataSet
 
         public static async Task<StockDataTrainer> StockData(this BrightDataContext context)
         {
-            var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
+            var reader = await GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
                 using var table = await context.ParseCsv(reader, true);
@@ -82,7 +82,7 @@ namespace ExampleCode.DataSet
 
         public static async Task<SentenceTable> BeautifulandDamned(this BrightDataContext context)
         {
-            using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
+            using var reader = await GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = await reader.ReadToEndAsync();
             var pos = data.IndexOf("CHAPTER I", StringComparison.Ordinal);
             var mainText = data[(pos + 9)..].Trim();
@@ -90,20 +90,29 @@ namespace ExampleCode.DataSet
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
-        public static Mnist Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
+        public static async Task<Mnist> Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
         {
-            var testImages = DataSet.Mnist.Load(
+            var streams = new[] {
                 GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
                 GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz"),
-                numToLoad
-            );
-            var trainingImages = DataSet.Mnist.Load(
                 GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
-                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz"),
-                numToLoad
-            );
+                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
+            };
+            await Task.WhenAll(streams);
 
-            return new Mnist(context, trainingImages, testImages);
+            var test = Task.Run(() => DataSet.Mnist.Load(
+                streams[0].Result,
+                streams[1].Result,
+                numToLoad
+            ));
+            var train = Task.Run(() => DataSet.Mnist.Load(
+                streams[2].Result,
+                streams[3].Result,
+                numToLoad
+            ));
+            await Task.WhenAll(test, train);
+
+            return new Mnist(context, train.Result, test.Result);
         }
 
         public static SentimentDataTrainer SentimentData(this BrightDataContext context)
@@ -115,7 +124,7 @@ namespace ExampleCode.DataSet
 
         public static async Task<TestClusteringTrainer> TextClustering(this BrightDataContext context)
         {
-            using var reader = GetStreamReader(context, "aaai-accepted-papers.csv",
+            using var reader = await GetStreamReader(context, "aaai-accepted-papers.csv",
                 "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv");
             using var table = await context.ParseCsv(reader, true);
 
@@ -325,14 +334,14 @@ namespace ExampleCode.DataSet
             }
 
             var adultTraining = await GetDataTable(context, "adult_data.table", async path => {
-                using var reader = GetStreamReader(context, "adult.data.csv",
+                using var reader = await GetStreamReader(context, "adult.data.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data");
                 using var data = await context.ParseCsv(reader, false);
                 return await ConvertTable(data, path);
             });
 
             var adultTest = await GetDataTable(context, "adult_test.table", async path => {
-                using var reader2 = GetStreamReader(context, "adult.test.csv",
+                using var reader2 = await GetStreamReader(context, "adult.test.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test");
                 await reader2.ReadLineAsync();
                 using var test = await context.ParseCsv(reader2, false);
@@ -372,12 +381,12 @@ namespace ExampleCode.DataSet
             return context.LoadTable(path);
         }
 
-        static StreamReader GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
+        static async Task<StreamReader> GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
         {
-            return new(GetStream(context, fileName, remoteUrl));
+            return new(await GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
+        static async Task<Stream> GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
         {
             var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
@@ -385,19 +394,17 @@ namespace ExampleCode.DataSet
             {
                 Console.Write($"Downloading data set from {remoteUrl}...");
 
-                using var handler = new HttpClientHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.All,
-                    AllowAutoRedirect = true,
-                };
+                using var handler = new HttpClientHandler();
+                handler.AutomaticDecompression = DecompressionMethods.All;
+                handler.AllowAutoRedirect = true;
                 using var client = new HttpClient(handler);
-                var response = client.GetAsync(remoteUrl).Result;
+                var response = await client.GetAsync(remoteUrl);
                 response.EnsureSuccessStatusCode();
 
                 // get the stream
-                var responseStream = response.Content.ReadAsStreamAsync().Result;
+                var responseStream = await response.Content.ReadAsStreamAsync();
                 var mediaType = response.Content.Headers.ContentType?.MediaType;
-                if (mediaType == "application/gzip" || mediaType == "application/x-gzip")
+                if (mediaType is "application/gzip" or "application/x-gzip")
                     responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
 
                 Console.WriteLine("done");
@@ -407,8 +414,8 @@ namespace ExampleCode.DataSet
 
                 try
                 {
-                    using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                    responseStream.CopyTo(file);
+                    await using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                    await responseStream.CopyToAsync(file);
                     wasDownloaded = true;
                 }
                 catch

@@ -14,43 +14,34 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly BrightDataContext _context;
 
-        public class AaaiDocument
+        public class AaaiDocument(string title, string[] keyword, string[] topic, string @abstract, string[] group)
         {
-            public AaaiDocument(string title, string[] keyword, string[] topic, string @abstract, string[] group)
-            {
-                Title = title;
-                Keyword = keyword;
-                Topic = topic;
-                Abstract = @abstract;
-                Group = group;
-            }
-
             /// <summary>
             /// Free text description of the document
             /// </summary>
-            public string Title { get; }
+            public string Title { get; } = title;
 
             /// <summary>
             /// Free text; author-generated keywords
             /// </summary>
-            public string[] Keyword { get; }
+            public string[] Keyword { get; } = keyword;
 
             /// <summary>
             /// Free text; author-selected, low-level keywords
             /// </summary>
-            public string[] Topic { get; }
+            public string[] Topic { get; } = topic;
 
             /// <summary>
             /// Free text; paper abstracts
             /// </summary>
-            public string Abstract { get; }
+            public string Abstract { get; } = @abstract;
 
             /// <summary>
             /// Categorical; author-selected, high-level keyword(s)
             /// </summary>
-            public string[] Group { get; }
+            public string[] Group { get; } = group;
 
-            public (string Classification, WeightedIndexList Data) AsClassification(BrightDataContext context, StringTableBuilder stringTable)
+            public (string Classification, WeightedIndexList Data) AsClassification(StringTableBuilder stringTable)
             {
                 var weightedIndex = new List<WeightedIndexList.Item>();
                 foreach (var item in Keyword)
@@ -61,11 +52,15 @@ namespace ExampleCode.DataTableTrainers
                 {
                     weightedIndex.Add(new WeightedIndexList.Item(stringTable.GetIndex(item), 1f));
                 }
-                return (Title, WeightedIndexList.Create(weightedIndex
+
+                var weights = WeightedIndexList.Create(weightedIndex
                     .GroupBy(d => d.Index)
                     .Select(g => (g.Key, g.Sum(d => d.Weight)))
-                ));
+                );
+                return (Title, weights);
             }
+
+            public override string ToString() => $"{Title} - {Abstract}";
         }
         readonly StringTableBuilder _stringTable = new();
         readonly IVector[] _vectors;
@@ -76,7 +71,7 @@ namespace ExampleCode.DataTableTrainers
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
-            (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
+            (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(_stringTable)).ToArray();
             _vectors = data.Select(d => d.Data.AsDense(_stringTable.Size + 1).Create(lap)).ToArray();
             _documents = documents;
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));

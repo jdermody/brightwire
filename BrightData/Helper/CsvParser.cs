@@ -16,7 +16,7 @@ namespace BrightData.Helper
         {
             readonly CsvParser _parser;
             List<StringBuilder>? _columnData = null;
-            bool _inQuote = false, _isFirstRow = true;
+            bool _inQuote = false, _isFirstRow = true, _hasData = false;
             int _columnIndex = 0;
             public List<ICompositeBuffer<string>>? Columns = null;
 
@@ -33,7 +33,7 @@ namespace BrightData.Helper
                     // check for new line
                     if (ch == '\n' && !_inQuote)
                     {
-                        FinishLine(data[start..i]);
+                        FinishLine(data[start..i], false);
                         if (++lineCount == maxLines)
                             return;
                         start = i + 1;
@@ -46,6 +46,7 @@ namespace BrightData.Helper
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(data[start..i]);
                         start = i + 1;
+                        _hasData = true;
                     }
 
                     // check for quote characters
@@ -55,7 +56,7 @@ namespace BrightData.Helper
 
                 // handle case where last line might not have a new line character
                 if (start < data.Length)
-                    FinishLine(data[start..]);
+                    FinishLine(data[start..], true);
             }
 
             public void ParseLine(ReadOnlySpan<char> line)
@@ -68,7 +69,7 @@ namespace BrightData.Helper
                     // check for new line
                     if (ch == '\n' && !_inQuote)
                     {
-                        FinishLine(line[start..i]);
+                        FinishLine(line[start..i], false);
                         start = i + 1;
                     }
 
@@ -79,6 +80,7 @@ namespace BrightData.Helper
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(line[start..i]);
                         start = i + 1;
+                        _hasData = true;
                     }
 
                     // check for quote characters
@@ -86,10 +88,10 @@ namespace BrightData.Helper
                         _inQuote = !_inQuote;
                 }
                 if (start < line.Length)
-                    FinishLine(line[start..]);
+                    FinishLine(line[start..], false);
             }
 
-            void FinishLine(ReadOnlySpan<char> data)
+            public void FinishLine(ReadOnlySpan<char> data, bool force)
             {
                 if (_columnData != null)
                 {
@@ -98,43 +100,47 @@ namespace BrightData.Helper
                         _columnData.Add(new StringBuilder());
 
                     // add the text to the current string builder
-                    if (data.Length > 0)
+                    if (data.Length > 0) {
                         _columnData[_columnIndex].Append(data);
-
-                    // flush the string builders to the column buffers
-                    for (var j = 0; j <= _columnIndex; j++)
-                    {
-                        var sb = _columnData[j];
-                        var text = sb.ToString();
-                        if (text.StartsWith(_parser._quote) && text.EndsWith(_parser._quote))
-                            text = text[1..^1];
-
-                        while ((Columns ??= new()).Count <= j)
-                            Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
-
-                        // set the column name if needed
-                        if (_isFirstRow && _parser._firstRowIsHeader)
-                            Columns[j].MetaData.SetName(text.Trim());
-                        else
-                            Columns[j].Add(text);
-                        sb.Clear();
+                        if(_inQuote)
+                            _columnData[_columnIndex].Append('\n');
+                        _hasData = true;
                     }
 
-                    // finish any columns that might have been missed
-                    if (Columns?.Count > _columnIndex + 1)
-                    {
-                        for (var j = _columnIndex + 1; j < Columns.Count; j++)
-                        {
+                    if (_hasData && (force || !_inQuote)) {
+                        // flush the string builders to the column buffers
+                        for (var j = 0; j <= _columnIndex; j++) {
+                            var sb = _columnData[j];
+                            var text = sb.ToString();
+                            if (text.StartsWith(_parser._quote) && text.EndsWith(_parser._quote))
+                                text = text[1..^1];
+
+                            while ((Columns ??= new()).Count <= j)
+                                Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
+
+                            // set the column name if needed
                             if (_isFirstRow && _parser._firstRowIsHeader)
-                                Columns[j].MetaData.SetName(string.Empty);
+                                Columns[j].MetaData.SetName(text.Trim());
                             else
-                                Columns[j].Add(string.Empty);
+                                Columns[j].Add(text);
+                            sb.Clear();
                         }
+
+                        // finish any columns that might have been missed
+                        if (Columns?.Count > _columnIndex + 1) {
+                            for (var j = _columnIndex + 1; j < Columns.Count; j++) {
+                                if (_isFirstRow && _parser._firstRowIsHeader)
+                                    Columns[j].MetaData.SetName(string.Empty);
+                                else
+                                    Columns[j].Add(string.Empty);
+                            }
+                        }
+                        if (_isFirstRow)
+                            _isFirstRow = false;
+                        _columnIndex = 0;
+                        _hasData = false;
                     }
-                    if (_isFirstRow)
-                        _isFirstRow = false;
                 }
-                _columnIndex = 0;
             }
         }
 
@@ -185,6 +191,7 @@ namespace BrightData.Helper
                 if (++lineCount == maxLines)
                     break;
             }
+            parseState.FinishLine(ReadOnlySpan<char>.Empty, true);
 
             // signal complete
             OnComplete?.Invoke();

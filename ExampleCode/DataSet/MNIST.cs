@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Cuda.Helper;
@@ -138,30 +139,23 @@ namespace ExampleCode.DataSet
 
         public static Image[] Load(Stream labelStream, Stream imageStream, uint total = int.MaxValue)
         {
-            var labels = new List<byte>();
+            byte[] labels;
             using (var reader = new BigEndianBinaryReader(labelStream)) {
                 reader.ReadInt32();
                 var count = reader.ReadUInt32();
-                for (uint i = 0; i < count && i < total; i++) {
-                    labels.Add(reader.ReadByte());
-                }
+                labels = reader.ReadBytes((int)Math.Min(count, total));
             }
 
-            var images = new List<byte[]>();
+            byte[][] images;
             using (var reader = new BigEndianBinaryReader(imageStream)) {
                 reader.ReadInt32();
                 var count = reader.ReadUInt32();
                 var numRows = reader.ReadUInt32();
                 var numCols = reader.ReadUInt32();
                 var imageSize = numRows * numCols;
-                for (uint i = 0; i < count && i < total; i++) {
-                    var imageData = new byte[imageSize];
-                    for (var j = 0; j < imageSize; j++) {
-                        imageData[j] = reader.ReadByte();
-                    }
-
-                    images.Add(imageData);
-                }
+                images = new byte[(int)Math.Min(count, total)][];
+                for (uint i = 0; i < count && i < total; i++)
+                    images[i] = reader.ReadBytes((int)imageSize);
             }
 
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();

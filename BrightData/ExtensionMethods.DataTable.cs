@@ -20,6 +20,7 @@ using BrightData.LinearAlgebra.Segments;
 using BrightData.Operations;
 using BrightData.Operations.Vectorisation;
 using BrightData.Types;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData
 {
@@ -402,19 +403,17 @@ namespace BrightData
 
             var vectoriser = await GetVectoriser(featureColumns, oneHotEncode);
             var targetColumn = target.HasValue ? dataTable.GetColumn(target.Value).ToReadOnlyStringBuffer() : null;
-            uint blockIndex = 0, rowSize = vectoriser.OutputSize;
+            uint blockIndex = 0;
             await foreach (var blockData in vectoriser.Vectorise(featureColumns)) {
-                var len = blockData.GetLength(0);
-                var block = Unsafe.As<float[]>(blockData).AsMemory();
+                var blockMemory = new Memory2D<float>(blockData);
+                var len = blockMemory.Height;
                 var targetBlock = targetColumn is null 
                     ? null 
-                    : await targetColumn.GetTypedBlock(blockIndex);
-                uint offset = 0;
+                    : await targetColumn.GetTypedBlock(blockIndex++);
                 for (var i = 0; i < len; i++) {
-                    yield return (new ReadOnlyMemoryTensorSegment(block.Slice((int)offset, (int)rowSize), 0, rowSize), targetColumn is null ? null : targetBlock.Span[i]);
-                    offset += rowSize;
+                    var memory = blockMemory.Span.GetRowSpan(i).ToArray();
+                    yield return (new ReadOnlyMemoryTensorSegment(memory), targetColumn is null ? null : targetBlock.Span[i]);
                 }
-                ++blockIndex;
             }
         }
 
