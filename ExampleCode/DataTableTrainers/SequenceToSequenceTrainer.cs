@@ -55,7 +55,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Get<IReadOnlyVector>(i, 0).Result),
+                    Input: GetStringIndices(Test.Get<ReadOnlyVector>(0, i).Result),
                     Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
                 ))
             ;
@@ -115,7 +115,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0).Result;
+                    var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
                     return (
                         Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())

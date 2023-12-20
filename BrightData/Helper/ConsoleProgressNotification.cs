@@ -15,8 +15,10 @@ namespace BrightData.Helper
         /// <inheritdoc />
         public void OnStartOperation(Guid operationId, string? msg)
         {
-            if(msg is not null)
+            if (msg is not null) {
+                Console.WriteLine();
                 Console.WriteLine(msg);
+            }
 
             _progress = -1;
             _stopWatch.Restart();

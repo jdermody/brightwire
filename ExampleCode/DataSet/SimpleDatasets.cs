@@ -275,8 +275,8 @@ namespace ExampleCode.DataSet
 
             // drop the first six columns (index and date features)
             using var filteredTable = await completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
-            var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = await filteredTable.Convert(null, dataColumns.Select(i => ColumnConversion.ToNumeric.ConvertColumn(i)).ToArray());
+            var dataColumns = filteredTable.ColumnCount.AsRange().ToArray();
+            using var converted = await filteredTable.Convert(null, dataColumns.Select(i => ColumnConversion.ToDouble.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
             using var ret = await converted.Normalize(NormalizationType.Standard);

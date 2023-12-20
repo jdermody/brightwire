@@ -342,8 +342,15 @@ namespace BrightData
         public T Get<T>(uint columnIndex)
         {
             var ret = Values[columnIndex];
-            if (ret.GetType() != typeof(T))
+            if (ret.GetType() != typeof(T)) {
+                if (typeof(T) == typeof(string)) {
+                    var str = ret.ToString();
+                    return __refvalue(__makeref(str), T);
+                }
+
                 throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)}");
+            }
+
             return (T)ret;
         }
 
@@ -551,6 +558,8 @@ namespace BrightData
         ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices);
 
         ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers);
+
+        ICompositeBuffer[] CreateColumnsFrom(IEnumerable<IReadOnlyBufferWithMetaData> buffers);
 
         /// <summary>
         /// Adds a new column

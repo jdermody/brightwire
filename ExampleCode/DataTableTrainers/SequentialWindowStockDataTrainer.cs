@@ -29,7 +29,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 128);
 
             // build the network
             graph.Connect(engine)

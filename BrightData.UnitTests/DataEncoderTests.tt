@@ -37,6 +37,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new <#= input #>[] {1, 2, 3});
         }
+
 <#	} #>
     }
 }

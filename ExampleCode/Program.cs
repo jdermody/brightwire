@@ -42,24 +42,24 @@ namespace ExampleCode
             //else
             //    PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            //await Xor(context, useMkl);
-            //await IrisClassification(context, useMkl);
-            //await IrisClustering(context, useMkl);
-            //await MarkovChains(context, useMkl);
-            //await TextClustering(context, useMkl);
-            //await IntegerAddition(context, useMkl);
-            //await ReberPrediction(context, useMkl);
-            //await OneToMany(context, useMkl);
-            //await ManyToOne(context, useMkl);
-            //await SequenceToSequence(context, useMkl);
+            await Xor(context, useMkl);
+            await IrisClassification(context, useMkl);
+            await IrisClustering(context, useMkl);
+            await MarkovChains(context, useMkl);
+            await TextClustering(context, useMkl);
+            await IntegerAddition(context, useMkl);
+            await ReberPrediction(context, useMkl);
+            await OneToMany(context, useMkl);
+            await ManyToOne(context, useMkl);
+            await SequenceToSequence(context, useMkl);
             await StockData(context, useMkl, useCuda);
-            //await PredictBicyclesWithNeuralNetwork(context, useMkl);
-            //MultiLabelSingleClassifier(context, useMkl);
-            //MultiLabelMultiClassifiers(context, useMkl);
-            //await MnistFeedForward(context, useMkl);
-            //await MnistConvolutional(context, useMkl, useCuda);
-            //TrainIncomePrediction(context, useMkl);
-            //SentimentClassification(context, useMkl);
+            await PredictBicyclesWithNeuralNetwork(context, useMkl);
+            await MultiLabelSingleClassifier(context, useMkl);
+            await MultiLabelMultiClassifiers(context, useMkl);
+            await MnistFeedForward(context, useMkl);
+            await MnistConvolutional(context, useMkl, useCuda);
+            await TrainIncomePrediction(context, useMkl);
+            await SentimentClassification(context, useMkl);
         }
 
         static void Start(BrightDataContext context, bool useMkl, bool useCuda = false, [CallerMemberName]string title = "")
@@ -254,7 +254,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var trainer = await context.Emotions();
-            trainer.TrainMultiClassifiers();
+            await trainer.TrainMultiClassifiers();
         }
 
         static async Task StockData(BrightDataContext context, bool useMkl, bool useCuda)

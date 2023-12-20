@@ -888,14 +888,23 @@ namespace BrightData
 
             using var tempStream = dataTable.Context.CreateTempDataBlockProvider();
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context, tempStream);
-            writer.CreateColumnsFrom(dataTable);
             var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
             for (uint i = 0; i < dataTable.ColumnCount; i++) {
                 var column = dataTable.GetColumn(i);
-                if (columnMutationTable.TryGetValue(i, out var model))
-                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataTable.ColumnTypes[i].GetDataType()), column, model);
+                var buffer = (IReadOnlyBuffer)column;
+                var dataType = column.DataType.GetBrightDataType();
+
+                if (columnMutationTable.TryGetValue(i, out var model)) {
+                    // convert integer numeric types to floating point
+                    if (dataType.IsNumeric() && dataType.IsInteger()) {
+                        buffer = buffer.ConvertTo<double>();
+                        dataType = BrightDataType.Double;
+                    }
+                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataType.GetDataType()), buffer, model);
+                }
                 else
                     columns[i] = column;
+                writer.CreateColumn(dataType, column.MetaData);
             }
             await writer.Add(columns);
 
@@ -1580,7 +1589,7 @@ namespace BrightData
             return builder;
         }
 
-        public static async Task<IDataTable> CreateTable(this BrightDataContext context, IReadOnlyBufferWithMetaData[] buffers, MetaData? tableMetaData = null, string? filePath = null)
+        public static async Task<IDataTable> CreateTable<T>(this BrightDataContext context, IReadOnlyBufferWithMetaData<T>[] buffers, MetaData? tableMetaData = null, string? filePath = null) where T : notnull
         {
             var builder = context.CreateTableBuilder();
             builder.CreateColumnsFrom(buffers);

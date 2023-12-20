@@ -61,7 +61,7 @@ namespace BrightData
         {
             if (buffer.DataType == typeof(string))
                 return (IReadOnlyBuffer<string>)buffer;
-            return GenericActivator.Create<IReadOnlyBuffer<string>>(typeof(ToStringConverter<>).MakeGenericType(typeof(string)), buffer);
+            return GenericActivator.Create<IReadOnlyBuffer<string>>(typeof(ToStringConverter<>).MakeGenericType(buffer.DataType), buffer);
         }
 
         public static IReadOnlyBuffer<TT> Convert<FT, TT>(this IReadOnlyBuffer<FT> buffer, Func<FT, TT> converter)
@@ -640,6 +640,11 @@ namespace BrightData
             uint? maxDistinctItems = null) where T: unmanaged
         {
             var output = CreateCompositeBuffer<T>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+
+            // convert from strings
+            if (buffer.DataType == typeof(string))
+                buffer = buffer.ConvertTo<double>();
+
             var conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
             await conversion.Process();
             return output;

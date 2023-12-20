@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using BrightWire;
 using BrightWire.Models;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -31,26 +33,31 @@ namespace ExampleCode.DataTableTrainers
             using var table = await context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
-            var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
-            var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
-            var columnConversions = featureColumns
-                .Select(i => ColumnConversion.ToNumeric.ConvertColumn(i))
-                .Concat(targetColumns.Select(i => ColumnConversion.ToBoolean.ConvertColumn(i)))
+            var featureColumnIndices = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
+            var targetColumnIndices = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
+            var columnConversions = featureColumnIndices
+                .Select(i => ColumnConversion.ToFloat.ConvertColumn(i))
+                .Concat(targetColumnIndices.Select(i => ColumnConversion.ToBoolean.ConvertColumn(i)))
                 .ToArray();
             using var converted = await table.Convert(null, columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
             using var tempStreams = context.CreateTempDataBlockProvider();
-            var vectoriser = await converted.GetColumns(featureColumns).GetVectoriser(true);
-            var featureIndexLists = await vectoriser.Vectorise(converted.GetColumns(featureColumns)).ToIndexLists();
-            var targetIndexLists = await vectoriser.Vectorise(converted.GetColumns(targetColumns)).ToIndexLists();
-            var finalTable = await context.CreateTable(new IReadOnlyBufferWithMetaData [] {
-                featureIndexLists, 
-                targetIndexLists
-            }, converted.MetaData);
-            finalTable.SetTargetColumn(finalTable.ColumnCount-1);
+            var featureColumns = converted.GetColumns(featureColumnIndices);
+            var targetColumns = converted.GetColumns(targetColumnIndices);
+            var targetVectoriser = await targetColumns.GetVectoriser(true);
+            var targetIndexLists = await targetVectoriser.Vectorise(targetColumns).ToIndexLists();
+            
+            var builder = context.CreateTableBuilder();
+            converted.MetaData.CopyTo(builder.TableMetaData);
+            builder.CreateColumnsFrom(featureColumns);
+            builder.CreateColumn(BrightDataType.IndexList, "Target").MetaData.SetTarget(true);
+            var allColumns = new IReadOnlyBufferWithMetaData[featureColumns.Length + 1];
+            featureColumns.CopyTo(allColumns, 0);
+            allColumns[featureColumns.Length] = targetIndexLists;
+            await builder.Add(allColumns);
+            var finalTable = await builder.Build(null);
             return finalTable;
-
         }
 
         static async Task<IDataTable> ConvertToBinary(IDataTable table, uint indexOffset)
@@ -80,20 +87,22 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create a training engine
-            const float trainingRate = 0.3f;
+            const float trainingRate = 0.003f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate);
 
             // build the network
-            const int hiddenLayerSize = 64, trainingIterations = 2000;
+            const int hiddenLayerSize = 32, trainingIterations = 2000;
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
-                .AddDropOut(dropOutPercentage: 0.5f)
+                //.AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagation();
+
+            engine.LearningContext.ScheduleLearningRate(1000, trainingRate/2);
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
@@ -180,7 +189,7 @@ namespace ExampleCode.DataTableTrainers
                 );
 
                 // create a training engine
-                const float trainingRate = 0.1f;
+                const float trainingRate = 0.003f;
                 var trainingData = graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
                 var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 64);
@@ -190,10 +199,10 @@ namespace ExampleCode.DataTableTrainers
                 graph.Connect(engine)
                     .AddFeedForward(hiddenLayerSize)
                     .Add(graph.SigmoidActivation())
-                    .AddDropOut(dropOutPercentage: 0.5f)
+                    //.AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                    .Add(graph.SigmoidActivation())
-                    .AddBackpropagation()
+                    .Add(graph.TanhActivation())
+                    .AddBackpropagation();
                 ;
 
                 // train the network

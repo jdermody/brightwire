@@ -43,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.RmsProp())
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.1f, 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 32);
             graph.Connect(engine)
                 .AddFeedForward(16)
                 .Add(graph.SigmoidActivation())
@@ -52,7 +52,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagation()
             ;
 
-            engine.Train(100, testData);
+            engine.Train(50, testData);
         }
     }
 }

@@ -6,7 +6,8 @@
 <#@ output extension=".cs" #>
 <#
     var operations = new [] {
-        Tuple.Create("Add", "+")
+        ("Add", "+"),
+        //("Multiply", "*")
     };
 #>
 using System;
@@ -15,17 +16,22 @@ using BrightData.UnitTests.Fixtures;
 using BrightData.UnitTests.Helper;
 using Xunit;
 using FluentAssertions;
+using System.Linq;
 
 namespace BrightData.UnitTests
 {
-    public partial class TensorOperationTests : UnitTestBase
+    public class TensorOperationTests : UnitTestBase
     {
 <# foreach(var operation in operations) { #>
+        [Fact]
         public void Test<#= operation.Item1 #>() 
         {
             var a = CreateRandomVector();
             var b = CreateRandomVector();
+            var result = a.<#= operation.Item1 #>(b);
+            result.Values.Should().ContainInOrder(a.ReadOnlySegment.Values.Zip(b.ReadOnlySegment.Values, (x, y) => x <#= operation.Item2 #> y));
         }
+
 <# } #>
     }
 }

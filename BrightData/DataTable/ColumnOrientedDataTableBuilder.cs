@@ -94,6 +94,11 @@ namespace BrightData.DataTable
             return buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData)).ToArray();
         }
 
+        public ICompositeBuffer[] CreateColumnsFrom(IEnumerable<IReadOnlyBufferWithMetaData> buffers)
+        {
+            return buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData)).ToArray();
+        }
+
         public ICompositeBuffer<T> CreateColumn<T>(string? name = null)
             where T : notnull
         {
