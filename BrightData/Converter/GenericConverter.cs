@@ -2,18 +2,17 @@
 
 namespace BrightData.Converter
 {
-    internal class GenericConverter<T> where T: struct
+	/// <summary>
+	/// Converts via a type converter
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="fallback"></param>
+    internal class GenericConverter<T>(T? fallback = default)
+        where T : struct
     {
-	    readonly TypeConverter _converter;
-	    readonly T? _fallback;
+	    readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(T));
 
-	    public GenericConverter(T? fallback = default)
-	    {
-		    _converter = TypeDescriptor.GetConverter(typeof(T));
-		    _fallback = fallback;
-	    }
-
-	    public (object? ConvertedValue, bool WasSuccessful) ConvertValue(object value)
+        public (object? ConvertedValue, bool WasSuccessful) ConvertValue(object value)
 	    {
 		    try
 		    {
@@ -21,7 +20,7 @@ namespace BrightData.Converter
 		    }
 		    catch
 		    {
-			    return (_fallback, false);
+			    return (fallback, false);
 		    }
 	    }
     }

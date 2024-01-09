@@ -3,8 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
-namespace BrightData.Operations.Conversion
+namespace BrightData.Buffer.Operations.Conversion
 {
+    /// <summary>
+    /// Base class for buffer conversions
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="T"></typeparam>
     internal abstract class ConversionBase<FT, T> : OneToOneMutation<FT, T>.IWriteMutatedBlocks, IOperation
         where FT : notnull
         where T : notnull

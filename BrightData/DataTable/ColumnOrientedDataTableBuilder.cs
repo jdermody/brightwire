@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Buffer.Operations;
 using BrightData.ConstraintValidation;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Operations;
 using BrightData.Types;
 
 namespace BrightData.DataTable
@@ -14,30 +14,20 @@ namespace BrightData.DataTable
     /// <summary>
     /// Builds a data table dynamically
     /// </summary>
-    internal class ColumnOrientedDataTableBuilder : IBuildDataTables
+    internal class ColumnOrientedDataTableBuilder(
+        BrightDataContext context,
+        IProvideDataBlocks? tempData = null,
+        int blockSize = Consts.DefaultBlockSize,
+        uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
+        : IBuildDataTables
     {
-        readonly int                    _blockSize;
-        readonly uint?                  _maxInMemoryBlocks;
-        readonly IProvideDataBlocks?      _tempData;
         readonly List<ICompositeBuffer> _columns = new();
-
-        public ColumnOrientedDataTableBuilder(
-            BrightDataContext context, 
-            IProvideDataBlocks? tempData = null,
-            int blockSize = Consts.DefaultBlockSize, 
-            uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
-        {
-            Context            = context;
-            _tempData          = tempData;
-            _blockSize         = blockSize;
-            _maxInMemoryBlocks = maxInMemoryBlocks;
-        }
 
         public MetaData TableMetaData { get; } = new();
         public MetaData[] ColumnMetaData => _columns.Select(x => x.MetaData).ToArray();
         public uint RowCount { get; private set; }
         public uint ColumnCount => (uint)_columns.Count;
-        public BrightDataContext Context { get; }
+        public BrightDataContext Context { get; } = context;
 
         internal static string DefaultColumnName(string? name, int numColumns)
         {
@@ -58,7 +48,7 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData)
         {
-            var buffer = type.CreateCompositeBuffer(_tempData, _blockSize, _maxInMemoryBlocks);
+            var buffer = type.CreateCompositeBuffer(tempData, blockSize, maxInMemoryBlocks);
             metaData.CopyTo(buffer.MetaData);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
@@ -127,7 +117,7 @@ namespace BrightData.DataTable
 
         public Task WriteTo(Stream stream)
         {
-            var writer = new ColumnOrientedDataTableWriter(Context, _tempData, _blockSize, _maxInMemoryBlocks);
+            var writer = new ColumnOrientedDataTableWriter(Context, tempData, blockSize, maxInMemoryBlocks);
             return writer.Write(
                 TableMetaData,
                 _columns.Cast<IReadOnlyBufferWithMetaData>().ToArray(),

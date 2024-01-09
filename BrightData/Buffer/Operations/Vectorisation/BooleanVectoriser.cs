@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class BooleanVectoriser : VectorisationBase<bool>
+    /// <summary>
+    /// Vectorisation of booleans
+    /// </summary>
+    /// <param name="isOutput"></param>
+    internal class BooleanVectoriser(bool isOutput) : VectorisationBase<bool>(isOutput, 1)
     {
-        public BooleanVectoriser(bool isOutput) : base(isOutput, 1)
-        {
-        }
-
         protected override void Vectorise(in bool item, Span<float> buffer)
         {
             buffer[0] = item ? 1f : 0f;

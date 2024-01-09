@@ -1,6 +1,6 @@
 ﻿using System;
 using BrightData;
-using BrightData.Analysis;
+using BrightData.DataTable;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper

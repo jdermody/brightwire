@@ -7,19 +7,19 @@ using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class OneHotConverter<T> : ReadOnlyConverterBase<T, ReadOnlyVector> where T: notnull
+    /// <summary>
+    /// Converts via a one hot encoder
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="from"></param>
+    /// <param name="indexer"></param>
+    internal class OneHotConverter<T>(IReadOnlyBuffer<T> from, ICanIndex<T> indexer) : ReadOnlyConverterBase<T, ReadOnlyVector>(from)
+        where T : notnull
     {
-        readonly ICanIndex<T> _indexer;
-
-        public OneHotConverter(IReadOnlyBuffer<T> from, ICanIndex<T> indexer) : base(from)
-        {
-            _indexer = indexer;
-        }
-
         protected override ReadOnlyVector Convert(in T from)
         {
-            var index = _indexer.GetIndex(from);
-            return new ReadOnlyVector(_indexer.Size, x => x == index ? 1f : 0f);
+            var index = indexer.GetIndex(from);
+            return new ReadOnlyVector(indexer.Size, x => x == index ? 1f : 0f);
         }
     }
 }

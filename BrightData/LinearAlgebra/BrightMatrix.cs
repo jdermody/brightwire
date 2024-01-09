@@ -13,31 +13,25 @@ namespace BrightData.LinearAlgebra
     /// Row major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightMatrix<LAP> : BrightTensorBase<IMatrix, LAP>, IMatrix
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="data">Tensor segment</param>
+    /// <param name="rows">Number of rows</param>
+    /// <param name="columns">Number of columns</param>
+    /// <param name="lap">Linear algebra provider</param>
+    public class BrightMatrix<LAP>(INumericSegment<float> data, uint rows, uint columns, LAP lap) : BrightTensorBase<IMatrix, LAP>(data, lap), IMatrix
         where LAP: LinearAlgebraProvider
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Tensor segment</param>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <param name="lap">Linear algebra provider</param>
-        public BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LAP lap) : base(data, lap)
-        {
-            RowCount = rows;
-            ColumnCount = columns;
-            TotalSize = rows * columns;
-        }
 
         /// <inheritdoc />
-        public uint RowCount { get; private set; }
+        public uint RowCount { get; private set; } = rows;
 
         /// <inheritdoc />
-        public uint ColumnCount { get; private set; }
+        public uint ColumnCount { get; private set; } = columns;
 
         /// <inheritdoc />
-        public sealed override uint TotalSize { get; protected set; }
+        public sealed override uint TotalSize { get; protected set; } = rows * columns;
 
         /// <inheritdoc />
         public sealed override uint[] Shape
@@ -280,17 +274,14 @@ namespace BrightData.LinearAlgebra
     /// <summary>
     /// Matrix type
     /// </summary>
-    public class BrightMatrix : BrightMatrix<LinearAlgebraProvider>
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="data">Tensor segment</param>
+    /// <param name="rows">Number of rows</param>
+    /// <param name="columns">Number of columns</param>
+    /// <param name="lap">Linear algebra provider</param>
+    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : BrightMatrix<LinearAlgebraProvider>(data, rows, columns, lap)
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Tensor segment</param>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <param name="lap">Linear algebra provider</param>
-        public BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, rows, columns, lap)
-        {
-        }
     }
 }

@@ -2,31 +2,29 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations
+namespace BrightData.Buffer.Operations
 {
-    internal class OneToOneMutation<FT, T> : IOperation
+    /// <summary>
+    /// Mutates values from a buffer and writes to a destination
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <param name="mutator"></param>
+    internal class OneToOneMutation<FT, T>(IReadOnlyBuffer<FT> from, IAppendToBuffer<T> to, OneToOneMutation<FT, T>.IWriteMutatedBlocks mutator)
+        : IOperation
         where FT : notnull
-        where T: notnull
+        where T : notnull
     {
-        readonly IReadOnlyBuffer<FT> _from;
-        readonly IAppendToBuffer<T> _to;
-        readonly IWriteMutatedBlocks _mutator;
-
         internal interface IWriteMutatedBlocks
         {
             void Write(ReadOnlySpan<FT> from, IAppendToBuffer<T> to);
         }
 
-        public OneToOneMutation(IReadOnlyBuffer<FT> from, IAppendToBuffer<T> to, IWriteMutatedBlocks mutator)
-        {
-            _from = from;
-            _to = to;
-            _mutator = mutator;
-        }
-
         public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            return _from.ForEachBlock(x => _mutator.Write(x, _to), notify, msg, ct);
+            return from.ForEachBlock(x => mutator.Write(x, to), notify, msg, ct);
         }
     }
 }

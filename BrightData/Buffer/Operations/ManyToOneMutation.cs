@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations
+namespace BrightData.Buffer.Operations
 {
     internal class ManyToOneMutation<FT, TT> : IOperation
         where FT : notnull
         where TT : notnull
     {
-        readonly uint _size, _blockSize;
+        readonly uint                  _size, _blockSize;
         readonly IReadOnlyBuffer<FT>[] _from;
-        readonly Func<FT[], TT> _mutator;
-        readonly IAppendToBuffer<TT> _to;
+        readonly Func<FT[], TT>        _mutator;
+        readonly IAppendToBuffer<TT>   _to;
 
         public ManyToOneMutation(IEnumerable<IReadOnlyBuffer<FT>> from, IAppendToBuffer<TT> to, Func<FT[], TT> mutator)
         {
@@ -30,6 +30,7 @@ namespace BrightData.Operations
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);
+            // ReSharper disable once NotDisposedResourceIsReturned
             var enumerators = _from.Select(x => x.GetAsyncEnumerator(ct)).ToArray();
             var currentTasks = new ValueTask<bool>[_size];
             var curr = new FT[_size];
@@ -54,6 +55,9 @@ namespace BrightData.Operations
                         notify?.OnOperationProgress(id, (float)index / _size);
                 }
             }
+
+            foreach (var item in enumerators)
+                await item.DisposeAsync();
 
             notify?.OnCompleteOperation(id, ct.IsCancellationRequested);
         }

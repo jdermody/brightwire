@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace BrightData.Converter
 {
-    internal class ConvertToBoolean<T> : ConverterBase<T>, ICanConvert<T, bool> where T: INumber<T>
+    /// <summary>
+    /// Convert to boolean
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="throwOnFailure"></param>
+    internal class ConvertToBoolean<T>(bool throwOnFailure = false) : ConverterBase<T>(throwOnFailure), ICanConvert<T, bool>
+        where T : INumber<T>
     {
-        public ConvertToBoolean(bool throwOnFailure = false) : base(throwOnFailure)
-        {
-        }
-
         public bool Convert(T data)
         {
             return data != T.Zero;

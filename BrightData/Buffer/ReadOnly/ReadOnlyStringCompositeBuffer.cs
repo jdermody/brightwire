@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
 {
-    internal class ReadOnlyStringCompositeBuffer : ReadOnlyCompositeBufferBase<string>
+    /// <summary>
+    /// Read only composite buffer for strings
+    /// </summary>
+    /// <param name="stream"></param>
+    internal class ReadOnlyStringCompositeBuffer(Stream stream) : ReadOnlyCompositeBufferBase<string>(stream)
     {
-        readonly StringPool _stringPool;
-
-        public ReadOnlyStringCompositeBuffer(Stream stream) : base(stream)
-        {
-            _stringPool = new();
-        }
+        readonly StringPool _stringPool = new();
 
         protected override ReadOnlyMemory<string> Get(ReadOnlyMemory<byte> byteData)
         {

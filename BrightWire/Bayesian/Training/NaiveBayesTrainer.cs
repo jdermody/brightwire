@@ -4,6 +4,7 @@ using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BrightData.DataTable;
 using BrightData.Helper;
 using BrightData.Types;
 

@@ -1,12 +1,14 @@
-﻿namespace BrightData.Operations.Conversion
+﻿namespace BrightData.Buffer.Operations.Conversion
 {
-    internal class ToStringConversion<T> : ConversionBase<T, string>
+    /// <summary>
+    /// Converts to a string
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    internal class ToStringConversion<T>(IReadOnlyBuffer<T> input, IAppendToBuffer<string> output) : ConversionBase<T, string>(input, output)
         where T : notnull
     {
-        public ToStringConversion(IReadOnlyBuffer<T> input, IAppendToBuffer<string> output) : base(input, output)
-        {
-        }
-
         protected override string Convert(T from) => from.ToString() ?? string.Empty;
     }
 }

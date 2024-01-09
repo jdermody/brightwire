@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-#pragma warning disable CA2012
 
 namespace BrightData
 {
@@ -20,9 +19,15 @@ namespace BrightData
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
         var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
 #>
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<<#= typeString #>>(<#= parameters #>) <#= where #>;
-<# } #>
 
+<# } #>
+    /// <summary>
+    /// Data table interface
+    /// </summary>
     public partial interface IDataTable
     {
 <# for(var i = 2; i < COUNT; i++) {
@@ -31,12 +36,16 @@ namespace BrightData
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
         var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
 #>
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #>, 
 <# } #>
             CancellationToken ct = default
         ) <#= where #>;
+
 <# } #>
     }
 }
@@ -68,7 +77,7 @@ namespace BrightData.DataTable
         {
             const int size = <#= i #>;
 <# for(var j = 1; j <= i; j++) { #>
-            var e<#= j #> = GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
+            await using var e<#= j #> = GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
 <# } #>
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
@@ -162,7 +171,7 @@ namespace BrightData.DataTable
             {
                 const int size = <#= i #>;
 <# for(var j = 1; j <= i; j++) { #>
-                var e<#= j #> = _input<#= j #>.GetAsyncEnumerator();
+                await using var e<#= j #> = _input<#= j #>.GetAsyncEnumerator();
 <# } #>
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;

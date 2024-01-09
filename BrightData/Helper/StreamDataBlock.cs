@@ -7,45 +7,38 @@ using System.Threading.Tasks;
 
 namespace BrightData.Helper
 {
-    internal class StreamDataBlock : IDataBlock
+    internal class StreamDataBlock(Guid id, Stream stream) : IDataBlock
     {
-        readonly Stream _stream;
-
-        public StreamDataBlock(Guid id, Stream stream)
-        {
-            Id = id;
-            _stream = stream;
-        }
-
         public void Dispose()
         {
-            _stream.Dispose();
+            stream.Dispose();
         }
 
-        public uint Size => (uint)_stream.Length;
-        public Guid Id { get; }
+        public uint Size => (uint)stream.Length;
+        public Guid Id { get; } = id;
+
         public void Write(ReadOnlySpan<byte> data, uint offset)
         {
-            _stream.Seek(offset, SeekOrigin.Begin);
-            _stream.Write(data);
+            stream.Seek(offset, SeekOrigin.Begin);
+            stream.Write(data);
         }
 
         public ValueTask WriteAsync(ReadOnlyMemory<byte> data, uint offset)
         {
-            _stream.Seek(offset, SeekOrigin.Begin);
-            return _stream.WriteAsync(data);
+            stream.Seek(offset, SeekOrigin.Begin);
+            return stream.WriteAsync(data);
         }
 
         public uint Read(Span<byte> data, uint offset)
         {
-            _stream.Seek(offset, SeekOrigin.Begin);
-            return (uint)_stream.Read(data);
+            stream.Seek(offset, SeekOrigin.Begin);
+            return (uint)stream.Read(data);
         }
 
         public async Task<uint> ReadAsync(Memory<byte> data, uint offset)
         {
-            _stream.Seek(offset, SeekOrigin.Begin);
-            var ret = await _stream.ReadAsync(data);
+            stream.Seek(offset, SeekOrigin.Begin);
+            var ret = await stream.ReadAsync(data);
             return (uint)ret;
         }
     }

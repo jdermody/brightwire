@@ -6,7 +6,20 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.Composite
 {
-    class StringCompositeBuffer : CompositeBufferBase<string, StringCompositeBuffer.Block>
+    /// <summary>
+    /// A composite buffer for strings
+    /// </summary>
+    /// <param name="tempStreams"></param>
+    /// <param name="blockSize"></param>
+    /// <param name="maxInMemoryBlocks"></param>
+    /// <param name="maxDistinctItems"></param>
+    internal class StringCompositeBuffer(
+        IProvideDataBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultBlockSize,
+        uint? maxInMemoryBlocks = null,
+        uint? maxDistinctItems = null
+    )
+        : CompositeBufferBase<string, StringCompositeBuffer.Block>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
     {
         internal const int HeaderSize = 8;
         internal record Block(string[] Data) : ICompositeBufferBlock<string>
@@ -42,15 +55,6 @@ namespace BrightData.Buffer.Composite
                 await file.WriteAsync(lengthBytes, startOffset - HeaderSize);
                 return blockSize + HeaderSize;
             }
-        }
-
-        public StringCompositeBuffer(
-            IProvideDataBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
-        {
         }
 
         public override Task<ReadOnlyMemory<string>> GetTypedBlock(uint blockIndex)

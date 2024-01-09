@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
 {
+    /// <summary>
+    /// Read only composite buffer base class
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal abstract class ReadOnlyCompositeBufferBase<T> : IReadOnlyBuffer<T> where T : notnull
     {
         readonly Stream _stream;

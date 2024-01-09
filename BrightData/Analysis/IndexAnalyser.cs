@@ -8,16 +8,10 @@ namespace BrightData.Analysis
     /// <summary>
     /// Index based type analysis
     /// </summary>
-    internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
+    internal class IndexAnalyser(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<IHaveIndices>
     {
-        readonly uint _writeCount;
-        readonly Dictionary<uint, uint> _indexFrequency = new();
+        readonly Dictionary<uint, uint> _indexFrequency = [];
         uint _min = uint.MaxValue, _max = uint.MinValue;
-
-        public IndexAnalyser(uint writeCount = Consts.MaxWriteCount)
-        {
-            _writeCount = writeCount;
-        }
 
         public void Add(IHaveIndices obj)
         {
@@ -60,7 +54,7 @@ namespace BrightData.Analysis
 
             metadata.Set(Consts.NumDistinct, (uint)_indexFrequency.Count);
             var total = (double) _indexFrequency.Count;
-            foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
+            foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take((int)writeCount))
                 metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
         }
     }

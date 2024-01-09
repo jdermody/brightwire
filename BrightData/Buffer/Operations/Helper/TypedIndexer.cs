@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations.Helper
+namespace BrightData.Buffer.Operations.Helper
 {
+    /// <summary>
+    /// Maintains a mapping of types to indices
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class TypedIndexer<T> : IOperation, ICanIndex<T>, IAcceptBlock<T> where T : notnull
     {
         readonly BufferScan<T> _scan;
-        readonly Dictionary<T, uint> _index = new();
+        readonly Dictionary<T, uint> _index = [];
 
         public TypedIndexer(IReadOnlyBuffer<T> buffer)
         {

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
+using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 
@@ -335,45 +336,6 @@ namespace BrightData
         ReadOnlyMemory<float> GetTensorData();
     }
 
-    public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values) : ICanRandomlyAccessData
-    {
-        public uint Size => (uint)Values.Length;
-
-        public T Get<T>(uint columnIndex)
-        {
-            var ret = Values[columnIndex];
-            if (ret.GetType() != typeof(T)) {
-                if (typeof(T) == typeof(string)) {
-                    var str = ret.ToString();
-                    return __refvalue(__makeref(str), T);
-                }
-
-                throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)}");
-            }
-
-            return (T)ret;
-        }
-
-        public T[] GetMany<T>(params uint[] columnIndices)
-        {
-            var ret = new T[columnIndices.Length];
-            var index = 0;
-            foreach (var columnIndex in columnIndices)
-                ret[index++] = Get<T>(columnIndex);
-            return ret;
-        }
-
-        public object this[int index] => Values[index];
-        public object this[uint index] => Values[index];
-        public void Dispose()
-        {
-            // nop
-        }
-
-        /// <inheritdoc />
-        public override string ToString() => String.Join('|', Values.Select(x => x.ToString()));
-    }
-
     public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
     {
         uint RowCount { get; }
@@ -459,24 +421,56 @@ namespace BrightData
         void Add(in T item);
     }
 
+    /// <summary>
+    /// Checks if an item satisfies a constraint
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IConstraintValidator<T> where T : notnull
     {
+        /// <summary>
+        /// Returns true if the item was valid
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         bool Allow(in T item);
     }
 
     /// <summary>
-    /// Composite buffers add data in memory until a pre specified limit and then store the remainder in a temp file
+    /// Composite buffers add data in memory until a pre-specified limit is reached and then stores the remainder in a temp file
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBufferWithMetaData<T>, IAppendToBuffer<T> where T: notnull
     {
+        /// <summary>
+        /// The distinct (unique) set of items that have been added - null if the count exceeded the pre-defined limit
+        /// </summary>
         IReadOnlySet<T>? DistinctSet { get; }
+
+        /// <summary>
+        /// Optional constraint validator on items that are added to the buffer
+        /// </summary>
         IConstraintValidator<T>? ConstraintValidator { get; set; }
     }
 
+    /// <summary>
+    /// Reads blocks of data
+    /// </summary>
     public interface IByteBlockReader : IDisposable, IHaveSize
     {
+        /// <summary>
+        /// Reads a block of data
+        /// </summary>
+        /// <param name="byteOffset">Byte offset to read</param>
+        /// <param name="numBytes">Size in bytes to read</param>
+        /// <returns></returns>
         Task<ReadOnlyMemory<byte>> GetBlock(uint byteOffset, uint numBytes);
+
+        /// <summary>
+        /// Writes a block of data to the buffer
+        /// </summary>
+        /// <param name="byteOffset">Byte offset at which to write</param>
+        /// <param name="data">Data to write</param>
+        /// <returns></returns>
         Task Update(uint byteOffset, ReadOnlyMemory<byte> data);
     }
 

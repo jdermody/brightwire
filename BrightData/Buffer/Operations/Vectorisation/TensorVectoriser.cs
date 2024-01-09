@@ -1,13 +1,16 @@
 ﻿using System;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class TensorVectoriser<T> : VectorisationBase<T> where T: IHaveReadOnlyContiguousSpan<float>
+    /// <summary>
+    /// Tensor vectorisation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isOutput"></param>
+    /// <param name="outputSize"></param>
+    internal class TensorVectoriser<T>(bool isOutput, uint outputSize) : VectorisationBase<T>(isOutput, outputSize)
+        where T : IHaveReadOnlyContiguousSpan<float>
     {
-        public TensorVectoriser(bool isOutput, uint outputSize) : base(isOutput, outputSize)
-        {
-        }
-
         protected override void Vectorise(in T item, Span<float> buffer)
         {
             item.ReadOnlySpan.CopyTo(buffer);

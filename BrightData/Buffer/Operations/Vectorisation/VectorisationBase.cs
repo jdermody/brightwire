@@ -3,22 +3,23 @@ using System.Threading.Tasks;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal abstract class VectorisationBase<T> : ICanVectorise where T: notnull
+    /// <summary>
+    /// Base class for vectorisation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isOutput"></param>
+    /// <param name="outputSize"></param>
+    internal abstract class VectorisationBase<T>(bool isOutput, uint outputSize) : ICanVectorise
+        where T : notnull
     {
-        readonly float[] _output;
-
-        protected VectorisationBase(bool isOutput, uint outputSize)
-        {
-            _output = new float[outputSize];
-            IsOutput = isOutput;
-        }
+        readonly float[] _output = new float[outputSize];
 
         public uint OutputSize => (uint)_output.Length;
 
         protected abstract void Vectorise(in T item, Span<float> buffer);
-        public bool IsOutput { get; }
+        public bool IsOutput { get; } = isOutput;
         public abstract VectorisationType Type { get; }
 
         public async Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output)

@@ -7,7 +7,7 @@ using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
-using BrightData.Analysis;
+using BrightData.DataTable;
 
 namespace BrightWire
 {

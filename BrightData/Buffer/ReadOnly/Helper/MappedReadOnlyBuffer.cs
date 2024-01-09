@@ -6,32 +6,33 @@ using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
 {
-    public delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
-    internal class MappedReadOnlyBuffer<IT, T> : IReadOnlyBufferWithMetaData<T>
+    internal delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
+
+    /// <summary>
+    /// Adapts a buffer with a block mapper function
+    /// </summary>
+    /// <typeparam name="IT"></typeparam>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="index"></param>
+    /// <param name="mapper"></param>
+    internal class MappedReadOnlyBuffer<IT, T>(IReadOnlyBufferWithMetaData<IT> index, BlockMapper<IT, T> mapper)
+        : IReadOnlyBufferWithMetaData<T>
         where IT : notnull
         where T : notnull
     {
-        readonly IReadOnlyBufferWithMetaData<IT> _index;
-        readonly BlockMapper<IT, T> _mapper;
-        ReadOnlyMemory<T>? _lastBlock;
-        uint _lastBlockIndex;
+        //ReadOnlyMemory<T>? _lastBlock;
+        //uint               _lastBlockIndex;
 
-        public MappedReadOnlyBuffer(IReadOnlyBufferWithMetaData<IT> index, BlockMapper<IT, T> mapper)
-        {
-            _index = index;
-            _mapper = mapper;
-        }
-
-        public uint BlockSize => _index.BlockSize;
-        public uint BlockCount => _index.BlockCount;
+        public uint BlockSize => index.BlockSize;
+        public uint BlockCount => index.BlockCount;
         public Type DataType => typeof(T);
-        public uint Size => _index.Size;
+        public uint Size => index.Size;
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify, string? msg, CancellationToken ct = default)
         {
-            await _index.ForEachBlock(x =>
+            await index.ForEachBlock(x =>
             {
-                var mapped = _mapper(x);
+                var mapped = mapper(x);
                 callback(mapped.Span);
             }, notify, msg, ct);
         }
@@ -40,20 +41,14 @@ namespace BrightData.Buffer.ReadOnly.Helper
         {
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;
-            if (_lastBlockIndex == blockIndex && _lastBlock.HasValue)
-                return _lastBlock.Value;
+            //if (_lastBlockIndex == blockIndex && _lastBlock.HasValue)
+            //    return _lastBlock.Value;
 
-            _lastBlockIndex = blockIndex;
-            var indices = await _index.GetTypedBlock(blockIndex);
-            var ret = _mapper(indices.Span);
-            _lastBlock = ret;
+            //_lastBlockIndex = blockIndex;
+            var indices = await index.GetTypedBlock(blockIndex);
+            var ret = mapper(indices.Span);
+            //_lastBlock = ret;
             return ret;
-        }
-
-        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
-        {
-            var block = await GetTypedBlock(blockIndex);
-            return block.AsObjects();
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
@@ -74,6 +69,6 @@ namespace BrightData.Buffer.ReadOnly.Helper
                 yield return item;
         }
 
-        public MetaData MetaData => _index.MetaData;
+        public MetaData MetaData => index.MetaData;
     }
 }

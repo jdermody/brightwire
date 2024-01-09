@@ -9,11 +9,7 @@ namespace BrightData.Analysis
     /// </summary>
     internal class DimensionAnalyser : IDataAnalyser<IReadOnlyTensor>
     {
-        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new();
-
-        public DimensionAnalyser()
-        {
-        }
+        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = [];
 
         public uint? XDimension { get; private set; }
         public uint? YDimension { get; private set; }

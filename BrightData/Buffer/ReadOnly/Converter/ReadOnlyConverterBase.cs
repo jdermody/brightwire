@@ -6,33 +6,32 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly.Converter
 {
-    abstract class ReadOnlyConverterBase<FT, TT> : IReadOnlyBuffer<TT>
+    /// <summary>
+    /// Read only converter base class
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="TT"></typeparam>
+    /// <param name="from"></param>
+    abstract class ReadOnlyConverterBase<FT, TT>(IReadOnlyBuffer<FT> from) : IReadOnlyBuffer<TT>
         where FT : notnull
         where TT : notnull
     {
-        readonly IReadOnlyBuffer<FT> _from;
-
-        protected ReadOnlyConverterBase(IReadOnlyBuffer<FT> from)
-        {
-            _from = from;
-        }
-
         protected abstract TT Convert(in FT from);
 
-        public uint Size => _from.Size;
-        public uint BlockSize => _from.BlockSize;
-        public uint BlockCount => _from.BlockCount;
+        public uint Size => from.Size;
+        public uint BlockSize => from.BlockSize;
+        public uint BlockCount => from.BlockCount;
         public Type DataType => typeof(TT);
         public async IAsyncEnumerable<object> EnumerateAll()
         {
-            await foreach (var item in _from.EnumerateAll()) {
+            await foreach (var item in from.EnumerateAll()) {
                 yield return Convert((FT)item);
             }
         }
 
         public Task ForEachBlock(BlockCallback<TT> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
         {
-            return _from.ForEachBlock(x =>
+            return from.ForEachBlock(x =>
             {
                 using var temp = SpanOwner<TT>.Allocate(x.Length);
                 var span = temp.Span;
@@ -44,7 +43,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
 
         public async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)
         {
-            var block = await _from.GetTypedBlock(blockIndex);
+            var block = await from.GetTypedBlock(blockIndex);
             var ret = new Memory<TT>(new TT[block.Length]);
             for (var i = 0; i < block.Length; i++)
                 ret.Span[i] = Convert(block.Span[i]);
@@ -59,7 +58,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
 
         public async IAsyncEnumerable<TT> EnumerateAllTyped()
         {
-            await foreach (var item in _from.EnumerateAllTyped())
+            await foreach (var item in from.EnumerateAllTyped())
                 yield return Convert(item);
         }
 

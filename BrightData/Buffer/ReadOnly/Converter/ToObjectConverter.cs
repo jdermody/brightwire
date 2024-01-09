@@ -1,11 +1,13 @@
 ﻿namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class ToObjectConverter<FT> : ReadOnlyConverterBase<FT, object> where FT: notnull
+    /// <summary>
+    /// Converts to objects
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <param name="from"></param>
+    internal class ToObjectConverter<FT>(IReadOnlyBuffer<FT> from) : ReadOnlyConverterBase<FT, object>(from)
+        where FT : notnull
     {
-        public ToObjectConverter(IReadOnlyBuffer<FT> from) : base(from)
-        {
-        }
-
         protected override object Convert(in FT from)
         {
             return from;

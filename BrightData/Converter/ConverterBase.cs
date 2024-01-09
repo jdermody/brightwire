@@ -2,15 +2,16 @@
 
 namespace BrightData.Converter
 {
-    internal abstract class ConverterBase<T> where T: notnull
+    /// <summary>
+    /// Converter base class
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="throwOnFailure"></param>
+    internal abstract class ConverterBase<T>(bool throwOnFailure)
+        where T : notnull
     {
         protected GenericConverter<float>? _genericConverter = null;
-        protected readonly bool _throwOnFailure;
-
-        protected ConverterBase(bool throwOnFailure)
-        {
-            _throwOnFailure = throwOnFailure;
-        }
+        protected readonly bool _throwOnFailure = throwOnFailure;
 
         protected float GetSingle(T data)    => __refvalue(__makeref(data), float);
         protected double GetDouble(T data)   => __refvalue(__makeref(data), double);

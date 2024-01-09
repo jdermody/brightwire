@@ -11,24 +11,19 @@ using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Table.Helper
 {
-    internal class TempFileProvider : IProvideDataBlocks
+    internal class TempFileProvider(string? basePath = null) : IProvideDataBlocks
     {
-        class TempData : IDataBlock
+        class TempData(Guid id, string path) : IDataBlock
         {
-            readonly SafeFileHandle _file;
-
-            public TempData(Guid id, string path)
-            {
-                Id = id;
-                _file = File.OpenHandle(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, FileOptions.DeleteOnClose | FileOptions.Asynchronous);
-            }
+            readonly SafeFileHandle _file = File.OpenHandle(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, FileOptions.DeleteOnClose | FileOptions.Asynchronous);
 
             public void Dispose()
             {
                 _file.Dispose();
             }
 
-            public Guid Id { get; }
+            public Guid Id { get; } = id;
+
             public void Write(ReadOnlySpan<byte> data, uint offset)
             {
                 RandomAccess.Write(_file, data, offset);
@@ -50,14 +45,9 @@ namespace BrightData.Table.Helper
 
             public uint Size => (uint)RandomAccess.GetLength(_file);
         }
-        readonly string _basePath;
+        readonly string _basePath = basePath ?? Path.GetTempPath();
         // lazy to prevent multiple files from being created per key
         readonly ConcurrentDictionary<Guid, Lazy<IDataBlock>> _fileTable = new();
-
-        public TempFileProvider(string? basePath = null)
-        {
-            _basePath = basePath ?? Path.GetTempPath();
-        }
 
         ~TempFileProvider()
         {

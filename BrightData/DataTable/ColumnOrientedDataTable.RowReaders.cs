@@ -3,33 +3,81 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-#pragma warning disable CA2012
 
 namespace BrightData
 {
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2>(T1 C1, T2 C2) where T1: notnull where T2: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3>(T1 C1, T2 C2, T3 C3) where T1: notnull where T2: notnull where T3: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4>(T1 C1, T2 C2, T3 C3, T4 C4) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5, T6>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
+
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
     public readonly record struct TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
 
+    /// <summary>
+    /// Data table interface
+    /// </summary>
     public partial interface IDataTable
     {
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -37,6 +85,10 @@ namespace BrightData
             uint columnIndex4 = 3, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -45,6 +97,10 @@ namespace BrightData
             uint columnIndex5 = 4, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -54,6 +110,10 @@ namespace BrightData
             uint columnIndex6 = 5, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -64,6 +124,10 @@ namespace BrightData
             uint columnIndex7 = 6, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -75,6 +139,10 @@ namespace BrightData
             uint columnIndex8 = 7, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -87,6 +155,10 @@ namespace BrightData
             uint columnIndex9 = 8, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
+
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
@@ -100,6 +172,7 @@ namespace BrightData
             uint columnIndex10 = 9, 
             CancellationToken ct = default
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
+
     }
 }
 
@@ -115,8 +188,8 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull
         {
             const int size = 2;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -199,8 +272,8 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2>> EnumerateAllTyped()
             {
                 const int size = 2;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -239,9 +312,9 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull
         {
             const int size = 3;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -337,9 +410,9 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3>> EnumerateAllTyped()
             {
                 const int size = 3;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -381,10 +454,10 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull
         {
             const int size = 4;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -493,10 +566,10 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4>> EnumerateAllTyped()
             {
                 const int size = 4;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -541,11 +614,11 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
         {
             const int size = 5;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -667,11 +740,11 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> EnumerateAllTyped()
             {
                 const int size = 5;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -719,12 +792,12 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
         {
             const int size = 6;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -859,12 +932,12 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> EnumerateAllTyped()
             {
                 const int size = 6;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
-                var e6 = _input6.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
+                await using var e6 = _input6.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -915,13 +988,13 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
         {
             const int size = 7;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -1069,13 +1142,13 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> EnumerateAllTyped()
             {
                 const int size = 7;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
-                var e6 = _input6.GetAsyncEnumerator();
-                var e7 = _input7.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
+                await using var e6 = _input6.GetAsyncEnumerator();
+                await using var e7 = _input7.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -1129,14 +1202,14 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
         {
             const int size = 8;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -1297,14 +1370,14 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> EnumerateAllTyped()
             {
                 const int size = 8;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
-                var e6 = _input6.GetAsyncEnumerator();
-                var e7 = _input7.GetAsyncEnumerator();
-                var e8 = _input8.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
+                await using var e6 = _input6.GetAsyncEnumerator();
+                await using var e7 = _input7.GetAsyncEnumerator();
+                await using var e8 = _input8.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -1361,15 +1434,15 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
         {
             const int size = 9;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
-            var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -1543,15 +1616,15 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> EnumerateAllTyped()
             {
                 const int size = 9;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
-                var e6 = _input6.GetAsyncEnumerator();
-                var e7 = _input7.GetAsyncEnumerator();
-                var e8 = _input8.GetAsyncEnumerator();
-                var e9 = _input9.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
+                await using var e6 = _input6.GetAsyncEnumerator();
+                await using var e7 = _input7.GetAsyncEnumerator();
+                await using var e8 = _input8.GetAsyncEnumerator();
+                await using var e9 = _input9.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 
@@ -1611,16 +1684,16 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
         {
             const int size = 10;
-            var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
-            var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
-            var e10 = GetColumn<T10>(columnIndex10).GetAsyncEnumerator(ct);
+            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
+            await using var e10 = GetColumn<T10>(columnIndex10).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
 
@@ -1807,16 +1880,16 @@ namespace BrightData.DataTable
             public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> EnumerateAllTyped()
             {
                 const int size = 10;
-                var e1 = _input1.GetAsyncEnumerator();
-                var e2 = _input2.GetAsyncEnumerator();
-                var e3 = _input3.GetAsyncEnumerator();
-                var e4 = _input4.GetAsyncEnumerator();
-                var e5 = _input5.GetAsyncEnumerator();
-                var e6 = _input6.GetAsyncEnumerator();
-                var e7 = _input7.GetAsyncEnumerator();
-                var e8 = _input8.GetAsyncEnumerator();
-                var e9 = _input9.GetAsyncEnumerator();
-                var e10 = _input10.GetAsyncEnumerator();
+                await using var e1 = _input1.GetAsyncEnumerator();
+                await using var e2 = _input2.GetAsyncEnumerator();
+                await using var e3 = _input3.GetAsyncEnumerator();
+                await using var e4 = _input4.GetAsyncEnumerator();
+                await using var e5 = _input5.GetAsyncEnumerator();
+                await using var e6 = _input6.GetAsyncEnumerator();
+                await using var e7 = _input7.GetAsyncEnumerator();
+                await using var e8 = _input8.GetAsyncEnumerator();
+                await using var e9 = _input9.GetAsyncEnumerator();
+                await using var e10 = _input10.GetAsyncEnumerator();
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
 

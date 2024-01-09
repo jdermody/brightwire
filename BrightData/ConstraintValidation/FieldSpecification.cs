@@ -1,9 +1,10 @@
 ﻿namespace BrightData.ConstraintValidation
 {
-    class FieldSpecification<T> : DataTypeSpecificationBase<T> where T : notnull
-    {
-        public FieldSpecification(string? name, bool canRepeat = false) : base(name, DataSpecificationType.Field, canRepeat, null)
-        {
-        }
-    }
+    /// <summary>
+    /// Field specification
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <param name="canRepeat"></param>
+    class FieldSpecification<T>(string? name, bool canRepeat = false) : DataTypeSpecificationBase<T>(name, DataSpecificationType.Field, canRepeat, null) where T : notnull;
 }

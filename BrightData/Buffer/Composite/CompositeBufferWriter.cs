@@ -3,23 +3,21 @@ using System.Buffers;
 
 namespace BrightData.Buffer.Composite
 {
-    internal class CompositeBufferWriter<T> : IBufferWriter<T> where T : notnull
+    /// <summary>
+    /// Adapts composite buffers to buffer writers 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="buffer"></param>
+    /// <param name="defaultBufferSize"></param>
+    internal class CompositeBufferWriter<T>(IAcceptBlock<T> buffer, int defaultBufferSize = 256) : IBufferWriter<T>
+        where T : notnull
     {
-        readonly int _bufferSize;
-        readonly ICompositeBuffer<T> _buffer;
         int _pos = 0;
-        T[] _tempBuffer;
-
-        public CompositeBufferWriter(ICompositeBuffer<T> buffer, int defaultBufferSize = 256)
-        {
-            _bufferSize = defaultBufferSize;
-            _buffer = buffer;
-            _tempBuffer = new T[defaultBufferSize];
-        }
+        T[] _tempBuffer = new T[defaultBufferSize];
 
         public void Advance(int count)
         {
-            _buffer.Add(_tempBuffer.AsSpan()[..count]);
+            buffer.Add(_tempBuffer.AsSpan()[..count]);
             _pos += count;
         }
 

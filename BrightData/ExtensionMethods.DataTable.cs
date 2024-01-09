@@ -11,14 +11,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Analysis;
 using BrightData.Buffer.ByteBlockReaders;
+using BrightData.Buffer.Operations;
+using BrightData.Buffer.Operations.Vectorisation;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
-using BrightData.Operations;
-using BrightData.Operations.Vectorisation;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 

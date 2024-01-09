@@ -8,29 +8,27 @@ using System.Threading.Tasks;
 
 namespace BrightData.Buffer.ByteBlockReaders
 {
-    internal class StreamByteBlockReader : IByteBlockReader
+    /// <summary>
+    /// Reads from a stream
+    /// </summary>
+    /// <param name="stream"></param>
+    internal class StreamByteBlockReader(Stream stream) : IByteBlockReader
     {
         readonly SemaphoreSlim _semaphore = new(1);
-        readonly Stream _stream;
-
-        public StreamByteBlockReader(Stream stream)
-        {
-            _stream = stream;
-        }
 
         public void Dispose()
         {
-            _stream.Dispose();
+            stream.Dispose();
         }
 
-        public uint Size => (uint)_stream.Length;
+        public uint Size => (uint)stream.Length;
         public async Task<ReadOnlyMemory<byte>> GetBlock(uint byteOffset, uint numBytes)
         {
             await _semaphore.WaitAsync();
             try {
-                _stream.Seek(byteOffset, SeekOrigin.Begin);
+                stream.Seek(byteOffset, SeekOrigin.Begin);
                 var ret = new byte[numBytes];
-                await _stream.ReadExactlyAsync(ret);
+                await stream.ReadExactlyAsync(ret);
                 return ret;
             }
             finally {
@@ -42,8 +40,8 @@ namespace BrightData.Buffer.ByteBlockReaders
         {
             await _semaphore.WaitAsync();
             try {
-                _stream.Seek(byteOffset, SeekOrigin.Begin);
-                await _stream.WriteAsync(data);
+                stream.Seek(byteOffset, SeekOrigin.Begin);
+                await stream.WriteAsync(data);
             }
             finally {
                 _semaphore.Release();

@@ -4,17 +4,12 @@ using System.Threading.Tasks;
 using BrightData.Converter;
 using BrightData.Helper;
 
-namespace BrightData.Operations.Helper
+namespace BrightData.Buffer.Operations.Helper
 {
-    internal interface ICastToNumericAnalysis : IOperation
-    {
-        public bool IsInteger { get; }
-        public uint NanCount { get; }
-        public uint InfinityCount { get; }
-        public double MinValue { get; }
-        public double MaxValue { get; }
-    }
-
+    /// <summary>
+    /// Casts to double to perform numerical analysis
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class CastToNumericAnalysis<T> : ICastToNumericAnalysis, IAcceptBlock<T> where T : notnull
     {
         readonly BufferScan<T> _scan;

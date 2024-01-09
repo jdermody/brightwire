@@ -1343,7 +1343,7 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="arrayIndices"></param>
         /// <returns></returns>
-        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, uint[] arrayIndices) where T: unmanaged, INumber<T>
+        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, params uint[] arrayIndices) where T: unmanaged, INumber<T>
         {
             var ret = MemoryOwner<T>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;

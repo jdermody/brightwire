@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
-using BrightData.Analysis;
+using BrightData.DataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {

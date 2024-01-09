@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to signed bytes
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToSignedByte<T> : ConverterBase<T>, ICanConvert<T, sbyte>
         where T : notnull
     {

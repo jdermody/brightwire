@@ -2,8 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations
+namespace BrightData.Buffer.Operations
 {
+    /// <summary>
+    /// An operation that does nothing
+    /// </summary>
     internal class NopOperation : IOperation
     {
         public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)

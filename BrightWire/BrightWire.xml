@@ -29,7 +29,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.TableRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable.TableRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -3787,7 +3787,7 @@
             Classifies convertible rows
             </summary>
         </member>
-        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.TableRow)">
+        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable.TableRow)">
             <summary>
             Classifies a convertible row
             </summary>

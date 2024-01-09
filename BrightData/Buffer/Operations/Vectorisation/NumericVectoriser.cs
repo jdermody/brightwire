@@ -1,16 +1,17 @@
 ﻿using System;
 using BrightData.Converter;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class NumericVectoriser<T> : VectorisationBase<T> where T : notnull
+    /// <summary>
+    /// Numeric vectorisation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isOutput"></param>
+    internal class NumericVectoriser<T>(bool isOutput) : VectorisationBase<T>(isOutput, 1)
+        where T : notnull
     {
-        readonly ICanConvert<T, float> _converter;
-
-        public NumericVectoriser(bool isOutput) : base(isOutput, 1)
-        {
-            _converter = StaticConverters.GetConverterToFloat<T>();
-        }
+        readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
         protected override void Vectorise(in T item, Span<float> buffer)
         {

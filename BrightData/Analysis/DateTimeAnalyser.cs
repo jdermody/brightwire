@@ -10,11 +10,7 @@ namespace BrightData.Analysis
     /// </summary>
     internal class DateTimeAnalyser : FrequencyAnalyser<DateTime>
     {
-        readonly HashSet<long> _distinct = new();
-
-        public DateTimeAnalyser()
-        {
-        }
+        readonly HashSet<long> _distinct = [];
 
         public override void Add(DateTime date)
         {

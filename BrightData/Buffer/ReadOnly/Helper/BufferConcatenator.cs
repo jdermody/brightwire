@@ -7,6 +7,10 @@ using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
 {
+    /// <summary>
+    /// Concatenates multiple buffers into one single buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class BufferConcatenator<T> : IReadOnlyBufferWithMetaData<T> where T : notnull
     {
         readonly IReadOnlyBufferWithMetaData<T>[] _buffers;

@@ -8,6 +8,10 @@ using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Buffer.ReadOnly
 {
+    /// <summary>
+    /// Read only buffer that reads from a section of a byte block reader
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class BlockReaderReadOnlyBuffer<T> : IReadOnlyBufferWithMetaData<T> where T : unmanaged
     {
         readonly IByteBlockReader _reader;
@@ -57,12 +61,6 @@ namespace BrightData.Buffer.ReadOnly
             var ret = byteBlock.Cast<byte, T>();
             _lastBlock = ret;
             return ret;
-        }
-
-        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
-        {
-            var block = await GetTypedBlock(blockIndex);
-            return block.AsObjects();
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);

@@ -5,6 +5,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace BrightData.Buffer.ByteBlockReaders
 {
+    /// <summary>
+    /// Reads from a file
+    /// </summary>
     internal class FileByteBlockReader : IByteBlockReader
     {
         readonly SafeFileHandle _file;

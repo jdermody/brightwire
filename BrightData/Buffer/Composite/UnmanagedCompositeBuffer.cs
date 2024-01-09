@@ -7,10 +7,16 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace BrightData.Buffer.Composite
 {
     /// <summary>
-    /// Buffer that writes to disk after exhausting its in memory limit - not thread safe
+    /// A composite buffer for unmanaged types
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class UnmanagedCompositeBuffer<T> : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block> where T : unmanaged
+    internal class UnmanagedCompositeBuffer<T>(
+        IProvideDataBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultBlockSize,
+        uint? maxInMemoryBlocks = null,
+        uint? maxDistinctItems = null)
+        : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        where T : unmanaged
     {
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
         {
@@ -40,17 +46,7 @@ namespace BrightData.Buffer.Composite
                 Size += (uint)data.Length;
             }
         }
-        readonly int _sizeOfT;
-
-        public UnmanagedCompositeBuffer(
-            IProvideDataBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
-        {
-            _sizeOfT = Unsafe.SizeOf<T>();
-        }
+        readonly int _sizeOfT = Unsafe.SizeOf<T>();
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {

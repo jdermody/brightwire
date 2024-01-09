@@ -1,14 +1,15 @@
 ﻿using System;
 using BrightData.Types;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class IndexListVectoriser : VectorisationBase<IndexList>
+    /// <summary>
+    /// Vectorisation of index lists
+    /// </summary>
+    /// <param name="isOutput"></param>
+    /// <param name="maxIndex"></param>
+    internal class IndexListVectoriser(bool isOutput, uint maxIndex) : VectorisationBase<IndexList>(isOutput, maxIndex + 1)
     {
-        public IndexListVectoriser(bool isOutput, uint maxIndex) : base(isOutput, maxIndex + 1)
-        {
-        }
-
         protected override void Vectorise(in IndexList item, Span<float> buffer)
         {
             foreach (var index in item.Indices)

@@ -1,13 +1,15 @@
 ﻿namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class CastConverter<FT, TT> : ReadOnlyConverterBase<FT, TT> 
-        where FT : notnull 
+    /// <summary>
+    /// Converts via a cast
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="TT"></typeparam>
+    /// <param name="from"></param>
+    internal class CastConverter<FT, TT>(IReadOnlyBuffer<FT> from) : ReadOnlyConverterBase<FT, TT>(from)
+        where FT : notnull
         where TT : notnull
     {
-        public CastConverter(IReadOnlyBuffer<FT> from) : base(from)
-        {
-        }
-
         protected override TT Convert(in FT from)
         {
             return (TT)(object)from;

@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.Operations.Conversion
+namespace BrightData.Buffer.Operations.Conversion
 {
+    /// <summary>
+    /// Maps each item to a consistent index (category)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ToCategoricalIndexConversion<T> : ConversionBase<T, int> where T : notnull
     {
         readonly Dictionary<string, int> _categoryIndex = new();

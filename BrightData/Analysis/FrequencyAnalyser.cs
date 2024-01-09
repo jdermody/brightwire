@@ -9,19 +9,13 @@ namespace BrightData.Analysis
     /// Frequency analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class FrequencyAnalyser<T> : IDataAnalyser<T>
-        where T: notnull
+    internal class FrequencyAnalyser<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>
+        where T : notnull
     {
-        readonly uint _writeCount;
-        readonly Dictionary<string, ulong> _valueCount = new();
+        readonly Dictionary<string, ulong> _valueCount = [];
 
         ulong _highestCount = 0;
         string? _mostFrequent = null;
-
-        public FrequencyAnalyser(uint writeCount = Consts.MaxWriteCount)
-        {
-            _writeCount = writeCount;
-        }
 
         public uint NumDistinct => (uint)_valueCount.Count;
         public string? MostFrequent => _valueCount.Count > 0 ? _mostFrequent : null;
@@ -59,7 +53,7 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.MostFrequent, MostFrequent);
             metadata.Set(Consts.NumDistinct, NumDistinct);
             var total = (double)Total;
-            foreach (var item in _valueCount.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
+            foreach (var item in _valueCount.OrderByDescending(kv => kv.Value).Take((int)writeCount))
                 metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
         }
     }

@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to decimal
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToDecimal<T> : ConverterBase<T>, ICanConvert<T, decimal>
         where T : notnull
     {

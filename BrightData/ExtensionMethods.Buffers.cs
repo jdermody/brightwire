@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Analysis;
 using BrightData.Buffer.Composite;
+using BrightData.Buffer.Operations;
+using BrightData.Buffer.Operations.Conversion;
+using BrightData.Buffer.Operations.Helper;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Operations.Conversion;
-using BrightData.Operations.Helper;
-using BrightData.Operations;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
 
@@ -422,7 +420,7 @@ namespace BrightData
             }
 
             var output = GenericActivator.Create<ICompositeBuffer>(typeof(UnmanagedCompositeBuffer<>).MakeGenericType(toType.GetDataType()), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, toType.GetDataType()), buffer, output);
+            var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, toType.GetDataType()), buffer, output);
             await conversion.Process();
             return output;
         }
@@ -441,7 +439,7 @@ namespace BrightData
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToReadOnlyStringBuffer(), output);
             else
-                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output);
+                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output);
             await conversion.Process();
             return output;
             static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
@@ -474,7 +472,7 @@ namespace BrightData
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
             else
-                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateTime)), buffer, output);
+                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateTime)), buffer, output);
             await conversion.Process();
             return output;
 
@@ -503,7 +501,7 @@ namespace BrightData
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
             else
-                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateOnly)), buffer, output);
+                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateOnly)), buffer, output);
             await conversion.Process();
             return output;
 
@@ -532,7 +530,7 @@ namespace BrightData
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output);
             else
-                conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(TimeOnly)), buffer, output);
+                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(TimeOnly)), buffer, output);
             await conversion.Process();
             return output;
 
@@ -645,7 +643,7 @@ namespace BrightData
             if (buffer.DataType == typeof(string))
                 buffer = buffer.ConvertTo<double>();
 
-            var conversion = GenericActivator.Create<IOperation>(typeof(UnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
+            var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
             await conversion.Process();
             return output;
         }

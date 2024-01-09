@@ -36,18 +36,11 @@ namespace BrightData.Helper
 
         public static float Next(Random rand) => Constrain(rand.NextDouble());
 
-        class EqualityComparer : IEqualityComparer<float>
+        class EqualityComparer(float tolerance) : IEqualityComparer<float>
         {
-            readonly float _tolerance;
-
-            public EqualityComparer(float tolerance)
-            {
-                _tolerance = tolerance;
-            }
-
             public bool Equals(float x, float y)
             {
-                return Math.Abs(Math.Abs(x) - Math.Abs(y)) < _tolerance;
+                return Math.Abs(Math.Abs(x) - Math.Abs(y)) < tolerance;
             }
 
             public int GetHashCode(float obj)

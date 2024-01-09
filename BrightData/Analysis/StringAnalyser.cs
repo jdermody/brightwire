@@ -6,13 +6,9 @@ namespace BrightData.Analysis
     /// <summary>
     /// String analysis
     /// </summary>
-    internal class StringAnalyser : FrequencyAnalyser<string>
+    internal class StringAnalyser(uint writeCount = Consts.MaxWriteCount) : FrequencyAnalyser<string>(writeCount)
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
-
-        public StringAnalyser(uint writeCount = Consts.MaxWriteCount) : base(writeCount)
-        {
-        }
 
         public override void Add(string? str)
         {
@@ -24,12 +20,6 @@ namespace BrightData.Analysis
                 if (len > _maxLength)
                     _maxLength = len;
             }
-        }
-
-        public void Add(ReadOnlySpan<string> span)
-        {
-            foreach(var item in span)
-                Add(item);
         }
 
         public override void WriteTo(MetaData metadata)

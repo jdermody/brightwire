@@ -1,11 +1,13 @@
 ﻿namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class ToStringConverter<FT> : ReadOnlyConverterBase<FT, string> where FT: notnull
+    /// <summary>
+    /// Converts to strings
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <param name="from"></param>
+    internal class ToStringConverter<FT>(IReadOnlyBuffer<FT> from) : ReadOnlyConverterBase<FT, string>(from)
+        where FT : notnull
     {
-        public ToStringConverter(IReadOnlyBuffer<FT> from) : base(from)
-        {
-        }
-
         protected override string Convert(in FT from)
         {
             return from.ToString() ?? string.Empty;

@@ -8,22 +8,13 @@ namespace BrightData.Analysis
     /// <summary>
     /// Numeric analysis
     /// </summary>
-    internal class NumericAnalyser : IDataAnalyser<double>
-	{
-		readonly uint _writeCount;
-		readonly SortedDictionary<double, ulong> _distinct = new();
-
-		double _mean, _m2, _min, _max, _mode, _l1, _l2;
+    internal class NumericAnalyser(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<double>
+    {
+        readonly SortedDictionary<double, ulong> _distinct = [];
+		double _mean, _m2, _min = double.MaxValue, _max = double.MinValue, _mode, _l1, _l2;
 		ulong _total, _highestCount;
 
-		public NumericAnalyser(uint writeCount = Consts.MaxWriteCount)
-		{
-            _max = double.MinValue;
-            _min = double.MaxValue;
-            _writeCount = writeCount;
-		}
-
-		public virtual void Add(double val)
+        public virtual void Add(double val)
 		{
 			++_total;
 
@@ -159,7 +150,7 @@ namespace BrightData.Analysis
                 var bin = new LinearBinnedFrequencyAnalysis(Min, Max, 10);
                 var index = 0U;
                 foreach (var item in _distinct.OrderByDescending(kv => kv.Value)) {
-                    if (index++ < _writeCount)
+                    if (index++ < writeCount)
                         metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
                     for (ulong i = 0; i < item.Value; i++)
                         bin.Add(item.Key);

@@ -4,35 +4,32 @@ using System.Threading.Tasks;
 
 namespace BrightData.Buffer.ByteBlockReaders
 {
-    internal class MemoryByteBlockReader : IByteBlockReader
+    /// <summary>
+    /// Reads from memory
+    /// </summary>
+    /// <param name="memory"></param>
+    /// <param name="disposable"></param>
+    internal class MemoryByteBlockReader(ReadOnlyMemory<byte> memory, IDisposable? disposable = null)
+        : IByteBlockReader
     {
         readonly IMemoryOwner<byte>? _owner = null;
-        readonly ReadOnlyMemory<byte> _memory;
-        readonly IDisposable? _disposable;
 
-        public MemoryByteBlockReader(IMemoryOwner<byte> owner)
+        public MemoryByteBlockReader(IMemoryOwner<byte> owner) : this(owner.Memory)
         {
             _owner = owner;
-            _memory = owner.Memory;
-        }
-
-        public MemoryByteBlockReader(ReadOnlyMemory<byte> memory, IDisposable? disposable = null)
-        {
-            _memory = memory;
-            _disposable = disposable;
         }
 
         public void Dispose()
         {
             _owner?.Dispose();
-            _disposable?.Dispose();
+            disposable?.Dispose();
         }
 
         public Task<ReadOnlyMemory<byte>> GetBlock(uint offset, uint numBytes)
         {
-            if (numBytes == 0 || _memory.IsEmpty)
+            if (numBytes == 0 || memory.IsEmpty)
                 return Task.FromResult(ReadOnlyMemory<byte>.Empty);
-            return Task.FromResult(_memory.Slice((int)offset, (int)numBytes));
+            return Task.FromResult(memory.Slice((int)offset, (int)numBytes));
         }
 
         public Task Update(uint byteOffset, ReadOnlyMemory<byte> data)
@@ -41,6 +38,6 @@ namespace BrightData.Buffer.ByteBlockReaders
             return Task.CompletedTask;
         }
 
-        public uint Size => (uint)_memory.Length;
+        public uint Size => (uint)memory.Length;
     }
 }

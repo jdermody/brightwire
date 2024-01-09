@@ -4,70 +4,63 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations
+namespace BrightData.Buffer.Operations
 {
-    class AggregateNotification : INotifyUser
+    /// <summary>
+    /// Notification from an aggregate operation
+    /// </summary>
+    /// <param name="count"></param>
+    /// <param name="notify"></param>
+    /// <param name="msg"></param>
+    /// <param name="ct"></param>
+    class AggregateNotification(int count, INotifyUser notify, string? msg, CancellationToken ct)
+        : INotifyUser
     {
-        readonly int _count;
-        readonly Guid _id = Guid.NewGuid();
+        readonly Guid                    _id = Guid.NewGuid();
         readonly Dictionary<Guid, float> _taskProgress = new();
-        readonly HashSet<Guid> _completed = new();
-        readonly INotifyUser _notify;
-        readonly CancellationToken _ct;
-        readonly string? _msg;
-        int _progressNotifications = 0;
+        readonly HashSet<Guid>           _completed = new();
+        int                              _progressNotifications = 0;
 
-        public AggregateNotification(int count, INotifyUser notify, string? msg, CancellationToken ct)
-        {
-            _count = count;
-            _notify = notify;
-            _msg = msg;
-            _ct = ct;
-        }
-
-        public void OnStartOperation(Guid operationId, string? msg = null)
+        public void OnStartOperation(Guid operationId, string? msg1 = null)
         {
             _taskProgress.Add(operationId, 0f);
-            if(_taskProgress.Count == _count)
-                _notify.OnStartOperation(_id, _msg);
+            if(_taskProgress.Count == count)
+                notify.OnStartOperation(_id, msg);
         }
 
         public void OnOperationProgress(Guid operationId, float progressPercent)
         {
             _taskProgress[operationId] = progressPercent;
-            if (++_progressNotifications % _count == 0) {
+            if (++_progressNotifications % count == 0) {
                 var aggregateProgress = _taskProgress.Values.Average();
-                _notify.OnOperationProgress(_id, aggregateProgress);
+                notify.OnOperationProgress(_id, aggregateProgress);
             }
         }
 
         public void OnCompleteOperation(Guid operationId, bool wasCancelled)
         {
             _taskProgress[operationId] = 1f;
-            if(_completed.Add(operationId) && _completed.Count == _count)
-                _notify.OnCompleteOperation(_id, _ct.IsCancellationRequested);
+            if(_completed.Add(operationId) && _completed.Count == count)
+                notify.OnCompleteOperation(_id, ct.IsCancellationRequested);
         }
 
-        public void OnMessage(string msg)
+        public void OnMessage(string _)
         {
             // ignore
         }
     }
 
-    internal class AggregateOperation : IOperation
+    /// <summary>
+    /// Aggregate operations run multiple operations as one concurrently
+    /// </summary>
+    /// <param name="operations"></param>
+    internal class AggregateOperation(IOperation[] operations) : IOperation
     {
-        readonly IOperation[] _operations;
-
-        public AggregateOperation(IOperation[] operations)
-        {
-            _operations = operations;
-        }
-
         public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
             if (notify != null)
-                notify = new AggregateNotification(_operations.Length, notify, msg, ct);
-            return Task.WhenAll(_operations.Select(x => x.Process(notify, null, ct)));
+                notify = new AggregateNotification(operations.Length, notify, msg, ct);
+            return Task.WhenAll(operations.Select(x => x.Process(notify, null, ct)));
         }
     }
 }

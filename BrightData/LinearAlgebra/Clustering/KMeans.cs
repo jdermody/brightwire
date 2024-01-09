@@ -1,23 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.Types;
 
 namespace BrightData.LinearAlgebra.Clustering
 {
-    internal class KMeans : IClusteringStrategy
+    internal class KMeans(BrightDataContext context, uint maxIterations = 1000) : IClusteringStrategy
     {
-        readonly BrightDataContext _context;
-        readonly uint _maxIterations;
-
-        public KMeans(BrightDataContext context, uint maxIterations = 1000)
-        {
-            _context = context;
-            _maxIterations = maxIterations;
-        }
-
         public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
         {
             var nextCentroidIndex = 0;
@@ -29,11 +17,11 @@ namespace BrightData.LinearAlgebra.Clustering
             var clusterIndexSet = new HashSet<uint>();
 
             // pick the first cluster at random and set up the distance table
-            var lastClusterDistance = AddCluster(_context.RandomIndex(vectors.Length))!;
+            var lastClusterDistance = AddCluster(context.RandomIndex(vectors.Length))!;
 
             for (uint i = 1; i < numClusters && i < vectors.Length; i++) {
                 // create a categorical distribution to calculate the probability of choosing each subsequent item
-                var distribution = _context.CreateCategoricalDistribution(lastClusterDistance);
+                var distribution = context.CreateCategoricalDistribution(lastClusterDistance);
 
                 // sample the next index and add the distances to the table
                 uint nextIndex;
@@ -69,7 +57,7 @@ namespace BrightData.LinearAlgebra.Clustering
             var vectorSet = new VectorSet(vectors.First().Size);
             vectorSet.Add(vectors);
 
-            for (uint i = 0; i < _maxIterations; i++) {
+            for (uint i = 0; i < maxIterations; i++) {
                 if (!Cluster(vectorSet, ref centroids, centroidVectors, metric))
                     break;
             }

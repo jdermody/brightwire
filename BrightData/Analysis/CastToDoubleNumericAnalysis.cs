@@ -8,16 +8,12 @@ namespace BrightData.Analysis
     /// Used to cast other numeric types to doubles for numeric analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
+    internal class CastToDoubleNumericAnalysis<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>
+        where T : struct
     {
         readonly ConvertToDouble<T> _converter = new();
 
-        public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount)
-        {
-            Analysis = new NumericAnalyser(writeCount);
-        }
-
-        public NumericAnalyser Analysis { get; }
+        public NumericAnalyser Analysis { get; } = new(writeCount);
 
         public void Add(T val)
         {

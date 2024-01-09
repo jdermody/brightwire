@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to long
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToLong<T> : ConverterBase<T>, ICanConvert<T, long>
         where T : notnull
     {

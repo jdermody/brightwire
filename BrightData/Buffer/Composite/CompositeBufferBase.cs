@@ -9,15 +9,11 @@ using BrightData.Types;
 
 namespace BrightData.Buffer.Composite
 {
-    internal interface ICompositeBufferBlock<T>
-    {
-        uint Size { get; }
-        Task<uint> WriteTo(IDataBlock file);
-        bool HasFreeCapacity { get; }
-        ReadOnlySpan<T> WrittenSpan { get; }
-        ReadOnlyMemory<T> WrittenMemory { get; }
-        ref T GetNext();
-    }
+    /// <summary>
+    /// Base class for composite buffers
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="BT"></typeparam>
     internal abstract class CompositeBufferBase<T, BT> : ICompositeBuffer<T>
         where T : notnull
         where BT : ICompositeBufferBlock<T>
@@ -275,7 +271,6 @@ namespace BrightData.Buffer.Composite
             if (_currBlock is not null) {
                 var blockSize = await _currBlock.WriteTo(dataBlock);
                 blockPositions[index] = (pos, blockSize);
-                pos += blockSize;
             }
 
             stream.Seek(headerPosition, SeekOrigin.Begin);

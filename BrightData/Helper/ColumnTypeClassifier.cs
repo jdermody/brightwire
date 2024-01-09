@@ -8,7 +8,7 @@ namespace BrightData.Helper
     /// </summary>
     public static class ColumnTypeClassifier
     {
-        static readonly HashSet<BrightDataType> NumericType = new() {
+        static readonly HashSet<BrightDataType> NumericType = [
             BrightDataType.Double,
             BrightDataType.Decimal,
             BrightDataType.Float,
@@ -16,27 +16,29 @@ namespace BrightData.Helper
             BrightDataType.Short,
             BrightDataType.Long,
             BrightDataType.SByte
-        };
-        static readonly HashSet<BrightDataType> ContinuousType = new(NumericType) {
+        ];
+        static readonly HashSet<BrightDataType> ContinuousType = [
+            ..NumericType, 
             BrightDataType.Date,
             BrightDataType.DateOnly,
             BrightDataType.TimeOnly
-        };
-        static readonly HashSet<BrightDataType> BlittableType = new(ContinuousType) {
+        ];
+        static readonly HashSet<BrightDataType> BlittableType = [
+            ..ContinuousType, 
             BrightDataType.Boolean,
             BrightDataType.BinaryData,
             BrightDataType.IndexList,
-            BrightDataType.WeightedIndexList,
-        };
-        static readonly HashSet<BrightDataType> CategoricalType = new() {
+            BrightDataType.WeightedIndexList
+        ];
+        static readonly HashSet<BrightDataType> CategoricalType = [
             BrightDataType.Boolean,
-            BrightDataType.String,
-        };
-        static readonly HashSet<BrightDataType> DecimalType = new() {
+            BrightDataType.String
+        ];
+        static readonly HashSet<BrightDataType> DecimalType = [
             BrightDataType.Double,
             BrightDataType.Decimal,
             BrightDataType.Float
-        };
+        ];
 
         /// <summary>
         /// Checks for a decimal type (floating point)
@@ -53,14 +55,14 @@ namespace BrightData.Helper
         public static bool IsNumeric(BrightDataType columnType) => NumericType.Contains(columnType);
 
         /// <summary>
-        /// Checks for a continuous type (non categorical)
+        /// Checks for a continuous type (non-categorical)
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>
         public static bool IsContinuous(BrightDataType columnType) => ContinuousType.Contains(columnType);
 
         /// <summary>
-        /// Checks for a categorical type (non continuous)
+        /// Checks for a categorical type (non-continuous)
         /// </summary>
         /// <param name="columnType">Column type to check</param>
         /// <returns></returns>

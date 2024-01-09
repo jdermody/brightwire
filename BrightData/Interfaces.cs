@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Buffer.Operations.Conversion;
 using BrightData.Helper;
-using BrightData.Operations.Conversion;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -162,8 +162,16 @@ namespace BrightData
     {
     }
 
+    /// <summary>
+    /// Accepts blocks of items
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IAcceptBlock<T> : IAcceptBlock
     {
+        /// <summary>
+        /// Add a new block
+        /// </summary>
+        /// <param name="block"></param>
         void Add(ReadOnlySpan<T> block);
     }
 
@@ -675,5 +683,24 @@ namespace BrightData
     public interface IClusteringStrategy
     {
         uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric);
+    }
+
+    internal interface ICompositeBufferBlock<T>
+    {
+        uint Size { get; }
+        Task<uint> WriteTo(IDataBlock file);
+        bool HasFreeCapacity { get; }
+        ReadOnlySpan<T> WrittenSpan { get; }
+        ReadOnlyMemory<T> WrittenMemory { get; }
+        ref T GetNext();
+    }
+
+    internal interface ICastToNumericAnalysis : IOperation
+    {
+        public bool IsInteger { get; }
+        public uint NanCount { get; }
+        public uint InfinityCount { get; }
+        public double MinValue { get; }
+        public double MaxValue { get; }
     }
 }

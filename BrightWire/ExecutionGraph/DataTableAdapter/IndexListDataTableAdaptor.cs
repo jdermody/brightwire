@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.Analysis;
+using BrightData.DataTable;
 using BrightData.Types;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter

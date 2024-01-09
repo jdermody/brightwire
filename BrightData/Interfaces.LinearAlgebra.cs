@@ -250,6 +250,7 @@ namespace BrightData
 
     public interface IReadOnlyTensor : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
     {
+
     }
 
     /// <summary>
@@ -475,7 +476,7 @@ namespace BrightData
     /// <summary>
     /// Untyped tensor interface - vector, matrix, 3D tensor etc
     /// </summary>
-    public interface ITensor : IDisposable, IHaveLinearAlgebraProvider, IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>, IHaveTensorSegment<float>
+    public interface ITensor : IReadOnlyTensor, IDisposable, IHaveLinearAlgebraProvider, IHaveTensorSegment<float>
     {
         /// <summary>
         /// Underlying bright data context
@@ -966,7 +967,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int rowY, int columnX] { get; set; }
+        new float this[int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -974,7 +975,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint rowY, uint columnX] { get; set; }
+        new float this[uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix

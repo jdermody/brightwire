@@ -4,20 +4,19 @@ using BrightData.Helper;
 
 namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class NormalizationConverter<T> : ReadOnlyConverterBase<T, T> where T: unmanaged, INumber<T>
+    /// <summary>
+    /// Converts via a normalisation model
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="buffer"></param>
+    /// <param name="normalization"></param>
+    internal class NormalizationConverter<T>(IReadOnlyBuffer<T> buffer, INormalize normalization) : ReadOnlyConverterBase<T, T>(buffer)
+        where T : unmanaged, INumber<T>
     {
-        readonly T _divide, _subtract;
-        readonly bool _divideByZero;
+        readonly T _divide = T.CreateSaturating(normalization.Divide), _subtract = T.CreateSaturating(normalization.Subtract);
+        readonly bool _divideByZero = Math.Abs(normalization.Divide) <= FloatMath.AlmostZero;
 
-        public NormalizationConverter(IReadOnlyBuffer<T> buffer, INormalize normalization) : base(buffer)
-        {
-            _divide = T.CreateSaturating(normalization.Divide);
-            _subtract = T.CreateSaturating(normalization.Subtract);
-            _divideByZero = Math.Abs(normalization.Divide) <= FloatMath.AlmostZero;
-            Type = normalization.NormalizationType;
-        }
-
-        public NormalizationType Type { get; }
+        public NormalizationType Type { get; } = normalization.NormalizationType;
 
         protected override T Convert(in T from) => (from - _subtract) / (_divideByZero ? T.One : _divide);
     }

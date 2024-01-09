@@ -1,13 +1,15 @@
 ﻿using System;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class CategoricalIndexVectorisation<T> : OneHotVectoriser<T> where T: notnull
+    /// <summary>
+    /// Vectorisation to single index
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isOutput"></param>
+    internal class CategoricalIndexVectorisation<T>(bool isOutput) : OneHotVectoriser<T>(isOutput, 1)
+        where T : notnull
     {
-        public CategoricalIndexVectorisation(bool isOutput) : base(isOutput, 1)
-        {
-        }
-
         protected override void Vectorise(in T item, Span<float> buffer)
         {
             var str = item.ToString() ?? string.Empty;

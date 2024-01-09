@@ -12,15 +12,12 @@ namespace BrightData.Helper
 {
     public class CsvParser
     {
-        class ParseState
+        class ParseState(CsvParser parser)
         {
-            readonly CsvParser _parser;
             List<StringBuilder>? _columnData = null;
             bool _inQuote = false, _isFirstRow = true, _hasData = false;
             int _columnIndex = 0;
             public List<ICompositeBuffer<string>>? Columns = null;
-
-            public ParseState(CsvParser parser) => _parser = parser;
 
             public void Parse(ReadOnlySpan<char> data, uint maxLines, CancellationToken ct)
             {
@@ -40,7 +37,7 @@ namespace BrightData.Helper
                     }
 
                     // check for a delimiter, such as a comma
-                    else if (ch == _parser._delimiter && !_inQuote)
+                    else if (ch == parser._delimiter && !_inQuote)
                     {
                         while ((_columnData ??= new()).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
@@ -50,7 +47,7 @@ namespace BrightData.Helper
                     }
 
                     // check for quote characters
-                    else if (ch == _parser._quote)
+                    else if (ch == parser._quote)
                         _inQuote = !_inQuote;
                 }
 
@@ -74,7 +71,7 @@ namespace BrightData.Helper
                     }
 
                     // check for a delimiter, such as a comma
-                    else if (ch == _parser._delimiter && !_inQuote)
+                    else if (ch == parser._delimiter && !_inQuote)
                     {
                         while ((_columnData ??= new()).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
@@ -84,7 +81,7 @@ namespace BrightData.Helper
                     }
 
                     // check for quote characters
-                    else if (ch == _parser._quote)
+                    else if (ch == parser._quote)
                         _inQuote = !_inQuote;
                 }
                 if (start < line.Length)
@@ -112,14 +109,14 @@ namespace BrightData.Helper
                         for (var j = 0; j <= _columnIndex; j++) {
                             var sb = _columnData[j];
                             var text = sb.ToString();
-                            if (text.StartsWith(_parser._quote) && text.EndsWith(_parser._quote))
+                            if (text.StartsWith(parser._quote) && text.EndsWith(parser._quote))
                                 text = text[1..^1];
 
                             while ((Columns ??= new()).Count <= j)
-                                Columns.Add(new StringCompositeBuffer(_parser._tempStreams, _parser._blockSize, _parser._maxInMemoryBlocks, _parser._maxDistinctItems));
+                                Columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
 
                             // set the column name if needed
-                            if (_isFirstRow && _parser._firstRowIsHeader)
+                            if (_isFirstRow && parser._firstRowIsHeader)
                                 Columns[j].MetaData.SetName(text.Trim());
                             else
                                 Columns[j].Add(text);
@@ -129,7 +126,7 @@ namespace BrightData.Helper
                         // finish any columns that might have been missed
                         if (Columns?.Count > _columnIndex + 1) {
                             for (var j = _columnIndex + 1; j < Columns.Count; j++) {
-                                if (_isFirstRow && _parser._firstRowIsHeader)
+                                if (_isFirstRow && parser._firstRowIsHeader)
                                     Columns[j].MetaData.SetName(string.Empty);
                                 else
                                     Columns[j].Add(string.Empty);

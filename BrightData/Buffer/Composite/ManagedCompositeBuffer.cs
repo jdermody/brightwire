@@ -6,7 +6,24 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.Composite
 {
-    internal class ManagedCompositeBuffer<T> : CompositeBufferBase<T, ManagedCompositeBuffer<T>.Block> where T : IHaveDataAsReadOnlyByteSpan
+    /// <summary>
+    /// A composite buffer for managed types
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="createItem"></param>
+    /// <param name="tempStreams"></param>
+    /// <param name="blockSize"></param>
+    /// <param name="maxInMemoryBlocks"></param>
+    /// <param name="maxDistinctItems"></param>
+    internal class ManagedCompositeBuffer<T>(
+        CreateFromReadOnlyByteSpan<T> createItem,
+        IProvideDataBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultBlockSize,
+        uint? maxInMemoryBlocks = null,
+        uint? maxDistinctItems = null
+    )
+        : CompositeBufferBase<T, ManagedCompositeBuffer<T>.Block>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        where T : IHaveDataAsReadOnlyByteSpan
     {
         public const int HeaderSize = 8;
         internal record Block(T[] Data) : ICompositeBufferBlock<T>
@@ -33,7 +50,7 @@ namespace BrightData.Buffer.Composite
                 for (uint i = 0; i < Size; i++)
                     size += WriteBlock(Data[i].DataAsBytes, writer);
                 BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, Size);
-                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], (uint)size);
+                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], size);
                 await file.WriteAsync(writer.WrittenMemory, offset);
                 return size + HeaderSize;
             }
@@ -46,19 +63,6 @@ namespace BrightData.Buffer.Composite
                 writer.Advance(itemData.Length + 4);
                 return (uint)itemData.Length + 4;
             }
-        }
-
-        readonly CreateFromReadOnlyByteSpan<T> _createItem;
-
-        public ManagedCompositeBuffer(
-            CreateFromReadOnlyByteSpan<T> createItem,
-            IProvideDataBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) : base((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
-        {
-            _createItem = createItem;
         }
 
         protected override async Task<uint> SkipFileBlock(IDataBlock file, uint offset)
@@ -106,7 +110,7 @@ namespace BrightData.Buffer.Composite
             {
                 var itemSize = BinaryPrimitives.ReadUInt32LittleEndian(inputSpan);
                 var itemData = inputSpan[4..(int)(itemSize + 4)];
-                outputSpan[i] = _createItem(itemData);
+                outputSpan[i] = createItem(itemData);
                 inputSpan = inputSpan[(int)(itemSize + 4)..];
             }
         }

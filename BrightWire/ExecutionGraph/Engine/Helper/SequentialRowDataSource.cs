@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightData.Analysis;
+using BrightData.DataTable;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {

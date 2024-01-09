@@ -4,31 +4,28 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Operations
+namespace BrightData.Buffer.Operations
 {
-    internal class IndexedCopyOperation<T> : IOperation
-        where T: notnull
+    /// <summary>
+    /// Copies specified indices from a buffer to a destination
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <param name="indices"></param>
+    internal class IndexedCopyOperation<T>(IReadOnlyBuffer<T> from, IAppendToBuffer<T> to, IEnumerable<uint> indices)
+        : IOperation
+        where T : notnull
     {
-        readonly IReadOnlyBuffer<T> _from;
-        readonly IAppendToBuffer<T> _to;
-        readonly IEnumerable<uint> _indices;
-
-        public IndexedCopyOperation(IReadOnlyBuffer<T> from, IAppendToBuffer<T> to, IEnumerable<uint> indices)
-        {
-            _from = from;
-            _to = to;
-            _indices = indices;
-        }
-
         public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            var blockSize = _from.BlockSize;
-            var blocks = _indices.Select(x => (Index: x, BlockIndex: x / _from.BlockSize))
+            var blockSize = from.BlockSize;
+            var blocks = indices.Select(x => (Index: x, BlockIndex: x / from.BlockSize))
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
             foreach (var block in blocks) {
-                var blockMemory = await _from.GetTypedBlock(block.Key);
+                var blockMemory = await from.GetTypedBlock(block.Key);
                 var baseOffset = block.Key * blockSize;
                 CopyIndices(blockMemory, block.Select(x => (int)(x.Index - baseOffset)));
             }
@@ -38,7 +35,7 @@ namespace BrightData.Operations
             {
                 var span = from.Span;
                 foreach(var item in indices)
-                    _to.Add(span[item]);
+                    to.Add(span[item]);
             }
         }
     }

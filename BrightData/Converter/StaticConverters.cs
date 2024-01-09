@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 using System.Reflection;
 
@@ -60,7 +59,7 @@ namespace BrightData.Converter
         public static ICanConvert<T, sbyte> GetConverterToSignedByte<T>() where T : notnull => new ConvertToSignedByte<T>();
 
         /// <summary>
-        /// Creates a converter from FT to TT
+        /// Creates a numeric converter from TF to TT
         /// </summary>
         /// <typeparam name="TF">Type to convert from</typeparam>
         /// <typeparam name="TT">Type to convert to</typeparam>
@@ -80,6 +79,13 @@ namespace BrightData.Converter
             };
         }
 
+        /// <summary>
+        /// Creates a converter from TF to TT
+        /// </summary>
+        /// <typeparam name="TF"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF : notnull where TT : notnull
         {
             if (Type.GetTypeCode(typeof(TF)) is TypeCode.String) {
@@ -97,7 +103,14 @@ namespace BrightData.Converter
             return (ICanConvert<TF, TT>) StaticConverters.GetNumericConverterMethodInfo.MakeGenericMethod(typeof(TF), typeof(TT)).Invoke(null, null)!;
         }
 
+        /// <summary>
+        /// Generic method to convert numeric types
+        /// </summary>
         public static MethodInfo GetNumericConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetNumericConverter), BindingFlags.Static | BindingFlags.Public)!;
+
+        /// <summary>
+        /// Generic method to convert types
+        /// </summary>
         public static MethodInfo GetConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetConverter), BindingFlags.Static | BindingFlags.Public)!;
     }
 }

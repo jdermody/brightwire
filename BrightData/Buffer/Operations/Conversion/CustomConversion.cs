@@ -1,18 +1,20 @@
 ﻿using System;
 
-namespace BrightData.Operations.Conversion
+namespace BrightData.Buffer.Operations.Conversion
 {
-    internal class CustomConversion<FT, T> : ConversionBase<FT, T>
+    /// <summary>
+    /// Custom buffer conversion
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="converter"></param>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    internal class CustomConversion<FT, T>(Func<FT, T> converter, IReadOnlyBuffer<FT> input, IAppendToBuffer<T> output)
+        : ConversionBase<FT, T>(input, output)
         where FT : notnull
         where T : notnull
     {
-        readonly Func<FT, T> _converter;
-
-        public CustomConversion(Func<FT, T> converter, IReadOnlyBuffer<FT> input, IAppendToBuffer<T> output) : base(input, output)
-        {
-            _converter = converter;
-        }
-
-        protected override T Convert(FT from) => _converter(from);
+        protected override T Convert(FT from) => converter(from);
     }
 }

@@ -7,15 +7,10 @@ namespace BrightData.Analysis
     /// Used to convert other types to strings for frequency analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T> 
-        where T: notnull
+    internal class ConvertToStringFrequencyAnalysis<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>
+        where T : notnull
     {
-        public ConvertToStringFrequencyAnalysis(uint writeCount = Consts.MaxWriteCount)
-        {
-            Analysis = new StringAnalyser(writeCount);
-        }
-
-        public StringAnalyser Analysis { get; }
+        public StringAnalyser Analysis { get; } = new(writeCount);
 
         public void Add(T obj) => Add(obj.ToString());
         public void WriteTo(MetaData metadata) => Analysis.WriteTo(metadata);

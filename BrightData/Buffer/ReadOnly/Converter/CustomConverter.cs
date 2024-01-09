@@ -2,17 +2,17 @@
 
 namespace BrightData.Buffer.ReadOnly.Converter
 {
-    internal class CustomConverter<FT, TT> : ReadOnlyConverterBase<FT, TT>
+    /// <summary>
+    /// Converts via a user supplied function
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="TT"></typeparam>
+    /// <param name="from"></param>
+    /// <param name="converter"></param>
+    internal class CustomConverter<FT, TT>(IReadOnlyBuffer<FT> from, Func<FT, TT> converter) : ReadOnlyConverterBase<FT, TT>(from)
         where FT : notnull
-        where TT: notnull
+        where TT : notnull
     {
-        readonly Func<FT, TT> _converter;
-
-        public CustomConverter(IReadOnlyBuffer<FT> from, Func<FT, TT> converter) : base(from)
-        {
-            _converter = converter;
-        }
-
-        protected override TT Convert(in FT from) => _converter(from);
+        protected override TT Convert(in FT from) => converter(from);
     }
 }

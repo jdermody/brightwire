@@ -1,20 +1,22 @@
 ﻿using BrightData.LinearAlgebra.ReadOnly;
 
-namespace BrightData.Operations.Conversion
+namespace BrightData.Buffer.Operations.Conversion
 {
-    internal class OneHotConversion<T> : ConversionBase<T, ReadOnlyVector> where T: notnull
+    /// <summary>
+    /// One hot conversion
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="input"></param>
+    /// <param name="indexer"></param>
+    /// <param name="output"></param>
+    internal class OneHotConversion<T>(IReadOnlyBuffer<T> input, ICanIndex<T> indexer, IAppendToBuffer<ReadOnlyVector> output)
+        : ConversionBase<T, ReadOnlyVector>(input, output)
+        where T : notnull
     {
-        readonly ICanIndex<T> _indexer;
-
-        public OneHotConversion(IReadOnlyBuffer<T> input, ICanIndex<T> indexer, IAppendToBuffer<ReadOnlyVector> output) : base(input, output)
-        {
-            _indexer = indexer;
-        }
-
         protected override ReadOnlyVector Convert(T from)
         {
-            var index = _indexer.GetIndex(from);
-            return new ReadOnlyVector(_indexer.Size, x => x == index ? 1f : 0f);
+            var index = indexer.GetIndex(from);
+            return new ReadOnlyVector(indexer.Size, x => x == index ? 1f : 0f);
         }
     }
 }

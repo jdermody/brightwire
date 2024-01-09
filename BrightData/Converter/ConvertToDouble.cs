@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to double
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToDouble<T> : ConverterBase<T>, ICanConvert<T, double>
         where T : notnull
     {

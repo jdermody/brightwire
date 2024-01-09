@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData.Types;
 
-namespace BrightData.Operations.Vectorisation
+namespace BrightData.Buffer.Operations.Vectorisation
 {
-    internal class OneHotVectoriser<T> : VectorisationBase<T> where T: notnull
+    /// <summary>
+    /// One hot encoding vectorisation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isOutput"></param>
+    /// <param name="maxSize"></param>
+    internal class OneHotVectoriser<T>(bool isOutput, uint maxSize) : VectorisationBase<T>(isOutput, maxSize)
+        where T : notnull
     {
-        protected readonly Dictionary<string, uint> _table = new();
-        
-        public OneHotVectoriser(bool isOutput, uint maxSize) : base(isOutput, maxSize)
-        {
-        }
+        protected readonly Dictionary<string, uint> _table = [];
 
         protected override void Vectorise(in T item, Span<float> buffer)
         {

@@ -9,18 +9,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
+using BrightData.Buffer.Operations;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.Operations;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Column oriented data table
+    /// </summary>
     internal partial class ColumnOrientedDataTable : IDataTable
     {
         const int ReaderBlockSize = 128;
