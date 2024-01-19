@@ -616,6 +616,11 @@
             A pointer to a block of device memory (the block is owned by another pointer)
             </summary>
         </member>
+        <member name="M:BrightData.Cuda.Helper.PtrToMemory.#ctor(BrightData.Cuda.IDeviceMemoryPtr,BrightData.Cuda.CudaToolkit.Types.CuDevicePtr,BrightData.Cuda.CudaToolkit.Types.SizeT)">
+            <summary>
+            A pointer to a block of device memory (the block is owned by another pointer)
+            </summary>
+        </member>
         <member name="T:BrightData.Cuda.IGpuLinearAlgebraProvider">
             <summary>
             Helper methods when using the GPU linear algebra provider

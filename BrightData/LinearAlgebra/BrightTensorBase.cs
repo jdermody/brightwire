@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.Helper;
-using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -216,16 +215,6 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public float L2Norm() => Lap.L2Norm(Segment);
-
-        //public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Lap.GetMinAndMaxValues(Segment);
-
-        //public uint GetMinIndex() => Lap.GetMinIndex(Segment);
-
-        //public uint GetMaxIndex() => Lap.GetMaxIndex(Segment);
-
-        //public float GetMin() => Lap.GetMin(Segment);
-
-        //public float GetMax() => Lap.GetMax(Segment);
 
         /// <inheritdoc />
         public bool IsEntirelyFinite() => Lap.IsEntirelyFinite(Segment);

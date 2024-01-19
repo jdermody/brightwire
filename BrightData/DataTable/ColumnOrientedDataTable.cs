@@ -14,6 +14,7 @@ using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
+using BrightData.DataTable.Columns;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
@@ -52,7 +53,7 @@ namespace BrightData.DataTable
             _reader = reader;
             _header = _reader.GetBlock(0, (uint)sizeof(TableHeader)).Result.Span.Cast<byte, TableHeader>()[0];
             if (_header.Orientation != DataTableOrientation.ColumnOriented)
-                throw new ArgumentException($"Expected to read a column oriented table");
+                throw new ArgumentException("Expected to read a column oriented table");
             if (_header.ColumnCount == 0)
                 throw new Exception("Expected data table to contain at least one column");
             if (_header.RowCount == 0)
@@ -264,7 +265,7 @@ namespace BrightData.DataTable
         {
             if (!this.AllOrSpecifiedColumnIndices(true, columnIndices).All(i => _columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
                 var operations = this.AllOrSpecifiedColumnIndices(true, columnIndices).Select(i => _columnMetaData[i].Analyse(false, GetColumn(i))).ToArray();
-                await operations.Process();
+                await operations.ExecuteAllAsOne();
             }
             return this.AllOrSpecifiedColumnIndices(false, columnIndices).Select(x => _columnMetaData[x]).ToArray();
         }
@@ -326,7 +327,7 @@ namespace BrightData.DataTable
 
         public async Task WriteColumnsTo(Stream stream, params uint[] columnIndices)
         {
-            var writer = new ColumnOrientedDataTableWriter(Context);
+            var writer = new ColumnOrientedDataTableWriter();
             await writer.Write(MetaData, GetColumns(columnIndices), stream);
         }
 
@@ -341,7 +342,7 @@ namespace BrightData.DataTable
             var operations = newColumns
                 .Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), GetColumn((uint)i), x, wantedRowIndices))
                 .ToArray();
-            await operations.Process();
+            await operations.ExecuteAllAsOne();
             await writer.WriteTo(stream);
         }
 
@@ -422,7 +423,7 @@ namespace BrightData.DataTable
 
         void CreateColumnReader(MethodInfo createColumnReader, BrightDataType dataType, Type type, uint columnIndex, uint offset, uint size)
         {
-            var reader = (IReadOnlyBufferWithMetaData)createColumnReader.MakeGenericMethod(type).Invoke(this, new object[] { columnIndex, offset, size })!;
+            var reader = (IReadOnlyBufferWithMetaData)createColumnReader.MakeGenericMethod(type).Invoke(this, [columnIndex, offset, size])!;
             _columnReader[columnIndex] = dataType switch {
                 BrightDataType.String            => new MappedReadOnlyBuffer<uint, string>((IReadOnlyBufferWithMetaData<uint>)reader, GetStrings),
                 BrightDataType.BinaryData        => new MappedReadOnlyBuffer<DataRangeColumnType, BinaryData>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetBinaryData),

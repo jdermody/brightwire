@@ -1,6 +1,5 @@
 ﻿using BrightData.UnitTests.Helper;
 using System.Linq;
-using BrightData.DataTable;
 using BrightData.Helper;
 using FluentAssertions;
 using Xunit;

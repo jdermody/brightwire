@@ -6,22 +6,15 @@ namespace BrightWire.Helper
 	/// <summary>
 	/// Calculate vector based statistics
 	/// </summary>
-	internal class VectorBasedStatistics : IHaveSize
-	{
-        public VectorBasedStatistics(LinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
-		{
-			Size = size;
-			Count = count;
-			Mean = mean != null ? lap.CreateVector(mean) : lap.CreateVector(size, 0f);
-			M2 = m2 != null ? lap.CreateVector(m2) : lap.CreateVector(size, 0f);
-		}
+	internal class VectorBasedStatistics(LinearAlgebraProvider lap, uint size, float[]? mean, float[]? m2, uint count)
+        : IHaveSize
+    {
+        public uint Size { get; } = size;
+        public uint Count { get; private set; } = count;
+        public IVector Mean { get; } = mean != null ? lap.CreateVector(mean) : lap.CreateVector(size, 0f);
+        public IVector M2 { get; } = m2 != null ? lap.CreateVector(m2) : lap.CreateVector(size, 0f);
 
-		public uint Size { get; }
-        public uint Count { get; private set; }
-        public IVector Mean { get; }
-        public IVector M2 { get; }
-
-		public void Update(IVector data)
+        public void Update(IVector data)
 		{
 			++Count;
             using var delta = data.Subtract(Mean);

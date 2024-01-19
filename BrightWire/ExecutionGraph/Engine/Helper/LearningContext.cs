@@ -12,24 +12,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class LearningContext : ILearningContext
     {
-        class NodeError
+        class NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
         {
-            public NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
-            {
-                Node = node;
-                ErrorType = errorType;
-                Error = error;
-            }
-
-            public NodeBase Node { get; }
-            public NodeErrorType ErrorType { get; }
-            public ITensor Error { get; }
+            public NodeBase Node { get; } = node;
+            public NodeErrorType ErrorType { get; } = errorType;
+            public ITensor Error { get; } = error;
         }
 
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
         readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new();
-        readonly List<NodeError> _nodeError = new();
-        readonly HashSet<NodeBase> _updatesDisabled = new();
+        readonly List<NodeError> _nodeError = [];
+        readonly HashSet<NodeBase> _updatesDisabled = [];
         readonly Stopwatch _timer = new();
 
         public LearningContext(GraphFactory graphFactory, IErrorMetric errorMetric)

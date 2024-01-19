@@ -11,12 +11,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// </summary>
     internal class MemoryFeeder : NodeBase, IMemoryNode
     {
-        class Backpropagation : SingleBackpropagationBase<MemoryFeeder>
+        class Backpropagation(MemoryFeeder source) : SingleBackpropagationBase<MemoryFeeder>(source)
         {
-            public Backpropagation(MemoryFeeder source) : base(source)
-            {
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();

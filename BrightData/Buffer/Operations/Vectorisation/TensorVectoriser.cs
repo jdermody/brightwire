@@ -6,9 +6,8 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// Tensor vectorisation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="isOutput"></param>
     /// <param name="outputSize"></param>
-    internal class TensorVectoriser<T>(bool isOutput, uint outputSize) : VectorisationBase<T>(isOutput, outputSize)
+    internal class TensorVectoriser<T>(uint outputSize) : VectorisationBase<T>(outputSize)
         where T : IHaveReadOnlyContiguousSpan<float>
     {
         protected override void Vectorise(in T item, Span<float> buffer)

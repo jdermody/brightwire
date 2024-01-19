@@ -15,7 +15,7 @@ namespace BrightData.Types
     public class MetaData
     {
         readonly Dictionary<string, IConvertible> _values = new();
-        readonly List<string> _orderedValues = new();
+        readonly List<string> _orderedValues = [];
 
         /// <summary>
         /// Constructor
@@ -46,7 +46,7 @@ namespace BrightData.Types
         public MetaData(IHaveMetaData metaData, params string[] keys) : this(metaData.MetaData, keys) { }
 
         /// <summary>
-        /// Creates meta data from a binary reader
+        /// Creates metadata from a binary reader
         /// </summary>
         /// <param name="reader">Reader</param>
         public MetaData(BinaryReader reader)
@@ -55,7 +55,7 @@ namespace BrightData.Types
         }
 
         /// <summary>
-        /// Copies this to another meta data store
+        /// Copies this to another metadata store
         /// </summary>
         /// <param name="metadata">Other meta data store</param>
         /// <param name="keys">Keys to copy (optional)</param>
@@ -84,9 +84,7 @@ namespace BrightData.Types
         /// <returns></returns>
         public object? Get(string name)
         {
-            if (_values.TryGetValue(name, out var obj))
-                return obj;
-            return null;
+            return _values.GetValueOrDefault(name);
         }
 
         /// <summary>
@@ -144,7 +142,7 @@ namespace BrightData.Types
         }
 
         /// <summary>
-        /// XML representation of the meta data
+        /// XML representation of the metadata
         /// </summary>
         public string AsXml
         {

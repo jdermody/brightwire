@@ -21,32 +21,22 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Copies all values from a tensor segment into a float buffer
+        /// Enumerates values in the buffer (blocking)
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="segment"></param>
-        public static void CopyFrom(this ICompositeBuffer<float> buffer, INumericSegment<float> segment)
-        {
-            for(uint i = 0, len = segment.Size; i < len; i++)
-                buffer.Add(segment[i]);
-        }
-
-        /// <summary>
-        /// Copies all values from a span into a float buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="span"></param>
-        public static void CopyFrom(this ICompositeBuffer<float> buffer, ReadOnlySpan<float> span)
-        {
-            for(int i = 0, len = span.Length; i < len; i++)
-                buffer.Add(span[i]);
-        }
-
+        /// <returns></returns>
         public static IEnumerable<object> GetValues(this IReadOnlyBuffer buffer)
         {
             return buffer.EnumerateAll().ToBlockingEnumerable();
         }
 
+        /// <summary>
+        /// Async enumeration of values in the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static IAsyncEnumerable<T> GetValues<T>(this IReadOnlyBuffer buffer) where T: notnull
         {
             if (buffer.DataType != typeof(T))
@@ -55,6 +45,11 @@ namespace BrightData
             return typedBuffer.EnumerateAllTyped();
         }
 
+        /// <summary>
+        /// Casts or converts the buffer to a string buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<string> ToReadOnlyStringBuffer(this IReadOnlyBuffer buffer)
         {
             if (buffer.DataType == typeof(string))
@@ -62,6 +57,14 @@ namespace BrightData
             return GenericActivator.Create<IReadOnlyBuffer<string>>(typeof(ToStringConverter<>).MakeGenericType(buffer.DataType), buffer);
         }
 
+        /// <summary>
+        /// Creates a new buffer in which each value is converted via the conversion function
+        /// </summary>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="converter"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<TT> Convert<FT, TT>(this IReadOnlyBuffer<FT> buffer, Func<FT, TT> converter)
             where FT: notnull
             where TT: notnull
@@ -69,12 +72,18 @@ namespace BrightData
             return GenericActivator.Create<IReadOnlyBuffer<TT>>(typeof(CustomConverter<,>).MakeGenericType(typeof(FT), typeof(TT)), buffer, converter);
         }
 
-        public static async Task<Dictionary<string, List<uint>>> GetGroups(this IReadOnlyBuffer[] buffers)
+        /// <summary>
+        /// Finds distinct groups within the buffers based on string comparison of the concatenated values
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <returns></returns>
+        public static async Task<Dictionary<string /* group */, List<uint> /* row indices in group */>> GetGroups(this IReadOnlyBuffer[] buffers)
         {
+            // ReSharper disable once NotDisposedResourceIsReturned
             var enumerators = buffers.Select(x => x.EnumerateAll().GetAsyncEnumerator()).ToArray();
             var shouldContinue = true;
             var sb = new StringBuilder();
-            Dictionary<string, List<uint>> ret = new();
+            var ret = new Dictionary<string, List<uint>>();
             uint rowIndex = 0;
 
             while (shouldContinue) {
@@ -92,10 +101,13 @@ namespace BrightData
                 if (shouldContinue) {
                     var str = sb.ToString();
                     if (!ret.TryGetValue(str, out var list))
-                        ret.Add(str, list = new());
+                        ret.Add(str, list = []);
                     list.Add(rowIndex++);
                 }
             }
+
+            foreach (var enumerator in enumerators)
+                await enumerator.DisposeAsync();
 
             return ret;
         }
@@ -113,6 +125,12 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Converts the buffer to a read only sequence
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static async Task<ReadOnlySequence<T>> AsReadOnlySequence<T>(this IReadOnlyBuffer<T> buffer) where T : notnull
         {
             if(buffer.BlockCount == 0)
@@ -125,6 +143,13 @@ namespace BrightData
             return new ReadOnlySequence<T>(first, 0, last, last.Memory.Length);
         }
 
+        /// <summary>
+        /// Retrieves an item from the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public static async Task<T> GetItem<T>(this IReadOnlyBuffer<T> buffer, uint index) where T: notnull
         {
             var blockIndex = index / buffer.BlockSize;
@@ -133,20 +158,27 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Retrieves items from the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="indices"></param>
+        /// <returns></returns>
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
         {
             var blocks = indices.Select(x => (Index: x, BlockIndex: x / buffer.BlockSize, RelativeIndex: x % buffer.BlockSize))
-                    .GroupBy(x => x.BlockIndex)
-                    .OrderBy(x => x.Key)
-                ;
+                .GroupBy(x => x.BlockIndex)
+                .OrderBy(x => x.Key)
+            ;
             var ret = new T[indices.Length];
             foreach (var block in blocks) {
                 var blockMemory = await buffer.GetTypedBlock(block.Key);
-                Add(blockMemory, block, ret);
+                AddIndexedItems(blockMemory, block, ret);
             }
             return ret;
 
-            static void Add(ReadOnlyMemory<T> data, IEnumerable<(uint Index, uint BlockIndex, uint RelativeIndex)> list, T[] output)
+            static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint Index, uint BlockIndex, uint RelativeIndex)> list, T[] output)
             {
                 var span = data.Span;
                 foreach (var (index, _, relativeIndex) in list)
@@ -154,14 +186,22 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Buffer iterator
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public ref struct ReadOnlyBufferIterator<T> where T: notnull
         {
             readonly IReadOnlyBuffer<T> _buffer;
             ReadOnlyMemory<T> _currentBlock = ReadOnlyMemory<T>.Empty;
             uint _blockIndex = 0, _position = 0;
 
-            public ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
+            internal ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
 
+            /// <summary>
+            /// Advances to the next position
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext()
             {
                 if (++_position < _currentBlock.Length)
@@ -177,11 +217,32 @@ namespace BrightData
                 return false;
             }
 
+            /// <summary>
+            /// Current iterator value
+            /// </summary>
             public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
+
+            /// <summary>
+            /// Converts to enumerator
+            /// </summary>
+            /// <returns></returns>
             public readonly ReadOnlyBufferIterator<T> GetEnumerator() => this;
         }
+
+        /// <summary>
+        /// Creates an iterator for the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static ReadOnlyBufferIterator<T> GetEnumerator<T>(this IReadOnlyBuffer<T> buffer) where T: notnull => new(buffer);
 
+        /// <summary>
+        /// Converts the buffer to an array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static async Task<T[]> ToArray<T>(this IReadOnlyBuffer<T> buffer) where T : notnull
         {
             var ret = new T[buffer.Size];
@@ -193,6 +254,14 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a composite buffer for strings
+        /// </summary>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static ICompositeBuffer<string> CreateCompositeBuffer(
             this IProvideDataBlocks? tempStreams, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -200,6 +269,16 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) => new StringCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
+        /// <summary>
+        /// Creates a composite buffer for types that can be created from a block of byte data
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tempStreams"></param>
+        /// <param name="createItem"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static ICompositeBuffer<T> CreateCompositeBuffer<T>(
             this IProvideDataBlocks? tempStreams,
             CreateFromReadOnlyByteSpan<T> createItem,
@@ -207,6 +286,15 @@ namespace BrightData
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null) where T: IHaveDataAsReadOnlyByteSpan => new ManagedCompositeBuffer<T>(createItem, tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
+        /// <summary>
+        /// Creates a composite buffer for unmanaged types
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static ICompositeBuffer<T> CreateCompositeBuffer<T>(
             this IProvideDataBlocks? tempStreams, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -214,6 +302,16 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) where T: unmanaged => new UnmanagedCompositeBuffer<T>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
+        /// <summary>
+        /// Creates a composite buffer
+        /// </summary>
+        /// <param name="dataType"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static ICompositeBuffer CreateCompositeBuffer(
             this BrightDataType dataType,
             IProvideDataBlocks? tempStreams = null,
@@ -245,8 +343,21 @@ namespace BrightData
             };
         }
 
+        /// <summary>
+        /// Creates a buffer writer from a composite buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="bufferSize"></param>
+        /// <returns></returns>
         public static IBufferWriter<T> AsBufferWriter<T>(this ICompositeBuffer<T> buffer, int bufferSize = 256) where T : notnull => new CompositeBufferWriter<T>(buffer, bufferSize);
 
+        /// <summary>
+        /// Returns true of the buffer can be encoded (distinct items mapped to indices)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static bool CanEncode<T>(this ICompositeBuffer<T> buffer) where T : notnull => buffer.DistinctItems.HasValue;
 
         /// <summary>
@@ -276,11 +387,11 @@ namespace BrightData
                     var item = block[0];
                     if(!table.TryGetValue(item, out var index))
                         table.Add(item, index = (uint)table.Count);
-                    data.Add(index);
+                    data.Append(index);
                 }
                 else if (len > 1) {
                     var spanOwner = SpanOwner<uint>.Empty;
-                    var indices = len <= Consts.MaxStackAllocSize / sizeof(uint)
+                    var indices = len <= Consts.MaxStackAllocSizeInBytes / sizeof(uint)
                         ? stackalloc uint[len]
                         : (spanOwner = SpanOwner<uint>.Allocate(len)).Span
                     ;
@@ -292,7 +403,7 @@ namespace BrightData
                                 table.Add(item, index = (uint)table.Count);
                             indices[i] = index;
                         }
-                        data.Add(indices);
+                        data.Append(indices);
                     }
                     finally {
                         if (spanOwner.Length > 0)
@@ -307,41 +418,21 @@ namespace BrightData
             return (ret, data);
         }
 
-        public static ICompositeBuffer GetCompositeBuffer(this Type type,
+        /// <summary>
+        /// Creates a composite buffer for the type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        public static ICompositeBuffer CreateCompositeBuffer(this Type type,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
-        ) => GetCompositeBuffer(GetBrightDataType(type), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-
-        public static ICompositeBuffer GetCompositeBuffer(this BrightDataType type,
-            IProvideDataBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) => type switch 
-        {
-            BrightDataType.BinaryData        => CreateCompositeBuffer<BinaryData>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Boolean           => CreateCompositeBuffer<bool>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.SByte             => CreateCompositeBuffer<sbyte>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Short             => CreateCompositeBuffer<short>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Int               => CreateCompositeBuffer<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Long              => CreateCompositeBuffer<long>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Float             => CreateCompositeBuffer<float>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Double            => CreateCompositeBuffer<double>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Decimal           => CreateCompositeBuffer<decimal>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.String            => CreateCompositeBuffer<uint>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Date              => CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.IndexList         => CreateCompositeBuffer<IndexList>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.WeightedIndexList => CreateCompositeBuffer<WeightedIndexList>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Vector            => CreateCompositeBuffer<ReadOnlyVector>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Matrix            => CreateCompositeBuffer<ReadOnlyMatrix>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Tensor3D          => CreateCompositeBuffer<ReadOnlyTensor3D>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.Tensor4D          => CreateCompositeBuffer<ReadOnlyTensor4D>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.TimeOnly          => CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            BrightDataType.DateOnly          => CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
-            _                                => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown table data type")
-        };
+        ) => CreateCompositeBuffer(GetBrightDataType(type), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
 
         /// <summary>
         /// Creates a column analyser
@@ -355,17 +446,31 @@ namespace BrightData
             return buffer.DataType.GetBrightDataType().GetAnalyser(metaData, maxMetaDataWriteCount);
         }
 
+        /// <summary>
+        /// Analyses the buffer
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="force"></param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IOperation Analyse(this MetaData metaData, bool force, IReadOnlyBuffer buffer)
         {
             if (force || !metaData.Get(Consts.HasBeenAnalysed, false)) {
                 var analyser = buffer.GetAnalyser(metaData);
                 void WriteToMetaData() => analyser.WriteTo(metaData);
-                return buffer.CreateBufferScan(analyser, WriteToMetaData);
+                return buffer.CreateBufferCopyOperation(analyser, WriteToMetaData);
             }
             return new NopOperation();
         }
 
-        public static IOperation CreateBufferScan(this IReadOnlyBuffer buffer, IAcceptBlock output, Action? action = null)
+        /// <summary>
+        /// Creates an operation that copies the blocks in the buffer to a destination 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="output"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static IOperation CreateBufferCopyOperation(this IReadOnlyBuffer buffer, IAppendBlocks output, Action? action = null)
         {
             return buffer.DataType.GetBrightDataType() switch {
                 BrightDataType.IndexList         => CastBuffer<IndexList, IHaveIndices>(buffer, output, action),
@@ -377,17 +482,33 @@ namespace BrightData
                 _                                => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, output, action)
             };
 
-            static BufferScan<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAcceptBlock analyser, Action? action = null) where T2 : notnull where CT2 : notnull
+            static BufferScan<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
             {
                 var buffer2 = (IReadOnlyBuffer<T2>)buffer;
                 var buffer3 = buffer2.Cast<T2, CT2>();
-                var dataAnalyser2 = (IAcceptBlock<CT2>)analyser;
+                var dataAnalyser2 = (IAppendBlocks<CT2>)analyser;
                 return new BufferScan<CT2>(buffer3, dataAnalyser2, action);
             }
         }
 
+        /// <summary>
+        /// Analyse the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="force"></param>
+        /// <returns></returns>
         public static IOperation Analyse(this IReadOnlyBufferWithMetaData buffer, bool force) => Analyse(buffer.MetaData, force, buffer);
         
+        /// <summary>
+        /// Creates a numeric composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static async Task<ICompositeBuffer> ToNumeric(this IReadOnlyBuffer buffer, 
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -402,7 +523,7 @@ namespace BrightData
                 buffer = buffer.ConvertTo<double>();
 
             var analysis = GenericActivator.Create<ICastToNumericAnalysis>(typeof(CastToNumericAnalysis<>).MakeGenericType(buffer.DataType), buffer);
-            await analysis.Process();
+            await analysis.Execute();
 
             BrightDataType toType;
             if (analysis.IsInteger) {
@@ -421,11 +542,21 @@ namespace BrightData
 
             var output = GenericActivator.Create<ICompositeBuffer>(typeof(UnmanagedCompositeBuffer<>).MakeGenericType(toType.GetDataType()), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, toType.GetDataType()), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
         }
 
-        static readonly HashSet<string> TrueStrings = new() { "Y", "YES", "TRUE", "T", "1" };
+        static readonly HashSet<string> TrueStrings = ["Y", "YES", "TRUE", "T", "1"];
+
+        /// <summary>
+        /// Creates a boolean composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<bool>> ToBoolean(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -435,16 +566,25 @@ namespace BrightData
             var output = CreateCompositeBuffer<bool>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             IOperation conversion;
             if (buffer.DataType == typeof(bool))
-                conversion = buffer.CreateBufferScan(output);
+                conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToReadOnlyStringBuffer(), output);
             else
                 conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
             static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
         }
 
+        /// <summary>
+        /// Creates a string composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<string>> ToString(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -453,12 +593,21 @@ namespace BrightData
         ) {
             var output = CreateCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             var conversion = buffer.DataType == typeof(string) 
-                ? buffer.CreateBufferScan(output) 
+                ? buffer.CreateBufferCopyOperation(output) 
                 : GenericActivator.Create<IOperation>(typeof(ToStringConversion<>).MakeGenericType(buffer.DataType), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
         }
 
+        /// <summary>
+        /// Creates a date time composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<DateTime>> ToDateTime(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -468,12 +617,12 @@ namespace BrightData
             var output = CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             IOperation conversion;
             if (buffer.DataType == typeof(DateTime))
-                conversion = buffer.CreateBufferScan(output);
+                conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
             else
                 conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateTime)), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static DateTime StringToDate(string str)
@@ -488,6 +637,15 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a date composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<DateOnly>> ToDate(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -497,12 +655,12 @@ namespace BrightData
             var output = CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             IOperation conversion;
             if (buffer.DataType == typeof(DateOnly))
-                conversion = buffer.CreateBufferScan(output);
+                conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
             else
                 conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateOnly)), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static DateOnly StringToDate(string str)
@@ -517,6 +675,15 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a time composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<TimeOnly>> ToTime(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -526,12 +693,12 @@ namespace BrightData
             var output = CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             IOperation conversion;
             if (buffer.DataType == typeof(TimeOnly))
-                conversion = buffer.CreateBufferScan(output);
+                conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output);
             else
                 conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(TimeOnly)), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static TimeOnly StringToTime(string str)
@@ -546,6 +713,15 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a categorical index composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<int>> ToCategoricalIndex(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -555,10 +731,20 @@ namespace BrightData
             
             var output = CreateCompositeBuffer<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
             var conversion = GenericActivator.Create<IOperation>(typeof(ToCategoricalIndexConversion<>).MakeGenericType(buffer.DataType), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
         }
 
+        /// <summary>
+        /// Creates an index list composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static async Task<ICompositeBuffer<IndexList>> ToIndexList(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -575,13 +761,22 @@ namespace BrightData
                 conversion = new CustomConversion<ReadOnlyVector, IndexList>(VectorToIndexList, (IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
             else
                 throw new NotSupportedException("Only weighted index lists and vectors can be converted to index lists");
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static IndexList VectorToIndexList(ReadOnlyVector vector) => vector.ReadOnlySegment.ToSparse().AsIndexList();
             static IndexList WeightedIndexListToIndexList(WeightedIndexList weightedIndexList) => weightedIndexList.AsIndexList();
         }
 
+        /// <summary>
+        /// Creates a vector composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<ReadOnlyVector>> ToVector(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -598,16 +793,26 @@ namespace BrightData
                 conversion = new CustomConversion<IndexList, ReadOnlyVector>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
             else {
                 var index = GenericActivator.Create<IOperation>(typeof(TypedIndexer<>).MakeGenericType(buffer.DataType), buffer);
-                await index.Process();
+                await index.Execute();
                 conversion = GenericActivator.Create<IOperation>(typeof(OneHotConversion<>).MakeGenericType(buffer.DataType), buffer, index, output);
             }
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static ReadOnlyVector WeightedIndexListToVector(WeightedIndexList weightedIndexList) => weightedIndexList.AsDense();
             static ReadOnlyVector IndexListToVector(IndexList indexList) => indexList.AsDense();
         }
 
+        /// <summary>
+        /// Creates a weighted index list composite buffer from an existing buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static async Task<ICompositeBuffer<WeightedIndexList>> ToWeightedIndexList(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
@@ -624,13 +829,23 @@ namespace BrightData
                 conversion = new CustomConversion<IndexList, WeightedIndexList>(IndexListToWeightedIndexList, (IReadOnlyBuffer<IndexList>)buffer, output);
             else
                 throw new NotSupportedException("Only weighted index lists, index lists and vectors can be converted to vectors");
-            await conversion.Process();
+            await conversion.Execute();
             return output;
 
             static WeightedIndexList IndexListToWeightedIndexList(IndexList indexList) => indexList.AsWeightedIndexList();
             static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector vector) => vector.ToSparse();
         }
 
+        /// <summary>
+        /// Creates a typed composite buffer from an existing buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<T>> To<T>(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
@@ -644,10 +859,19 @@ namespace BrightData
                 buffer = buffer.ConvertTo<double>();
 
             var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
-            await conversion.Process();
+            await conversion.Execute();
             return output;
         }
 
+        /// <summary>
+        /// Vectorise the buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
         public static async Task<ICompositeBuffer<ReadOnlyVector>> Vectorise(this IReadOnlyBuffer[] buffers,
             IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
@@ -657,10 +881,16 @@ namespace BrightData
             var output = CreateCompositeBuffer<ReadOnlyVector>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems);
             var floatBuffers = buffers.Select(x => x.ConvertTo<float>());
             var conversion = new ManyToOneMutation<float, ReadOnlyVector>(floatBuffers, output, x => new(x));
-            await conversion.Process();
+            await conversion.Execute();
             return output;
         }
 
+        /// <summary>
+        /// Creates an array from the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static async Task<T[]> ToArray<T>(this IReadOnlyBuffer buffer) where T : notnull
         {
             var ret = new T[buffer.Size];
@@ -670,21 +900,46 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a read only string composite buffer from a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<string> GetReadOnlyStringCompositeBuffer(this Stream stream)
         {
             return new ReadOnlyStringCompositeBuffer(stream);
         }
 
+        /// <summary>
+        /// Creates a read only composite buffer for unmanaged types from a stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<T> GetReadOnlyCompositeBuffer<T>(this Stream stream) where T: unmanaged
         {
             return new ReadOnlyUnmanagedCompositeBuffer<T>(stream);
         }
 
+        /// <summary>
+        /// Creates a read only composite buffer for types that can be initialised from a byte block from a stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="createItem"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<T> GetReadOnlyCompositeBuffer<T>(this Stream stream, CreateFromReadOnlyByteSpan<T> createItem) where T : IHaveDataAsReadOnlyByteSpan
         {
             return new ReadOnlyManagedCompositeBuffer<T>(createItem, stream);
         }
 
+        /// <summary>
+        /// Casts a buffer to another type
+        /// </summary>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<TT> Cast<FT, TT>(this IReadOnlyBuffer<FT> buffer) where FT : notnull where TT : notnull
         {
             return new CastConverter<FT, TT>(buffer);

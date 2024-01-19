@@ -9,7 +9,6 @@ using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightWire;
-using CommunityToolkit.HighPerformance.Buffers;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
 
@@ -92,7 +91,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var trainer = await context.Xor();
-            trainer.Train(4, 100, 0.5f, 4);
+            await trainer.Train(4, 100, 0.5f, 4);
         }
 
         static async Task IrisClassification(BrightDataContext context, bool useMkl)
@@ -111,7 +110,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var iris = await context.Iris();
-            var irisTable = iris.OriginalTable;
+            var irisTable = iris.OriginalTable!;
 
             Console.WriteLine("K Means...");
             WriteSeparator();
@@ -142,7 +141,7 @@ namespace ExampleCode
         static async Task MarkovChains(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var trainer = await context.BeautifulandDamned();
+            var trainer = await context.BeautifulAndDamned();
             trainer.TrainMarkovModel();
         }
 

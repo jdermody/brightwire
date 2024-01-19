@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BrightData.Helper
 {
-    internal class StreamDataBlock(Guid id, Stream stream) : IDataBlock
+    /// <summary>
+    /// Stream to data block adaptor
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="stream"></param>
+    internal class StreamDataBlock(Guid id, Stream stream) : IByteBlockSource
     {
         public void Dispose()
         {

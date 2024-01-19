@@ -1,6 +1,5 @@
 ﻿using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
-using System.Linq;
 
 namespace BrightData.LinearAlgebra
 {
@@ -8,7 +7,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 4D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D, IReadOnlyTensor4D
+    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -58,7 +57,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public sealed override uint[] Shape
         {
-            get => new[] { ColumnCount, RowCount, Depth, Count };
+            get => [ColumnCount, RowCount, Depth, Count];
             protected set
             {
                 ColumnCount = value[0];
@@ -97,8 +96,7 @@ namespace BrightData.LinearAlgebra
             set => Segment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
-        IReadOnlyTensor3D IReadOnlyTensor4D.GetTensor3D(uint index) => GetTensorAsReadOnly(index);
-        IReadOnlyTensor3D[] IReadOnlyTensor4D.AllTensors() => AllTensorsAsReadOnly();
+        IReadOnlyTensor3D IReadOnlyTensor4D.GetTensor(uint index) => GetTensorAsReadOnly(index);
 
         /// <summary>
         /// Returns a value from the 4D tensor
@@ -153,18 +151,13 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public IVector RowSums() => Lap.ColumnSums(this);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a read only tensor
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IReadOnlyTensor3D GetTensorAsReadOnly(uint index) => new ReadOnlyTensor3DWrapper(Tensor(index), Depth, RowCount, ColumnCount);
         TensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
-
-        /// <inheritdoc />
-        public IReadOnlyTensor3D[] AllTensorsAsReadOnly()
-        {
-            var ret = new IReadOnlyTensor3D[Count];
-            for (uint i = 0; i < Depth; i++)
-                ret[i] = GetTensorAsReadOnly(i);
-            return ret;
-        }
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";

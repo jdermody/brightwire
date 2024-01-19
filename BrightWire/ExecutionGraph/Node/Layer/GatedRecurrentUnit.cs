@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 WriteSubNode(item, writer);
         }
 
-        static readonly string[] SerializedNodes = {"Wh", "Wr", "Wz", "Uh", "Ur", "Uz"};
+        static readonly string[] SerializedNodes = ["Wh", "Wr", "Wz", "Uh", "Ur", "Uz"];
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {

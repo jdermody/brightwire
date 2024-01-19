@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +13,7 @@ using BrightData.Buffer.Operations.Vectorisation;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
+using BrightData.DataTable.Columns;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -218,7 +216,7 @@ namespace BrightData
         /// </summary>
         /// <param name="type">Column type</param>
         /// <param name="metaData">Column meta data</param>
-        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+        /// <param name="writeCount">Maximum size of sequences to write in final metadata</param>
         /// <returns></returns>
         public static IDataAnalyser GetAnalyser(this BrightDataType type, MetaData metaData, uint writeCount = Consts.MaxWriteCount)
         {
@@ -320,7 +318,7 @@ namespace BrightData
         public static IDataTable LoadTable(this BrightDataContext context, string filePath) => new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
 
         /// <summary>
-        /// Sets the target column across an array of meta data
+        /// Sets the target column across an array of metadata
         /// </summary>
         /// <param name="metaData"></param>
         /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
@@ -377,7 +375,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Sets the column type in a meta data store
+        /// Sets the column type in a metadata store
         /// </summary>
         /// <param name="metaData"></param>
         /// <param name="type"></param>
@@ -392,6 +390,7 @@ namespace BrightData
         /// Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="oneHotEncode"></param>
         /// <returns></returns>
         public static async IAsyncEnumerable<(IReadOnlyNumericSegment<float> Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable, bool oneHotEncode)
         {
@@ -555,14 +554,27 @@ namespace BrightData
             return matrix;
         }
 
-        static unsafe void TransposeInPlace(ReadOnlyMatrix matrix)
-        {
-            fixed (float* ptr = matrix.ReadOnlySpan) {
-                new Span<float>(ptr, (int)matrix.Size).TransposeInPlace(matrix.RowCount, matrix.ColumnCount);
-            }
-        }
+        //static unsafe void TransposeInPlace(ReadOnlyMatrix matrix)
+        //{
+        //    fixed (float* ptr = matrix.ReadOnlySpan) {
+        //        new Span<float>(ptr, (int)matrix.Size).TransposeInPlace(matrix.RowCount, matrix.ColumnCount);
+        //    }
+        //}
 
+        /// <summary>
+        /// Copies from a span to a read only span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
         public static void CopyToReadOnly<T>(this Span<T> from, ReadOnlySpan<T> to) where T : unmanaged => CopyToReadOnly(from.AsReadOnly(), to);
+
+        /// <summary>
+        /// Copies from a span to a read only span
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
         public static unsafe void CopyToReadOnly<T>(this ReadOnlySpan<T> from, ReadOnlySpan<T> to) where T: unmanaged
         {
             fixed (T* ptr = to) {
@@ -612,7 +624,6 @@ namespace BrightData
                 builder.CreateFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").MetaData.SetTarget(true);
 
             // vectorise each row
-            var context = dataTable.Context;
             foreach(var row in await dataTable.GetAllRows()) {
                 var input = inputVectoriser.Vectorise(columnIndexList.Select(x => row.Values[x]).ToArray());
                 if (outputVectoriser != null)
@@ -664,7 +675,7 @@ namespace BrightData
         /// Converts the vector classifications into a data table
         /// </summary>
         /// <param name="data"></param>
-        /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
+        /// <param name="preserveVectors">True to create a data table with a vector column type, false to convert to columns of floats</param>
         /// <param name="context"></param>
         /// <returns></returns>
         public static Task<IDataTable> ConvertToTable(this Span<(string Label, IVector Data)> data, bool preserveVectors, BrightDataContext context)
@@ -714,10 +725,10 @@ namespace BrightData
 
             IReadOnlyVector Create(WeightedIndexList weightedIndexList)
             {
-                var ret = new float[size];
+                var localRet = new float[size];
                 foreach (ref readonly var item in weightedIndexList.ReadOnlySpan)
-                    ret[item.Index] = item.Weight;
-                return context.CreateReadOnlyVector(ret);
+                    localRet[item.Index] = item.Weight;
+                return context.CreateReadOnlyVector(localRet);
             }
         }
 
@@ -795,7 +806,7 @@ namespace BrightData
                 input.AddRange(other.GetColumns());
                 builder.CreateColumnsFrom(other);
             }
-            await builder.Add(input);
+            await builder.AddRows(input);
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await builder.WriteTo(stream);
@@ -818,7 +829,7 @@ namespace BrightData
             var builder = new ColumnOrientedDataTableBuilder(table.Context);
             var columns = builder.CreateColumnsFrom(table);
             var operations = CopyToBuffers(table, columns).ToEnumerable().Concat(others.Select(x => CopyToBuffers(x, columns))).ToArray();
-            await operations.Process();
+            await operations.ExecuteAllAsOne();
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await builder.WriteTo(stream);
@@ -875,6 +886,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <param name="type">Normalization type</param>
+        /// <param name="columnIndices"></param>
         /// <returns></returns>
         public static async Task<IDataTable> Normalize(this IDataTable dataTable, NormalizationType type, string? filePath = null, params uint[] columnIndices)
         {
@@ -906,7 +918,7 @@ namespace BrightData
                     columns[i] = column;
                 writer.CreateColumn(dataType, column.MetaData);
             }
-            await writer.Add(columns);
+            await writer.AddRows(columns);
 
             // copy normalisation data to new columns
             foreach(var (index, model) in columnMutationTable)
@@ -941,13 +953,24 @@ namespace BrightData
                 else
                     columns[i] = column;
             }
-            await writer.Add(columns);
+            await writer.AddRows(columns);
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
             return LoadTableFromStream(dataTable.Context, stream);
         }
 
+        /// <summary>
+        /// Converts the buffer with a column conversion
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="conversion"></param>
+        /// <param name="tempStreams"></param>
+        /// <param name="blockSize"></param>
+        /// <param name="maxInMemoryBlocks"></param>
+        /// <param name="maxDistinctItems"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static async Task<IReadOnlyBufferWithMetaData> Convert(
             this IReadOnlyBufferWithMetaData buffer, 
             ColumnConversion conversion,
@@ -980,8 +1003,24 @@ namespace BrightData
             };
         }
 
+        /// <summary>
+        /// Creates a column conversion
+        /// </summary>
+        /// <param name="conversion"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         public static ColumnConversionInfo ConvertColumn(this ColumnConversion conversion, uint columnIndex) => new(columnIndex, conversion);
 
+        /// <summary>
+        /// Creates a custom column conversion
+        /// </summary>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <param name="conversion"></param>
+        /// <param name="columnIndex"></param>
+        /// <param name="converter"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static ColumnConversionInfo ConvertColumn<FT, TT>(this ColumnConversion conversion, uint columnIndex, Func<FT, TT> converter) where FT : notnull where TT : notnull
         {
             if (conversion != ColumnConversion.Custom)
@@ -989,6 +1028,13 @@ namespace BrightData
             return new CustomColumnConversionInfo<FT, TT>(columnIndex, converter);
         }
 
+        /// <summary>
+        /// Applies column conversions to the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="filePath"></param>
+        /// <param name="conversions"></param>
+        /// <returns></returns>
         public static Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversion[] conversions)
         {
             return dataTable.Convert(filePath, conversions
@@ -997,6 +1043,13 @@ namespace BrightData
             );
         }
 
+        /// <summary>
+        /// Applies column conversions to the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="filePath"></param>
+        /// <param name="conversions"></param>
+        /// <returns></returns>
         public static async Task<IDataTable> Convert(this IDataTable dataTable, string? filePath, params ColumnConversionInfo[] conversions)
         {
             var newColumnTable = conversions
@@ -1013,7 +1066,7 @@ namespace BrightData
                     writer.CreateColumn(columns[i] = dataTable.GetColumn(i));
                 }
             }
-            await writer.Add(columns);
+            await writer.AddRows(columns);
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
@@ -1083,8 +1136,8 @@ namespace BrightData
             foreach (var (label, columnData) in groups) {
                 var writer = new ColumnOrientedDataTableBuilder(context);
                 var newColumns = writer.CreateColumnsFrom(dataTable);
-                var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), dataTable.GetColumn((uint)i), x, columnData));
-                await operations.Process();
+                var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), dataTable.GetColumn((uint)i), x, columnData)).ToArray();
+                await operations.ExecuteAllAsOne();
                 var outputStream = GetMemoryOrFileStream(filePathProvider?.Invoke(label));
                 await writer.WriteTo(outputStream);
                 
@@ -1129,45 +1182,6 @@ namespace BrightData
             return sb.ToString();
         }
 
-        public static async Task Process(this IEnumerable<IOperation> operations, INotifyUser? notifyUser = null, CancellationToken ct = default)
-        {
-            await Task.WhenAll(operations.Select(operation => operation.Process(notifyUser, null, ct)));
-        }
-
-        /// <summary>
-        /// Returns the results from a collection of operations that might be run in parallel
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="operations"></param>
-        /// <returns></returns>
-        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations) => CompleteInParallel(Array.AsReadOnly(operations));
-
-        /// <summary>
-        /// Returns the results from a collection of operations that might be run in parallel
-        /// </summary>
-        /// <param name="operations"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T[] CompleteInParallel<T>(this IReadOnlyList<IOperation<T>> operations)
-        {
-            var ret = new T[operations.Count];
-            #if DEBUG
-            if (Debugger.IsAttached) {
-                var index = 0;
-                foreach(var op in operations) using (op) {
-                    ret[index++] = op.Complete(null, CancellationToken.None);
-                }
-
-                return ret;
-            }
-            #endif
-            Parallel.ForEach(operations, (op, _, i) => {
-                using(op)
-                    ret[i] = op.Complete(null, CancellationToken.None);
-            });
-            return ret;
-        }
-
         static Stream GetMemoryOrFileStream(string? filePath) => String.IsNullOrWhiteSpace(filePath)
             ? new MemoryStream()
             : new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite)
@@ -1189,7 +1203,7 @@ namespace BrightData
                     column.MetaData.Set(Consts.ColumnIndex, columnIndex++);
 
                 using var tempStream = context.CreateTempDataBlockProvider();
-                var writer = new ColumnOrientedDataTableWriter(context, tempStream);
+                var writer = new ColumnOrientedDataTableWriter(tempStream);
                 return writer.Write(tableMetaData, columns, stream);
             }
             return Task.CompletedTask;
@@ -1238,6 +1252,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="dataTable"></param>
         /// <param name="mapper"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         public static async Task<T[]> MapRows<T>(this IDataTable dataTable, Func<TableRow, T> mapper, CancellationToken ct = default)
         {
@@ -1249,6 +1264,12 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Returns all rows in the table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public static async Task<TableRow[]> GetAllRows(this IDataTable dataTable, CancellationToken ct = default)
         {
             var index = 0;
@@ -1258,6 +1279,13 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a data table in memory
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tableMetaData"></param>
+        /// <param name="buffers"></param>
+        /// <returns></returns>
         public static async Task<IDataTable> CreateTableInMemory(
             this BrightDataContext context,
             MetaData? tableMetaData = null,
@@ -1265,12 +1293,20 @@ namespace BrightData
         )
         {
             var ret = new MemoryStream();
-            var builder = new ColumnOrientedDataTableWriter(context);
+            var builder = new ColumnOrientedDataTableWriter();
             await builder.Write(tableMetaData ?? new(), buffers, ret);
             var memory = new Memory<byte>(ret.GetBuffer(), 0, (int)ret.Length);
             return new ColumnOrientedDataTable(context, new MemoryByteBlockReader(memory, ret));
         }
 
+        /// <summary>
+        /// Creates a data table saved to disk
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="filePath"></param>
+        /// <param name="tableMetaData"></param>
+        /// <param name="buffers"></param>
+        /// <returns></returns>
         public static async Task<IDataTable> CreateTable(
             this BrightDataContext context,
             string filePath,
@@ -1278,12 +1314,18 @@ namespace BrightData
             params IReadOnlyBufferWithMetaData[] buffers
         )
         {
-            var builder = new ColumnOrientedDataTableWriter(context);
+            var builder = new ColumnOrientedDataTableWriter();
             await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
             await builder.Write(tableMetaData ?? new(), buffers, stream);
             return new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
         }
 
+        /// <summary>
+        /// Loads a data table from the stream
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static IDataTable LoadTableFromStream(this BrightDataContext context, Stream stream)
         {
             if (stream is FileStream fileStream) {
@@ -1327,6 +1369,12 @@ namespace BrightData
             _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
         
+        /// <summary>
+        /// Converts the buffer to a typed buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<T> ConvertTo<T>(this IReadOnlyBuffer buffer) where T: unmanaged
         {
             if (buffer.DataType == typeof(T))
@@ -1335,6 +1383,13 @@ namespace BrightData
             return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, converter);
         }
 
+        /// <summary>
+        /// Creates or loads an existing normalisation model from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static async Task<NormalisationModel> GetNormalization(this IReadOnlyBufferWithMetaData buffer, NormalizationType type)
         {
             var metaData = buffer.MetaData;
@@ -1347,7 +1402,7 @@ namespace BrightData
             if (!metaData.Get(Consts.HasBeenAnalysed, false)) {
                 var analyzer = StaticAnalysers.CreateNumericAnalyser();
                 var toDouble = ConvertTo<double>(buffer);
-                await toDouble.ForEachBlock(analyzer.Add);
+                await toDouble.ForEachBlock(analyzer.Append);
                 analyzer.WriteTo(metaData);
             }
 
@@ -1356,6 +1411,16 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a vectoriser for the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="metaData"></param>
+        /// <param name="oneHotEncodeCategoricalData"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
         {
             var dataType = buffer.DataType.GetBrightDataType();
@@ -1363,14 +1428,14 @@ namespace BrightData
             ICanVectorise? ret;
 
             if (dataType == BrightDataType.Boolean)
-                ret = new BooleanVectoriser(metaData.IsTarget());
+                ret = new BooleanVectoriser();
             else if (cls.HasFlag(ColumnClass.Numeric))
-                ret = GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget());
+                ret = GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType));
             else if (cls.HasFlag(ColumnClass.Categorical)) {
                 if (oneHotEncodeCategoricalData)
                     ret = await GetOneHotEncoder(buffer, metaData);
                 else
-                    ret = GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType), metaData.IsTarget());
+                    ret = GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType));
             }
             else if (cls.HasFlag(ColumnClass.IndexBased))
                 ret = await GetIndexBasedVectoriser(buffer, metaData);
@@ -1385,16 +1450,16 @@ namespace BrightData
             {
                 var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
                 if (size == 0) {
-                    await metaData.Analyse(false, buffer).Process();
+                    await metaData.Analyse(false, buffer).Execute();
                     size = metaData.GetIndexAnalysis().MaxIndex ?? 0;
                     if (size == 0)
                         throw new Exception("Expected to find a max index size");
                 }
 
                 if(buffer.DataType == typeof(IndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), metaData.IsTarget(), size);
+                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), size);
                 if(buffer.DataType == typeof(WeightedIndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), metaData.IsTarget(), size);
+                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), size);
                 throw new NotSupportedException();
             }
 
@@ -1402,27 +1467,34 @@ namespace BrightData
             {
                 var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
                 if (size == 0) {
-                    await metaData.Analyse(false, buffer).Process();
+                    await metaData.Analyse(false, buffer).Execute();
                     size = metaData.Get<uint>(Consts.NumDistinct, 0);
                     if (size == 0)
                         throw new Exception("Expected to find a distinct size of items");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget(), size);
+                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), size);
             }
 
             static async Task<ICanVectorise> GetTensorVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
             {
                 var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
                 if (size == 0) {
-                    await metaData.Analyse(false, buffer).Process();
+                    await metaData.Analyse(false, buffer).Execute();
                     size = metaData.GetDimensionAnalysis().Size;
                     if (size == 0)
                         throw new Exception("Expected to find non empty tensors");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(buffer.DataType), metaData.IsTarget(), size);
+                return GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(buffer.DataType), size);
             }
         }
 
+        /// <summary>
+        /// Creates a vectoriser for the specified columns in a data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="oneHotEncodeCategoricalData"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         public static async Task<VectorisationModel> GetVectoriser(this IDataTable dataTable, bool oneHotEncodeCategoricalData, params uint[] columnIndices)
         {
             var actualColumnIndices = dataTable.AllOrSpecifiedColumnIndices(false, columnIndices).ToArray();
@@ -1432,6 +1504,12 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a vectoriser from multiple buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <param name="oneHotEncodeCategoricalData"></param>
+        /// <returns></returns>
         public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBufferWithMetaData[] buffers, bool oneHotEncodeCategoricalData)
         {
             var createTasks = buffers.Select((x, i) => GetVectoriser(x, x.MetaData, oneHotEncodeCategoricalData)).ToArray();
@@ -1440,35 +1518,13 @@ namespace BrightData
             return new VectorisationModel(vectorisers);
         }
 
-        //public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBuffer[] buffers, bool oneHotEncodeCategoricalData, params MetaData[] metaData)
-        //{
-        //    var first = buffers[0];
-        //    if (buffers.Skip(1).Any(x => x.Size != first.Size || x.BlockSize != first.BlockSize))
-        //        throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
-
-        //    Task<ICanVectorise>[] createTasks;
-        //    if (metaData.Length == buffers.Length) {
-        //        createTasks = buffers.Select((x, i) => GetVectoriser(x, metaData[i], oneHotEncodeCategoricalData)).ToArray();
-        //    }else switch (metaData.Length) {
-        //        case 0: {
-        //            var tempMetaData = new MetaData();
-        //            createTasks = buffers.Select(x => GetVectoriser(x, tempMetaData, oneHotEncodeCategoricalData)).ToArray();
-        //            break;
-        //        }
-        //        case 1: {
-        //            var firstMetaData = metaData[0];
-        //            createTasks = buffers.Select(x => GetVectoriser(x, firstMetaData, oneHotEncodeCategoricalData)).ToArray();
-        //            break;
-        //        }
-        //        default:
-        //            throw new ArgumentException("Expected either one, zero or a matching count of meta data", nameof(metaData));
-        //    }
-
-        //    await Task.WhenAll(createTasks);
-        //    var vectorisers = createTasks.Select(x => x.Result).ToArray();
-        //    return new VectorisationModel(vectorisers);
-        //}
-
+        /// <summary>
+        /// Creates a vectoriser from saved metadata
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="NotImplementedException"></exception>
         public static VectorisationModel GetVectoriser(this MetaData[] metaData)
         {
             var index = 0;
@@ -1482,16 +1538,15 @@ namespace BrightData
                 if(size == 0)
                     throw new ArgumentException("Expected meta data to contain a vectorisation size");
                 var dataType = item.GetColumnType().GetDataType();
-                var isOutput = item.IsTarget();
 
                 var vectoriser = vectorisers[index++] = type switch {
-                    VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), isOutput, size),
-                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(isOutput, size-1),
-                    VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType), isOutput),
-                    VectorisationType.IndexList         => new IndexListVectoriser(isOutput, size-1),
-                    VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType), isOutput),
-                    VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), isOutput, size),
-                    VectorisationType.Boolean           => new BooleanVectoriser(isOutput),
+                    VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), size),
+                    VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(size-1),
+                    VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType)),
+                    VectorisationType.IndexList         => new IndexListVectoriser(size-1),
+                    VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType)),
+                    VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), size),
+                    VectorisationType.Boolean           => new BooleanVectoriser(),
                     _                                   => throw new NotImplementedException()
                 };
                 vectoriser.ReadFrom(item);
@@ -1500,6 +1555,13 @@ namespace BrightData
             return new VectorisationModel(vectorisers);
         }
 
+        /// <summary>
+        /// Returns all or the specified column indices for the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="distinct"></param>
+        /// <param name="indices"></param>
+        /// <returns></returns>
         public static IEnumerable<uint> AllOrSpecifiedColumnIndices(this IDataTable dataTable, bool distinct, params uint[] indices) => indices.Length == 0 
             ? dataTable.ColumnCount.AsRange() 
             : distinct 
@@ -1510,7 +1572,9 @@ namespace BrightData
         /// <summary>
         /// Enumerates specified row indices (or all if none specified)
         /// </summary>
+        /// <param name="distinct"></param>
         /// <param name="indices">Row indices (optional)</param>
+        /// <param name="dataTable"></param>
         /// <returns></returns>
         public static IEnumerable<uint> AllOrSpecifiedRowIndices(this IDataTable dataTable, bool distinct, params uint[] indices) => indices.Length == 0
             ? dataTable.RowCount.AsRange()
@@ -1519,6 +1583,12 @@ namespace BrightData
                 : indices
         ;
 
+        /// <summary>
+        /// Returns the specified columns from the data table (or all if none specified) as buffers
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer[] GetColumnsAsBuffers(this IDataTable dataTable, params uint[] columnIndices)
         {
             if (columnIndices.Length == 0) {
@@ -1536,35 +1606,74 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Returns the type of column from a data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         public static Type GetColumnType(this IDataTable dataTable, uint columnIndex) => dataTable.ColumnTypes[columnIndex].GetColumnType().Type;
 
-        public static IOperation[] CopyTo(this IDataTable dataTable, params IAcceptBlock[] buffers)
+        /// <summary>
+        /// Creates operations to copy all columns in the table to a destination
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="buffers"></param>
+        /// <returns></returns>
+        public static IOperation[] CopyTo(this IDataTable dataTable, params IAppendBlocks[] buffers)
         {
             return dataTable.ColumnCount.AsRange()
-                .Select(i => dataTable.GetColumn(i).CreateBufferScan(buffers[i]))
+                .Select(i => dataTable.GetColumn(i).CreateBufferCopyOperation(buffers[i]))
                 .ToArray()
             ;
         }
 
+        /// <summary>
+        /// Writes the data table to a stream
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static async Task WriteTo(this IDataTable dataTable, Stream stream)
         {
             var builder = new ColumnOrientedDataTableBuilder(dataTable.Context);
             builder.CreateColumnsFrom(dataTable);
-            await builder.Add(dataTable.GetColumns());
+            await builder.AddRows(dataTable.GetColumns());
             await builder.WriteTo(stream);
         }
 
+        /// <summary>
+        /// Writes the data table to disk
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static async Task WriteTo(this IDataTable dataTable, string path)
         {
             await using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
             await WriteTo(dataTable, stream);
         }
 
+        /// <summary>
+        /// Returns a slice of rows from the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public static Task<TableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
         {
             return dataTable.GetRows(count.AsRange(start).Where(x => x < dataTable.RowCount).ToArray());
         }
 
+        /// <summary>
+        /// Creates a new data table from the existing and a projection function that will be applied to each row
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="projection"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static async Task<IBuildDataTables> Project(this IDataTable dataTable, Func<TableRow, object[]?> projection, CancellationToken ct = default)
         {
             var builder = dataTable.Context.CreateTableBuilder();
@@ -1589,15 +1698,30 @@ namespace BrightData
             return builder;
         }
 
+        /// <summary>
+        /// Creates a data table from an array of buffers
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="buffers"></param>
+        /// <param name="tableMetaData"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static async Task<IDataTable> CreateTable<T>(this BrightDataContext context, IReadOnlyBufferWithMetaData<T>[] buffers, MetaData? tableMetaData = null, string? filePath = null) where T : notnull
         {
             var builder = context.CreateTableBuilder();
             builder.CreateColumnsFrom(buffers);
             tableMetaData?.CopyTo(builder.TableMetaData);
-            await builder.Add(buffers);
+            await builder.AddRows(buffers);
             return await builder.Build(filePath);
         }
 
+        /// <summary>
+        /// Builds the data table, either writing it to disk if a file path was specified otherwise in memory
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static async Task<IDataTable> Build(this IBuildDataTables builder, string? filePath)
         {
             await using Stream stream = (filePath is null)
@@ -1613,5 +1737,16 @@ namespace BrightData
         /// <param name="builder"></param>
         /// <returns></returns>
         public static Task<IDataTable> BuildInMemory(this IBuildDataTables builder) => Build(builder, null);
+
+        /// <summary>
+        /// Returns an array of columns (all if none specified)
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
+        public static IReadOnlyBufferWithMetaData[] GetColumns(this IDataTable dataTable, params uint[] columnIndices)
+        {
+            return dataTable.GetColumns(dataTable.AllOrSpecifiedColumnIndices(true, columnIndices));
+        }
     }
 }

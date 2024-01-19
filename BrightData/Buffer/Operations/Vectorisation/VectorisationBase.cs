@@ -9,9 +9,8 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// Base class for vectorisation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="isOutput"></param>
     /// <param name="outputSize"></param>
-    internal abstract class VectorisationBase<T>(bool isOutput, uint outputSize) : ICanVectorise
+    internal abstract class VectorisationBase<T>(uint outputSize) : ICanVectorise
         where T : notnull
     {
         readonly float[] _output = new float[outputSize];
@@ -19,7 +18,6 @@ namespace BrightData.Buffer.Operations.Vectorisation
         public uint OutputSize => (uint)_output.Length;
 
         protected abstract void Vectorise(in T item, Span<float> buffer);
-        public bool IsOutput { get; } = isOutput;
         public abstract VectorisationType Type { get; }
 
         public async Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output)

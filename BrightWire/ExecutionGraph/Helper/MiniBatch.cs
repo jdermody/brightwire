@@ -10,28 +10,20 @@ namespace BrightWire.ExecutionGraph.Helper
         /// <summary>
         /// A sequence within a mini batch
         /// </summary>
-	    internal class Sequence : IMiniBatchSequence
+	    internal class Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
+            : IMiniBatchSequence
         {
-            public IMiniBatch MiniBatch { get; }
-            public uint SequenceIndex { get; }
-            public MiniBatchSequenceType Type { get; }
-            public IGraphData? Input { get; }
-            public IGraphData? Target { get; }
+            public IMiniBatch MiniBatch { get; } = miniBatch;
+            public uint SequenceIndex { get; } = sequenceIndex;
+            public MiniBatchSequenceType Type { get; } = type;
+            public IGraphData? Input { get; } = input;
+            public IGraphData? Target { get; } = target;
             public IGraphContext? GraphContext { get; set; }
-
-            public Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
-            {
-                Input = input;
-                Target = target;
-                MiniBatch = miniBatch;
-                SequenceIndex = sequenceIndex;
-                Type = type;
-            }
 
             /// <inheritdoc />
             public override string ToString() => $"{SequenceIndex} - {Type}";
         }
-        readonly List<Sequence> _sequence = new();
+        readonly List<Sequence> _sequence = [];
 	    int _index = 0;
 
 		/// <summary>

@@ -4,20 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using BrightWire;
 using BrightWire.Models;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class EmotionsTrainer : DataTableTrainer
+    internal class EmotionsTrainer(IDataTable table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public EmotionsTrainer(IDataTable table, IDataTable training, IDataTable test) : base(table, training, test)
-        {
-        }
-
         public static async Task<IDataTable> Parse(BrightDataContext context, string filePath)
         {
             const int targetColumnCount = 6;
@@ -55,7 +49,7 @@ namespace ExampleCode.DataTableTrainers
             var allColumns = new IReadOnlyBufferWithMetaData[featureColumns.Length + 1];
             featureColumns.CopyTo(allColumns, 0);
             allColumns[featureColumns.Length] = targetIndexLists;
-            await builder.Add(allColumns);
+            await builder.AddRows(allColumns);
             var finalTable = await builder.Build(null);
             return finalTable;
         }
@@ -202,7 +196,7 @@ namespace ExampleCode.DataTableTrainers
                     //.AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                     .Add(graph.TanhActivation())
-                    .AddBackpropagation();
+                    .AddBackpropagation()
                 ;
 
                 // train the network

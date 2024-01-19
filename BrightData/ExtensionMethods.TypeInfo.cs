@@ -47,37 +47,29 @@ namespace BrightData
         /// <returns></returns>
         public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
 
-        class ColumnFilter<T> : IAcceptBlock<T> where T: notnull
+        class ColumnFilter<T>(uint columnIndex, BrightDataType columnType, IDataTypeSpecification<T> filter, HashSet<uint> nonConformingRowIndices)
+            : IAppendBlocks<T>
+            where T : notnull
         {
-            readonly IDataTypeSpecification<T> _filter;
-            readonly HashSet<uint> _nonConformingRowIndices;
             uint _index = 0;
 
-            public ColumnFilter(uint columnIndex, BrightDataType columnType, IDataTypeSpecification<T> filter, HashSet<uint> nonConformingRowIndices)
-            {
-                _filter = filter;
-                _nonConformingRowIndices = nonConformingRowIndices;
-                ColumnIndex = columnIndex;
-                ColumnType = columnType;
-            }
+            public uint ColumnIndex { get; } = columnIndex;
+            public BrightDataType ColumnType { get; } = columnType;
 
-            public uint ColumnIndex { get; }
-            public BrightDataType ColumnType { get; }
-
-            public void Add(ReadOnlySpan<T> inputBlock)
+            public void Append(ReadOnlySpan<T> inputBlock)
             {
                 foreach (var item in inputBlock) {
-                    if (!_filter.IsValid(item))
-                        _nonConformingRowIndices.Add(_index);
+                    if (!filter.IsValid(item))
+                        nonConformingRowIndices.Add(_index);
                     ++_index;
                 }
             }
             public Type BlockType => typeof(T);
         }
 
-        static IAcceptBlock GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
+        static IAppendBlocks GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
         {
-            return GenericActivator.Create<IAcceptBlock>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
+            return GenericActivator.Create<IAppendBlocks>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
         }
 
         /// <summary>
@@ -96,7 +88,7 @@ namespace BrightData
 
             var ret = new HashSet<uint>();
             var ops = dataTable.CopyTo(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts)).ToArray());
-            await ops.Process();
+            await ops.ExecuteAllAsOne();
             return ret;
         }
     }

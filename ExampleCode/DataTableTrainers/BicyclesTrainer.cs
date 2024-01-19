@@ -3,12 +3,8 @@ using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class BicyclesTrainer : DataTableTrainer
+    internal class BicyclesTrainer(IDataTable table) : DataTableTrainer(table)
     {
-        public BicyclesTrainer(IDataTable table) : base(table)
-        {
-        }
-
         //public void TrainLinearModel()
         //{
         //    var lap = _context.LinearAlgebraProvider2;

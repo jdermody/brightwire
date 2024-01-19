@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -23,7 +22,6 @@ namespace BrightData.LinearAlgebra
     public class BrightMatrix<LAP>(INumericSegment<float> data, uint rows, uint columns, LAP lap) : BrightTensorBase<IMatrix, LAP>(data, lap), IMatrix
         where LAP: LinearAlgebraProvider
     {
-
         /// <inheritdoc />
         public uint RowCount { get; private set; } = rows;
 
@@ -36,7 +34,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public sealed override uint[] Shape
         {
-            get => new[] { ColumnCount, RowCount };
+            get => [ColumnCount, RowCount];
             protected set
             {
                 ColumnCount = value[0];
@@ -267,8 +265,6 @@ namespace BrightData.LinearAlgebra
 
         IReadOnlyVector IReadOnlyMatrix.GetRow(uint rowIndex) => GetRowAsReadOnly(rowIndex);
         IReadOnlyVector IReadOnlyMatrix.GetColumn(uint columnIndex) => GetColumnAsReadOnly(columnIndex);
-        IReadOnlyVector[] IReadOnlyMatrix.AllRows() => AllRowsAsReadOnly(false);
-        IReadOnlyVector[] IReadOnlyMatrix.AllColumns() => AllColumnsAsReadOnly(false);
     }
 
     /// <summary>
@@ -281,7 +277,5 @@ namespace BrightData.LinearAlgebra
     /// <param name="rows">Number of rows</param>
     /// <param name="columns">Number of columns</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : BrightMatrix<LinearAlgebraProvider>(data, rows, columns, lap)
-    {
-    }
+    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : BrightMatrix<LinearAlgebraProvider>(data, rows, columns, lap);
 }

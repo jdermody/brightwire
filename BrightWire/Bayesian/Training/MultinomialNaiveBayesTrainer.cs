@@ -1,5 +1,4 @@
-﻿using BrightData;
-using BrightData.Types;
+﻿using BrightData.Types;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -10,13 +9,13 @@ namespace BrightWire.Bayesian.Training
     // http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
     internal class MultinomialNaiveBayesTrainer
     {
-        readonly HashSet<uint> _vocabulary = new();
+        readonly HashSet<uint> _vocabulary = [];
         readonly Dictionary<string, List<IndexList>> _documentClass = new();
 
         public void AddClassification(string documentClass, IndexList indexList)
         {
 	        if (!_documentClass.TryGetValue(documentClass, out var temp))
-                _documentClass.Add(documentClass, temp = new List<IndexList>());
+                _documentClass.Add(documentClass, temp = []);
 
             foreach (var item in indexList.Indices)
                 _vocabulary.Add(item);

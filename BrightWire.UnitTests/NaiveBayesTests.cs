@@ -47,9 +47,9 @@ namespace BrightWire.UnitTests
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             var data = new[] {
-                (new[] { "Chinese", "Beijing", "Chinese" }, true),
-                (new[] { "Chinese", "Chinese", "Shanghai" }, true),
-                (new[] { "Chinese", "Macao" }, true),
+                (["Chinese", "Beijing", "Chinese"], true),
+                (["Chinese", "Chinese", "Shanghai"], true),
+                (["Chinese", "Macao"], true),
                 (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
 

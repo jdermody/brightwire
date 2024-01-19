@@ -71,7 +71,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 var output = item.Item2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
-                        outputData.Add(i, temp = new());
+                        outputData.Add(i, temp = []);
                     temp.Add(output.GetRow(i).ReadOnlySegment);
                 }
             }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 
@@ -9,7 +8,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D, IReadOnlyTensor3D
+    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -37,8 +36,13 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public override ITensor3D Create(INumericSegment<float> segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Returns a read only matrix
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
+
         TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
@@ -59,7 +63,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public sealed override uint[] Shape
         {
-            get => new[] { ColumnCount, RowCount, Depth };
+            get => [ColumnCount, RowCount, Depth];
             protected set
             {
                 ColumnCount = value[0];
@@ -95,7 +99,6 @@ namespace BrightData.LinearAlgebra
         }
 
         IReadOnlyMatrix IReadOnlyTensor3D.GetMatrix(uint index) => GetMatrixAsReadOnly(index);
-        IReadOnlyMatrix[] IReadOnlyTensor3D.AllMatrices() => AllMatricesAsReadOnly();
 
         /// <summary>
         /// Returns a value from the tensor
@@ -119,15 +122,6 @@ namespace BrightData.LinearAlgebra
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
-        }
-
-        /// <inheritdoc />
-        public IReadOnlyMatrix[] AllMatricesAsReadOnly()
-        {
-            var ret = new IReadOnlyMatrix[Depth];
-            for (uint i = 0; i < Depth; i++)
-                ret[i] = GetMatrixAsReadOnly(i);
-            return ret;
         }
 
         /// <inheritdoc />

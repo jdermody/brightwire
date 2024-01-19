@@ -516,7 +516,13 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="tensor"></param>
         /// <returns></returns>
-        public ITensor3D CreateTensor3D(IReadOnlyTensor3D tensor) => CreateTensor3D(tensor.AllMatrices());
+        public ITensor3D CreateTensor3D(IReadOnlyTensor3D tensor)
+        {
+            var matrices = new IReadOnlyMatrix[tensor.Depth];
+            for (uint i = 0; i < tensor.Depth; i++)
+                matrices[i] = tensor.GetMatrix(i);
+            return CreateTensor3D(matrices);
+        }
 
         /// <summary>
         /// Creates a 3D tensor from existing matrices and then disposes each matrix
@@ -1094,7 +1100,7 @@ namespace BrightData.LinearAlgebra
         /// Finds the standard deviation of each element in the tensor
         /// </summary>
         /// <param name="tensor"></param>
-        /// <param name="mean">Pre calculated mean of the tensor or null to calculate</param>
+        /// <param name="mean">Pre-calculated mean of the tensor or null to calculate</param>
         /// <returns></returns>
         public virtual float StdDev(INumericSegment<float> tensor, float? mean) => tensor.GetReadOnlySpan(x => x.StdDev(mean));
 
@@ -1265,7 +1271,7 @@ namespace BrightData.LinearAlgebra
             if (matrix1.ColumnCount != matrix2.RowCount)
                 throw new Exception("Matrix sizes do not agree");
 
-            // transpose so that we can can get contiguous vectors
+            // transpose so that we can get contiguous vectors
             using var transposedThis = Transpose(matrix1);
             return MultiplyWithThisTransposed(transposedThis, matrix2);
             //return OldMultiply(matrix, other);
@@ -1303,41 +1309,41 @@ namespace BrightData.LinearAlgebra
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static unsafe void MatrixMultiply(float* a, float* b, int size, uint rows, uint cols, float* ret)
-        {
-            var vectorSize = Vector<float>.Count;
-            var numVectors = size / vectorSize;
-            var ceiling = numVectors * vectorSize;
-            var totalSize = rows * cols;
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //static unsafe void MatrixMultiply(float* a, float* b, int size, uint rows, uint cols, float* ret)
+        //{
+        //    var vectorSize = Vector<float>.Count;
+        //    var numVectors = size / vectorSize;
+        //    var ceiling = numVectors * vectorSize;
+        //    var totalSize = rows * cols;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]void Multiply(long index)
-            {
-                var i = (uint)(index % rows);
-                var j = (uint)(index / rows);
+        //    [MethodImpl(MethodImplOptions.AggressiveInlining)]void Multiply(long index)
+        //    {
+        //        var i = (uint)(index % rows);
+        //        var j = (uint)(index / rows);
 
-                var xPtr = &a[i * size];
-                var yPtr = &b[j * size];
-                var xVectors = (Vector<float>*)xPtr;
-                var yVectors = (Vector<float>*)yPtr;
+        //        var xPtr = &a[i * size];
+        //        var yPtr = &b[j * size];
+        //        var xVectors = (Vector<float>*)xPtr;
+        //        var yVectors = (Vector<float>*)yPtr;
 
-                var vSum = Vector<float>.Zero;
-                for (var z = 0; z < numVectors; z++)
-                    vSum += xVectors[z] * yVectors[z];
+        //        var vSum = Vector<float>.Zero;
+        //        for (var z = 0; z < numVectors; z++)
+        //            vSum += xVectors[z] * yVectors[z];
 
-                var sum = Vector.Dot(vSum, Vector<float>.One);
-                for (var z = ceiling; z < size; z++)
-                    sum += xPtr[z] * yPtr[z];
-                ret[j * rows + i] = sum;
-            }
+        //        var sum = Vector.Dot(vSum, Vector<float>.One);
+        //        for (var z = ceiling; z < size; z++)
+        //            sum += xPtr[z] * yPtr[z];
+        //        ret[j * rows + i] = sum;
+        //    }
 
-            if (totalSize >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, totalSize, Multiply);
-            else {
-                for (uint ind = 0; ind < totalSize; ind++)
-                    Multiply(ind);
-            }
-        }
+        //    if (totalSize >= Consts.MinimumSizeForParallel)
+        //        Parallel.For(0, totalSize, Multiply);
+        //    else {
+        //        for (uint ind = 0; ind < totalSize; ind++)
+        //            Multiply(ind);
+        //    }
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static unsafe void MatrixMultiplyChunked(float* a, float* b, int size, uint rows, uint cols, float* ret)
@@ -1561,7 +1567,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <summary>
-        /// Applies zero padding to the each matrix in the tensor
+        /// Applies zero padding to each matrix in the tensor
         /// </summary>
         /// <param name="tensor"></param>
         /// <param name="padding"></param>

@@ -40,7 +40,7 @@ namespace BrightData.Buffer.Composite
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public async Task<uint> WriteTo(IDataBlock file)
+            public async Task<uint> WriteTo(IByteBlockSource file)
             {
                 var offset = file.Size;
                 using var writer = new ArrayPoolBufferWriter<byte>();
@@ -65,7 +65,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> SkipFileBlock(IDataBlock file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);
@@ -73,7 +73,7 @@ namespace BrightData.Buffer.Composite
             return blockSize + HeaderSize;
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IDataBlock file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset)
         {
             var (blockSize, buffer) = await ReadBuffer(file, offset);
             try
@@ -88,7 +88,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<T> callback)
         {
             var (blockSize, buffer) = await ReadBuffer(file, offset);
             try
@@ -115,7 +115,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(IDataBlock file, uint offset)
+        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);

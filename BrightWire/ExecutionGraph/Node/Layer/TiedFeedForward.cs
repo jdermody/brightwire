@@ -8,17 +8,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// A feed forward layer with tied weights (from a previous feed forward layer)
     /// </summary>
-    internal class TiedFeedForward : NodeBase
+    internal class TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null)
+        : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
+        class Backpropagation(TiedFeedForward source, IMatrix input) : SingleBackpropagationBase<TiedFeedForward>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(TiedFeedForward source, IMatrix input) : base(source)
-            {
-                _input = input;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
@@ -27,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var ret = es.Multiply(_source._layer.Weight);
 
                 // calculate the update to the weights
-                var weightUpdate = _input.TransposeThisAndMultiply(es).Transpose();
+                var weightUpdate = input.TransposeThisAndMultiply(es).Transpose();
 
                 // store the updates
                 var learningContext = context.LearningContext!;
@@ -37,16 +31,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 return errorSignal.ReplaceWith(ret);
             }
         }
-        IFeedForward _layer;
-        IVector _bias;
-        string _layerId;
-
-        public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null) : base(name)
-        {
-            _layer = layer;
-            _layerId = layer.Id;
-            _bias = weightInit.CreateBias(layer.InputSize);
-        }
+        IFeedForward _layer = layer;
+        IVector _bias = weightInit.CreateBias(layer.InputSize);
+        string _layerId = layer.Id;
 
         public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
         {

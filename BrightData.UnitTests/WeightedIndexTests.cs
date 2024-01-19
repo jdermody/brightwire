@@ -150,11 +150,11 @@ namespace BrightData.UnitTests
         WeightedIndexListWithLabel<string>[] GetSampleDocuments()
         {
             var stringTable = new Dictionary<string, uint>();
-            return new WeightedIndexListWithLabel<string>[] {
+            return [
                 new("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
                 new("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
                 new("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
-            };
+            ];
         }
 
         [Fact]

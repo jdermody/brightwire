@@ -7,29 +7,19 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     internal class ReverseTemporalJoin : MultiGateBase
     {
-        class Backpropagation : BackpropagationBase<ReverseTemporalJoin>
+        class Backpropagation(ReverseTemporalJoin source, uint reverseSize, NodeBase forward, NodeBase backward)
+            : BackpropagationBase<ReverseTemporalJoin>(source)
         {
-            readonly uint _reverseSize;
-            readonly NodeBase _forward;
-            readonly NodeBase _backward;
-
-            public Backpropagation(ReverseTemporalJoin source, uint reverseSize, NodeBase forward, NodeBase backward) : base(source)
-            {
-                _reverseSize = reverseSize;
-                _forward = forward;
-                _backward = backward;
-            }
-
             public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                yield return (errorSignal.ReplaceWith(left), context, _forward);
+                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - reverseSize);
+                yield return (errorSignal.ReplaceWith(left), context, _forward: forward);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
                 var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (_backward, errorSignal.ReplaceWith(right)));
+                _source._reverseBackpropagation.Add(reversedSequenceIndex, (_backward: backward, errorSignal.ReplaceWith(right)));
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {

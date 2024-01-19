@@ -54,9 +54,9 @@ namespace BrightWire.ExecutionGraph.DataSource
 
         public uint[][] GetSequentialBatches()
         {
-            return new[] {
+            return [
                 _data.Length.AsRange().ToArray()
-            };
+            ];
         }
     }
 }

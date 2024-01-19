@@ -9,15 +9,8 @@ using BrightWire.TrainingData.Artificial;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class SequenceToSequenceTrainer : DataTableTrainer
+    internal class SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IDataTable dataTable) : DataTableTrainer(dataTable)
     {
-        readonly SequenceGenerator _sequenceGenerator;
-
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IDataTable dataTable) : base(dataTable)
-        {
-            _sequenceGenerator = sequenceGenerator;
-        }
-
         public void TrainOneToMany()
         {
             var graph = _context.CreateGraphFactory();
@@ -52,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
             var output = executionEngine.Execute(testData);
             var orderedOutput = output.OrderSequentialOutput();
 
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
                     Input: GetStringIndices(Test.Get<ReadOnlyVector>(0, i).Result),
@@ -62,7 +55,7 @@ namespace ExampleCode.DataTableTrainers
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result)}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input)} => {sequenceGenerator.Decode(result)}");
             }
         }
 
@@ -112,7 +105,7 @@ namespace ExampleCode.DataTableTrainers
             var output = executionEngine.Execute(testData);
             var orderedOutput = output.OrderSequentialOutput();
 
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
                     var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
@@ -126,7 +119,7 @@ namespace ExampleCode.DataTableTrainers
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input.OrderBy(d => d).ToArray())} => {_sequenceGenerator.Decode(result)}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input.OrderBy(d => d).ToArray())} => {sequenceGenerator.Decode(result)}");
             }
         }
 
@@ -186,7 +179,7 @@ namespace ExampleCode.DataTableTrainers
             foreach (var item in attention)
                 Console.WriteLine($"{item.Key}: {item.Value}");
 
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
                     var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
@@ -217,7 +210,7 @@ namespace ExampleCode.DataTableTrainers
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result.Reverse())}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input)} => {sequenceGenerator.Decode(result.Reverse())}");
             }
         }
     }

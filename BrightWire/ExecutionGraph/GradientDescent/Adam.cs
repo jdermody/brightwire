@@ -8,20 +8,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Adam gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
     /// </summary>
-    internal class Adam : RmsProp
+    internal class Adam(float decay, float decay2, IMatrix cache, IMatrix cache2, IGradientDescentOptimisation updater)
+        : RmsProp(decay, cache, updater)
     {
-        float _decayRate2;
-        IMatrix _cache2;
-
-        public Adam(float decay, float decay2, IMatrix cache, IMatrix cache2, IGradientDescentOptimisation updater) : base(decay, cache, updater)
-        {
-            _decayRate2 = decay2;
-            _cache2 = cache2;
-        }
-
         public override void Dispose()
         {
-            _cache2.Dispose();
+            cache2.Dispose();
             base.Dispose();
         }
 
@@ -31,10 +23,10 @@ namespace BrightWire.ExecutionGraph.GradientDescent
 
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(delta, _decayRate, 1 - _decayRate);
-            _cache2.AddInPlace(deltaSquared, _decayRate2, 1 - _decayRate2);
+            cache2.AddInPlace(deltaSquared, decay2, 1 - decay2);
 
             using var mb = _cache.Multiply(1f / (1f - MathF.Pow(_decayRate, t)));
-            using var vb = _cache2.Multiply(1f / (1f - MathF.Pow(_decayRate2, t)));
+            using var vb = cache2.Multiply(1f / (1f - MathF.Pow(decay2, t)));
             using var vbSqrt = vb.Sqrt();
             using var delta2 = mb.PointwiseDivide(vbSqrt);
             _updater.Update(source, delta2, context);
@@ -44,18 +36,18 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         {
             base.ReadFrom(factory, reader);
 
-            _decayRate2 = (uint)reader.ReadSingle();
+            decay2 = (uint)reader.ReadSingle();
             var rows = (uint)reader.ReadInt32();
             var columns = (uint)reader.ReadInt32();
-            _cache2 = factory.LinearAlgebraProvider.CreateMatrix(rows, columns, true);
+            cache2 = factory.LinearAlgebraProvider.CreateMatrix(rows, columns, true);
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
             base.WriteTo(writer);
-            writer.Write(_decayRate2);
-            writer.Write(_cache2.RowCount);
-            writer.Write(_cache2.ColumnCount);
+            writer.Write(decay2);
+            writer.Write(cache2.RowCount);
+            writer.Write(cache2.ColumnCount);
         }
     }
 }

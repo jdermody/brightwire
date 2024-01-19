@@ -16,7 +16,7 @@ namespace BrightData.Analysis
         public void WriteTo(MetaData metadata) => Analysis.WriteTo(metadata);
         public void AddObject(object obj) => Add(obj.ToString());
 
-        public void Add(ReadOnlySpan<T> block)
+        public void Append(ReadOnlySpan<T> block)
         {
             foreach(ref readonly var item in block)
                 Analysis.Add(item.ToString());

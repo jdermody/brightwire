@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
+using BrightData.DataTable.Columns;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
@@ -19,15 +20,13 @@ namespace BrightData.DataTable
     /// </summary>
     internal class ColumnOrientedDataTableWriter : IWriteDataTables
     {
-        readonly BrightDataContext _context;
         readonly IProvideDataBlocks? _tempData;
         readonly int               _blockSize;
         readonly uint?             _maxInMemoryBlocks;
         readonly MethodInfo        _writeStructs;
 
-        public ColumnOrientedDataTableWriter(BrightDataContext context, IProvideDataBlocks? tempData = null, int blockSize = Consts.DefaultBlockSize, uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
+        public ColumnOrientedDataTableWriter(IProvideDataBlocks? tempData = null, int blockSize = Consts.DefaultBlockSize, uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         {
-            _context = context;
             _tempData = tempData;
             _blockSize = blockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
@@ -52,12 +51,12 @@ namespace BrightData.DataTable
             header.ColumnCount = (uint)buffers.Length;
             header.RowCount = firstColumn.Size;
 
-            // write the meta data to a temp stream
+            // write the metadata to a temp stream
             using var tempBuffer = new MemoryStream();
             await using var metaDataWriter = new BinaryWriter(tempBuffer, Encoding.UTF8, true);
             tableMetaData.WriteTo(metaDataWriter);
 
-            // prepare the columns and continue writing meta data
+            // prepare the columns and continue writing metadata
             var columns = GetColumns(buffers, metaDataWriter);
 
             // write the headers
@@ -94,7 +93,7 @@ namespace BrightData.DataTable
                 else if (dataType == BrightDataType.Tensor4D)
                     await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
                 else
-                    await (Task)_writeStructs.MakeGenericMethod(columnType).Invoke(this, new object[] { columnSegment, output })!;
+                    await (Task)_writeStructs.MakeGenericMethod(columnType).Invoke(this, [columnSegment, output])!;
             }
             header.DataSizeBytes = (uint)(output.Position - header.DataOffset);
 
@@ -235,7 +234,7 @@ namespace BrightData.DataTable
             return Convert(buffer, stream, (in T from, ref DataRangeColumnType to) => {
                 to.StartIndex = indices.Size;
                 to.Size = from.Size;
-                indices.Add(from.ReadOnlySpan);
+                indices.Append(from.ReadOnlySpan);
             });
         }
 
@@ -256,14 +255,14 @@ namespace BrightData.DataTable
                 }
                 else {
                     to = indices.Size;
-                    indices.Add(str);
+                    indices.Append(str);
                 }
             });
             if (stringTable is not null) {
                 var orderedStrings = new string[stringTable.Count];
                 foreach (var item in stringTable)
                     orderedStrings[item.Value] = item.Key;
-                indices.Add(orderedStrings);
+                indices.Append(orderedStrings);
             }
         }
 
@@ -278,7 +277,7 @@ namespace BrightData.DataTable
                 data.StartIndex = floats.Size;
                 data.RowCount = matrix.RowCount;
                 data.ColumnCount = matrix.ColumnCount;
-                floats.Add(matrix.ReadOnlySpan);
+                floats.Append(matrix.ReadOnlySpan);
             });
         }
 
@@ -289,7 +288,7 @@ namespace BrightData.DataTable
                 data.RowCount = tensor.RowCount;
                 data.ColumnCount = tensor.ColumnCount;
                 data.Depth = tensor.Depth;
-                floats.Add(tensor.ReadOnlySpan);
+                floats.Append(tensor.ReadOnlySpan);
             });
         }
 
@@ -301,7 +300,7 @@ namespace BrightData.DataTable
                 data.ColumnCount = tensor.ColumnCount;
                 data.Depth = tensor.Depth;
                 data.Count = tensor.Count;
-                floats.Add(tensor.ReadOnlySpan);
+                floats.Append(tensor.ReadOnlySpan);
             });
         }
     }

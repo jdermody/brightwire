@@ -33,7 +33,7 @@ namespace BrightData.Buffer.Composite
             public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
 
-            public async Task<uint> WriteTo(IDataBlock file)
+            public async Task<uint> WriteTo(IByteBlockSource file)
             {
                 var bytes = WrittenMemory.Cast<T, byte>();
                 await file.WriteAsync(bytes, file.Size);
@@ -92,7 +92,7 @@ namespace BrightData.Buffer.Composite
             throw new Exception("Unexpected");
         }
 
-        public override void Add(ReadOnlySpan<T> inputBlock)
+        public override void Append(ReadOnlySpan<T> inputBlock)
         {
             while (inputBlock.Length > 0)
             {
@@ -116,12 +116,12 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override Task<uint> SkipFileBlock(IDataBlock file, uint offset)
+        protected override Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
         {
             return Task.FromResult((uint)_blockSize * (uint)_sizeOfT);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IDataBlock file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset)
         {
             var ret = new Memory<T>(new T[_blockSize]);
             var buffer = ret.Cast<T, byte>();
@@ -133,7 +133,7 @@ namespace BrightData.Buffer.Composite
             return ((uint)_blockSize * (uint)_sizeOfT, ret);
         }
 
-        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback)
+        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<T> callback)
         {
             using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
             uint readCount = 0;

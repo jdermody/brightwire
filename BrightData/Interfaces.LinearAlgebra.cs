@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -76,7 +75,7 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Read only tensor segment
+    /// A read only segment of numeric values - might be contiguous or a wrapper around a contiguous block
     /// </summary>
     public interface IReadOnlyNumericSegment<T> : ICountReferences, IDisposable, IHaveSize, IHaveSpanOf<float>
         where T : unmanaged, INumber<T>
@@ -161,7 +160,7 @@ namespace BrightData
     }
 
     /// <summary>
-    /// A segment of a float tensor
+    /// An editable segment of numeric values
     /// </summary>
     public interface INumericSegment<T> : IReadOnlyNumericSegment<T>
         where T: unmanaged, INumber<T>
@@ -248,10 +247,10 @@ namespace BrightData
         ReadOnlySpan<T> ReadOnlySpan { get; }
     }
 
-    public interface IReadOnlyTensor : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>
-    {
-
-    }
+    /// <summary>
+    /// Generic read only tensor
+    /// </summary>
+    public interface IReadOnlyTensor : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>;
 
     /// <summary>
     /// Vector that cannot be modified
@@ -332,18 +331,6 @@ namespace BrightData
         IReadOnlyVector GetColumn(uint columnIndex);
 
         /// <summary>
-        /// Returns all rows as an array
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyVector[] AllRows();
-
-        /// <summary>
-        /// Returns all columns as an array
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyVector[] AllColumns();
-
-        /// <summary>
         /// Creates a new mutable matrix that is a copy of this matrix
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
@@ -396,12 +383,6 @@ namespace BrightData
         /// <param name="index">Matrix index</param>
         /// <returns></returns>
         IReadOnlyMatrix GetMatrix(uint index);
-
-        /// <summary>
-        /// Returns all matrices as an array
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyMatrix[] AllMatrices();
 
         /// <summary>
         /// Creates a new mutable tensor that is a copy of this tensor
@@ -457,13 +438,7 @@ namespace BrightData
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        IReadOnlyTensor3D GetTensor3D(uint index);
-
-        /// <summary>
-        /// Returns all tensors as an array
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyTensor3D[] AllTensors();
+        IReadOnlyTensor3D GetTensor(uint index);
 
         /// <summary>
         /// Creates a new mutable tensor that is a copy of this tensor
@@ -1234,7 +1209,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int depth, int rowY, int columnX] { get; set; }
+        new float this[int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1243,7 +1218,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint depth, uint rowY, uint columnX] { get; set; }
+        new float this[uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1268,7 +1243,7 @@ namespace BrightData
         /// </summary>
         /// <param name="index">Matrix index</param>
         /// <returns></returns>
-        IMatrix GetMatrix(uint index);
+        new IMatrix GetMatrix(uint index);
 
         /// <summary>
         /// Creates a new 3D tensor with a "padding" of zeroes around the edge of each matrix
@@ -1390,19 +1365,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         new ITensor3D Clone();
-
-        /// <summary>
-        /// Returns a sub matrix
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        IReadOnlyMatrix GetMatrixAsReadOnly(uint index);
-
-        /// <summary>
-        /// Returns all sub matrices
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyMatrix[] AllMatricesAsReadOnly();
     }
 
     /// <summary>
@@ -1418,7 +1380,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int count, int depth, int rowY, int columnX] { get; set; }
+        new float this[int count, int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1428,7 +1390,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
+        new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1455,7 +1417,7 @@ namespace BrightData
         /// </summary>
         /// <param name="index">3D tensor index</param>
         /// <returns></returns>
-        ITensor3D GetTensor(uint index);
+        new ITensor3D GetTensor(uint index);
 
         /// <summary>
         /// Adds padding to each 3D tensor
@@ -1536,18 +1498,5 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         new ITensor4D Clone();
-
-        /// <summary>
-        /// Returns a sub tensor
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        IReadOnlyTensor3D GetTensorAsReadOnly(uint index);
-
-        /// <summary>
-        /// Returns all sub tensors
-        /// </summary>
-        /// <returns></returns>
-        IReadOnlyTensor3D[] AllTensorsAsReadOnly();
     }
 }

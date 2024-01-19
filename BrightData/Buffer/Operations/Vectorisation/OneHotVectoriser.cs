@@ -9,9 +9,8 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// One hot encoding vectorisation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="isOutput"></param>
     /// <param name="maxSize"></param>
-    internal class OneHotVectoriser<T>(bool isOutput, uint maxSize) : VectorisationBase<T>(isOutput, maxSize)
+    internal class OneHotVectoriser<T>(uint maxSize) : VectorisationBase<T>(maxSize)
         where T : notnull
     {
         protected readonly Dictionary<string, uint> _table = [];

@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
@@ -45,9 +44,7 @@ namespace BrightWire
         public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2) where T: notnull
         {
             var observation = new MarkovModelObservation2<T>(item1, item2);
-            if (model.TryGetValue(observation, out var ret))
-                return ret;
-            return null;
+            return model.GetValueOrDefault(observation);
         }
 
         /// <summary>
@@ -62,13 +59,11 @@ namespace BrightWire
         public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2, T item3) where T : notnull
         {
             var observation = new MarkovModelObservation3<T>(item1, item2, item3);
-            if (model.TryGetValue(observation, out var ret))
-                return ret;
-            return null;
+            return model.GetValueOrDefault(observation);
         }
 
         /// <summary>
-        /// Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
+        /// Non-negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>
         /// <param name="lap">Linear algebra provider</param>
@@ -131,7 +126,7 @@ namespace BrightWire
 		/// <summary>
 		/// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
 		/// </summary>
-		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
+		/// <param name="table">The training data table that must have an index-list based column to classify against</param>
 		/// <returns></returns>
 	    public static async Task<MultinomialNaiveBayes> TrainMultinomialNaiveBayes(this IDataTable table)
 		{

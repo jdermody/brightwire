@@ -2,13 +2,8 @@
 
 namespace BrightAPI.Database
 {
-    public class DataContext : DbContext
+    public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
     {
-        public DataContext(DbContextOptions<DataContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<DataTable> DataTables { get; set; } = null!;
     }
 }

@@ -5,17 +5,8 @@ using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper
 {
-    internal unsafe class StreamDeviceMemoryBlock : DeviceMemoryBlockBase
+    internal unsafe class StreamDeviceMemoryBlock(CuStream stream, uint size, bool isStreamOwner) : DeviceMemoryBlockBase(Create(stream, size))
     {
-        readonly CuStream _stream;
-        readonly bool _isStreamOwner;
-
-        public StreamDeviceMemoryBlock(CuStream stream, uint size, bool isStreamOwner) : base(Create(stream, size))
-        {
-            _stream = stream;
-            _isStreamOwner = isStreamOwner;
-        }
-
         static CudaDeviceVariable<float> Create(CuStream stream, uint size)
         {
             var ptr = new CuDevicePtr();
@@ -26,40 +17,40 @@ namespace BrightData.Cuda.Helper
 
         protected override void OnDispose()
         {
-            DriverApiNativeMethods.MemoryManagement.cuMemFreeAsync(DevicePointer, _stream).CheckResult();
-            if(_isStreamOwner)
-                DriverApiNativeMethods.Streams.cuStreamDestroy_v2(_stream).CheckResult();
+            DriverApiNativeMethods.MemoryManagement.cuMemFreeAsync(DevicePointer, stream).CheckResult();
+            if(isStreamOwner)
+                DriverApiNativeMethods.Streams.cuStreamDestroy_v2(stream).CheckResult();
         }
 
         public override void CopyToDevice(float[] source)
         {
             fixed (float* ptr = &source[0]) {
-                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer, (IntPtr)ptr, source.Length * sizeof(float), _stream).CheckResult();
+                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer, (IntPtr)ptr, source.Length * sizeof(float), stream).CheckResult();
             }
         }
 
         public override void CopyToDevice(IDeviceMemoryPtr source)
         {
-            DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(DevicePointer, source.DevicePointer, source.Size * sizeof(float), _stream).CheckResult();
+            DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoDAsync_v2(DevicePointer, source.DevicePointer, source.Size * sizeof(float), stream).CheckResult();
         }
 
         public override void CopyToDevice(ReadOnlySpan<float> span, uint targetOffset = 0)
         {
             fixed (float* ptr = &MemoryMarshal.GetReference(span))
             {
-                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)ptr, Size * sizeof(float), _stream).CheckResult();
+                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)ptr, Size * sizeof(float), stream).CheckResult();
             }
         }
 
         public override void CopyToDevice(float* ptr, uint sourceOffset, uint targetOffset, uint size)
         {
-            DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)(ptr + sourceOffset), size * sizeof(float), _stream).CheckResult();
+            DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyHtoDAsync_v2(DevicePointer + targetOffset * sizeof(float), (IntPtr)(ptr + sourceOffset), size * sizeof(float), stream).CheckResult();
         }
 
         public override void CopyToHost(float[] target)
         {
             fixed (float* ptr = &target[0]) {
-                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoHAsync_v2((IntPtr)ptr, DevicePointer, target.Length * sizeof(float), _stream);
+                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoHAsync_v2((IntPtr)ptr, DevicePointer, target.Length * sizeof(float), stream);
             }
         }
 
@@ -67,13 +58,13 @@ namespace BrightData.Cuda.Helper
         {
             fixed (float* p = &target.Array![0]) {
                 var ptr = p + target.Offset * sizeof(float);
-                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoHAsync_v2((IntPtr)ptr, DevicePointer, target.Count * sizeof(float), _stream);
+                DriverApiNativeMethods.AsynchronousMemcpyV2.cuMemcpyDtoHAsync_v2((IntPtr)ptr, DevicePointer, target.Count * sizeof(float), stream);
             }
         }
 
         public override void Clear()
         {
-            DriverApiNativeMethods.MemsetAsync.cuMemsetD8Async(DevicePointer, 0, Size * sizeof(float), _stream);
+            DriverApiNativeMethods.MemsetAsync.cuMemsetD8Async(DevicePointer, 0, Size * sizeof(float), stream);
             //if (Size % 2 == 0)
             //    DriverAPINativeMethods.MemsetAsync.cuMemsetD32Async(DevicePointer, 0, Size / 2, _stream).CheckResult();
             //else

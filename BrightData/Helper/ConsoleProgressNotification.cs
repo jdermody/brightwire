@@ -7,7 +7,7 @@ namespace BrightData.Helper
     /// <summary>
     /// Writes progress notifications to the console
     /// </summary>
-    public class ConsoleProgressNotification : INotifyUser
+    public class ConsoleProgressNotification : INotifyOperationProgress
     {
         int _progress = 0;
         readonly Stopwatch _stopWatch = new();

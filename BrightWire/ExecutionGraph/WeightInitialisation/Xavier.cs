@@ -9,26 +9,19 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// Xavier weight initialisation
     /// http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
     /// </summary>
-    internal class Xavier : IWeightInitialisation
+    internal class Xavier(LinearAlgebraProvider lap, float parameter = 6) : IWeightInitialisation
     {
-        readonly float _parameter;
-        readonly LinearAlgebraProvider _lap;
+        readonly float _parameter = MathF.Sqrt(parameter);
         readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new();
-
-        public Xavier(LinearAlgebraProvider lap, float parameter = 6)
-        {
-            _lap = lap;
-            _parameter = MathF.Sqrt(parameter);
-        }
 
         public IVector CreateBias(uint size)
         {
-            return _lap.CreateVector(size, true);
+            return lap.CreateVector(size, true);
         }
 
         public IMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
+            return lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }
 
         public float GetWeight(uint inputSize, uint outputSize)
@@ -36,7 +29,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             var key = (inputSize, outputSize);
             if (!_distributionTable.TryGetValue(key, out var distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
-                _distributionTable.Add(key, distribution = _lap.Context.CreateContinuousDistribution(0, stdDev));
+                _distributionTable.Add(key, distribution = lap.Context.CreateContinuousDistribution(0, stdDev));
             }
             return distribution.Sample();
         }

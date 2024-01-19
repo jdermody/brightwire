@@ -8,26 +8,17 @@ namespace BrightWire.ExecutionGraph.Activation
     /// RELu activation
     /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
     /// </summary>
-    internal class Relu : NodeBase
+    internal class Relu(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<Relu>
+        class Backpropagation(Relu source, IMatrix matrix) : SingleBackpropagationBase<Relu>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(Relu source, IMatrix matrix) : base(source)
-            {
-                _input = matrix;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                using var od = _input.ReluDerivative();
+                using var od = matrix.ReluDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
         }
-
-        public Relu(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

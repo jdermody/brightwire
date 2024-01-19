@@ -50,7 +50,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
             }
         }
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
             foreach (var buffer in _buffers)
                 await buffer.ForEachBlock(callback, notify, message, ct);

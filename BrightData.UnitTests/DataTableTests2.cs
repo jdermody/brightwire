@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using FluentAssertions;
@@ -18,12 +17,12 @@ namespace BrightData.UnitTests
         {
             var builder = _context.CreateTableBuilder();
             var stringColumnBuilder = builder.CreateColumn<string>("string column");
-            stringColumnBuilder.Add("a row");
-            stringColumnBuilder.Add("another row");
+            stringColumnBuilder.Append("a row");
+            stringColumnBuilder.Append("another row");
 
             var intColumnBuilder = builder.CreateColumn<int>("int column");
-            intColumnBuilder.Add(123);
-            intColumnBuilder.Add(234);
+            intColumnBuilder.Append(123);
+            intColumnBuilder.Append(234);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -52,7 +51,7 @@ namespace BrightData.UnitTests
             var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.CreateColumn<IndexList>("index list");
             var sampleIndexList = IndexList.Create(1, 2, 3, 4, 5);
-            indexListBuilder.Add(sampleIndexList);
+            indexListBuilder.Append(sampleIndexList);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -69,7 +68,7 @@ namespace BrightData.UnitTests
             var builder = _context.CreateTableBuilder();
             var indexListBuilder = builder.CreateColumn<WeightedIndexList>("weighted index list");
             var sampleIndexList = WeightedIndexList.Create((1, 1f), (2, 0.1f), (3, 0.75f), (4, 0.25f), (5, 0.77f));
-            indexListBuilder.Add(sampleIndexList);
+            indexListBuilder.Append(sampleIndexList);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -91,9 +90,9 @@ namespace BrightData.UnitTests
             var builder = _context.CreateTableBuilder();
             var vectorBuilder = builder.CreateColumn<ReadOnlyVector>("vector");
             var firstVector = _context.CreateReadOnlyVector(5, i => i + 1);
-            vectorBuilder.Add(firstVector);
+            vectorBuilder.Append(firstVector);
             var secondVector = _context.CreateReadOnlyVector(5, i => i + 2);
-            vectorBuilder.Add(secondVector);
+            vectorBuilder.Append(secondVector);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -114,9 +113,9 @@ namespace BrightData.UnitTests
             var builder = _context.CreateTableBuilder();
             var matrixBuilder = builder.CreateColumn<ReadOnlyMatrix>("matrix");
             var firstMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j);
-            matrixBuilder.Add(firstMatrix);
+            matrixBuilder.Append(firstMatrix);
             var secondMatrix = _context.CreateReadOnlyMatrix(5, 5, (i, j) => (i + j) + 1);
-            matrixBuilder.Add(secondMatrix);
+            matrixBuilder.Append(secondMatrix);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -144,7 +143,7 @@ namespace BrightData.UnitTests
                 _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j),
                 _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
             );
-            tensorBuilder.Add(firstTensor);
+            tensorBuilder.Append(firstTensor);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
@@ -170,7 +169,7 @@ namespace BrightData.UnitTests
                     _context.CreateReadOnlyMatrix(5, 5, (i, j) => i + j)
                 )
             );
-            tensorBuilder.Add(firstTensor);
+            tensorBuilder.Append(firstTensor);
 
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);

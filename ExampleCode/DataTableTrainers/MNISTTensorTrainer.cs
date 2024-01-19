@@ -6,12 +6,8 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class MnistTensorTrainer : DataTableTrainer
+    internal class MnistTensorTrainer(IDataTable training, IDataTable test) : DataTableTrainer(null, training, test)
     {
-        public MnistTensorTrainer(IDataTable training, IDataTable test) : base(null, training, test)
-        {
-        }
-
         public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
@@ -80,7 +76,7 @@ namespace ExampleCode.DataTableTrainers
             // execute the model with a single image
             var firstRow = Test[0];
             var tensor = (IReadOnlyTensor3D) firstRow[0];
-            var singleData = graph.CreateDataSource(new[] { tensor.Create(context.LinearAlgebraProvider) });
+            var singleData = graph.CreateDataSource([tensor.Create(context.LinearAlgebraProvider)]);
             var result = executionEngine.Execute(singleData);
             var prediction = result.Single().Output[0].GetMaximumIndex();
             var expectedPrediction = ((IReadOnlyVector)firstRow[1]).GetMaximumIndex();

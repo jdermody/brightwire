@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node
     {
         string _id;
         string? _name;
-        List<WireToNode> _output = new();
+        List<WireToNode> _output = [];
 
         /// <summary>
         /// Constructor
@@ -32,12 +32,12 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         /// <summary>
-        /// Called when deserialising the node
+        /// Called when de-serialising the node
         /// </summary>
         /// <param name="graph">Graph factory</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Node serialisation data</param>
-        protected virtual void Initalise(GraphFactory graph, string? description, byte[]? data)
+        protected virtual void Initialise(GraphFactory graph, string? description, byte[]? data)
         {
             ReadFrom(data, reader => ReadFrom(graph, reader));
         }
@@ -199,8 +199,8 @@ namespace BrightWire.ExecutionGraph.Node
         {
             _id = id;
             _name = name;
-            _output = new List<WireToNode>();
-            Initalise(factory, description, data);
+            _output = [];
+            Initialise(factory, description, data);
         }
 
         /// <summary>

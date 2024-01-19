@@ -8,29 +8,20 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Softmax activation function
     /// https://en.wikipedia.org/wiki/Softmax_function
     /// </summary>
-    internal class SoftMax : NodeBase
+    internal class SoftMax(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<SoftMax>
+        class Backpropagation(SoftMax source, INumericSegment<float>[] rows) : SingleBackpropagationBase<SoftMax>(source)
         {
-            readonly INumericSegment<float>[] _rows;
-
-            public Backpropagation(SoftMax source, INumericSegment<float>[] rows) : base(source)
-            {
-                _rows = rows;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                IReadOnlyNumericSegment<float>[] rowList = matrix.SoftmaxDerivativePerRow(_rows);
+                IReadOnlyNumericSegment<float>[] rowList = matrix.SoftmaxDerivativePerRow(rows);
                 var ret = lap.CreateMatrixFromRows(rowList);
                 rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);
             }
         }
-
-        public SoftMax(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

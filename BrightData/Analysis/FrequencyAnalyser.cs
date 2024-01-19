@@ -40,7 +40,7 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj) => AddString(obj.ToString());
 
-        public void Add(ReadOnlySpan<T> block)
+        public void Append(ReadOnlySpan<T> block)
         {
             foreach(ref readonly var item in block)
                 Add(item);

@@ -9,6 +9,9 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
+    /// <summary>
+    /// Read only 4D tensor
+    /// </summary>
     public class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         const int HeaderSize = 16;
@@ -16,6 +19,10 @@ namespace BrightData.LinearAlgebra.ReadOnly
         readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyTensor3D[] _tensors;
 
+        /// <summary>
+        /// Creates a 4D tensor from 3D tensors
+        /// </summary>
+        /// <param name="tensors"></param>
         public ReadOnlyTensor4D(IReadOnlyTensor3D[] tensors)
         {
             _tensors = tensors;
@@ -41,10 +48,22 @@ namespace BrightData.LinearAlgebra.ReadOnly
             });
         }
 
+        /// <summary>
+        /// Creates a tensor from bytes
+        /// </summary>
+        /// <param name="data"></param>
         public ReadOnlyTensor4D(ReadOnlySpan<byte> data) : this(BuildTensors(data))
         {
         }
 
+        /// <summary>
+        /// Creates a tensor from float memory
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="count"></param>
+        /// <param name="depth"></param>
+        /// <param name="rows"></param>
+        /// <param name="columns"></param>
         public ReadOnlyTensor4D(ReadOnlyMemory<float> data, uint count, uint depth, uint rows, uint columns) : this(BuildTensors(data.Span, count, depth, rows, columns))
         {
         }
@@ -138,9 +157,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint TensorSize => MatrixSize * Depth;
 
         /// <inheritdoc />
-        public bool IsReadOnly => true;
-
-        /// <inheritdoc />
         public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment.Value;
 
         /// <inheritdoc />
@@ -153,10 +169,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(_tensors);
 
         /// <inheritdoc />
-        public IReadOnlyTensor3D GetTensor3D(uint index) => _tensors[index];
-
-        /// <inheritdoc />
-        public IReadOnlyTensor3D[] AllTensors() => _tensors;
+        public IReadOnlyTensor3D GetTensor(uint index) => _tensors[index];
 
         /// <inheritdoc />
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor4D);

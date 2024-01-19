@@ -26,7 +26,7 @@ namespace BrightData.Buffer.Operations
             _to = to;
         }
 
-        public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);
@@ -50,7 +50,7 @@ namespace BrightData.Buffer.Operations
                 if (isValid) {
                     for (var i = 0; i < _size; i++)
                         curr[i] = enumerators[i].Current;
-                    _to.Add(_mutator(curr));
+                    _to.Append(_mutator(curr));
                     if (++index % _blockSize == 0)
                         notify?.OnOperationProgress(id, (float)index / _size);
                 }

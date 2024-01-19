@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
-using BrightData;
 using BrightData.Helper;
-using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -81,8 +78,16 @@ namespace BrightData.Types
             _indices = indices;
         }
 
+        /// <summary>
+        /// Creates an index list from a memory block of indices
+        /// </summary>
+        /// <param name="indices"></param>
         public IndexList(ReadOnlyMemory<uint> indices) => _indices = indices;
 
+        /// <summary>
+        /// Creates an index list from a span of indices
+        /// </summary>
+        /// <param name="data"></param>
         public IndexList(ReadOnlySpan<float> data)
         {
             var list = new List<uint>();
@@ -254,7 +259,7 @@ namespace BrightData.Types
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            ref var array = ref Unsafe.AsRef(_indices);
+            ref var array = ref Unsafe.AsRef(in _indices);
             array = reader.BaseStream.ReadArray<uint>(len);
         }
 

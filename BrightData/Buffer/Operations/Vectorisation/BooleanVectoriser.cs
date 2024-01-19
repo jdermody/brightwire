@@ -5,8 +5,7 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// <summary>
     /// Vectorisation of booleans
     /// </summary>
-    /// <param name="isOutput"></param>
-    internal class BooleanVectoriser(bool isOutput) : VectorisationBase<bool>(isOutput, 1)
+    internal class BooleanVectoriser() : VectorisationBase<bool>(1)
     {
         protected override void Vectorise(in bool item, Span<float> buffer)
         {

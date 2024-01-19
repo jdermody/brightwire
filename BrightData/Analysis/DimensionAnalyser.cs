@@ -47,7 +47,7 @@ namespace BrightData.Analysis
                 throw new ArgumentException("Expected a tensor", nameof(obj));
         }
 
-        public void Add(ReadOnlySpan<IReadOnlyTensor> block)
+        public void Append(ReadOnlySpan<IReadOnlyTensor> block)
         {
             foreach(ref readonly var item in block)
                 Add(item);

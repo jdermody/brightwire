@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
-using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -50,6 +48,10 @@ namespace BrightData.Types
             _indices = data.Cast<byte, Item>().ToArray();
         }
 
+        /// <summary>
+        /// Creates a weighted index list from a span of floats
+        /// </summary>
+        /// <param name="data"></param>
         public WeightedIndexList(ReadOnlySpan<float> data)
         {
             var list = new List<Item>();
@@ -224,7 +226,7 @@ namespace BrightData.Types
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            ref var array = ref Unsafe.AsRef(_indices);
+            ref var array = ref Unsafe.AsRef(in _indices);
             array = reader.BaseStream.ReadArray<Item>(len);
         }
 
@@ -248,7 +250,7 @@ namespace BrightData.Types
             foreach (var index in items)
             {
                 if (!itemWeights.TryGetValue(index.Index, out var weights))
-                    itemWeights.Add(index.Index, weights = new List<float>());
+                    itemWeights.Add(index.Index, weights = []);
                 weights.Add(index.Weight);
             }
 
@@ -418,7 +420,7 @@ namespace BrightData.Types
                 indices.Add(item.Index, item.Weight);
             }
             return indices.Any()
-                ? new ReadOnlyVector(maxIndex ?? max + 1, i => indices.TryGetValue(i, out var val) ? val : 0f)
+                ? new ReadOnlyVector(maxIndex ?? max + 1, i => indices.GetValueOrDefault(i, 0f))
                 : new ReadOnlyVector(maxIndex ?? 0, _ => 0f);
         }
 

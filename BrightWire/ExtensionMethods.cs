@@ -59,6 +59,7 @@ namespace BrightWire
         /// Enumerates rows in the table as vectorized rows
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="oneHotEncode"></param>
         /// <returns></returns>
         public static IEnumerable<(IReadOnlyNumericSegment<float> Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable, bool oneHotEncode)
         {
@@ -107,7 +108,7 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Clusters the rows in the data table using non negative matrix factorisation clustering
+        /// Clusters the rows in the data table using non-negative matrix factorisation clustering
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="k">Number of clusters</param>

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
     /// <summary>
-    /// Constrained float math helpers - if the value is too small or too big it will be capped. Also NaN values are replaced with zero.
+    /// Constrained float math helpers - if the value is too small or too big it will be capped. Also, NaN values are replaced with zero.
     /// </summary>
     public static class FloatMath
     {

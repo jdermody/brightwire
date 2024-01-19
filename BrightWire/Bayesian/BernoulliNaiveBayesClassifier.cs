@@ -1,5 +1,4 @@
-﻿using BrightData;
-using BrightData.Types;
+﻿using BrightData.Types;
 using BrightWire.Models.Bayesian;
 using System.Collections.Generic;
 using System.Linq;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BrightData;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.Segments
@@ -85,7 +84,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public IHaveReadOnlyContiguousSpan<float>? Contiguous => this;
+        public IHaveReadOnlyContiguousSpan<float> Contiguous => this;
 
         /// <inheritdoc />
         public virtual void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)

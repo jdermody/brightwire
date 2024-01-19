@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using BrightWire;
 using BrightWire.TrainingData.Helper;

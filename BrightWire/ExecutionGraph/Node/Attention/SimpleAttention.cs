@@ -17,40 +17,29 @@ namespace BrightWire.ExecutionGraph.Node.Attention
         IGradientDescentOptimisation _updater;
         IMatrix _attention;
 
-        class Backpropagation : SingleBackpropagationBase<SimpleAttention>
+        class Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, INumericSegment<float>[] softmax)
+            : SingleBackpropagationBase<SimpleAttention>(source)
         {
-            readonly uint _position, _sequenceSize;
-            readonly IMatrix _inputMatrix;
-            readonly INumericSegment<float>[] _softmax;
-
-            public Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, INumericSegment<float>[] softmax) : base(source)
-            {
-                _position = position;
-                _sequenceSize = sequenceSize;
-                _inputMatrix = inputMatrix;
-                _softmax = softmax;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var (left, right) = errorSignal.GetMatrix().SplitAtColumn(_position);
+                var (left, right) = errorSignal.GetMatrix().SplitAtColumn(position);
                 Debug.Assert(right.IsEntirelyFinite());
 
                 // train the attention layer
                 var learningContext = context.LearningContext!;
                 var lap = context.GetLinearAlgebraProvider();
-                using var errorTensor = lap.CreateTensor3D(_sequenceSize.AsRange().Select(_ => right).ToArray());
-                using var errorMatrix = errorTensor.Reshape(_inputMatrix.RowCount, _inputMatrix.ColumnCount);
-                using var weightError = errorMatrix.PointwiseMultiply(_inputMatrix);
+                using var errorTensor = lap.CreateTensor3D(sequenceSize.AsRange().Select(_ => right).ToArray());
+                using var errorMatrix = errorTensor.Reshape(inputMatrix.RowCount, inputMatrix.ColumnCount);
+                using var weightError = errorMatrix.PointwiseMultiply(inputMatrix);
                 using var weightVector = weightError.RowSums();
                 weightVector.MultiplyInPlace(1f / weightError.ColumnCount);
 
-                using var weightMatrix = weightVector.Reshape(null, _sequenceSize);
-                var softmaxError = weightMatrix.SoftmaxDerivativePerRow(_softmax);
+                using var weightMatrix = weightVector.Reshape(null, sequenceSize);
+                var softmaxError = weightMatrix.SoftmaxDerivativePerRow(softmax);
                 //using var softmaxErrorMatrix = lap.CreateMatrixFromColumns(softmaxError);
                 using var softmaxErrorMatrix = lap.CreateMatrixFromRows(softmaxError);
                 using var softmaxErrorMatrix2 = softmaxErrorMatrix.Reshape(null, 1);
-                var attentionError = softmaxErrorMatrix2.TransposeThisAndMultiply(_inputMatrix);
+                var attentionError = softmaxErrorMatrix2.TransposeThisAndMultiply(inputMatrix);
                 learningContext.AddError(NodeErrorType.Default, _source, attentionError);
                 softmaxError.DisposeAll();
 
@@ -60,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             protected override void DisposeMemory(bool isDisposing)
             {
                 if (isDisposing) {
-                    _softmax.DisposeAll();
+                    softmax.DisposeAll();
                 }
             }
         }
@@ -144,7 +133,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 var sequenceIndex = i / batchSize;
                 var batchIndex = i % batchSize;
                 var inputRow = inputMatrix.Row(i);
-                inputs[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, 0);
+                inputs[sequenceIndex].Row(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
                 encoderStates?[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, _inputSize);
                 decoderHiddenState?.Row(batchIndex).CopyTo(inputRow, 0, _inputSize + _encoderSize);
             }

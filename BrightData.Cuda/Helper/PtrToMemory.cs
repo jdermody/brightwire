@@ -7,17 +7,10 @@ namespace BrightData.Cuda.Helper
     /// <summary>
     /// A pointer to a block of device memory (the block is owned by another pointer)
     /// </summary>
-    internal class PtrToMemory : IDeviceMemoryPtr
+    internal class PtrToMemory(IDeviceMemoryPtr rootBlock, CuDevicePtr ptr, SizeT size) : IDeviceMemoryPtr
     {
-	    readonly IDeviceMemoryPtr          _rootBlock;
-        readonly CudaDeviceVariable<float> _ptr;
+        readonly CudaDeviceVariable<float> _ptr = new(ptr, false, size);
         bool                               _addedReference = false;
-
-        public PtrToMemory(IDeviceMemoryPtr rootBlock, CuDevicePtr ptr, SizeT size)
-        {
-            _ptr       = new CudaDeviceVariable<float>(ptr, false, size);
-	        _rootBlock = rootBlock;
-        }
 
         public void Dispose()
         {
@@ -39,7 +32,7 @@ namespace BrightData.Cuda.Helper
         public IDeviceMemoryPtr Offset(uint offsetInFloats, uint size)
         {
             var offsetPtr = _ptr.DevicePointer.Pointer + (offsetInFloats * sizeof(float));
-            return new PtrToMemory(_rootBlock, new CuDevicePtr(offsetPtr), size * sizeof(float));
+            return new PtrToMemory(rootBlock, new CuDevicePtr(offsetPtr), size * sizeof(float));
         }
 
         public void CopyToDevice(float[] source)
@@ -72,14 +65,14 @@ namespace BrightData.Cuda.Helper
 	    public int AddRef()
         {
             _addedReference = true;
-		    return _rootBlock.AddRef();
+		    return rootBlock.AddRef();
 	    }
 
 	    public int Release()
         {
-	        return _rootBlock.Release();
+	        return rootBlock.Release();
         }
 
-        public bool IsValid => _rootBlock.IsValid;
+        public bool IsValid => rootBlock.IsValid;
     }
 }

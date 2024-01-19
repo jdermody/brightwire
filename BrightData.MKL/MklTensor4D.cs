@@ -2,10 +2,6 @@
 
 namespace BrightData.MKL
 {
-    internal class MklTensor4D : BrightTensor4D<MklLinearAlgebraProvider>
-    {
-        public MklTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, MklLinearAlgebraProvider lap) : base(data, count, depth, rows, columns, lap)
-        {
-        }
-    }
+    internal class MklTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, MklLinearAlgebraProvider lap)
+        : BrightTensor4D<MklLinearAlgebraProvider>(data, count, depth, rows, columns, lap);
 }

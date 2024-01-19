@@ -1,5 +1,4 @@
-﻿using BrightData.Table;
-using Parquet;
+﻿using Parquet;
 using Parquet.Schema;
 
 namespace BrightData.Parquet

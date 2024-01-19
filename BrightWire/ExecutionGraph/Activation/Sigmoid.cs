@@ -8,26 +8,17 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Sigmoid activation function
     /// https://en.wikipedia.org/wiki/Sigmoid_function
     /// </summary>
-    internal class Sigmoid : NodeBase
+    internal class Sigmoid(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<Sigmoid>
+        class Backpropagation(Sigmoid source, IMatrix matrix) : SingleBackpropagationBase<Sigmoid>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(Sigmoid source, IMatrix matrix) : base(source)
-            {
-                _input = matrix;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                using var od = _input.SigmoidDerivative();
+                using var od = matrix.SigmoidDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
         }
-
-        public Sigmoid(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Table.Helper;
 
 namespace BrightData
 {
@@ -145,8 +144,8 @@ namespace BrightData
         public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
 
         /// <summary>
-        /// Optional interface to provide user notification of long running operations
+        /// Optional interface to provide user notification of long-running operations
         /// </summary>
-        public INotifyUser? UserNotifications { get; set; } = new ConsoleProgressNotification();
+        public INotifyOperationProgress? UserNotifications { get; set; } = new ConsoleProgressNotification();
     }
 }

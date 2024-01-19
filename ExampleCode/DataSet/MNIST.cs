@@ -2,29 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using BrightData;
-using BrightData.Cuda;
-using BrightData.Cuda.Helper;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode.DataSet
 {
-    internal class Mnist : IDisposable
+    internal class Mnist(BrightDataContext context, Mnist.Image[] trainingImages, Mnist.Image[] testImages)
+        : IDisposable
     {
-        readonly BrightDataContext _context;
-        public Image[] TrainingImages { get; }
-        public Image[] TestImages { get; }
-        readonly List<IDisposable> _tensorCache = new();
-
-        public Mnist(BrightDataContext context, Image[] trainingImages, Image[] testImages)
-        {
-            _context = context;
-            TrainingImages = trainingImages;
-            TestImages = testImages;
-        }
+        public Image[] TrainingImages { get; } = trainingImages;
+        public Image[] TestImages { get; } = testImages;
+        readonly List<IDisposable> _tensorCache = [];
 
         public void Dispose()
         {
@@ -60,16 +50,16 @@ namespace ExampleCode.DataSet
         public MnistVectorTrainer GetVectorTrainer()
         {
             return new(
-                BuildVectorToVectorDataTable(_context, TrainingImages),
-                BuildVectorToVectorDataTable(_context, TestImages)
+                BuildVectorToVectorDataTable(context, TrainingImages),
+                BuildVectorToVectorDataTable(context, TestImages)
             );
         }
 
         public MnistTensorTrainer GetTensorTrainer()
         {
             return new(
-                Build3DTensorToVectorDataTable(_context, TrainingImages),
-                Build3DTensorToVectorDataTable(_context, TestImages)
+                Build3DTensorToVectorDataTable(context, TrainingImages),
+                Build3DTensorToVectorDataTable(context, TestImages)
             );
         }
 

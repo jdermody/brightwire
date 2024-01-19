@@ -21,7 +21,7 @@ namespace BrightData.DataTable
         uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         : IBuildDataTables
     {
-        readonly List<ICompositeBuffer> _columns = new();
+        readonly List<ICompositeBuffer> _columns = [];
 
         public MetaData TableMetaData { get; } = new();
         public MetaData[] ColumnMetaData => _columns.Select(x => x.MetaData).ToArray();
@@ -99,25 +99,25 @@ namespace BrightData.DataTable
         public void AddRow(params object[] items)
         {
             for(int i = 0, len = items.Length; i < len; i++)
-                _columns[i].AddObject(items[i]);
+                _columns[i].AppendObject(items[i]);
             ++RowCount;
         }
 
-        public Task Add(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
+        public Task AddRows(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
         {
             var copy = new ManyToManyCopy(buffers, _columns);
-            return copy.Process(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
+            return copy.Execute(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
         }
 
-        public Task Add(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
+        public Task AddRows(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
         {
             var copy = new ManyToManyCopy(buffers, _columns);
-            return copy.Process(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
+            return copy.Execute(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
         }
 
         public Task WriteTo(Stream stream)
         {
-            var writer = new ColumnOrientedDataTableWriter(Context, tempData, blockSize, maxInMemoryBlocks);
+            var writer = new ColumnOrientedDataTableWriter(tempData, blockSize, maxInMemoryBlocks);
             return writer.Write(
                 TableMetaData,
                 _columns.Cast<IReadOnlyBufferWithMetaData>().ToArray(),

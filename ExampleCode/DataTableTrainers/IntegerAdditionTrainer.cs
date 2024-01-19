@@ -8,12 +8,8 @@ using BrightWire.TrainingData.Artificial;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class IntegerAdditionTrainer : DataTableTrainer
+    internal class IntegerAdditionTrainer(IDataTable data, IDataTable training, IDataTable test) : DataTableTrainer(data, training, test)
     {
-        public IntegerAdditionTrainer(IDataTable data, IDataTable training, IDataTable test) : base(data, training, test)
-        {
-        }
-
         public async Task TrainRecurrentNeuralNetwork(bool writeResults = true)
         {
             var graph = _context.CreateGraphFactory();

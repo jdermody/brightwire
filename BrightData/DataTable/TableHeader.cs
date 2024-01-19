@@ -29,6 +29,6 @@
         public uint WeightedIndexSizeBytes;
 
         public uint MetaDataOffset;
-        // meta data size continues until end of file
+        // metadata size continues until end of file
     }
 }

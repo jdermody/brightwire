@@ -3,11 +3,14 @@ using System.Linq;
 
 namespace BrightData.LinearAlgebra.Clustering
 {
+    /// <summary>
+    /// Hierarchical clustering
+    /// </summary>
     internal class Hierarchical : IClusteringStrategy
     {
         class Node
         {
-            readonly List<uint> _indices = new();
+            readonly List<uint> _indices = [];
 
             public Node(IReadOnlyVector vector, uint index)
             {

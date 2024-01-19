@@ -9,14 +9,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class ExecutionNode
     {
-        readonly List<ExecutionNode> _ancestors = new();
-        readonly List<ExecutionNode> _descendants = new();
+        readonly List<ExecutionNode> _ancestors = [];
+        readonly List<ExecutionNode> _descendants = [];
         readonly Lazy<BackpropagationInput> _inputError;
         ExecutionHistory? _history = null;
 
         public ExecutionNode()
         {
-            _inputError = new Lazy<BackpropagationInput>(() => new BackpropagationInput(_history, _descendants.Any() ? _descendants.ToArray() : new []{this}));
+            _inputError = new Lazy<BackpropagationInput>(() => new BackpropagationInput(_history, _descendants.Any() ? _descendants.ToArray() : [this]));
         }
 
         public void Add(ExecutionHistory history)

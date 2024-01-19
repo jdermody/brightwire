@@ -1,6 +1,4 @@
 ﻿using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.Segments;
-using System;
 
 namespace BrightData.Cuda
 {

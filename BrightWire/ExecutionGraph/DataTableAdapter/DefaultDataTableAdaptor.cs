@@ -5,7 +5,7 @@ using BrightData.DataTable;
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Vectorises each row of the data table on demand
+    /// Vectorise each row of the data table on demand
     /// </summary>
     internal class DefaultDataTableAdapter : RowBasedDataTableAdapterBase
     {

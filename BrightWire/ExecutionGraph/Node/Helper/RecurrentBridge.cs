@@ -9,14 +9,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Connects the hidden states across two recurrent neural network nodes
     /// </summary>
-    class RecurrentBridge : NodeBase
+    class RecurrentBridge(string fromName, string toName, string? name, string? id = null)
+        : NodeBase(name, id)
     {
-        class Backpropagation : SingleBackpropagationBase<RecurrentBridge>
+        class Backpropagation(RecurrentBridge source) : SingleBackpropagationBase<RecurrentBridge>(source)
         {
-            public Backpropagation(RecurrentBridge source) : base(source)
-            {
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var hiddenBackward = context.GetData("hidden-backward").Single(d => d.Name == _source._toName);
@@ -27,23 +24,17 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 return errorSignal;
             }
         }
-        string _fromName, _toName;
-
-        public RecurrentBridge(string fromName, string toName, string? name, string? id = null) : base(name, id)
-        {
-            _fromName = fromName;
-            _toName = toName;
-        }
+        string _toName = toName;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             // connect the hidden states
-            var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _fromName);
+            var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == fromName);
             MemoryFeeder memoryFeeder;
             if (FindByName(_toName) is IHaveMemoryNode node)
                 memoryFeeder = (MemoryFeeder)node.Memory;
             else
-                throw new Exception($"{_fromName} was not found or does not have a memory node");
+                throw new Exception($"{fromName} was not found or does not have a memory node");
 
             context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
             memoryFeeder.LoadNextFromMemory = true;
@@ -58,13 +49,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override void WriteTo(BinaryWriter writer)
         {
-            _fromName.WriteTo(writer);
+            fromName.WriteTo(writer);
             _toName.WriteTo(writer);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            _fromName = reader.ReadString();
+            fromName = reader.ReadString();
             _toName = reader.ReadString();
         }
     }

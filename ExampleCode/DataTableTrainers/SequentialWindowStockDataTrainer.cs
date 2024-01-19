@@ -2,19 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.Cuda.CudaToolkit;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class SequentialWindowStockDataTrainer : DataTableTrainer
+    internal class SequentialWindowStockDataTrainer(IDataTable table) : DataTableTrainer(table)
     {
-        public SequentialWindowStockDataTrainer(IDataTable table) : base(table)
-        {
-        }
-
         public async Task TrainLstm(uint hiddenLayerSize)
         {
             _context.LinearAlgebraProvider.BindThread();

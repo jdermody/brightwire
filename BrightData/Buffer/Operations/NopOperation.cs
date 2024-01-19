@@ -9,7 +9,7 @@ namespace BrightData.Buffer.Operations
     /// </summary>
     internal class NopOperation : IOperation
     {
-        public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);

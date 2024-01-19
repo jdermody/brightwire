@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.Table.Helper;
+using BrightData.Helper;
 using BrightData.Types;
 
 namespace BrightData.Buffer.Composite
@@ -22,7 +22,7 @@ namespace BrightData.Buffer.Composite
         protected readonly uint?      _maxInMemoryBlocks, _maxDistinctItems;
         readonly Func<T[], bool , BT> _blockFactory;
         IProvideDataBlocks?           _dataBlockProvider;
-        protected IDataBlock?         _currentDataBlock;
+        protected IByteBlockSource?         _currentDataBlock;
         protected List<BT>?           _inMemoryBlocks;
         protected BT?                 _currBlock;
         protected HashSet<T>?         _distinct;
@@ -53,7 +53,7 @@ namespace BrightData.Buffer.Composite
         public uint? DistinctItems => (uint?)_distinct?.Count;
         public Type DataType => typeof(T);
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
             var guid = Guid.NewGuid();
             notify?.OnStartOperation(guid, message);
@@ -182,7 +182,7 @@ namespace BrightData.Buffer.Composite
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
-        public virtual void Add(in T item)
+        public virtual void Append(in T item)
         {
             if (ConstraintValidator?.Allow(item) == false)
                 return;
@@ -193,10 +193,10 @@ namespace BrightData.Buffer.Composite
             ++Size;
         }
 
-        public virtual void Add(ReadOnlySpan<T> inputBlock)
+        public virtual void Append(ReadOnlySpan<T> inputBlock)
         {
             foreach (var item in inputBlock)
-                Add(item);
+                Append(item);
         }
 
         public IReadOnlySet<T>? DistinctSet => _distinct;
@@ -215,7 +215,7 @@ namespace BrightData.Buffer.Composite
                         ++_blocksInFile;
                     }
                     else
-                        (_inMemoryBlocks ??= new()).Add(_currBlock);
+                        (_inMemoryBlocks ??= []).Add(_currBlock);
                 }
                 _currBlock = _blockFactory(new T[_blockSize], false);
                 ++BlockCount;
@@ -223,7 +223,7 @@ namespace BrightData.Buffer.Composite
             return _currBlock!;
         }
 
-        public void AddObject(object obj) => Add((T)obj);
+        public void AppendObject(object obj) => Append((T)obj);
 
         public async Task WriteTo(Stream stream)
         {
@@ -283,9 +283,9 @@ namespace BrightData.Buffer.Composite
             stream.Seek(0, SeekOrigin.End);
         }
 
-        protected abstract Task<uint> SkipFileBlock(IDataBlock file, uint offset);
-        protected abstract Task<(uint Offset, ReadOnlyMemory<T> Block)> GetBlockFromFile(IDataBlock file, uint offset);
-        protected abstract Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<T> callback);
+        protected abstract Task<uint> SkipFileBlock(IByteBlockSource file, uint offset);
+        protected abstract Task<(uint Offset, ReadOnlyMemory<T> Block)> GetBlockFromFile(IByteBlockSource file, uint offset);
+        protected abstract Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<T> callback);
         public override string ToString() => $"Composite buffer ({typeof(T).Name})|{MetaData.GetName(Id.ToString("n"))}|count={Size:N0}";
     }
 }

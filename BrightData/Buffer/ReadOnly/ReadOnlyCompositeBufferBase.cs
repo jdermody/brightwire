@@ -42,7 +42,7 @@ namespace BrightData.Buffer.ReadOnly
                 yield return item;
         }
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
             var guid = Guid.NewGuid();
             notify?.OnStartOperation(guid, message);

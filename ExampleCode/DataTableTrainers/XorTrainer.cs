@@ -7,12 +7,8 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class XorTrainer : DataTableTrainer
+    internal class XorTrainer(IDataTable table) : DataTableTrainer(table, table, table)
     {
-        public XorTrainer(IDataTable table) : base(table, table, table)
-        {
-        }
-
         public async Task<ExecutionGraphModel?> Train(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var targetColumnIndex = Table.Value.GetTargetColumnOrThrow();

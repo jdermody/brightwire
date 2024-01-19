@@ -163,7 +163,7 @@ namespace BrightData.UnitTests
             using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
             using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
             var array = new[] {
-                new[] { 1, 2, 3 },
+                [1, 2, 3],
                 new[] { 4, 5, 6 },
             };
 

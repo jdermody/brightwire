@@ -17,7 +17,7 @@ namespace BrightData.Buffer.Operations
         : IOperation
         where T : notnull
     {
-        public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var blockSize = from.BlockSize;
             var blocks = indices.Select(x => (Index: x, BlockIndex: x / from.BlockSize))
@@ -31,11 +31,11 @@ namespace BrightData.Buffer.Operations
             }
             return;
 
-            void CopyIndices(ReadOnlyMemory<T> from, IEnumerable<int> indices)
+            void CopyIndices(ReadOnlyMemory<T> fromMemory, IEnumerable<int> copyIndices)
             {
-                var span = from.Span;
-                foreach(var item in indices)
-                    to.Add(span[item]);
+                var span = fromMemory.Span;
+                foreach(var item in copyIndices)
+                    to.Append(span[item]);
             }
         }
     }

@@ -46,7 +46,7 @@ namespace BrightData.Analysis
 			_l2 += val * val;
 		}
 
-        public void Add(ReadOnlySpan<double> span)
+        public void Append(ReadOnlySpan<double> span)
         {
             foreach(var item in span)
                 Add(item);

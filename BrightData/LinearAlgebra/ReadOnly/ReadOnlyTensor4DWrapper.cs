@@ -56,13 +56,12 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint ColumnCount { get; }
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => MatrixSize * Depth;
-        public bool IsReadOnly => true;
 
         public float this[int count, int depth, int rowY, int columnX] => ReadOnlySegment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
         public float this[uint count, uint depth, uint rowY, uint columnX] => ReadOnlySegment[count * TensorSize + depth * MatrixSize + columnX * RowCount + rowY];
 
         public ITensor4D Create(LinearAlgebraProvider lap) => lap.CreateTensor4D(this);
-        public IReadOnlyTensor3D GetTensor3D(uint index)
+        public IReadOnlyTensor3D GetTensor(uint index)
         {
             var segment = new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index * TensorSize, 1, TensorSize);
             return new ReadOnlyTensor3DWrapper(segment, Depth, RowCount, ColumnCount);
@@ -71,7 +70,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
             var ret = new IReadOnlyTensor3D[Depth];
             for (uint i = 0; i < Depth; i++)
-                ret[i] = GetTensor3D(i);
+                ret[i] = GetTensor(i);
             return ret;
         }
 

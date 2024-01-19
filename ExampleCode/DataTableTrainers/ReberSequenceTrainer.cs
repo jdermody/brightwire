@@ -7,12 +7,8 @@ using BrightWire.TrainingData.Artificial;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class ReberSequenceTrainer : DataTableTrainer
+    internal class ReberSequenceTrainer(IDataTable dataTable) : DataTableTrainer(dataTable)
     {
-        public ReberSequenceTrainer(IDataTable dataTable) : base(dataTable)
-        {
-        }
-
         public IGraphExecutionEngine TrainSimpleRecurrent()
         {
             var graph = _context.CreateGraphFactory();

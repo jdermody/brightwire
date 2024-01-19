@@ -4,12 +4,8 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Attention
 {
-    internal class AttentionScore : BinaryGateBase
+    internal class AttentionScore(string? name) : BinaryGateBase(name)
     {
-        public AttentionScore(string? name) : base(name)
-        {
-        }
-
         protected override (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource)
         {
             var query = primary.Get3DTensor()!;

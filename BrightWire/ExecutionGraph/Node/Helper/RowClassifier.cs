@@ -10,14 +10,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes a row based classifier
     /// </summary>
-    internal class RowClassifier : NodeBase
+    internal class RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, IDataTable dataTable, string? name = null)
+        : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<RowClassifier>
+        class Backpropagation(RowClassifier source) : SingleBackpropagationBase<RowClassifier>(source)
         {
-            public Backpropagation(RowClassifier source) : base(source)
-            {
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 return GraphData.Null;
@@ -43,31 +40,19 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public uint OutputSize => (uint)_targetLabel.Count;
         }
 
-        readonly IDataTable _dataTable;
-        readonly LinearAlgebraProvider _lap;
-        readonly IRowClassifier _classifier;
-        readonly IIndexStrings _indexer;
-
-        public RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, IDataTable dataTable, string? name = null)
-            : base(name)
-        {
-            _lap = lap;
-            _dataTable = dataTable;
-            _classifier = classifier;
-            _indexer = (classifier as IHaveStringIndexer)?.Indexer ?? new DefaultIndexer(dataTable);
-        }
+        readonly IIndexStrings _indexer = (classifier as IHaveStringIndexer)?.Indexer ?? new DefaultIndexer(dataTable);
 
         public uint OutputSize => _indexer.OutputSize;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            var rows = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows).Result;
+            var rows = dataTable.GetRows(context.BatchSequence.MiniBatch.Rows).Result;
             var resultList = rows
-                .Select(row => _classifier.Classify(row)
+                .Select(row => classifier.Classify(row)
                     .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
                     .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
-            var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
+            var output = lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].GetValueOrDefault(j, 0f));
             return (this, output.AsGraphData(), () => new Backpropagation(this));
         }
     }

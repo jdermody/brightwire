@@ -6,34 +6,20 @@ using BrightAPI.Models;
 using BrightAPI.Models.DataTable;
 using BrightAPI.Models.DataTable.Requests;
 using BrightData;
-using BrightData.DataTable;
-using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrightAPI.Controllers
 {
     [ApiController, Route("[controller]")]
-    public class DataTableController : BaseController
+    public class DataTableController(
+        ILogger<DataTableController> logger,
+        DatabaseManager databaseManager,
+        BrightDataContext context,
+        TempFileManager tempFileManager
+    )
+        : BaseController
     {
-        readonly ILogger<DataTableController> _logger;
-        readonly DatabaseManager              _databaseManager;
-        readonly BrightDataContext            _context;
-        readonly TempFileManager              _tempFileManager;
-
-        public DataTableController(
-            ILogger<DataTableController> logger,
-            DatabaseManager databaseManager,
-            BrightDataContext context,
-            TempFileManager tempFileManager
-        )
-        {
-            _logger = logger;
-            _databaseManager = databaseManager;
-            _context = context;
-            _tempFileManager = tempFileManager;
-        }
-
         [HttpPost, Route("csv/preview")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -45,7 +31,7 @@ namespace BrightAPI.Controllers
 
             try {
                 using var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(filePreview)));
-                using var table = await _context.ParseCsv(reader, request.HasHeader, request.Delimiter);
+                using var table = await context.ParseCsv(reader, request.HasHeader, request.Delimiter);
                 var columns = new DataTableColumnModel[table.ColumnCount];
                 for (uint i = 0; i < table.ColumnCount; i++) {
                     var metaData = table.ColumnMetaData[i];
@@ -63,7 +49,7 @@ namespace BrightAPI.Controllers
                 };
             }
             catch (Exception ex) {
-                _logger.LogError(ex, null);
+                logger.LogError(ex, null);
             }
             return BadRequest();
         }
@@ -80,11 +66,11 @@ namespace BrightAPI.Controllers
             var columnNames = request.ColumnNames?.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             try {
-                var dataTable = await CreateDataTableFromCsv(_databaseManager, _context, _tempFileManager, request.HasHeader, request.Delimiter, request.TargetIndex, columnNames, request.FileName, fileData);
+                var dataTable = await CreateDataTableFromCsv(databaseManager, context, tempFileManager, request.HasHeader, request.Delimiter, request.TargetIndex, columnNames, request.FileName, fileData);
                 return AsListItem(dataTable);
             }
             catch (Exception ex) {
-                _logger.LogError(ex, null);
+                logger.LogError(ex, null);
             }
             return BadRequest();
         }
@@ -128,7 +114,7 @@ namespace BrightAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IEnumerable<DataTableListItemModel>> GetDataTables()
         {
-            var ret = await _databaseManager.GetAllDataTables();
+            var ret = await databaseManager.GetAllDataTables();
             return ret.Select(AsListItem);
         }
 
@@ -143,7 +129,7 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTableInfo = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+            using var table = context.LoadTable(dataTableInfo.LocalPath);
             var ret = new DataTableInfoModel {
                 Id = id,
                 Name = dataTableInfo.Name,
@@ -173,7 +159,7 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTableInfo = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+            using var table = context.LoadTable(dataTableInfo.LocalPath);
             var ret = table.GetSlice(start, count).Result.Select(r => r.Values.Select(x => x.ToString() ?? "-").ToArray()).ToArray();
             return ret;
         }
@@ -234,7 +220,7 @@ namespace BrightAPI.Controllers
                 return BadRequest();
 
             return await Transform(id, request, "Reinterpreted", async (table, path) => {
-                using var tempStreams = _context.CreateTempDataBlockProvider();
+                using var tempStreams = context.CreateTempDataBlockProvider();
                 var inputColumnIndices = new HashSet<uint>();
                 var newColumns = new Dictionary<uint, List<ICompositeBuffer>>();
                 foreach (var column in request.Columns) {
@@ -246,7 +232,7 @@ namespace BrightAPI.Controllers
                     foreach (var columnIndex in column.ColumnIndices)
                         inputColumnIndices.Add(columnIndex);
                     if(!newColumns.TryGetValue(column.ColumnIndices[0], out var list))
-                        newColumns.Add(column.ColumnIndices[0], list = new());
+                        newColumns.Add(column.ColumnIndices[0], list = []);
                     list.Add(buffer);
                 }
 
@@ -361,10 +347,10 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTableInfo = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+            using var table = context.LoadTable(dataTableInfo.LocalPath);
 
-            var (path1, newTableId1) = _tempFileManager.GetNewTempPath();
-            var (path2, newTableId2) = _tempFileManager.GetNewTempPath();
+            var (path1, newTableId1) = tempFileManager.GetNewTempPath();
+            var (path2, newTableId2) = tempFileManager.GetNewTempPath();
 
             var (trainingTable, testTable) = await table.Split(request.TrainingPercentage / 100, path1, path2);
             try {
@@ -393,10 +379,10 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTableInfo = dataTableResult.Value!;
 
-            using var table = _context.LoadTable(dataTableInfo.LocalPath);
+            using var table = context.LoadTable(dataTableInfo.LocalPath);
 
             // create a new converted table
-            var (path, newTableId) = _tempFileManager.GetNewTempPath();
+            var (path, newTableId) = tempFileManager.GetNewTempPath();
             using var newTable = await callback(table, path);
 
             // maybe there was nothing to transform
@@ -420,7 +406,7 @@ namespace BrightAPI.Controllers
             newTable.MetaData.Set("date-created", DateTime.UtcNow);
             newTable.PersistMetaData();
 
-            var newTableInfo = await _databaseManager.CreateDataTable(sourceDataTableInfo.Name + $" [{newTableSuffix}]", newTableId, path, newTable.RowCount);
+            var newTableInfo = await databaseManager.CreateDataTable(sourceDataTableInfo.Name + $" [{newTableSuffix}]", newTableId, path, newTable.RowCount);
             return new NamedItemModel {
                 Id = newTableInfo.PublicId,
                 Name = newTableInfo.Name
@@ -438,7 +424,7 @@ namespace BrightAPI.Controllers
                 return dataTableResult.Result;
             var dataTable = dataTableResult.Value!;
 
-            await _databaseManager.DeleteDataTable(dataTable);
+            await databaseManager.DeleteDataTable(dataTable);
 
             // delete the file on disk
             var fileInfo = new FileInfo(dataTable.LocalPath);
@@ -464,7 +450,7 @@ namespace BrightAPI.Controllers
             var dataTable = dataTableResult.Value!;
 
             {
-                using var table = _context.LoadTable(dataTable.LocalPath);
+                using var table = context.LoadTable(dataTable.LocalPath);
                 foreach (var item in nameTable)
                     table.ColumnMetaData[item.Key].SetName(item.Value);
                 table.PersistMetaData();
@@ -485,7 +471,7 @@ namespace BrightAPI.Controllers
             var dataTable = dataTableResult.Value!;
 
             {
-                using var table = _context.LoadTable(dataTable.LocalPath);
+                using var table = context.LoadTable(dataTable.LocalPath);
                 uint index = 0;
                 foreach (var column in table.ColumnMetaData)
                     column.SetTarget(index++ == request.TargetColumn);
@@ -497,7 +483,7 @@ namespace BrightAPI.Controllers
 
         async Task<ActionResult<DataTable>> LoadDataTable(string id)
         {
-            var dataTable = await _databaseManager.GetDataTable(id);
+            var dataTable = await databaseManager.GetDataTable(id);
 
             if (dataTable is null)
                 return NotFound($"Data table not found in database: {id}");

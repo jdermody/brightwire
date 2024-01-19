@@ -12,7 +12,7 @@ namespace BrightWire.Helper
     public class VectorDistanceHelper : IDisposable
 	{
 		readonly LinearAlgebraProvider _lap;
-        readonly List<IVector> _comparison = new();
+        readonly List<IVector> _comparison = [];
 		readonly IVector[] _data;
 
 		/// <summary>

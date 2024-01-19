@@ -150,7 +150,7 @@ namespace BrightData.DataTable
         /// <param name="table"></param>
         /// <param name="columnIndices">List of column indices to vectorise (optional)</param>
         /// <returns></returns>
-        public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(columnIndices));
+        public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(table.AllOrSpecifiedColumnIndices(false, columnIndices)));
 
         async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers) where T : IReadOnlyBuffer
         {

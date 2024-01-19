@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.UnitTests.Helper;
+﻿using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -12,7 +7,7 @@ namespace BrightData.UnitTests
     public class ClusteringTests : UnitTestBase
     {
         [Fact]
-        public void Hierachical()
+        public void Hierarchical()
         {
             var clusterer = _context.NewHierachicalClustering();
             var vectors = new IReadOnlyVector[] {

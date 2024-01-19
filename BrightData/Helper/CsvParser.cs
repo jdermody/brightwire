@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,6 +9,9 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper
 {
+    /// <summary>
+    /// Simple CSV parser
+    /// </summary>
     public class CsvParser
     {
         class ParseState(CsvParser parser)
@@ -39,7 +41,7 @@ namespace BrightData.Helper
                     // check for a delimiter, such as a comma
                     else if (ch == parser._delimiter && !_inQuote)
                     {
-                        while ((_columnData ??= new()).Count <= _columnIndex)
+                        while ((_columnData ??= []).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(data[start..i]);
                         start = i + 1;
@@ -73,7 +75,7 @@ namespace BrightData.Helper
                     // check for a delimiter, such as a comma
                     else if (ch == parser._delimiter && !_inQuote)
                     {
-                        while ((_columnData ??= new()).Count <= _columnIndex)
+                        while ((_columnData ??= []).Count <= _columnIndex)
                             _columnData.Add(new StringBuilder());
                         _columnData[_columnIndex++].Append(line[start..i]);
                         start = i + 1;
@@ -112,14 +114,14 @@ namespace BrightData.Helper
                             if (text.StartsWith(parser._quote) && text.EndsWith(parser._quote))
                                 text = text[1..^1];
 
-                            while ((Columns ??= new()).Count <= j)
+                            while ((Columns ??= []).Count <= j)
                                 Columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
 
                             // set the column name if needed
                             if (_isFirstRow && parser._firstRowIsHeader)
                                 Columns[j].MetaData.SetName(text.Trim());
                             else
-                                Columns[j].Add(text);
+                                Columns[j].Append(text);
                             sb.Clear();
                         }
 
@@ -129,7 +131,7 @@ namespace BrightData.Helper
                                 if (_isFirstRow && parser._firstRowIsHeader)
                                     Columns[j].MetaData.SetName(string.Empty);
                                 else
-                                    Columns[j].Add(string.Empty);
+                                    Columns[j].Append(string.Empty);
                             }
                         }
                         if (_isFirstRow)
@@ -147,6 +149,16 @@ namespace BrightData.Helper
         readonly int _blockSize;
         readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="firstRowIsHeader">True if the first row is a header</param>
+        /// <param name="delimiter">Column delimiter character</param>
+        /// <param name="quote">Quote character</param>
+        /// <param name="tempStreams">Temp stream provider (optional)</param>
+        /// <param name="blockSize">Block size in bytes</param>
+        /// <param name="maxInMemoryBlocks">Max number of blocks to keep in memory</param>
+        /// <param name="maxDistinctItems">Max number of distinct items to track</param>
         public CsvParser(
             bool firstRowIsHeader,
             char delimiter,
@@ -166,9 +178,23 @@ namespace BrightData.Helper
             _maxDistinctItems = maxDistinctItems;
         }
 
+        /// <summary>
+        /// Progress notification
+        /// </summary>
         public Action<float>? OnProgress { get; set; }
+
+        /// <summary>
+        /// Completion notification
+        /// </summary>
         public Action? OnComplete { get; set; }
 
+        /// <summary>
+        /// Parses CSV from a stream reader
+        /// </summary>
+        /// <param name="reader">Stream reader</param>
+        /// <param name="maxLines">Max number of lines to read</param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task<List<ICompositeBuffer<string>>?> Parse(StreamReader reader, uint maxLines = uint.MaxValue, CancellationToken ct = default)
         {
             var parseState = new ParseState(this);
@@ -195,6 +221,13 @@ namespace BrightData.Helper
             return parseState.Columns;
         }
 
+        /// <summary>
+        /// Parses CSV from a string
+        /// </summary>
+        /// <param name="str">String to parse</param>
+        /// <param name="maxLines">Max number of lines to read</param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public List<ICompositeBuffer<string>>? Parse(string str, uint maxLines = uint.MaxValue, CancellationToken ct = default)
         {
             var parseState = new ParseState(this);

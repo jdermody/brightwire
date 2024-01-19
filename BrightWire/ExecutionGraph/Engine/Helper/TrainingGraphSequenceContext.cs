@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class TrainingGraphSequenceContext : SequenceContextBase, IGraphContext
     {
-        readonly List<ExecutionHistory> _forward = new();
+        readonly List<ExecutionHistory> _forward = [];
         readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();
 
         public TrainingGraphSequenceContext(

@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance.Buffers;
-using static BrightData.ExtensionMethods;
 
 namespace BrightData
 {
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Converts the vector to a sparse format (only non zero entries are preserved)
+        /// Converts the vector to a sparse format (only non-zero entries are preserved)
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
@@ -59,11 +52,45 @@ namespace BrightData
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float CosineDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.CosineDistance(y));
 
+        /// <summary>
+        /// Finds the euclidean distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float EuclideanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.EuclideanDistance(y));
 
+        /// <summary>
+        /// Finds the manhattan distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ManhattanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.ManhattanDistance(y));
+
+        /// <summary>
+        /// Finds the mean squared distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float MeanSquaredDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.MeanSquaredDistance(y));
+
+        /// <summary>
+        /// Finds the squared euclidean distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float SquaredEuclideanDistance(this IReadOnlyVector vector, IReadOnlyVector other) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.SquaredEuclideanDistance(y));
+
+        /// <summary>
+        /// Finds the distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float FindDistance(this IReadOnlyVector vector, IReadOnlyVector other, DistanceMetric distance) => vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, (x,y) => x.FindDistance(y, distance));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,6 +116,7 @@ namespace BrightData
             return vector.ReadOnlySegment.GetReadOnlySpan(mutator);
         }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyVector vector, IReadOnlyVector other) => Apply(vector, other, (x, y) => x.Add(y));
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyVector vector, IReadOnlyVector other, float coefficient1, float coefficient2) => Apply(vector, other, (x, y) => x.Add(y, coefficient1, coefficient2));
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Add(this IReadOnlyVector vector, float scalar) => Apply(vector, x => x.Add(scalar));
@@ -120,5 +148,6 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> Softmax(this IReadOnlyVector vector) => Apply(vector, x => x.Softmax());
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> SoftmaxDerivative(this IReadOnlyVector vector, int rowCount) => Apply(vector, x => x.SoftmaxDerivative(rowCount));
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static INumericSegment<float> CherryPickIndices(this IReadOnlyVector vector, params uint[] indices) => Apply(vector, x => x.CherryPickIndices(indices));
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

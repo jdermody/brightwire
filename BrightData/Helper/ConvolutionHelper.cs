@@ -27,7 +27,7 @@ namespace BrightData.Helper
 				return ret;
 
 			uint y = 0, x = 0;
-			ret = new List<(uint X, uint Y)>();
+			ret = [];
 
             while (y <= height - filterHeight) {
                 ret.Add((x, y));
@@ -61,7 +61,7 @@ namespace BrightData.Helper
 				return ret;
 
 			uint y = 0, x = 0;
-			ret = new List<(uint X, uint Y)>();
+			ret = [];
 
             while (x <= width - filterWidth) {
                 ret.Add((x, y));

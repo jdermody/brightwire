@@ -36,7 +36,7 @@ namespace BrightData.Buffer.Composite
             public ReadOnlySpan<string> WrittenSpan => new(Data, 0, (int)Size);
             public ReadOnlyMemory<string> WrittenMemory => new(Data, 0, (int)Size);
 
-            public async Task<uint> WriteTo(IDataBlock file)
+            public async Task<uint> WriteTo(IByteBlockSource file)
             {
                 var offset = file.Size;
                 var startOffset = offset += HeaderSize;
@@ -64,21 +64,21 @@ namespace BrightData.Buffer.Composite
             return base.GetTypedBlock(blockIndex);
         }
 
-        public override void Add(in string item)
+        public override void Append(in string item)
         {
             if (item.Length > ushort.MaxValue / 3)
                 throw new ArgumentOutOfRangeException(nameof(item), $"Length cannot exceed {ushort.MaxValue / 3}");
-            base.Add(item);
+            base.Append(item);
         }
 
-        protected override async Task<uint> SkipFileBlock(IDataBlock file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[4];
             await file.ReadAsync(lengthBytes, offset);
             return HeaderSize + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<string>)> GetBlockFromFile(IDataBlock file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<string>)> GetBlockFromFile(IByteBlockSource file, uint offset)
         {
             var (numStrings, block) = await ReadBlock(file, offset);
             try
@@ -98,7 +98,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> GetBlockFromFile(IDataBlock file, uint offset, BlockCallback<string> callback)
+        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<string> callback)
         {
             var (numStrings, block) = await ReadBlock(file, offset);
             try
@@ -119,7 +119,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IDataBlock file, uint offset)
+        async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);

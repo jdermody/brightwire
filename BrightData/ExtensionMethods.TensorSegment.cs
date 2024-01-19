@@ -2,11 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.LinearAlgebra;
-using System.Runtime.Intrinsics.X86;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
@@ -16,7 +14,7 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
-        /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
+        /// Converts the tensor segment to a sparse format (only non-zero entries are preserved)
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>

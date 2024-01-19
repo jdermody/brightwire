@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using BrightData.Types;
-using static BrightData.ExtensionMethods;
 
 namespace BrightData
 {
@@ -60,7 +58,7 @@ namespace BrightData
         /// Converts the indexed classifications to weighted indexed classifications
         /// </summary>
         /// <param name="data"></param>
-        /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
+        /// <param name="groupByClassification">True to group by classification (i.e. convert the bag to a set)</param>
         public static WeightedIndexListWithLabel<T>[] ConvertToWeightedIndexList<T>(
             this IReadOnlyList<IndexListWithLabel<T>> data,
             bool groupByClassification

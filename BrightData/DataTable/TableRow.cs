@@ -32,7 +32,13 @@ namespace BrightData.DataTable
                     return __refvalue(__makeref(str), T);
                 }
 
-                throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)}");
+                // attempt to convert the type
+                try {
+                    return (T)Convert.ChangeType(ret, typeof(T));
+                }
+                catch {
+                    throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)} and could not be converted");
+                }
             }
 
             return (T)ret;

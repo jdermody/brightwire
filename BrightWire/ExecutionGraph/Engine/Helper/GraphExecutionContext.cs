@@ -12,20 +12,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     public class GraphExecutionContext : IHaveLinearAlgebraProvider, IDisposable
     {
-        class AdditionalBatch
+        class AdditionalBatch(IMiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
         {
-            public AdditionalBatch(IMiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
-            {
-                Batch = batch;
-                Data = data;
-                Start = start;
-                End = end;
-            }
-
-            public IMiniBatch Batch { get; } 
-            public IGraphData Data { get; } 
-            public Action<IGraphContext, IGraphData> Start { get; }  
-            public Action<IGraphContext[]> End { get; }  
+            public IMiniBatch Batch { get; } = batch;
+            public IGraphData Data { get; } = data;
+            public Action<IGraphContext, IGraphData> Start { get; } = start;
+            public Action<IGraphContext[]> End { get; } = end;
         }
         readonly ICreateGraphContext _createGraphContext;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();

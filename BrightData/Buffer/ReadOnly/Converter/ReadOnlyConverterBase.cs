@@ -29,7 +29,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
             }
         }
 
-        public Task ForEachBlock(BlockCallback<TT> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+        public Task ForEachBlock(BlockCallback<TT> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
             return from.ForEachBlock(x =>
             {

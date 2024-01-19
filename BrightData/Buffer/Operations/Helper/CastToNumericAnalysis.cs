@@ -10,7 +10,7 @@ namespace BrightData.Buffer.Operations.Helper
     /// Casts to double to perform numerical analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CastToNumericAnalysis<T> : ICastToNumericAnalysis, IAcceptBlock<T> where T : notnull
+    internal class CastToNumericAnalysis<T> : ICastToNumericAnalysis, IAppendBlocks<T> where T : notnull
     {
         readonly BufferScan<T> _scan;
         readonly ICanConvert<T, double> _converter;
@@ -27,7 +27,7 @@ namespace BrightData.Buffer.Operations.Helper
         public double MinValue { get; private set; } = double.MaxValue;
         public double MaxValue { get; private set; } = double.MinValue;
 
-        public void Add(ReadOnlySpan<T> block)
+        public void Append(ReadOnlySpan<T> block)
         {
             foreach (var item in block)
             {
@@ -48,6 +48,6 @@ namespace BrightData.Buffer.Operations.Helper
             }
         }
 
-        public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default) => _scan.Process(notify, msg, ct);
+        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default) => _scan.Execute(notify, msg, ct);
     }
 }

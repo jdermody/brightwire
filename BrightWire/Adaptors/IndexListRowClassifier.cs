@@ -4,17 +4,11 @@ using BrightData.Types;
 
 namespace BrightWire.Adaptors
 {
-    internal class IndexListRowClassifier : IRowClassifier, IHaveStringIndexer
+    internal class IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null)
+        : IRowClassifier, IHaveStringIndexer
     {
-        public IIndexListClassifier Classifier { get; }
-        public uint ColumnIndex { get; }
-
-        public IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null)
-        {
-            Classifier = classifier;
-            ColumnIndex = columnIndex;
-            Indexer = indexer;
-        }
+        public IIndexListClassifier Classifier { get; } = classifier;
+        public uint ColumnIndex { get; } = columnIndex;
 
         public (string Label, float Weight)[] Classify(TableRow row)
         {
@@ -22,6 +16,6 @@ namespace BrightWire.Adaptors
             return Classifier.Classify(indexList);
         }
 
-        public IIndexStrings? Indexer { get; }
+        public IIndexStrings? Indexer { get; } = indexer;
     }
 }

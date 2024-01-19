@@ -1,13 +1,8 @@
 ﻿namespace BrightAPI.Helper
 {
-    public class TempFileManager : IDisposable
+    public class TempFileManager(string? basePath = null) : IDisposable
     {
-        readonly List<string> _tempPaths = new();
-
-        public TempFileManager(string? basePath = null)
-        {
-            BasePath = basePath ?? Path.GetTempPath();
-        }
+        readonly List<string> _tempPaths = [];
 
         public void Dispose()
         {
@@ -16,7 +11,7 @@
                 File.Delete(tempPath);
         }
 
-        public string BasePath { get; }
+        public string BasePath { get; } = basePath ?? Path.GetTempPath();
 
         public (string Path, Guid UniqueId) GetNewTempPath()
         {

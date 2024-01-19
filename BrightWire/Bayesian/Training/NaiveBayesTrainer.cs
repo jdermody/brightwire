@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrightData.DataTable;
-using BrightData.Helper;
 using BrightData.Types;
+using BrightData.DataTable.Columns;
 
 namespace BrightWire.Bayesian.Training
 {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData;
 using BrightData.DataTable;
 
 namespace BrightWire.Bayesian
@@ -32,28 +31,19 @@ namespace BrightWire.Bayesian
             public double GetProbability(TableRow row)
             {
 	            var val = row.Get<string>(_columnIndex);
-                if (_probability.TryGetValue(val, out var ret))
-                    return ret;
-                return _nullValue;
+                return _probability.GetValueOrDefault(val, _nullValue);
             }
         }
-        class ContinuousColumn : IProbabilityProvider
+        class ContinuousColumn(NaiveBayes.Column column) : IProbabilityProvider
         {
-            readonly NaiveBayes.Column _column;
-
-            public ContinuousColumn(NaiveBayes.Column column)
-            {
-                _column = column;
-            }
-
             public double GetProbability(TableRow row)
             {
-                var x = row.Get<float>(_column.ColumnIndex);
-                var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
-                return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
+                var x = row.Get<float>(column.ColumnIndex);
+                var exponent = Math.Exp(-1 * Math.Pow(x - column.Mean, 2) / (2 * column.Variance));
+                return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * column.Variance) * exponent);
             }
         }
-        readonly List<(string, double, List<IProbabilityProvider>)> _classProbability = new();
+        readonly List<(string, double, List<IProbabilityProvider>)> _classProbability = [];
 
         public NaiveBayesClassifier(NaiveBayes model)
         {

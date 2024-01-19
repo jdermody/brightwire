@@ -22,7 +22,6 @@ using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
-using BrightData.LinearAlgebra;
 
 namespace BrightData
 {
@@ -126,7 +125,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Randomly splits the sequence into a two arrays (either "training" or "test")
+        /// Randomly splits the sequence into two arrays (either "training" or "test")
         /// </summary>
         /// <param name="seq"></param>
         /// <param name="trainPercentage">Percentage of items to add to the training array</param>
@@ -307,7 +306,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Returns the file path associated with the meta data (if any)
+        /// Returns the file path associated with the metadata (if any)
         /// </summary>
         /// <param name="metaData"></param>
         /// <returns>File path</returns>
@@ -363,14 +362,14 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Notifies about the progress of a multi part operation
+        /// Notifies about the progress of a multipart operation
         /// </summary>
         /// <param name="notify"></param>
         /// <param name="operationId">Unique operation id</param>
         /// <param name="index">Index of current part</param>
         /// <param name="total">Total number of parts</param>
         /// <param name="progress">Process within the part</param>
-        public static void NotifyProgress(this INotifyUser? notify, Guid operationId, uint index, uint total, float progress) => notify?.OnOperationProgress(operationId, (float) index / total + progress / total);
+        public static void NotifyProgress(this INotifyOperationProgress? notify, Guid operationId, uint index, uint total, float progress) => notify?.OnOperationProgress(operationId, (float) index / total + progress / total);
 
         /// <summary>
         /// Writes a progress bar to the console
@@ -413,8 +412,8 @@ namespace BrightData
         public static T[] ReadArray<T>(this Stream stream, uint size) where T: struct
         {
             var ret       = new T[size];
-            var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
 #if DEBUG
+            var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
             if (bytesRead != Unsafe.SizeOf<T>() * size)
                 throw new Exception("Unexpected end of file");
 #endif
@@ -494,7 +493,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Enumerates a stream as a series of structs. This is best for small structs such as int32 etc as the values are not passed by reference.
+        /// Enumerates a stream as a series of structs. This is best for small structs such as int32 etc. as the values are not passed by reference.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
@@ -605,7 +604,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts a single object into a enumerator that will enumerate that object once
+        /// Converts a single object into an enumerator that will enumerate that object once
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj">Item to enumerate (once)</param>
@@ -678,6 +677,12 @@ namespace BrightData
             throw new Exception($"{str} was not recognised as a valid date");
         }
 
+        /// <summary>
+        /// Re references each item in the memory as an object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="block"></param>
+        /// <returns></returns>
         public static ReadOnlyMemory<object> AsObjects<T>(this ReadOnlyMemory<T> block) where T: notnull
         {
             var index = 0;
@@ -689,15 +694,63 @@ namespace BrightData
 
         static (Type, uint) GetTypeAndSize<T>() => (typeof(T), (uint)Unsafe.SizeOf<T>());
 
-        public static Task Process(this IOperation[] operations, INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        /// <summary>
+        /// Executes multiple operations as one
+        /// </summary>
+        /// <param name="operations"></param>
+        /// <param name="notify"></param>
+        /// <param name="msg"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public static Task ExecuteAllAsOne(this IOperation[] operations, INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             if (operations.Length == 1)
-                return operations[0].Process(notify, msg, ct);
+                return operations[0].Execute(notify, msg, ct);
             if (operations.Length > 1)
-                return new AggregateOperation(operations).Process(notify, msg, ct);
+                return new AggregateOperation(operations).Execute(notify, msg, ct);
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns the results from a collection of operations that might be run in parallel
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="operations"></param>
+        /// <returns></returns>
+        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations) => CompleteInParallel(Array.AsReadOnly(operations));
+
+        /// <summary>
+        /// Returns the results from a collection of operations that might be run in parallel
+        /// </summary>
+        /// <param name="operations"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] CompleteInParallel<T>(this IReadOnlyList<IOperation<T>> operations)
+        {
+            var ret = new T[operations.Count];
+#if DEBUG
+            if (Debugger.IsAttached) {
+                var index = 0;
+                foreach(var op in operations) using (op) {
+                    ret[index++] = op.Complete(null, CancellationToken.None);
+                }
+
+                return ret;
+            }
+#endif
+            Parallel.ForEach(operations, (op, _, i) => {
+                using(op)
+                    ret[i] = op.Complete(null, CancellationToken.None);
+            });
+            return ret;
+        }
+
+        /// <summary>
+        /// Writes the async enumerable to a memory block
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
         public static async Task<ReadOnlyMemory<T>> ToMemory<T>(this IAsyncEnumerable<T> enumerable)
         {
             using var buffer = new ArrayPoolBufferWriter<T>();
@@ -708,6 +761,13 @@ namespace BrightData
             return buffer.WrittenMemory;
         }
 
+        /// <summary>
+        /// Writes items from an async enumerable to an array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
         public static async Task<T[]> ToArray<T>(this IAsyncEnumerable<T> enumerable, uint size)
         {
             var ret = new T[size];
@@ -720,6 +780,11 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Converts an async enumerable of multidimensional arrays to a list of float arrays
+        /// </summary>
+        /// <param name="vectorData"></param>
+        /// <returns></returns>
         public static async Task<List<float[]>> ToFloatVectors(this IAsyncEnumerable<float[,]> vectorData)
         {
             var ret = new List<float[]>();
@@ -734,6 +799,11 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Converts an async enumerable of multidimensional arrays to a buffer of vectors
+        /// </summary>
+        /// <param name="vectorData"></param>
+        /// <returns></returns>
         public static async Task<IReadOnlyBufferWithMetaData<ReadOnlyVector>> ToVectors(this IAsyncEnumerable<float[,]> vectorData)
         {
             var ret = (ICompositeBuffer<ReadOnlyVector>)BrightDataType.Vector.CreateCompositeBuffer();
@@ -744,10 +814,15 @@ namespace BrightData
             static void AddRows(Span2D<float> data, ICompositeBuffer<ReadOnlyVector> output)
             {
                 for(var i = 0; i < data.Height; i++)
-                    output.Add(new ReadOnlyVector(data.GetRowSpan(i).ToArray()));
+                    output.Append(new ReadOnlyVector(data.GetRowSpan(i).ToArray()));
             }
         }
 
+        /// <summary>
+        /// Converts an async enumerable of multidimensional arrays to a buffer of index lists
+        /// </summary>
+        /// <param name="vectorData"></param>
+        /// <returns></returns>
         public static async Task<IReadOnlyBufferWithMetaData<IndexList>> ToIndexLists(this IAsyncEnumerable<float[,]> vectorData)
         {
             var ret = (ICompositeBuffer<IndexList>)BrightDataType.IndexList.CreateCompositeBuffer();
@@ -758,10 +833,15 @@ namespace BrightData
             static void AddRows(Span2D<float> data, ICompositeBuffer<IndexList> output)
             {
                 for(var i = 0; i < data.Height; i++)
-                    output.Add(new IndexList(data.GetRowSpan(i)));
+                    output.Append(new IndexList(data.GetRowSpan(i)));
             }
         }
 
+        /// <summary>
+        /// Converts an async enumerable of multidimensional arrays to a buffer of weighted index lists
+        /// </summary>
+        /// <param name="vectorData"></param>
+        /// <returns></returns>
         public static async Task<IReadOnlyBufferWithMetaData<WeightedIndexList>> ToWeightedIndexLists(this IAsyncEnumerable<float[,]> vectorData)
         {
             var ret = (ICompositeBuffer<WeightedIndexList>)BrightDataType.IndexList.CreateCompositeBuffer();
@@ -772,13 +852,31 @@ namespace BrightData
             static void AddRows(Span2D<float> data, ICompositeBuffer<WeightedIndexList> output)
             {
                 for(var i = 0; i < data.Height; i++)
-                    output.Add(new WeightedIndexList(data.GetRowSpan(i)));
+                    output.Append(new WeightedIndexList(data.GetRowSpan(i)));
             }
         }
 
-        public static IDataBlock AsDataBlock(this Stream stream, Guid? id = null) => new StreamDataBlock(id ?? Guid.NewGuid(), stream);
+        /// <summary>
+        /// Creates a byte block source from a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static IByteBlockSource AsDataBlock(this Stream stream, Guid? id = null) => new StreamDataBlock(id ?? Guid.NewGuid(), stream);
 
+        /// <summary>
+        /// Creates a hierarchical clustering strategy
+        /// </summary>
+        /// <param name="_"></param>
+        /// <returns></returns>
         public static IClusteringStrategy NewHierachicalClustering(this BrightDataContext _) => new Hierarchical();
+
+        /// <summary>
+        /// Creates a k means clustering strategy
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="maxIterations"></param>
+        /// <returns></returns>
         public static IClusteringStrategy NewKMeansClustering(this BrightDataContext context, uint maxIterations = 1000) => new KMeans(context, maxIterations);
 
         /// <summary>
@@ -786,6 +884,7 @@ namespace BrightData
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
+        /// <param name="metric"></param>
         /// <returns>A list of k clusters</returns>
         public static uint[][] HierarchicalCluster(this IReadOnlyVector[] data, uint k, DistanceMetric metric = DistanceMetric.Euclidean)
         {

@@ -33,14 +33,14 @@ namespace BrightWire.UnitTests
 
 			var table = await builder.BuildInMemory();
             var dataSource = _factory.CreateDataSource(table);
-			var miniBatch = dataSource.Get(new uint[] { 1 });
+			var miniBatch = dataSource.Get([1]);
 			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetRowAsReadOnly(0);
 			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetRowAsReadOnly(0);
 
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
             expectedOutput.Size.Should().Be(4);
-            dataSource.OutputVectoriser.Vectorisers[0].ReverseVectorise(expectedOutput.GetMaximumIndex()).Should().Be("b");
+            dataSource.OutputVectoriser!.Vectorisers[0].ReverseVectorise(expectedOutput.GetMaximumIndex()).Should().Be("b");
 		}
 
         static float[] GetArray(uint value, uint size)
@@ -56,7 +56,7 @@ namespace BrightWire.UnitTests
 		{
 			var vectors = 10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray();
 			var dataSource = _factory.CreateDataSource(vectors);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
@@ -72,7 +72,7 @@ namespace BrightWire.UnitTests
 		{
 			var matrices = Enumerable.Range(0, 10).Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(matrices);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
@@ -87,7 +87,7 @@ namespace BrightWire.UnitTests
 		{
 			var tensors = Enumerable.Range(0, 10).Select(_ => _cpu.CreateTensor3DAndThenDisposeInput(10.AsRange().Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(tensors);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();

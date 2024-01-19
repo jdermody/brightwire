@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData;
 using BrightData.DataTable;
 using BrightWire.Models.TreeBased;
 
@@ -10,18 +9,11 @@ namespace BrightWire.TreeBased
     /// <summary>
     /// Classifies rows based on a previously trained model
     /// </summary>
-    internal class DecisionTreeClassifier : IRowClassifier
+    internal class DecisionTreeClassifier(DecisionTree tree) : IRowClassifier
     {
-        readonly DecisionTree _tree;
-
-        public DecisionTreeClassifier(DecisionTree tree)
-        {
-            _tree = tree;
-        }
-
         public IEnumerable<string> ClassifyInternal(TableRow row)
         {
-            var p = _tree.Root;
+            var p = tree.Root;
             while(true) {
                 if (p.ColumnIndex.HasValue) {
                     string? findChild;
@@ -46,9 +38,9 @@ namespace BrightWire.TreeBased
         public (string Label, float Weight)[] Classify(TableRow row)
         {
             var classification = ClassifyInternal(row).First();
-            return new[] {
+            return [
                 (classification, 1f)
-            };
+            ];
         }
     }
 }

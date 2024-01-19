@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.LinearAlgebra.ReadOnly;
+﻿using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightData.Buffer.ReadOnly.Converter
 {

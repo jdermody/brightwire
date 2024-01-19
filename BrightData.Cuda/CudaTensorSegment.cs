@@ -5,14 +5,9 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment : INumericSegment<float>
+    internal class CudaTensorSegment(IDeviceMemoryPtr data) : INumericSegment<float>
     {
         const string CudaSegmentType = "cuda";
-
-        public CudaTensorSegment(IDeviceMemoryPtr data)
-        {
-            DeviceMemory = data;
-        }
 
         public void Dispose()
         {
@@ -32,7 +27,7 @@ namespace BrightData.Cuda
         public int AddRef() => DeviceMemory.AddRef();
         public int Release() => DeviceMemory.Release();
 
-        public IDeviceMemoryPtr DeviceMemory { get; }
+        public IDeviceMemoryPtr DeviceMemory { get; } = data;
         public bool IsValid => DeviceMemory.IsValid;
         public uint Size => DeviceMemory.Size;
         public string SegmentType => CudaSegmentType;

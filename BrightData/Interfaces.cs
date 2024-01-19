@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.Buffer.Operations.Conversion;
-using BrightData.Helper;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -32,8 +30,14 @@ namespace BrightData
         IEnumerable<uint> Indices { get; }
     }
 
+    /// <summary>
+    /// Returns the types data as a read only byte span
+    /// </summary>
     public interface IHaveDataAsReadOnlyByteSpan
     {
+        /// <summary>
+        /// The data of the type as bytes
+        /// </summary>
         ReadOnlySpan<byte> DataAsBytes { get; }
     }
 
@@ -51,8 +55,15 @@ namespace BrightData
         ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed);
     }
 
+    /// <summary>
+    /// Indicates that the type exposes its data as typed memory
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IHaveMemory<T>
     {
+        /// <summary>
+        /// The typed memory of the data in the type
+        /// </summary>
         ReadOnlyMemory<T> ReadOnlyMemory { get; }
     }
 
@@ -84,12 +95,10 @@ namespace BrightData
     /// <summary>
     /// Supports both writing and reading from binary
     /// </summary>
-    public interface IAmSerializable : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
-    {
-    }
+    public interface IAmSerializable : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader;
 
     /// <summary>
-    /// Indicates that the type has a meta data store
+    /// Indicates that the type has a metadata store
     /// </summary>
     public interface IHaveMetaData
     {
@@ -122,7 +131,7 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type can write values to meta data
+    /// Indicates that the type can write values to metadata
     /// </summary>
     public interface IWriteToMetaData
     {
@@ -136,7 +145,7 @@ namespace BrightData
     /// <summary>
     /// Base data analyzer type
     /// </summary>
-    public interface IDataAnalyser : IWriteToMetaData, IAcceptBlock
+    public interface IDataAnalyser : IWriteToMetaData, IAppendBlocks
     {
         /// <summary>
         /// Adds an object to analyze
@@ -158,30 +167,29 @@ namespace BrightData
         void Add(T obj);
     }
 
-    public interface IAcceptBlock
-    {
-    }
+    /// <summary>
+    /// Appends blocks of items
+    /// </summary>
+    public interface IAppendBlocks;
 
     /// <summary>
-    /// Accepts blocks of items
+    /// Appends blocks of typed items
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IAcceptBlock<T> : IAcceptBlock
+    public interface IAppendBlocks<T> : IAppendBlocks
     {
         /// <summary>
         /// Add a new block
         /// </summary>
         /// <param name="block"></param>
-        void Add(ReadOnlySpan<T> block);
+        void Append(ReadOnlySpan<T> block);
     }
 
     /// <summary>
     /// Typed data analyser
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IAcceptBlock<T>, IDataAnalyser where T : notnull
-    {
-    }
+    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IAppendBlocks<T>, IDataAnalyser where T : notnull;
 
     /// <summary>
     /// Types of data normalization
@@ -311,23 +319,17 @@ namespace BrightData
     /// <summary>
     /// Discrete data distribution
     /// </summary>
-    public interface IDiscreteDistribution : IDistribution<int>
-    {
-    }
+    public interface IDiscreteDistribution : IDistribution<int>;
 
     /// <summary>
     /// Positive discrete data distribution
     /// </summary>
-    public interface INonNegativeDiscreteDistribution : IDistribution<uint>
-    {
-    }
+    public interface INonNegativeDiscreteDistribution : IDistribution<uint>;
 
     /// <summary>
     /// Continuous data distribution
     /// </summary>
-    public interface IContinuousDistribution : IDistribution<float>
-    {
-    }
+    public interface IContinuousDistribution : IDistribution<float>;
 
     /// <summary>
     /// Indicates that the type has a size
@@ -415,7 +417,6 @@ namespace BrightData
         /// </summary>
         DataSpecificationType SpecificationType { get; }
 
-
         /// <summary>
         /// True if the item can repeat
         /// </summary>
@@ -436,16 +437,16 @@ namespace BrightData
         bool IsValid(T instance);
 
         /// <summary>
-        /// Adds an additional predicate that must match to be considered valid
+        /// Adds a predicate that must match to be considered valid
         /// </summary>
         /// <param name="predicate"></param>
         void AddPredicate(Predicate<T> predicate);
     }
 
     /// <summary>
-    /// Notifies the user of operations and messages
+    /// Notifies of operations and messages
     /// </summary>
-    public interface INotifyUser
+    public interface INotifyOperationProgress
     {
         /// <summary>
         /// Called at the start of an operation
@@ -469,7 +470,7 @@ namespace BrightData
         void OnCompleteOperation(Guid operationId, bool wasCancelled);
 
         /// <summary>
-        /// Called to notify the user
+        /// Called to notify about a message
         /// </summary>
         /// <param name="msg">Message to user</param>
         void OnMessage(string msg);
@@ -499,35 +500,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type can randomly access typed data
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ICanRandomlyAccessUnmanagedData<T> : IDisposable, IHaveSize where T: unmanaged
-    {
-        /// <summary>
-        /// Returns a randomly accessed item
-        /// </summary>
-        /// <param name="index">Item index</param>
-        /// <param name="value">Item value</param>
-        void Get(int index, out T value);
-
-        /// <summary>
-        /// Returns a randomly accessed item
-        /// </summary>
-        /// <param name="index">Item index</param>
-        /// <param name="value">Item value</param>
-        void Get(uint index, out T value);
-
-        /// <summary>
-        /// Returns a span of data
-        /// </summary>
-        /// <param name="startIndex">Inclusive first index of the span</param>
-        /// <param name="count">Size of the span</param>
-        /// <returns></returns>
-        ReadOnlySpan<T> GetSpan(uint startIndex, uint count);
-    }
-
-    /// <summary>
     /// Indicates that the type can randomly access untyped data
     /// </summary>
     public interface ICanRandomlyAccessData : IDisposable, IHaveSize
@@ -548,77 +520,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type can randomly access typed data
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ICanRandomlyAccessData<out T> : ICanRandomlyAccessData
-    {
-        /// <summary>
-        /// Returns the typed at at this index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        new T this[int index] { get; }
-
-        /// <summary>
-        /// Returns the typed at at this index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        new T this[uint index] { get; }
-    }
-
-    /// <summary>
-    /// Indicates that type exposes a mutable reference
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IHaveMutableReference<T> where T : unmanaged
-    {
-        /// <summary>
-        /// The current mutable reference
-        /// </summary>
-        ref T Current { get; }
-    }
-
-    /// <summary>
-    /// A read only reference enumerator for unmanaged types
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IReadOnlyUnmanagedEnumerator<T> : IDisposable where T : unmanaged
-    {
-        /// <summary>
-        /// Moves to the next item
-        /// </summary>
-        /// <returns></returns>
-        bool MoveNext();
-
-        /// <summary>
-        /// Resets the enumerator
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// Returns a readonly reference to the current item
-        /// </summary>
-        ref readonly T Current { get; }
-    }
-
-    /// <summary>
-    /// Indicates that the type can convert structs to other types
-    /// </summary>
-    /// <typeparam name="CT"></typeparam>
-    /// <typeparam name="T"></typeparam>
-    public interface IConvertStructsToObjects<CT, out T> where CT: unmanaged where T: notnull
-    {
-        /// <summary>
-        /// Converts a struct to another type
-        /// </summary>
-        /// <param name="item">The item to convert</param>
-        /// <returns></returns>
-        T Convert(in CT item);
-    }
-
-    /// <summary>
     /// A generic operation that might require user notification and that can be cancelled
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -630,13 +531,8 @@ namespace BrightData
         /// <param name="notifyUser">Optional interface to notify the user of progress</param>
         /// <param name="cancellationToken">Cancellation token to cancel operation</param>
         /// <returns></returns>
-        T Complete(INotifyUser? notifyUser, CancellationToken cancellationToken);
+        T Complete(INotifyOperationProgress? notifyUser, CancellationToken cancellationToken);
     }
-
-    delegate void FillDelegate<CT, in T>(T item, Span<CT> ptr, int index) 
-        where T : notnull 
-        where CT : struct
-    ;
 
     /// <summary>
     /// An index list with a typed label
@@ -654,41 +550,25 @@ namespace BrightData
     /// <param name="Data"></param>
     public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
 
-    public record ColumnConversionInfo(uint ColumnIndex, ColumnConversion Conversion)
-    {
-        public virtual async Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
-        {
-            var column = dataTable.GetColumn(ColumnIndex);
-            var ret = await column.Convert(Conversion);
-            column.MetaData.CopyTo(ret.MetaData, Consts.Name, Consts.IsTarget, Consts.ColumnIndex);
-            return ret;
-        }
-    }
-
-    public record CustomColumnConversionInfo<FT, TT>(uint ColumnIndex, Func<FT, TT> Converter) : ColumnConversionInfo(ColumnIndex, ColumnConversion.Custom)
-    {
-        public override async Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
-        {
-            var column = dataTable.GetColumn(ColumnIndex);
-            if (column.DataType != typeof(FT))
-                throw new Exception($"Expected column {ColumnIndex} to be of type {typeof(FT)} but found {column.DataType}");
-            var output = column.DataType.GetBrightDataType().CreateCompositeBuffer();
-            var conversion = GenericActivator.Create<IOperation>(typeof(CustomConversion<,>).MakeGenericType(column.DataType, typeof(TT)), Converter, column, output);
-            await conversion.Process();
-            column.MetaData.CopyTo(output.MetaData, Consts.Name, Consts.IsTarget, Consts.ColumnIndex);
-            return output;
-        }
-    }
-
+    /// <summary>
+    /// A vector clustering strategy
+    /// </summary>
     public interface IClusteringStrategy
     {
+        /// <summary>
+        /// Finds clusters from the array of vectors
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="numClusters"></param>
+        /// <param name="metric"></param>
+        /// <returns></returns>
         uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric);
     }
 
     internal interface ICompositeBufferBlock<T>
     {
         uint Size { get; }
-        Task<uint> WriteTo(IDataBlock file);
+        Task<uint> WriteTo(IByteBlockSource file);
         bool HasFreeCapacity { get; }
         ReadOnlySpan<T> WrittenSpan { get; }
         ReadOnlyMemory<T> WrittenMemory { get; }

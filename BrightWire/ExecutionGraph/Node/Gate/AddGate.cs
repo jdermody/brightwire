@@ -5,10 +5,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// <summary>
     /// Outputs the two input signals added together
     /// </summary>
-    internal class AddGate : BinaryGateBase
+    internal class AddGate(string? name = null) : BinaryGateBase(name)
     {
-        public AddGate(string? name = null) : base(name) { }
-
         protected override (IGraphData Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, IGraphData primary, IGraphData secondary, NodeBase primarySource, NodeBase secondarySource)
         {
             var output = primary.GetMatrix().Add(secondary.GetMatrix());

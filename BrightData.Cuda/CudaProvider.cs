@@ -22,20 +22,9 @@ namespace BrightData.Cuda
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);
 
-        class KernelExecution
-		{
-			readonly CuFunction _function;
-			readonly Dim3 _block;
-			readonly Dim3 _thread;
-
-			public KernelExecution(CuFunction function, Dim3 block, Dim3 thread)
-			{
-				_function = function;
-				_block = block;
-				_thread = thread;
-			}
-
-			public void Run(CuStream stream, uint sharedMemSize, object[] param)
+        class KernelExecution(CuFunction function, Dim3 block, Dim3 thread)
+        {
+            public void Run(CuStream stream, uint sharedMemSize, object[] param)
 			{
 				var paramList = new IntPtr[param.Length];
 				var handleList = new GCHandle[param.Length];
@@ -46,9 +35,9 @@ namespace BrightData.Cuda
 					paramList[i] = handleList[i].AddrOfPinnedObject();
 				}
 
-				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(_function,
-					_block.X, _block.Y, _block.Z,
-					_thread.X, _thread.Y, _thread.Z,
+				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(function,
+					block.X, block.Y, block.Z,
+					thread.X, thread.Y, thread.Z,
 					sharedMemSize,
                     stream,
 					paramList,
@@ -63,16 +52,11 @@ namespace BrightData.Cuda
 			}
 		}
 
-		class KernelModule
-		{
-			readonly CuModule _module;
+		class KernelModule(CudaContext context, string path)
+        {
+			readonly CuModule _module = context.LoadModule(path);
 
-			public KernelModule(CudaContext context, string path)
-			{
-				_module = context.LoadModule(path);
-			}
-
-			public CuFunction LoadFunction(string name)
+            public CuFunction LoadFunction(string name)
 			{
 				var ret = new CuFunction();
 				if (DriverApiNativeMethods.ModuleManagement.cuModuleGetFunction(ref ret, _module, name) != CuResult.Success)

@@ -5,7 +5,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
     internal class ReadOnlyValueSemantics<T, VT>
-        where T : IHaveSize, IHaveSpanOf<VT>
+        where T : IHaveSize, IHaveSpanOf<VT> where VT : notnull
     {
         readonly T _obj;
         readonly Lazy<int> _hashCode;

@@ -15,7 +15,7 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly IDataTable _sentenceTable;
         readonly Dictionary<string, uint> _stringIndex = new();
-        readonly List<string> _strings = new();
+        readonly List<string> _strings = [];
         readonly uint _empty;
 
         public SentenceTable(BrightDataContext context, IEnumerable<string[]> sentences)

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Runtime.CompilerServices;
 using System.IO;
-using System.Linq;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
@@ -156,7 +153,7 @@ namespace BrightData
         Categorical = 1,
 
         /// <summary>
-        /// Numbers (float, int etc)
+        /// Numbers (float, int etc.)
         /// </summary>
         Numeric = 2,
 
@@ -331,95 +328,346 @@ namespace BrightData
         IEnumerable<IVector> Enumerate();
     }
 
+    /// <summary>
+    /// Provides tensor data
+    /// </summary>
     public interface ITensorDataProvider
     {
+        /// <summary>
+        /// Returns the entire block of tensor data
+        /// </summary>
+        /// <returns></returns>
         ReadOnlyMemory<float> GetTensorData();
     }
 
     public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
     {
+        /// <summary>
+        /// Number of rows in the table
+        /// </summary>
         uint RowCount { get; }
+
+        /// <summary>
+        /// Number of columns in the table
+        /// </summary>
         uint ColumnCount { get; }
+
+        /// <summary>
+        /// Data table storage orientation
+        /// </summary>
         DataTableOrientation Orientation { get; }
+
+        /// <summary>
+        /// Array of the types of each column
+        /// </summary>
         BrightDataType[] ColumnTypes { get; }
+
+        /// <summary>
+        /// Array of the column metadata
+        /// </summary>
         MetaData[] ColumnMetaData { get; }
+
+        /// <summary>
+        /// Persists changes in the metadata to the underlying storage
+        /// </summary>
         void PersistMetaData();
+
+        /// <summary>
+        /// Returns a column
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         IReadOnlyBufferWithMetaData GetColumn(uint index);
+
+        /// <summary>
+        /// Returns a typed column
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <returns></returns>
         IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T : notnull;
+
+        /// <summary>
+        /// Returns column analysis of the specified columns (or all if none specified)
+        /// </summary>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
+
+        /// <summary>
+        /// Sets an alternate tensor data provider
+        /// </summary>
+        /// <param name="dataProvider"></param>
         void SetTensorData(ITensorDataProvider dataProvider);
+
+        /// <summary>
+        /// Returns a typed value from the data table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="columnIndex"></param>
+        /// <param name="rowIndex"></param>
+        /// <returns></returns>
         Task<T> Get<T>(uint columnIndex, uint rowIndex) where T : notnull;
+
+        /// <summary>
+        /// Returns an array of column values
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="columnIndex"></param>
+        /// <param name="rowIndices"></param>
+        /// <returns></returns>
         Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull;
+
+        /// <summary>
+        /// Enumerates all rows of the table
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         IAsyncEnumerable<TableRow> EnumerateRows(CancellationToken ct = default);
-        IReadOnlyBufferWithMetaData[] GetColumns(params uint[] columnIndices);
+
+        /// <summary>
+        /// Returns an array of columns
+        /// </summary>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         IReadOnlyBufferWithMetaData[] GetColumns(IEnumerable<uint> columnIndices);
+
+        /// <summary>
+        /// Writes the specified columns to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
         Task WriteColumnsTo(Stream stream, params uint[] columnIndices);
+
+        /// <summary>
+        /// Writes the specified rows to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="rowIndices"></param>
+        /// <returns></returns>
         Task WriteRowsTo(Stream stream, params uint[] rowIndices);
+
+        /// <summary>
+        /// Returns an array of rows
+        /// </summary>
+        /// <param name="rowIndices"></param>
+        /// <returns></returns>
         Task<TableRow[]> GetRows(params uint[] rowIndices);
+
+        /// <summary>
+        /// Returns a row from the table
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         TableRow this[uint index] { get; }
     }
 
-    public interface IDataBlock : IDisposable, IHaveSize
+    /// <summary>
+    /// Generic block byte data source
+    /// </summary>
+    public interface IByteBlockSource : IDisposable, IHaveSize
     {
+        /// <summary>
+        /// Unique id of the source
+        /// </summary>
         public Guid Id { get; }
+
+        /// <summary>
+        /// Writes data to the source
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
         void Write(ReadOnlySpan<byte> data, uint offset);
+
+        /// <summary>
+        /// Async writes data to the source
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
         ValueTask WriteAsync(ReadOnlyMemory<byte> data, uint offset);
+
+        /// <summary>
+        /// Reads data from the source
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
         uint Read(Span<byte> data, uint offset);
+
+        /// <summary>
+        /// Async read from the source
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
         Task<uint> ReadAsync(Memory<byte> data, uint offset);
     }
 
+    /// <summary>
+    /// Provides data blocks
+    /// </summary>
     public interface IProvideDataBlocks : IDisposable
     {
-        IDataBlock Get(Guid id);
+        /// <summary>
+        /// Returns a data block associated with the id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IByteBlockSource Get(Guid id);
+
+        /// <summary>
+        /// Clears all data blocks
+        /// </summary>
         void Clear();
     }
 
+    /// <summary>
+    /// Callback for a block
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="block"></param>
     public delegate void BlockCallback<T>(ReadOnlySpan<T> block);
+
+    /// <summary>
+    /// Creates a type from a block of bytes
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="data"></param>
+    /// <returns></returns>
     public delegate T CreateFromReadOnlyByteSpan<out T>(ReadOnlySpan<byte> data) where T: IHaveDataAsReadOnlyByteSpan;
 
+    /// <summary>
+    /// Read only buffer - composed of multiple blocks of a fixed size
+    /// </summary>
     public interface IReadOnlyBuffer : IHaveSize
     {
+        /// <summary>
+        /// Size of each block in the buffer
+        /// </summary>
         public uint BlockSize { get; }
+
+        /// <summary>
+        /// Number of blocks in the buffer
+        /// </summary>
         public uint BlockCount { get; }
+
+        /// <summary>
+        /// The type of data within the buffer
+        /// </summary>
         Type DataType { get; }
+
+        /// <summary>
+        /// Enumerates all objects within the buffer
+        /// </summary>
+        /// <returns></returns>
         IAsyncEnumerable<object> EnumerateAll();
     }
 
+    /// <summary>
+    /// Typed read only buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IReadOnlyBuffer<T> : IReadOnlyBuffer where T : notnull
     {
-        Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default);
+        /// <summary>
+        /// Executes a callback on each block within the buffer
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="notify"></param>
+        /// <param name="message"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default);
+
+        /// <summary>
+        /// Returns a block from the buffer
+        /// </summary>
+        /// <param name="blockIndex"></param>
+        /// <returns></returns>
         Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex);
+
+        /// <summary>
+        /// Enumerates all values in the buffer
+        /// </summary>
+        /// <returns></returns>
         IAsyncEnumerable<T> EnumerateAllTyped();
+
+        /// <summary>
+        /// Enumerates all values in the buffer
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default);
     }
 
-    public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData
-    {
-    }
-    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IReadOnlyBufferWithMetaData where T : notnull
-    {
-    }
+    /// <summary>
+    /// A read only buffer with metadata
+    /// </summary>
+    public interface IReadOnlyBufferWithMetaData : IReadOnlyBuffer, IHaveMetaData;
 
+    /// <summary>
+    /// A typed read only buffer with metadata
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IReadOnlyBufferWithMetaData<T> : IReadOnlyBuffer<T>, IReadOnlyBufferWithMetaData where T : notnull;
+
+    /// <summary>
+    /// Indicates that the type counts distinct items
+    /// </summary>
     public interface IHaveDistinctItemCount
     {
+        /// <summary>
+        /// Count of distinct items (or null if the count was not found)
+        /// </summary>
         uint? DistinctItems { get; }
     }
 
+    /// <summary>
+    /// Appends an object to a buffer
+    /// </summary>
     public interface IAppendToBuffer
     {
-        void AddObject(object obj);
+        /// <summary>
+        /// Appends an object
+        /// </summary>
+        /// <param name="obj"></param>
+        void AppendObject(object obj);
     }
 
+    /// <summary>
+    /// Appends a typed value to a buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAppendToBuffer<T> : IAppendBlocks<T>, IAppendToBuffer where T: notnull
+    {
+        /// <summary>
+        /// Appends a value
+        /// </summary>
+        /// <param name="item"></param>
+        void Append(in T item);
+    }
+
+    /// <summary>
+    /// Composite buffers are appendable buffers that track distinct items and are writeable to streams
+    /// </summary>
     public interface ICompositeBuffer : IReadOnlyBufferWithMetaData, IHaveDistinctItemCount, IAppendToBuffer
     {
+        /// <summary>
+        /// Unique id
+        /// </summary>
         public Guid Id { get; }
+
+        /// <summary>
+        /// Writes all data to a stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         Task WriteTo(Stream stream);
     }
 
-    public interface IAppendToBuffer<T> : IAcceptBlock<T>, IAppendToBuffer where T: notnull
-    {
-        void Add(in T item);
-    }
+    
 
     /// <summary>
     /// Checks if an item satisfies a constraint
@@ -474,60 +722,130 @@ namespace BrightData
         Task Update(uint byteOffset, ReadOnlyMemory<byte> data);
     }
 
-    public record struct DataRangeColumnType(uint StartIndex, uint Size) : IHaveSize;
-
-    public record struct MatrixColumnType(uint StartIndex, uint RowCount, uint ColumnCount) : IHaveSize
-    {
-        public readonly uint Size => RowCount * ColumnCount;
-    }
-
-    public record struct Tensor3DColumnType(uint StartIndex, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
-    {
-        public readonly uint Size => Depth * RowCount * ColumnCount;
-    }
-
-    public record struct Tensor4DColumnType(uint StartIndex, uint Count, uint Depth, uint RowCount, uint ColumnCount) : IHaveSize
-    {
-        public readonly uint Size => Count * Depth * RowCount * ColumnCount;
-    }
-
+    /// <summary>
+    /// Represents a potentially long-running operation
+    /// </summary>
     public interface IOperation
     {
-        Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default);
+        /// <summary>
+        /// Executes the operation
+        /// </summary>
+        /// <param name="notify">Notify about progress (optional)</param>
+        /// <param name="msg">Message to notification when operation starts (optional)</param>
+        /// <param name="ct">Cancellation token (optional)</param>
+        /// <returns></returns>
+        Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default);
     }
 
+    /// <summary>
+    /// Maps objects of type T to an index
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICanIndex<T> : IHaveSize
     {
+        /// <summary>
+        /// Returns the index associated with the object
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         uint GetIndex(in T item);
     }
 
-    public interface IReadFromMetaData
-    {
-        void ReadFrom(MetaData metaData);
-    }
-
+    /// <summary>
+    /// Type of vectorisation
+    /// </summary>
     public enum VectorisationType : byte
     {
+        /// <summary>
+        /// Undefined
+        /// </summary>
         Unknown = 0,
+
+        /// <summary>
+        /// Maps values to an index (single offset)
+        /// </summary>
         CategoricalIndex,
+
+        /// <summary>
+        /// Index lists vectorisation
+        /// </summary>
         IndexList,
+
+        /// <summary>
+        /// Numeric vectorisation
+        /// </summary>
         Numeric,
+
+        /// <summary>
+        /// Maps values to an index (each value will have its own offset)
+        /// </summary>
         OneHot,
+        
+        /// <summary>
+        /// Tensor vectorisation
+        /// </summary>
         Tensor,
+
+        /// <summary>
+        /// Weighted index list vectorisation
+        /// </summary>
         WeightedIndexList,
+
+        /// <summary>
+        /// Boolean vectorisation
+        /// </summary>
         Boolean
     }
 
-    public interface ICanVectorise : IWriteToMetaData, IReadFromMetaData
+    /// <summary>
+    /// Object vectorisation
+    /// </summary>
+    public interface ICanVectorise : IWriteToMetaData
     {
-        bool IsOutput { get; }
+        /// <summary>
+        /// Type of vectorisation
+        /// </summary>
         VectorisationType Type { get; }
+
+        /// <summary>
+        /// Size of the vectorisation output
+        /// </summary>
         uint OutputSize { get; }
+
+        /// <summary>
+        /// Vectorise a block from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="blockIndex"></param>
+        /// <param name="offset"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
         Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output);
+
+        /// <summary>
+        /// Vectorise an object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="output"></param>
         void Vectorise(object obj, Span<float> output);
+
+        /// <summary>
+        /// Maps back from a vectorised index to the source value
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         string? ReverseVectorise(uint index);
+
+        /// <summary>
+        /// Reads vectorisation parameters from metadata
+        /// </summary>
+        /// <param name="metaData"></param>
+        void ReadFrom(MetaData metaData);
     }
 
+    /// <summary>
+    /// Builds data tables
+    /// </summary>
     public interface IBuildDataTables : IHaveBrightDataContext
     {
         /// <summary>
@@ -540,8 +858,14 @@ namespace BrightData
         /// </summary>
         MetaData[] ColumnMetaData { get; }
 
+        /// <summary>
+        /// Number of output rows
+        /// </summary>
         uint RowCount { get; }
 
+        /// <summary>
+        /// Number of output columns
+        /// </summary>
         uint ColumnCount { get; }
 
         /// <summary>
@@ -551,8 +875,11 @@ namespace BrightData
         /// <param name="columnIndices">Indices of column definitions to copy</param>
         ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices);
 
-        ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers);
-
+        /// <summary>
+        /// Creates columns from buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <returns></returns>
         ICompositeBuffer[] CreateColumnsFrom(IEnumerable<IReadOnlyBufferWithMetaData> buffers);
 
         /// <summary>
@@ -585,8 +912,21 @@ namespace BrightData
         /// <param name="items"></param>
         void AddRow(params object[] items);
 
-        Task Add(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default);
-        public Task Add(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default);
+        /// <summary>
+        /// Adds rows from the buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task AddRows(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default);
+
+        /// <summary>
+        /// Adds rows from the buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public Task AddRows(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default);
 
         /// <summary>
         /// Writes the data table to a stream
@@ -633,8 +973,18 @@ namespace BrightData
         ICompositeBuffer<ReadOnlyTensor4D> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
     }
 
+    /// <summary>
+    /// Writes tables to a stream
+    /// </summary>
     public interface IWriteDataTables
     {
+        /// <summary>
+        /// Writes to a stream
+        /// </summary>
+        /// <param name="tableMetaData"></param>
+        /// <param name="buffers"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
         Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output);
     }
 }

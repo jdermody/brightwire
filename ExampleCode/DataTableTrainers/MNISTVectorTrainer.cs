@@ -6,13 +6,8 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class MnistVectorTrainer : DataTableTrainer
+    internal class MnistVectorTrainer(IDataTable training, IDataTable test) : DataTableTrainer(null, training, test)
     {
-        public MnistVectorTrainer(IDataTable training, IDataTable test) : base(null, training, test)
-        {
-
-        }
-
         public ExecutionGraphModel? TrainingFeedForwardNeuralNetwork(
             uint hiddenLayerSize, 
             uint numIterations, 

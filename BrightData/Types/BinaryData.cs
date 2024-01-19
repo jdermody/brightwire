@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -43,7 +42,7 @@ namespace BrightData.Types
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
             var size = reader.ReadInt32();
-            ref var array = ref Unsafe.AsRef(_data);
+            ref var array = ref Unsafe.AsRef(in _data);
             array = reader.ReadBytes(size);
         }
 

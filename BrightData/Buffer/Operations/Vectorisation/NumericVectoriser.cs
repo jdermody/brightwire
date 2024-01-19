@@ -7,8 +7,7 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// Numeric vectorisation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="isOutput"></param>
-    internal class NumericVectoriser<T>(bool isOutput) : VectorisationBase<T>(isOutput, 1)
+    internal class NumericVectoriser<T>() : VectorisationBase<T>(1)
         where T : notnull
     {
         readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();

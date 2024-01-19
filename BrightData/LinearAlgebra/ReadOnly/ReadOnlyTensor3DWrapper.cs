@@ -55,7 +55,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint RowCount { get; }
         public uint ColumnCount { get; }
         public uint MatrixSize => RowCount * ColumnCount;
-        public bool IsReadOnly => true;
 
         public float this[int depth, int rowY, int columnX] => ReadOnlySegment[depth * MatrixSize + columnX * RowCount + rowY];
         public float this[uint depth, uint rowY, uint columnX] => ReadOnlySegment[depth * MatrixSize + columnX * RowCount + rowY];

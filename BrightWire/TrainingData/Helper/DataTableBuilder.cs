@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 
 namespace BrightWire.TrainingData.Helper

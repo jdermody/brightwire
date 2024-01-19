@@ -5,33 +5,21 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
-    internal class JoinGate : MultiGateBase
+    internal class JoinGate(string? name, params WireBuilder[] incoming) : MultiGateBase(name, incoming)
     {
-        class Backpropagation : BackpropagationBase<JoinGate>
+        class Backpropagation(JoinGate source, List<IncomingChannel> channels, NodeBase[] ancestors)
+            : BackpropagationBase<JoinGate>(source)
         {
-            readonly List<IncomingChannel> _channels;
-            readonly NodeBase[] _ancestors;
-
-            public Backpropagation(JoinGate source, List<IncomingChannel> channels, NodeBase[] ancestors) : base(source)
-            {
-                _channels = channels;
-                _ancestors = ancestors;
-            }
-
             public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var residual = errorSignal.GetMatrix();
                 var index = parents.Length-1;
-                foreach(var item in _channels) {
+                foreach(var item in channels) {
                     (residual, var split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
-                    yield return (errorSignal.ReplaceWith(split), context, _ancestors[index--]);
+                    yield return (errorSignal.ReplaceWith(split), context, ancestors[index--]);
                 }
-                yield return (errorSignal.ReplaceWith(residual), context, _ancestors[index]);
+                yield return (errorSignal.ReplaceWith(residual), context, ancestors[index]);
             }
-        }
-
-        public JoinGate(string? name, params WireBuilder[] incoming) : base(name, incoming)
-        {
         }
 
         protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)

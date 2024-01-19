@@ -16,7 +16,7 @@
         </member>
         <member name="T:BrightWire.Bayesian.MultinomialNaiveBayesClassifier">
             <summary>
-            Multinomial naive bayes classifer
+            Multinomial naive bayes classifier
             </summary>
         </member>
         <member name="M:BrightWire.Bayesian.MultinomialNaiveBayesClassifier.Classify(BrightData.Types.IndexList)">
@@ -42,6 +42,12 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="M:BrightWire.Bayesian.Training.MarkovModelTrainer2`1.#ctor(`0,System.Int32)">
+            <summary>
+            Builds markov models with a window size of 2
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightWire.Bayesian.Training.NaiveBayesTrainer">
             <summary>
             Simple naive bayes trainer
@@ -57,7 +63,17 @@
             Creates an adam gradient descent optimisation
             </summary>
         </member>
+        <member name="M:BrightWire.Descriptor.AdamDescriptor.#ctor(System.Single,System.Single)">
+            <summary>
+            Creates an adam gradient descent optimisation
+            </summary>
+        </member>
         <member name="T:BrightWire.Descriptor.L1RegularisationDescriptor">
+            <summary>
+            Creates L1 regularisation
+            </summary>
+        </member>
+        <member name="M:BrightWire.Descriptor.L1RegularisationDescriptor.#ctor(System.Single)">
             <summary>
             Creates L1 regularisation
             </summary>
@@ -67,7 +83,17 @@
             Creates L2 regularisation
             </summary>
         </member>
+        <member name="M:BrightWire.Descriptor.L2RegularisationDescriptor.#ctor(System.Single)">
+            <summary>
+            Creates L2 regularisation
+            </summary>
+        </member>
         <member name="T:BrightWire.Descriptor.MomentumDescriptor">
+            <summary>
+            Creates a momentum gradient descent optimiser
+            </summary>
+        </member>
+        <member name="M:BrightWire.Descriptor.MomentumDescriptor.#ctor(System.Single)">
             <summary>
             Creates a momentum gradient descent optimiser
             </summary>
@@ -77,7 +103,17 @@
             Creates a nesterov momentum gradient descent optimiser
             </summary>
         </member>
+        <member name="M:BrightWire.Descriptor.NesterovMomentumDescriptor.#ctor(System.Single)">
+            <summary>
+            Creates a nesterov momentum gradient descent optimiser
+            </summary>
+        </member>
         <member name="T:BrightWire.Descriptor.RmsPropDescriptor">
+            <summary>
+            Creates a rms prop gradient descent optimiser
+            </summary>
+        </member>
+        <member name="M:BrightWire.Descriptor.RmsPropDescriptor.#ctor(System.Single)">
             <summary>
             Creates a rms prop gradient descent optimiser
             </summary>
@@ -97,7 +133,17 @@
             Constrains the signal through the graph to lie between two values
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Action.ConstrainSignal.#ctor(System.Single,System.Single)">
+            <summary>
+            Constrains the signal through the graph to lie between two values
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Action.CopyNamedMemory">
+            <summary>
+            Copies named memory from one slot to another
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Action.CopyNamedMemory.#ctor(System.String,BrightWire.IHaveMemoryNode)">
             <summary>
             Copies named memory from one slot to another
             </summary>
@@ -107,7 +153,18 @@
             Saves the current graph signal into named memory
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Action.SetMemory.#ctor(System.String,System.String)">
+            <summary>
+            Saves the current graph signal into named memory
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Activation.LeakyRelu">
+            <summary>
+            Leaky RELU activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Activation.LeakyRelu.#ctor(System.String)">
             <summary>
             Leaky RELU activation
             https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
@@ -119,7 +176,19 @@
             https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Activation.Relu.#ctor(System.String)">
+            <summary>
+            RELu activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Activation.Sigmoid">
+            <summary>
+            Sigmoid activation function
+            https://en.wikipedia.org/wiki/Sigmoid_function
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Activation.Sigmoid.#ctor(System.String)">
             <summary>
             Sigmoid activation function
             https://en.wikipedia.org/wiki/Sigmoid_function
@@ -131,7 +200,19 @@
             https://en.wikipedia.org/wiki/Softmax_function
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Activation.SoftMax.#ctor(System.String)">
+            <summary>
+            Softmax activation function
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Activation.Tanh">
+            <summary>
+            Tanh activation function
+            https://en.wikipedia.org/wiki/Activation_function
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Activation.Tanh.#ctor(System.String)">
             <summary>
             Tanh activation function
             https://en.wikipedia.org/wiki/Activation_function
@@ -221,12 +302,12 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.DefaultDataTableAdapter">
             <summary>
-            Vectorises each row of the data table on demand
+            Vectorise each row of the data table on demand
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.IndexListDataTableAdapter">
             <summary>
-            Adapts data tables with a index list based feature columns (corresponding to an unweighted sparse vector)
+            Adapts data tables with an index list based feature columns (corresponding to an unweighted sparse vector)
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.ManyToOneDataTableAdapter">
@@ -279,6 +360,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.ExecutionEngine">
+            <summary>
+            Executes (without training) graphs
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.ExecutionEngine.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.Models.ExecutionGraphModel,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes (without training) graphs
             </summary>
@@ -394,7 +480,17 @@
             Helper class when executing a single sequence
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SequentialRowDataSource.#ctor(System.Single[][],BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <summary>
+            Helper class when executing a single sequence
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource">
+            <summary>
+            Helper class when executing a single row instead of the normal batch mode
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource.#ctor(System.Single[],BrightData.LinearAlgebra.LinearAlgebraProvider,System.Boolean,BrightWire.MiniBatchSequenceType,System.UInt32)">
             <summary>
             Helper class when executing a single row instead of the normal batch mode
             </summary>
@@ -427,7 +523,19 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.AdaGrad.#ctor(BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+            <summary>
+            AdaGrad gradient descent
+            https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.GradientDescent.Adam">
+            <summary>
+            Adam gradient descent
+            https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Adam.#ctor(System.Single,System.Single,BrightData.IMatrix,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
             <summary>
             Adam gradient descent
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
@@ -438,7 +546,17 @@
             L1 regularisation
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.L1Regularisation.#ctor(System.Single)">
+            <summary>
+            L1 regularisation
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.GradientDescent.L2Regularisation">
+            <summary>
+            L2 regularisation
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.L2Regularisation.#ctor(System.Single)">
             <summary>
             L2 regularisation
             </summary>
@@ -449,12 +567,29 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Momentum.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+            <summary>
+            Gradient descent with momentum
+            https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.GradientDescent.NesterovMomentum">
             <summary>
             Gradient descent with nesterov momentum
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.NesterovMomentum.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+            <summary>
+            Gradient descent with nesterov momentum
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.GradientDescent.RmsProp">
+            <summary>
+            Rms prop gradient descent
+            https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.RmsProp.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
             <summary>
             Rms prop gradient descent
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
@@ -1194,12 +1329,27 @@
             Graph data adaptor for matrices
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.MatrixGraphData.#ctor(BrightData.IMatrix)">
+            <summary>
+            Graph data adaptor for matrices
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.Tensor3DGraphData">
             <summary>
             Graph data adaptor for 3D tensors
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor3DGraphData.#ctor(BrightData.IMatrix,System.UInt32,System.UInt32)">
+            <summary>
+            Graph data adaptor for 3D tensors
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.Tensor4DGraphData">
+            <summary>
+            Graph data adapter for 4D tensors
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor4DGraphData.#ctor(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Graph data adapter for 4D tensors
             </summary>
@@ -1229,6 +1379,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence">
+            <summary>
+            A sequence within a mini batch
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.#ctor(BrightWire.IGraphData,BrightWire.IGraphData,BrightWire.ExecutionGraph.Helper.MiniBatch,System.UInt32,BrightWire.MiniBatchSequenceType)">
             <summary>
             A sequence within a mini batch
             </summary>
@@ -1326,6 +1481,11 @@
             Divides epochs into a list of mini batches
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatchProvider.#ctor(BrightWire.IDataSource,System.Random)">
+            <summary>
+            Divides epochs into a list of mini batches
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.WireToNode">
             <summary>
             Wires connect nodes in the graph
@@ -1349,6 +1509,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Attention.TensorFeedForward">
+            <summary>
+            Applies a feed forward node to each matrix within a tensor
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Attention.TensorFeedForward.#ctor(BrightWire.IFeedForward,System.String,System.String)">
             <summary>
             Applies a feed forward node to each matrix within a tensor
             </summary>
@@ -1417,6 +1582,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Gate.AddGate">
+            <summary>
+            Outputs the two input signals added together
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.AddGate.#ctor(System.String)">
             <summary>
             Outputs the two input signals added together
             </summary>
@@ -1530,17 +1700,37 @@
             Outputs the two input signals multiplied together
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiplyGate.#ctor(System.String)">
+            <summary>
+            Outputs the two input signals multiplied together
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Gate.SubtractGate">
+            <summary>
+            Subtracts the second input from the first input
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.SubtractGate.#ctor(System.String)">
             <summary>
             Subtracts the second input from the first input
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.ExecuteBackwardAction">
             <summary>
-            Executes an action when backpropagating
+            Executes an action when back-propagating
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.ExecuteBackwardAction.#ctor(BrightWire.IAction,System.String)">
+            <summary>
+            Executes an action when back-propagating
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.ExecuteForwardAction">
+            <summary>
+            Executes an action when executing forward
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.ExecuteForwardAction.#ctor(BrightWire.IAction,System.String)">
             <summary>
             Executes an action when executing forward
             </summary>
@@ -1550,7 +1740,17 @@
             Provides a hook into the backpropagation signal
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.HookErrorSignal.#ctor(System.Action{BrightWire.IGraphContext},System.String)">
+            <summary>
+            Provides a hook into the backpropagation signal
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.RecurrentBridge">
+            <summary>
+            Connects the hidden states across two recurrent neural network nodes
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.RecurrentBridge.#ctor(System.String,System.String,System.String,System.String)">
             <summary>
             Connects the hidden states across two recurrent neural network nodes
             </summary>
@@ -1560,7 +1760,17 @@
             Executes a row based classifier
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.RowClassifier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.IRowClassifier,BrightData.IDataTable,System.String)">
+            <summary>
+            Executes a row based classifier
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Helper.TransposeAndCombineSignal">
+            <summary>
+            Transpose the input and combine each depth slice - used when translating between tensor and matrix based signals
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.TransposeAndCombineSignal.#ctor(System.String)">
             <summary>
             Transpose the input and combine each depth slice - used when translating between tensor and matrix based signals
             </summary>
@@ -1570,12 +1780,27 @@
             Transpose the input - used when translating between tensor and matrix based signals
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.TransposeFrom4DTensorToMatrix.#ctor(System.String)">
+            <summary>
+            Transpose the input - used when translating between tensor and matrix based signals
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Input.FlowThrough">
             <summary>
             Simple pass through of the input signal
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Input.FlowThrough.#ctor(System.String)">
+            <summary>
+            Simple pass through of the input signal
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Input.JoinSignalWithMemory">
+            <summary>
+            Joins the graph signal with a saved signal stored in named memory
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Input.JoinSignalWithMemory.#ctor(System.String,System.String)">
             <summary>
             Joins the graph signal with a saved signal stored in named memory
             </summary>
@@ -1587,7 +1812,7 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Input.OneToMany">
             <summary>
-            Waits for all children to finish backpropagating before sending the error further backward
+            Waits for all children to finish back-propagating before sending the error further backward
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Input.ReverseSequence">
@@ -1620,6 +1845,12 @@
             https://en.wikipedia.org/wiki/Feedforward_neural_network
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.FeedForward.#ctor(System.UInt32,System.UInt32,BrightData.IVector,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation,System.String)">
+            <summary>
+            Feed forward neural network
+            https://en.wikipedia.org/wiki/Feedforward_neural_network
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.GatedRecurrentUnit">
             <summary>
             GRU recurrent neural network
@@ -1633,6 +1864,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.MaxPool">
+            <summary>
+            Max pooling convolutional neural network
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.MaxPool.#ctor(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.String)">
             <summary>
             Max pooling convolutional neural network
             </summary>
@@ -1658,12 +1894,22 @@
             Implementation of self attention from: https://arxiv.org/abs/1409.0473
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.SelfAttention.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.String,System.String,BrightWire.ExecutionGraph.Node.Layer.FeedForward,System.String,System.String)">
+            <summary>
+            Implementation of self attention from: https://arxiv.org/abs/1409.0473
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.SimpleRecurrent">
             <summary>
             Simple recurrent neural network
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.TiedFeedForward">
+            <summary>
+            A feed forward layer with tied weights (from a previous feed forward layer)
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.TiedFeedForward.#ctor(BrightWire.IFeedForward,BrightWire.IWeightInitialisation,System.String)">
             <summary>
             A feed forward layer with tied weights (from a previous feed forward layer)
             </summary>
@@ -1680,9 +1926,9 @@
             <param name="name">The name of the node (optional)</param>
             <param name="id">The node's unique id (optional)</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Initalise(BrightWire.ExecutionGraph.GraphFactory,System.String,System.Byte[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Initialise(BrightWire.ExecutionGraph.GraphFactory,System.String,System.Byte[])">
             <summary>
-            Called when deserialising the node
+            Called when de-serialising the node
             </summary>
             <param name="graph">Graph factory</param>
             <param name="description">Node description</param>
@@ -1879,7 +2125,17 @@
             Calculates the mean across the batch 
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.BatchMean.#ctor(System.String)">
+            <summary>
+            Calculates the mean across the batch 
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Operation.OneDividedByInput">
+            <summary>
+            Calculates 1/x
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.OneDividedByInput.#ctor(System.String)">
             <summary>
             Calculates 1/x
             </summary>
@@ -1889,12 +2145,27 @@
             Subtracts the input from one (1-x)
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.OneMinusInput.#ctor(System.String)">
+            <summary>
+            Subtracts the input from one (1-x)
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput">
             <summary>
             Calculates the square root of the input
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput.#ctor(System.String)">
+            <summary>
+            Calculates the square root of the input
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput.Backpropagation">
+            <summary>
+            Derivative of sqrt(x) is 0.5/sqrt(x)
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput.Backpropagation.#ctor(BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput,BrightData.IMatrix)">
             <summary>
             Derivative of sqrt(x) is 0.5/sqrt(x)
             </summary>
@@ -1927,6 +2198,11 @@
             Initalises all weights to a constant
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Constant.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single,System.Single)">
+            <summary>
+            Initalises all weights to a constant
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Gaussian">
             <summary>
             Initialises weights randomly based on a gaussian distribution
@@ -1937,7 +2213,18 @@
             Identity matrix: https://arxiv.org/abs/1504.00941
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Identity.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single)">
+            <summary>
+            Identity matrix: https://arxiv.org/abs/1504.00941
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Xavier">
+            <summary>
+            Xavier weight initialisation
+            http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Xavier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single)">
             <summary>
             Xavier weight initialisation
             http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
@@ -2292,6 +2579,7 @@
             Enumerates rows in the table as vectorized rows
             </summary>
             <param name="dataTable"></param>
+            <param name="oneHotEncode"></param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.HierarchicalCluster(BrightData.IDataTable,System.UInt32)">
@@ -2314,7 +2602,7 @@
         </member>
         <member name="M:BrightWire.ExtensionMethods.NonNegativeMatrixFactorisation(BrightData.IDataTable,System.UInt32,System.UInt32)">
             <summary>
-            Clusters the rows in the data table using non negative matrix factorisation clustering
+            Clusters the rows in the data table using non-negative matrix factorisation clustering
             </summary>
             <param name="dataTable"></param>
             <param name="k">Number of clusters</param>
@@ -2480,7 +2768,7 @@
         </member>
         <member name="M:BrightWire.ExtensionMethods.Nnmf(BrightData.IReadOnlyVector[],BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
             <summary>
-            Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
+            Non-negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
             <param name="data">The training data</param>
             <param name="lap">Linear algebra provider</param>
@@ -2523,7 +2811,7 @@
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
-            <param name="table">The training data table that must have a index-list based column to classify against</param>
+            <param name="table">The training data table that must have an index-list based column to classify against</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{System.String}})">
@@ -2576,6 +2864,11 @@
             Property set implementation
             </summary>
         </member>
+        <member name="M:BrightWire.Helper.PropertySet.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <summary>
+            Property set implementation
+            </summary>
+        </member>
         <member name="P:BrightWire.Helper.PropertySet.LinearAlgebraProvider">
             <inheritdoc />
         </member>
@@ -2590,6 +2883,11 @@
             </summary>
         </member>
         <member name="T:BrightWire.Helper.VectorBasedStatistics">
+            <summary>
+            Calculate vector based statistics
+            </summary>
+        </member>
+        <member name="M:BrightWire.Helper.VectorBasedStatistics.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.Single[],System.Single[],System.UInt32)">
             <summary>
             Calculate vector based statistics
             </summary>
@@ -2702,7 +3000,7 @@
         </member>
         <member name="M:BrightWire.IGraphData.ReplaceWith(BrightData.IMatrix)">
             <summary>
-            Replaces the data with the specified matrix (but preserves any tensor meta data)
+            Replaces the data with the specified matrix (but preserves any tensor metadata)
             </summary>
             <param name="matrix">The matrix to use as a replacement</param>
         </member>
@@ -2962,7 +3260,7 @@
         </member>
         <member name="F:BrightWire.MiniBatchSequenceType.Standard">
             <summary>
-            Standard batch type (non sequential batches have a single standard sequence item)
+            Standard batch type (non-sequential batches have a single standard sequence item)
             </summary>
         </member>
         <member name="F:BrightWire.MiniBatchSequenceType.SequenceStart">
@@ -4987,15 +5285,15 @@
         </member>
         <member name="M:BrightWire.TrainingData.Helper.StringTableBuilder.#ctor(BrightWire.Models.StringTable)">
             <summary>
-            Creates a string table builder pre populated with an existing string table
+            Creates a string table builder pre-populated with an existing string table
             </summary>
-            <param name="stringTable">The string table to pre populate</param>
+            <param name="stringTable">The string table to pre-populate</param>
         </member>
         <member name="M:BrightWire.TrainingData.Helper.StringTableBuilder.#ctor(System.String[])">
             <summary>
-            Creates a string table builder pre populated with an existing string table
+            Creates a string table builder pre-populated with an existing string table
             </summary>
-            <param name="stringTable">The string table to pre populate</param>
+            <param name="stringTable">The string table to pre-populate</param>
         </member>
         <member name="M:BrightWire.TrainingData.Helper.StringTableBuilder.TryGetIndex(System.String,System.UInt32@)">
             <summary>
@@ -5027,6 +5325,11 @@
             <param name="index">The string index</param>
         </member>
         <member name="T:BrightWire.TreeBased.DecisionTreeClassifier">
+            <summary>
+            Classifies rows based on a previously trained model
+            </summary>
+        </member>
+        <member name="M:BrightWire.TreeBased.DecisionTreeClassifier.#ctor(BrightWire.Models.TreeBased.DecisionTree)">
             <summary>
             Classifies rows based on a previously trained model
             </summary>
@@ -5063,7 +5366,13 @@
         </member>
         <member name="T:BrightWire.Unsupervised.NonNegativeMatrixFactorisation">
             <summary>
-            Non negative matrix factorisation based clustering
+            Non-negative matrix factorisation based clustering
+            https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
+            </summary>
+        </member>
+        <member name="M:BrightWire.Unsupervised.NonNegativeMatrixFactorisation.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.Single,BrightWire.IErrorMetric)">
+            <summary>
+            Non-negative matrix factorisation based clustering
             https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
             </summary>
         </member>

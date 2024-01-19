@@ -80,7 +80,7 @@ namespace ExampleCode.DataSet
             return new IntegerAdditionTrainer(data, training, test);
         }
 
-        public static async Task<SentenceTable> BeautifulandDamned(this BrightDataContext context)
+        public static async Task<SentenceTable> BeautifulAndDamned(this BrightDataContext context)
         {
             using var reader = await GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = await reader.ReadToEndAsync();

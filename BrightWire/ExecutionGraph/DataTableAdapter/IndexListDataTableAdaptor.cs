@@ -8,7 +8,7 @@ using BrightData.Types;
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Adapts data tables with a index list based feature columns (corresponding to an unweighted sparse vector)
+    /// Adapts data tables with an index list based feature columns (corresponding to an unweighted sparse vector)
     /// </summary>
     internal class IndexListDataTableAdapter : DataTableAdapterBase<(IndexList, float[])>, IIndexListEncoder
     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
+using BrightData.DataTable.Columns;
 using BrightData.Helper;
 using BrightWire.Models.TreeBased;
 
@@ -63,7 +64,7 @@ namespace BrightWire.TreeBased.Training
                     foreach (var item in rows) {
                         var val = item.GetCategory(_columnIndex);
                         if (!ret.TryGetValue(val, out temp))
-                            ret.Add(val, temp = new List<InMemoryRow>());
+                            ret.Add(val, temp = []);
                         temp.Add(item);
                     }
                     return ret;
@@ -73,7 +74,7 @@ namespace BrightWire.TreeBased.Training
                         var val = item.GetValue(_columnIndex);
                         var label = (val < splitVal) ? "-" : "+";
                         if (!ret.TryGetValue(label, out temp))
-                            ret.Add(label, temp = new List<InMemoryRow>());
+                            ret.Add(label, temp = []);
                         temp.Add(item);
                     }
                 }
@@ -106,8 +107,8 @@ namespace BrightWire.TreeBased.Training
         }
         class TableInfo
         {
-            readonly HashSet<uint> _categorical = new();
-            readonly HashSet<uint> _continuous = new();
+            readonly HashSet<uint> _categorical = [];
+            readonly HashSet<uint> _continuous = [];
 
             public TableInfo(IDataTable table)
             {
@@ -130,7 +131,7 @@ namespace BrightWire.TreeBased.Training
             }
             public IEnumerable<uint> CategoricalColumns => _categorical;
 	        public IEnumerable<uint> ContinuousColumns => _continuous;
-	        public List<InMemoryRow> Data { get; } = new();
+	        public List<InMemoryRow> Data { get; } = [];
 			public uint ClassColumnIndex { get; }
 		}
         class Node
@@ -170,12 +171,12 @@ namespace BrightWire.TreeBased.Training
                     foreach(var item in Data) {
                         foreach(var column in _tableInfo.CategoricalColumns) {
                             if (!categoricalValues.TryGetValue(column, out var temp2))
-                                categoricalValues.Add(column, temp2 = new HashSet<string>());
+                                categoricalValues.Add(column, temp2 = []);
                             temp2.Add(item.GetCategory(column));
                         }
                         foreach (var column in _tableInfo.ContinuousColumns) {
                             if (!continuousValues.TryGetValue(column, out var temp))
-                                continuousValues.Add(column, temp = new HashSet<double>());
+                                continuousValues.Add(column, temp = []);
                             temp.Add(item.GetValue(column));
                         }
                     }

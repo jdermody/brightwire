@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightData;
 using BrightWire.Models.Bayesian;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using BrightData.Types;
 namespace BrightWire.Bayesian
 {
     /// <summary>
-    /// Multinomial naive bayes classifer
+    /// Multinomial naive bayes classifier
     /// </summary>
     internal class MultinomialNaiveBayesClassifier : IIndexListClassifier
     {
@@ -30,10 +29,7 @@ namespace BrightWire.Bayesian
             {
                 var score = _prior;
                 foreach (var item in stringIndexList.Span) {
-                    if (_index.TryGetValue(item, out var temp))
-                        score += temp;
-                    else
-                        score += _missing;
+                    score += _index.GetValueOrDefault(item, _missing);
                 }
                 return score;
             }

@@ -25,7 +25,7 @@ namespace BrightData.Analysis
             Add((T)obj);
         }
 
-        public void Add(ReadOnlySpan<T> block)
+        public void Append(ReadOnlySpan<T> block)
         {
             foreach(ref readonly var item in block)
                 Analysis.Add(_converter.Convert(item));

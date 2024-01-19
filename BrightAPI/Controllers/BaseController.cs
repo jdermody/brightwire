@@ -2,7 +2,5 @@
 
 namespace BrightAPI.Controllers
 {
-    public class BaseController : ControllerBase
-    {
-    }
+    public class BaseController : ControllerBase;
 }

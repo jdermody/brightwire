@@ -3,12 +3,8 @@ using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class StockDataTrainer : DataTableTrainer
+    internal class StockDataTrainer(IDataTable table) : DataTableTrainer(table)
     {
-        public StockDataTrainer(IDataTable table) : base(table)
-        {
-        }
-
         public SequentialWindowStockDataTrainer GetSequentialWindow(uint windowSize = 14)
         {
             return new(

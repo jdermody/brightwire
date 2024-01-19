@@ -4,12 +4,8 @@ using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class AdultTrainer : DataTableTrainer
+    class AdultTrainer(IDataTable? table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public AdultTrainer(IDataTable? table, IDataTable training, IDataTable test) : base(table, training, test)
-        {
-        }
-
         public virtual void TrainNeuralNetwork()
         {
             // create a neural network graph factory
@@ -28,7 +24,7 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate:0.03f, batchSize:128);
             graph.Connect(engine)
                 .AddFeedForward(128)
                 .Add(graph.TanhActivation())

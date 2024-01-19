@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BrightData.Types;
 
-namespace BrightData.Helper
+namespace BrightData.DataTable.Columns
 {
     /// <summary>
     /// Classifies data table column types
@@ -18,13 +18,13 @@ namespace BrightData.Helper
             BrightDataType.SByte
         ];
         static readonly HashSet<BrightDataType> ContinuousType = [
-            ..NumericType, 
+            .. NumericType,
             BrightDataType.Date,
             BrightDataType.DateOnly,
             BrightDataType.TimeOnly
         ];
         static readonly HashSet<BrightDataType> BlittableType = [
-            ..ContinuousType, 
+            .. ContinuousType,
             BrightDataType.Boolean,
             BrightDataType.BinaryData,
             BrightDataType.IndexList,

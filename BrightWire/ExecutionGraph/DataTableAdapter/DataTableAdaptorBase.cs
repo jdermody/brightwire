@@ -63,9 +63,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         /// <inheritdoc />
         public virtual uint[][] GetSequentialBatches()
         {
-            return new[] {
+            return [
                 RowCount.AsRange().ToArray()
-            };
+            ];
         }
 
         /// <summary>
@@ -104,12 +104,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<IReadOnlyNumericSegment<float>>());
+                        inputData.Add(i, temp = []);
                     temp.Add(input.GetRow(i).ReadOnlySegment);
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = new List<IReadOnlyNumericSegment<float>>());
+                            outputData.Add(i, temp = []);
                         temp.Add(output.GetRow(i).ReadOnlySegment);
                     }
                 }

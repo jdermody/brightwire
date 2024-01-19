@@ -9,6 +9,9 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
+    /// <summary>
+    /// Read only tensor
+    /// </summary>
     public class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         const int HeaderSize = 12;
@@ -16,6 +19,10 @@ namespace BrightData.LinearAlgebra.ReadOnly
         readonly Lazy<IReadOnlyNumericSegment<float>> _segment;
         IReadOnlyMatrix[] _matrices;
 
+        /// <summary>
+        /// Creates a tensor from matrices
+        /// </summary>
+        /// <param name="matrices"></param>
         public ReadOnlyTensor3D(IReadOnlyMatrix[] matrices)
         {
             _matrices = matrices;
@@ -41,10 +48,21 @@ namespace BrightData.LinearAlgebra.ReadOnly
             });
         }
 
+        /// <summary>
+        /// Creates a tensor from byte data
+        /// </summary>
+        /// <param name="data"></param>
         public ReadOnlyTensor3D(ReadOnlySpan<byte> data) : this(BuildMatrices(data))
         {
         }
 
+        /// <summary>
+        /// Creates a tensor from float memory
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="depth"></param>
+        /// <param name="rows"></param>
+        /// <param name="columns"></param>
         public ReadOnlyTensor3D(ReadOnlyMemory<float> data, uint depth, uint rows, uint columns) : this(BuildMatrices(data.Span, depth, rows, columns))
         {
         }
@@ -127,9 +145,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public uint MatrixSize => RowCount * ColumnCount;
 
         /// <inheritdoc />
-        public bool IsReadOnly => true;
-
-        /// <inheritdoc />
         public float this[int depth, int rowY, int columnX] => _matrices[depth][rowY, columnX];
 
         /// <inheritdoc />
@@ -140,9 +155,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         /// <inheritdoc />
         public IReadOnlyMatrix GetMatrix(uint index) => _matrices[index];
-
-        /// <inheritdoc />
-        public IReadOnlyMatrix[] AllMatrices() => _matrices;
 
         /// <inheritdoc />
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyTensor3D);

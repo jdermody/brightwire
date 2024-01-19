@@ -1,6 +1,4 @@
 ﻿namespace BrightAPI.Models.DataTable.Requests
 {
-    public class EmptyTableRequest
-    {
-    }
+    public class EmptyTableRequest;
 }

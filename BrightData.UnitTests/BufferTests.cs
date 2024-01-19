@@ -1,57 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
-using static BrightData.Types.WeightedIndexList;
 
 namespace BrightData.UnitTests
 {
     public class BufferTests : UnitTestBase
     {
-        public class TempData : IDataBlock
+        public class TempData(Guid id, MemoryStream data) : IByteBlockSource
         {
-            readonly MemoryStream _data;
-
-            public TempData(Guid id, MemoryStream data)
-            {
-                Id = id;
-                _data = data;
-            }
-            
             public void Dispose()
             {
-                _data.Dispose();
+                data.Dispose();
             }
 
-            public uint Size => (uint)_data.Length;
-            public Guid Id { get; }
-            public void Write(ReadOnlySpan<byte> data, uint offset)
+            public uint Size => (uint)data.Length;
+            public Guid Id { get; } = id;
+
+            public void Write(ReadOnlySpan<byte> data1, uint offset)
             {
-                _data.Seek(offset, SeekOrigin.Begin);
-                _data.Write(data);
+                data.Seek(offset, SeekOrigin.Begin);
+                data.Write(data1);
             }
 
-            public ValueTask WriteAsync(ReadOnlyMemory<byte> data, uint offset)
+            public ValueTask WriteAsync(ReadOnlyMemory<byte> data1, uint offset)
             {
-                _data.Seek(offset, SeekOrigin.Begin);
-                return _data.WriteAsync(data);
+                data.Seek(offset, SeekOrigin.Begin);
+                return data.WriteAsync(data1);
             }
 
-            public uint Read(Span<byte> data, uint offset)
+            public uint Read(Span<byte> data1, uint offset)
             {
-                _data.Seek(offset, SeekOrigin.Begin);
-                return (uint)_data.Read(data);
+                data.Seek(offset, SeekOrigin.Begin);
+                return (uint)data.Read(data1);
             }
 
-            public async Task<uint> ReadAsync(Memory<byte> data, uint offset)
+            public async Task<uint> ReadAsync(Memory<byte> data1, uint offset)
             {
-                _data.Seek(offset, SeekOrigin.Begin);
-                var ret = await _data.ReadAsync(data);
+                data.Seek(offset, SeekOrigin.Begin);
+                var ret = await data.ReadAsync(data1);
                 return (uint)ret;
             }
         }
@@ -65,7 +56,7 @@ namespace BrightData.UnitTests
                 Clear();
             }
 
-            public IDataBlock Get(Guid id)
+            public IByteBlockSource Get(Guid id)
             {
                 if (!_data.TryGetValue(id, out var ret))
                     _data.Add(id, ret = new(id, new MemoryStream()));
@@ -111,7 +102,7 @@ namespace BrightData.UnitTests
                 new TestClass(new byte[] { 7, 8, 9 })
             };
             var vectorBuffer = _streamProvider.CreateCompositeBuffer<TestClass>(x => new(x), 2, 0);
-            vectorBuffer.Add(data);
+            vectorBuffer.Append(data);
             var index = 0;
             vectorBuffer.ForEachBlock(x => {
                 foreach (var item in x) {
@@ -130,7 +121,7 @@ namespace BrightData.UnitTests
                 "this is a test",
             };
             var stringBuffer = _streamProvider.CreateCompositeBuffer(2, 0, 128);
-            stringBuffer.Add(data);
+            stringBuffer.Append(data);
             var index = 0;
             for (uint i = 0; i < stringBuffer.BlockCount; i++) {
                 var block = await stringBuffer.GetTypedBlock(i);
@@ -151,8 +142,8 @@ namespace BrightData.UnitTests
         public async Task IntBuffer()
         {
             var intBuffer = _streamProvider.CreateCompositeBuffer<int>(2, 0);
-            intBuffer.Add(1);
-            intBuffer.Add(new ReadOnlySpan<int>(new[] { 2, 3 }));
+            intBuffer.Append(1);
+            intBuffer.Append(new ReadOnlySpan<int>([2, 3]));
             var index = 0;
             await intBuffer.ForEachBlock(block => {
                 foreach (var num in block)
@@ -183,12 +174,11 @@ namespace BrightData.UnitTests
         /// <summary>
         /// Buffer size configurations to test
         /// </summary>
-        public static readonly (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] Configurations = new[]
-        {
+        public static readonly (int numItems, int bufferSize, int inMemoryReadSize, int numDistinct)[] Configurations = [
             (32768, 1024, 256, 4),
             (32768, 32768, 1024, 1024),
             (32768, 128, 32768, 32768)
-        };
+        ];
 
         [Fact]
         public void IntBuffer2()
@@ -237,7 +227,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateCompositeBuffer(bufferSize, inMemorySize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Append(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.WriteTo(stream).Wait();
@@ -254,7 +244,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateCompositeBuffer(createItem, bufferSize, inMemorySize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Append(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.WriteTo(stream).Wait();
@@ -272,7 +262,7 @@ namespace BrightData.UnitTests
         {
             var buffer = _streamProvider.CreateCompositeBuffer<T>(bufferSize, inMemorySize, numDistinct);
             for (uint i = 0; i < numItems; i++)
-                buffer.Add(indexTranslator(i));
+                buffer.Append(indexTranslator(i));
 
             using var stream = new MemoryStream();
             buffer.WriteTo(stream).Wait();

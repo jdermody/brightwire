@@ -6,14 +6,9 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates a momentum gradient descent optimiser
     /// </summary>
-    internal class MomentumDescriptor : ICreateTemplateBasedGradientDescent
+    internal class MomentumDescriptor(float momentum = 0.9f) : ICreateTemplateBasedGradientDescent
     {
-        protected readonly float _momentum;
-
-        public MomentumDescriptor(float momentum = 0.9f)
-        {
-            _momentum = momentum;
-        }
+        protected readonly float _momentum = momentum;
 
         public virtual IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {

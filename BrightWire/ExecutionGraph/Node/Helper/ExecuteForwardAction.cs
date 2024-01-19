@@ -8,11 +8,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes an action when executing forward
     /// </summary>
-    internal class ExecuteForwardAction : NodeBase, IHaveAction
+    internal class ExecuteForwardAction(IAction action, string? name = null) : NodeBase(name), IHaveAction
     {
-	    public ExecuteForwardAction(IAction action, string? name = null) : base(name) { Action = action; }
-
-        public IAction Action { get; set; }
+        public IAction Action { get; set; } = action;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -25,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             return (TypeLoader.GetTypeName(Action), Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
-        protected override void Initalise(GraphFactory factory, string? description, byte[]? data)
+        protected override void Initialise(GraphFactory factory, string? description, byte[]? data)
         {
             if (description == null)
                 throw new ArgumentException("Description cannot be null");

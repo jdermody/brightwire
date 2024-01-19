@@ -48,7 +48,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestCudaDirectInitialization()
         {
-            var span = new ReadOnlySpan<float>(new float[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 2, 2);
+            var span = new ReadOnlySpan<float>([1, 2, 3, 4, 5, 6, 7, 8], 2, 2);
             var segment = _cudaLinearAlgebraProvider.CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
             var test = segment.ToNewArray();

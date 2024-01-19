@@ -13,12 +13,12 @@ namespace BrightData.Buffer.Operations
     /// <param name="notify"></param>
     /// <param name="msg"></param>
     /// <param name="ct"></param>
-    class AggregateNotification(int count, INotifyUser notify, string? msg, CancellationToken ct)
-        : INotifyUser
+    class AggregateNotification(int count, INotifyOperationProgress notify, string? msg, CancellationToken ct)
+        : INotifyOperationProgress
     {
         readonly Guid                    _id = Guid.NewGuid();
         readonly Dictionary<Guid, float> _taskProgress = new();
-        readonly HashSet<Guid>           _completed = new();
+        readonly HashSet<Guid>           _completed = [];
         int                              _progressNotifications = 0;
 
         public void OnStartOperation(Guid operationId, string? msg1 = null)
@@ -56,11 +56,11 @@ namespace BrightData.Buffer.Operations
     /// <param name="operations"></param>
     internal class AggregateOperation(IOperation[] operations) : IOperation
     {
-        public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             if (notify != null)
                 notify = new AggregateNotification(operations.Length, notify, msg, ct);
-            return Task.WhenAll(operations.Select(x => x.Process(notify, null, ct)));
+            return Task.WhenAll(operations.Select(x => x.Execute(notify, null, ct)));
         }
     }
 }

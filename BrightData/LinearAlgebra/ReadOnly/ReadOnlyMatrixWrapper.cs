@@ -47,7 +47,6 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
         public uint RowCount { get; }
         public uint ColumnCount { get; }
-        public bool IsReadOnly => true;
 
         public float this[int rowY, int columnX] => ReadOnlySegment[columnX * RowCount + rowY];
         public float this[uint rowY, uint columnX] => ReadOnlySegment[columnX * RowCount + rowY];

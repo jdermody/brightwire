@@ -29,14 +29,14 @@ namespace BrightData.Buffer.Operations.Conversion
             var span = output.Span;
             for (var i = 0; i < size; i++)
                 span[i] = Convert(from[i]);
-            to.Add(span);
+            to.Append(span);
         }
 
         protected abstract T Convert(FT from);
 
-        public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            var ret = _operation.Process(notify, msg, ct);
+            var ret = _operation.Execute(notify, msg, ct);
             if (_onComplete != null)
                 return ret.ContinueWith(_ => _onComplete(), ct);
             return ret;

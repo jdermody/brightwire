@@ -13,23 +13,23 @@ namespace BrightAPI.Database
                 DateCreated = DateTime.UtcNow,
                 RowCount = rowCount
             };
-            await _dataContext.DataTables.AddAsync(ret);
-            await _dataContext.SaveChangesAsync();
+            await dataContext.DataTables.AddAsync(ret);
+            await dataContext.SaveChangesAsync();
             return ret;
         }
 
-        public Task<DataTable[]> GetAllDataTables() => _dataContext.DataTables
+        public Task<DataTable[]> GetAllDataTables() => dataContext.DataTables
             .OrderByDescending(x => x.DateCreated)
             .ToArrayAsync();
 
-        public Task<DataTable?> GetDataTable(string id) => _dataContext.DataTables
+        public Task<DataTable?> GetDataTable(string id) => dataContext.DataTables
             .Where(x => x.PublicId == id)
             .SingleOrDefaultAsync();
 
         public async Task DeleteDataTable(DataTable dataTable)
         {
-            _dataContext.DataTables.Remove(dataTable);
-            await _dataContext.SaveChangesAsync();
+            dataContext.DataTables.Remove(dataTable);
+            await dataContext.SaveChangesAsync();
         }
     }
 }

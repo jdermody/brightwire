@@ -124,7 +124,7 @@ namespace BrightData.UnitTests
         async Task<IDataTable> GetSimpleTable2()
         {
             using var table = await GetSimpleTable();
-            var builder = await table.Project(r => new object[] { Convert.ToDouble(r[0]) });
+            var builder = await table.Project(r => [Convert.ToDouble(r[0])]);
             var table2 = await builder.BuildInMemory();
             table2.ColumnTypes[0].Should().Be(BrightDataType.Double);
             return table2;

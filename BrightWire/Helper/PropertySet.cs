@@ -6,7 +6,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Property set implementation
     /// </summary>
-    internal class PropertySet : IPropertySet
+    internal class PropertySet(LinearAlgebraProvider lap) : IPropertySet
     {
         public const string WeightInitialisationLabel              = "bw:weight-initialisation";
         public const string GradientDescentLabel                   = "bw:gradient-descent";
@@ -14,11 +14,6 @@ namespace BrightWire.Helper
         public const string GradientDescentDescriptorLabel         = "bw:gradient-descent-descriptor";
 
         readonly Dictionary<string, object> _data = new();
-
-		public PropertySet(LinearAlgebraProvider lap)
-        {
-            LinearAlgebraProvider = lap;
-        }
 
         public IPropertySet Clone()
         {
@@ -29,8 +24,9 @@ namespace BrightWire.Helper
         }
 
         /// <inheritdoc />
-		public LinearAlgebraProvider LinearAlgebraProvider { get; }
-		public IWeightInitialisation? WeightInitialisation
+		public LinearAlgebraProvider LinearAlgebraProvider { get; } = lap;
+
+        public IWeightInitialisation? WeightInitialisation
         {
             get => Get<IWeightInitialisation>(WeightInitialisationLabel);
 			set => Set(WeightInitialisationLabel, value);

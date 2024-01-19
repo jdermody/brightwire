@@ -1,5 +1,4 @@
-﻿using System;
-using BrightData.Types;
+﻿using BrightData.Types;
 
 namespace BrightData.Analysis
 {

@@ -10,7 +10,7 @@ namespace BrightWire.UnitTests.Helper
 {
     internal class TestingContext : IGraphContext
     {
-        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new();
+        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = [];
 
 #pragma warning disable 8618
         public TestingContext(LinearAlgebraProvider lap)

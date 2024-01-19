@@ -12,19 +12,13 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// <summary>
 	/// Executes (without training) graphs
 	/// </summary>
-    internal class ExecutionEngine : IGraphExecutionEngine
-	{
-        public ExecutionEngine(LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
-        {
-            LinearAlgebraProvider = lap;
-			Graph = graph;
-			Start = start;
-        }
-
-        public NodeBase Start { get; }
-        public ExecutionGraphModel Graph { get; }
+    internal class ExecutionEngine(LinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
+        : IGraphExecutionEngine
+    {
+        public NodeBase Start { get; } = start;
+        public ExecutionGraphModel Graph { get; } = graph;
         public IDataSource? DataSource { get; private set; } = null;
-		public LinearAlgebraProvider LinearAlgebraProvider { get; }
+		public LinearAlgebraProvider LinearAlgebraProvider { get; } = lap;
 
         //public void AddExecutionResult(IGraphSequenceContext context)
         //{

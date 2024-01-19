@@ -70,7 +70,7 @@ namespace BrightWire.TrainingData.Artificial
                     var key = sb.ToString();
                     if (prev != null) {
                         if (!following.TryGetValue(prev, out var temp))
-                            following.Add(prev, temp = new HashSet<int>());
+                            following.Add(prev, temp = []);
                         temp.Add(Ch[ch]);
                     }
                     prev = key;

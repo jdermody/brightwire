@@ -39,7 +39,7 @@ namespace BrightWire.UnitTests
             // test the model
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
-            var result = engine.Execute(new[] { 0.25f }).Single().Output[0][0];
+            var result = engine.Execute([0.25f]).Single().Output[0][0];
             result.Should().BeInRange(0.45f, 0.55f);
         }
 
@@ -79,7 +79,7 @@ namespace BrightWire.UnitTests
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
             var input = (float)inputNormalization.Normalize(2500);
-            var result = engine.Execute(new[] { input }).Single().Output;
+            var result = engine.Execute([input]).Single().Output;
             var normalizedResult = outputNormalization.ReverseNormalize(result[0][0]);
             normalizedResult.Should().BeInRange(4500, 5500);
         }

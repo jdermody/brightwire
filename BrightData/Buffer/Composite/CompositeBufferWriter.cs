@@ -9,7 +9,7 @@ namespace BrightData.Buffer.Composite
     /// <typeparam name="T"></typeparam>
     /// <param name="buffer"></param>
     /// <param name="defaultBufferSize"></param>
-    internal class CompositeBufferWriter<T>(IAcceptBlock<T> buffer, int defaultBufferSize = 256) : IBufferWriter<T>
+    internal class CompositeBufferWriter<T>(IAppendBlocks<T> buffer, int defaultBufferSize = 256) : IBufferWriter<T>
         where T : notnull
     {
         int _pos = 0;
@@ -17,7 +17,7 @@ namespace BrightData.Buffer.Composite
 
         public void Advance(int count)
         {
-            buffer.Add(_tempBuffer.AsSpan()[..count]);
+            buffer.Append(_tempBuffer.AsSpan()[..count]);
             _pos += count;
         }
 

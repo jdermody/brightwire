@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -35,106 +32,40 @@ namespace BrightData
         /// <param name="r">Result (output) vector</param>
         public delegate void ComputeVectorisedOne<T>(in Vector<T> a, out Vector<T> r) where T: unmanaged, INumber<T>;
 
-        readonly unsafe struct ZipAction<T> : IAction where T: unmanaged
+        readonly unsafe struct ZipAction<T>(T* segment, T* other, Func<T, T, T> action, T[] ret)
+            : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly T* _other;
-            readonly Func<T, T, T> _action;
-            readonly T[] _ret;
-
-            public ZipAction(T* segment, T* other, Func<T, T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _other = other;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i], _other[i]);
+            public void Invoke(int i) => ret[i] = action(segment[i], other[i]);
         }
-        readonly unsafe struct TransformAction<T> : IAction where T: unmanaged
+        readonly unsafe struct TransformAction<T>(T* segment, Func<T, T> action, T[] ret) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly Func<T, T> _action;
-            readonly T[] _ret;
-
-            public TransformAction(T* segment, Func<T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i]);
+            public void Invoke(int i) => ret[i] = action(segment[i]);
         }
-        readonly unsafe struct ZipInPlaceAction<T> : IAction where T: unmanaged
+        readonly unsafe struct ZipInPlaceAction<T>(T* segment, T* other, Func<T, T, T> action) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly T* _other;
-            readonly Func<T, T, T> _action;
-
-            public ZipInPlaceAction(T* segment, T* other, Func<T, T, T> action)
-            {
-                _segment = segment;
-                _other = other;
-                _action = action;
-            }
-
-            public void Invoke(int i) => _segment[i] = _action(_segment[i], _other[i]);
+            public void Invoke(int i) => segment[i] = action(segment[i], other[i]);
         }
-        readonly struct TransformIndexedAction<T> : IAction
+        readonly struct TransformIndexedAction<T>(Func<uint, T> action, T[] ret) : IAction
         {
-            readonly Func<uint, T> _action;
-            readonly T[] _ret;
-
-            public TransformIndexedAction(Func<uint, T> action, T[] ret)
-            {
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action((uint)i);
+            public void Invoke(int i) => ret[i] = action((uint)i);
         }
-        readonly unsafe struct TransformIndexedWithValueAction<T> : IAction where T: unmanaged
+        readonly unsafe struct TransformIndexedWithValueAction<T>(T* segment, Func<uint, T, T> action, T[] ret) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly Func<uint, T, T> _action;
-            readonly T[] _ret;
-
-            public TransformIndexedWithValueAction(T* segment, Func<uint, T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action((uint)i, _segment[i]);
+            public void Invoke(int i) => ret[i] = action((uint)i, segment[i]);
         }
-        readonly unsafe struct MutateAction<T> : IAction where T: unmanaged
+        readonly unsafe struct MutateAction<T>(Func<T, T> action, T* segment) : IAction
+            where T : unmanaged
         {
-            readonly Func<T, T> _action;
-            readonly T* _segment;
-
-            public MutateAction(Func<T, T> action, T* segment)
-            {
-                _action = action;
-                _segment = segment;
-            }
-
-            public void Invoke(int i) => _segment[i] = _action(_segment[i]);
+            public void Invoke(int i) => segment[i] = action(segment[i]);
         }
-        readonly unsafe struct AnalyseAction<T> : IAction where T: unmanaged
+        readonly unsafe struct AnalyseAction<T>(Action<T, uint> action, T* segment) : IAction
+            where T : unmanaged
         {
-            readonly Action<T, uint> _action;
-            readonly T* _segment;
-
-            public AnalyseAction(Action<T, uint> action, T* segment)
-            {
-                _action = action;
-                _segment = segment;
-            }
-
-            public void Invoke(int i) => _action(_segment[i], (uint)i);
+            public void Invoke(int i) => action(segment[i], (uint)i);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
@@ -1623,6 +1554,8 @@ namespace BrightData
         /// Calculate the matrix transpose
         /// </summary>
         /// <param name="matrix"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="columnCount"></param>
         /// <returns></returns>
         public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
         {
@@ -1634,6 +1567,13 @@ namespace BrightData
             return (ret, columnCount, rowCount);
         }
 
+        /// <summary>
+        /// Transpose a matrix in place
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="matrix"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="columnCount"></param>
         public static unsafe void TransposeInPlace<T>(this Span<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
         {
             using var ret = Allocate<T>(columnCount * rowCount);
@@ -1664,7 +1604,18 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a read only vector from the span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         public static IReadOnlyVector ToReadOnlyVector(this ReadOnlySpan<float> span) => new ReadOnlyVector(span.ToArray());
+
+        /// <summary>
+        /// Creates a read only vector from the span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         public static IReadOnlyVector ToReadOnlyVector(this Span<float> span) => new ReadOnlyVector(span.ToArray());
     }
 }

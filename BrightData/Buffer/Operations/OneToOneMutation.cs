@@ -22,7 +22,7 @@ namespace BrightData.Buffer.Operations
             void Write(ReadOnlySpan<FT> from, IAppendToBuffer<T> to);
         }
 
-        public Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             return from.ForEachBlock(x => mutator.Write(x, to), notify, msg, ct);
         }

@@ -12,49 +12,49 @@ namespace BrightData
     public static partial class ExtensionMethods
     {
         /// <summary>
-        /// Gets the date analysis that was stored in meta data
+        /// Gets the date analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static DateAnalysis GetDateAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the dimension analysis that was stored in meta data
+        /// Gets the dimension analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static DimensionAnalysis GetDimensionAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the frequency analysis that was stored in meta data
+        /// Gets the frequency analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static FrequencyAnalysis GetFrequencyAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the index analysis that was stored in meta data
+        /// Gets the index analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static IndexAnalysis GetIndexAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the numeric analysis that was stored in meta data
+        /// Gets the numeric analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static NumericAnalysis GetNumericAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the string analysis that was stored in meta data
+        /// Gets the string analysis that was stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>
         public static StringAnalysis GetStringAnalysis(this MetaData metaData) => new(metaData);
 
         /// <summary>
-        /// Gets the categories that were stored in meta data
+        /// Gets the categories that were stored in metadata
         /// </summary>
         /// <param name="metaData">Meta data store</param>
         /// <returns></returns>

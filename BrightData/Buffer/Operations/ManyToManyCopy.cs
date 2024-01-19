@@ -28,7 +28,7 @@ namespace BrightData.Buffer.Operations
 
         public uint CopiedCount { get; private set; }
 
-        public async Task Process(INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var id = Guid.NewGuid();
             notify?.OnStartOperation(id, msg);
@@ -50,7 +50,7 @@ namespace BrightData.Buffer.Operations
 
                 if (isValid) {
                     for (var i = 0; i < _size; i++) {
-                        _to[i].AddObject(enumerators[i].Current);
+                        _to[i].AppendObject(enumerators[i].Current);
                         ++CopiedCount;
                     }
 

@@ -14,7 +14,7 @@ namespace BrightData
     public static partial class ExtensionMethods
     {
         /// <summary>
-        /// Creates a vector
+        /// Creates a read only vector
         /// </summary>
         /// <param name="_"></param>
         /// <param name="size">Size of vector</param>
@@ -27,7 +27,7 @@ namespace BrightData
 
 
         /// <summary>
-        /// Creates a vector
+        /// Creates a read only vector
         /// </summary>
         /// <param name="context"></param>
         /// <param name="size">Size of vector</param>
@@ -36,7 +36,7 @@ namespace BrightData
         public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateReadOnlyVector(context, (uint)size, initializer);
 
         /// <summary>
-        /// Creates a vector
+        /// Creates a read only vector
         /// </summary>
         /// <param name="_"></param>
         /// <param name="size">Size of vector</param>
@@ -57,16 +57,28 @@ namespace BrightData
         public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, float initialValue = 0f) => CreateReadOnlyVector(context, (uint)size, initialValue);
 
         /// <summary>
-        /// Creates a vector
+        /// Creates a read only vector
         /// </summary>
         /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
         public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new(initialData);
 
+        /// <summary>
+        /// Creates a read only vector
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, Span<float> data) => new(data.ToArray());
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, ReadOnlySpan<float> data) => new(data.ToArray());
 
+        /// <summary>
+        /// Creates a read only vector
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, ReadOnlySpan<float> data) => new(data.ToArray());
 
         /// <summary>
         /// Creates a vector from a binary reader

@@ -1,51 +1,38 @@
 ﻿using BrightWire.ExecutionGraph.ErrorMetric;
-using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightData.LinearAlgebra.ReadOnly;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightWire.Unsupervised
 {
     /// <summary>
-    /// Non negative matrix factorisation based clustering
+    /// Non-negative matrix factorisation based clustering
     /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
     /// </summary>
-    internal class NonNegativeMatrixFactorisation : IClusteringStrategy
+    internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, IErrorMetric? costFunction = null)
+        : IClusteringStrategy
     {
-        readonly uint                  _numIterations;
-        readonly float                 _errorThreshold;
-        readonly LinearAlgebraProvider _lap;
-        readonly IErrorMetric          _costFunction;
-
-        public NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, IErrorMetric? costFunction = null)
-        {
-            _lap            = lap;
-            _numIterations  = numIterations;
-            _errorThreshold = errorThreshold;
-            _costFunction   = costFunction ?? new Quadratic();
-        }
+        readonly IErrorMetric          _costFunction = costFunction ?? new Quadratic();
 
         public uint[][] Cluster(IReadOnlyVector[] data, uint numClusters, DistanceMetric metric)
         {
             // create the main matrix
-            using var v = _lap.CreateMatrixFromRows(data);
+            using var v = lap.CreateMatrixFromRows(data);
 
             // create the weights and features
-            var context = _lap.Context;
-            var weights = _lap.CreateMatrix(v.RowCount, numClusters, (_, _) => context.NextRandomFloat());
-            var features = _lap.CreateMatrix(numClusters, v.ColumnCount, (_, _) => context.NextRandomFloat());
+            var context = lap.Context;
+            var weights = lap.CreateMatrix(v.RowCount, numClusters, (_, _) => context.NextRandomFloat());
+            var features = lap.CreateMatrix(numClusters, v.ColumnCount, (_, _) => context.NextRandomFloat());
 
             try {
                 // iterate
                 //float lastCost = 0;
-                for (var i = 0; i < _numIterations; i++) {
+                for (var i = 0; i < numIterations; i++) {
                     using var wh = weights.Multiply(features);
                     var cost = DifferenceCost(v, wh);
                     //if (i % (numIterations / 10) == 0)
                     //    Console.WriteLine("NNMF cost: " + cost);
-                    if (cost <= _errorThreshold)
+                    if (cost <= errorThreshold)
                         break;
                     //lastCost = cost;
 

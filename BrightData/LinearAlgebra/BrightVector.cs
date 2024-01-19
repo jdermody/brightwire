@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra
 {
@@ -8,17 +7,11 @@ namespace BrightData.LinearAlgebra
     /// Vector
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightVector<LAP> : BrightTensorBase<IVector, LAP>, IVector, IReadOnlyVector
+    /// <param name="data">Tensor segment</param>
+    /// <param name="lap">Linear algebra provider</param>
+    public class BrightVector<LAP>(INumericSegment<float> data, LAP lap) : BrightTensorBase<IVector, LAP>(data, lap), IVector
         where LAP: LinearAlgebraProvider
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Tensor segment</param>
-        /// <param name="lap">Linear algebra provider</param>
-        public BrightVector(INumericSegment<float> data, LAP lap) : base(data, lap)
-        {
-        }
 
         /// <inheritdoc />
         public uint Size => Segment.Size;
@@ -33,7 +26,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public sealed override uint[] Shape
         {
-            get => new[] { Size };
+            get => [Size];
             protected set
             {
                 if (value.Length != 1 && value[0] != Size)
@@ -48,7 +41,7 @@ namespace BrightData.LinearAlgebra
             set => Segment[index] = value;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IVector" />
         public float this[uint index]
         {
             get => Segment[index];

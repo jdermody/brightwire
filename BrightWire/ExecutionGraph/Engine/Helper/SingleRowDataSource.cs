@@ -8,21 +8,16 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Helper class when executing a single row instead of the normal batch mode
     /// </summary>
-    internal class SingleRowDataSource : IDataSource
+    internal class SingleRowDataSource(float[] data, LinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+        : IDataSource
     {
-        class Sequence : IMiniBatchSequence
+        class Sequence(IGraphData data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+            : IMiniBatchSequence
         {
-            public Sequence(IGraphData data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
-            {
-                Input = data;
-                MiniBatch = miniBatch;
-                Type = sequenceType;
-                SequenceIndex = sequenceIndex;
-            }
-            public IMiniBatch MiniBatch { get; }
-            public uint SequenceIndex { get; }
-            public MiniBatchSequenceType Type { get; }
-            public IGraphData Input { get; }
+            public IMiniBatch MiniBatch { get; } = miniBatch;
+            public uint SequenceIndex { get; } = sequenceIndex;
+            public MiniBatchSequenceType Type { get; } = sequenceType;
+            public IGraphData Input { get; } = data;
             public IGraphData? Target => null;
             public IGraphContext? GraphContext { get; set; }
         }
@@ -37,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 IsSequential = isSequential;
             }
 
-            public uint[] Rows { get; } = { 0 };
+            public uint[] Rows { get; } = [0];
             public IDataSource DataSource { get; }
             public bool IsSequential { get; }
             public uint BatchSize => 1;
@@ -60,22 +55,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        readonly float[] _data;
-        readonly LinearAlgebraProvider _lap;
-        readonly uint _sequenceIndex;
-        readonly MiniBatchSequenceType _sequenceType;
-
-        public SingleRowDataSource(float[] data, LinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
-        {
-            _data = data;
-            _lap = lap;
-            _sequenceIndex = sequenceIndex;
-            IsSequential = isSequential;
-            _sequenceType = sequenceType;
-        }
-
-        public bool IsSequential { get; }
-        public uint InputSize => (uint)_data.Length;
+        public bool IsSequential { get; } = isSequential;
+        public uint InputSize => (uint)data.Length;
         public uint? OutputSize => throw new NotImplementedException();
         public uint RowCount => 1;
         public uint InputCount => 1;
@@ -89,17 +70,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public IMiniBatch Get(uint[] rows)
         {
-            using var data = _lap.CreateVector(_data);
-            return new SingleRowMiniBatch(this, data.Reshape(1, null).AsGraphData(), IsSequential, _sequenceType, _sequenceIndex);
+            using var data1 = lap.CreateVector(data);
+            return new SingleRowMiniBatch(this, data1.Reshape(1, null).AsGraphData(), IsSequential, sequenceType, sequenceIndex);
         }
 
         public uint[][] GetSequentialBatches()
         {
-            return new[] {
-                new uint [] {
+            return [
+                [
                     1
-                }
-            };
+                ]
+            ];
         }
     }
 }

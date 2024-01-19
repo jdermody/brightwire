@@ -36,7 +36,7 @@ namespace BrightData.Buffer.ReadOnly
         public Type DataType => typeof(T);
         public uint Size => _byteSize / _sizeOfT;
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyUser? notify = null, string? msg = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var guid = Guid.NewGuid();
             notify?.OnStartOperation(guid, msg);

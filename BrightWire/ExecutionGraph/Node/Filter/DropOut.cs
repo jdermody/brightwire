@@ -11,18 +11,11 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     /// </summary>
     internal class DropOut : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase<DropOut>
+        class Backpropagation(DropOut source, IMatrix filter) : SingleBackpropagationBase<DropOut>(source)
         {
-            readonly IMatrix _filter;
-
-            public Backpropagation(DropOut source, IMatrix filter) : base(source)
-            {
-                _filter = filter;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
+                var output = errorSignal.GetMatrix().PointwiseMultiply(filter);
                 return errorSignal.ReplaceWith(output);
             }
         }

@@ -5,18 +5,11 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates L1 regularisation
     /// </summary>
-    internal class L1RegularisationDescriptor : ICreateGradientDescent
+    internal class L1RegularisationDescriptor(float lambda) : ICreateGradientDescent
     {
-        readonly float _lambda;
-
-        public L1RegularisationDescriptor(float lambda)
-        {
-            _lambda = lambda;
-        }
-
         public IGradientDescentOptimisation Create(IPropertySet propertySet)
         {
-            return new L1Regularisation(_lambda);
+            return new L1Regularisation(lambda);
         }
     }
 }

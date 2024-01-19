@@ -60,7 +60,10 @@
         /// </summary>
         public const uint MaxMetaDataWriteCount = 100;
 
-        public const int MaxStackAllocSize = 512;
+        /// <summary>
+        /// Maximum size in bytes to allocate data on the stack (via stackalloc)
+        /// </summary>
+        public const int MaxStackAllocSizeInBytes = 512;
 
 #pragma warning disable 1591
         public const string ColumnIndex                      = "ColumnIndex";

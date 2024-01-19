@@ -12,26 +12,18 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     /// </summary>
     internal class DropConnect : FeedForward
     {
-        new class Backpropagation : SingleBackpropagationBase<DropConnect>
+        new class Backpropagation(DropConnect source, IMatrix input, IMatrix filter, IMatrix filteredWeights)
+            : SingleBackpropagationBase<DropConnect>(source)
         {
-            readonly IMatrix _input, _filter, _filteredWeights;
-
-            public Backpropagation(DropConnect source, IMatrix input, IMatrix filter, IMatrix filteredWeights) : base(source)
-            {
-                _input = input;
-                _filter = filter;
-                _filteredWeights = filteredWeights;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal against the filtered weights
-                IMatrix ret = es.TransposeAndMultiply(_filteredWeights);
+                IMatrix ret = es.TransposeAndMultiply(filteredWeights);
 
                 // calculate the update to the weights and filter out the dropped connections
-                var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
+                var weightUpdate = input.TransposeThisAndMultiply(es).PointwiseMultiply(filter);
 
                 // store the updates
                 var learningContext = context.LearningContext!;

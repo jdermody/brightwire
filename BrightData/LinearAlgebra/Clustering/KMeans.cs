@@ -4,6 +4,11 @@ using BrightData.Types;
 
 namespace BrightData.LinearAlgebra.Clustering
 {
+    /// <summary>
+    /// K Means Clustering
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="maxIterations"></param>
     internal class KMeans(BrightDataContext context, uint maxIterations = 1000) : IClusteringStrategy
     {
         public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
@@ -37,7 +42,7 @@ namespace BrightData.LinearAlgebra.Clustering
 
                 // add the centroid
                 var vector = vectors[index];
-                centroids[nextCentroidIndex] = new [] { index };
+                centroids[nextCentroidIndex] = [index];
                 centroidVectors[nextCentroidIndex] = vector;
                 nextCentroidIndex++;
 

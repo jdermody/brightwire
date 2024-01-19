@@ -19,7 +19,7 @@ namespace BrightData.Analysis
                 Add(index);
         }
 
-        public void Add(ReadOnlySpan<IHaveIndices> block)
+        public void Append(ReadOnlySpan<IHaveIndices> block)
         {
             foreach(ref readonly var item in block)
                 Add(item);

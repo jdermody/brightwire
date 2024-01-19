@@ -55,7 +55,7 @@ namespace BrightWire
         ITensor4D? Get4DTensor();
 
         /// <summary>
-        /// Replaces the data with the specified matrix (but preserves any tensor meta data)
+        /// Replaces the data with the specified matrix (but preserves any tensor metadata)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>
         IGraphData ReplaceWith(IMatrix matrix);
@@ -324,7 +324,7 @@ namespace BrightWire
     public enum MiniBatchSequenceType
     {
         /// <summary>
-        /// Standard batch type (non sequential batches have a single standard sequence item)
+        /// Standard batch type (non-sequential batches have a single standard sequence item)
         /// </summary>
         Standard,
 

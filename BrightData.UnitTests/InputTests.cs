@@ -8,17 +8,12 @@ namespace BrightData.UnitTests
 {
     public class InputTests
     {
-        readonly BrightDataContext _context;
-
-        public InputTests()
-        {
-            _context = new BrightDataContext();
-        }
+        readonly BrightDataContext _context = new();
 
         [Fact]
         public async Task SimpleCsv()
         {
-            var csv = @"123,234,456";
+            var csv = "123,234,456";
             var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(csv)));
 
             var table = await _context.ParseCsv(reader, false);

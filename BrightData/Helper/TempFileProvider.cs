@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.Win32.SafeHandles;
 
-namespace BrightData.Table.Helper
+namespace BrightData.Helper
 {
+    /// <summary>
+    /// Temp file provider
+    /// </summary>
+    /// <param name="basePath"></param>
     internal class TempFileProvider(string? basePath = null) : IProvideDataBlocks
     {
-        class TempData(Guid id, string path) : IDataBlock
+        class TempData(Guid id, string path) : IByteBlockSource
         {
             readonly SafeFileHandle _file = File.OpenHandle(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, FileOptions.DeleteOnClose | FileOptions.Asynchronous);
 
@@ -36,7 +35,7 @@ namespace BrightData.Table.Helper
 
             public uint Read(Span<byte> data, uint offset)
             {
-                return (uint)RandomAccess.Read(_file, data, offset);;
+                return (uint)RandomAccess.Read(_file, data, offset);
             }
             public async Task<uint> ReadAsync(Memory<byte> data, uint offset)
             {
@@ -47,7 +46,7 @@ namespace BrightData.Table.Helper
         }
         readonly string _basePath = basePath ?? Path.GetTempPath();
         // lazy to prevent multiple files from being created per key
-        readonly ConcurrentDictionary<Guid, Lazy<IDataBlock>> _fileTable = new();
+        readonly ConcurrentDictionary<Guid, Lazy<IByteBlockSource>> _fileTable = new();
 
         ~TempFileProvider()
         {
@@ -69,10 +68,10 @@ namespace BrightData.Table.Helper
             _fileTable.Clear();
         }
 
-        public IDataBlock Get(Guid id)
+        public IByteBlockSource Get(Guid id)
         {
             return _fileTable.GetOrAdd(id, fid => 
-                new Lazy<IDataBlock>(() => new TempData(id, Path.Combine(_basePath, fid.ToString("n"))))
+                new Lazy<IByteBlockSource>(() => new TempData(id, Path.Combine(_basePath, fid.ToString("n"))))
             ).Value;
         }
     }
