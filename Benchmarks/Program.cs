@@ -7,9 +7,9 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            //BenchmarkSetProperty();
-            //BenchmarkSum();
-            //BenchmarkDot();
+            BenchmarkSetProperty();
+            BenchmarkSum();
+            BenchmarkDot();
         }
 
         static void BenchmarkSetProperty()
