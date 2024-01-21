@@ -106,11 +106,11 @@ namespace BrightData.Converter
         /// <summary>
         /// Generic method to convert numeric types
         /// </summary>
-        public static MethodInfo GetNumericConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetNumericConverter), BindingFlags.Static | BindingFlags.Public)!;
+        public static readonly MethodInfo GetNumericConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetNumericConverter), BindingFlags.Static | BindingFlags.Public)!;
 
         /// <summary>
         /// Generic method to convert types
         /// </summary>
-        public static MethodInfo GetConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetConverter), BindingFlags.Static | BindingFlags.Public)!;
+        public static readonly MethodInfo GetConverterMethodInfo = typeof(StaticConverters).GetMethod(nameof(GetConverter), BindingFlags.Static | BindingFlags.Public)!;
     }
 }

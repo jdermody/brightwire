@@ -3,11 +3,8 @@
 namespace BrightData.Cuda
 {
     /// <inheritdoc />
-    public class CudaTensor3D : BrightTensor3D<CudaLinearAlgebraProvider>
-    {
-        /// <inheritdoc />
-        public CudaTensor3D(INumericSegment<float> data, uint depth, uint rowCount, uint columnCount, CudaLinearAlgebraProvider lap) : base(data, depth, rowCount, columnCount, lap)
-        {
-        }
-    }
+    /// <inheritdoc />
+    public class CudaTensor3D(INumericSegment<float> data, uint depth, uint rowCount, uint columnCount, CudaLinearAlgebraProvider lap)
+        : BrightTensor3D<CudaLinearAlgebraProvider>(data, depth, rowCount, columnCount, lap)
+    ;
 }

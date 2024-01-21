@@ -412,8 +412,9 @@ namespace BrightData
         public static T[] ReadArray<T>(this Stream stream, uint size) where T: struct
         {
             var ret       = new T[size];
-#if DEBUG
             var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
+#if DEBUG
+            
             if (bytesRead != Unsafe.SizeOf<T>() * size)
                 throw new Exception("Unexpected end of file");
 #endif

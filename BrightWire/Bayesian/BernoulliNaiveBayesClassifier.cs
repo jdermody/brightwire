@@ -8,7 +8,7 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Bernoulli naive bayes classifier
     /// </summary>
-    internal class BernoulliNaiveBayesClassifier : IIndexListClassifier
+    internal class BernoulliNaiveBayesClassifier(BernoulliNaiveBayes model) : IIndexListClassifier
     {
         class Classification
         {
@@ -48,12 +48,7 @@ namespace BrightWire.Bayesian
                 return ret;
             }
         }
-        readonly List<Classification> _classification;
-
-        public BernoulliNaiveBayesClassifier(BernoulliNaiveBayes model)
-        {
-            _classification = model.ClassData.Select(c => new Classification(model.Vocabulary, c)).ToList();
-        }
+        readonly List<Classification> _classification = model.ClassData.Select(c => new Classification(model.Vocabulary, c)).ToList();
 
         IEnumerable<(string Classification, double Score)> Classify(IEnumerable<uint> featureIndexList)
         {

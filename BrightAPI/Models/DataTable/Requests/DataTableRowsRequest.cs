@@ -10,6 +10,6 @@ namespace BrightAPI.Models.DataTable.Requests
             [Required] public uint LastExclusiveRowIndex { get; set; }
         }
 
-        [Required] public RangeModel[] RowRanges { get; set; } = Array.Empty<RangeModel>();
+        [Required] public RangeModel[] RowRanges { get; set; } = [];
     }
 }

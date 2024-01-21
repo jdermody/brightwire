@@ -5,6 +5,6 @@ namespace BrightAPI.Models.DataTable.Requests
 {
     public class ConvertDataTableColumnsRequest : DataTableColumnsRequest
     {
-        [Required] public ColumnConversion[] ColumnConversions { get; set; } = Array.Empty<ColumnConversion>();
+        [Required] public ColumnConversion[] ColumnConversions { get; set; } = [];
     }
 }

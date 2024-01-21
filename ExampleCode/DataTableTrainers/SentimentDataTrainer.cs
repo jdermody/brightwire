@@ -42,13 +42,13 @@ namespace ExampleCode.DataTableTrainers
                     .Where(l => !String.IsNullOrWhiteSpace(l))
                     .Select(l => l.Split(separator))
                     .Select(s => (Sentence: Tokenise(s[0]), Classification: s[1][0] == '1' ? "positive" : "negative"))
-                    .Where(d => d.Sentence.Any());
+                    .Where(d => d.Sentence.Length > 0);
                 sentences.AddRange(data);
             }
 
             var (training, test) = sentences.Shuffle(context.Random).ToArray().Split();
-            _indexedSentencesTraining = BuildIndexedClassifications(context, training, _stringTable);
-            _indexedSentencesTest = BuildIndexedClassifications(context, test, _stringTable);
+            _indexedSentencesTraining = BuildIndexedClassifications(training, _stringTable);
+            _indexedSentencesTest = BuildIndexedClassifications(test, _stringTable);
             _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             _context = context;
         }
@@ -85,7 +85,7 @@ namespace ExampleCode.DataTableTrainers
             var trainingData = graph.CreateDataSource(trainingTable);
             var testData = graph.CreateDataSource(testTable);
 
-            // use rmsprop gradient descent and xavier weight initialisation
+            // use rms prop gradient descent and xavier weight initialisation
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
@@ -190,7 +190,7 @@ namespace ExampleCode.DataTableTrainers
 
         static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
 
-        static IndexListWithLabel<string>[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
+        static IndexListWithLabel<string>[] BuildIndexedClassifications((string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
                 .Select(d => new IndexListWithLabel<string>(d.Item2, IndexList.Create(d.Item1.Select(stringTable.GetIndex).ToArray())))
@@ -243,7 +243,7 @@ namespace ExampleCode.DataTableTrainers
                         indices.Add(stringIndex);
                     embeddings.Add(GetInputVector(0, 0, token) ?? empty);
                 }
-                if (indices.Any())
+                if (indices.Count > 0)
                 {
                     var indexList = IndexList.Create(indices);
                     var bc = bernoulli.Classify(indexList).First().Label;

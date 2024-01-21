@@ -9,23 +9,16 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Multinomial naive bayes classifier
     /// </summary>
-    internal class MultinomialNaiveBayesClassifier : IIndexListClassifier
+    internal class MultinomialNaiveBayesClassifier(MultinomialNaiveBayes model) : IIndexListClassifier
     {
-        class Classification
+        class Classification(MultinomialNaiveBayes.Class cls)
         {
-	        readonly double _prior, _missing;
-            readonly Dictionary<uint, double> _index;
+	        readonly double _prior = cls.Prior, _missing = cls.MissingProbability;
+            readonly Dictionary<uint, double> _index = cls.Index.ToDictionary(d => d.StringIndex, d => d.ConditionalProbability);
 
-            public Classification(MultinomialNaiveBayes.Class cls)
-            {
-                Label = cls.Label;
-                _prior = cls.Prior;
-                _missing = cls.MissingProbability;
-                _index = cls.Index.ToDictionary(d => d.StringIndex, d => d.ConditionalProbability);
-            }
-            public string Label { get; }
+            public string Label { get; } = cls.Label;
 
-	        public double GetScore(ReadOnlyMemory<uint> stringIndexList)
+            public double GetScore(ReadOnlyMemory<uint> stringIndexList)
             {
                 var score = _prior;
                 foreach (var item in stringIndexList.Span) {
@@ -34,12 +27,7 @@ namespace BrightWire.Bayesian
                 return score;
             }
         }
-        readonly List<Classification> _classification;
-
-        public MultinomialNaiveBayesClassifier(MultinomialNaiveBayes model)
-        {
-            _classification = model.ClassData.Select(c => new Classification(c)).ToList();
-        }
+        readonly List<Classification> _classification = model.ClassData.Select(c => new Classification(c)).ToList();
 
         IEnumerable<(string Classification, double Score)> Classify(ReadOnlyMemory<uint> stringIndexList)
         {

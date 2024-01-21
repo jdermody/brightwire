@@ -2,8 +2,8 @@
 {
     public class DataTablePreviewModel
     {
-        public DataTableColumnModel[] Columns { get; set; } = Array.Empty<DataTableColumnModel>();
+        public DataTableColumnModel[] Columns { get; set; } = [];
 
-        public string[][] PreviewRows { get; set; } = Array.Empty<string[]>();
+        public string[][] PreviewRows { get; set; } = [];
     }
 }

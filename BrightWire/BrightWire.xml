@@ -9,12 +9,22 @@
             Bernoulli naive bayes classifier
             </summary>
         </member>
+        <member name="M:BrightWire.Bayesian.BernoulliNaiveBayesClassifier.#ctor(BrightWire.Models.Bayesian.BernoulliNaiveBayes)">
+            <summary>
+            Bernoulli naive bayes classifier
+            </summary>
+        </member>
         <member name="M:BrightWire.Bayesian.BernoulliNaiveBayesClassifier.Classify(BrightData.Types.IndexList)">
             <summary>
              Naive bayes values should only be used for ranking against each other
             </summary>
         </member>
         <member name="T:BrightWire.Bayesian.MultinomialNaiveBayesClassifier">
+            <summary>
+            Multinomial naive bayes classifier
+            </summary>
+        </member>
+        <member name="M:BrightWire.Bayesian.MultinomialNaiveBayesClassifier.#ctor(BrightWire.Models.Bayesian.MultinomialNaiveBayes)">
             <summary>
             Multinomial naive bayes classifier
             </summary>

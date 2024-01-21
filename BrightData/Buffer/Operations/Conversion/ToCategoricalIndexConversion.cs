@@ -10,7 +10,7 @@ namespace BrightData.Buffer.Operations.Conversion
     /// <typeparam name="T"></typeparam>
     internal class ToCategoricalIndexConversion<T> : ConversionBase<T, int> where T : notnull
     {
-        readonly Dictionary<string, int> _categoryIndex = new();
+        readonly Dictionary<string, int> _categoryIndex = [];
         readonly IHaveMetaData _metaData;
 
         public ToCategoricalIndexConversion(IReadOnlyBuffer<T> input, IAppendToBuffer<int> output) : base(input, output)

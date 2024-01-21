@@ -245,7 +245,7 @@ namespace BrightAPI.Controllers
                 }
 
                 await using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
-                var newTable = await table.Context.BuildDataTable(table.MetaData, finalColumns.ToArray(), stream);
+                var newTable = await table.Context.BuildDataTable(table.MetaData, [.. finalColumns], stream);
                 await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;
@@ -297,11 +297,11 @@ namespace BrightAPI.Controllers
                 for (var i = range.FirstInclusiveRowIndex; i < range.LastExclusiveRowIndex; i++)
                     rows.Add(i);
             }
-            if (!rows.Any())
+            if (rows.Count == 0)
                 return BadRequest();
 
             return await Transform(id, request, "Row Subset", async (table, path) => {
-                var newTable = await table.CopyRowsToNewTable(path, rows.ToArray());
+                var newTable = await table.CopyRowsToNewTable(path, [.. rows]);
                 await newTable.GetColumnAnalysis();
                 newTable.PersistMetaData();
                 return newTable;

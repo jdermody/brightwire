@@ -4,8 +4,8 @@ namespace BrightAPI.Models.DataTable
 {
     public class DataTableInfoModel : DataTableListItemModel
     {
-        [Required] public NameValueModel[] Metadata { get; set; } = Array.Empty<NameValueModel>();
+        [Required] public NameValueModel[] Metadata { get; set; } = [];
 
-        [Required] public DataTableColumnModel[] Columns { get; set; } = Array.Empty<DataTableColumnModel>();
+        [Required] public DataTableColumnModel[] Columns { get; set; } = [];
     }
 }

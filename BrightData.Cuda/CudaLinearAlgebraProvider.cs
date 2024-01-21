@@ -16,18 +16,13 @@ namespace BrightData.Cuda
     /// <summary>
     /// CUDA linear algebra provider
     /// </summary>
-    public unsafe class CudaLinearAlgebraProvider : LinearAlgebraProvider
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="context">Bright data context</param>
+    /// <param name="cuda">CUDA provider</param>
+    public unsafe class CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : LinearAlgebraProvider(context)
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="context">Bright data context</param>
-        /// <param name="cuda">CUDA provider</param>
-        public CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : base(context)
-        {
-            Provider = cuda ?? context.CreateCudaProvider();
-        }
-
         /// <inheritdoc />
         public override void Dispose()
         {
@@ -67,7 +62,7 @@ namespace BrightData.Cuda
         /// <summary>
         /// CUDA provider
         /// </summary>
-        public CudaProvider Provider { get; }
+        public CudaProvider Provider { get; } = cuda ?? context.CreateCudaProvider();
 
         /// <inheritdoc />
         public override INumericSegment<float> CreateSegment(params float[] data)
@@ -136,7 +131,7 @@ namespace BrightData.Cuda
             return CopyToDevice(segment);
         }
 
-        INumericSegment<float> OptionallyCopyToDevice(INumericSegment<float> segment)
+        CudaTensorSegment OptionallyCopyToDevice(INumericSegment<float> segment)
         {
             if (CudaTensorSegment.IsCuda(segment, out var ret))
                 return ret;
@@ -150,7 +145,7 @@ namespace BrightData.Cuda
             return CopyToDevice(segment);
         }
 
-        INumericSegment<float> CopyToDevice(IReadOnlyNumericSegment<float> segment)
+        CudaTensorSegment CopyToDevice(IReadOnlyNumericSegment<float> segment)
         {
             var deviceMemory = Provider.Allocate(segment.Size);
             var temp = SpanOwner<float>.Empty;
@@ -414,7 +409,7 @@ namespace BrightData.Cuda
 
         /// <inheritdoc />
         public override INumericSegment<float> Softmax(INumericSegment<float> tensor) => Softmax(GetDeviceMemoryPtr(tensor), 1);
-        INumericSegment<float> Softmax(IDeviceMemoryPtr ptr, uint stride)
+        CudaTensorSegment Softmax(IDeviceMemoryPtr ptr, uint stride)
         {
             var max = Provider.FindMinAndMax(ptr, ptr.Size, stride).Max;
             var softmax = Provider.SoftmaxVector(ptr, ptr.Size, max, stride);

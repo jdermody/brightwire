@@ -14,7 +14,7 @@ namespace ExampleCode.DataTableTrainers
     internal class SentenceTable
     {
         readonly IDataTable _sentenceTable;
-        readonly Dictionary<string, uint> _stringIndex = new();
+        readonly Dictionary<string, uint> _stringIndex = [];
         readonly List<string> _strings = [];
         readonly uint _empty;
 

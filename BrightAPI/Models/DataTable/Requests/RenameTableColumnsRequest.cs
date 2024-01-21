@@ -2,6 +2,6 @@
 {
     public class RenameTableColumnsRequest : DataTableColumnsRequest
     {
-        public string[] ColumnsNames { get; set; } = Array.Empty<string>();
+        public string[] ColumnsNames { get; set; } = [];
     }
 }

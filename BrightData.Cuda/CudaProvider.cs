@@ -17,7 +17,7 @@ namespace BrightData.Cuda
     /// </summary>
     public unsafe class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
-        readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = new();
+        readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = [];
         const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);

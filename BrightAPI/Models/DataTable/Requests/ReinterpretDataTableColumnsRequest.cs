@@ -9,6 +9,6 @@ namespace BrightAPI.Models.DataTable.Requests
             [Required] public string Name { get; set; } = string.Empty;
         }
 
-        [Required] public NewColumnFromExistingColumnsModel[] Columns { get; set; } = Array.Empty<NewColumnFromExistingColumnsModel>();
+        [Required] public NewColumnFromExistingColumnsModel[] Columns { get; set; } = [];
     }
 }

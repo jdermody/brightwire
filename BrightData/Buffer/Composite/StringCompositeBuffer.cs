@@ -119,13 +119,13 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IByteBlockSource file, uint offset)
+        static async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[HeaderSize];
             await file.ReadAsync(lengthBytes, offset);
             offset += HeaderSize;
             var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
-            var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes[4..]);
+            var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes.AsSpan(4));
             var block = MemoryOwner<byte>.Allocate((int)blockSize);
             uint readCount = 0;
             do

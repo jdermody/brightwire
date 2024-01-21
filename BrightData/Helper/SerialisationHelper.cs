@@ -98,10 +98,7 @@ namespace BrightData.Helper
         {
             writer.Write(array?.Length ?? 0);
             if (array?.Length > 0)
-            {
-                writer.Flush();
-                writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
-            }
+                writer.Write(MemoryMarshal.AsBytes(array.AsSpan()));
         }
 
         /// <summary>
@@ -117,9 +114,8 @@ namespace BrightData.Helper
 
             if (arrayOfArrays?.Length > 0 && arrayOfArrays[0].Length > 0)
             {
-                writer.Flush();
                 foreach (var array in arrayOfArrays)
-                    writer.BaseStream.Write(MemoryMarshal.AsBytes(array.AsSpan()));
+                    writer.Write(MemoryMarshal.AsBytes(array.AsSpan()));
             }
         }
 

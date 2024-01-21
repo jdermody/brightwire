@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 var negative = es.Clone();
                 negative.MultiplyInPlace(-1f);
 
-                yield return (errorSignal, context, _primarySource: primarySource);
-                yield return (errorSignal.ReplaceWith(negative), context, _secondarySource: secondarySource);
+                yield return (errorSignal, context, primarySource);
+                yield return (errorSignal.ReplaceWith(negative), context, secondarySource);
             }
         }
 

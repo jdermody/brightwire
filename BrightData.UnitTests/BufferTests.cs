@@ -15,6 +15,7 @@ namespace BrightData.UnitTests
         {
             public void Dispose()
             {
+                GC.SuppressFinalize(this);
                 data.Dispose();
             }
 
@@ -48,7 +49,7 @@ namespace BrightData.UnitTests
         }
         public class InMemoryStreamProvider : IProvideDataBlocks
         {
-            readonly Dictionary<Guid, TempData> _data = new();
+            readonly Dictionary<Guid, TempData> _data = [];
 
             public void Dispose()
             {

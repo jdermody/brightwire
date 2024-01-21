@@ -6,6 +6,6 @@ namespace BrightAPI.Models.DataTable.Requests
     {
         [Required] public bool HasHeader { get; set; }
         [Required] public char Delimiter { get; set; }
-        [Required] public string[] Lines { get; set; } = Array.Empty<string>();
+        [Required] public string[] Lines { get; set; } = [];
     }
 }

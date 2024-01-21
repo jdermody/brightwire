@@ -11,7 +11,7 @@ namespace Benchmarks
         {
             public int SomeField;
 
-            public override string ToString() => $"{SomeField}";
+            public readonly override string ToString() => $"{SomeField}";
         }
 
         [Params(100, 1000, 10000)]

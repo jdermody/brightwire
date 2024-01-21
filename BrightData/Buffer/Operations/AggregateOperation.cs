@@ -17,7 +17,7 @@ namespace BrightData.Buffer.Operations
         : INotifyOperationProgress
     {
         readonly Guid                    _id = Guid.NewGuid();
-        readonly Dictionary<Guid, float> _taskProgress = new();
+        readonly Dictionary<Guid, float> _taskProgress = [];
         readonly HashSet<Guid>           _completed = [];
         int                              _progressNotifications = 0;
 

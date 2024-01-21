@@ -14,8 +14,8 @@ namespace BrightData.Buffer.Operations.Conversion
         where FT : notnull
         where T : notnull
     {
-        protected Action? _onComplete;
-        readonly IOperation _operation;
+        protected Action?                _onComplete;
+        readonly OneToOneMutation<FT, T> _operation;
 
         protected ConversionBase(IReadOnlyBuffer<FT> input, IAppendToBuffer<T> output)
         {

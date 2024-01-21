@@ -8,11 +8,19 @@
             <summary>
             CUDA linear algebra provider
             </summary>
+            <remarks>
+            Constructor
+            </remarks>
+            <param name="context">Bright data context</param>
+            <param name="cuda">CUDA provider</param>
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.#ctor(BrightData.BrightDataContext,BrightData.Cuda.CudaProvider)">
             <summary>
-            Constructor
+            CUDA linear algebra provider
             </summary>
+            <remarks>
+            Constructor
+            </remarks>
             <param name="context">Bright data context</param>
             <param name="cuda">CUDA provider</param>
         </member>
@@ -464,14 +472,18 @@
         </member>
         <member name="T:BrightData.Cuda.CudaTensor3D">
             <inheritdoc />
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor3D.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
             <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.CudaTensor4D">
             <inheritdoc />
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor4D.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
             <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.ExtensionMethods">

@@ -23,8 +23,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(secondary);
                 var delta2 = es.PointwiseMultiply(primary);
-                yield return (errorSignal.ReplaceWith(delta1), context, _primarySource: primarySource);
-                yield return (errorSignal.ReplaceWith(delta2), context, _secondarySource: secondarySource);
+                yield return (errorSignal.ReplaceWith(delta1), context, primarySource);
+                yield return (errorSignal.ReplaceWith(delta2), context, secondarySource);
             }
         }
 

@@ -14,12 +14,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
                 var matrix = errorSignal.GetMatrix();
                 var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - reverseSize);
-                yield return (errorSignal.ReplaceWith(left), context, _forward: forward);
+                yield return (errorSignal.ReplaceWith(left), context, forward);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
                 var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (_backward: backward, errorSignal.ReplaceWith(right)));
+                _source._reverseBackpropagation.Add(reversedSequenceIndex, (backward, errorSignal.ReplaceWith(right)));
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {

@@ -10,7 +10,7 @@ namespace Data
     public static class Embeddings
     {
         static readonly Lazy<Dictionary<string, string>> _embeddings;
-        static readonly Dictionary<string, float[]> _table = new();
+        static readonly Dictionary<string, float[]> _table = [];
 
         static Embeddings()
         {
@@ -37,7 +37,7 @@ namespace Data
                 _table.Add(embedding, ret = str.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(float.Parse).ToArray()); 
                 return ret;
             }
-            return ReadOnlySpan<float>.Empty;
+            return [];
         }
     }
 }

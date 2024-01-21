@@ -91,7 +91,8 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
-            if (reader.ReadInt32() != 2)
+            var size = reader.ReadInt32();
+            if (size != 2)
                 throw new Exception("Unexpected array size");
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();

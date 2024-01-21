@@ -87,7 +87,7 @@ namespace BrightData.Analysis
             get
             {
                 double? ret = null;
-                if (_distinct.Any()) {
+                if (_distinct.Count > 0) {
                     if (_total % 2 == 1)
                         return SortedValues.Skip((int) (_total / 2)).First();
                     return SortedValues.Skip((int) (_total / 2 - 1)).Take(2).Average();
@@ -111,7 +111,7 @@ namespace BrightData.Analysis
         {
             get
             {
-                if (_distinct.Any())
+                if (_distinct.Count > 0)
                     return _mode;
                 return null;
             }

@@ -62,7 +62,7 @@ namespace Benchmarks
             return ptr;
         }
 
-        public static unsafe float VectorDot(Span<float> data1, Span<float> data2)
+        public static float VectorDot(Span<float> data1, Span<float> data2)
         {
             const int VectorSize = 256 / sizeof(float) / 8;
             fixed (float* ptr1 = data1)
