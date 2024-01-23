@@ -8,7 +8,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor3D<LAP> : BrightTensorBase<ITensor3D, LAP>, ITensor3D
+    public class MutableTensor3D<LAP> : MutableTensorBase<ITensor3D, LAP>, ITensor3D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="columns">Columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <exception cref="ArgumentException"></exception>
-        public BrightTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public MutableTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Depth = depth;
             RowCount = rows;
@@ -34,16 +34,16 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override ITensor3D Create(INumericSegment<float> segment) => new BrightTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
+        public override ITensor3D Create(INumericSegment<float> segment) => new MutableTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
         /// <summary>
         /// Returns a read only matrix
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrixWrapper(Matrix(index), RowCount, ColumnCount);
+        public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrix(Matrix(index), RowCount, ColumnCount);
 
-        TensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
+        MutableTensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
         public uint Depth { get; private set; }
@@ -179,7 +179,7 @@ namespace BrightData.LinearAlgebra
     /// <summary>
     /// 3D tensor 
     /// </summary>
-    public class BrightTensor3D : BrightTensor3D<LinearAlgebraProvider>
+    public class BrightTensor3D : MutableTensor3D<LinearAlgebraProvider>
     {
         /// <summary>
         /// Constructor

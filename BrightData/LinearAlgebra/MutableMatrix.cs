@@ -19,7 +19,7 @@ namespace BrightData.LinearAlgebra
     /// <param name="rows">Number of rows</param>
     /// <param name="columns">Number of columns</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class BrightMatrix<LAP>(INumericSegment<float> data, uint rows, uint columns, LAP lap) : BrightTensorBase<IMatrix, LAP>(data, lap), IMatrix
+    public class MutableMatrix<LAP>(INumericSegment<float> data, uint rows, uint columns, LAP lap) : MutableTensorBase<IMatrix, LAP>(data, lap), IMatrix
         where LAP: LinearAlgebraProvider
     {
         /// <inheritdoc />
@@ -72,19 +72,35 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> Row(uint index)
+        public INumericSegment<float> GetRow(uint index)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new TensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
+            return new MutableTensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> Column(uint index)
+        public IReadOnlyNumericSegment<float> GetReadOnlyRow(uint index)
+        {
+            if(index > RowCount)
+                throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
+            return new ReadOnlyTensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
+        }
+
+        /// <inheritdoc />
+        public INumericSegment<float> GetColumn(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new TensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
+            return new MutableTensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
+        }
+
+        /// <inheritdoc />
+        public IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint index)
+        {
+            if(index > ColumnCount)
+                throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
+            return new ReadOnlyTensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
@@ -109,49 +125,10 @@ namespace BrightData.LinearAlgebra
         public override IMatrix Create(INumericSegment<float> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector GetRowAsReadOnly(uint rowIndex) => new ReadOnlyVectorWrapper(Row(rowIndex));
+        public virtual IVector GetRowVector(uint index) => Lap.CreateVector(GetRow(index));
 
         /// <inheritdoc />
-        public virtual IReadOnlyVector GetColumnAsReadOnly(uint columnIndex) => new ReadOnlyVectorWrapper(Column(columnIndex));
-
-        /// <inheritdoc />
-        public virtual IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy)
-        {
-            var ret = new IReadOnlyVector[RowCount];
-            if (makeCopy) {
-                var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-                for (uint i = 0; i < RowCount; i++)
-                    ret[i] = new TensorSegmentWrapper(segment, i, RowCount, ColumnCount).ToReadOnlyVector();
-            }
-            else {
-                for (uint i = 0; i < RowCount; i++)
-                    ret[i] = GetRowAsReadOnly(i);
-            }
-            return ret;
-        }
-
-        /// <inheritdoc />
-        public virtual IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy)
-        {
-            var ret = new IReadOnlyVector[ColumnCount];
-            if (makeCopy) {
-                var segment = new ArrayBasedTensorSegment(Segment.ToNewArray());
-                for (uint i = 0; i < ColumnCount; i++)
-                    ret[i] = new TensorSegmentWrapper(segment, i * RowCount, 1, RowCount).ToReadOnlyVector();
-            }
-            else {
-                for (uint i = 0; i < ColumnCount; i++)
-                    ret[i] = GetColumnAsReadOnly(i);
-            }
-
-            return ret;
-        }
-
-        /// <inheritdoc />
-        public virtual IVector GetRowVector(uint index) => Lap.CreateVector(Row(index));
-
-        /// <inheritdoc />
-        public virtual IVector GetColumnVector(uint index) => Lap.CreateVector(Column(index));
+        public virtual IVector GetColumnVector(uint index) => Lap.CreateVector(GetColumn(index));
 
         /// <inheritdoc />
         public IMatrix Transpose() => Lap.Transpose(this);
@@ -243,7 +220,7 @@ namespace BrightData.LinearAlgebra
             using var segments = SpanOwner<INumericSegment<float>>.Allocate((int)RowCount);
             var ptr = segments.Span;
             for (var i = 0; i < RowCount; i++)
-                ptr[i] = Row((uint)i);
+                ptr[i] = GetRow((uint)i);
             return Lap.MultiSoftmax(segments.DangerousGetArray());
         }
 
@@ -262,9 +239,6 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix((IReadOnlyMatrix)this);
-
-        IReadOnlyVector IReadOnlyMatrix.GetRow(uint rowIndex) => GetRowAsReadOnly(rowIndex);
-        IReadOnlyVector IReadOnlyMatrix.GetColumn(uint columnIndex) => GetColumnAsReadOnly(columnIndex);
     }
 
     /// <summary>
@@ -277,5 +251,5 @@ namespace BrightData.LinearAlgebra
     /// <param name="rows">Number of rows</param>
     /// <param name="columns">Number of columns</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : BrightMatrix<LinearAlgebraProvider>(data, rows, columns, lap);
+    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : MutableMatrix<LinearAlgebraProvider>(data, rows, columns, lap);
 }

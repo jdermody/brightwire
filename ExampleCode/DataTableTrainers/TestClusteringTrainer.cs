@@ -103,7 +103,7 @@ namespace ExampleCode.DataTableTrainers
             var outputPath = GetOutputPath("projected-kmeans");
             using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
-            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.GetRowAsReadOnly(i).Create(lap)).ToArray();
+            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(projectedMatrix.GetRowVector).ToArray();
             Console.Write("done...");
 
             Console.Write("Kmeans clustering of random projection...");

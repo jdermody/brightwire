@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment that temporarily owns a buffer from an array pool
     /// </summary>
-    public class ArrayPoolTensorSegment : ArrayBasedTensorSegment
+    public class ArrayPoolTensorSegment : MutableTensorSegment
     {
         readonly MemoryOwner<float> _memoryOwner;
         int _refCount = 0;

@@ -5,7 +5,7 @@ namespace BrightData.MKL
     /// <inheritdoc />
     /// <inheritdoc />
     public class MklVector(INumericSegment<float> data, MklLinearAlgebraProvider computationUnit)
-        : BrightVector<MklLinearAlgebraProvider>(data, computationUnit)
+        : MutableVector<MklLinearAlgebraProvider>(data, computationUnit)
     {
 
         /// <inheritdoc />

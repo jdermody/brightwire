@@ -46,6 +46,15 @@ namespace BrightData
             CancellationToken ct = default
         ) <#= where #>;
 
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
+<# } #>
+        ) <#= where #>;
+
 <# } #>
     }
 }
@@ -135,7 +144,7 @@ namespace BrightData.DataTable
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
                 for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -195,7 +204,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowReader<<#= typeString #>>(
+        public IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
 <# } #>

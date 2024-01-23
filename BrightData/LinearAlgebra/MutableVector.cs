@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra
     /// <typeparam name="LAP"></typeparam>
     /// <param name="data">Tensor segment</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class BrightVector<LAP>(INumericSegment<float> data, LAP lap) : BrightTensorBase<IVector, LAP>(data, lap), IVector
+    public class MutableVector<LAP>(INumericSegment<float> data, LAP lap) : MutableTensorBase<IVector, LAP>(data, lap), IVector
         where LAP: LinearAlgebraProvider
     {
 
@@ -97,7 +97,7 @@ namespace BrightData.LinearAlgebra
     /// <summary>
     /// Vector
     /// </summary>
-    public class BrightVector : BrightVector<LinearAlgebraProvider>
+    public class BrightVector : MutableVector<LinearAlgebraProvider>
     {
         /// <summary>
         /// Constructor

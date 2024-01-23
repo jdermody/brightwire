@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using BetterConsoleTables;
 using BrightData;
+using BrightData.Cuda;
+using BrightData.Cuda.Helper;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -21,7 +25,7 @@ namespace ExampleCode.DataSet
             _tensorCache.DisposeAll();
         }
 
-        public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
+        public async Task<ExecutionGraphModel?> TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 10,
             float trainingRate = 0.003f,
@@ -29,12 +33,12 @@ namespace ExampleCode.DataSet
         )
         {
             Console.Write("Loading MNIST...");
-            using var trainer = GetVectorTrainer();
+            using var trainer = await GetVectorTrainer();
             Console.WriteLine("done");
             return trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
-        public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
+        public async Task<ExecutionGraphModel?> TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.001f,
@@ -42,24 +46,24 @@ namespace ExampleCode.DataSet
         )
         {
             Console.Write("Loading MNIST...");
-            using var trainer = GetTensorTrainer();
+            using var trainer = await GetTensorTrainer();
             Console.WriteLine("done");
             return trainer.TrainConvolutionalNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
-        public MnistVectorTrainer GetVectorTrainer()
+        public async Task<MnistVectorTrainer> GetVectorTrainer()
         {
             return new(
-                BuildVectorToVectorDataTable(context, TrainingImages),
-                BuildVectorToVectorDataTable(context, TestImages)
+                await BuildVectorToVectorDataTable(context, TrainingImages),
+                await BuildVectorToVectorDataTable(context, TestImages)
             );
         }
 
-        public MnistTensorTrainer GetTensorTrainer()
+        public async Task<MnistTensorTrainer> GetTensorTrainer()
         {
             return new(
-                Build3DTensorToVectorDataTable(context, TrainingImages),
-                Build3DTensorToVectorDataTable(context, TestImages)
+                await Build3DTensorToVectorDataTable(context, TrainingImages),
+                await Build3DTensorToVectorDataTable(context, TestImages)
             );
         }
 
@@ -151,35 +155,39 @@ namespace ExampleCode.DataSet
             return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
 
-        public static IDataTable BuildVectorToVectorDataTable(BrightDataContext context, Image[] images)
+        public async Task<IDataTable> BuildVectorToVectorDataTable(BrightDataContext brightContext, Image[] images)
         {
             // create a vector => vector mapping
-            var builder = context.CreateTwoColumnVectorTableBuilder();
+            var builder = brightContext.CreateTwoColumnVectorTableBuilder();
 
             foreach (var image in images) {
-                var (data, label) = image.AsFloatArray(context);
+                var (data, label) = image.AsFloatArray(brightContext);
                 builder.AddRow(data, label);
             }
+            var ret = await builder.BuildInMemory();
 
-            var ret = builder.BuildInMemory();
-            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+            // map for CUDA
+            //if (brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
             //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
-            return ret.Result;
+
+            return ret;
         }
 
-        public IDataTable Build3DTensorToVectorDataTable(BrightDataContext context, Image[] images)
+        public async Task<IDataTable> Build3DTensorToVectorDataTable(BrightDataContext brightContext, Image[] images)
         {
             // create a 3D tensor => vector mapping
-            var builder = context.Create3DTensorToVectorTableBuilder();
+            var builder = brightContext.Create3DTensorToVectorTableBuilder();
 
             foreach (var image in images) {
-                var (tensor, label) = image.AsFloatTensor(context);
+                var (tensor, label) = image.AsFloatTensor(brightContext);
                 builder.AddRow(tensor, label);
             }
+            var ret = await builder.BuildInMemory();
 
-            var ret = builder.BuildInMemory().Result;
-            //if (context.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            // map for CUDA
+            if (brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+
             return ret;
         }
     }

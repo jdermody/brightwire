@@ -14,6 +14,7 @@ namespace ExampleCode.DataTableTrainers
             float trainingRate,
             uint batchSize
         ) {
+            _context.LinearAlgebraProvider.BindThread();
             var graph = Training.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
 

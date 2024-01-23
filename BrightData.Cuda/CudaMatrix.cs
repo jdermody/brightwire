@@ -3,18 +3,12 @@
 namespace BrightData.Cuda
 {
     /// <inheritdoc />
-    public class CudaMatrix : BrightMatrix<CudaLinearAlgebraProvider>
+    public class CudaMatrix : MutableMatrix<CudaLinearAlgebraProvider>
     {
         /// <inheritdoc />
         public CudaMatrix(INumericSegment<float> data, uint rows, uint columns, CudaLinearAlgebraProvider lap) : base(data, rows, columns, lap)
         {
         }
-
-        /// <inheritdoc />
-        public override IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy) => base.AllColumnsAsReadOnly(true);
-
-        /// <inheritdoc />
-        public override IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy) => base.AllRowsAsReadOnly(true);
 
         /// <inheritdoc />
         public override IVector GetColumnVector(uint index)

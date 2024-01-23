@@ -10,7 +10,7 @@ namespace BrightData
         /// <returns></returns>
         public static IReadOnlyVector Reshape(this IHaveReadOnlyTensorSegment<float> vector)
         {
-            return new ReadOnlyVectorWrapper(vector.ReadOnlySegment);
+            return new ReadOnlyVector(vector.ReadOnlySegment);
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace BrightData
         public static IReadOnlyMatrix Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(rows, columns);
-            return new ReadOnlyMatrixWrapper(vector.ReadOnlySegment, shape[0], shape[1]);
+            return new ReadOnlyMatrix(vector.ReadOnlySegment, shape[0], shape[1]);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace BrightData
         public static IReadOnlyTensor3D Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? depth, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(depth, rows, columns);
-            return new ReadOnlyTensor3DWrapper(vector.ReadOnlySegment, shape[0], shape[1], shape[2]);
+            return new ReadOnlyTensor3D(vector.ReadOnlySegment, shape[0], shape[1], shape[2]);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace BrightData
         public static IReadOnlyTensor4D Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(count, depth, rows, columns);
-            return new ReadOnlyTensor4DWrapper(vector.ReadOnlySegment, shape[0], shape[1], shape[2], shape[3]);
+            return new ReadOnlyTensor4D(vector.ReadOnlySegment, shape[0], shape[1], shape[2], shape[3]);
         }
     }
 }

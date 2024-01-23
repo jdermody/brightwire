@@ -5,7 +5,7 @@ namespace BrightData.MKL
     /// <inheritdoc />
     /// <inheritdoc />
     public class MklMatrix(INumericSegment<float> data, uint rows, uint columns, MklLinearAlgebraProvider computationUnit) 
-        : BrightMatrix<MklLinearAlgebraProvider>(data, rows, columns, computationUnit)
+        : MutableMatrix<MklLinearAlgebraProvider>(data, rows, columns, computationUnit)
     {
 
         /// <inheritdoc />

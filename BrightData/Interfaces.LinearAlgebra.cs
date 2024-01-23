@@ -77,7 +77,7 @@ namespace BrightData
     /// <summary>
     /// A read only segment of numeric values - might be contiguous or a wrapper around a contiguous block
     /// </summary>
-    public interface IReadOnlyNumericSegment<T> : ICountReferences, IDisposable, IHaveSize, IHaveSpanOf<float>
+    public interface IReadOnlyNumericSegment<T> : ICountReferences, IDisposable, IHaveSize, IHaveSpanOf<T>
         where T : unmanaged, INumber<T>
     {
         /// <summary>
@@ -151,7 +151,7 @@ namespace BrightData
         /// Tries to return a contiguous span from the current segment if possible
         /// </summary>
         /// <returns></returns>
-        IHaveReadOnlyContiguousSpan<float>? Contiguous { get; }
+        IHaveReadOnlyContiguousSpan<T>? Contiguous { get; }
 
         /// <summary>
         /// True if the segment wraps another segment
@@ -321,14 +321,14 @@ namespace BrightData
         /// </summary>
         /// <param name="rowIndex"></param>
         /// <returns></returns>
-        IReadOnlyVector GetRow(uint rowIndex);
+        IReadOnlyNumericSegment<float> GetReadOnlyRow(uint rowIndex);
 
         /// <summary>
         /// Returns a column from the matrix
         /// </summary>
         /// <param name="columnIndex"></param>
         /// <returns></returns>
-        IReadOnlyVector GetColumn(uint columnIndex);
+        IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint columnIndex);
 
         /// <summary>
         /// Creates a new mutable matrix that is a copy of this matrix
@@ -973,14 +973,14 @@ namespace BrightData
         /// </summary>
         /// <param name="index">Row index</param>
         /// <returns></returns>
-        INumericSegment<float> Row(uint index);
+        INumericSegment<float> GetRow(uint index);
 
         /// <summary>
         /// Returns a column from the matrix
         /// </summary>
         /// <param name="index">Column index</param>
         /// <returns></returns>
-        INumericSegment<float> Column(uint index);
+        INumericSegment<float> GetColumn(uint index);
 
         /// <summary>
         /// Returns a row as a span
@@ -1167,34 +1167,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         new IMatrix Clone();
-
-        /// <summary>
-        /// Returns a row as a read only vector
-        /// </summary>
-        /// <param name="rowIndex"></param>
-        /// <returns></returns>
-        IReadOnlyVector GetRowAsReadOnly(uint rowIndex);
-
-        /// <summary>
-        /// Returns a column as a read only vector
-        /// </summary>
-        /// <param name="columnIndex"></param>
-        /// <returns></returns>
-        IReadOnlyVector GetColumnAsReadOnly(uint columnIndex);
-
-        /// <summary>
-        /// Returns all rows as read only vectors
-        /// </summary>
-        /// <param name="makeCopy">True to make a copy of each row</param>
-        /// <returns></returns>
-        IReadOnlyVector[] AllRowsAsReadOnly(bool makeCopy);
-
-        /// <summary>
-        /// Returns all columns as read only vectors
-        /// </summary>
-        /// <param name="makeCopy">True to make a copy of each column</param>
-        /// <returns></returns>
-        IReadOnlyVector[] AllColumnsAsReadOnly(bool makeCopy);
     }
 
     /// <summary>

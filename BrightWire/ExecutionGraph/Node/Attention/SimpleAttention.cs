@@ -132,10 +132,10 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             for (uint i = 0; i < numInputRows; i++) {
                 var sequenceIndex = i / batchSize;
                 var batchIndex = i % batchSize;
-                var inputRow = inputMatrix.Row(i);
-                inputs[sequenceIndex].Row(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
-                encoderStates?[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, _inputSize);
-                decoderHiddenState?.Row(batchIndex).CopyTo(inputRow, 0, _inputSize + _encoderSize);
+                var inputRow = inputMatrix.GetRow(i);
+                inputs[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
+                encoderStates?[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, 0, _inputSize);
+                decoderHiddenState?.GetRow(batchIndex).CopyTo(inputRow, 0, _inputSize + _encoderSize);
             }
 
             // find the per batch softmax

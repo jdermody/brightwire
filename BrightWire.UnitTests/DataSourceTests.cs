@@ -34,8 +34,8 @@ namespace BrightWire.UnitTests
 			var table = await builder.BuildInMemory();
             var dataSource = _factory.CreateDataSource(table);
 			var miniBatch = dataSource.Get([1]);
-			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetRowAsReadOnly(0);
-			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetRowAsReadOnly(0);
+			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetReadOnlyRow(0);
+			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetReadOnlyRow(0);
 
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
@@ -63,8 +63,8 @@ namespace BrightWire.UnitTests
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
-            batchMatrix.GetRowAsReadOnly(1)[0].Should().Be(1f);
+            batchMatrix.GetReadOnlyRow(0)[0].Should().Be(0f);
+            batchMatrix.GetReadOnlyRow(1)[0].Should().Be(1f);
         }
 
 		[Fact]
@@ -79,7 +79,7 @@ namespace BrightWire.UnitTests
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
+            batchMatrix.GetReadOnlyRow(0)[0].Should().Be(0f);
         }
 
 		[Fact]
@@ -95,7 +95,7 @@ namespace BrightWire.UnitTests
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(1000);
             batchMatrix.ColumnCount.Should().Be(3);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
+            batchMatrix.GetReadOnlyRow(0)[0].Should().Be(0f);
         }
 	}
 }

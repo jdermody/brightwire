@@ -86,10 +86,10 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             for (uint i = 0; i < numInputRows; i++) {
                 var sequenceIndex = i / batchSize;
                 var batchIndex = i % batchSize;
-                var inputRow = inputMatrices[sequenceIndex].Row(batchIndex);
-                inputs[sequenceIndex].Row(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
-                encoderStates?[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, inputSize);
-                decoderHiddenState?.Row(batchIndex).CopyTo(inputRow, 0, inputSize + encoderSize);
+                var inputRow = inputMatrices[sequenceIndex].GetRow(batchIndex);
+                inputs[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
+                encoderStates?[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, 0, inputSize);
+                decoderHiddenState?.GetRow(batchIndex).CopyTo(inputRow, 0, inputSize + encoderSize);
             }
             inputMatrices.DisposeAll();
 

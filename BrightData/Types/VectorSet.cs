@@ -90,10 +90,7 @@ namespace BrightData.Types
                 {
                     var segment = _data[(int)index].ReadOnlySegment;
                     var contiguous = segment.Contiguous;
-                    if (contiguous != null)
-                        aggregator.Add(contiguous.ReadOnlySpan);
-                    else
-                        throw new NotImplementedException("Can only aggregate contiguous vectors");
+                    aggregator.Add(contiguous != null ? contiguous.ReadOnlySpan : segment.ToNewArray());
                 }
             }
         }

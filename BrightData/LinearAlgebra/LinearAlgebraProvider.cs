@@ -110,7 +110,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual INumericSegment<float> CreateSegment(params float[] data) => new ArrayBasedTensorSegment(data);
+        public virtual INumericSegment<float> CreateSegment(params float[] data) => new MutableTensorSegment(data);
 
         /// <summary>
         /// Creates a tensor segment
@@ -336,7 +336,7 @@ namespace BrightData.LinearAlgebra
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns, false);
             for (var i = 0; i < rows.Length; i++)
-                rows[i].CopyTo(ret.Row((uint)i));
+                rows[i].CopyTo(ret.GetRow((uint)i));
             return ret;
         }
 
@@ -350,7 +350,7 @@ namespace BrightData.LinearAlgebra
             var columns = rows[0].Size;
             var ret = CreateMatrix((uint)rows.Length, columns, false);
             for (var i = 0; i < rows.Length; i++)
-                rows[i].CopyTo(ret.Row((uint)i));
+                rows[i].CopyTo(ret.GetRow((uint)i));
             return ret;
         }
 
@@ -365,7 +365,7 @@ namespace BrightData.LinearAlgebra
             var ret = CreateMatrix((uint)rows.Length, columns, false);
             for (var i = 0; i < rows.Length; i++) {
                 var source = rows[i].AsSpan();
-                var targetRow = ret.Row((uint)i);
+                var targetRow = ret.GetRow((uint)i);
                 targetRow.CopyFrom(source);
             }
             return ret;
@@ -425,7 +425,7 @@ namespace BrightData.LinearAlgebra
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
             for (var i = 0; i < columns.Length; i++)
-                columns[i].CopyTo(ret.Column((uint)i));
+                columns[i].CopyTo(ret.GetColumn((uint)i));
             return ret;
         }
 
@@ -439,7 +439,7 @@ namespace BrightData.LinearAlgebra
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
             for (var i = 0; i < columns.Length; i++)
-                columns[i].CopyTo(ret.Column((uint)i));
+                columns[i].CopyTo(ret.GetColumn((uint)i));
             return ret;
         }
 
@@ -454,7 +454,7 @@ namespace BrightData.LinearAlgebra
             var ret = CreateMatrix(rows, (uint)columns.Length, false);
             for (var i = 0; i < columns.Length; i++) {
                 var source = columns[i].AsSpan();
-                var target = ret.Column((uint)i);
+                var target = ret.GetColumn((uint)i);
                 target.CopyFrom(source);
             }
             return ret;
@@ -1669,7 +1669,7 @@ namespace BrightData.LinearAlgebra
                 ptr[i] = CreateMatrix(outputRows, outputColumns, true);
             for (uint k = 0; k < tensor.Depth; k++) {
                 using var slice = tensor.GetMatrix(k);
-                var filters = filter.GetColumnAsReadOnly(k).ReadOnlySegment.Split(outputDepth).ToArray();
+                var filters = filter.GetReadOnlyColumn(k).Split(outputDepth).ToArray();
 
                 foreach (var (cx, cy) in convolutions) {
                     var errorY = cy / xStride;
@@ -2088,7 +2088,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual IMatrix GetMatrix(ITensor3D tensor, uint index)
         {
-            var segment = new TensorSegmentWrapper(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
+            var segment = new MutableTensorSegmentWrapper(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
             return CreateMatrix(tensor.RowCount, tensor.ColumnCount, segment);
         }
 
@@ -2100,7 +2100,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual ITensor3D GetTensor(ITensor4D tensor, uint index)
         {
-            var segment = new TensorSegmentWrapper(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
+            var segment = new MutableTensorSegmentWrapper(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
             return CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, segment);
         }
 
@@ -2112,7 +2112,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual IMatrix GetNewMatrixFromRows(IMatrix matrix, IEnumerable<uint> rowIndices)
         {
-            var ret = CreateMatrixFromRows(rowIndices.Select(matrix.GetRowAsReadOnly).ToArray());
+            var ret = CreateMatrixFromRows(rowIndices.Select(x => matrix.GetReadOnlyRow(x).ToReadOnlyVector()).ToArray());
             return ret;
         }
 
@@ -2124,7 +2124,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual IMatrix GetNewMatrixFromColumns(IMatrix matrix, IEnumerable<uint> columnIndices)
         {
-            var ret = CreateMatrixFromColumns(columnIndices.Select(matrix.GetColumnAsReadOnly).ToArray());
+            var ret = CreateMatrixFromColumns(columnIndices.Select(x => matrix.GetReadOnlyColumn(x).ToReadOnlyVector()).ToArray());
             return ret;
         }
 

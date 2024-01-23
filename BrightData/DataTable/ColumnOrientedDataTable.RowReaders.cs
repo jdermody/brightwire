@@ -66,6 +66,14 @@ namespace BrightData
         ) where T1: notnull where T2: notnull;
 
         /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1
+        ) where T1: notnull where T2: notnull;
+
+        /// <summary>
         /// Enumerates typed data rows
         /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
@@ -73,6 +81,15 @@ namespace BrightData
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
             CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull;
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2
         ) where T1: notnull where T2: notnull where T3: notnull;
 
         /// <summary>
@@ -84,6 +101,16 @@ namespace BrightData
             uint columnIndex3 = 2, 
             uint columnIndex4 = 3, 
             CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
 
         /// <summary>
@@ -99,6 +126,17 @@ namespace BrightData
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
 
         /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
+
+        /// <summary>
         /// Enumerates typed data rows
         /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
@@ -109,6 +147,18 @@ namespace BrightData
             uint columnIndex5 = 4, 
             uint columnIndex6 = 5, 
             CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
 
         /// <summary>
@@ -126,6 +176,19 @@ namespace BrightData
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
 
         /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
+
+        /// <summary>
         /// Enumerates typed data rows
         /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
@@ -138,6 +201,20 @@ namespace BrightData
             uint columnIndex7 = 6, 
             uint columnIndex8 = 7, 
             CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
 
         /// <summary>
@@ -157,6 +234,21 @@ namespace BrightData
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
 
         /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
+
+        /// <summary>
         /// Enumerates typed data rows
         /// </summary>
         IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
@@ -171,6 +263,22 @@ namespace BrightData
             uint columnIndex9 = 8, 
             uint columnIndex10 = 9, 
             CancellationToken ct = default
+        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8,
+            uint columnIndex10 = 9
         ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
 
     }
@@ -295,7 +403,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2>> GetRowReader<T1, T2>(
+        public IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1
         ) 
@@ -435,7 +543,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowReader<T1, T2, T3>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2
@@ -593,7 +701,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowReader<T1, T2, T3, T4>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -769,7 +877,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowReader<T1, T2, T3, T4, T5>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -963,7 +1071,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowReader<T1, T2, T3, T4, T5, T6>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1175,7 +1283,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowReader<T1, T2, T3, T4, T5, T6, T7>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1405,7 +1513,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1653,7 +1761,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1919,7 +2027,7 @@ namespace BrightData.DataTable
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,

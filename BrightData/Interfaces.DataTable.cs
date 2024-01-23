@@ -6,6 +6,8 @@ using System.IO;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
+using BrightData.Buffer.ReadOnly.Helper;
+using BrightData.DataTable.Columns;
 
 namespace BrightData
 {
@@ -329,6 +331,15 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Maps blocks from one type to another
+    /// </summary>
+    /// <typeparam name="FT"></typeparam>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="span"></param>
+    /// <returns></returns>
+    public delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
+
+    /// <summary>
     /// Provides tensor data
     /// </summary>
     public interface ITensorDataProvider
@@ -338,6 +349,20 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         ReadOnlyMemory<float> GetTensorData();
+
+        /// <summary>
+        /// Sets the tensor mapping functions
+        /// </summary>
+        /// <param name="vectorMapper"></param>
+        /// <param name="matrixMapper"></param>
+        /// <param name="tensor3DMapper"></param>
+        /// <param name="tensor4DMapper"></param>
+        void SetTensorMappers(
+            BlockMapper<DataRangeColumnType, ReadOnlyVector> vectorMapper,
+            BlockMapper<MatrixColumnType, ReadOnlyMatrix> matrixMapper,
+            BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D> tensor3DMapper,
+            BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D> tensor4DMapper
+        );
     }
 
     public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
@@ -393,12 +418,6 @@ namespace BrightData
         /// <param name="columnIndices"></param>
         /// <returns></returns>
         Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
-
-        /// <summary>
-        /// Sets an alternate tensor data provider
-        /// </summary>
-        /// <param name="dataProvider"></param>
-        void SetTensorData(ITensorDataProvider dataProvider);
 
         /// <summary>
         /// Returns a typed value from the data table

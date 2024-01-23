@@ -45,7 +45,11 @@ namespace BrightData.DataTable
         readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
         readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
         readonly Lazy<IReadOnlyBuffer<object>[]>                    _genericColumns;
-        ITensorDataProvider                                         _tensorDataProvider;
+        readonly MethodInfo                                         _createColumnReader;
+        BlockMapper<DataRangeColumnType, ReadOnlyVector>            _vectorMapper;
+        BlockMapper<MatrixColumnType, ReadOnlyMatrix>               _matrixMapper;
+        BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D>           _tensor3DMapper;
+        BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D>           _tensor4DMapper;
 
         public unsafe ColumnOrientedDataTable(BrightDataContext context, IByteBlockReader reader)
         {
@@ -58,6 +62,12 @@ namespace BrightData.DataTable
                 throw new Exception("Expected data table to contain at least one column");
             if (_header.RowCount == 0)
                 throw new Exception("Expected data table to contain at least one row");
+
+            // default tensor creators
+            _vectorMapper   = GetVectors;
+            _matrixMapper   = GetMatrices;
+            _tensor3DMapper = Get3DTensors;
+            _tensor4DMapper = Get4DTensors;
 
             // read the columns
             _columns = _reader
@@ -83,22 +93,10 @@ namespace BrightData.DataTable
             MetaData ??= new();
 
             // create column readers
-            var genericMethods              = GetType().GetGenericMethods();
-            var createColumnReader          = genericMethods[nameof(CreateColumnReader)];
-
-            // create column readers
-            _columnReader = new IReadOnlyBufferWithMetaData[ColumnCount];
-            var prevOffset = _header.DataOffset;
-            for (uint i = 1; i < _columns.Length; i++) {
-                var prevColumnType = ColumnTypes[i - 1];
-                var (prevType, prevSize) = prevColumnType.GetColumnType();
-                var nextOffset = prevOffset + prevSize * RowCount;
-                CreateColumnReader(createColumnReader, prevColumnType, prevType, i - 1, prevOffset, nextOffset - prevOffset);
-                prevOffset = nextOffset;
-            }
-            var lastColumnType = ColumnTypes[_columns.Length - 1];
-            var (lastColumnDataType, _) = lastColumnType.GetColumnType();
-            CreateColumnReader(createColumnReader, lastColumnType, lastColumnDataType, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
+            var genericMethods  = GetType().GetGenericMethods();
+            _createColumnReader = genericMethods[nameof(CreateColumnReader)];
+            _columnReader       = new IReadOnlyBufferWithMetaData[ColumnCount];
+            CreateColumnReaders();
 
             // create data readers
             _strings            = new(() => ReadStrings(_header.StringOffset, _header.StringSizeBytes));
@@ -106,11 +104,25 @@ namespace BrightData.DataTable
             _data               = new(() => GetBlock<byte>(_header.DataOffset, _header.DataSizeBytes));
             _indices            = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
             _weightedIndices    = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
-            _tensorDataProvider = this;
-            _genericColumns     = new(GetColumnsAsObjectBuffers());
+            _genericColumns     = new(GetColumnsAsObjectBuffers);
         }
 
         public MetaData MetaData { get; }
+
+        void CreateColumnReaders()
+        {
+            var prevOffset = _header.DataOffset;
+            for (uint i = 1; i < _columns.Length; i++) {
+                var prevColumnType = ColumnTypes[i - 1];
+                var (prevType, prevSize) = prevColumnType.GetColumnType();
+                var nextOffset = prevOffset + prevSize * RowCount;
+                CreateColumnReader(_createColumnReader, prevColumnType, prevType, i - 1, prevOffset, nextOffset - prevOffset);
+                prevOffset = nextOffset;
+            }
+            var lastColumnType = ColumnTypes[_columns.Length - 1];
+            var (lastColumnDataType, _) = lastColumnType.GetColumnType();
+            CreateColumnReader(_createColumnReader, lastColumnType, lastColumnDataType, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
+        }
 
         async Task<List<string>> ReadStrings(uint headerStringOffset, uint headerStringSizeBytes)
         {
@@ -157,7 +169,7 @@ namespace BrightData.DataTable
         {
             var index = 0;
             var ret = new ReadOnlyVector[span.Length];
-            var data = _tensorDataProvider.GetTensorData();
+            var data = GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size));
             return ret;
@@ -167,27 +179,27 @@ namespace BrightData.DataTable
         {
             var index = 0;
             var ret = new ReadOnlyMatrix[span.Length];
-            var data = _tensorDataProvider.GetTensorData();
+            var data = GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyMatrix(data.Slice((int)item.StartIndex, (int)item.Size), item.RowCount, item.ColumnCount);
             return ret;
         }
 
-        protected ReadOnlyMemory<ReadOnlyTensor3D> GetTensors(ReadOnlySpan<Tensor3DColumnType> span)
+        protected ReadOnlyMemory<ReadOnlyTensor3D> Get3DTensors(ReadOnlySpan<Tensor3DColumnType> span)
         {
             var index = 0;
             var ret = new ReadOnlyTensor3D[span.Length];
-            var data = _tensorDataProvider.GetTensorData();
+            var data = GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyTensor3D(data.Slice((int)item.StartIndex, (int)item.Size), item.Depth, item.RowCount, item.ColumnCount);
             return ret;
         }
 
-        protected ReadOnlyMemory<ReadOnlyTensor4D> GetTensors(ReadOnlySpan<Tensor4DColumnType> span)
+        protected ReadOnlyMemory<ReadOnlyTensor4D> Get4DTensors(ReadOnlySpan<Tensor4DColumnType> span)
         {
             var index = 0;
             var ret = new ReadOnlyTensor4D[span.Length];
-            var data = _tensorDataProvider.GetTensorData();
+            var data = GetTensorData();
             foreach (ref readonly var item in span)
                 ret[index++] = new ReadOnlyTensor4D(data.Slice((int)item.StartIndex, (int)item.Size), item.Count, item.Depth, item.RowCount, item.ColumnCount);
             return ret;
@@ -270,8 +282,6 @@ namespace BrightData.DataTable
             return this.AllOrSpecifiedColumnIndices(false, columnIndices).Select(x => _columnMetaData[x]).ToArray();
         }
 
-        public void SetTensorData(ITensorDataProvider dataProvider) => _tensorDataProvider = dataProvider;
-
         public async IAsyncEnumerable<TableRow> EnumerateRows([EnumeratorCancellation] CancellationToken ct = default)
         {
             var size = _header.ColumnCount;
@@ -332,6 +342,21 @@ namespace BrightData.DataTable
         }
 
         public ReadOnlyMemory<float> GetTensorData() => _tensors.Value.Result;
+
+        public void SetTensorMappers(
+            BlockMapper<DataRangeColumnType, ReadOnlyVector> vectorMapper,
+            BlockMapper<MatrixColumnType, ReadOnlyMatrix> matrixMapper,
+            BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D> tensor3DMapper,
+            BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D> tensor4DMapper
+        )
+        {
+            _vectorMapper = vectorMapper;
+            _matrixMapper = matrixMapper;
+            _tensor3DMapper = tensor3DMapper;
+            _tensor4DMapper = tensor4DMapper;
+            CreateColumnReaders();
+        }
+
         public BrightDataContext Context { get; }
 
         public async Task WriteRowsTo(Stream stream, params uint[] rowIndices)
@@ -429,10 +454,10 @@ namespace BrightData.DataTable
                 BrightDataType.BinaryData        => new MappedReadOnlyBuffer<DataRangeColumnType, BinaryData>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetBinaryData),
                 BrightDataType.IndexList         => new MappedReadOnlyBuffer<DataRangeColumnType, IndexList>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetIndexLists),
                 BrightDataType.WeightedIndexList => new MappedReadOnlyBuffer<DataRangeColumnType, WeightedIndexList>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetWeightedIndexLists),
-                BrightDataType.Vector            => new MappedReadOnlyBuffer<DataRangeColumnType, ReadOnlyVector>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetVectors),
-                BrightDataType.Matrix            => new MappedReadOnlyBuffer<MatrixColumnType, ReadOnlyMatrix>((IReadOnlyBufferWithMetaData<MatrixColumnType>)reader, GetMatrices),
-                BrightDataType.Tensor3D          => new MappedReadOnlyBuffer<Tensor3DColumnType, ReadOnlyTensor3D>((IReadOnlyBufferWithMetaData<Tensor3DColumnType>)reader, GetTensors),
-                BrightDataType.Tensor4D          => new MappedReadOnlyBuffer<Tensor4DColumnType, ReadOnlyTensor4D>((IReadOnlyBufferWithMetaData<Tensor4DColumnType>)reader, GetTensors),
+                BrightDataType.Vector            => new MappedReadOnlyBuffer<DataRangeColumnType, ReadOnlyVector>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, _vectorMapper),
+                BrightDataType.Matrix            => new MappedReadOnlyBuffer<MatrixColumnType, ReadOnlyMatrix>((IReadOnlyBufferWithMetaData<MatrixColumnType>)reader, _matrixMapper),
+                BrightDataType.Tensor3D          => new MappedReadOnlyBuffer<Tensor3DColumnType, ReadOnlyTensor3D>((IReadOnlyBufferWithMetaData<Tensor3DColumnType>)reader, _tensor3DMapper),
+                BrightDataType.Tensor4D          => new MappedReadOnlyBuffer<Tensor4DColumnType, ReadOnlyTensor4D>((IReadOnlyBufferWithMetaData<Tensor4DColumnType>)reader, _tensor4DMapper),
                 _                                => reader
             };
         }

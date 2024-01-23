@@ -6,7 +6,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment that wraps another tensor segment
     /// </summary>
-    public class TensorSegmentWrapper : ReadOnlyTensorSegmentWrapper, INumericSegment<float>
+    public class MutableTensorSegmentWrapper : ReadOnlyTensorSegmentWrapper, INumericSegment<float>
     {
         /// <summary>
         /// Constructor
@@ -15,7 +15,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <param name="offset">First index within the wrapped tensor segment</param>
         /// <param name="stride">Stride within the wrapped tensor segment</param>
         /// <param name="length">Number of values in this tensor segment</param>
-        public TensorSegmentWrapper(INumericSegment<float> segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
+        public MutableTensorSegmentWrapper(INumericSegment<float> segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
         {
             UnderlyingSegment = segment;
         }

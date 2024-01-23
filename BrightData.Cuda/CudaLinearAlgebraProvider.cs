@@ -135,7 +135,7 @@ namespace BrightData.Cuda
         {
             if (CudaTensorSegment.IsCuda(segment, out var ret))
                 return ret;
-            while (segment is TensorSegmentWrapper { Stride: 1 } wrapper) {
+            while (segment is MutableTensorSegmentWrapper { Stride: 1 } wrapper) {
                 segment = wrapper.UnderlyingSegment;
                 if (segment is CudaTensorSegment cudaTensor) {
                     var offsetBlock = CudaProvider.Offset(cudaTensor.DeviceMemory, wrapper.Offset, wrapper.Size);
@@ -991,7 +991,7 @@ namespace BrightData.Cuda
         {
             var foundWrapper = false;
             uint offset = 0, stride = 0, size = uint.MaxValue;
-            while (segment is TensorSegmentWrapper wrapper) {
+            while (segment is MutableTensorSegmentWrapper wrapper) {
                 offset += wrapper.Offset;
                 stride += wrapper.Stride;
                 size = wrapper.Size;
@@ -1364,7 +1364,7 @@ namespace BrightData.Cuda
             for (uint i = 0; i < rowCount; i++) {
                 using var derivative = derivatives[i];
                 var derivativePtr = GetDeviceMemoryPtr(derivative.Segment);
-                var (ptr, stride) = GetDeviceMemory(matrix.Row(i));
+                var (ptr, stride) = GetDeviceMemory(matrix.GetRow(i));
 
                 float alpha = 1.0f, beta = 0f;
                 var result = singleBlock.Offset(i * size, size);

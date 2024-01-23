@@ -620,9 +620,9 @@ namespace BrightData
         /// </summary>
         /// <param name="spanOwner"></param>
         /// <returns></returns>
-        public static float[] ToArray(this IHaveSpanOf<float> spanOwner)
+        public static T[] ToArray<T>(this IHaveSpanOf<T> spanOwner)
         {
-            var temp = SpanOwner<float>.Empty;
+            var temp = SpanOwner<T>.Empty;
             var span = spanOwner.GetSpan(ref temp, out var wasTempUsed);
             try {
                 return span.ToArray();

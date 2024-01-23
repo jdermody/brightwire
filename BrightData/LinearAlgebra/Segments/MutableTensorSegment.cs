@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment based on a float array
     /// </summary>
-    public class ArrayBasedTensorSegment : INumericSegment<float>, IHaveReadOnlyContiguousSpan<float>
+    public class MutableTensorSegment : INumericSegment<float>, IHaveReadOnlyContiguousSpan<float>
     {
         /// <summary>
         /// Underlying array
@@ -20,7 +20,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// Constructor
         /// </summary>
         /// <param name="data">Array of values</param>
-        public ArrayBasedTensorSegment(params float[] data)
+        public MutableTensorSegment(params float[] data)
         {
             _data = data;
         }

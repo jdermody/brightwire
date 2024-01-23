@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
 
 namespace BrightData
@@ -513,6 +514,47 @@ namespace BrightData
                 throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
 
             return shape.Select(v => v ?? total / nonNullTotal).ToArray();
+        }
+
+        /// <summary>
+        /// Returns all rows as read only vectors
+        /// </summary>
+        /// <param name="makeCopy">True to make a copy of each row</param>
+        /// <returns></returns>
+        public static IReadOnlyVector[] AllRowsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)
+        {
+            var ret = new IReadOnlyVector[matrix.RowCount];
+            if (makeCopy) {
+                var segment = new ReadOnlyTensorSegment(matrix.ToArray());
+                for (uint i = 0; i < matrix.RowCount; i++)
+                    ret[i] = new ReadOnlyTensorSegmentWrapper(segment, i, matrix.RowCount, matrix.ColumnCount).ToReadOnlyVector();
+            }
+            else {
+                for (uint i = 0; i < matrix.RowCount; i++)
+                    ret[i] = matrix.GetReadOnlyRow(i).ToReadOnlyVector();
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Returns all columns as read only vectors
+        /// </summary>
+        /// <param name="makeCopy">True to make a copy of each column</param>
+        /// <returns></returns>
+        public static IReadOnlyVector[] AllColumnsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)
+        {
+            var ret = new IReadOnlyVector[matrix.ColumnCount];
+            if (makeCopy) {
+                var segment = new MutableTensorSegment(matrix.ToArray());
+                for (uint i = 0; i < matrix.ColumnCount; i++)
+                    ret[i] = new MutableTensorSegmentWrapper(segment, i * matrix.RowCount, 1, matrix.RowCount).ToReadOnlyVector();
+            }
+            else {
+                for (uint i = 0; i < matrix.ColumnCount; i++)
+                    ret[i] = matrix.GetReadOnlyColumn(i).ToReadOnlyVector();
+            }
+
+            return ret;
         }
     }
 }

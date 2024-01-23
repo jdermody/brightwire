@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -12,11 +14,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
         readonly uint _inputColumnIndex;
+        //readonly IReadOnlyBuffer<TableRow<ReadOnlyVector, ReadOnlyVector>> _buffer;
 
         public VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
+            //_buffer = dataTable.GetRowsBuffer<ReadOnlyVector, ReadOnlyVector>();
+
             var firstRow = dataTable[0];
             var input = (IReadOnlyVector)firstRow[_inputColumnIndex = _featureColumnIndices.Single()];
             var output = (IReadOnlyVector)firstRow[_targetColumnIndex];

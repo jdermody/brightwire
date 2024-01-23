@@ -14,7 +14,7 @@ namespace BrightData.LinearAlgebra
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="LAP"></typeparam>
-    public abstract class BrightTensorBase<T, LAP> : ITensor<T>
+    public abstract class MutableTensorBase<T, LAP> : ITensor<T>
         where T : ITensor
         where LAP : LinearAlgebraProvider
     {
@@ -23,7 +23,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         protected LAP Lap;
 
-        internal BrightTensorBase(INumericSegment<float> data, LAP lap)
+        internal MutableTensorBase(INumericSegment<float> data, LAP lap)
         {
             Segment = data;
             Segment.AddRef();

@@ -6,8 +6,6 @@ using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
 {
-    internal delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
-
     /// <summary>
     /// Adapts a buffer with a block mapper function
     /// </summary>
@@ -20,9 +18,6 @@ namespace BrightData.Buffer.ReadOnly.Helper
         where IT : notnull
         where T : notnull
     {
-        //ReadOnlyMemory<T>? _lastBlock;
-        //uint               _lastBlockIndex;
-
         public uint BlockSize => index.BlockSize;
         public uint BlockCount => index.BlockCount;
         public Type DataType => typeof(T);
@@ -41,13 +36,8 @@ namespace BrightData.Buffer.ReadOnly.Helper
         {
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;
-            //if (_lastBlockIndex == blockIndex && _lastBlock.HasValue)
-            //    return _lastBlock.Value;
-
-            //_lastBlockIndex = blockIndex;
             var indices = await index.GetTypedBlock(blockIndex);
             var ret = mapper(indices.Span);
-            //_lastBlock = ret;
             return ret;
         }
 

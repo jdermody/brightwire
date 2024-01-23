@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -228,6 +229,32 @@ namespace BrightData.DataTable
         }
 
         static Task WriteDataRange<T, IT>(IReadOnlyBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
+            where T : IHaveSize, IHaveReadOnlyTensorSegment<IT>
+            where IT : unmanaged, INumber<IT>
+        {
+            return Convert(buffer, stream, (in T from, ref DataRangeColumnType to) => {
+                to.StartIndex = indices.Size;
+                to.Size = from.Size;
+
+                var segment = from.ReadOnlySegment;
+                var contiguous = segment.Contiguous;
+                if(contiguous is not null)
+                    indices.Append(contiguous.ReadOnlySpan);
+                else {
+                    var temp = SpanOwner<IT>.Empty;
+                    var span = segment.GetSpan(ref temp, out var wasTempUsed);
+                    try {
+                        indices.Append(span);
+                    }
+                    finally {
+                        if(wasTempUsed)
+                            temp.Dispose();
+                    }
+                }
+            });
+        }
+
+        static Task WriteContiguousDataRange<T, IT>(IReadOnlyBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
             where T : IHaveSize, IHaveReadOnlyContiguousSpan<IT>
             where IT : unmanaged
         {
@@ -266,9 +293,9 @@ namespace BrightData.DataTable
             }
         }
 
-        static Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
-        static Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
-        static Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteDataRange(buffer, indices, stream);
+        static Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
+        static Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
+        static Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
         static Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
 
         static Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)

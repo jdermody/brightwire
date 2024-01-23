@@ -110,7 +110,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
                     return (
-                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
                     );
                 })
@@ -184,7 +184,7 @@ namespace ExampleCode.DataTableTrainers
                 .Select(i => {
                     var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
                     return (
-                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
                         Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
                     );
                 })

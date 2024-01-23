@@ -391,12 +391,6 @@
         <member name="M:BrightData.Cuda.CudaMatrix.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.AllColumnsAsReadOnly(System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.AllRowsAsReadOnly(System.Boolean)">
-            <inheritdoc />
-        </member>
         <member name="M:BrightData.Cuda.CudaMatrix.GetColumnVector(System.UInt32)">
             <inheritdoc />
         </member>
@@ -513,6 +507,21 @@
             <param name="lap"></param>
             <param name="cuda"></param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.Cuda.Helper.CudaTensorDataCache">
+            <summary>
+            Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
+            </summary>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.#ctor(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.IDataTable)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="lap"></param>
+            <param name="table"></param>
+        </member>
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Dispose">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.Helper.DeviceMemoryBlock">
             <summary>

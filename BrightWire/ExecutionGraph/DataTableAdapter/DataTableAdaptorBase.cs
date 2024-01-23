@@ -105,12 +105,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = []);
-                    temp.Add(input.GetRow(i).ReadOnlySegment);
+                    temp.Add(input.GetReadOnlyRow(i));
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
                             outputData.Add(i, temp = []);
-                        temp.Add(output.GetRow(i).ReadOnlySegment);
+                        temp.Add(output.GetReadOnlyRow(i));
                     }
                 }
             }

@@ -1,13 +1,17 @@
 ﻿using BrightData.Helper;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
+using CommunityToolkit.HighPerformance;
+using System.Runtime.CompilerServices;
 
 namespace BrightData
 {
@@ -25,6 +29,84 @@ namespace BrightData
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
         }
+
+        /// <summary>
+        /// Returns the index with the minimum value from this tensor segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(this IReadOnlyNumericSegment<float> segment) => segment.GetReadOnlySpan(x => x.GetMinAndMaxValues());
+
+        /// <summary>
+        /// Returns the index with the minimum value from this tensor segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMinimumIndex(this IReadOnlyNumericSegment<float> segment) => GetMinAndMaxValues(segment).MinIndex;
+
+        /// <summary>
+        /// Returns the index with the maximum value from this tensor segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static uint GetMaximumIndex(this IReadOnlyNumericSegment<float> segment) => GetMinAndMaxValues(segment).MaxIndex;
+
+        /// <summary>
+        /// Sums all values
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float Sum(this IReadOnlyNumericSegment<float> segment) => segment.GetReadOnlySpan(x => x.Sum());
+
+        /// <summary>
+        /// Finds cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite) between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float CosineDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => vector.GetReadOnlySpans(other, (x,y) => x.CosineDistance(y));
+
+        /// <summary>
+        /// Finds the euclidean distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float EuclideanDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => vector.GetReadOnlySpans(other, (x,y) => x.EuclideanDistance(y));
+
+        /// <summary>
+        /// Finds the manhattan distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float ManhattanDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => vector.GetReadOnlySpans(other, (x,y) => x.ManhattanDistance(y));
+
+        /// <summary>
+        /// Finds the mean squared distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float MeanSquaredDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => vector.GetReadOnlySpans(other, (x,y) => x.MeanSquaredDistance(y));
+
+        /// <summary>
+        /// Finds the squared euclidean distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float SquaredEuclideanDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other) => vector.GetReadOnlySpans(other, (x,y) => x.SquaredEuclideanDistance(y));
+
+        /// <summary>
+        /// Finds the distance between this and another vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float FindDistance(this IReadOnlyNumericSegment<float> vector, IReadOnlyNumericSegment<float> other, DistanceMetric distance) => vector.GetReadOnlySpans(other, (x,y) => x.FindDistance(y, distance));
 
         /// <summary>
         /// Splits this tensor segment into multiple contiguous tensor segments
@@ -93,7 +175,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this IReadOnlyNumericSegment<float> segment) => new ReadOnlyVectorWrapper(segment);
+        public static IReadOnlyVector ToReadOnlyVector(this IReadOnlyNumericSegment<float> segment) => new ReadOnlyVector(segment);
 
         /// <summary>
         /// Creates a vector from a tensor segment
@@ -316,6 +398,54 @@ namespace BrightData
             }
         }
 
-        
+        /// <summary>
+        /// Writes the numeric segment as bytes to the binary writer
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="segment"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void Write<T>(this BinaryWriter writer, IReadOnlyNumericSegment<T> segment) where T : unmanaged, INumber<T>
+        {
+            var contiguous = segment.Contiguous;
+            if(contiguous is not null)
+                writer.Write(contiguous.ReadOnlySpan.AsBytes());
+            else {
+                var temp = SpanOwner<T>.Empty;
+                var wasTempUsed = false;
+                try {
+                    var span = segment.GetSpan(ref temp, out wasTempUsed);
+                    writer.Write(span.AsBytes());
+                }
+                finally {
+                    if (wasTempUsed)
+                        temp.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the data in the segment as a span of bytes
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ReadOnlySpan<byte> AsBytes<T>(this IReadOnlyNumericSegment<T> segment) where T : unmanaged, INumber<T>
+        {
+            var contiguous = segment.Contiguous;
+            if(contiguous is not null)
+                return contiguous.ReadOnlySpan.AsBytes();
+            else {
+                var temp = SpanOwner<T>.Empty;
+                var wasTempUsed = false;
+                try {
+                    var span = segment.GetSpan(ref temp, out wasTempUsed);
+                    return span.AsBytes().ToArray();
+                }
+                finally {
+                    if (wasTempUsed)
+                        temp.Dispose();
+                }
+            }
+        }
     }
 }

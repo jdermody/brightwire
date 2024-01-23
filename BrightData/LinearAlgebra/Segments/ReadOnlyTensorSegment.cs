@@ -4,7 +4,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.Segments
 {
-    internal class ReadOnlyMemoryTensorSegment(ReadOnlyMemory<float> data, uint offset = 0, uint? size = null)
+    internal class ReadOnlyTensorSegment(ReadOnlyMemory<float> data, uint offset = 0, uint? size = null)
         : IReadOnlyNumericSegment<float>, IHaveReadOnlyContiguousSpan<float>
     {
         public int AddRef() => 1;

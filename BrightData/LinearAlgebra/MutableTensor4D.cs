@@ -7,7 +7,7 @@ namespace BrightData.LinearAlgebra
     /// Row major 4D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class BrightTensor4D<LAP> : BrightTensorBase<ITensor4D, LAP>, ITensor4D
+    public class MutableTensor4D<LAP> : MutableTensorBase<ITensor4D, LAP>, ITensor4D
         where LAP: LinearAlgebraProvider
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
-        public BrightTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public MutableTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Count = count;
             Depth = depth;
@@ -31,7 +31,7 @@ namespace BrightData.LinearAlgebra
         }
         
         /// <inheritdoc />
-        public override ITensor4D Create(INumericSegment<float> segment) => new BrightTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
+        public override ITensor4D Create(INumericSegment<float> segment) => new MutableTensor4D<LAP>(segment, Count, Depth, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
         public uint Count { get; private set; }
@@ -156,8 +156,8 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public IReadOnlyTensor3D GetTensorAsReadOnly(uint index) => new ReadOnlyTensor3DWrapper(Tensor(index), Depth, RowCount, ColumnCount);
-        TensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
+        public IReadOnlyTensor3D GetTensorAsReadOnly(uint index) => new ReadOnlyTensor3D(Tensor(index), Depth, RowCount, ColumnCount);
+        MutableTensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
@@ -170,7 +170,7 @@ namespace BrightData.LinearAlgebra
     /// <summary>
     /// 4D tensor
     /// </summary>
-    public class BrightTensor4D : BrightTensor4D<LinearAlgebraProvider>
+    public class BrightTensor4D : MutableTensor4D<LinearAlgebraProvider>
     {
         /// <summary>
         /// Constructor
