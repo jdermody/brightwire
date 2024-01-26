@@ -306,7 +306,7 @@ namespace BrightData
         /// <returns></returns>
         public static Task<TableRow[]> Head(this IDataTable dataTable, uint size = 10) => dataTable
             .EnumerateRows()
-            .ToArray(size)
+            .ToArrayAsync(size)
         ;
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="filePath">File path on disk</param>
         /// <returns></returns>
-        public static IDataTable LoadTable(this BrightDataContext context, string filePath) => new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
+        public static Task<IDataTable> LoadTable(this BrightDataContext context, string filePath) => ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
 
         /// <summary>
         /// Sets the target column across an array of metadata
@@ -447,7 +447,7 @@ namespace BrightData
                 table.WriteRowsTo(trainingStream, training), 
                 table.WriteRowsTo(testStream, test)
             );
-            return (context.LoadTableFromStream(trainingStream), context.LoadTableFromStream(testStream));
+            return (await context.LoadTableFromStream(trainingStream), await context.LoadTableFromStream(testStream));
         }
 
         /// <summary>
@@ -618,7 +618,7 @@ namespace BrightData
             }
 
             // create the input vectoriser
-            var inputVectoriser = await dataTable.GetVectoriser(oneHotEncodeToMultipleColumns, columnIndexList.ToArray());
+            var inputVectoriser = await dataTable.GetVectoriser(oneHotEncodeToMultipleColumns, [.. columnIndexList]);
             builder.CreateFixedSizeVectorColumn(inputVectoriser.OutputSize, "Features");
             if (outputVectoriser != null)
                 builder.CreateFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").MetaData.SetTarget(true);
@@ -634,7 +634,7 @@ namespace BrightData
 
             var stream = GetMemoryOrFileStream(filePath);
             await builder.WriteTo(stream);
-            return LoadTableFromStream(dataTable.Context, stream);
+            return await LoadTableFromStream(dataTable.Context, stream);
         }
 
         /// <summary>
@@ -810,7 +810,7 @@ namespace BrightData
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await builder.WriteTo(stream);
-            return LoadTableFromStream(table.Context, stream);
+            return await LoadTableFromStream(table.Context, stream);
         }
 
         /// <summary>
@@ -833,7 +833,7 @@ namespace BrightData
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await builder.WriteTo(stream);
-            return LoadTableFromStream(table.Context, stream);
+            return await LoadTableFromStream(table.Context, stream);
 
             static IOperation CopyToBuffers(IDataTable dataTable, ICompositeBuffer[] buffers)
             {
@@ -852,7 +852,7 @@ namespace BrightData
         {
             await using var stream = GetMemoryOrFileStream(filePath);
             await dataTable.WriteRowsTo(stream, rowIndices);
-            return dataTable.Context.LoadTableFromStream(stream);
+            return await dataTable.Context.LoadTableFromStream(stream);
         }
 
         /// <summary>
@@ -866,7 +866,7 @@ namespace BrightData
         {
             var stream = GetMemoryOrFileStream(filePath);
             await table.WriteColumnsTo(stream, columnIndices);
-            return table.Context.LoadTableFromStream(stream);
+            return await table.Context.LoadTableFromStream(stream);
         }
 
         /// <summary>
@@ -926,7 +926,7 @@ namespace BrightData
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
-            return LoadTableFromStream(dataTable.Context, stream);
+            return await LoadTableFromStream(dataTable.Context, stream);
         }
 
         /// <summary>
@@ -957,7 +957,7 @@ namespace BrightData
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
-            return LoadTableFromStream(dataTable.Context, stream);
+            return await LoadTableFromStream(dataTable.Context, stream);
         }
 
         /// <summary>
@@ -1070,7 +1070,7 @@ namespace BrightData
 
             await using var stream = GetMemoryOrFileStream(filePath);
             await writer.WriteTo(stream);
-            return LoadTableFromStream(dataTable.Context, stream);
+            return await LoadTableFromStream(dataTable.Context, stream);
         }
 
         /// <summary>
@@ -1142,7 +1142,7 @@ namespace BrightData
                 await writer.WriteTo(outputStream);
                 
                 outputStream.Seek(0, SeekOrigin.Begin);
-                ret[index++] = (label, LoadTableFromStream(dataTable.Context, outputStream));
+                ret[index++] = (label, await LoadTableFromStream(dataTable.Context, outputStream));
             }
 
             return ret;
@@ -1220,7 +1220,7 @@ namespace BrightData
         public static async Task<IDataTable> BuildDataTable(this BrightDataContext context, MetaData tableMetaData, IReadOnlyBufferWithMetaData[] columns, Stream stream)
         {
             await context.WriteDataTable(tableMetaData, columns, stream);
-            return context.LoadTableFromStream(stream);
+            return await context.LoadTableFromStream(stream);
         }
 
         /// <summary>
@@ -1296,7 +1296,7 @@ namespace BrightData
             var builder = new ColumnOrientedDataTableWriter();
             await builder.Write(tableMetaData ?? new(), buffers, ret);
             var memory = new Memory<byte>(ret.GetBuffer(), 0, (int)ret.Length);
-            return new ColumnOrientedDataTable(context, new MemoryByteBlockReader(memory, ret));
+            return await ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(memory, ret));
         }
 
         /// <summary>
@@ -1317,7 +1317,7 @@ namespace BrightData
             var builder = new ColumnOrientedDataTableWriter();
             await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
             await builder.Write(tableMetaData ?? new(), buffers, stream);
-            return new ColumnOrientedDataTable(context, new FileByteBlockReader(filePath));
+            return await ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
         }
 
         /// <summary>
@@ -1326,17 +1326,17 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public static IDataTable LoadTableFromStream(this BrightDataContext context, Stream stream)
+        public static Task<IDataTable> LoadTableFromStream(this BrightDataContext context, Stream stream)
         {
             if (stream is FileStream fileStream) {
                 var path = fileStream.Name;
                 fileStream.Close();
-                return new ColumnOrientedDataTable(context, new FileByteBlockReader(path));
+                return ColumnOrientedDataTable.Load(context, new FileByteBlockReader(path));
             }
 
             if(stream is MemoryStream memoryStream)
-                return new ColumnOrientedDataTable(context, new MemoryByteBlockReader(memoryStream.GetBuffer()));
-            return new ColumnOrientedDataTable(context, new StreamByteBlockReader(stream));
+                return ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(memoryStream.GetBuffer()));
+            return ColumnOrientedDataTable.Load(context, new StreamByteBlockReader(stream));
         }
 
         /// <summary>
@@ -1728,7 +1728,7 @@ namespace BrightData
                 ? new MemoryStream()
                 : new FileStream(filePath, FileMode.Create, FileAccess.Write);
             await builder.WriteTo(stream);
-            return LoadTableFromStream(builder.Context, stream);
+            return await LoadTableFromStream(builder.Context, stream);
         }
 
         /// <summary>

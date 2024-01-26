@@ -144,6 +144,17 @@ namespace BrightData
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static SequenceReader<T> AsSequenceReader<T>(this ReadOnlySequence<T> sequence) where T : unmanaged, IEquatable<T>
+        {
+            return new SequenceReader<T>(sequence);
+        }
+
+        /// <summary>
         /// Retrieves an item from the buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -167,7 +178,7 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
         {
-            var blocks = indices.Select(x => (Index: x, BlockIndex: x / buffer.BlockSize, RelativeIndex: x % buffer.BlockSize))
+            var blocks = indices.Select((x, i) => (TargetIndex: (uint)i, BlockIndex: x / buffer.BlockSize, RelativeIndex: x % buffer.BlockSize))
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
@@ -181,61 +192,61 @@ namespace BrightData
             static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint Index, uint BlockIndex, uint RelativeIndex)> list, T[] output)
             {
                 var span = data.Span;
-                foreach (var (index, _, relativeIndex) in list)
-                    output[relativeIndex] = span[(int)index];
+                foreach (var (targetIndex, _, relativeIndex) in list)
+                    output[targetIndex] = span[(int)relativeIndex];
             }
         }
 
-        /// <summary>
-        /// Buffer iterator
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public ref struct ReadOnlyBufferIterator<T> where T: notnull
-        {
-            readonly IReadOnlyBuffer<T> _buffer;
-            ReadOnlyMemory<T> _currentBlock = ReadOnlyMemory<T>.Empty;
-            uint _blockIndex = 0, _position = 0;
+        ///// <summary>
+        ///// Buffer iterator
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        //public ref struct ReadOnlyBufferIterator<T> where T: notnull
+        //{
+        //    readonly IReadOnlyBuffer<T> _buffer;
+        //    ReadOnlyMemory<T> _currentBlock = ReadOnlyMemory<T>.Empty;
+        //    uint _blockIndex = 0, _position = 0;
 
-            internal ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
+        //    internal ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
 
-            /// <summary>
-            /// Advances to the next position
-            /// </summary>
-            /// <returns></returns>
-            public bool MoveNext()
-            {
-                if (++_position < _currentBlock.Length)
-                    return true;
+        //    /// <summary>
+        //    /// Advances to the next position
+        //    /// </summary>
+        //    /// <returns></returns>
+        //    public bool MoveNext()
+        //    {
+        //        if (++_position < _currentBlock.Length)
+        //            return true;
 
-                while(_blockIndex < _buffer.BlockCount) {
-                    _currentBlock = _buffer.GetTypedBlock(_blockIndex++).Result;
-                    if (_currentBlock.Length > 0) {
-                        _position = 0;
-                        return true;
-                    }
-                }
-                return false;
-            }
+        //        while(_blockIndex < _buffer.BlockCount) {
+        //            _currentBlock = _buffer.GetTypedBlock(_blockIndex++).Result;
+        //            if (_currentBlock.Length > 0) {
+        //                _position = 0;
+        //                return true;
+        //            }
+        //        }
+        //        return false;
+        //    }
 
-            /// <summary>
-            /// Current iterator value
-            /// </summary>
-            public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
+        //    /// <summary>
+        //    /// Current iterator value
+        //    /// </summary>
+        //    public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
 
-            /// <summary>
-            /// Converts to enumerator
-            /// </summary>
-            /// <returns></returns>
-            public readonly ReadOnlyBufferIterator<T> GetEnumerator() => this;
-        }
+        //    /// <summary>
+        //    /// Converts to enumerator
+        //    /// </summary>
+        //    /// <returns></returns>
+        //    public readonly ReadOnlyBufferIterator<T> GetEnumerator() => this;
+        //}
 
-        /// <summary>
-        /// Creates an iterator for the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static ReadOnlyBufferIterator<T> GetEnumerator<T>(this IReadOnlyBuffer<T> buffer) where T: notnull => new(buffer);
+        ///// <summary>
+        ///// Creates an iterator for the buffer
+        ///// </summary>
+        ///// <param name="buffer"></param>
+        ///// <typeparam name="T"></typeparam>
+        ///// <returns></returns>
+        //public static ReadOnlyBufferIterator<T> GetEnumerator<T>(this IReadOnlyBuffer<T> buffer) where T: notnull => new(buffer);
 
         /// <summary>
         /// Converts the buffer to an array

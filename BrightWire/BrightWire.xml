@@ -359,7 +359,15 @@
             Adapts data tables that classify tensors (volumes)
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.TypedRowBasedDataTableAdapterBase`2.GetRows(System.UInt32[])">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter">
+            <summary>
+            Segment table adapter for tables with vector data
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter.#ctor(BrightData.IDataTable,System.UInt32[])">
             <summary>
             Segment table adapter for tables with vector data
             </summary>
@@ -388,11 +396,19 @@
             <summary>
             Graph engine execution context
             </summary>
+            <remarks>
+            Constructor
+            </remarks>
+            <param name="graphEngine">Graph engine</param>
+            <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.#ctor(BrightWire.IGraphEngine,System.Boolean)">
             <summary>
-            Constructor
+            Graph engine execution context
             </summary>
+            <remarks>
+            Constructor
+            </remarks>
             <param name="graphEngine">Graph engine</param>
             <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
         </member>
@@ -408,14 +424,14 @@
             </summary>
             <param name="operations"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphContext})">
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterContinuation(BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,System.Action{BrightWire.IGraphContext})">
             <summary>
             Registers a continuation that will be executed after the current sequence has been processed in full
             </summary>
             <param name="sequence"></param>
             <param name="callback"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.IMiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphContext,BrightWire.IGraphData},System.Action{BrightWire.IGraphContext[]})">
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.RegisterAdditionalMiniBatch(BrightWire.ExecutionGraph.Helper.MiniBatch,BrightWire.IGraphData,System.Action{BrightWire.IGraphContext,BrightWire.IGraphData},System.Action{BrightWire.IGraphContext[]})">
             <summary>
             Registers an additional mini batch to execute after the current mini batch has completed
             </summary>
@@ -1387,6 +1403,21 @@
             <summary>
             Information about the current mini batch
             </summary>
+            <remarks>
+            Creates a sequential mini batch
+            </remarks>
+            <param name="rows">The indices of the rows in this mini batch</param>
+            <param name="dataSource">Associated data source</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource)">
+            <summary>
+            Information about the current mini batch
+            </summary>
+            <remarks>
+            Creates a sequential mini batch
+            </remarks>
+            <param name="rows">The indices of the rows in this mini batch</param>
+            <param name="dataSource">Associated data source</param>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence">
             <summary>
@@ -1398,10 +1429,40 @@
             A sequence within a mini batch
             </summary>
         </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.MiniBatch">
+            <summary>
+            Mini batch
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.SequenceIndex">
+            <summary>
+            Index of the sequence
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Type">
+            <summary>
+            Sequence type
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Input">
+            <summary>
+            Input data
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Target">
+            <summary>
+            Training target data
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.GraphContext">
+            <summary>
+            Graph sequence context that has been executed for this sequence
+            </summary>
+        </member>
         <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData,BrightWire.IGraphData)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData,BrightWire.IGraphData,System.Boolean,BrightWire.MiniBatchSequenceType,System.UInt32)">
             <summary>
             Creates a non sequential mini batch
             </summary>
@@ -1409,13 +1470,9 @@
             <param name="dataSource">Associated data source</param>
             <param name="input">Mini batch input data</param>
             <param name="output">Expected output data (when training, otherwise null)</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource)">
-            <summary>
-            Creates a sequential mini batch
-            </summary>
-            <param name="rows">The indices of the rows in this mini batch</param>
-            <param name="dataSource">Associated data source</param>
+            <param name="isSequential"></param>
+            <param name="type"></param>
+            <param name="sequenceIndex"></param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Add(BrightWire.MiniBatchSequenceType,BrightWire.IGraphData,BrightWire.IGraphData)">
             <summary>
@@ -2732,7 +2789,7 @@
             </summary>
             <param name="tensor">Tensor to convert</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetGraphContexts(BrightWire.IMiniBatch)">
+        <member name="M:BrightWire.ExtensionMethods.GetGraphContexts(BrightWire.ExecutionGraph.Helper.MiniBatch)">
             <summary>
             Finds the graph sequence contexts that have been executed in this mini batch
             </summary>
@@ -3175,7 +3232,7 @@
             A type that can create a graph context
             </summary>
         </member>
-        <member name="M:BrightWire.ICreateGraphContext.Create(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.IMiniBatchSequence,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.ICreateGraphContext.Create(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,BrightWire.ILearningContext)">
             <summary>
             Creates a graph context
             </summary>
@@ -3281,109 +3338,6 @@
         <member name="F:BrightWire.MiniBatchSequenceType.SequenceEnd">
             <summary>
             End of a sequence
-            </summary>
-        </member>
-        <member name="T:BrightWire.IMiniBatchSequence">
-            <summary>
-            A sequence within a mini batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.MiniBatch">
-            <summary>
-            Mini batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.SequenceIndex">
-            <summary>
-            Index of the sequence
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.Type">
-            <summary>
-            Sequence type
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.Input">
-            <summary>
-            Input data
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.Target">
-            <summary>
-            Training target data
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatchSequence.GraphContext">
-            <summary>
-            Graph sequence context that has been executed for this sequence
-            </summary>
-        </member>
-        <member name="T:BrightWire.IMiniBatch">
-            <summary>
-            Information about the current mini batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.Rows">
-            <summary>
-            Row indexes of the current batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.DataSource">
-            <summary>
-            Segment source
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.IsSequential">
-            <summary>
-            True if the data is sequential
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.BatchSize">
-            <summary>
-            Number of items in the batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.CurrentSequence">
-            <summary>
-            Current sequence (non sequential batches have a single sequence)
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.HasNextSequence">
-            <summary>
-            True if there is another item in the sequence after the current item
-            </summary>
-        </member>
-        <member name="M:BrightWire.IMiniBatch.GetNextSequence">
-            <summary>
-            Gets the next item in the sequence
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.SequenceCount">
-            <summary>
-            Gets the length of the sequence
-            </summary>
-        </member>
-        <member name="M:BrightWire.IMiniBatch.GetSequenceAtIndex(System.UInt32)">
-            <summary>
-            Gets a sequence item
-            </summary>
-            <param name="index">The index to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.IMiniBatch.Reset">
-            <summary>
-            Resets the sequence iterator
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.NextMiniBatch">
-            <summary>
-            Subsequent mini bach
-            </summary>
-        </member>
-        <member name="P:BrightWire.IMiniBatch.PreviousMiniBatch">
-            <summary>
-            Previous mini batch
             </summary>
         </member>
         <member name="T:BrightWire.IGraphOperation">
@@ -4772,7 +4726,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.IMatrix,System.Boolean)">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,BrightData.IMatrix,System.Boolean)">
             <summary>
             Constructor
             </summary>

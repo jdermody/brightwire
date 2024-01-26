@@ -4,6 +4,7 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
+using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 
@@ -44,12 +45,12 @@ namespace BrightWire.ExecutionGraph.Engine
 		//	_executionResults.Clear();
   //      }
 
-        public ExecutionGraphSequenceContext CreateContext(GraphExecutionContext executionContext, IMiniBatchSequence sequence) => new(executionContext, sequence);
+        public ExecutionGraphSequenceContext CreateContext(GraphExecutionContext executionContext, MiniBatch.Sequence sequence) => new(executionContext, sequence);
 
-        IEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation)
+        async IAsyncEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation)
         {
-            var batch = operation.GetMiniBatch();
-            var table = new Dictionary<IMiniBatchSequence, IGraphContext>();
+            var batch = await operation.GetMiniBatch();
+            var table = new Dictionary<MiniBatch.Sequence, IGraphContext>();
 
             if (batch.IsSequential) {
                 while (batch.GetNextSequence() is { } curr) {
@@ -95,7 +96,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public GraphExecutionContext CreateExecutionContext() => new(this);
 
-        public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false)
+        public async IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = dataSource;
@@ -108,7 +109,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
-                foreach (var context in Execute(executionContext, operation)) {
+                await foreach (var context in Execute(executionContext, operation)) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
@@ -124,7 +125,7 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PopScope();
         }
 
-        public IEnumerable<ExecutionResult> Execute(float[] input)
+        public async IAsyncEnumerable<ExecutionResult> Execute(float[] input)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
@@ -135,7 +136,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
-                using var context = Execute(executionContext, operation).Single();
+                using var context = (await Execute(executionContext, operation).First());
                 yield return context.Results.Single();
                 LinearAlgebraProvider.PopScope();
             }
@@ -165,7 +166,7 @@ namespace BrightWire.ExecutionGraph.Engine
         //    return ret;
         //}
 
-        public IEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
+        public async IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SequentialRowDataSource(input, LinearAlgebraProvider);
@@ -176,7 +177,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
-                foreach (var context in Execute(executionContext, operation)) {
+                await foreach (var context in Execute(executionContext, operation)) {
                     yield return context.Results.Single();
                     context.Dispose();
                 }
@@ -188,7 +189,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = null;
         }
 
-        public IEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
+        public async IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, true, sequenceType, sequenceIndex);
@@ -197,13 +198,13 @@ namespace BrightWire.ExecutionGraph.Engine
             executionContext.Add(provider.GetMiniBatches(1));
 
             while (executionContext.GetNextOperation() is { } operation) {
-                using var context = Execute(executionContext, operation).Single();
+                using var context = (await Execute(executionContext, operation).First());
                 yield return context.Results.Single();
             }
             LinearAlgebraProvider.PopScope();
             DataSource = null;
         }
 
-        IGraphContext ICreateGraphContext.Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext) => CreateContext(executionContext, sequence);
+        IGraphContext ICreateGraphContext.Create(GraphExecutionContext executionContext, MiniBatch.Sequence sequence, ILearningContext? learningContext) => CreateContext(executionContext, sequence);
     }
 }

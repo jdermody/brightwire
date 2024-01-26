@@ -205,7 +205,7 @@ namespace BrightWire
         /// <param name="gradientDescent"></param>
         /// <param name="weightInitialisation"></param>
         /// <returns></returns>
-        public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
+        public static async Task<ExecutionGraphModel?> TrainSimpleNeuralNetwork(this GraphFactory graph,
             IDataTable trainingTable,
             IDataTable testTable,
             IErrorMetric errorMetric,
@@ -245,8 +245,8 @@ namespace BrightWire
             // train the network, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
-            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
-            engine.Test(testData);
+            await engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            await engine.Test(testData);
             return bestGraph;
         }
     }

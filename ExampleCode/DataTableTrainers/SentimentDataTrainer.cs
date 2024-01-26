@@ -107,7 +107,7 @@ namespace ExampleCode.DataTableTrainers
 
             Console.WriteLine("Training neural network classifier...");
             GraphModel? bestNetwork = null;
-            engine.Train(numIterations, testData, network => bestNetwork = network);
+            await engine.Train(numIterations, testData, network => bestNetwork = network);
             return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, engine);
         }
 
@@ -160,14 +160,14 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine("Training stacked neural network classifier...");
             GraphModel? bestStackedNetwork = null;
             engine.Reset();
-            engine.Train(20, testData, network => bestStackedNetwork = network);
+            await engine.Train(20, testData, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
 
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -198,7 +198,7 @@ namespace ExampleCode.DataTableTrainers
             ;
         }
 
-        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -221,9 +221,9 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildInMemory();
         }
 
-        static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
+        static StringIndexer GetIndexer() => new("negative", "positive");
 
-        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
+        public async Task TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
             var empty = new float[102];
             Console.WriteLine("Enter some text to test the classifiers...");
@@ -257,7 +257,7 @@ namespace ExampleCode.DataTableTrainers
                         word[101] = mc == "positive" ? 1f : 0f;
                     }
 
-                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output[0]))) {
+                    foreach (var (token, result) in tokens.Zip(await neuralNetwork.ExecuteSequential(embeddings.ToArray()).ToListAsync(), (t, r) => (Token: t, Result: r.Output[0]))) {
                         using var softmax = result.ReadOnlySegment.GetReadOnlySpan(x => x.Softmax());
                         var label = softmax.Span.AsReadOnly().MaximumIndex() == 0 ? "positive" : "negative";
                         Console.WriteLine($"{token}: {label}");
@@ -301,7 +301,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(10, test, bn => bestGraph = bn.Graph);
+            await engine.Train(10, test, bn => bestGraph = bn.Graph);
             return engine.CreateExecutionEngine(bestGraph);
         }
 

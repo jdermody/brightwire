@@ -67,7 +67,7 @@ namespace ExampleCode.DataTableTrainers
             return await ret.BuildInMemory();
         }
 
-        public void TrainNeuralNetwork()
+        public async Task TrainNeuralNetwork()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -100,11 +100,11 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(trainingIterations, testData, model => bestGraph = model.Graph, 50);
+            await engine.Train(trainingIterations, testData, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
 
             // output the results
             var rowIndex = 0;
@@ -200,7 +200,7 @@ namespace ExampleCode.DataTableTrainers
                 ;
 
                 // train the network
-                engine.Train(trainingIterations, testData, null, 200);
+                await engine.Train(trainingIterations, testData, null, 200);
             }
         }
     }

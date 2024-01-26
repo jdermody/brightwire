@@ -34,27 +34,27 @@ namespace ExampleCode
             // IMPORTANT: set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //if (useMkl && useCuda)
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //else if (useMkl)
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
-            //else
-            //    PerformanceTest.Run(new LinearAlgebraProvider(context));
+            if (useMkl && useCuda)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new MklLinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else if (useMkl)
+                PerformanceTest.Run(new LinearAlgebraProvider(context), new CudaLinearAlgebraProvider(context));
+            else
+                PerformanceTest.Run(new LinearAlgebraProvider(context));
 
-            //await Xor(context, useMkl);
-            //await IrisClassification(context, useMkl);
-            //await IrisClustering(context, useMkl);
-            //await MarkovChains(context, useMkl);
-            //await TextClustering(context, useMkl);
-            //await IntegerAddition(context, useMkl);
-            //await ReberPrediction(context, useMkl);
-            //await OneToMany(context, useMkl);
-            //await ManyToOne(context, useMkl);
-            //await SequenceToSequence(context, useMkl);
-            //await StockData(context, useMkl, useCuda);
-            //await PredictBicyclesWithNeuralNetwork(context, useMkl);
-            //await MultiLabelSingleClassifier(context, useMkl);
-            //await MultiLabelMultiClassifiers(context, useMkl);
+            await Xor(context, useMkl);
+            await IrisClassification(context, useMkl);
+            await IrisClustering(context, useMkl);
+            await MarkovChains(context, useMkl);
+            await TextClustering(context, useMkl);
+            await IntegerAddition(context, useMkl);
+            await ReberPrediction(context, useMkl);
+            await OneToMany(context, useMkl);
+            await ManyToOne(context, useMkl);
+            await SequenceToSequence(context, useMkl);
+            await StockData(context, useMkl, useCuda);
+            await PredictBicyclesWithNeuralNetwork(context, useMkl);
+            await MultiLabelSingleClassifier(context, useMkl);
+            await MultiLabelMultiClassifiers(context, useMkl);
             await MnistFeedForward(context, useMkl);
             await MnistConvolutional(context, useMkl, useCuda);
             await TrainIncomePrediction(context, useMkl);
@@ -103,7 +103,7 @@ namespace ExampleCode
             await iris.TrainRandomForest(500, 7);
             await iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
+            await iris.TrainSigmoidNeuralNetwork(32, 200, 0.1f, 64, 50);
         }
 
         static async Task IrisClustering(BrightDataContext context, bool useMkl)
@@ -147,9 +147,9 @@ namespace ExampleCode
 
         static async Task MnistFeedForward(BrightDataContext context, bool useMkl)
         {
-            Start(context, useMkl, true);
+            Start(context, useMkl);
             using var mnist = await context.Mnist();
-            context.LinearAlgebraProvider.BindThread();
+            //context.LinearAlgebraProvider.BindThread();
             await mnist.TrainFeedForwardNeuralNetwork();
         }
 
@@ -174,7 +174,7 @@ namespace ExampleCode
 
             var recurrent = await sentiment.TrainBiLstm(bernoulli, multinomial);
 
-            sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
+            await sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
         static async Task TextClustering(BrightDataContext context, bool useMkl)
@@ -199,29 +199,29 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var reber = await context.ReberSequencePrediction(extended: true, minLength:10, maxLength:10);
-            var engine = reber.TrainLstm();
-            ReberSequenceTrainer.GenerateSequences(engine);
+            var engine = await reber.TrainLstm();
+            await ReberSequenceTrainer.GenerateSequences(engine);
         }
 
         static async Task OneToMany(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             using var sequences = await context.OneToMany();
-            sequences.TrainOneToMany();
+            await sequences.TrainOneToMany();
         }
 
         static async Task ManyToOne(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             using var sequences = await context.ManyToOne();
-            sequences.TrainManyToOne();
+            await sequences.TrainManyToOne();
         }
 
         static async Task SequenceToSequence(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             using var sequences = await context.SequenceToSequence();
-            sequences.TrainSequenceToSequence();
+            await sequences.TrainSequenceToSequence();
         }
 
         //static void SimpleLinearTest(BrightDataContext context)
@@ -240,14 +240,14 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var trainer = await context.Bicycles();
-            trainer.TrainNeuralNetwork();
+            await trainer.TrainNeuralNetwork();
         }
 
         static async Task MultiLabelSingleClassifier(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
             using var trainer = await context.Emotions();
-            trainer.TrainNeuralNetwork();
+            await trainer.TrainNeuralNetwork();
         }
 
         static async Task MultiLabelMultiClassifiers(BrightDataContext context, bool useMkl)
@@ -269,7 +269,7 @@ namespace ExampleCode
         {
             Start(context, useMkl);
             using var adult = await context.Adult();
-            adult.TrainNeuralNetwork();
+            await adult.TrainNeuralNetwork();
             //adult.TrainNaiveBayes();
         }
     }

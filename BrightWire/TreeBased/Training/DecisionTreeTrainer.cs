@@ -83,8 +83,8 @@ namespace BrightWire.TreeBased.Training
         }
         class InMemoryRow
         {
-	        readonly Dictionary<uint, string> _category = new();
-            readonly Dictionary<uint, double> _continuous = new();
+	        readonly Dictionary<uint, string> _category = [];
+            readonly Dictionary<uint, double> _continuous = [];
 
             public InMemoryRow(TableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
@@ -134,21 +134,12 @@ namespace BrightWire.TreeBased.Training
 	        public List<InMemoryRow> Data { get; } = [];
 			public uint ClassColumnIndex { get; }
 		}
-        class Node
+        class Node(TableInfo tableInfo, List<InMemoryRow> data, string? matchLabel)
         {
-            readonly TableInfo _tableInfo;
-	        readonly Dictionary<string, int> _classCount;
+	        readonly Dictionary<string, int> _classCount = data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count());
             Node? _parent = null;
             Attribute? _attribute = null;
             Node[]? _children = null;
-
-            public Node(TableInfo tableInfo, List<InMemoryRow> data, string? matchLabel)
-            {
-                Data = data;
-                _tableInfo = tableInfo;
-                MatchLabel = matchLabel;
-                _classCount = data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count());
-            }
 
             public DecisionTree.Node AsDecisionTreeNode()
             {
@@ -169,12 +160,12 @@ namespace BrightWire.TreeBased.Training
                     var continuousValues = new Dictionary<uint, HashSet<double>>();
                     var categoricalValues = new Dictionary<uint, HashSet<string>>();
                     foreach(var item in Data) {
-                        foreach(var column in _tableInfo.CategoricalColumns) {
+                        foreach(var column in tableInfo.CategoricalColumns) {
                             if (!categoricalValues.TryGetValue(column, out var temp2))
                                 categoricalValues.Add(column, temp2 = []);
                             temp2.Add(item.GetCategory(column));
                         }
-                        foreach (var column in _tableInfo.ContinuousColumns) {
+                        foreach (var column in tableInfo.ContinuousColumns) {
                             if (!continuousValues.TryGetValue(column, out var temp))
                                 continuousValues.Add(column, temp = []);
                             temp.Add(item.GetValue(column));
@@ -197,7 +188,7 @@ namespace BrightWire.TreeBased.Training
                             }
                         }
                     }
-                    return ret.ToArray();
+                    return [.. ret];
                 }
             }
 
@@ -254,8 +245,8 @@ namespace BrightWire.TreeBased.Training
             }
             public bool IsLeaf => _classCount.Count <= 1;
 	        public string? PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
-            public List<InMemoryRow> Data { get; }
-	        public string? MatchLabel { get; }
+            public List<InMemoryRow> Data { get; } = data;
+            public string? MatchLabel { get; } = matchLabel;
         }
 
         /// <summary>

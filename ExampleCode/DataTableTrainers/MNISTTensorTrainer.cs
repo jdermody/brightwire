@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
@@ -8,7 +9,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class MnistTensorTrainer(IDataTable training, IDataTable test) : DataTableTrainer(null, training, test)
     {
-        public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
+        public async Task<ExecutionGraphModel?> TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,
@@ -59,7 +60,7 @@ namespace ExampleCode.DataTableTrainers
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, model => {
+            await engine.Train(numIterations, testData, model => {
                 bestGraph = model.Graph;
                 //if (!String.IsNullOrWhiteSpace(outputModelPath)) {
                 //    using (var file = new FileStream(outputModelPath, FileMode.Create, FileAccess.Write)) {
@@ -70,15 +71,15 @@ namespace ExampleCode.DataTableTrainers
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
             var firstRow = Test[0];
             var tensor = (IReadOnlyTensor3D) firstRow[0];
             var singleData = graph.CreateDataSource([tensor.Create(context.LinearAlgebraProvider)]);
-            var result = executionEngine.Execute(singleData);
-            var prediction = result.Single().Output[0].GetMaximumIndex();
+            var result = (await executionEngine.Execute(singleData).First());
+            var prediction = result.Output[0].GetMaximumIndex();
             var expectedPrediction = ((IReadOnlyVector)firstRow[1]).GetMaximumIndex();
             Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;

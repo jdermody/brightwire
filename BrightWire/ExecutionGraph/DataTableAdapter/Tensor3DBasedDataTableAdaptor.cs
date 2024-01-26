@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System.Threading.Tasks;
+using BrightData;
 using BrightWire.ExecutionGraph.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -48,24 +49,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public uint Height { get; }
         public uint Depth { get; }
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            using var inputRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            using var targetRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            var inputRowPtr = inputRows.Span;
-            var targetRowsPtr = targetRows.Span;
+            using var inputRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            using var targetRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
             var index = 0;
 
-            foreach (var row in GetRows(rows)) {
-                inputRowPtr[index] = GetSegment(_inputColumnIndex, row);
-                targetRowsPtr[index] = GetSegment(_targetColumnIndex, row);
+            await foreach (var row in GetRows(rows)) {
+                inputRows.Span[index] = GetSegment(_inputColumnIndex, row);
+                targetRows.Span[index] = GetSegment(_targetColumnIndex, row);
                 ++index;
             }
 
-            var input = lap.CreateMatrixFromColumns(inputRowPtr);
+            var input = lap.CreateMatrixFromColumns(inputRows.Span);
             var output = OutputSize > 0
-                ? lap.CreateMatrixFromRows(targetRowsPtr).AsGraphData()
+                ? lap.CreateMatrixFromRows(targetRows.Span).AsGraphData()
                 : null;
 
             return new MiniBatch(rows, this, new Tensor4DGraphData(input, Height, Width, Depth), output);

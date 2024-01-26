@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
@@ -11,7 +12,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IDataTable dataTable) : DataTableTrainer(dataTable)
     {
-        public void TrainOneToMany()
+        public async Task TrainOneToMany()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -39,10 +40,10 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(40, testData, g => bestModel = g.Graph);
+            await engine.Train(40, testData, g => bestModel = g.Graph);
             var executionEngine = engine.CreateExecutionEngine(bestModel);
 
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
             var orderedOutput = output.OrderSequentialOutput();
 
             // convert each vector to a string index (vector index with the highest value becomes the string index)
@@ -71,7 +72,7 @@ namespace ExampleCode.DataTableTrainers
             .ToArray()
         ;
 
-        public void TrainManyToOne()
+        public async Task TrainManyToOne()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -99,10 +100,10 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(10, testData, g => bestModel = g.Graph);
+            await engine.Train(10, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
             var orderedOutput = output.OrderSequentialOutput();
 
             // convert each vector to a string index (vector index with the highest value becomes the string index)
@@ -123,7 +124,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public void TrainSequenceToSequence()
+        public async Task TrainSequenceToSequence()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -163,11 +164,11 @@ namespace ExampleCode.DataTableTrainers
             // train
             ExecutionGraphModel? bestModel = null;
             engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
-            engine.Train(60, testData, model => bestModel = model.Graph);
+            await engine.Train(60, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-            var testResults = executionEngine.Execute(testData).ToList();
+            var testResults = await executionEngine.Execute(testData).ToListAsync();
             var orderedOutput = testResults.OrderSequentialOutput();
 
             var attention = testResults

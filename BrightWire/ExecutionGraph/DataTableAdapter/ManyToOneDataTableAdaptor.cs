@@ -60,13 +60,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             ;
         }
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            var data = GetRows(rows)
-                .Select(r => (Matrix: (IReadOnlyMatrix)r[_featureColumnIndices[0]], Vector: (IReadOnlyVector)r[_targetColumnIndex]))
-                .ToList()
-            ;
+            var data = new (IReadOnlyMatrix Matrix, IReadOnlyVector Vector)[rows.Length];
+            var index = 0;
+            await foreach (var row in GetRows(rows)) {
+                data[index++] = (Matrix: (IReadOnlyMatrix)row[_featureColumnIndices[0]], Vector: (IReadOnlyVector)row[_targetColumnIndex]);
+            }
             var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             foreach (var (input, _) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
@@ -77,7 +78,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Vector[y]);
+            var outputVector = lap.CreateMatrix((uint)data.Length, _outputSize, (x, y) => data[(int)x].Vector[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
                 var type = (item.Key == 0)

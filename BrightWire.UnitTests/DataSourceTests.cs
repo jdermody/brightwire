@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
 
 			var table = await builder.BuildInMemory();
             var dataSource = _factory.CreateDataSource(table);
-			var miniBatch = dataSource.Get([1]);
+			var miniBatch = await dataSource.Get([1]);
 			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetReadOnlyRow(0);
 			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetReadOnlyRow(0);
 
@@ -52,11 +52,11 @@ namespace BrightWire.UnitTests
 		}
 
 		[Fact]
-		public void VectorDataSource()
+		public async Task VectorDataSource()
 		{
 			var vectors = 10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray();
 			var dataSource = _factory.CreateDataSource(vectors);
-			var miniBatch = dataSource.Get([0, 1, 2]);
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
@@ -68,11 +68,11 @@ namespace BrightWire.UnitTests
         }
 
 		[Fact]
-		public void MatrixDataSource()
+		public async Task MatrixDataSource()
 		{
 			var matrices = Enumerable.Range(0, 10).Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(matrices);
-			var miniBatch = dataSource.Get([0, 1, 2]);
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
@@ -83,11 +83,11 @@ namespace BrightWire.UnitTests
         }
 
 		[Fact]
-		public void TensorDataSource()
+		public async Task TensorDataSource()
 		{
 			var tensors = Enumerable.Range(0, 10).Select(_ => _cpu.CreateTensor3DAndThenDisposeInput(10.AsRange().Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(tensors);
-			var miniBatch = dataSource.Get([0, 1, 2]);
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();

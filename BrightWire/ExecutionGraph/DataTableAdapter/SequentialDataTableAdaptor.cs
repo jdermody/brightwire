@@ -50,9 +50,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _sequenceLengthsAreVaried = sequenceLengthsAreVaried;
         }
 
-        protected override IEnumerable<(IReadOnlyMatrix Input, IReadOnlyMatrix? Output)> GetRows(uint[] rows)
+        protected override async IAsyncEnumerable<(IReadOnlyMatrix Input, IReadOnlyMatrix? Output)> GetRows(uint[] rows)
         {
-            foreach (var row in _dataTable.GetRows(rows).Result) {
+            foreach (var row in await _dataTable.GetRows(rows)) {
                 var input = (IReadOnlyMatrix)row[_featureColumnIndex];
                 var output = (IReadOnlyMatrix?)row[_targetColumnIndex];
                 yield return (input, output);
@@ -68,14 +68,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 	    public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_rowDepth.Length;
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
                 var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
                 var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
 
-                foreach (var (input, output) in GetRows(rows)) {
+                await foreach (var (input, output) in GetRows(rows)) {
                     for (uint i = 0, len = input.RowCount; i < len; i++) {
                         if (!inputData.TryGetValue(i, out var temp))
                             inputData.Add(i, temp = []);
@@ -119,7 +119,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 decoderMiniBatch.PreviousMiniBatch = encoderMiniBatch;
                 return encoderMiniBatch;
             }
-            return GetSequentialMiniBatch(rows, GetRows(rows).ToArray());
+            return GetSequentialMiniBatch(rows, await GetRows(rows).ToArrayAsync((uint)rows.Length));
         }
 
         public override uint[][] GetSequentialBatches()

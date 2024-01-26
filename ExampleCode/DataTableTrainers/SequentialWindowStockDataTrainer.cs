@@ -35,11 +35,11 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network and restore the best result
             GraphModel? bestNetwork = null;
-            engine.Train(20, testData, model => bestNetwork = model);
+            await engine.Train(20, testData, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
-                var results = executionEngine.Execute(testData).OrderSequentialOutput();
+                var results = (await executionEngine.Execute(testData).ToListAsync()).OrderSequentialOutput();
                 var expectedOutput = await Test.GetColumn<ReadOnlyVector>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();

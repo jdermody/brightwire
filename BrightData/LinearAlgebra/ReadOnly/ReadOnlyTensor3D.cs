@@ -2,6 +2,7 @@
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
@@ -15,7 +16,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     public class ReadOnlyTensor3D : IReadOnlyTensor3D, IEquatable<ReadOnlyTensor3D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         const int HeaderSize = 12;
-        ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
+        readonly ReadOnlyTensor3DValueSemantics<ReadOnlyTensor3D> _valueSemantics;
 
         /// <summary>
         /// Creates a tensor from matrices
@@ -109,7 +110,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             RowCount = reader.ReadUInt32();
             Depth = reader.ReadUInt32();
             ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
-            _valueSemantics = new(this);
+            Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
         static IReadOnlyMatrix[] BuildMatrices(ReadOnlySpan<float> floats, uint depth, uint rows, uint columns)

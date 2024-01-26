@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.LinearAlgebra;
 using BrightData.DataTable;
 
@@ -30,15 +31,15 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
         public uint RowCount => (uint)_data.Length;
-        public VectorisationModel? InputVectoriser { get; } = null;
-        public VectorisationModel? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser => null;
+        public VectorisationModel? OutputVectoriser => null;
 
         public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix(InputSize, (uint)data.Count, (i, j) => {
@@ -49,7 +50,8 @@ namespace BrightWire.ExecutionGraph.DataSource
                 var y = rem / _rows;
                 return tensor.GetMatrix(z)[x, y];
             });
-            return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
+            var ret = new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
+            return Task.FromResult(ret);
         }
 
         public uint[][] GetSequentialBatches()

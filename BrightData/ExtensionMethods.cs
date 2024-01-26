@@ -769,7 +769,7 @@ namespace BrightData
         /// <param name="enumerable"></param>
         /// <param name="size"></param>
         /// <returns></returns>
-        public static async Task<T[]> ToArray<T>(this IAsyncEnumerable<T> enumerable, uint size)
+        public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> enumerable, uint size)
         {
             var ret = new T[size];
             var index = 0;
@@ -779,6 +779,51 @@ namespace BrightData
                 ret[index++] = item;
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Writes items from an async enumerable to a list
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="cancellationToken"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> items, CancellationToken cancellationToken = default)
+        {
+            var results = new List<T>();
+            await foreach (var item in items.WithCancellation(cancellationToken).ConfigureAwait(false))
+                results.Add(item);
+            return results;
+        }
+
+        /// <summary>
+        /// Returns the first item from the enumerator (or null if no item is available)
+        /// </summary>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static async Task<T?> FirstOrDefault<T>(this IAsyncEnumerable<T> items)
+        {
+            await using var enumerator = items.GetAsyncEnumerator();
+            if (await enumerator.MoveNextAsync()) {
+                return enumerator.Current;
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Returns the first item from the enumerator
+        /// </summary>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static async Task<T> First<T>(this IAsyncEnumerable<T> items)
+        {
+            await using var enumerator = items.GetAsyncEnumerator();
+            if (await enumerator.MoveNextAsync())
+                return enumerator.Current;
+            throw new Exception("Enumerator contained no elements");
         }
 
         /// <summary>

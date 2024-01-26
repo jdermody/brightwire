@@ -4,13 +4,13 @@ using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class SequenceContextBase(IMiniBatchSequence batchSequence)
+    class SequenceContextBase(MiniBatch.Sequence batchSequence)
     {
-        readonly Dictionary<string, List<(string Name, IGraphData Data)>> _namedData = new();
-        readonly Dictionary<int, IGraphData> _output = new();
+        readonly Dictionary<string, List<(string Name, IGraphData Data)>> _namedData = [];
+        readonly Dictionary<int, IGraphData> _output = [];
 
         public IGraphData Data { get; set; } = GraphData.Null;
-        public IMiniBatchSequence BatchSequence { get; } = batchSequence;
+        public MiniBatch.Sequence BatchSequence { get; } = batchSequence;
 
         public void SetOutput(IGraphData data, int channel = 0)
         {

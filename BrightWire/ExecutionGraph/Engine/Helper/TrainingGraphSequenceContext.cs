@@ -14,12 +14,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class TrainingGraphSequenceContext : SequenceContextBase, IGraphContext
     {
         readonly List<ExecutionHistory> _forward = [];
-        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();
+        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = [];
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
             GraphExecutionContext executionContext,
-            IMiniBatchSequence batchSequence) : base(batchSequence)
+            MiniBatch.Sequence batchSequence) : base(batchSequence)
         {
             LearningContext = learningContext;
             ExecutionContext = executionContext;

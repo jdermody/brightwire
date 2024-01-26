@@ -2342,6 +2342,14 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.AsSequenceReader``1(System.Buffers.ReadOnlySequence{``0})">
+            <summary>
+            
+            </summary>
+            <param name="sequence"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetItem``1(BrightData.IReadOnlyBuffer{``0},System.UInt32)">
             <summary>
             Retrieves an item from the buffer
@@ -2358,37 +2366,6 @@
             <typeparam name="T"></typeparam>
             <param name="buffer"></param>
             <param name="indices"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.ExtensionMethods.ReadOnlyBufferIterator`1">
-            <summary>
-            Buffer iterator
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ReadOnlyBufferIterator`1.MoveNext">
-            <summary>
-            Advances to the next position
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.ExtensionMethods.ReadOnlyBufferIterator`1.Current">
-            <summary>
-            Current iterator value
-            </summary>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ReadOnlyBufferIterator`1.GetEnumerator">
-            <summary>
-            Converts to enumerator
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetEnumerator``1(BrightData.IReadOnlyBuffer{``0})">
-            <summary>
-            Creates an iterator for the buffer
-            </summary>
-            <param name="buffer"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.IReadOnlyBuffer{``0})">
@@ -3104,13 +3081,38 @@
             <param name="enumerable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(System.Collections.Generic.IAsyncEnumerable{``0},System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.ToArrayAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.UInt32)">
             <summary>
             Writes items from an async enumerable to an array
             </summary>
             <typeparam name="T"></typeparam>
             <param name="enumerable"></param>
             <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToListAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.Threading.CancellationToken)">
+            <summary>
+            Writes items from an async enumerable to a list
+            </summary>
+            <param name="items"></param>
+            <param name="cancellationToken"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.FirstOrDefault``1(System.Collections.Generic.IAsyncEnumerable{``0})">
+            <summary>
+            Returns the first item from the enumerator (or null if no item is available)
+            </summary>
+            <param name="items"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.First``1(System.Collections.Generic.IAsyncEnumerable{``0})">
+            <summary>
+            Returns the first item from the enumerator
+            </summary>
+            <param name="items"></param>
+            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToFloatVectors(System.Collections.Generic.IAsyncEnumerable{System.Single[0:,0:]})">
@@ -4474,6 +4476,7 @@
             <summary>
             Returns all rows as read only vectors
             </summary>
+            <param name="matrix"></param>
             <param name="makeCopy">True to make a copy of each row</param>
             <returns></returns>
         </member>
@@ -4481,6 +4484,7 @@
             <summary>
             Returns all columns as read only vectors
             </summary>
+            <param name="matrix"></param>
             <param name="makeCopy">True to make a copy of each column</param>
             <returns></returns>
         </member>

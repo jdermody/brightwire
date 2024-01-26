@@ -519,6 +519,7 @@ namespace BrightData
         /// <summary>
         /// Returns all rows as read only vectors
         /// </summary>
+        /// <param name="matrix"></param>
         /// <param name="makeCopy">True to make a copy of each row</param>
         /// <returns></returns>
         public static IReadOnlyVector[] AllRowsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)
@@ -539,6 +540,7 @@ namespace BrightData
         /// <summary>
         /// Returns all columns as read only vectors
         /// </summary>
+        /// <param name="matrix"></param>
         /// <param name="makeCopy">True to make a copy of each column</param>
         /// <returns></returns>
         public static IReadOnlyVector[] AllColumnsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
@@ -8,7 +9,7 @@ namespace ExampleCode.DataTableTrainers
 {
     internal class MnistVectorTrainer(IDataTable training, IDataTable test) : DataTableTrainer(null, training, test)
     {
-        public ExecutionGraphModel? TrainingFeedForwardNeuralNetwork(
+        public async Task<ExecutionGraphModel?> TrainingFeedForwardNeuralNetwork(
             uint hiddenLayerSize, 
             uint numIterations, 
             float trainingRate,
@@ -44,11 +45,11 @@ namespace ExampleCode.DataTableTrainers
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            await engine.Train(numIterations, testData, model => bestGraph = model.Graph);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             return bestGraph;

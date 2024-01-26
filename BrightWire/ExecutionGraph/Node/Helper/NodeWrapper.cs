@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
@@ -17,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
             public GraphExecutionContext ExecutionContext => context.ExecutionContext;
             public ILearningContext? LearningContext => context.LearningContext;
-            public IMiniBatchSequence BatchSequence => context.BatchSequence;
+            public MiniBatch.Sequence BatchSequence => context.BatchSequence;
             public IGraphData? ErrorSignal => context.ErrorSignal;
 
             public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)

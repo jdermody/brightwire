@@ -13,7 +13,7 @@ using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode.DataSet
 {
-    internal class Mnist(BrightDataContext context, Mnist.Image[] trainingImages, Mnist.Image[] testImages)
+    internal class Mnist(BrightDataContext context, Mnist.Image[] trainingImages, Mnist.Image[] testImages, bool useCudaTensorCache = false)
         : IDisposable
     {
         public Image[] TrainingImages { get; } = trainingImages;
@@ -35,7 +35,7 @@ namespace ExampleCode.DataSet
             Console.Write("Loading MNIST...");
             using var trainer = await GetVectorTrainer();
             Console.WriteLine("done");
-            return trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
+            return await trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
         public async Task<ExecutionGraphModel?> TrainConvolutionalNeuralNetwork(
@@ -48,7 +48,7 @@ namespace ExampleCode.DataSet
             Console.Write("Loading MNIST...");
             using var trainer = await GetTensorTrainer();
             Console.WriteLine("done");
-            return trainer.TrainConvolutionalNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
+            return await trainer.TrainConvolutionalNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
         public async Task<MnistVectorTrainer> GetVectorTrainer()
@@ -167,8 +167,8 @@ namespace ExampleCode.DataSet
             var ret = await builder.BuildInMemory();
 
             // map for CUDA
-            //if (brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-            //    _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+            if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
 
             return ret;
         }
@@ -185,7 +185,7 @@ namespace ExampleCode.DataSet
             var ret = await builder.BuildInMemory();
 
             // map for CUDA
-            if (brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
+            if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
                 _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
 
             return ret;

@@ -4,38 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     /// <summary>
     /// Graph engine execution context
     /// </summary>
-    public class GraphExecutionContext : IHaveLinearAlgebraProvider, IDisposable
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="graphEngine">Graph engine</param>
+    /// <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
+    public class GraphExecutionContext(IGraphEngine graphEngine, bool wantInputInExecutionResults = false) : IHaveLinearAlgebraProvider, IDisposable
     {
-        class AdditionalBatch(IMiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
+        class AdditionalBatch(MiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
         {
-            public IMiniBatch Batch { get; } = batch;
+            public MiniBatch Batch { get; } = batch;
             public IGraphData Data { get; } = data;
             public Action<IGraphContext, IGraphData> Start { get; } = start;
             public Action<IGraphContext[]> End { get; } = end;
         }
-        readonly ICreateGraphContext _createGraphContext;
+        readonly ICreateGraphContext _createGraphContext = graphEngine;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new();
-        readonly ConcurrentDictionary<IMiniBatchSequence, Action<IGraphContext>> _continuationTable = new();
+        readonly ConcurrentDictionary<MiniBatch.Sequence, Action<IGraphContext>> _continuationTable = new();
         readonly ConcurrentStack<AdditionalBatch> _additionalBatches = new();
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="graphEngine">Graph engine</param>
-        /// <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
-	    public GraphExecutionContext(IGraphEngine graphEngine, bool wantInputInExecutionResults = false)
-        {
-            WantInputInExecutionResults = wantInputInExecutionResults;
-            _createGraphContext = graphEngine;
-            LinearAlgebraProvider = graphEngine.LinearAlgebraProvider;
-        }
 
         /// <inheritdoc />
         public void Dispose()
@@ -46,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         /// <inheritdoc />
-        public LinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider LinearAlgebraProvider { get; } = graphEngine.LinearAlgebraProvider;
 
         /// <summary>
         /// Adds graph operations to the queue
@@ -63,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         /// </summary>
         /// <param name="sequence"></param>
         /// <param name="callback"></param>
-        public void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphContext> callback) => _continuationTable[sequence] = callback;
+        public void RegisterContinuation(MiniBatch.Sequence sequence, Action<IGraphContext> callback) => _continuationTable[sequence] = callback;
 
         /// <summary>
         /// Registers an additional mini batch to execute after the current mini batch has completed
@@ -72,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         /// <param name="data">Initial data</param>
         /// <param name="start">Callback when starting the batch</param>
         /// <param name="end">Callback when ending the batch</param>
-        public void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end) => _additionalBatches.Push(new(miniBatch, data, start, end));
+        public void RegisterAdditionalMiniBatch(MiniBatch miniBatch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end) => _additionalBatches.Push(new(miniBatch, data, start, end));
 
         /// <summary>
         /// Count of remaining operations in queue
@@ -87,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         /// <summary>
         /// True if the input to the graph will be stored in the execution results
         /// </summary>
-        public bool WantInputInExecutionResults { get; }
+        public bool WantInputInExecutionResults { get; } = wantInputInExecutionResults;
 
         /// <summary>
         /// Checks if execution should continue from a remaining continuation
@@ -107,7 +101,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IEnumerable<(IGraphContext Context, Action<IGraphContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext)
         {
             while (_additionalBatches.TryPop(out var item)) {
-                IMiniBatchSequence? prev = null;
+                MiniBatch.Sequence? prev = null;
 
                 while (item.Batch.GetNextSequence() is { } sequence) {
                     var context = _createGraphContext.Create(this, sequence, learningContext);

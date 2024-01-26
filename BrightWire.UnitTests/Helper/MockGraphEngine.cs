@@ -1,6 +1,7 @@
 ﻿using System;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
@@ -8,7 +9,7 @@ namespace BrightWire.UnitTests.Helper
 {
     internal class MockGraphEngine(LinearAlgebraProvider lap) : IGraphEngine
     {
-        public IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
+        public IGraphContext Create(GraphExecutionContext executionContext, MiniBatch.Sequence sequence, ILearningContext? learningContext)
         {
             throw new NotImplementedException();
         }

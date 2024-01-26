@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
@@ -10,56 +11,27 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Segment table adapter for tables with vector data
     /// </summary>
-    internal class VectorBasedDataTableAdapter : RowBasedDataTableAdapterBase
+    internal class VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) : TypedRowBasedDataTableAdapterBase<ReadOnlyVector, ReadOnlyVector>(dataTable, featureColumns)
     {
-        readonly uint[] _featureColumns;
-        readonly uint _inputColumnIndex;
-        //readonly IReadOnlyBuffer<TableRow<ReadOnlyVector, ReadOnlyVector>> _buffer;
-
-        public VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) 
-            : base(dataTable, featureColumns)
-        {
-            _featureColumns = featureColumns;
-            //_buffer = dataTable.GetRowsBuffer<ReadOnlyVector, ReadOnlyVector>();
-
-            var firstRow = dataTable[0];
-            var input = (IReadOnlyVector)firstRow[_inputColumnIndex = _featureColumnIndices.Single()];
-            var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
-
-            InputSize = input.Size;
-            OutputSize = output.Size;
-        }
-
-        public override uint InputSize { get; }
-	    public override uint? OutputSize { get; }
-
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            using var inputRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            using var targetRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            var inputRowPtr = inputRows.Span;
-            var targetRowsPtr = targetRows.Span;
+            using var inputRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            using var targetRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
             var index = 0;
 
-            foreach (var row in GetRows(rows)) {
-                inputRowPtr[index] = GetSegment(_inputColumnIndex, row);
-                targetRowsPtr[index] = GetSegment(_targetColumnIndex, row);
+            await foreach (var row in GetRows(rows)) {
+                inputRows.Span[index] = row.C1.ReadOnlySegment;
+                targetRows.Span[index] = row.C2.ReadOnlySegment;
                 ++index;
             }
 
-            var input = lap.CreateMatrixFromRows(inputRowPtr);
+            var input = lap.CreateMatrixFromRows(inputRows.Span);
             var output = OutputSize > 0
-                ? lap.CreateMatrixFromRows(targetRowsPtr)
+                ? lap.CreateMatrixFromRows(targetRows.Span)
                 : null;
 
             return new MiniBatch(rows, this, input.AsGraphData(), output?.AsGraphData());
-
-            //var data = GetRows(rows)
-            //    .Select(r => (((IReadOnlyVector)r[_inputColumnIndex]).ToArray(), ((IReadOnlyVector)r[_targetColumnIndex]).ToArray()))
-            //    .ToArray()
-            //;
-            //return GetMiniBatch(rows, data);
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)

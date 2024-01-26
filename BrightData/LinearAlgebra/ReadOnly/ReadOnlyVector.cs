@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
@@ -14,7 +15,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     /// </summary>
     public class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>, IHaveDataAsReadOnlyByteSpan
     {
-        ReadOnlyValueSemantics<ReadOnlyVector, float> _valueSemantics;
+        readonly ReadOnlyValueSemantics<ReadOnlyVector, float> _valueSemantics;
 
         /// <summary>
         /// Creates a vector from float memory
@@ -77,7 +78,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             var size = reader.ReadUInt32();
             var data = reader.BaseStream.ReadArray<float>(size);
             ReadOnlySegment = new ReadOnlyTensorSegment(data);
-            _valueSemantics = new(this);
+            Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
         /// <inheritdoc />

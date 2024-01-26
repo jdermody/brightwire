@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
 using BrightData.Types;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -28,9 +30,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override uint InputSize { get; }
         public override uint? OutputSize { get; }
 
-        protected override IEnumerable<(WeightedIndexList IndexList, float[] Output)> GetRows(uint[] rows)
+        protected override async IAsyncEnumerable<(WeightedIndexList IndexList, float[] Output)> GetRows(uint[] rows)
         {
-            return _dataTable.GetRows(rows).Result.Select(tableRow => (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
+            var data = await _dataTable.GetRows(rows);
+            foreach(var tableRow in data)
+                yield return (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
         }
 
         public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists) => WeightedIndexList.Merge(lists);
@@ -43,12 +47,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return ret;
         }
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
-            var data = GetRows(rows)
-                .Select(r => (Encode(r.IndexList), r.Output))
-                .ToArray()
-            ;
+            var index = 0;
+            var data = new (float[], float[])[rows.Length];
+            await foreach (var row in GetRows(rows))
+                data[index++] = (Encode(row.IndexList), row.Output);
             return GetMiniBatch(rows, data);
         }
 

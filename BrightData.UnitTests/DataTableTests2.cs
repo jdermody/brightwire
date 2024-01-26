@@ -28,7 +28,7 @@ namespace BrightData.UnitTests
             await builder.WriteTo(stream);
 
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             var stringReader = await dataTable.GetColumn<string>(0).ToArray();
             stringReader.Length.Should().Be(2);
@@ -56,7 +56,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             var fromTable = await dataTable.Get<IndexList>(0, 0);
             fromTable.Should().BeEquivalentTo(sampleIndexList);
@@ -73,7 +73,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             var fromTable = await dataTable.Get<WeightedIndexList>(0, 0);
             fromTable.Should().BeEquivalentTo(sampleIndexList);
@@ -97,7 +97,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
             var column = dataTable.GetColumn<ReadOnlyVector>(0);
             var columnItems = await column.ToArray();
 
@@ -120,7 +120,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             var column = dataTable.GetColumn<ReadOnlyMatrix>(0);
             var columnItems = await column.ToArray();
@@ -148,7 +148,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             using var fromTable = (await dataTable.Get<ReadOnlyTensor3D>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);
@@ -174,7 +174,7 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             await builder.WriteTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            var dataTable = _context.LoadTableFromStream(stream);
+            var dataTable = await _context.LoadTableFromStream(stream);
 
             using var fromTable = (await dataTable.Get<ReadOnlyTensor4D>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);

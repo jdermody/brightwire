@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Helper
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Helper
     {
         public class Operation(uint[] rows, MiniBatchProvider provider) : IGraphOperation
         {
-            public IMiniBatch GetMiniBatch()
+            public Task<MiniBatch> GetMiniBatch()
             {
                 var dataSource = provider._dataSource;
                 return dataSource.Get(rows);

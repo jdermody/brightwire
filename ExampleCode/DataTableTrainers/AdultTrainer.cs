@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 
@@ -6,7 +7,7 @@ namespace ExampleCode.DataTableTrainers
 {
     class AdultTrainer(IDataTable? table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public virtual void TrainNeuralNetwork()
+        public virtual Task TrainNeuralNetwork()
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -35,7 +36,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            engine.Train(20, testData);
+            return engine.Train(20, testData);
         }
     }
 }

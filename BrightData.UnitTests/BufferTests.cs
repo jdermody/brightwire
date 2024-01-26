@@ -182,49 +182,49 @@ namespace BrightData.UnitTests
         ];
 
         [Fact]
-        public void IntBuffer2()
+        public Task IntBuffer2()
         {
-            StructTests(i => (int)i);
+            return StructTests(i => (int)i);
         }
 
         [Fact]
-        public void FloatBuffer2()
+        public Task FloatBuffer2()
         {
-            StructTests(i => (float)i);
+            return StructTests(i => (float)i);
         }
 
         [Fact]
-        public void IndexListBuffer2()
+        public Task IndexListBuffer2()
         {
-            ObjectTests(i => IndexList.Create(i), x => new(x));
+            return ObjectTests(i => IndexList.Create(i), x => new(x));
         }
 
         [Fact]
-        public void WeightedIndexListBuffer2()
+        public Task WeightedIndexListBuffer2()
         {
-            ObjectTests(i => WeightedIndexList.Create((i, 1f)), x => new(x));
+            return ObjectTests(i => WeightedIndexList.Create((i, 1f)), x => new(x));
         }
 
         [Fact]
-        public void StringBuffer2()
+        public async Task StringBuffer2()
         {
             foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
-                StringBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
+                await StringBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
         }
 
-        void ObjectTests<T>(Func<uint, T> indexTranslator, CreateFromReadOnlyByteSpan<T> createItem) where T : IHaveDataAsReadOnlyByteSpan
+        async Task ObjectTests<T>(Func<uint, T> indexTranslator, CreateFromReadOnlyByteSpan<T> createItem) where T : IHaveDataAsReadOnlyByteSpan
         {
             foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
-                ObjectBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator, createItem);
+                await ObjectBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator, createItem);
         }
 
-        void StructTests<T>(Func<uint, T> indexTranslator) where T : unmanaged
+        async Task StructTests<T>(Func<uint, T> indexTranslator) where T : unmanaged
         {
             foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in Configurations)
-                StructBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
+                await StructBufferReadWriteTest((uint)numItems, bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 
-        void StringBufferReadWriteTest(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, string> indexTranslator)
+        async Task StringBufferReadWriteTest(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, string> indexTranslator)
         {
             var buffer = _streamProvider.CreateCompositeBuffer(bufferSize, inMemorySize, numDistinct);
             for (uint i = 0; i < numItems; i++)
@@ -236,11 +236,11 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = stream.GetReadOnlyStringCompositeBuffer();
-            foreach (var item in bufferReader)
+            await foreach (var item in bufferReader)
                 item.Should().Be(indexTranslator(index++));
         }
 
-        void ObjectBufferReadWriteTest<T>(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, T> indexTranslator, CreateFromReadOnlyByteSpan<T> createItem) 
+        async Task ObjectBufferReadWriteTest<T>(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, T> indexTranslator, CreateFromReadOnlyByteSpan<T> createItem) 
             where T : IHaveDataAsReadOnlyByteSpan
         {
             var buffer = _streamProvider.CreateCompositeBuffer(createItem, bufferSize, inMemorySize, numDistinct);
@@ -253,13 +253,13 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = stream.GetReadOnlyCompositeBuffer(createItem);
-            foreach (var item in bufferReader) {
+            await foreach (var item in bufferReader) {
                 var comparison = indexTranslator(index++);
                 item.Should().BeEquivalentTo(comparison);
             }
         }
 
-        void StructBufferReadWriteTest<T>(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, T> indexTranslator) where T : unmanaged
+        async Task StructBufferReadWriteTest<T>(uint numItems, int bufferSize, uint inMemorySize, ushort numDistinct, Func<uint, T> indexTranslator) where T : unmanaged
         {
             var buffer = _streamProvider.CreateCompositeBuffer<T>(bufferSize, inMemorySize, numDistinct);
             for (uint i = 0; i < numItems; i++)
@@ -271,7 +271,7 @@ namespace BrightData.UnitTests
 
             uint index = 0;
             var bufferReader = stream.GetReadOnlyCompositeBuffer<T>();
-            foreach (var item in bufferReader)
+            await foreach (var item in bufferReader)
                 item.Should().Be(indexTranslator(index++));
         }
     }

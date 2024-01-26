@@ -25,7 +25,7 @@ namespace BrightWire.UnitTests
 
             // train a simple neural network
             var graph = _context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(table, table, 
+            var model = await graph.TrainSimpleNeuralNetwork(table, table, 
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.3f, 
                 batchSize: 1, 
@@ -39,7 +39,7 @@ namespace BrightWire.UnitTests
             // test the model
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
-            var result = engine.Execute([0.25f]).Single().Output[0][0];
+            var result = (await engine.Execute([0.25f]).First()).Output[0][0];
             result.Should().BeInRange(0.45f, 0.55f);
         }
 
@@ -64,7 +64,7 @@ namespace BrightWire.UnitTests
 
             // train a simple neural network
             var graph = _context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(normalized, normalized, 
+            var model = await graph.TrainSimpleNeuralNetwork(normalized, normalized, 
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.1f, 
                 batchSize: 1, 
@@ -79,7 +79,8 @@ namespace BrightWire.UnitTests
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
             var input = (float)inputNormalization.Normalize(2500);
-            var result = engine.Execute([input]).Single().Output;
+            var executionResults = engine.Execute([input]);
+            var result = (await executionResults.First()).Output;
             var normalizedResult = outputNormalization.ReverseNormalize(result[0][0]);
             normalizedResult.Should().BeInRange(4500, 5500);
         }

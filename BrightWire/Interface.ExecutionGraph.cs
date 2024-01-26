@@ -8,6 +8,8 @@ using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightData.DataTable;
+using System.Threading.Tasks;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire
 {
@@ -155,7 +157,7 @@ namespace BrightWire
         /// <summary>
         /// Current mini batch sequence
         /// </summary>
-        IMiniBatchSequence BatchSequence { get; }
+        MiniBatch.Sequence BatchSequence { get; }
 
         /// <summary>
         /// Records forward node execution
@@ -233,7 +235,7 @@ namespace BrightWire
         /// <param name="sequence">Mini batch sequence</param>
         /// <param name="learningContext">Learning context (null if executing without training)</param>
         /// <returns></returns>
-        IGraphContext Create(GraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
+        IGraphContext Create(GraphExecutionContext executionContext, MiniBatch.Sequence sequence, ILearningContext? learningContext);
     }
 
     /// <summary>
@@ -274,7 +276,7 @@ namespace BrightWire
         /// Gets a mini batch with the specified rows
         /// </summary>
         /// <param name="rows">List of rows</param>
-        IMiniBatch Get(uint[] rows);
+        Task<MiniBatch> Get(uint[] rows);
 
         /// <summary>
         /// For sequential data, returns the row indexes grouped by sequence length
@@ -340,111 +342,6 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// A sequence within a mini batch
-    /// </summary>
-    public interface IMiniBatchSequence
-    {
-        /// <summary>
-        /// Mini batch
-        /// </summary>
-        IMiniBatch MiniBatch { get; }
-
-        /// <summary>
-        /// Index of the sequence
-        /// </summary>
-        uint SequenceIndex { get; }
-
-        /// <summary>
-        /// Sequence type
-        /// </summary>
-        MiniBatchSequenceType Type { get; }
-
-        /// <summary>
-        /// Input data
-        /// </summary>
-        IGraphData? Input { get; }
-
-        /// <summary>
-        /// Training target data
-        /// </summary>
-        IGraphData? Target { get; }
-
-        /// <summary>
-        /// Graph sequence context that has been executed for this sequence
-        /// </summary>
-        IGraphContext? GraphContext { get; set; }
-    }
-
-    /// <summary>
-    /// Information about the current mini batch
-    /// </summary>
-    public interface IMiniBatch
-    {
-        /// <summary>
-        /// Row indexes of the current batch
-        /// </summary>
-        uint[] Rows { get; }
-
-        /// <summary>
-        /// Segment source
-        /// </summary>
-        IDataSource DataSource { get; }
-
-        /// <summary>
-        /// True if the data is sequential
-        /// </summary>
-        bool IsSequential { get; }
-
-        /// <summary>
-        /// Number of items in the batch
-        /// </summary>
-        uint BatchSize { get; }
-
-        /// <summary>
-        /// Current sequence (non sequential batches have a single sequence)
-        /// </summary>
-        IMiniBatchSequence CurrentSequence { get; }
-
-        /// <summary>
-        /// True if there is another item in the sequence after the current item
-        /// </summary>
-        bool HasNextSequence { get; }
-
-        /// <summary>
-        /// Gets the next item in the sequence
-        /// </summary>
-        /// <returns></returns>
-        IMiniBatchSequence? GetNextSequence();
-
-        /// <summary>
-        /// Gets the length of the sequence
-        /// </summary>
-        uint SequenceCount { get; }
-
-        /// <summary>
-        /// Gets a sequence item
-        /// </summary>
-        /// <param name="index">The index to retrieve</param>
-        /// <returns></returns>
-        IMiniBatchSequence GetSequenceAtIndex(uint index);
-
-        /// <summary>
-        /// Resets the sequence iterator
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// Subsequent mini bach
-        /// </summary>
-        IMiniBatch? NextMiniBatch { get; }
-
-        /// <summary>
-        /// Previous mini batch
-        /// </summary>
-        IMiniBatch? PreviousMiniBatch { get; }
-    }
-
-    /// <summary>
     /// A pending graph operation (mini batch)
     /// </summary>
     public interface IGraphOperation
@@ -452,7 +349,7 @@ namespace BrightWire
         /// <summary>
         /// Creates the mini batch
         /// </summary>
-        IMiniBatch GetMiniBatch();
+        Task<MiniBatch> GetMiniBatch();
     }
 
     /// <summary>
@@ -489,14 +386,14 @@ namespace BrightWire
         /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
+        IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
 
         /// <summary>
         /// Executes a single vector on the current graph
         /// </summary>
         /// <param name="input">Vector to execute</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> Execute(float[] input);
+        IAsyncEnumerable<ExecutionResult> Execute(float[] input);
 
         /// <summary>
         /// Executes a sequential input on the current graph
@@ -506,14 +403,14 @@ namespace BrightWire
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
         /// </summary>
         /// <param name="input">List of vector inputs</param>
         /// <returns>List of execution results</returns>
-        IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
+        IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
 
         /// <summary>
         /// Creates a graph execution context
@@ -534,7 +431,7 @@ namespace BrightWire
         /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="ct"></param>
         /// <returns>Graph training error</returns>
-        void Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null, CancellationToken ct = default);
+        Task Train(GraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null, CancellationToken ct = default);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -544,7 +441,7 @@ namespace BrightWire
         /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
         /// <returns>True if the model performance has improved since the last test</returns>
-        bool Test(
+        Task<bool> Test(
             IDataSource testDataSource,
             uint batchSize = 128,
             Action<float>? batchCompleteCallback = null,

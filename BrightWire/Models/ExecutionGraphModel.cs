@@ -139,12 +139,12 @@ namespace BrightWire.Models
         /// <summary>
         /// Other connected nodes
         /// </summary>
-        public Node[] OtherNodes { get; set; } = Array.Empty<Node>();
+        public Node[] OtherNodes { get; set; } = [];
 
         /// <summary>
         /// A list of the wires that connect the nodes in the graph
         /// </summary>
-        public Wire[] Wires { get; set; } = Array.Empty<Wire>();
+        public Wire[] Wires { get; set; } = [];
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

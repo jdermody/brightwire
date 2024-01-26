@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System.Threading.Tasks;
+using BrightData;
 using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
@@ -29,7 +30,7 @@ namespace ExampleCode.DataTableTrainers
         //    }
         //}
 
-        public void TrainNeuralNetwork()
+        public Task TrainNeuralNetwork()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
@@ -48,7 +49,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagation()
             ;
 
-            engine.Train(50, testData);
+            return engine.Train(50, testData);
         }
     }
 }

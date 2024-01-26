@@ -32,7 +32,7 @@ namespace BrightData.DataTable
         {
             public BrightDataType DataType;
             public uint DataTypeSize;
-            public override string ToString() => $"{DataType} ({DataTypeSize})";
+            public readonly override string ToString() => $"{DataType} ({DataTypeSize})";
         }
         protected readonly IByteBlockReader                         _reader;
         protected readonly TableHeader                              _header;
@@ -51,11 +51,12 @@ namespace BrightData.DataTable
         BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D>           _tensor3DMapper;
         BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D>           _tensor4DMapper;
 
-        public unsafe ColumnOrientedDataTable(BrightDataContext context, IByteBlockReader reader)
+        ColumnOrientedDataTable(BrightDataContext context, TableHeader header, Column[] columns, ReadOnlyMemory<byte> metaData, IByteBlockReader reader)
         {
             Context = context;
             _reader = reader;
-            _header = _reader.GetBlock(0, (uint)sizeof(TableHeader)).Result.Span.Cast<byte, TableHeader>()[0];
+            _header = header;
+            _columns = columns;
             if (_header.Orientation != DataTableOrientation.ColumnOriented)
                 throw new ArgumentException("Expected to read a column oriented table");
             if (_header.ColumnCount == 0)
@@ -69,12 +70,6 @@ namespace BrightData.DataTable
             _tensor3DMapper = Get3DTensors;
             _tensor4DMapper = Get4DTensors;
 
-            // read the columns
-            _columns = _reader
-                .GetBlock(_header.InfoOffset, _header.InfoSizeBytes).Result.Span.Cast<byte, Column>()
-                .ToArray()
-            ;
-
             // get column types
             ColumnTypes = new BrightDataType[ColumnCount];
             for(var i = 0; i < ColumnCount; i++)
@@ -82,8 +77,7 @@ namespace BrightData.DataTable
 
             // read the meta data
             _columnMetaData = new MetaData[ColumnCount];
-            var data = _reader.GetBlock(_header.MetaDataOffset, _reader.Size - _header.MetaDataOffset).Result;
-            var metadataReader = new BinaryReader(data.AsStream(), Encoding.UTF8, true);
+            var metadataReader = new BinaryReader(metaData.AsStream(), Encoding.UTF8, true);
             for (var i = 0; i < ColumnCount + 1; i++) {
                 if (i == 0)
                     MetaData = new(metadataReader);
@@ -105,6 +99,15 @@ namespace BrightData.DataTable
             _indices            = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
             _weightedIndices    = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
             _genericColumns     = new(GetColumnsAsObjectBuffers);
+        }
+
+        public static async Task<IDataTable> Load(BrightDataContext context, IByteBlockReader reader)
+        {
+            var headerSize = Unsafe.SizeOf<TableHeader>();
+            var header = (await reader.GetBlock(0, (uint)headerSize)).Span.Cast<byte, TableHeader>()[0];
+            var columns = (await reader.GetBlock(header.InfoOffset, header.InfoSizeBytes)).Span.Cast<byte, Column>().ToArray();
+            var metaData = await reader.GetBlock(header.MetaDataOffset, reader.Size - header.MetaDataOffset);
+            return new ColumnOrientedDataTable(context, header, columns, metaData, reader);
         }
 
         public MetaData MetaData { get; }
@@ -485,8 +488,8 @@ namespace BrightData.DataTable
         }
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
 
-        IReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
-            new BlockReaderReadOnlyBuffer<T>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+        BlockReaderReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
+            new(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
 
         public TableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
     }

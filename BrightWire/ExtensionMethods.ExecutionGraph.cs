@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
 using BrightData.Helper;
@@ -25,7 +26,7 @@ namespace BrightWire
         /// <param name="testData">The test data source to use</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
+        public static async Task<GraphModel?> Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new GraphExecutionContext(engine);
             var userNotifications = engine.Context.UserNotifications;
@@ -33,7 +34,7 @@ namespace BrightWire
 #if !DEBUG
             var testId = Guid.NewGuid();
             userNotifications?.OnStartOperation(testId);
-            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            await engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
             userNotifications?.OnCompleteOperation(testId, false);
 #endif
 
@@ -42,10 +43,10 @@ namespace BrightWire
             for (var i = 0; i < numIterations; i++) {
                 var id = Guid.NewGuid();
                 userNotifications?.OnStartOperation(id);
-                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
+                await engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
                 if (++count == testCadence) {
                     userNotifications?.OnStartOperation(id);
-                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
+                    if (await engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -86,8 +87,8 @@ namespace BrightWire
             return new ExecutionGraphModel {
                 Name = name!,
                 InputNode = data,
-                OtherNodes = connectedTo.ToArray(),
-                Wires = wireList.ToArray()
+                OtherNodes = [.. connectedTo],
+                Wires = [.. wireList]
             };
         }
 
@@ -192,7 +193,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="miniBatch"></param>
         /// <returns></returns>
-        public static IEnumerable<IGraphContext> GetGraphContexts(this IMiniBatch miniBatch)
+        public static IEnumerable<IGraphContext> GetGraphContexts(this MiniBatch miniBatch)
         {
             for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {
                 var context = miniBatch.GetSequenceAtIndex(i).GraphContext;

@@ -39,21 +39,21 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
+            await engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
                 var testData2 = graph.CreateDataSource(await BinaryIntegers.Addition(_context, 8));
-                var results = executionEngine.Execute(testData2, 128, null, true).ToArray();
+                var results = await executionEngine.Execute(testData2, 128, null, true).ToListAsync();
 
                 // group the output
                 var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];
-                for (uint i = 0; i < 8; i++) {
+                for (var i = 0; i < 8; i++) {
                     var input = new float[32][];
                     var target = new float[32][];
                     var output = new float[32][];
-                    for (uint j = 0; j < 32; j++) {
+                    for (var j = 0; j < 32; j++) {
                         input[j] = results[j].Input![i].ToArray();
                         target[j] = results[j].Target![i].ToArray();
                         output[j] = results[j].Output[i].ToArray();

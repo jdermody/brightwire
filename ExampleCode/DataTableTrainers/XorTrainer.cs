@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
             // train a model
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
-            var model = graph.TrainSimpleNeuralNetwork(
+            var model = await graph.TrainSimpleNeuralNetwork(
                 Training, 
                 Test, 
                 errorMetric, 
@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             if (model != null) {
                 // create a new network to execute the learned network
                 var executionEngine = graph.CreateExecutionEngine(model);
-                var output = executionEngine.Execute(graph.CreateDataSource(Test)).ToList();
+                var output = await executionEngine.Execute(graph.CreateDataSource(Test)).ToListAsync();
                 if (writeResults) {
                     var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");

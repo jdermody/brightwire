@@ -577,7 +577,7 @@
 		<method type="BrightWire.IGraphContext" name="Create">
 		<summary>Creates a graph context</summary>
 				<param type="BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext" name="executionContext" summary="Graph execution context" />
-				<param type="BrightWire.IMiniBatchSequence" name="sequence" summary="Mini batch sequence" />
+				<param type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="sequence" summary="Mini batch sequence" />
 				<param type="BrightWire.ILearningContext" name="learningContext" summary="Learning context (null if executing without training)" />
 			</method>
 </interface>
@@ -632,7 +632,7 @@
 	<property type="System.UInt32" name="RowCount">
 		<summary>Number of rows</summary>
 	</property>
-	<method type="BrightWire.IMiniBatch" name="Get">
+	<method type="System.Threading.Tasks.Task&lt;BrightWire.ExecutionGraph.Helper.MiniBatch&gt;" name="Get">
 		<summary>Gets a mini batch with the specified rows</summary>
 				<param type="System.UInt32[]" name="rows" summary="List of rows" />
 			</method>
@@ -660,12 +660,23 @@
 				<param type="System.UInt32" name="columnIndex2" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
 				<param type="System.UInt32" name="columnIndex1" summary="" />
 				<param type="System.UInt32" name="columnIndex2" summary="" />
 				<param type="System.UInt32" name="columnIndex3" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
@@ -674,6 +685,13 @@
 				<param type="System.UInt32" name="columnIndex3" summary="" />
 				<param type="System.UInt32" name="columnIndex4" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
@@ -684,6 +702,14 @@
 				<param type="System.UInt32" name="columnIndex5" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
 				<param type="System.UInt32" name="columnIndex1" summary="" />
@@ -693,6 +719,15 @@
 				<param type="System.UInt32" name="columnIndex5" summary="" />
 				<param type="System.UInt32" name="columnIndex6" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+				<param type="System.UInt32" name="columnIndex6" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
@@ -705,6 +740,16 @@
 				<param type="System.UInt32" name="columnIndex7" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+				<param type="System.UInt32" name="columnIndex6" summary="" />
+				<param type="System.UInt32" name="columnIndex7" summary="" />
+			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
 				<param type="System.UInt32" name="columnIndex1" summary="" />
@@ -716,6 +761,17 @@
 				<param type="System.UInt32" name="columnIndex7" summary="" />
 				<param type="System.UInt32" name="columnIndex8" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+				<param type="System.UInt32" name="columnIndex6" summary="" />
+				<param type="System.UInt32" name="columnIndex7" summary="" />
+				<param type="System.UInt32" name="columnIndex8" summary="" />
 			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8, T9&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
@@ -730,6 +786,18 @@
 				<param type="System.UInt32" name="columnIndex9" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8, T9&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+				<param type="System.UInt32" name="columnIndex6" summary="" />
+				<param type="System.UInt32" name="columnIndex7" summary="" />
+				<param type="System.UInt32" name="columnIndex8" summary="" />
+				<param type="System.UInt32" name="columnIndex9" summary="" />
+			</method>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8, T9, T10&gt;&gt;" name="Enumerate">
 		<summary>Enumerates typed data rows</summary>
 				<param type="System.UInt32" name="columnIndex1" summary="" />
@@ -743,6 +811,19 @@
 				<param type="System.UInt32" name="columnIndex9" summary="" />
 				<param type="System.UInt32" name="columnIndex10" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyBuffer&lt;BrightData.TableRow&lt;T1, T2, T3, T4, T5, T6, T7, T8, T9, T10&gt;&gt;" name="GetRowsBuffer">
+		<summary>Creates a typed buffer to access rows</summary>
+				<param type="System.UInt32" name="columnIndex1" summary="" />
+				<param type="System.UInt32" name="columnIndex2" summary="" />
+				<param type="System.UInt32" name="columnIndex3" summary="" />
+				<param type="System.UInt32" name="columnIndex4" summary="" />
+				<param type="System.UInt32" name="columnIndex5" summary="" />
+				<param type="System.UInt32" name="columnIndex6" summary="" />
+				<param type="System.UInt32" name="columnIndex7" summary="" />
+				<param type="System.UInt32" name="columnIndex8" summary="" />
+				<param type="System.UInt32" name="columnIndex9" summary="" />
+				<param type="System.UInt32" name="columnIndex10" summary="" />
 			</method>
 </interface>
 <interface name="BrightData.IDataTable" base="System.IDisposable">
@@ -778,10 +859,6 @@
 	<method type="System.Threading.Tasks.Task&lt;BrightData.Types.MetaData[]&gt;" name="GetColumnAnalysis">
 		<summary>Returns column analysis of the specified columns (or all if none specified)</summary>
 				<param type="System.UInt32[]" name="columnIndices" summary="" />
-			</method>
-	<method type="System.Void" name="SetTensorData">
-		<summary>Sets an alternate tensor data provider</summary>
-				<param type="BrightData.ITensorDataProvider" name="dataProvider" summary="" />
 			</method>
 	<method type="System.Threading.Tasks.Task&lt;T&gt;" name="Get">
 		<summary>Returns a typed value from the data table</summary>
@@ -973,7 +1050,7 @@
 	<property type="BrightWire.ILearningContext" name="LearningContext">
 		<summary>Current learning context (optional)</summary>
 	</property>
-	<property type="BrightWire.IMiniBatchSequence" name="BatchSequence">
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="BatchSequence">
 		<summary>Current mini batch sequence</summary>
 	</property>
 	<method type="System.Void" name="AddForwardHistory">
@@ -1073,25 +1150,25 @@
 	<summary>
 		Graph engine that is optimised for inference
 	</summary>
-		<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="Execute">
+		<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="Execute">
 		<summary>Executes a data source on the current graph</summary>
 				<param type="BrightWire.IDataSource" name="dataSource" summary="Segment source to process" />
 				<param type="System.UInt32" name="batchSize" summary="Initial size of each mini batch" />
 				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to write the input rows to the execution results" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="Execute">
+	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="Execute">
 		<summary>Executes a single vector on the current graph</summary>
 				<param type="System.Single[]" name="input" summary="Vector to execute" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSingleSequentialStep">
+	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSingleSequentialStep">
 		<summary>Executes a sequential input on the current graph</summary>
 				<param type="BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext" name="executionContext" summary="Execution context" />
 				<param type="System.UInt32" name="sequenceIndex" summary="Index of the current sequence (starting from 0)" />
 				<param type="System.Single[]" name="input" summary="Input vector" />
 				<param type="BrightWire.MiniBatchSequenceType" name="sequenceType" summary="The sequence type (start, standard, end)" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSequential">
+	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSequential">
 		<summary>Executes a sequence of inputs on the current graph</summary>
 				<param type="System.Single[][]" name="input" summary="List of vector inputs" />
 			</method>
@@ -1103,7 +1180,7 @@
 	<summary>
 		A pending graph operation (mini batch)
 	</summary>
-		<method type="BrightWire.IMiniBatch" name="GetMiniBatch">
+		<method type="System.Threading.Tasks.Task&lt;BrightWire.ExecutionGraph.Helper.MiniBatch&gt;" name="GetMiniBatch">
 		<summary>Creates the mini batch</summary>
 			</method>
 </interface>
@@ -1111,13 +1188,13 @@
 	<summary>
 		A graph engine that can train the graph from training data
 	</summary>
-		<method type="System.Void" name="Train">
+		<method type="System.Threading.Tasks.Task" name="Train">
 		<summary>Executes a training epoch on the graph</summary>
 				<param type="BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext" name="executionContext" summary="Graph execution context" />
 				<param type="System.Action&lt;System.Single&gt;" name="batchCompleteCallback" summary="Optional callback to be notified after each mini batch has completed" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
-	<method type="System.Boolean" name="Test">
+	<method type="System.Threading.Tasks.Task&lt;System.Boolean&gt;" name="Test">
 		<summary>Executes test data on the current graph</summary>
 				<param type="BrightWire.IDataSource" name="testDataSource" summary="Segment source with test data" />
 				<param type="System.UInt32" name="batchSize" summary="Initial size of each mini batch" />
@@ -1475,11 +1552,11 @@ IMPORTANT: if loading into a different graph the node ids will not be the same a
 	<property type="System.Single" name="this">
 		<summary>Returns a value from the matrix</summary>
 	</property>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="Row">
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="GetRow">
 		<summary>Returns a row from the matrix</summary>
 				<param type="System.UInt32" name="index" summary="Row index" />
 			</method>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="Column">
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="GetColumn">
 		<summary>Returns a column from the matrix</summary>
 				<param type="System.UInt32" name="index" summary="Column index" />
 			</method>
@@ -1590,22 +1667,6 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	<method type="BrightData.IMatrix" name="Clone">
 		<summary>Clones the matrix</summary>
 			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetRowAsReadOnly">
-		<summary>Returns a row as a read only vector</summary>
-				<param type="System.UInt32" name="rowIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetColumnAsReadOnly">
-		<summary>Returns a column as a read only vector</summary>
-				<param type="System.UInt32" name="columnIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllRowsAsReadOnly">
-		<summary>Returns all rows as read only vectors</summary>
-				<param type="System.Boolean" name="makeCopy" summary="True to make a copy of each row" />
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllColumnsAsReadOnly">
-		<summary>Returns all columns as read only vectors</summary>
-				<param type="System.Boolean" name="makeCopy" summary="True to make a copy of each column" />
-			</method>
 </interface>
 <interface name="BrightWire.IMemoryNode" base="">
 	<summary>
@@ -1613,71 +1674,6 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	</summary>
 		<property type="System.Single[]" name="Data">
 		<summary>The current state of the memory node</summary>
-	</property>
-</interface>
-<interface name="BrightWire.IMiniBatch" base="">
-	<summary>
-		Information about the current mini batch
-	</summary>
-		<property type="System.UInt32[]" name="Rows">
-		<summary>Row indexes of the current batch</summary>
-	</property>
-	<property type="BrightWire.IDataSource" name="DataSource">
-		<summary>Segment source</summary>
-	</property>
-	<property type="System.Boolean" name="IsSequential">
-		<summary>True if the data is sequential</summary>
-	</property>
-	<property type="System.UInt32" name="BatchSize">
-		<summary>Number of items in the batch</summary>
-	</property>
-	<property type="BrightWire.IMiniBatchSequence" name="CurrentSequence">
-		<summary>Current sequence (non sequential batches have a single sequence)</summary>
-	</property>
-	<property type="System.Boolean" name="HasNextSequence">
-		<summary>True if there is another item in the sequence after the current item</summary>
-	</property>
-	<method type="BrightWire.IMiniBatchSequence" name="GetNextSequence">
-		<summary>Gets the next item in the sequence</summary>
-			</method>
-	<property type="System.UInt32" name="SequenceCount">
-		<summary>Gets the length of the sequence</summary>
-	</property>
-	<method type="BrightWire.IMiniBatchSequence" name="GetSequenceAtIndex">
-		<summary>Gets a sequence item</summary>
-				<param type="System.UInt32" name="index" summary="The index to retrieve" />
-			</method>
-	<method type="System.Void" name="Reset">
-		<summary>Resets the sequence iterator</summary>
-			</method>
-	<property type="BrightWire.IMiniBatch" name="NextMiniBatch">
-		<summary>Subsequent mini bach</summary>
-	</property>
-	<property type="BrightWire.IMiniBatch" name="PreviousMiniBatch">
-		<summary>Previous mini batch</summary>
-	</property>
-</interface>
-<interface name="BrightWire.IMiniBatchSequence" base="">
-	<summary>
-		A sequence within a mini batch
-	</summary>
-		<property type="BrightWire.IMiniBatch" name="MiniBatch">
-		<summary>Mini batch</summary>
-	</property>
-	<property type="System.UInt32" name="SequenceIndex">
-		<summary>Index of the sequence</summary>
-	</property>
-	<property type="BrightWire.MiniBatchSequenceType" name="Type">
-		<summary>Sequence type</summary>
-	</property>
-	<property type="BrightWire.IGraphData" name="Input">
-		<summary>Input data</summary>
-	</property>
-	<property type="BrightWire.IGraphData" name="Target">
-		<summary>Training target data</summary>
-	</property>
-	<property type="BrightWire.IGraphContext" name="GraphContext">
-		<summary>Graph sequence context that has been executed for this sequence</summary>
 	</property>
 </interface>
 <interface name="BrightData.INonNegativeDiscreteDistribution" base="BrightData.IDistribution&lt;System.UInt32&gt;">
@@ -1912,11 +1908,11 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	<property type="System.Single" name="this">
 		<summary>Returns a value from the matrix</summary>
 	</property>
-	<method type="BrightData.IReadOnlyVector" name="GetRow">
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyRow">
 		<summary>Returns a row from the matrix</summary>
 				<param type="System.UInt32" name="rowIndex" summary="" />
 			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetColumn">
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyColumn">
 		<summary>Returns a column from the matrix</summary>
 				<param type="System.UInt32" name="columnIndex" summary="" />
 			</method>
@@ -1967,7 +1963,7 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 				<param type="System.Int32" name="stride" summary="Increment after each copy" />
 				<param type="System.Int32" name="count" summary="Number of elements to copy" />
 			</method>
-	<property type="BrightData.IHaveReadOnlyContiguousSpan&lt;System.Single&gt;" name="Contiguous">
+	<property type="BrightData.IHaveReadOnlyContiguousSpan&lt;T&gt;" name="Contiguous">
 		<summary>Tries to return a contiguous span from the current segment if possible</summary>
 	</property>
 	<property type="System.Boolean" name="IsWrapper">
@@ -2491,6 +2487,13 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 		<method type="System.ReadOnlyMemory&lt;System.Single&gt;" name="GetTensorData">
 		<summary>Returns the entire block of tensor data</summary>
 			</method>
+	<method type="System.Void" name="SetTensorMappers">
+		<summary>Sets the tensor mapping functions</summary>
+				<param type="BrightData.BlockMapper&lt;BrightData.DataTable.Columns.DataRangeColumnType, BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector&gt;" name="vectorMapper" summary="" />
+				<param type="BrightData.BlockMapper&lt;BrightData.DataTable.Columns.MatrixColumnType, BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix&gt;" name="matrixMapper" summary="" />
+				<param type="BrightData.BlockMapper&lt;BrightData.DataTable.Columns.Tensor3DColumnType, BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D&gt;" name="tensor3DMapper" summary="" />
+				<param type="BrightData.BlockMapper&lt;BrightData.DataTable.Columns.Tensor4DColumnType, BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D&gt;" name="tensor4DMapper" summary="" />
+			</method>
 </interface>
 <interface name="BrightData.IVector" base="BrightData.ITensor&lt;BrightData.IVector&gt;">
 	<summary>
@@ -2601,97 +2604,7 @@ https://en.wikipedia.org/wiki/Rectifier_(neural_networks)</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 			</method>
 </class>
-<class name="BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment" base="" is-static="false" is-abstract="false">
-	<summary>
-		A tensor segment based on a float array
-	</summary>
-	<method type="System.Void" name="ArrayBasedTensorSegment" is-static="false">
-		<summary>Constructor</summary>
-				<param type="System.Single[]" name="data" summary="Array of values" />
-			</method>
-	<method type="System.Int32" name="AddRef" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Int32" name="Release" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.Boolean" name="IsValid">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="Dispose" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.UInt32" name="Size">
-		<summary></summary>
-	</property>
-	<property type="System.String" name="SegmentType">
-		<summary></summary>
-	</property>
-	<method type="System.Single[]" name="ToNewArray" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="Values">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="CopyTo" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-				<param type="System.UInt32" name="sourceOffset" summary="" />
-				<param type="System.UInt32" name="targetOffset" summary="" />
-			</method>
-	<method type="System.Void" name="CopyTo" is-static="false">
-		<summary></summary>
-				<param type="System.Span&lt;System.Single&gt;" name="destination" summary="" />
-			</method>
-	<method type="System.Void" name="CopyTo" is-static="false">
-		<summary></summary>
-				<param type="System.Single*" name="destination" summary="" />
-				<param type="System.Int32" name="offset" summary="" />
-				<param type="System.Int32" name="stride" summary="" />
-				<param type="System.Int32" name="count" summary="" />
-			</method>
-	<property type="BrightData.IHaveReadOnlyContiguousSpan&lt;System.Single&gt;" name="Contiguous">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="CopyFrom" is-static="false">
-		<summary></summary>
-				<param type="System.ReadOnlySpan&lt;System.Single&gt;" name="span" summary="" />
-				<param type="System.UInt32" name="targetOffset" summary="" />
-			</method>
-	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
-		<summary></summary>
-				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
-				<param type="System.Boolean" name="wasTempUsed" summary="" />
-			</method>
-	<property type="System.Boolean" name="IsWrapper">
-		<summary></summary>
-	</property>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="Clear" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="(System.Single[] Array, System.UInt32 Offset, System.UInt32 Stride)" name="GetUnderlyingArray" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.ReadOnlySpan&lt;System.Single&gt;" name="ReadOnlySpan">
-		<summary></summary>
-	</property>
-</class>
-<class name="BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment" base="BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment" is-static="false" is-abstract="false">
+<class name="BrightData.LinearAlgebra.Segments.ArrayPoolTensorSegment" base="BrightData.LinearAlgebra.Segments.MutableTensorSegment" is-static="false" is-abstract="false">
 	<summary>
 		A tensor segment that temporarily owns a buffer from an array pool
 	</summary>
@@ -2883,316 +2796,12 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>Optional interface to provide user notification of long-running operations</summary>
 	</property>
 </class>
-<class name="BrightData.LinearAlgebra.BrightMatrix&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.IMatrix, LAP&gt;" is-static="false" is-abstract="false">
-	<summary>
-		Row major matrix type
-	</summary>
-	<property type="System.UInt32" name="RowCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="ColumnCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="TotalSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32[]" name="Shape">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="Row" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="Column" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetRowSpan" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="rowIndex" summary="" />
-				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
-			</method>
-	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetColumnSpan" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="columnIndex" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetRowAsReadOnly" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="rowIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetColumnAsReadOnly" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="columnIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllRowsAsReadOnly" is-static="false">
-		<summary></summary>
-				<param type="System.Boolean" name="makeCopy" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllColumnsAsReadOnly" is-static="false">
-		<summary></summary>
-				<param type="System.Boolean" name="makeCopy" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="GetRowVector" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="GetColumnVector" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="Transpose" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IMatrix" name="Multiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="other" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="GetDiagonal" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IVector" name="RowSums" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IVector" name="Multiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IVector" name="vector" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="TransposeAndMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="other" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="TransposeThisAndMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="other" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="MapIndexed" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.UInt32, System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.UInt32, System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="(BrightData.IMatrix Left, BrightData.IMatrix Right)" name="SplitAtColumn" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="columnIndex" summary="" />
-			</method>
-	<method type="(BrightData.IMatrix Top, BrightData.IMatrix Bottom)" name="SplitAtRow" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="rowIndex" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="ConcatBelow" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="bottom" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="ConcatRight" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="right" summary="" />
-			</method>
-	<method type="(BrightData.IMatrix U, BrightData.IVector S, BrightData.IMatrix VT)" name="Svd" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IMatrix" name="GetNewMatrixFromRows" is-static="false">
-		<summary></summary>
-				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="rowIndices" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="GetNewMatrixFromColumns" is-static="false">
-		<summary></summary>
-				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="columnIndices" summary="" />
-			</method>
-	<method type="System.Void" name="AddToEachRow" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="AddToEachColumn" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="MultiplyEachRowWith" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="System.Void" name="MultiplyEachColumnWith" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="SoftmaxPerRow" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="SoftmaxDerivativePerRow" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="rows" summary="" />
-			</method>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IMatrix" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
-			</method>
-</class>
-<class name="BrightData.LinearAlgebra.BrightMatrix" base="BrightData.LinearAlgebra.BrightMatrix&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
+<class name="BrightData.LinearAlgebra.BrightMatrix" base="BrightData.LinearAlgebra.MutableMatrix&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
 	<summary>
 		Matrix type
 	</summary>
 </class>
-<class name="BrightData.LinearAlgebra.BrightTensor3D&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.ITensor3D, LAP&gt;" is-static="false" is-abstract="false">
-	<summary>
-		Row major 3D tensor
-	</summary>
-	<method type="System.Void" name="BrightTensor3D" is-static="false">
-		<summary>Constructor</summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="data" summary="Tensor segment" />
-				<param type="System.UInt32" name="depth" summary="Number of matrices" />
-				<param type="System.UInt32" name="rows" summary="Rows in each matrix" />
-				<param type="System.UInt32" name="columns" summary="Columns in each matrix" />
-				<param type="LAP" name="lap" summary="Linear algebra provider" />
-			</method>
-	<method type="BrightData.ITensor3D" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyMatrix" name="GetMatrixAsReadOnly" is-static="false">
-		<summary>Returns a read only matrix</summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<property type="System.UInt32" name="Depth">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="RowCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="ColumnCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="MatrixSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="TotalSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32[]" name="Shape">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the tensor</summary>
-	</property>
-	<method type="BrightData.IMatrix" name="GetMatrix" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="AddPadding" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="padding" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="RemovePadding" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="padding" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="Im2Col" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="(BrightData.ITensor3D Result, BrightData.ITensor3D Indices)" name="MaxPool" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-				<param type="System.Boolean" name="saveIndices" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="ReverseMaxPool" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor3D" name="indices" summary="" />
-				<param type="System.UInt32" name="outputRows" summary="" />
-				<param type="System.UInt32" name="outputColumns" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="ReverseIm2Col" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="filter" summary="" />
-				<param type="System.UInt32" name="outputRows" summary="" />
-				<param type="System.UInt32" name="outputColumns" summary="" />
-				<param type="System.UInt32" name="outputDepth" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="BrightData.IMatrix" name="AddAllMatrices" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.ITensor3D" name="MultiplyEachMatrixBy" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="matrix" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="TransposeAndMultiplyEachMatrixBy" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="matrix" summary="" />
-			</method>
-	<method type="System.Void" name="AddToEachRow" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IVector" name="vector" summary="" />
-			</method>
-	<method type="System.Void" name="AddToEachColumn" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IVector" name="vector" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="Multiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor4D" name="other" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="TransposeAndMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor4D" name="other" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="TransposeThisAndMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor4D" name="other" summary="" />
-			</method>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.ITensor3D" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
-			</method>
-</class>
-<class name="BrightData.LinearAlgebra.BrightTensor3D" base="BrightData.LinearAlgebra.BrightTensor3D&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
+<class name="BrightData.LinearAlgebra.BrightTensor3D" base="BrightData.LinearAlgebra.MutableTensor3D&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
 	<summary>
 		3D tensor
 	</summary>
@@ -3205,126 +2814,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="Linear algebra provider" />
 			</method>
 </class>
-<class name="BrightData.LinearAlgebra.BrightTensor4D&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.ITensor4D, LAP&gt;" is-static="false" is-abstract="false">
-	<summary>
-		Row major 4D tensor
-	</summary>
-	<method type="System.Void" name="BrightTensor4D" is-static="false">
-		<summary>Constructor</summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="data" summary="Tensor segment" />
-				<param type="System.UInt32" name="count" summary="Number of 3D tensors" />
-				<param type="System.UInt32" name="depth" summary="Number of matrices in each 3D tensor" />
-				<param type="System.UInt32" name="rows" summary="Number of rows in each matrix" />
-				<param type="System.UInt32" name="columns" summary="Number of columns in each matrix" />
-				<param type="LAP" name="lap" summary="Linear algebra provider" />
-			</method>
-	<method type="BrightData.ITensor4D" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<property type="System.UInt32" name="Count">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="Depth">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="RowCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="ColumnCount">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="MatrixSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="TensorSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="TotalSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32[]" name="Shape">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the 4D tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the 4D tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the 4D tensor</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary>Returns a value from the 4D tensor</summary>
-	</property>
-	<method type="BrightData.ITensor3D" name="GetTensor" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.ITensor4D" name="AddPadding" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="padding" summary="" />
-			</method>
-	<method type="BrightData.ITensor4D" name="RemovePadding" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="padding" summary="" />
-			</method>
-	<method type="(BrightData.ITensor4D Result, BrightData.ITensor4D Indices)" name="MaxPool" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-				<param type="System.Boolean" name="saveIndices" summary="" />
-			</method>
-	<method type="BrightData.ITensor4D" name="ReverseMaxPool" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor4D" name="indices" summary="" />
-				<param type="System.UInt32" name="outputRows" summary="" />
-				<param type="System.UInt32" name="outputColumns" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="Im2Col" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="BrightData.ITensor4D" name="ReverseIm2Col" is-static="false">
-		<summary></summary>
-				<param type="BrightData.IMatrix" name="filter" summary="" />
-				<param type="System.UInt32" name="outputRows" summary="" />
-				<param type="System.UInt32" name="outputColumns" summary="" />
-				<param type="System.UInt32" name="outputDepth" summary="" />
-				<param type="System.UInt32" name="filterWidth" summary="" />
-				<param type="System.UInt32" name="filterHeight" summary="" />
-				<param type="System.UInt32" name="xStride" summary="" />
-				<param type="System.UInt32" name="yStride" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IVector" name="RowSums" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IReadOnlyTensor3D" name="GetTensorAsReadOnly" is-static="false">
-		<summary>Returns a read only tensor</summary>
-				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.ITensor4D" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
-			</method>
-</class>
-<class name="BrightData.LinearAlgebra.BrightTensor4D" base="BrightData.LinearAlgebra.BrightTensor4D&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
+<class name="BrightData.LinearAlgebra.BrightTensor4D" base="BrightData.LinearAlgebra.MutableTensor4D&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
 	<summary>
 		4D tensor
 	</summary>
@@ -3338,326 +2828,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="Linear algebra provider" />
 			</method>
 </class>
-<class name="BrightData.LinearAlgebra.BrightTensorBase&lt;T, LAP&gt;" base="" is-static="false" is-abstract="true">
-	<summary>
-		Base tensor type
-	</summary>
-	<method type="System.Void" name="Dispose" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Void" name="WriteTo" is-static="false">
-		<summary></summary>
-				<param type="System.IO.BinaryWriter" name="writer" summary="" />
-			</method>
-	<method type="System.Void" name="Initialize" is-static="false">
-		<summary></summary>
-				<param type="BrightData.BrightDataContext" name="context" summary="" />
-				<param type="System.IO.BinaryReader" name="reader" summary="" />
-			</method>
-	<method type="T" name="Create" is-static="false">
-		<summary>Creates a typed tensor from a tensor segment</summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="Tensor segment" />
-			</method>
-	<property type="System.UInt32" name="TotalSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32[]" name="Shape">
-		<summary></summary>
-	</property>
-	<property type="BrightData.INumericSegment&lt;System.Single&gt;" name="Segment">
-		<summary>Underlying tensor segment</summary>
-	</property>
-	<property type="BrightData.BrightDataContext" name="Context">
-		<summary></summary>
-	</property>
-	<property type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="LinearAlgebraProvider">
-		<summary></summary>
-	</property>
-	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
-		<summary></summary>
-				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
-				<param type="System.Boolean" name="wasTempUsed" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="Reshape" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IMatrix" name="Reshape" is-static="false">
-		<summary></summary>
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
-			</method>
-	<method type="BrightData.ITensor3D" name="Reshape" is-static="false">
-		<summary></summary>
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="depth" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
-			</method>
-	<method type="BrightData.ITensor4D" name="Reshape" is-static="false">
-		<summary></summary>
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="count" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="depth" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
-				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
-			</method>
-	<method type="T" name="Map" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="System.Void" name="MapInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="T" name="Clone" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Void" name="Clear" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Add" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="T" name="Add" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
-			</method>
-	<method type="T" name="Add" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="scalar" summary="" />
-			</method>
-	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
-			</method>
-	<method type="System.Void" name="AddInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="scalar" summary="" />
-			</method>
-	<method type="System.Void" name="MultiplyInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="scalar" summary="" />
-			</method>
-	<method type="T" name="Multiply" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="scalar" summary="" />
-			</method>
-	<method type="T" name="Subtract" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="T" name="Subtract" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
-			</method>
-	<method type="System.Void" name="SubtractInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="System.Void" name="SubtractInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-				<param type="System.Single" name="coefficient1" summary="" />
-				<param type="System.Single" name="coefficient2" summary="" />
-			</method>
-	<method type="T" name="PointwiseMultiply" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="System.Void" name="PointwiseMultiplyInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="T" name="PointwiseDivide" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="System.Void" name="PointwiseDivideInPlace" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="System.Single" name="DotProduct" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="tensor" summary="" />
-			</method>
-	<method type="T" name="Sqrt" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Void" name="ConstrainInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Nullable&lt;System.Single&gt;" name="minValue" summary="" />
-				<param type="System.Nullable&lt;System.Single&gt;" name="maxValue" summary="" />
-			</method>
-	<method type="System.Single" name="Average" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Single" name="L1Norm" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Single" name="L2Norm" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Boolean" name="IsEntirelyFinite" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Reverse" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;T&gt;" name="Split" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="blockCount" summary="" />
-			</method>
-	<method type="System.Single" name="CosineDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="other" summary="" />
-			</method>
-	<method type="System.Single" name="EuclideanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="other" summary="" />
-			</method>
-	<method type="System.Single" name="MeanSquaredDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="other" summary="" />
-			</method>
-	<method type="System.Single" name="SquaredEuclideanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="other" summary="" />
-			</method>
-	<method type="System.Single" name="ManhattanDistance" is-static="false">
-		<summary></summary>
-				<param type="BrightData.ITensor" name="other" summary="" />
-			</method>
-	<method type="T" name="Abs" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Log" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Exp" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Squared" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Single" name="StdDev" is-static="false">
-		<summary></summary>
-				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="" />
-			</method>
-	<method type="T" name="Sigmoid" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="SigmoidDerivative" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Tanh" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="TanhDerivative" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Relu" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="ReluDerivative" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="LeakyRelu" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="LeakyReluDerivative" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Softmax" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IMatrix" name="SoftmaxDerivative" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="T" name="Pow" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="power" summary="" />
-			</method>
-	<method type="System.Void" name="RoundInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="lower" summary="" />
-				<param type="System.Single" name="upper" summary="" />
-			</method>
-	<method type="T" name="CherryPick" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32[]" name="indices" summary="" />
-			</method>
-	<method type="System.Void" name="L1RegularisationInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Single" name="coefficient" summary="" />
-			</method>
-	<method type="System.Single" name="Sum" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="ReadOnlySegment">
-		<summary></summary>
-	</property>
-	<property type="System.Boolean" name="IsReadOnly">
-		<summary></summary>
-	</property>
-</class>
-<class name="BrightData.LinearAlgebra.BrightVector&lt;LAP&gt;" base="BrightData.LinearAlgebra.BrightTensorBase&lt;BrightData.IVector, LAP&gt;" is-static="false" is-abstract="false">
-	<summary>
-		Vector
-	</summary>
-	<property type="System.UInt32" name="Size">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32" name="TotalSize">
-		<summary></summary>
-	</property>
-	<property type="System.UInt32[]" name="Shape">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<method type="System.Single[]" name="ToArray" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="BrightData.IVector" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="MapIndexed" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
-		<summary></summary>
-				<param type="System.Func&lt;System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
-			</method>
-	<method type="BrightData.IVector" name="Create" is-static="false">
-		<summary></summary>
-				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
-			</method>
-</class>
-<class name="BrightData.LinearAlgebra.BrightVector" base="BrightData.LinearAlgebra.BrightVector&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
+<class name="BrightData.LinearAlgebra.BrightVector" base="BrightData.LinearAlgebra.MutableVector&lt;BrightData.LinearAlgebra.LinearAlgebraProvider&gt;" is-static="false" is-abstract="false">
 	<summary>
 		Vector
 	</summary>
@@ -4031,7 +3202,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<property type="System.UInt32" name="RowCount">
 		<summary></summary>
 	</property>
-	<method type="BrightWire.IMiniBatch" name="Get" is-static="false">
+	<method type="System.Threading.Tasks.Task&lt;BrightWire.ExecutionGraph.Helper.MiniBatch&gt;" name="Get" is-static="false">
 		<summary></summary>
 				<param type="System.UInt32[]" name="rows" summary="" />
 			</method>
@@ -4267,7 +3438,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	</summary>
 	<method type="System.Void" name="ExecutionResult" is-static="false">
 		<summary>Constructor</summary>
-				<param type="BrightWire.IMiniBatchSequence" name="miniBatch" summary="The mini batch sequence" />
+				<param type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="miniBatch" summary="The mini batch sequence" />
 				<param type="BrightData.IMatrix" name="output" summary="The mini batch output" />
 				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to save graph inputs in the execution results" />
 			</method>
@@ -4283,7 +3454,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<property type="BrightData.IReadOnlyVector[]" name="Error">
 		<summary>Optional list of errors</summary>
 	</property>
-	<property type="BrightWire.IMiniBatchSequence" name="MiniBatchSequence">
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="MiniBatchSequence">
 		<summary>The mini batch</summary>
 	</property>
 	<method type="System.Single" name="CalculateError" is-static="false">
@@ -4397,6 +3568,10 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Converts the buffer to a read only sequence</summary>
 				<param type="BrightData.IReadOnlyBuffer&lt;T&gt;" name="buffer" summary="" />
 			</method>
+	<method type="System.Buffers.SequenceReader&lt;T&gt;" name="AsSequenceReader" is-static="true">
+		<summary></summary>
+				<param type="System.Buffers.ReadOnlySequence&lt;T&gt;" name="sequence" summary="" />
+			</method>
 	<method type="System.Threading.Tasks.Task&lt;T&gt;" name="GetItem" is-static="true">
 		<summary>Retrieves an item from the buffer</summary>
 				<param type="BrightData.IReadOnlyBuffer&lt;T&gt;" name="buffer" summary="" />
@@ -4406,10 +3581,6 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Retrieves items from the buffer</summary>
 				<param type="BrightData.IReadOnlyBuffer&lt;T&gt;" name="buffer" summary="" />
 				<param type="System.UInt32[]" name="indices" summary="" />
-			</method>
-	<method type="BrightData.ExtensionMethods.ReadOnlyBufferIterator&lt;T&gt;" name="GetEnumerator" is-static="true">
-		<summary>Creates an iterator for the buffer</summary>
-				<param type="BrightData.IReadOnlyBuffer&lt;T&gt;" name="buffer" summary="" />
 			</method>
 	<method type="System.Threading.Tasks.Task&lt;T[]&gt;" name="ToArray" is-static="true">
 		<summary>Converts the buffer to an array</summary>
@@ -4818,9 +3989,9 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Converts a single object into an enumerator that will enumerate that object once</summary>
 				<param type="T" name="obj" summary="Item to enumerate (once)" />
 			</method>
-	<method type="System.Single[]" name="ToArray" is-static="true">
+	<method type="T[]" name="ToArray" is-static="true">
 		<summary>Extracts an array of floats</summary>
-				<param type="BrightData.IHaveSpanOf&lt;System.Single&gt;" name="spanOwner" summary="" />
+				<param type="BrightData.IHaveSpanOf&lt;T&gt;" name="spanOwner" summary="" />
 			</method>
 	<method type="System.Void" name="CopyTo" is-static="true">
 		<summary>Copies tensor values to another tensor</summary>
@@ -4854,10 +4025,23 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Writes the async enumerable to a memory block</summary>
 				<param type="System.Collections.Generic.IAsyncEnumerable&lt;T&gt;" name="enumerable" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;T[]&gt;" name="ToArray" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;T[]&gt;" name="ToArrayAsync" is-static="true">
 		<summary>Writes items from an async enumerable to an array</summary>
 				<param type="System.Collections.Generic.IAsyncEnumerable&lt;T&gt;" name="enumerable" summary="" />
 				<param type="System.UInt32" name="size" summary="" />
+			</method>
+	<method type="System.Threading.Tasks.Task&lt;System.Collections.Generic.List&lt;T&gt;&gt;" name="ToListAsync" is-static="true">
+		<summary>Writes items from an async enumerable to a list</summary>
+				<param type="System.Collections.Generic.IAsyncEnumerable&lt;T&gt;" name="items" summary="" />
+				<param type="System.Threading.CancellationToken" name="cancellationToken" summary="" />
+			</method>
+	<method type="System.Threading.Tasks.Task&lt;T&gt;" name="FirstOrDefault" is-static="true">
+		<summary>Returns the first item from the enumerator (or null if no item is available)</summary>
+				<param type="System.Collections.Generic.IAsyncEnumerable&lt;T&gt;" name="items" summary="" />
+			</method>
+	<method type="System.Threading.Tasks.Task&lt;T&gt;" name="First" is-static="true">
+		<summary>Returns the first item from the enumerator</summary>
+				<param type="System.Collections.Generic.IAsyncEnumerable&lt;T&gt;" name="items" summary="" />
 			</method>
 	<method type="System.Threading.Tasks.Task&lt;System.Collections.Generic.List&lt;System.Single[]&gt;&gt;" name="ToFloatVectors" is-static="true">
 		<summary>Converts an async enumerable of multidimensional arrays to a list of float arrays</summary>
@@ -4973,7 +4157,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32" name="size" summary="Number of rows to return" />
 			</method>
-	<method type="BrightData.IDataTable" name="LoadTable" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.IDataTable&gt;" name="LoadTable" is-static="true">
 		<summary>Loads a data table from disk</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.String" name="filePath" summary="File path on disk" />
@@ -5257,7 +4441,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.Types.MetaData" name="tableMetaData" summary="" />
 				<param type="BrightData.IReadOnlyBufferWithMetaData[]" name="buffers" summary="" />
 			</method>
-	<method type="BrightData.IDataTable" name="LoadTableFromStream" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.IDataTable&gt;" name="LoadTableFromStream" is-static="true">
 		<summary>Loads a data table from the stream</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.Stream" name="stream" summary="" />
@@ -5744,6 +4928,16 @@ https://en.wikipedia.org/wiki/Okapi_BM25</summary>
 	<method type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="UseDefaultLinearAlgebraProvider" is-static="true">
 		<summary>Sets the context to use the default linear algebra provider</summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyVector[]" name="AllRowsAsReadOnly" is-static="true">
+		<summary>Returns all rows as read only vectors</summary>
+				<param type="BrightData.IReadOnlyMatrix" name="matrix" summary="" />
+				<param type="System.Boolean" name="makeCopy" summary="True to make a copy of each row" />
+			</method>
+	<method type="BrightData.IReadOnlyVector[]" name="AllColumnsAsReadOnly" is-static="true">
+		<summary>Returns all columns as read only vectors</summary>
+				<param type="BrightData.IReadOnlyMatrix" name="matrix" summary="" />
+				<param type="System.Boolean" name="makeCopy" summary="True to make a copy of each column" />
 			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
@@ -6369,6 +5563,53 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>Converts the tensor segment to a sparse format (only non-zero entries are preserved)</summary>
 				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
 			</method>
+	<method type="(System.Single Min, System.Single Max, System.UInt32 MinIndex, System.UInt32 MaxIndex)" name="GetMinAndMaxValues" is-static="true">
+		<summary>Returns the index with the minimum value from this tensor segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.UInt32" name="GetMinimumIndex" is-static="true">
+		<summary>Returns the index with the minimum value from this tensor segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.UInt32" name="GetMaximumIndex" is-static="true">
+		<summary>Returns the index with the maximum value from this tensor segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Single" name="Sum" is-static="true">
+		<summary>Sums all values</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Single" name="CosineDistance" is-static="true">
+		<summary>Finds cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite) between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="EuclideanDistance" is-static="true">
+		<summary>Finds the euclidean distance between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="ManhattanDistance" is-static="true">
+		<summary>Finds the manhattan distance between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="MeanSquaredDistance" is-static="true">
+		<summary>Finds the mean squared distance between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="SquaredEuclideanDistance" is-static="true">
+		<summary>Finds the squared euclidean distance between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="FindDistance" is-static="true">
+		<summary>Finds the distance between this and another vector</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="vector" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="other" summary="" />
+				<param type="BrightData.DistanceMetric" name="distance" summary="" />
+			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;&gt;" name="Split" is-static="true">
 		<summary>Splits this tensor segment into multiple contiguous tensor segments</summary>
 				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="This tensor" />
@@ -6459,6 +5700,15 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>Passes the segment as a mutable span into a callback function</summary>
 				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
 				<param type="BrightData.ExtensionMethods.OnSpan&lt;System.Single&gt;" name="callback" summary="" />
+			</method>
+	<method type="System.Void" name="Write" is-static="true">
+		<summary>Writes the numeric segment as bytes to the binary writer</summary>
+				<param type="System.IO.BinaryWriter" name="writer" summary="" />
+				<param type="BrightData.IReadOnlyNumericSegment&lt;T&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.ReadOnlySpan&lt;System.Byte&gt;" name="AsBytes" is-static="true">
+		<summary>Returns the data in the segment as a span of bytes</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;T&gt;" name="segment" summary="" />
 			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="false" is-abstract="false">
@@ -6566,7 +5816,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<summary>
 		
 	</summary>
-	<method type="BrightWire.Models.GraphModel" name="Train" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightWire.Models.GraphModel&gt;" name="Train" is-static="true">
 		<summary>Trains a graph for a fixed number of iterations</summary>
 				<param type="BrightWire.IGraphTrainingEngine" name="engine" summary="The graph training engine" />
 				<param type="System.UInt32" name="numIterations" summary="The number of iterations to train for" />
@@ -6607,7 +5857,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;BrightWire.IGraphContext&gt;" name="GetGraphContexts" is-static="true">
 		<summary>Finds the graph sequence contexts that have been executed in this mini batch</summary>
-				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="" />
+				<param type="BrightWire.ExecutionGraph.Helper.MiniBatch" name="miniBatch" summary="" />
 			</method>
 	<method type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="GetLinearAlgebraProvider" is-static="true">
 		<summary>Returns the linear algebra provider associated from this graph context</summary>
@@ -6685,7 +5935,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>Finds the classification with the highest weight</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;(System.String Label, System.Single Weight)&gt;" name="classifications" summary="List of weighted classifications" />
 			</method>
-	<method type="BrightWire.Models.ExecutionGraphModel" name="TrainSimpleNeuralNetwork" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightWire.Models.ExecutionGraphModel&gt;" name="TrainSimpleNeuralNetwork" is-static="true">
 		<summary>Trains a neural network with a single hidden layer</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="graph" summary="" />
 				<param type="BrightData.IDataTable" name="trainingTable" summary="" />
@@ -6886,12 +6136,12 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 			</method>
 	<method type="System.Void" name="RegisterContinuation" is-static="false">
 		<summary>Registers a continuation that will be executed after the current sequence has been processed in full</summary>
-				<param type="BrightWire.IMiniBatchSequence" name="sequence" summary="" />
+				<param type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="sequence" summary="" />
 				<param type="System.Action&lt;BrightWire.IGraphContext&gt;" name="callback" summary="" />
 			</method>
 	<method type="System.Void" name="RegisterAdditionalMiniBatch" is-static="false">
 		<summary>Registers an additional mini batch to execute after the current mini batch has completed</summary>
-				<param type="BrightWire.IMiniBatch" name="miniBatch" summary="Mini batch to execute" />
+				<param type="BrightWire.ExecutionGraph.Helper.MiniBatch" name="miniBatch" summary="Mini batch to execute" />
 				<param type="BrightWire.IGraphData" name="data" summary="Initial data" />
 				<param type="System.Action&lt;BrightWire.IGraphContext, BrightWire.IGraphData&gt;" name="start" summary="Callback when starting the batch" />
 				<param type="System.Action&lt;BrightWire.IGraphContext[]&gt;" name="end" summary="Callback when ending the batch" />
@@ -8330,53 +7580,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary></summary>
 			</method>
 </class>
-<class name="BrightData.LinearAlgebra.Segments.MemoryOwnerTensorSegment" base="BrightData.LinearAlgebra.Segments.ArrayBasedTensorSegment" is-static="false" is-abstract="false">
-	<summary>
-		A tensor segment that temporarily owns a buffer from an array pool
-	</summary>
-	<method type="System.Void" name="MemoryOwnerTensorSegment" is-static="false">
-		<summary>Constructor</summary>
-				<param type="CommunityToolkit.HighPerformance.Buffers.MemoryOwner&lt;System.Single&gt;" name="data" summary="Rented buffer from pool" />
-			</method>
-	<method type="System.Void" name="Dispose" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Int32" name="AddRef" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Int32" name="Release" is-static="false">
-		<summary></summary>
-			</method>
-	<property type="System.UInt32" name="Size">
-		<summary></summary>
-	</property>
-	<property type="System.Boolean" name="IsValid">
-		<summary></summary>
-	</property>
-	<property type="System.String" name="SegmentType">
-		<summary></summary>
-	</property>
-	<property type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="Values">
-		<summary></summary>
-	</property>
-	<method type="System.Single[]" name="ToNewArray" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Void" name="CopyFrom" is-static="false">
-		<summary></summary>
-				<param type="System.ReadOnlySpan&lt;System.Single&gt;" name="span" summary="" />
-				<param type="System.UInt32" name="targetOffset" summary="" />
-			</method>
-	<method type="System.Void" name="CopyTo" is-static="false">
-		<summary></summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
-				<param type="System.UInt32" name="sourceOffset" summary="" />
-				<param type="System.UInt32" name="targetOffset" summary="" />
-			</method>
-	<property type="System.ReadOnlySpan&lt;System.Single&gt;" name="ReadOnlySpan">
-		<summary></summary>
-	</property>
-</class>
 <class name="BrightData.Types.MetaData" base="" is-static="false" is-abstract="false">
 	<summary>
 		Unstructured meta data store
@@ -8468,6 +7671,9 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="BrightWire.IDataSource" name="dataSource" summary="Associated data source" />
 				<param type="BrightWire.IGraphData" name="input" summary="Mini batch input data" />
 				<param type="BrightWire.IGraphData" name="output" summary="Expected output data (when training, otherwise null)" />
+				<param type="System.Boolean" name="isSequential" summary="" />
+				<param type="BrightWire.MiniBatchSequenceType" name="type" summary="" />
+				<param type="System.UInt32" name="sequenceIndex" summary="" />
 			</method>
 	<method type="System.Void" name="MiniBatch" is-static="false">
 		<summary>Creates a sequential mini batch</summary>
@@ -8492,7 +7698,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<property type="System.UInt32" name="BatchSize">
 		<summary>Number of items in the batch</summary>
 	</property>
-	<property type="BrightWire.IMiniBatchSequence" name="CurrentSequence">
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="CurrentSequence">
 		<summary>Current sequence (non sequential batches have a single sequence)</summary>
 	</property>
 	<property type="System.Boolean" name="HasNextSequence">
@@ -8504,17 +7710,17 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<method type="System.Void" name="Reset" is-static="false">
 		<summary>Resets the sequence iterator</summary>
 			</method>
-	<method type="BrightWire.IMiniBatchSequence" name="GetNextSequence" is-static="false">
+	<method type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="GetNextSequence" is-static="false">
 		<summary>Gets the next item in the sequence (or null if none)</summary>
 			</method>
-	<method type="BrightWire.IMiniBatchSequence" name="GetSequenceAtIndex" is-static="false">
+	<method type="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" name="GetSequenceAtIndex" is-static="false">
 		<summary>Gets a sequence item</summary>
 				<param type="System.UInt32" name="index" summary="The index to retrieve" />
 			</method>
-	<property type="BrightWire.IMiniBatch" name="NextMiniBatch">
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch" name="NextMiniBatch">
 		<summary>Subsequent mini batch</summary>
 	</property>
-	<property type="BrightWire.IMiniBatch" name="PreviousMiniBatch">
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch" name="PreviousMiniBatch">
 		<summary>Previous mini batch</summary>
 	</property>
 </class>
@@ -8557,6 +7763,871 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary></summary>
 				<param type="BrightData.BrightDataContext" name="context" summary="" />
 				<param type="System.IO.BinaryReader" name="reader" summary="" />
+			</method>
+</class>
+<class name="BrightData.LinearAlgebra.MutableMatrix&lt;LAP&gt;" base="BrightData.LinearAlgebra.MutableTensorBase&lt;BrightData.IMatrix, LAP&gt;" is-static="false" is-abstract="false">
+	<summary>
+		Row major matrix type
+	</summary>
+	<property type="System.UInt32" name="RowCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="ColumnCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="TotalSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32[]" name="Shape">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="GetRow" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyRow" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;" name="GetColumn" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyColumn" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetRowSpan" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="rowIndex" summary="" />
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+			</method>
+	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetColumnSpan" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="columnIndex" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="GetRowVector" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="GetColumnVector" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="Transpose" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IMatrix" name="Multiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="other" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="GetDiagonal" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IVector" name="RowSums" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IVector" name="Multiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IVector" name="vector" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="TransposeAndMultiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="other" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="TransposeThisAndMultiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="other" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="MapIndexed" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.UInt32, System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.UInt32, System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="(BrightData.IMatrix Left, BrightData.IMatrix Right)" name="SplitAtColumn" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="columnIndex" summary="" />
+			</method>
+	<method type="(BrightData.IMatrix Top, BrightData.IMatrix Bottom)" name="SplitAtRow" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="rowIndex" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="ConcatBelow" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="bottom" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="ConcatRight" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="right" summary="" />
+			</method>
+	<method type="(BrightData.IMatrix U, BrightData.IVector S, BrightData.IMatrix VT)" name="Svd" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IMatrix" name="GetNewMatrixFromRows" is-static="false">
+		<summary></summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="rowIndices" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="GetNewMatrixFromColumns" is-static="false">
+		<summary></summary>
+				<param type="System.Collections.Generic.IEnumerable&lt;System.UInt32&gt;" name="columnIndices" summary="" />
+			</method>
+	<method type="System.Void" name="AddToEachRow" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Void" name="AddToEachColumn" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Void" name="MultiplyEachRowWith" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="System.Void" name="MultiplyEachColumnWith" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="SoftmaxPerRow" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="SoftmaxDerivativePerRow" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;[]" name="rows" summary="" />
+			</method>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IMatrix" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
+			</method>
+</class>
+<class name="BrightData.LinearAlgebra.MutableTensor3D&lt;LAP&gt;" base="BrightData.LinearAlgebra.MutableTensorBase&lt;BrightData.ITensor3D, LAP&gt;" is-static="false" is-abstract="false">
+	<summary>
+		Row major 3D tensor
+	</summary>
+	<method type="System.Void" name="MutableTensor3D" is-static="false">
+		<summary>Constructor</summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="data" summary="Tensor segment" />
+				<param type="System.UInt32" name="depth" summary="Number of matrices" />
+				<param type="System.UInt32" name="rows" summary="Rows in each matrix" />
+				<param type="System.UInt32" name="columns" summary="Columns in each matrix" />
+				<param type="LAP" name="lap" summary="Linear algebra provider" />
+			</method>
+	<method type="BrightData.ITensor3D" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="BrightData.IReadOnlyMatrix" name="GetMatrixAsReadOnly" is-static="false">
+		<summary>Returns a read only matrix</summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<property type="System.UInt32" name="Depth">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="RowCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="ColumnCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="MatrixSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="TotalSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32[]" name="Shape">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the tensor</summary>
+	</property>
+	<method type="BrightData.IMatrix" name="GetMatrix" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="AddPadding" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="padding" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="RemovePadding" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="padding" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="Im2Col" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="(BrightData.ITensor3D Result, BrightData.ITensor3D Indices)" name="MaxPool" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+				<param type="System.Boolean" name="saveIndices" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="ReverseMaxPool" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor3D" name="indices" summary="" />
+				<param type="System.UInt32" name="outputRows" summary="" />
+				<param type="System.UInt32" name="outputColumns" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="ReverseIm2Col" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="filter" summary="" />
+				<param type="System.UInt32" name="outputRows" summary="" />
+				<param type="System.UInt32" name="outputColumns" summary="" />
+				<param type="System.UInt32" name="outputDepth" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="AddAllMatrices" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.ITensor3D" name="MultiplyEachMatrixBy" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="matrix" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="TransposeAndMultiplyEachMatrixBy" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="matrix" summary="" />
+			</method>
+	<method type="System.Void" name="AddToEachRow" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IVector" name="vector" summary="" />
+			</method>
+	<method type="System.Void" name="AddToEachColumn" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IVector" name="vector" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="Multiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor4D" name="other" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="TransposeAndMultiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor4D" name="other" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="TransposeThisAndMultiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor4D" name="other" summary="" />
+			</method>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.ITensor3D" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
+			</method>
+</class>
+<class name="BrightData.LinearAlgebra.MutableTensor4D&lt;LAP&gt;" base="BrightData.LinearAlgebra.MutableTensorBase&lt;BrightData.ITensor4D, LAP&gt;" is-static="false" is-abstract="false">
+	<summary>
+		Row major 4D tensor
+	</summary>
+	<method type="System.Void" name="MutableTensor4D" is-static="false">
+		<summary>Constructor</summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="data" summary="Tensor segment" />
+				<param type="System.UInt32" name="count" summary="Number of 3D tensors" />
+				<param type="System.UInt32" name="depth" summary="Number of matrices in each 3D tensor" />
+				<param type="System.UInt32" name="rows" summary="Number of rows in each matrix" />
+				<param type="System.UInt32" name="columns" summary="Number of columns in each matrix" />
+				<param type="LAP" name="lap" summary="Linear algebra provider" />
+			</method>
+	<method type="BrightData.ITensor4D" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<property type="System.UInt32" name="Count">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="Depth">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="RowCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="ColumnCount">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="MatrixSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="TensorSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="TotalSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32[]" name="Shape">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the 4D tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the 4D tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the 4D tensor</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary>Returns a value from the 4D tensor</summary>
+	</property>
+	<method type="BrightData.ITensor3D" name="GetTensor" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="BrightData.ITensor4D" name="AddPadding" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="padding" summary="" />
+			</method>
+	<method type="BrightData.ITensor4D" name="RemovePadding" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="padding" summary="" />
+			</method>
+	<method type="(BrightData.ITensor4D Result, BrightData.ITensor4D Indices)" name="MaxPool" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+				<param type="System.Boolean" name="saveIndices" summary="" />
+			</method>
+	<method type="BrightData.ITensor4D" name="ReverseMaxPool" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor4D" name="indices" summary="" />
+				<param type="System.UInt32" name="outputRows" summary="" />
+				<param type="System.UInt32" name="outputColumns" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="Im2Col" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="BrightData.ITensor4D" name="ReverseIm2Col" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IMatrix" name="filter" summary="" />
+				<param type="System.UInt32" name="outputRows" summary="" />
+				<param type="System.UInt32" name="outputColumns" summary="" />
+				<param type="System.UInt32" name="outputDepth" summary="" />
+				<param type="System.UInt32" name="filterWidth" summary="" />
+				<param type="System.UInt32" name="filterHeight" summary="" />
+				<param type="System.UInt32" name="xStride" summary="" />
+				<param type="System.UInt32" name="yStride" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="ColumnSums" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IVector" name="RowSums" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IReadOnlyTensor3D" name="GetTensorAsReadOnly" is-static="false">
+		<summary>Returns a read only tensor</summary>
+				<param type="System.UInt32" name="index" summary="" />
+			</method>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.ITensor4D" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
+			</method>
+</class>
+<class name="BrightData.LinearAlgebra.MutableTensorBase&lt;T, LAP&gt;" base="" is-static="false" is-abstract="true">
+	<summary>
+		Base tensor type
+	</summary>
+	<method type="System.Void" name="Dispose" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Void" name="WriteTo" is-static="false">
+		<summary></summary>
+				<param type="System.IO.BinaryWriter" name="writer" summary="" />
+			</method>
+	<method type="System.Void" name="Initialize" is-static="false">
+		<summary></summary>
+				<param type="BrightData.BrightDataContext" name="context" summary="" />
+				<param type="System.IO.BinaryReader" name="reader" summary="" />
+			</method>
+	<method type="T" name="Create" is-static="false">
+		<summary>Creates a typed tensor from a tensor segment</summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="Tensor segment" />
+			</method>
+	<property type="System.UInt32" name="TotalSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32[]" name="Shape">
+		<summary></summary>
+	</property>
+	<property type="BrightData.INumericSegment&lt;System.Single&gt;" name="Segment">
+		<summary>Underlying tensor segment</summary>
+	</property>
+	<property type="BrightData.BrightDataContext" name="Context">
+		<summary></summary>
+	</property>
+	<property type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="LinearAlgebraProvider">
+		<summary></summary>
+	</property>
+	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
+		<summary></summary>
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="System.Boolean" name="wasTempUsed" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="Reshape" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IMatrix" name="Reshape" is-static="false">
+		<summary></summary>
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
+			</method>
+	<method type="BrightData.ITensor3D" name="Reshape" is-static="false">
+		<summary></summary>
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="depth" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
+			</method>
+	<method type="BrightData.ITensor4D" name="Reshape" is-static="false">
+		<summary></summary>
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="count" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="depth" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="rows" summary="" />
+				<param type="System.Nullable&lt;System.UInt32&gt;" name="columns" summary="" />
+			</method>
+	<method type="T" name="Map" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="System.Void" name="MapInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="T" name="Clone" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Void" name="Clear" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Add" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="T" name="Add" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+				<param type="System.Single" name="coefficient1" summary="" />
+				<param type="System.Single" name="coefficient2" summary="" />
+			</method>
+	<method type="T" name="Add" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="scalar" summary="" />
+			</method>
+	<method type="System.Void" name="AddInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="System.Void" name="AddInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+				<param type="System.Single" name="coefficient1" summary="" />
+				<param type="System.Single" name="coefficient2" summary="" />
+			</method>
+	<method type="System.Void" name="AddInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="scalar" summary="" />
+			</method>
+	<method type="System.Void" name="MultiplyInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="scalar" summary="" />
+			</method>
+	<method type="T" name="Multiply" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="scalar" summary="" />
+			</method>
+	<method type="T" name="Subtract" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="T" name="Subtract" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+				<param type="System.Single" name="coefficient1" summary="" />
+				<param type="System.Single" name="coefficient2" summary="" />
+			</method>
+	<method type="System.Void" name="SubtractInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="System.Void" name="SubtractInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+				<param type="System.Single" name="coefficient1" summary="" />
+				<param type="System.Single" name="coefficient2" summary="" />
+			</method>
+	<method type="T" name="PointwiseMultiply" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="System.Void" name="PointwiseMultiplyInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="T" name="PointwiseDivide" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="System.Void" name="PointwiseDivideInPlace" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="System.Single" name="DotProduct" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="tensor" summary="" />
+			</method>
+	<method type="T" name="Sqrt" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Void" name="ConstrainInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Nullable&lt;System.Single&gt;" name="minValue" summary="" />
+				<param type="System.Nullable&lt;System.Single&gt;" name="maxValue" summary="" />
+			</method>
+	<method type="System.Single" name="Average" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Single" name="L1Norm" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Single" name="L2Norm" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Boolean" name="IsEntirelyFinite" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Reverse" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Collections.Generic.IEnumerable&lt;T&gt;" name="Split" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32" name="blockCount" summary="" />
+			</method>
+	<method type="System.Single" name="CosineDistance" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="EuclideanDistance" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="MeanSquaredDistance" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="SquaredEuclideanDistance" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="other" summary="" />
+			</method>
+	<method type="System.Single" name="ManhattanDistance" is-static="false">
+		<summary></summary>
+				<param type="BrightData.ITensor" name="other" summary="" />
+			</method>
+	<method type="T" name="Abs" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Log" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Exp" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Squared" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Single" name="StdDev" is-static="false">
+		<summary></summary>
+				<param type="System.Nullable&lt;System.Single&gt;" name="mean" summary="" />
+			</method>
+	<method type="T" name="Sigmoid" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="SigmoidDerivative" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Tanh" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="TanhDerivative" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Relu" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="ReluDerivative" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="LeakyRelu" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="LeakyReluDerivative" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Softmax" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IMatrix" name="SoftmaxDerivative" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="T" name="Pow" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="power" summary="" />
+			</method>
+	<method type="System.Void" name="RoundInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="lower" summary="" />
+				<param type="System.Single" name="upper" summary="" />
+			</method>
+	<method type="T" name="CherryPick" is-static="false">
+		<summary></summary>
+				<param type="System.UInt32[]" name="indices" summary="" />
+			</method>
+	<method type="System.Void" name="L1RegularisationInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Single" name="coefficient" summary="" />
+			</method>
+	<method type="System.Single" name="Sum" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="ReadOnlySegment">
+		<summary></summary>
+	</property>
+	<property type="System.Boolean" name="IsReadOnly">
+		<summary></summary>
+	</property>
+</class>
+<class name="BrightData.LinearAlgebra.Segments.MutableTensorSegment" base="" is-static="false" is-abstract="false">
+	<summary>
+		A tensor segment based on a float array
+	</summary>
+	<method type="System.Void" name="MutableTensorSegment" is-static="false">
+		<summary>Constructor</summary>
+				<param type="System.Single[]" name="data" summary="Array of values" />
+			</method>
+	<method type="System.Int32" name="AddRef" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.Int32" name="Release" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="System.Boolean" name="IsValid">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="Dispose" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="System.UInt32" name="Size">
+		<summary></summary>
+	</property>
+	<property type="System.String" name="SegmentType">
+		<summary></summary>
+	</property>
+	<method type="System.Single[]" name="ToNewArray" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="Values">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="CopyTo" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+				<param type="System.UInt32" name="sourceOffset" summary="" />
+				<param type="System.UInt32" name="targetOffset" summary="" />
+			</method>
+	<method type="System.Void" name="CopyTo" is-static="false">
+		<summary></summary>
+				<param type="System.Span&lt;System.Single&gt;" name="destination" summary="" />
+			</method>
+	<method type="System.Void" name="CopyTo" is-static="false">
+		<summary></summary>
+				<param type="System.Single*" name="destination" summary="" />
+				<param type="System.Int32" name="offset" summary="" />
+				<param type="System.Int32" name="stride" summary="" />
+				<param type="System.Int32" name="count" summary="" />
+			</method>
+	<property type="BrightData.IHaveReadOnlyContiguousSpan&lt;System.Single&gt;" name="Contiguous">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="CopyFrom" is-static="false">
+		<summary></summary>
+				<param type="System.ReadOnlySpan&lt;System.Single&gt;" name="span" summary="" />
+				<param type="System.UInt32" name="targetOffset" summary="" />
+			</method>
+	<method type="System.ReadOnlySpan&lt;System.Single&gt;" name="GetSpan" is-static="false">
+		<summary></summary>
+				<param type="CommunityToolkit.HighPerformance.Buffers.SpanOwner&lt;System.Single&gt;" name="temp" summary="" />
+				<param type="System.Boolean" name="wasTempUsed" summary="" />
+			</method>
+	<property type="System.Boolean" name="IsWrapper">
+		<summary></summary>
+	</property>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="Clear" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="(System.Single[] Array, System.UInt32 Offset, System.UInt32 Stride)" name="GetUnderlyingArray" is-static="false">
+		<summary></summary>
+			</method>
+	<property type="System.ReadOnlySpan&lt;System.Single&gt;" name="ReadOnlySpan">
+		<summary></summary>
+	</property>
+</class>
+<class name="BrightData.LinearAlgebra.Segments.MutableTensorSegmentWrapper" base="BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper" is-static="false" is-abstract="false">
+	<summary>
+		A tensor segment that wraps another tensor segment
+	</summary>
+	<method type="System.Void" name="MutableTensorSegmentWrapper" is-static="false">
+		<summary>Constructor</summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="Tensor segment to wrap" />
+				<param type="System.UInt32" name="offset" summary="First index within the wrapped tensor segment" />
+				<param type="System.UInt32" name="stride" summary="Stride within the wrapped tensor segment" />
+				<param type="System.UInt32" name="length" summary="Number of values in this tensor segment" />
+			</method>
+	<property type="BrightData.INumericSegment&lt;System.Single&gt;" name="UnderlyingSegment">
+		<summary>The segment that was wrapped by this tensor segment</summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="CopyFrom" is-static="false">
+		<summary></summary>
+				<param type="System.ReadOnlySpan&lt;System.Single&gt;" name="span" summary="" />
+				<param type="System.UInt32" name="targetOffset" summary="" />
+			</method>
+	<method type="System.Void" name="Clear" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="(System.Single[] Array, System.UInt32 Offset, System.UInt32 Stride)" name="GetUnderlyingArray" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+</class>
+<class name="BrightData.LinearAlgebra.MutableVector&lt;LAP&gt;" base="BrightData.LinearAlgebra.MutableTensorBase&lt;BrightData.IVector, LAP&gt;" is-static="false" is-abstract="false">
+	<summary>
+		Vector
+	</summary>
+	<property type="System.UInt32" name="Size">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32" name="TotalSize">
+		<summary></summary>
+	</property>
+	<property type="System.UInt32[]" name="Shape">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<property type="System.Single" name="this">
+		<summary></summary>
+	</property>
+	<method type="System.Single[]" name="ToArray" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightData.IVector" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="MapIndexed" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="System.Void" name="MapIndexedInPlace" is-static="false">
+		<summary></summary>
+				<param type="System.Func&lt;System.UInt32, System.Single, System.Single&gt;" name="mutator" summary="" />
+			</method>
+	<method type="BrightData.IVector" name="Create" is-static="false">
+		<summary></summary>
+				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
 			</method>
 </class>
 <class name="BrightWire.Models.Bayesian.NaiveBayes" base="" is-static="false" is-abstract="false">
@@ -8821,7 +8892,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<summary>
 		
 	</summary>
-	<method type="BrightWire.IMiniBatch" name="GetMiniBatch" is-static="false">
+	<method type="System.Threading.Tasks.Task&lt;BrightWire.ExecutionGraph.Helper.MiniBatch&gt;" name="GetMiniBatch" is-static="false">
 		<summary></summary>
 			</method>
 </class>
@@ -8879,6 +8950,12 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.UInt32" name="columns" summary="" />
 				<param type="System.Func&lt;System.UInt32, System.UInt32, System.Single&gt;" name="initializer" summary="" />
 			</method>
+	<method type="System.Void" name="ReadOnlyMatrix" is-static="false">
+		<summary></summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+				<param type="System.UInt32" name="rowCount" summary="" />
+				<param type="System.UInt32" name="columnCount" summary="" />
+			</method>
 	<property type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="ReadOnlySegment">
 		<summary></summary>
 	</property>
@@ -8918,27 +8995,13 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary></summary>
 				<param type="BrightData.LinearAlgebra.LinearAlgebraProvider" name="lap" summary="" />
 			</method>
-	<method type="BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper" name="Row" is-static="false">
-		<summary>Returns a row segment</summary>
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyRow" is-static="false">
+		<summary></summary>
 				<param type="System.UInt32" name="index" summary="" />
 			</method>
-	<method type="BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper" name="Column" is-static="false">
-		<summary>Returns a column segment</summary>
+	<method type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="GetReadOnlyColumn" is-static="false">
+		<summary></summary>
 				<param type="System.UInt32" name="index" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetRow" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="rowIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector" name="GetColumn" is-static="false">
-		<summary></summary>
-				<param type="System.UInt32" name="columnIndex" summary="" />
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllRows" is-static="false">
-		<summary>Returns all rows as vectors</summary>
-			</method>
-	<method type="BrightData.IReadOnlyVector[]" name="AllColumns" is-static="false">
-		<summary>Returns all columns as vectors</summary>
 			</method>
 	<method type="System.Boolean" name="Equals" is-static="false">
 		<summary></summary>
@@ -8954,9 +9017,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<method type="System.String" name="ToString" is-static="false">
 		<summary></summary>
 			</method>
-	<property type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="Values">
-		<summary>Enumerates all values in the matrix</summary>
-	</property>
 	<property type="System.ReadOnlySpan&lt;System.Byte&gt;" name="DataAsBytes">
 		<summary></summary>
 	</property>
@@ -8970,6 +9030,13 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="BrightData.IReadOnlyMatrix[]" name="matrices" summary="" />
 			</method>
 	<method type="System.Void" name="ReadOnlyTensor3D" is-static="false">
+		<summary>Creates a tensor from a segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+				<param type="System.UInt32" name="depth" summary="" />
+				<param type="System.UInt32" name="rowCount" summary="" />
+				<param type="System.UInt32" name="columnCount" summary="" />
+			</method>
+	<method type="System.Void" name="ReadOnlyTensor3D" is-static="false">
 		<summary>Creates a tensor from byte data</summary>
 				<param type="System.ReadOnlySpan&lt;System.Byte&gt;" name="data" summary="" />
 			</method>
@@ -8977,8 +9044,8 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>Creates a tensor from float memory</summary>
 				<param type="System.ReadOnlyMemory&lt;System.Single&gt;" name="data" summary="" />
 				<param type="System.UInt32" name="depth" summary="" />
-				<param type="System.UInt32" name="rows" summary="" />
-				<param type="System.UInt32" name="columns" summary="" />
+				<param type="System.UInt32" name="rowCount" summary="" />
+				<param type="System.UInt32" name="columnCount" summary="" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
 		<summary></summary>
@@ -9056,6 +9123,14 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="BrightData.IReadOnlyTensor3D[]" name="tensors" summary="" />
 			</method>
 	<method type="System.Void" name="ReadOnlyTensor4D" is-static="false">
+		<summary>Create tensor from segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+				<param type="System.UInt32" name="count" summary="" />
+				<param type="System.UInt32" name="depth" summary="" />
+				<param type="System.UInt32" name="rowCount" summary="" />
+				<param type="System.UInt32" name="columnCount" summary="" />
+			</method>
+	<method type="System.Void" name="ReadOnlyTensor4D" is-static="false">
 		<summary>Creates a tensor from bytes</summary>
 				<param type="System.ReadOnlySpan&lt;System.Byte&gt;" name="data" summary="" />
 			</method>
@@ -9064,8 +9139,8 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.ReadOnlyMemory&lt;System.Single&gt;" name="data" summary="" />
 				<param type="System.UInt32" name="count" summary="" />
 				<param type="System.UInt32" name="depth" summary="" />
-				<param type="System.UInt32" name="rows" summary="" />
-				<param type="System.UInt32" name="columns" summary="" />
+				<param type="System.UInt32" name="rowCount" summary="" />
+				<param type="System.UInt32" name="columnCount" summary="" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
 		<summary></summary>
@@ -9249,6 +9324,10 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.UInt32" name="size" summary="" />
 				<param type="System.Func&lt;System.UInt32, System.Single&gt;" name="initializer" summary="" />
 			</method>
+	<method type="System.Void" name="ReadOnlyVector" is-static="false">
+		<summary>Creates a vector from a segment</summary>
+				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;" name="segment" summary="" />
+			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
 		<summary></summary>
 				<param type="System.IO.BinaryWriter" name="writer" summary="" />
@@ -9295,12 +9374,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 			</method>
 	<property type="System.ReadOnlySpan&lt;System.Byte&gt;" name="DataAsBytes">
 		<summary></summary>
-	</property>
-	<property type="System.ReadOnlySpan&lt;System.Single&gt;" name="ReadOnlySpan">
-		<summary></summary>
-	</property>
-	<property type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="Values">
-		<summary>Enumerates all values in the vector</summary>
 	</property>
 </class>
 <class name="BrightWire.TrainingData.Artificial.ReberGrammar" base="" is-static="false" is-abstract="false">
@@ -9358,6 +9431,32 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<summary>
 		Base class for data tables that work with data table rows
 	</summary>
+</class>
+<class name="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" base="" is-static="false" is-abstract="false">
+	<summary>
+		A sequence within a mini batch
+	</summary>
+	<property type="BrightWire.ExecutionGraph.Helper.MiniBatch" name="MiniBatch">
+		<summary>Mini batch</summary>
+	</property>
+	<property type="System.UInt32" name="SequenceIndex">
+		<summary>Index of the sequence</summary>
+	</property>
+	<property type="BrightWire.MiniBatchSequenceType" name="Type">
+		<summary>Sequence type</summary>
+	</property>
+	<property type="BrightWire.IGraphData" name="Input">
+		<summary>Input data</summary>
+	</property>
+	<property type="BrightWire.IGraphData" name="Target">
+		<summary>Training target data</summary>
+	</property>
+	<property type="BrightWire.IGraphContext" name="GraphContext">
+		<summary>Graph sequence context that has been executed for this sequence</summary>
+	</property>
+	<method type="System.String" name="ToString" is-static="false">
+		<summary></summary>
+			</method>
 </class>
 <class name="BrightWire.TrainingData.Artificial.SequenceGenerator" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -9721,47 +9820,6 @@ Double not or punctuation stops the not mode</summary>
 	<method type="System.String" name="GetString" is-static="false">
 		<summary>Returns the string at the specified index</summary>
 				<param type="System.UInt32" name="index" summary="The string index" />
-			</method>
-</class>
-<class name="BrightData.LinearAlgebra.Segments.TensorSegmentWrapper" base="BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper" is-static="false" is-abstract="false">
-	<summary>
-		A tensor segment that wraps another tensor segment
-	</summary>
-	<method type="System.Void" name="TensorSegmentWrapper" is-static="false">
-		<summary>Constructor</summary>
-				<param type="BrightData.INumericSegment&lt;System.Single&gt;" name="segment" summary="Tensor segment to wrap" />
-				<param type="System.UInt32" name="offset" summary="First index within the wrapped tensor segment" />
-				<param type="System.UInt32" name="stride" summary="Stride within the wrapped tensor segment" />
-				<param type="System.UInt32" name="length" summary="Number of values in this tensor segment" />
-			</method>
-	<property type="BrightData.INumericSegment&lt;System.Single&gt;" name="UnderlyingSegment">
-		<summary>The segment that was wrapped by this tensor segment</summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<property type="System.Single" name="this">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="CopyFrom" is-static="false">
-		<summary></summary>
-				<param type="System.ReadOnlySpan&lt;System.Single&gt;" name="span" summary="" />
-				<param type="System.UInt32" name="targetOffset" summary="" />
-			</method>
-	<method type="System.Void" name="Clear" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="(System.Single[] Array, System.UInt32 Offset, System.UInt32 Stride)" name="GetUnderlyingArray" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.String" name="ToString" is-static="false">
-		<summary></summary>
 			</method>
 </class>
 <class name="BrightData.Helper.ThreadSafeHashSet&lt;T&gt;" base="" is-static="false" is-abstract="false">

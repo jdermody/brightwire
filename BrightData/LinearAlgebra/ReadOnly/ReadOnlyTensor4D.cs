@@ -2,6 +2,7 @@
 using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
@@ -15,7 +16,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     public class ReadOnlyTensor4D : IReadOnlyTensor4D, IEquatable<ReadOnlyTensor4D>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         const int HeaderSize = 16;
-        ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4D> _valueSemantics;
+        readonly ReadOnlyTensor4DValueSemantics<ReadOnlyTensor4D> _valueSemantics;
 
         /// <summary>
         /// Creates a 4D tensor from 3D tensors
@@ -135,7 +136,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             Depth = reader.ReadUInt32();
             Count = reader.ReadUInt32();
             ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
-            _valueSemantics = new(this);
+            Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
         /// <inheritdoc />

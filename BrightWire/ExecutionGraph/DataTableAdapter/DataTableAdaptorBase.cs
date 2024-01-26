@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using BrightWire.ExecutionGraph.Helper;
 using BrightData;
 using BrightData.DataTable;
@@ -49,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public virtual uint RowCount { get; }
 
         /// <inheritdoc />
-        public abstract IMiniBatch Get(uint[] rows);
+        public abstract Task<MiniBatch> Get(uint[] rows);
 
         /// <inheritdoc />
         public abstract IDataSource CloneWith(IDataTable dataTable);
@@ -72,14 +73,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         /// Returns data for the specified row indices
         /// </summary>
         /// <param name="rows">List of row indices</param>
-        protected abstract IEnumerable<T> GetRows(uint[] rows);
+        protected abstract IAsyncEnumerable<T> GetRows(uint[] rows);
 
         /// <summary>
 		/// Creates a mini batch
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">Array of input/output pairs</param>
-        protected IMiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
+        protected MiniBatch GetMiniBatch(uint[] rows, (float[] Input, float[] Output)[] data)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             var input = lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
@@ -95,7 +96,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
+        protected MiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
         {
             var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();

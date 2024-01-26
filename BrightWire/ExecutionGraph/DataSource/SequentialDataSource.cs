@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
 using BrightData.DataTable;
+using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -37,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
@@ -61,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 ;
                 miniBatch.Add(type, input.AsGraphData(), null);
             }
-            return miniBatch;
+            return Task.FromResult(miniBatch);
         }
 
         public uint[][] GetSequentialBatches()
@@ -79,7 +80,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public VectorisationModel? InputVectoriser { get; } = null;
-        public VectorisationModel? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser => null;
+        public VectorisationModel? OutputVectoriser => null;
     }
 }

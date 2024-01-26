@@ -125,7 +125,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
-        public virtual void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
+        public virtual Task TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -154,7 +154,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            engine.Train(numIterations, testData, null, testCadence);
+            return engine.Train(numIterations, testData, null, testCadence);
         }
     }
 }

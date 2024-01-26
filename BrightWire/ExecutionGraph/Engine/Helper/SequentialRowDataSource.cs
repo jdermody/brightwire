@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightData.DataTable;
@@ -24,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var ret = new MiniBatch(rows, this);
             int index = 0;
@@ -38,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 ret.Add(type, temp.Reshape(1, null).AsGraphData(), null);
                 ++index;
             }
-            return ret;
+            return Task.FromResult(ret);
         }
 
         public uint[][] GetSequentialBatches()

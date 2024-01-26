@@ -6,7 +6,6 @@ using System.IO;
 using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
-using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.DataTable.Columns;
 
 namespace BrightData

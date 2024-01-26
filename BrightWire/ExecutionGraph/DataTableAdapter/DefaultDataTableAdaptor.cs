@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
@@ -27,13 +29,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override uint InputSize => InputVectoriser!.OutputSize;
         public override uint? OutputSize => OutputVectoriser?.OutputSize;
 
-        public override IMiniBatch Get(uint[] rowIndices)
+        public override async Task<MiniBatch> Get(uint[] rowIndices)
         {
-            var rows = GetRows(rowIndices);
-            var data = rows
-                .Select(r => (InputVectoriser!.Vectorise(r), OutputVectoriser!.Vectorise(r)))
-                .ToArray()
-            ;
+            var index = 0;
+            var data = new (float[], float[])[rowIndices.Length];
+            await foreach (var row in GetRows(rowIndices))
+                data[index++] = (InputVectoriser!.Vectorise(row), OutputVectoriser!.Vectorise(row));
             return GetMiniBatch(rowIndices, data);
         }
     }

@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
@@ -16,7 +17,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     public class ReadOnlyMatrix : IReadOnlyMatrix, IEquatable<ReadOnlyMatrix>, IHaveReadOnlyContiguousSpan<float>, IHaveDataAsReadOnlyByteSpan
     {
         const int HeaderSize = 8;
-        ReadOnlyMatrixValueSemantics<ReadOnlyMatrix> _valueSemantics;
+        readonly ReadOnlyMatrixValueSemantics<ReadOnlyMatrix> _valueSemantics;
 
         ReadOnlyMatrix(ReadOnlyMemory<float> data)
         {
@@ -110,7 +111,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
             ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
-            _valueSemantics = new(this);
+            Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
         /// <inheritdoc />
