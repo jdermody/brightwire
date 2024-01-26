@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightWire.Models.TreeBased;
 
@@ -86,7 +86,7 @@ namespace BrightWire.TreeBased.Training
 	        readonly Dictionary<uint, string> _category = [];
             readonly Dictionary<uint, double> _continuous = [];
 
-            public InMemoryRow(TableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
+            public InMemoryRow(GenericTableRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
                 ClassificationLabel = row.Get<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)

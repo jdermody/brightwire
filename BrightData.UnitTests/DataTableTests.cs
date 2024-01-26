@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using BrightWire;
@@ -40,7 +40,7 @@ namespace BrightData.UnitTests
             firstRow.Get<string>(7).Should().Be("test");
         }
 
-        static void CompareRows(TableRow row1, TableRow row2)
+        static void CompareRows(GenericTableRow row1, GenericTableRow row2)
         {
             row1.Size.Should().Be(row2.Size);
             for (uint i = 0; i < row1.Size; i++)
@@ -61,7 +61,7 @@ namespace BrightData.UnitTests
                 CompareRows(r1, r2);
         }
 
-        static async Task RandomSample(uint rowCount, IDataTable table, Action<uint, TableRow> callback)
+        static async Task RandomSample(uint rowCount, IDataTable table, Action<uint, GenericTableRow> callback)
         {
             var rand = new Random();
             var rowSample = 128.AsRange().Select(_ => (uint)rand.Next((int)rowCount)).ToArray();

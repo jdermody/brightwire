@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire.Bayesian
 {
@@ -13,7 +13,7 @@ namespace BrightWire.Bayesian
     {
         interface IProbabilityProvider
         {
-            double GetProbability(TableRow row);
+            double GetProbability(GenericTableRow row);
         }
         class CategoricalColumn : IProbabilityProvider
         {
@@ -28,7 +28,7 @@ namespace BrightWire.Bayesian
                 _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
             }
 
-            public double GetProbability(TableRow row)
+            public double GetProbability(GenericTableRow row)
             {
 	            var val = row.Get<string>(_columnIndex);
                 return _probability.GetValueOrDefault(val, _nullValue);
@@ -36,7 +36,7 @@ namespace BrightWire.Bayesian
         }
         class ContinuousColumn(NaiveBayes.Column column) : IProbabilityProvider
         {
-            public double GetProbability(TableRow row)
+            public double GetProbability(GenericTableRow row)
             {
                 var x = row.Get<float>(column.ColumnIndex);
                 var exponent = Math.Exp(-1 * Math.Pow(x - column.Mean, 2) / (2 * column.Variance));
@@ -59,7 +59,7 @@ namespace BrightWire.Bayesian
             }
         }
 
-        IEnumerable<(string Classification, double Score)> GetClassificationScores(TableRow row)
+        IEnumerable<(string Classification, double Score)> GetClassificationScores(GenericTableRow row)
         {
             foreach (var cls in _classProbability) {
                 var score = cls.Item2;
@@ -74,7 +74,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public (string Label, float Weight)[] Classify(TableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             return GetClassificationScores(row)
                 .OrderByDescending(kv => kv.Score)

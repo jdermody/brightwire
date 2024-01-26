@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BrightWire.ExecutionGraph.Helper;
 using BrightData;
@@ -89,49 +88,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 : null;
 
             return new MiniBatch(rows, this, input, output);
-        }
-
-		/// <summary>
-		/// Creates a sequential mini batch
-		/// </summary>
-		/// <param name="rows">Row indices</param>
-		/// <param name="data">List of input/output matrix tuples</param>
-        protected MiniBatch GetSequentialMiniBatch(uint[] rows, (IReadOnlyMatrix Input, IReadOnlyMatrix? Output)[] data)
-        {
-            var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
-            var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
-            var lap = _dataTable.Context.LinearAlgebraProvider;
-
-            foreach (var (input, output) in data) {
-                for (uint i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = []);
-                    temp.Add(input.GetReadOnlyRow(i));
-
-                    if (output != null) {
-                        if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = []);
-                        temp.Add(output.GetReadOnlyRow(i));
-                    }
-                }
-            }
-
-            var miniBatch = new MiniBatch(rows, this);
-            foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var span = CollectionsMarshal.AsSpan(item.Value);
-                var input = lap.CreateMatrixFromRows(span);
-                IGraphData? output = null;
-                if (outputData.TryGetValue(item.Key, out var outputList))
-                    output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputList)).AsGraphData();
-                var type = (item.Key == 0)
-                    ? MiniBatchSequenceType.SequenceStart
-                    : item.Key == (inputData.Count - 1)
-                        ? MiniBatchSequenceType.SequenceEnd
-                        : MiniBatchSequenceType.Standard
-                ;
-                miniBatch.Add(type, input.AsGraphData(), output);
-            }
-            return miniBatch;
         }
     }
 }

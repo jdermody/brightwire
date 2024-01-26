@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Base class for data tables that work with data table rows
+    /// Base class for data tables that work with generic data table rows
     /// </summary>
-    public abstract class RowBasedDataTableAdapterBase : DataTableAdapterBase<ICanRandomlyAccessData>
+    public abstract class GenericRowBasedDataTableAdapterBase : DataTableAdapterBase<ICanRandomlyAccessData>
     {
         /// <inheritdoc />
-	    protected RowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) 
+	    protected GenericRowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) 
             : base(dataTable, featureColumns)
         {
         }
@@ -32,7 +30,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var data = await _dataTable.GetRows(rows);
             foreach(var item in data)
-                yield return (ICanRandomlyAccessData)item;
+                yield return item;
         }
     }
 }

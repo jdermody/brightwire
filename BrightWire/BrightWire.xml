@@ -39,7 +39,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable.TableRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.DataTable.Rows.GenericTableRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -303,13 +303,6 @@
             <param name="rows">Row indices</param>
             <param name="data">Array of input/output pairs</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.IReadOnlyMatrix,BrightData.IReadOnlyMatrix}[])">
-            <summary>
-            Creates a sequential mini batch
-            </summary>
-            <param name="rows">Row indices</param>
-            <param name="data">List of input/output matrix tuples</param>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.DefaultDataTableAdapter">
             <summary>
             Vectorise each row of the data table on demand
@@ -330,15 +323,15 @@
             Adapts data tables that generate sequences from a single vector
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase">
             <summary>
-            Base class for data tables that work with data table rows
+            Base class for data tables that work with generic data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.IDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase.#ctor(BrightData.IDataTable,System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetSegment(System.UInt32,BrightData.ICanRandomlyAccessData)">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase.GetSegment(System.UInt32,BrightData.ICanRandomlyAccessData)">
             <summary>
             Returns a tensor segment from a segment provider
             </summary>
@@ -346,7 +339,7 @@
             <param name="segmentProvider"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetRows(System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase.GetRows(System.UInt32[])">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.SequentialDataTableAdapter">
@@ -4049,7 +4042,7 @@
             Classifies convertible rows
             </summary>
         </member>
-        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable.TableRow)">
+        <member name="M:BrightWire.IRowClassifier.Classify(BrightData.DataTable.Rows.GenericTableRow)">
             <summary>
             Classifies a convertible row
             </summary>

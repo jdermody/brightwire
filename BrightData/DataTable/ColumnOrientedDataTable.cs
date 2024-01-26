@@ -15,6 +15,7 @@ using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
@@ -285,7 +286,7 @@ namespace BrightData.DataTable
             return this.AllOrSpecifiedColumnIndices(false, columnIndices).Select(x => _columnMetaData[x]).ToArray();
         }
 
-        public async IAsyncEnumerable<TableRow> EnumerateRows([EnumeratorCancellation] CancellationToken ct = default)
+        public async IAsyncEnumerable<GenericTableRow> EnumerateRows([EnumeratorCancellation] CancellationToken ct = default)
         {
             var size = _header.ColumnCount;
             var enumerators = new IAsyncEnumerator<object>[size];
@@ -310,7 +311,7 @@ namespace BrightData.DataTable
                     var curr = new object[size];
                     for (var i = 0; i < size; i++)
                         curr[i] = enumerators[i].Current;
-                    yield return new TableRow(this, rowIndex++, curr);
+                    yield return new GenericTableRow(this, rowIndex++, curr);
                 }
             }
         }
@@ -385,7 +386,7 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public async Task<TableRow[]> GetRows(params uint[] rowIndices)
+        public async Task<GenericTableRow[]> GetRows(params uint[] rowIndices)
         {
             if (rowIndices.Length == 0) {
                 Array.Resize(ref rowIndices, (int)RowCount);
@@ -402,7 +403,7 @@ namespace BrightData.DataTable
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
-            var ret = rowIndices.Select(x => new TableRow(this, x, new object[len])).ToArray();
+            var ret = rowIndices.Select(x => new GenericTableRow(this, x, new object[len])).ToArray();
             var retTable = ret.ToLookup(x => x.RowIndex);
             var tasks = new Task<ReadOnlyMemory<object>>[len];
             foreach (var block in blocks) {
@@ -420,14 +421,14 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public TableRow this[uint index]
+        public GenericTableRow this[uint index]
         {
             get
             {
                 var columns = _genericColumns.Value;
                 var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
                 Task.WhenAll(fetchTasks).Wait();
-                return new TableRow(this, index, fetchTasks.Select(x => x.Result).ToArray());
+                return new GenericTableRow(this, index, fetchTasks.Select(x => x.Result).ToArray());
             }
         }
 
@@ -491,6 +492,6 @@ namespace BrightData.DataTable
         BlockReaderReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
             new(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
 
-        public TableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
+        public GenericTableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
     }
 }

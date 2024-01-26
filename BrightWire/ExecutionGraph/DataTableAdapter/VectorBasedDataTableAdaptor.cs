@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
@@ -11,8 +9,21 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Segment table adapter for tables with vector data
     /// </summary>
-    internal class VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) : TypedRowBasedDataTableAdapterBase<ReadOnlyVector, ReadOnlyVector>(dataTable, featureColumns)
+    internal class VectorBasedDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector, ReadOnlyVector>
     {
+        /// <summary>
+        /// Segment table adapter for tables with vector data
+        /// </summary>
+        public VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) : base(dataTable, featureColumns)
+        {
+            var firstRow = _buffer.GetItem(0).Result;
+            InputSize = firstRow.C1.Size;
+            OutputSize = firstRow.C2.Size;
+        }
+
+        public override uint InputSize { get; }
+        public override uint? OutputSize { get; }
+
         public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;

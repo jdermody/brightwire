@@ -8,11 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire
 {
@@ -66,7 +66,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(TableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
+        public static IEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }

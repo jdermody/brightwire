@@ -1,20 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace BrightData.DataTable
+namespace BrightData.DataTable.Rows
 {
     /// <summary>
-    /// Generic table row
+    /// Base class for table rows
     /// </summary>
     /// <param name="Table"></param>
     /// <param name="RowIndex"></param>
-    /// <param name="Values"></param>
-    public readonly record struct TableRow(IDataTable Table, uint RowIndex, object[] Values) : ICanRandomlyAccessData
+    public abstract record TableRowBase(IDataTable Table, uint RowIndex) : IHaveSize
     {
-        /// <summary>
-        /// Number of columns in row
-        /// </summary>
-        public uint Size => (uint)Values.Length;
+        /// <inheritdoc />
+        public abstract uint Size { get; }
 
         /// <summary>
         /// Gets a value from the row
@@ -25,18 +25,22 @@ namespace BrightData.DataTable
         /// <exception cref="InvalidCastException"></exception>
         public T Get<T>(uint columnIndex)
         {
-            var ret = Values[columnIndex];
-            if (ret.GetType() != typeof(T)) {
-                if (typeof(T) == typeof(string)) {
+            var ret = Get(columnIndex);
+            if (ret.GetType() != typeof(T))
+            {
+                if (typeof(T) == typeof(string))
+                {
                     var str = ret.ToString();
                     return __refvalue(__makeref(str), T);
                 }
 
                 // attempt to convert the type
-                try {
+                try
+                {
                     return (T)Convert.ChangeType(ret, typeof(T));
                 }
-                catch {
+                catch
+                {
                     throw new InvalidCastException($"Column {columnIndex} is {ret.GetType()} but requested {typeof(T)} and could not be converted");
                 }
             }
@@ -60,26 +64,10 @@ namespace BrightData.DataTable
         }
 
         /// <summary>
-        /// Returns an indexed value from the row
+        /// Retrieves a value based on column index
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="columnIndex"></param>
         /// <returns></returns>
-        public object this[int index] => Values[index];
-
-        /// <summary>
-        /// Returns an indexed value from the row
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public object this[uint index] => Values[index];
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            // nop
-        }
-
-        /// <inheritdoc />
-        public override string ToString() => String.Join('|', Values.Select(x => x.ToString()));
+        protected abstract object Get(uint columnIndex);
     }
 }

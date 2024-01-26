@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify tensors (volumes)
     /// </summary>
-    internal class Tensor3DBasedDataTableAdapter : RowBasedDataTableAdapterBase, IVolumeDataSource
+    internal class Tensor3DBasedDataTableAdapter : GenericRowBasedDataTableAdapterBase, IVolumeDataSource
     {
         readonly uint[] _featureColumns;
         readonly uint _inputSize, _outputSize, _inputColumnIndex;

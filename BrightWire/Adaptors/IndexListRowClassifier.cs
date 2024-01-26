@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightData.Types;
 
 namespace BrightWire.Adaptors
@@ -10,7 +10,7 @@ namespace BrightWire.Adaptors
         public IIndexListClassifier Classifier { get; } = classifier;
         public uint ColumnIndex { get; } = columnIndex;
 
-        public (string Label, float Weight)[] Classify(TableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             var indexList = row.Get<IndexList>(ColumnIndex);
             return Classifier.Classify(indexList);

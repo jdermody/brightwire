@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Rows;
 
 namespace BrightData
 {
@@ -22,7 +23,19 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public readonly record struct TableRow<<#= typeString #>>(<#= parameters #>) <#= where #>;
+    public record TableRow<<#= typeString #>>(IDataTable Table, uint RowIndex, <#= parameters #>) : TableRowBase(Table, RowIndex) <#= where #>
+    {
+        /// <inheritdoc />
+        public override uint Size => <#= i #>;
+
+        /// <inheritdoc />
+        protected override object Get(uint columnIndex) => columnIndex switch {
+<# for(var j = 0; j < i; j++) { #>
+            <#= j #> => C<#= j+1 #>,
+<# } #>
+            _ => throw new Exception("Column index was out of range")
+        };
+    }
 
 <# } #>
     /// <summary>
@@ -90,6 +103,7 @@ namespace BrightData.DataTable
 <# } #>
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
+            uint rowIndex = 0;
 
             while (!ct.IsCancellationRequested && isValid) {
 <# for(var j = 1; j <= i; j++) { #>
@@ -102,7 +116,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<<#= typeString #>>(<#= rowParams #>);
+                    var row = new TableRow<<#= typeString #>>(this, rowIndex++, <#= rowParams #>);
                     yield return row;
                 }
             }
@@ -110,12 +124,14 @@ namespace BrightData.DataTable
 
         class RowReader<<#= typeString #>> : IReadOnlyBuffer<TableRow<<#= typeString #>>> <#= where #>
         {
+            readonly IDataTable _dataTable;
 <# for(var j = 1; j <= i; j++) { #>
             readonly IReadOnlyBuffer<T<#= j #>> _input<#= j #>;
 <# } #>
 
-            public RowReader(<#= bufferInput #>)
+            public RowReader(IDataTable dataTable, <#= bufferInput #>)
             {
+                _dataTable = dataTable;
 <# for(var j = 2; j <= i; j++) { #>
                 if (input1.BlockSize != input<#= j #>.BlockSize)
                     throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input<#= j #>:{input<#= j #>.BlockSize})");
@@ -166,14 +182,14 @@ namespace BrightData.DataTable
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block<#= j #>:{block<#= j #>.Length})");
 <# } #>
                 var ret = new TableRow<<#= typeString #>>[block1.Length];
-                Copy(<#= allBlockSpans #>, ret);
+                Copy(blockIndex * BlockSize, <#= allBlockSpans #>, ret);
                 return ret;
             }
 
-            static void Copy(<#= allReadOnlySpans #>, Span<TableRow<<#= typeString #>>> output)
+            void Copy(uint firstIndex, <#= allReadOnlySpans #>, Span<TableRow<<#= typeString #>>> output)
             {
                 for (var i = 0; i < span1.Length; i++)
-                    output[i] = new TableRow<<#= typeString #>>(<#= allSpans #>);
+                    output[i] = new TableRow<<#= typeString #>>(_dataTable, firstIndex + (uint)i, <#= allSpans #>);
             }
 
             public async IAsyncEnumerable<TableRow<<#= typeString #>>> EnumerateAllTyped()
@@ -184,6 +200,7 @@ namespace BrightData.DataTable
 <# } #>
                 var currentTasks = new ValueTask<bool>[size];
                 var isValid = true;
+                uint rowIndex = 0;
 
                 while (isValid) {
 <# for(var j = 1; j <= i; j++) { #>
@@ -196,7 +213,7 @@ namespace BrightData.DataTable
                         }
                     }
                     if(isValid) {
-                        var row = new TableRow<<#= typeString #>>(<#= currentValues #>);
+                        var row = new TableRow<<#= typeString #>>(_dataTable, rowIndex++, <#= currentValues #>);
                         yield return row;
                     }
                 }
@@ -211,7 +228,7 @@ namespace BrightData.DataTable
         ) 
             <#= where #>
         {
-            return new RowReader<<#= typeString #>>(<#= getColumns #>);
+            return new RowReader<<#= typeString #>>(this, <#= getColumns #>);
         }
 <# } #>
     }

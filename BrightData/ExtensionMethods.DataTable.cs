@@ -14,6 +14,7 @@ using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -304,7 +305,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="size">Number of rows to return</param>
         /// <returns></returns>
-        public static Task<TableRow[]> Head(this IDataTable dataTable, uint size = 10) => dataTable
+        public static Task<GenericTableRow[]> Head(this IDataTable dataTable, uint size = 10) => dataTable
             .EnumerateRows()
             .ToArrayAsync(size)
         ;
@@ -781,7 +782,7 @@ namespace BrightData
         /// <param name="table"></param>
         /// <param name="sampleSize">Number of rows to sample</param>
         /// <returns></returns>
-        public static Task<TableRow[]> Sample(this IDataTable table, uint sampleSize)
+        public static Task<GenericTableRow[]> Sample(this IDataTable table, uint sampleSize)
         {
             var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int)sampleSize).OrderBy(i => i).ToArray();
             return table.GetRows(rows);
@@ -1254,7 +1255,7 @@ namespace BrightData
         /// <param name="mapper"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async Task<T[]> MapRows<T>(this IDataTable dataTable, Func<TableRow, T> mapper, CancellationToken ct = default)
+        public static async Task<T[]> MapRows<T>(this IDataTable dataTable, Func<GenericTableRow, T> mapper, CancellationToken ct = default)
         {
             var ret = new T[dataTable.RowCount];
             uint index = 0;
@@ -1270,10 +1271,10 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async Task<TableRow[]> GetAllRows(this IDataTable dataTable, CancellationToken ct = default)
+        public static async Task<GenericTableRow[]> GetAllRows(this IDataTable dataTable, CancellationToken ct = default)
         {
             var index = 0;
-            var ret = new TableRow[dataTable.RowCount];
+            var ret = new GenericTableRow[dataTable.RowCount];
             await foreach (var row in dataTable.EnumerateRows(ct))
                 ret[index++] = row;
             return ret;
@@ -1661,7 +1662,7 @@ namespace BrightData
         /// <param name="start"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static Task<TableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
+        public static Task<GenericTableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
         {
             return dataTable.GetRows(count.AsRange(start).Where(x => x < dataTable.RowCount).ToArray());
         }
@@ -1674,7 +1675,7 @@ namespace BrightData
         /// <param name="ct"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static async Task<IBuildDataTables> Project(this IDataTable dataTable, Func<TableRow, object[]?> projection, CancellationToken ct = default)
+        public static async Task<IBuildDataTables> Project(this IDataTable dataTable, Func<GenericTableRow, object[]?> projection, CancellationToken ct = default)
         {
             var builder = dataTable.Context.CreateTableBuilder();
             var isFirst = true;

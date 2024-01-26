@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrightData;
 using BrightData.DataTable;
 using BrightWire.ExecutionGraph.Helper;
@@ -9,7 +8,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Vectorise each row of the data table on demand
     /// </summary>
-    internal class DefaultDataTableAdapter : RowBasedDataTableAdapterBase
+    internal class DefaultDataTableAdapter : GenericRowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
 

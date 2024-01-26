@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-using BrightData.DataTable;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 
 namespace BrightData
 {
@@ -441,7 +441,7 @@ namespace BrightData
         /// </summary>
         /// <param name="ct"></param>
         /// <returns></returns>
-        IAsyncEnumerable<TableRow> EnumerateRows(CancellationToken ct = default);
+        IAsyncEnumerable<GenericTableRow> EnumerateRows(CancellationToken ct = default);
 
         /// <summary>
         /// Returns an array of columns
@@ -471,14 +471,14 @@ namespace BrightData
         /// </summary>
         /// <param name="rowIndices"></param>
         /// <returns></returns>
-        Task<TableRow[]> GetRows(params uint[] rowIndices);
+        Task<GenericTableRow[]> GetRows(params uint[] rowIndices);
 
         /// <summary>
         /// Returns a row from the table
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        TableRow this[uint index] { get; }
+        GenericTableRow this[uint index] { get; }
     }
 
     /// <summary>

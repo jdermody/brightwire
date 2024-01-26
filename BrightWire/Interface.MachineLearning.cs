@@ -2,10 +2,10 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using BrightData.DataTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightData.Types;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire
 {
@@ -492,7 +492,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row to classify</param>
 		/// <returns></returns>
-        (string Label, float Weight)[] Classify(TableRow row);
+        (string Label, float Weight)[] Classify(GenericTableRow row);
 	}
 
     /// <summary>

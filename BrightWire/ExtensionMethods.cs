@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightData.LinearAlgebra;
 using BrightWire.Adaptors;
 using BrightWire.Bayesian.Training;
@@ -47,7 +47,7 @@ namespace BrightWire
         /// <param name="dataTable"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
-        public static IEnumerable<(TableRow Row, (string Label, float Weight)[] Classification)> Classify(this IDataTable dataTable, IRowClassifier classifier)
+        public static IEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IDataTable dataTable, IRowClassifier classifier)
         {
             for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
                 var row = dataTable[i];

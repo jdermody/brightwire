@@ -4,9 +4,9 @@ using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BrightData.DataTable;
 using BrightData.Types;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -39,7 +39,7 @@ namespace BrightWire.Bayesian.Training
                 }
             }
 
-            public void Process(TableRow row)
+            public void Process(GenericTableRow row)
             {
                 foreach (var (key, value) in _column)
                     value.AddObject(row[key]);

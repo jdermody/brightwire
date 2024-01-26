@@ -7,7 +7,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
@@ -297,6 +299,13 @@ namespace BrightData.LinearAlgebra
         public IMatrix CreateMatrixFromRows(IReadOnlyVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.ReadOnlySegment).ToArray());
 
         /// <summary>
+        /// Creates a matrix from the rows supplied as read only vectors
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public IMatrix CreateMatrixFromRows(ReadOnlyVector[] rows) => CreateMatrixFromRows(rows.Select(v => v.ReadOnlySegment).ToArray());
+
+        /// <summary>
         /// Creates a matrix from the rows supplied
         /// </summary>
         /// <param name="rows"></param>
@@ -339,6 +348,13 @@ namespace BrightData.LinearAlgebra
                 rows[i].CopyTo(ret.GetRow((uint)i));
             return ret;
         }
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as tensor segments
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public virtual IMatrix CreateMatrixFromRows(List<IReadOnlyNumericSegment<float>> rows) => CreateMatrixFromRows(rows.AsSpan());
 
         /// <summary>
         /// Creates a matrix from the rows supplied as tensor segments
