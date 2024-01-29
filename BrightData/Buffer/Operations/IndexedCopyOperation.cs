@@ -20,7 +20,7 @@ namespace BrightData.Buffer.Operations
         public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var blockSize = from.BlockSize;
-            var blocks = indices.Select(x => (Index: x, BlockIndex: x / from.BlockSize))
+            var blocks = indices.Select(x => (Index: x, BlockIndex: x / blockSize))
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;

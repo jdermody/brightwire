@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.ConstraintValidation;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 
 namespace BrightData
@@ -33,10 +34,10 @@ namespace BrightData
             BrightDataType.Date              => new FieldSpecification<DateTime>(name, canRepeat),
             BrightDataType.IndexList         => new FieldSpecification<IndexList>(name, canRepeat),
             BrightDataType.WeightedIndexList => new FieldSpecification<WeightedIndexList>(name, canRepeat),
-            BrightDataType.Vector            => new FieldSpecification<IReadOnlyVector>(name, canRepeat),
-            BrightDataType.Matrix            => new FieldSpecification<IReadOnlyMatrix>(name, canRepeat),
-            BrightDataType.Tensor3D          => new FieldSpecification<IReadOnlyTensor3D>(name, canRepeat),
-            BrightDataType.Tensor4D          => new FieldSpecification<IReadOnlyTensor4D>(name, canRepeat),
+            BrightDataType.Vector            => new FieldSpecification<ReadOnlyVector>(name, canRepeat),
+            BrightDataType.Matrix            => new FieldSpecification<ReadOnlyMatrix>(name, canRepeat),
+            BrightDataType.Tensor3D          => new FieldSpecification<ReadOnlyTensor3D>(name, canRepeat),
+            BrightDataType.Tensor4D          => new FieldSpecification<ReadOnlyTensor4D>(name, canRepeat),
             _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 

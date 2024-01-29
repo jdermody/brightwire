@@ -2,6 +2,8 @@
 using BrightData.Helper;
 using System;
 using System.Threading.Tasks;
+using BrightData.Buffer.Operations;
+using BrightData.Converter;
 
 namespace BrightData.DataTable.Columns
 {
@@ -33,7 +35,7 @@ namespace BrightData.DataTable.Columns
     /// <typeparam name="TT"></typeparam>
     /// <param name="ColumnIndex"></param>
     /// <param name="Converter"></param>
-    public record CustomColumnConversionInfo<FT, TT>(uint ColumnIndex, Func<FT, TT> Converter) : ColumnConversionInfo(ColumnIndex, ColumnConversion.Custom)
+    public record CustomColumnConversionInfo<FT, TT>(uint ColumnIndex, Func<FT, TT> Converter) : ColumnConversionInfo(ColumnIndex, ColumnConversion.Custom) where FT : notnull where TT : notnull
     {
         /// <inheritdoc />
         public override async Task<IReadOnlyBufferWithMetaData> Convert(IDataTable dataTable)
@@ -41,8 +43,9 @@ namespace BrightData.DataTable.Columns
             var column = dataTable.GetColumn(ColumnIndex);
             if (column.DataType != typeof(FT))
                 throw new Exception($"Expected column {ColumnIndex} to be of type {typeof(FT)} but found {column.DataType}");
-            var output = column.DataType.GetBrightDataType().CreateCompositeBuffer();
-            var conversion = GenericActivator.Create<IOperation>(typeof(CustomConversion<,>).MakeGenericType(column.DataType, typeof(TT)), Converter, column, output);
+            var output = (ICompositeBuffer<TT>)column.DataType.GetBrightDataType().CreateCompositeBuffer();
+            var converter = (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(column.DataType, typeof(TT), column, new CustomConversionFunction<FT, TT>(Converter));
+            var conversion = new BufferCopy<TT>(converter, output, null);
             await conversion.Execute();
             column.MetaData.CopyTo(output.MetaData, Consts.Name, Consts.IsTarget, Consts.ColumnIndex);
             return output;

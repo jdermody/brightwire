@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using BrightData.Buffer.Operations;
+using BrightData.Buffer.Operations.Conversion;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Buffer.ReadOnly.Helper;
@@ -369,7 +370,7 @@ namespace BrightData.DataTable
             var newColumns = writer.CreateColumnsFrom(this);
             var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : RowCount.AsRange().ToArray();
             var operations = newColumns
-                .Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), GetColumn((uint)i), x, wantedRowIndices))
+                .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(x.DataType, GetColumn((uint)i), x, wantedRowIndices))
                 .ToArray();
             await operations.ExecuteAllAsOne();
             await writer.WriteTo(stream);
@@ -381,7 +382,7 @@ namespace BrightData.DataTable
             var ret = new IReadOnlyBuffer<object>[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var column = GetColumn(i);
-                ret[index++] = GenericActivator.Create<IReadOnlyBuffer<object>>(typeof(ToObjectConverter<>).MakeGenericType(column.DataType), column);
+                ret[index++] = GenericTypeMapping.ToObjectConverter(column.DataType, column);
             }
             return ret;
         }
@@ -473,20 +474,36 @@ namespace BrightData.DataTable
             var dataType = reader.DataType;
 
             if(dataType == typeofT)
-                return (IReadOnlyBufferWithMetaData<T>)_columnReader[index];
-            if (typeofT == typeof(object))
-                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(ToObjectConverter<>).MakeGenericType(dataType), reader);
-            if (typeofT == typeof(string))
-                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(ToStringConverter<>).MakeGenericType(dataType), reader);
-            if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo()))
-                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(CastConverter<,>).MakeGenericType(dataType, typeof(T)), reader);
+                return (IReadOnlyBufferWithMetaData<T>)reader;
+
+            if (typeofT == typeof(object)) {
+                var ret = new ReadOnlyBufferMetaDataWrapper<object>(GenericTypeMapping.ToObjectConverter(dataType, reader), _columnMetaData[index]);
+                return (IReadOnlyBufferWithMetaData<T>)ret;
+            }
+
+            if (typeofT == typeof(string)) {
+                var ret = new ReadOnlyBufferMetaDataWrapper<string>(GenericTypeMapping.ToStringConverter(dataType, reader), _columnMetaData[index]);
+                return (IReadOnlyBufferWithMetaData<T>)ret;
+            }
+
+            if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo())) {
+                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.CastConverter(dataType, typeof(T), reader), _columnMetaData[index]);
+            }
+
             if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
                 var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(dataType, typeof(T)).Invoke(null, null);
-                return GenericActivator.Create<IReadOnlyBufferWithMetaData<T>>(typeof(TypeConverter<,>).MakeGenericType(dataType, typeof(T)), reader, converter);
+                var ret = GenericTypeMapping.TypeConverter(dataType, typeof(T), reader, (ICanConvert)converter!);
             }
 
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
         }
+
+        public IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) where FT: notnull where TT : notnull
+        {
+            var from = GetColumn<FT>(index);
+            return (IReadOnlyBufferWithMetaData<TT>)GenericTypeMapping.TypeConverter(typeof(FT), typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
+        }
+
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
 
         BlockReaderReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 

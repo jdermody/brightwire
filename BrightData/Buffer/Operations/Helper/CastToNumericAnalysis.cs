@@ -12,7 +12,7 @@ namespace BrightData.Buffer.Operations.Helper
     /// <typeparam name="T"></typeparam>
     internal class CastToNumericAnalysis<T> : ICastToNumericAnalysis, IAppendBlocks<T> where T : notnull
     {
-        readonly BufferScan<T> _scan;
+        readonly BufferCopy<T> _scan;
         readonly ICanConvert<T, double> _converter;
 
         public CastToNumericAnalysis(IReadOnlyBuffer<T> buffer)

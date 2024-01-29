@@ -412,6 +412,16 @@ namespace BrightData
         IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T : notnull;
 
         /// <summary>
+        /// Returns a typed column after applying a conversion function to each value
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="converter"></param>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <returns></returns>
+        IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) where FT : notnull where TT : notnull;
+
+        /// <summary>
         /// Returns column analysis of the specified columns (or all if none specified)
         /// </summary>
         /// <param name="columnIndices"></param>

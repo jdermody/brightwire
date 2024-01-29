@@ -25,7 +25,7 @@ namespace BrightData.Cuda
 
             string? cudaDirectory = null;
             if (cudaKernelPath == null) {
-                var assemblyLocation = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location);
+                var assemblyLocation = AppContext.BaseDirectory;
                 if (assemblyLocation == null)
                     throw new Exception("Unable to obtain current assembly location");
 

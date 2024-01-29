@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -43,7 +44,7 @@ namespace BrightData.Helper
         /// </summary>
         /// <typeparam name="T">Type to create</typeparam>
         /// <returns></returns>
-        public static T CreateUninitialized<T>()
+        public static T CreateUninitialized<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] T>()
         {
             return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
         }

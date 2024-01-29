@@ -11,7 +11,7 @@ namespace BrightData.Buffer.Operations
     /// <param name="from">Buffer to process</param>
     /// <param name="to">Destination</param>
     /// <param name="onComplete">Optional callback on completion</param>
-    internal class BufferScan<T>(IReadOnlyBuffer<T> from, IAppendBlocks<T> to, Action? onComplete)
+    internal class BufferCopy<T>(IReadOnlyBuffer<T> from, IAppendBlocks<T> to, Action? onComplete)
         : IOperation
         where T : notnull
     {

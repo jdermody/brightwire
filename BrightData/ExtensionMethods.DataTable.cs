@@ -1137,7 +1137,7 @@ namespace BrightData
             foreach (var (label, columnData) in groups) {
                 var writer = new ColumnOrientedDataTableBuilder(context);
                 var newColumns = writer.CreateColumnsFrom(dataTable);
-                var operations = newColumns.Select((x, i) => GenericActivator.Create<IOperation>(typeof(IndexedCopyOperation<>).MakeGenericType(x.DataType), dataTable.GetColumn((uint)i), x, columnData)).ToArray();
+                var operations = newColumns.Select((x, i) => GenericTypeMapping.IndexedCopyOperation(x.DataType, dataTable.GetColumn((uint)i), x, columnData)).ToArray();
                 await operations.ExecuteAllAsOne();
                 var outputStream = GetMemoryOrFileStream(filePathProvider?.Invoke(label));
                 await writer.WriteTo(outputStream);
@@ -1381,7 +1381,7 @@ namespace BrightData
             if (buffer.DataType == typeof(T))
                 return (IReadOnlyBuffer<T>)buffer;
             var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(buffer.DataType, typeof(T)).Invoke(null, null);
-            return GenericActivator.Create<IReadOnlyBuffer<T>>(typeof(TypeConverter<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, converter);
+            return (IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(buffer.DataType, typeof(T), buffer, (ICanConvert)converter);
         }
 
         /// <summary>

@@ -11,6 +11,7 @@ using BrightData.Buffer.Operations.Conversion;
 using BrightData.Buffer.Operations.Helper;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
+using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -54,7 +55,8 @@ namespace BrightData
         {
             if (buffer.DataType == typeof(string))
                 return (IReadOnlyBuffer<string>)buffer;
-            return GenericActivator.Create<IReadOnlyBuffer<string>>(typeof(ToStringConverter<>).MakeGenericType(buffer.DataType), buffer);
+            return GenericTypeMapping.ToStringConverter(buffer.DataType, buffer);
+
         }
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace BrightData
             where FT: notnull
             where TT: notnull
         {
-            return GenericActivator.Create<IReadOnlyBuffer<TT>>(typeof(CustomConverter<,>).MakeGenericType(typeof(FT), typeof(TT)), buffer, converter);
+            return (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(FT), typeof(TT), buffer, new CustomConversionFunction<FT, TT>(converter));
         }
 
         /// <summary>
@@ -490,15 +492,15 @@ namespace BrightData
                 BrightDataType.Matrix            => CastBuffer<ReadOnlyMatrix, IReadOnlyTensor>(buffer, output, action),
                 BrightDataType.Tensor3D          => CastBuffer<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, output, action),
                 BrightDataType.Tensor4D          => CastBuffer<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, output, action),
-                _                                => GenericActivator.Create<IOperation>(typeof(BufferScan<>).MakeGenericType(buffer.DataType), buffer, output, action)
+                _                                => GenericActivator.Create<IOperation>(typeof(BufferCopy<>).MakeGenericType(buffer.DataType), buffer, output, action)
             };
 
-            static BufferScan<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
+            static BufferCopy<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
             {
                 var buffer2 = (IReadOnlyBuffer<T2>)buffer;
                 var buffer3 = buffer2.Cast<T2, CT2>();
                 var dataAnalyser2 = (IAppendBlocks<CT2>)analyser;
-                return new BufferScan<CT2>(buffer3, dataAnalyser2, action);
+                return new BufferCopy<CT2>(buffer3, dataAnalyser2, action);
             }
         }
 

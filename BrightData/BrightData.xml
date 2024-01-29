@@ -654,7 +654,7 @@
             </summary>
             <param name="operations"></param>
         </member>
-        <member name="T:BrightData.Buffer.Operations.BufferScan`1">
+        <member name="T:BrightData.Buffer.Operations.BufferCopy`1">
             <summary>
             Adds each item in the buffer to a destination
             </summary>
@@ -663,7 +663,7 @@
             <param name="to">Destination</param>
             <param name="onComplete">Optional callback on completion</param>
         </member>
-        <member name="M:BrightData.Buffer.Operations.BufferScan`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendBlocks{`0},System.Action)">
+        <member name="M:BrightData.Buffer.Operations.BufferCopy`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendBlocks{`0},System.Action)">
             <summary>
             Adds each item in the buffer to a destination
             </summary>
@@ -955,24 +955,6 @@
             <typeparam name="TT"></typeparam>
             <param name="from"></param>
         </member>
-        <member name="T:BrightData.Buffer.ReadOnly.Converter.CustomConverter`2">
-            <summary>
-            Converts via a user supplied function
-            </summary>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="TT"></typeparam>
-            <param name="from"></param>
-            <param name="converter"></param>
-        </member>
-        <member name="M:BrightData.Buffer.ReadOnly.Converter.CustomConverter`2.#ctor(BrightData.IReadOnlyBuffer{`0},System.Func{`0,`1})">
-            <summary>
-            Converts via a user supplied function
-            </summary>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="TT"></typeparam>
-            <param name="from"></param>
-            <param name="converter"></param>
-        </member>
         <member name="T:BrightData.Buffer.ReadOnly.Converter.NormalizationConverter`1">
             <summary>
             Converts via a normalisation model
@@ -1090,6 +1072,22 @@
             <typeparam name="T"></typeparam>
             <param name="index"></param>
             <param name="mapper"></param>
+        </member>
+        <member name="T:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1">
+            <summary>
+            Extends IReadOnlyBuffer with metadata
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="metaData"></param>
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.Types.MetaData)">
+            <summary>
+            Extends IReadOnlyBuffer with metadata
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="metaData"></param>
         </member>
         <member name="T:BrightData.Buffer.ReadOnly.ReadOnlyCompositeBufferBase`1">
             <summary>
@@ -2127,6 +2125,16 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.GetColumn``2(System.UInt32,System.Func{``0,``1})">
+            <summary>
+            Returns a typed column after applying a conversion function to each value
+            </summary>
+            <param name="index"></param>
+            <param name="converter"></param>
+            <typeparam name="FT"></typeparam>
+            <typeparam name="TT"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.IDataTable.GetColumnAnalysis(System.UInt32[])">

@@ -72,6 +72,6 @@ namespace BrightData.Analysis
         /// <param name="writeCount"></param>
         /// <returns></returns>
         public static IDataAnalyser CreateFrequencyAnalyser(Type type, uint writeCount = Consts.MaxWriteCount) =>
-            GenericActivator.Create<IDataAnalyser>(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount);
+            GenericTypeMapping.ConvertToStringFrequencyAnalysis(type, writeCount);
     }
 }

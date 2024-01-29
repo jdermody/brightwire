@@ -58,12 +58,21 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="Helper\GenericTypeMapping.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GenericTypeMapping.tt</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <None Update="DataTable\ColumnOrientedDataTable.RowReaders.tt">
       <LastGenOutput>ColumnOrientedDataTable.RowReaders.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Helper\GenericTypeMapping.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenericTypeMapping.cs</LastGenOutput>
     </None>
     <None Update="readme.md">
       <PackagePath>\</PackagePath>
@@ -84,6 +93,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ColumnOrientedDataTable.RowReaders.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ExtensionMethods.GenericTypeMapping.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExtensionMethods.GenericTypeMapping.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Helper\GenericTypeMapping.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GenericTypeMapping.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
