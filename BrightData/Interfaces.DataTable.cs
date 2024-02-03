@@ -655,7 +655,7 @@ namespace BrightData
     /// <summary>
     /// Appends an object to a buffer
     /// </summary>
-    public interface IAppendToBuffer
+    public interface IAppendToBuffer : IAppendBlocks
     {
         /// <summary>
         /// Appends an object

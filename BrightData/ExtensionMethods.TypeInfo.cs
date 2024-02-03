@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using BrightData.ConstraintValidation;
 using BrightData.Helper;
@@ -48,31 +49,6 @@ namespace BrightData
         /// <returns></returns>
         public static IDataTypeSpecification GetTypeSpecification(this IDataTable dataTable) => new DataTableSpecification(dataTable);
 
-        class ColumnFilter<T>(uint columnIndex, BrightDataType columnType, IDataTypeSpecification<T> filter, HashSet<uint> nonConformingRowIndices)
-            : IAppendBlocks<T>
-            where T : notnull
-        {
-            uint _index = 0;
-
-            public uint ColumnIndex { get; } = columnIndex;
-            public BrightDataType ColumnType { get; } = columnType;
-
-            public void Append(ReadOnlySpan<T> inputBlock)
-            {
-                foreach (var item in inputBlock) {
-                    if (!filter.IsValid(item))
-                        nonConformingRowIndices.Add(_index);
-                    ++_index;
-                }
-            }
-            public Type BlockType => typeof(T);
-        }
-
-        static IAppendBlocks GetColumnReader(uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
-        {
-            return GenericActivator.Create<IAppendBlocks>(typeof(ColumnFilter<>).MakeGenericType(typeSpecification.UnderlyingType), columnIndex, columnType, typeSpecification, nonConformingRowIndices);
-        }
-
         /// <summary>
         /// Finds the row indices of any row that does not conform to the type specification
         /// </summary>
@@ -88,7 +64,7 @@ namespace BrightData
                 throw new ArgumentException("Expected data table and type info column count to match");
 
             var ret = new HashSet<uint>();
-            var ops = dataTable.CopyTo(typeInfo.Children.Select((ts, ci) => GetColumnReader((uint)ci, dataTable.ColumnTypes[ci], ret, ts)).ToArray());
+            var ops = dataTable.CopyTo(typeInfo.Children.Select((ts, ci) => GenericTypeMapping.ColumnFilter(ts.UnderlyingType, (uint)ci, dataTable.ColumnTypes[ci], ret, ts)).ToArray());
             await ops.ExecuteAllAsOne();
             return ret;
         }

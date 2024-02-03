@@ -370,7 +370,7 @@ namespace BrightData.DataTable
             var newColumns = writer.CreateColumnsFrom(this);
             var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : RowCount.AsRange().ToArray();
             var operations = newColumns
-                .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(x.DataType, GetColumn((uint)i), x, wantedRowIndices))
+                .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(GetColumn((uint)i), x, wantedRowIndices))
                 .ToArray();
             await operations.ExecuteAllAsOne();
             await writer.WriteTo(stream);
@@ -382,7 +382,7 @@ namespace BrightData.DataTable
             var ret = new IReadOnlyBuffer<object>[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var column = GetColumn(i);
-                ret[index++] = GenericTypeMapping.ToObjectConverter(column.DataType, column);
+                ret[index++] = GenericTypeMapping.ToObjectConverter(column);
             }
             return ret;
         }
@@ -477,22 +477,22 @@ namespace BrightData.DataTable
                 return (IReadOnlyBufferWithMetaData<T>)reader;
 
             if (typeofT == typeof(object)) {
-                var ret = new ReadOnlyBufferMetaDataWrapper<object>(GenericTypeMapping.ToObjectConverter(dataType, reader), _columnMetaData[index]);
+                var ret = new ReadOnlyBufferMetaDataWrapper<object>(GenericTypeMapping.ToObjectConverter(reader), _columnMetaData[index]);
                 return (IReadOnlyBufferWithMetaData<T>)ret;
             }
 
             if (typeofT == typeof(string)) {
-                var ret = new ReadOnlyBufferMetaDataWrapper<string>(GenericTypeMapping.ToStringConverter(dataType, reader), _columnMetaData[index]);
+                var ret = new ReadOnlyBufferMetaDataWrapper<string>(GenericTypeMapping.ToStringConverter(reader), _columnMetaData[index]);
                 return (IReadOnlyBufferWithMetaData<T>)ret;
             }
 
             if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo())) {
-                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.CastConverter(dataType, typeof(T), reader), _columnMetaData[index]);
+                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.CastConverter(typeof(T), reader), _columnMetaData[index]);
             }
 
             if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
-                var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(dataType, typeof(T)).Invoke(null, null);
-                var ret = GenericTypeMapping.TypeConverter(dataType, typeof(T), reader, (ICanConvert)converter!);
+                var converter = StaticConverters.GetConverter(dataType, typeof(T));
+                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(typeof(T), reader, converter), _columnMetaData[index]);
             }
 
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
@@ -501,7 +501,7 @@ namespace BrightData.DataTable
         public IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) where FT: notnull where TT : notnull
         {
             var from = GetColumn<FT>(index);
-            return (IReadOnlyBufferWithMetaData<TT>)GenericTypeMapping.TypeConverter(typeof(FT), typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
+            return (IReadOnlyBufferWithMetaData<TT>)GenericTypeMapping.TypeConverter(typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];

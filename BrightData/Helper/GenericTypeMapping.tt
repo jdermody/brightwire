@@ -11,14 +11,17 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Analysis;
 using BrightData.Buffer.Operations;
 using System.Collections.Generic;
-using BrightData.Buffer.Operations.Conversion;
+using BrightData.Buffer.Operations.Helper;
+using BrightData.Converter;
+using BrightData.ConstraintValidation;
 
 namespace BrightData.Helper
 {
     internal class GenericTypeMapping
     {
-        internal static IReadOnlyBuffer<string> ToStringConverter(Type type, IReadOnlyBuffer buffer)
+        internal static IReadOnlyBuffer<string> ToStringConverter(IReadOnlyBuffer buffer)
         {
+            var type = buffer.DataType;
 <#= WriteSingleTypeMapping("ToStringConverter", x => $"(IReadOnlyBuffer<{x}>)buffer") #>
         }
 
@@ -27,24 +30,80 @@ namespace BrightData.Helper
 <#= WriteSingleTypeMapping("ConvertToStringFrequencyAnalysis", x => $"writeCount") #>
         }
 
-        internal static IOperation IndexedCopyOperation(Type type, IReadOnlyBufferWithMetaData from, ICompositeBuffer to, IEnumerable<uint> indices)
+        internal static IReadOnlyBuffer<object> ToObjectConverter(IReadOnlyBuffer from)
         {
-<#= WriteSingleTypeMapping("IndexedCopyOperation", x => $"(IReadOnlyBufferWithMetaData<{x}>)from, (IAppendToBuffer<{x}>)to, indices") #>
-        }
-
-        internal static IReadOnlyBuffer<object> ToObjectConverter(Type type, IReadOnlyBuffer from)
-        {
+            var type = from.DataType;
 <#= WriteSingleTypeMapping("ToObjectConverter", x => $"(IReadOnlyBuffer<{x}>)from") #>
         }
 
-        internal static IReadOnlyBuffer CastConverter(Type type1, Type type2, IReadOnlyBuffer from)
+        internal static IReadOnlyBuffer CastConverter(Type type2, IReadOnlyBuffer from)
         {
+            var type1 = from.DataType;
 <#= WriteDoubleTypeMapping("CastConverter", (x, y) => $"(IReadOnlyBuffer<{x}>)from") #>
         }
 
-        internal static IReadOnlyBuffer TypeConverter(Type type1, Type type2, IReadOnlyBuffer from, ICanConvert converter) 
+        internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
         {
+            var type1 = from.DataType;
 <#= WriteDoubleTypeMapping("TypeConverter", (x, y) => $"(IReadOnlyBuffer<{x}>)from, (ICanConvert<{x}, {y}>)converter") #>
+        }
+
+        internal static IOperation IndexedCopyOperation(IReadOnlyBuffer from, IAppendToBuffer to, IEnumerable<uint> indices)
+        {
+            var type = from.DataType;
+<#= WriteSingleTypeMapping("IndexedCopyOperation", x => $"(IReadOnlyBuffer<{x}>)from, (IAppendToBuffer<{x}>)to, indices") #>
+        }
+
+        internal static IOperation BufferCopyOperation(IReadOnlyBuffer from, IAppendBlocks to, Action? onComplete = null)
+        {
+            var type = from.DataType;
+<#= WriteSingleTypeMapping("BufferCopyOperation", x => $"(IReadOnlyBuffer<{x}>)from, (IAppendBlocks<{x}>)to, onComplete") #>
+        }
+
+        internal static ISimpleNumericAnalysis SimpleNumericAnalysis(IReadOnlyBuffer buffer)
+        {
+            var type = buffer.DataType;
+<#= WriteSingleTypeMapping("SimpleNumericAnalysis", x => $"(IReadOnlyBuffer<{x}>)buffer") #>
+        }
+
+        internal static ICanConvert ConvertToDecimal(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToDecimal", _ => "throwOnFailure") #>
+        }
+
+        internal static ICanConvert ConvertToDouble(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToDouble", _ => "throwOnFailure") #>
+        }
+
+        internal static ICanConvert ConvertToFloat(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToFloat", _ => "throwOnFailure") #>
+        }
+
+        internal static ICanConvert ConvertToInt(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToInt", _ => "throwOnFailure") #>
+        }
+
+        internal static ICanConvert ConvertToLong(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToLong", _ => "throwOnFailure") #>
+        }
+
+         internal static ICanConvert ConvertToShort(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToShort", _ => "throwOnFailure") #>
+        }
+
+        internal static ICanConvert ConvertToSignedByte(Type type, bool throwOnFailure = false)
+        {
+<#= WriteNumericTypeMapping("ConvertToSignedByte", _ => "throwOnFailure") #>
+        }
+
+        internal static IAppendBlocks ColumnFilter(Type type, uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
+        {
+<#= WriteSingleTypeMapping("ColumnFilter", x => $"columnIndex, columnType, (IDataTypeSpecification<{x}>)typeSpecification, nonConformingRowIndices") #>
         }
     }
 }
@@ -105,6 +164,19 @@ namespace BrightData.Helper
             yield return "DateOnly";
         }
     }
+    IEnumerable<(string TypeCode, string TypeName)> ValidNumericTypeCodes
+    {
+        get {
+            yield return ("Boolean", "bool");
+            yield return ("SByte", "sbyte");
+            yield return ("Single", "float");
+            yield return ("Double", "double");
+            yield return ("Decimal", "decimal");
+            yield return ("Int16", "short");
+            yield return ("Int32", "int");
+            yield return ("Int64", "long");
+        }
+    }
 
     string WriteSingleTypeMapping(string typeName, Func<string, string> parameters)
     {
@@ -141,6 +213,22 @@ namespace BrightData.Helper
         }
 
         var msg = $"Could not create {typeName} for types {{type1}} and {{type2}}";
+        sb.AppendLine($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
+        return sb.ToString();
+    }
+
+    string WriteNumericTypeMapping(string typeName, Func<string, string> parameters)
+    {
+        var sb = new StringBuilder();
+
+        // write the type codes
+        sb.AppendLine("\t\t\tvar typeCode = Type.GetTypeCode(type);");
+        foreach(var item in ValidNumericTypeCodes) {
+            sb.AppendLine($"\t\t\tif(typeCode == TypeCode.{item.TypeCode})");
+            sb.AppendLine($"\t\t\t\treturn new {typeName}<{item.TypeName}>({parameters(item.TypeName)});");
+        }
+
+        var msg = $"Could not create {typeName} for type {{type}}";
         sb.AppendLine($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
         return sb.ToString();
     }

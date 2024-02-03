@@ -1137,7 +1137,7 @@ namespace BrightData
             foreach (var (label, columnData) in groups) {
                 var writer = new ColumnOrientedDataTableBuilder(context);
                 var newColumns = writer.CreateColumnsFrom(dataTable);
-                var operations = newColumns.Select((x, i) => GenericTypeMapping.IndexedCopyOperation(x.DataType, dataTable.GetColumn((uint)i), x, columnData)).ToArray();
+                var operations = newColumns.Select((x, i) => GenericTypeMapping.IndexedCopyOperation(dataTable.GetColumn((uint)i), x, columnData)).ToArray();
                 await operations.ExecuteAllAsOne();
                 var outputStream = GetMemoryOrFileStream(filePathProvider?.Invoke(label));
                 await writer.WriteTo(outputStream);
@@ -1197,7 +1197,7 @@ namespace BrightData
         /// <param name="stream">Output stream</param>
         public static Task WriteDataTable(this BrightDataContext context, MetaData tableMetaData, IReadOnlyBufferWithMetaData[] columns, Stream stream)
         {
-            if (columns.Any()) {
+            if (columns.Length > 0) {
                 // ensure column indices are correct
                 uint columnIndex = 0;
                 foreach (var column in columns)
@@ -1380,8 +1380,8 @@ namespace BrightData
         {
             if (buffer.DataType == typeof(T))
                 return (IReadOnlyBuffer<T>)buffer;
-            var converter = StaticConverters.GetConverterMethodInfo.MakeGenericMethod(buffer.DataType, typeof(T)).Invoke(null, null);
-            return (IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(buffer.DataType, typeof(T), buffer, (ICanConvert)converter);
+            var converter = StaticConverters.GetConverter(buffer.DataType, typeof(T));
+            return (IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(typeof(T), buffer, converter);
         }
 
         /// <summary>
@@ -1513,7 +1513,7 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBufferWithMetaData[] buffers, bool oneHotEncodeCategoricalData)
         {
-            var createTasks = buffers.Select((x, i) => GetVectoriser(x, x.MetaData, oneHotEncodeCategoricalData)).ToArray();
+            var createTasks = buffers.Select(x => GetVectoriser(x, x.MetaData, oneHotEncodeCategoricalData)).ToArray();
             await Task.WhenAll(createTasks);
             var vectorisers = createTasks.Select(x => x.Result).ToArray();
             return new VectorisationModel(vectorisers);
@@ -1541,7 +1541,7 @@ namespace BrightData
                 var dataType = item.GetColumnType().GetDataType();
 
                 var vectoriser = vectorisers[index++] = type switch {
-                    VectorisationType.Tensor            => GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(dataType), size),
+                    VectorisationType.Tensor            => CreateTensorVectoriser(dataType, size),
                     VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(size-1),
                     VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType)),
                     VectorisationType.IndexList         => new IndexListVectoriser(size-1),
@@ -1554,6 +1554,19 @@ namespace BrightData
             }
 
             return new VectorisationModel(vectorisers);
+        }
+
+        static ICanVectorise CreateTensorVectoriser(Type type, uint outputSize)
+        {
+            if (type == typeof(ReadOnlyVector))
+                return new TensorVectoriser<ReadOnlyVector>(outputSize);
+            if (type == typeof(ReadOnlyMatrix))
+                return new TensorVectoriser<ReadOnlyMatrix>(outputSize);
+            if (type == typeof(ReadOnlyTensor3D))
+                return new TensorVectoriser<ReadOnlyTensor3D>(outputSize);
+            if (type == typeof(ReadOnlyTensor4D))
+                return new TensorVectoriser<ReadOnlyTensor4D>(outputSize);
+            throw new NotImplementedException($"Could not convert to tensor: {type}");
         }
 
         /// <summary>

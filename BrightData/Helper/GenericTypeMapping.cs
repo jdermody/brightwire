@@ -5,14 +5,17 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Analysis;
 using BrightData.Buffer.Operations;
 using System.Collections.Generic;
-using BrightData.Buffer.Operations.Conversion;
+using BrightData.Buffer.Operations.Helper;
+using BrightData.Converter;
+using BrightData.ConstraintValidation;
 
 namespace BrightData.Helper
 {
     internal class GenericTypeMapping
     {
-        internal static IReadOnlyBuffer<string> ToStringConverter(Type type, IReadOnlyBuffer buffer)
+        internal static IReadOnlyBuffer<string> ToStringConverter(IReadOnlyBuffer buffer)
         {
+            var type = buffer.DataType;
 			var typeCode = Type.GetTypeCode(type);
 			if(typeCode == TypeCode.Boolean)
 				return new ToStringConverter<bool>((IReadOnlyBuffer<bool>)buffer);
@@ -97,51 +100,9 @@ namespace BrightData.Helper
 
         }
 
-        internal static IOperation IndexedCopyOperation(Type type, IReadOnlyBufferWithMetaData from, ICompositeBuffer to, IEnumerable<uint> indices)
+        internal static IReadOnlyBuffer<object> ToObjectConverter(IReadOnlyBuffer from)
         {
-			var typeCode = Type.GetTypeCode(type);
-			if(typeCode == TypeCode.Boolean)
-				return new IndexedCopyOperation<bool>((IReadOnlyBufferWithMetaData<bool>)from, (IAppendToBuffer<bool>)to, indices);
-			if(typeCode == TypeCode.SByte)
-				return new IndexedCopyOperation<sbyte>((IReadOnlyBufferWithMetaData<sbyte>)from, (IAppendToBuffer<sbyte>)to, indices);
-			if(typeCode == TypeCode.Single)
-				return new IndexedCopyOperation<float>((IReadOnlyBufferWithMetaData<float>)from, (IAppendToBuffer<float>)to, indices);
-			if(typeCode == TypeCode.Double)
-				return new IndexedCopyOperation<double>((IReadOnlyBufferWithMetaData<double>)from, (IAppendToBuffer<double>)to, indices);
-			if(typeCode == TypeCode.Decimal)
-				return new IndexedCopyOperation<decimal>((IReadOnlyBufferWithMetaData<decimal>)from, (IAppendToBuffer<decimal>)to, indices);
-			if(typeCode == TypeCode.String)
-				return new IndexedCopyOperation<string>((IReadOnlyBufferWithMetaData<string>)from, (IAppendToBuffer<string>)to, indices);
-			if(typeCode == TypeCode.Int16)
-				return new IndexedCopyOperation<short>((IReadOnlyBufferWithMetaData<short>)from, (IAppendToBuffer<short>)to, indices);
-			if(typeCode == TypeCode.Int32)
-				return new IndexedCopyOperation<int>((IReadOnlyBufferWithMetaData<int>)from, (IAppendToBuffer<int>)to, indices);
-			if(typeCode == TypeCode.Int64)
-				return new IndexedCopyOperation<long>((IReadOnlyBufferWithMetaData<long>)from, (IAppendToBuffer<long>)to, indices);
-			if(typeCode == TypeCode.DateTime)
-				return new IndexedCopyOperation<DateTime>((IReadOnlyBufferWithMetaData<DateTime>)from, (IAppendToBuffer<DateTime>)to, indices);
-			if(type == typeof(IndexList))
-				return new IndexedCopyOperation<IndexList>((IReadOnlyBufferWithMetaData<IndexList>)from, (IAppendToBuffer<IndexList>)to, indices);
-			if(type == typeof(WeightedIndexList))
-				return new IndexedCopyOperation<WeightedIndexList>((IReadOnlyBufferWithMetaData<WeightedIndexList>)from, (IAppendToBuffer<WeightedIndexList>)to, indices);
-			if(type == typeof(ReadOnlyVector))
-				return new IndexedCopyOperation<ReadOnlyVector>((IReadOnlyBufferWithMetaData<ReadOnlyVector>)from, (IAppendToBuffer<ReadOnlyVector>)to, indices);
-			if(type == typeof(ReadOnlyMatrix))
-				return new IndexedCopyOperation<ReadOnlyMatrix>((IReadOnlyBufferWithMetaData<ReadOnlyMatrix>)from, (IAppendToBuffer<ReadOnlyMatrix>)to, indices);
-			if(type == typeof(ReadOnlyTensor3D))
-				return new IndexedCopyOperation<ReadOnlyTensor3D>((IReadOnlyBufferWithMetaData<ReadOnlyTensor3D>)from, (IAppendToBuffer<ReadOnlyTensor3D>)to, indices);
-			if(type == typeof(ReadOnlyTensor4D))
-				return new IndexedCopyOperation<ReadOnlyTensor4D>((IReadOnlyBufferWithMetaData<ReadOnlyTensor4D>)from, (IAppendToBuffer<ReadOnlyTensor4D>)to, indices);
-			if(type == typeof(TimeOnly))
-				return new IndexedCopyOperation<TimeOnly>((IReadOnlyBufferWithMetaData<TimeOnly>)from, (IAppendToBuffer<TimeOnly>)to, indices);
-			if(type == typeof(DateOnly))
-				return new IndexedCopyOperation<DateOnly>((IReadOnlyBufferWithMetaData<DateOnly>)from, (IAppendToBuffer<DateOnly>)to, indices);
-			throw new NotImplementedException($"Could not create IndexedCopyOperation for type {type}");
-
-        }
-
-        internal static IReadOnlyBuffer<object> ToObjectConverter(Type type, IReadOnlyBuffer from)
-        {
+            var type = from.DataType;
 			var typeCode = Type.GetTypeCode(type);
 			if(typeCode == TypeCode.Boolean)
 				return new ToObjectConverter<bool>((IReadOnlyBuffer<bool>)from);
@@ -183,8 +144,9 @@ namespace BrightData.Helper
 
         }
 
-        internal static IReadOnlyBuffer CastConverter(Type type1, Type type2, IReadOnlyBuffer from)
+        internal static IReadOnlyBuffer CastConverter(Type type2, IReadOnlyBuffer from)
         {
+            var type1 = from.DataType;
 			if(type1 == typeof(bool) && type2 == typeof(bool))
 				return new CastConverter<bool, bool>((IReadOnlyBuffer<bool>)from);
 			if(type1 == typeof(bool) && type2 == typeof(sbyte))
@@ -767,8 +729,9 @@ namespace BrightData.Helper
 
         }
 
-        internal static IReadOnlyBuffer TypeConverter(Type type1, Type type2, IReadOnlyBuffer from, ICanConvert converter) 
+        internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
         {
+            var type1 = from.DataType;
 			if(type1 == typeof(bool) && type2 == typeof(bool))
 				return new TypeConverter<bool, bool>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, bool>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(sbyte))
@@ -1348,6 +1311,342 @@ namespace BrightData.Helper
 			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
 				return new TypeConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, DateOnly>)converter);
 			throw new NotImplementedException($"Could not create TypeConverter for types {type1} and {type2}");
+
+        }
+
+        internal static IOperation IndexedCopyOperation(IReadOnlyBuffer from, IAppendToBuffer to, IEnumerable<uint> indices)
+        {
+            var type = from.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new IndexedCopyOperation<bool>((IReadOnlyBuffer<bool>)from, (IAppendToBuffer<bool>)to, indices);
+			if(typeCode == TypeCode.SByte)
+				return new IndexedCopyOperation<sbyte>((IReadOnlyBuffer<sbyte>)from, (IAppendToBuffer<sbyte>)to, indices);
+			if(typeCode == TypeCode.Single)
+				return new IndexedCopyOperation<float>((IReadOnlyBuffer<float>)from, (IAppendToBuffer<float>)to, indices);
+			if(typeCode == TypeCode.Double)
+				return new IndexedCopyOperation<double>((IReadOnlyBuffer<double>)from, (IAppendToBuffer<double>)to, indices);
+			if(typeCode == TypeCode.Decimal)
+				return new IndexedCopyOperation<decimal>((IReadOnlyBuffer<decimal>)from, (IAppendToBuffer<decimal>)to, indices);
+			if(typeCode == TypeCode.String)
+				return new IndexedCopyOperation<string>((IReadOnlyBuffer<string>)from, (IAppendToBuffer<string>)to, indices);
+			if(typeCode == TypeCode.Int16)
+				return new IndexedCopyOperation<short>((IReadOnlyBuffer<short>)from, (IAppendToBuffer<short>)to, indices);
+			if(typeCode == TypeCode.Int32)
+				return new IndexedCopyOperation<int>((IReadOnlyBuffer<int>)from, (IAppendToBuffer<int>)to, indices);
+			if(typeCode == TypeCode.Int64)
+				return new IndexedCopyOperation<long>((IReadOnlyBuffer<long>)from, (IAppendToBuffer<long>)to, indices);
+			if(typeCode == TypeCode.DateTime)
+				return new IndexedCopyOperation<DateTime>((IReadOnlyBuffer<DateTime>)from, (IAppendToBuffer<DateTime>)to, indices);
+			if(type == typeof(IndexList))
+				return new IndexedCopyOperation<IndexList>((IReadOnlyBuffer<IndexList>)from, (IAppendToBuffer<IndexList>)to, indices);
+			if(type == typeof(WeightedIndexList))
+				return new IndexedCopyOperation<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (IAppendToBuffer<WeightedIndexList>)to, indices);
+			if(type == typeof(ReadOnlyVector))
+				return new IndexedCopyOperation<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)from, (IAppendToBuffer<ReadOnlyVector>)to, indices);
+			if(type == typeof(ReadOnlyMatrix))
+				return new IndexedCopyOperation<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)from, (IAppendToBuffer<ReadOnlyMatrix>)to, indices);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new IndexedCopyOperation<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)from, (IAppendToBuffer<ReadOnlyTensor3D>)to, indices);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new IndexedCopyOperation<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)from, (IAppendToBuffer<ReadOnlyTensor4D>)to, indices);
+			if(type == typeof(TimeOnly))
+				return new IndexedCopyOperation<TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (IAppendToBuffer<TimeOnly>)to, indices);
+			if(type == typeof(DateOnly))
+				return new IndexedCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendToBuffer<DateOnly>)to, indices);
+			throw new NotImplementedException($"Could not create IndexedCopyOperation for type {type}");
+
+        }
+
+        internal static IOperation BufferCopyOperation(IReadOnlyBuffer from, IAppendBlocks to, Action? onComplete = null)
+        {
+            var type = from.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new BufferCopyOperation<bool>((IReadOnlyBuffer<bool>)from, (IAppendBlocks<bool>)to, onComplete);
+			if(typeCode == TypeCode.SByte)
+				return new BufferCopyOperation<sbyte>((IReadOnlyBuffer<sbyte>)from, (IAppendBlocks<sbyte>)to, onComplete);
+			if(typeCode == TypeCode.Single)
+				return new BufferCopyOperation<float>((IReadOnlyBuffer<float>)from, (IAppendBlocks<float>)to, onComplete);
+			if(typeCode == TypeCode.Double)
+				return new BufferCopyOperation<double>((IReadOnlyBuffer<double>)from, (IAppendBlocks<double>)to, onComplete);
+			if(typeCode == TypeCode.Decimal)
+				return new BufferCopyOperation<decimal>((IReadOnlyBuffer<decimal>)from, (IAppendBlocks<decimal>)to, onComplete);
+			if(typeCode == TypeCode.String)
+				return new BufferCopyOperation<string>((IReadOnlyBuffer<string>)from, (IAppendBlocks<string>)to, onComplete);
+			if(typeCode == TypeCode.Int16)
+				return new BufferCopyOperation<short>((IReadOnlyBuffer<short>)from, (IAppendBlocks<short>)to, onComplete);
+			if(typeCode == TypeCode.Int32)
+				return new BufferCopyOperation<int>((IReadOnlyBuffer<int>)from, (IAppendBlocks<int>)to, onComplete);
+			if(typeCode == TypeCode.Int64)
+				return new BufferCopyOperation<long>((IReadOnlyBuffer<long>)from, (IAppendBlocks<long>)to, onComplete);
+			if(typeCode == TypeCode.DateTime)
+				return new BufferCopyOperation<DateTime>((IReadOnlyBuffer<DateTime>)from, (IAppendBlocks<DateTime>)to, onComplete);
+			if(type == typeof(IndexList))
+				return new BufferCopyOperation<IndexList>((IReadOnlyBuffer<IndexList>)from, (IAppendBlocks<IndexList>)to, onComplete);
+			if(type == typeof(WeightedIndexList))
+				return new BufferCopyOperation<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (IAppendBlocks<WeightedIndexList>)to, onComplete);
+			if(type == typeof(ReadOnlyVector))
+				return new BufferCopyOperation<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)from, (IAppendBlocks<ReadOnlyVector>)to, onComplete);
+			if(type == typeof(ReadOnlyMatrix))
+				return new BufferCopyOperation<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)from, (IAppendBlocks<ReadOnlyMatrix>)to, onComplete);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new BufferCopyOperation<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)from, (IAppendBlocks<ReadOnlyTensor3D>)to, onComplete);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new BufferCopyOperation<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)from, (IAppendBlocks<ReadOnlyTensor4D>)to, onComplete);
+			if(type == typeof(TimeOnly))
+				return new BufferCopyOperation<TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (IAppendBlocks<TimeOnly>)to, onComplete);
+			if(type == typeof(DateOnly))
+				return new BufferCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendBlocks<DateOnly>)to, onComplete);
+			throw new NotImplementedException($"Could not create BufferCopyOperation for type {type}");
+
+        }
+
+        internal static ISimpleNumericAnalysis SimpleNumericAnalysis(IReadOnlyBuffer buffer)
+        {
+            var type = buffer.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new SimpleNumericAnalysis<bool>((IReadOnlyBuffer<bool>)buffer);
+			if(typeCode == TypeCode.SByte)
+				return new SimpleNumericAnalysis<sbyte>((IReadOnlyBuffer<sbyte>)buffer);
+			if(typeCode == TypeCode.Single)
+				return new SimpleNumericAnalysis<float>((IReadOnlyBuffer<float>)buffer);
+			if(typeCode == TypeCode.Double)
+				return new SimpleNumericAnalysis<double>((IReadOnlyBuffer<double>)buffer);
+			if(typeCode == TypeCode.Decimal)
+				return new SimpleNumericAnalysis<decimal>((IReadOnlyBuffer<decimal>)buffer);
+			if(typeCode == TypeCode.String)
+				return new SimpleNumericAnalysis<string>((IReadOnlyBuffer<string>)buffer);
+			if(typeCode == TypeCode.Int16)
+				return new SimpleNumericAnalysis<short>((IReadOnlyBuffer<short>)buffer);
+			if(typeCode == TypeCode.Int32)
+				return new SimpleNumericAnalysis<int>((IReadOnlyBuffer<int>)buffer);
+			if(typeCode == TypeCode.Int64)
+				return new SimpleNumericAnalysis<long>((IReadOnlyBuffer<long>)buffer);
+			if(typeCode == TypeCode.DateTime)
+				return new SimpleNumericAnalysis<DateTime>((IReadOnlyBuffer<DateTime>)buffer);
+			if(type == typeof(IndexList))
+				return new SimpleNumericAnalysis<IndexList>((IReadOnlyBuffer<IndexList>)buffer);
+			if(type == typeof(WeightedIndexList))
+				return new SimpleNumericAnalysis<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer);
+			if(type == typeof(ReadOnlyVector))
+				return new SimpleNumericAnalysis<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer);
+			if(type == typeof(ReadOnlyMatrix))
+				return new SimpleNumericAnalysis<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)buffer);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new SimpleNumericAnalysis<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)buffer);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new SimpleNumericAnalysis<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)buffer);
+			if(type == typeof(TimeOnly))
+				return new SimpleNumericAnalysis<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer);
+			if(type == typeof(DateOnly))
+				return new SimpleNumericAnalysis<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
+			throw new NotImplementedException($"Could not create SimpleNumericAnalysis for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToDecimal(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToDecimal<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToDecimal<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToDecimal<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToDecimal<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToDecimal<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToDecimal<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToDecimal<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToDecimal<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToDecimal for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToDouble(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToDouble<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToDouble<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToDouble<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToDouble<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToDouble<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToDouble<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToDouble<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToDouble<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToDouble for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToFloat(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToFloat<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToFloat<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToFloat<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToFloat<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToFloat<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToFloat<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToFloat<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToFloat<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToFloat for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToInt(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToInt<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToInt<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToInt<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToInt<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToInt<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToInt<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToInt<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToInt<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToInt for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToLong(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToLong<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToLong<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToLong<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToLong<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToLong<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToLong<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToLong<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToLong<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToLong for type {type}");
+
+        }
+
+         internal static ICanConvert ConvertToShort(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToShort<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToShort<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToShort<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToShort<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToShort<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToShort<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToShort<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToShort<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToShort for type {type}");
+
+        }
+
+        internal static ICanConvert ConvertToSignedByte(Type type, bool throwOnFailure = false)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ConvertToSignedByte<bool>(throwOnFailure);
+			if(typeCode == TypeCode.SByte)
+				return new ConvertToSignedByte<sbyte>(throwOnFailure);
+			if(typeCode == TypeCode.Single)
+				return new ConvertToSignedByte<float>(throwOnFailure);
+			if(typeCode == TypeCode.Double)
+				return new ConvertToSignedByte<double>(throwOnFailure);
+			if(typeCode == TypeCode.Decimal)
+				return new ConvertToSignedByte<decimal>(throwOnFailure);
+			if(typeCode == TypeCode.Int16)
+				return new ConvertToSignedByte<short>(throwOnFailure);
+			if(typeCode == TypeCode.Int32)
+				return new ConvertToSignedByte<int>(throwOnFailure);
+			if(typeCode == TypeCode.Int64)
+				return new ConvertToSignedByte<long>(throwOnFailure);
+			throw new NotImplementedException($"Could not create ConvertToSignedByte for type {type}");
+
+        }
+
+        internal static IAppendBlocks ColumnFilter(Type type, uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new ColumnFilter<bool>(columnIndex, columnType, (IDataTypeSpecification<bool>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.SByte)
+				return new ColumnFilter<sbyte>(columnIndex, columnType, (IDataTypeSpecification<sbyte>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Single)
+				return new ColumnFilter<float>(columnIndex, columnType, (IDataTypeSpecification<float>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Double)
+				return new ColumnFilter<double>(columnIndex, columnType, (IDataTypeSpecification<double>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Decimal)
+				return new ColumnFilter<decimal>(columnIndex, columnType, (IDataTypeSpecification<decimal>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.String)
+				return new ColumnFilter<string>(columnIndex, columnType, (IDataTypeSpecification<string>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Int16)
+				return new ColumnFilter<short>(columnIndex, columnType, (IDataTypeSpecification<short>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Int32)
+				return new ColumnFilter<int>(columnIndex, columnType, (IDataTypeSpecification<int>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.Int64)
+				return new ColumnFilter<long>(columnIndex, columnType, (IDataTypeSpecification<long>)typeSpecification, nonConformingRowIndices);
+			if(typeCode == TypeCode.DateTime)
+				return new ColumnFilter<DateTime>(columnIndex, columnType, (IDataTypeSpecification<DateTime>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(IndexList))
+				return new ColumnFilter<IndexList>(columnIndex, columnType, (IDataTypeSpecification<IndexList>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(WeightedIndexList))
+				return new ColumnFilter<WeightedIndexList>(columnIndex, columnType, (IDataTypeSpecification<WeightedIndexList>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(ReadOnlyVector))
+				return new ColumnFilter<ReadOnlyVector>(columnIndex, columnType, (IDataTypeSpecification<ReadOnlyVector>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(ReadOnlyMatrix))
+				return new ColumnFilter<ReadOnlyMatrix>(columnIndex, columnType, (IDataTypeSpecification<ReadOnlyMatrix>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new ColumnFilter<ReadOnlyTensor3D>(columnIndex, columnType, (IDataTypeSpecification<ReadOnlyTensor3D>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new ColumnFilter<ReadOnlyTensor4D>(columnIndex, columnType, (IDataTypeSpecification<ReadOnlyTensor4D>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(TimeOnly))
+				return new ColumnFilter<TimeOnly>(columnIndex, columnType, (IDataTypeSpecification<TimeOnly>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(DateOnly))
+				return new ColumnFilter<DateOnly>(columnIndex, columnType, (IDataTypeSpecification<DateOnly>)typeSpecification, nonConformingRowIndices);
+			throw new NotImplementedException($"Could not create ColumnFilter for type {type}");
 
         }
     }

@@ -14,7 +14,7 @@ namespace BrightData.Buffer.Operations.Conversion
         where FT : INumber<FT>
         where T : unmanaged
     {
-        readonly ICanConvert<FT, T> _converter = StaticConverters.GetNumericConverter<FT, T>();
+        readonly ICanConvert<FT, T> _converter = StaticConverters.GetConverter<FT, T>();
 
         protected override T Convert(FT from) => _converter.Convert(from);
     }

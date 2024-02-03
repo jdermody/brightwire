@@ -11,7 +11,7 @@ namespace BrightData.Buffer.Operations.Helper
     /// <typeparam name="T"></typeparam>
     internal class TypedIndexer<T> : IOperation, ICanIndex<T>, IAppendBlocks<T> where T : notnull
     {
-        readonly BufferCopy<T> _scan;
+        readonly BufferCopyOperation<T> _scan;
         readonly Dictionary<T, uint> _index = [];
 
         public TypedIndexer(IReadOnlyBuffer<T> buffer)

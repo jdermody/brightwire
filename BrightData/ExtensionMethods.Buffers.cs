@@ -55,7 +55,7 @@ namespace BrightData
         {
             if (buffer.DataType == typeof(string))
                 return (IReadOnlyBuffer<string>)buffer;
-            return GenericTypeMapping.ToStringConverter(buffer.DataType, buffer);
+            return GenericTypeMapping.ToStringConverter(buffer);
 
         }
 
@@ -71,7 +71,7 @@ namespace BrightData
             where FT: notnull
             where TT: notnull
         {
-            return (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(FT), typeof(TT), buffer, new CustomConversionFunction<FT, TT>(converter));
+            return (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), buffer, new CustomConversionFunction<FT, TT>(converter));
         }
 
         /// <summary>
@@ -492,15 +492,15 @@ namespace BrightData
                 BrightDataType.Matrix            => CastBuffer<ReadOnlyMatrix, IReadOnlyTensor>(buffer, output, action),
                 BrightDataType.Tensor3D          => CastBuffer<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, output, action),
                 BrightDataType.Tensor4D          => CastBuffer<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, output, action),
-                _                                => GenericActivator.Create<IOperation>(typeof(BufferCopy<>).MakeGenericType(buffer.DataType), buffer, output, action)
+                _                                => GenericTypeMapping.BufferCopyOperation(buffer, output, action)
             };
 
-            static BufferCopy<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
+            static BufferCopyOperation<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
             {
                 var buffer2 = (IReadOnlyBuffer<T2>)buffer;
                 var buffer3 = buffer2.Cast<T2, CT2>();
                 var dataAnalyser2 = (IAppendBlocks<CT2>)analyser;
-                return new BufferCopy<CT2>(buffer3, dataAnalyser2, action);
+                return new BufferCopyOperation<CT2>(buffer3, dataAnalyser2, action);
             }
         }
 
@@ -535,7 +535,7 @@ namespace BrightData
             if (buffer.DataType == typeof(string))
                 buffer = buffer.ConvertTo<double>();
 
-            var analysis = GenericActivator.Create<ICastToNumericAnalysis>(typeof(CastToNumericAnalysis<>).MakeGenericType(buffer.DataType), buffer);
+            var analysis = GenericTypeMapping.SimpleNumericAnalysis(buffer);
             await analysis.Execute();
 
             BrightDataType toType;
@@ -553,8 +553,9 @@ namespace BrightData
                     : BrightDataType.Double;
             }
 
-            var output = GenericActivator.Create<ICompositeBuffer>(typeof(UnmanagedCompositeBuffer<>).MakeGenericType(toType.GetDataType()), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, toType.GetDataType()), buffer, output);
+            var output = CreateCompositeBuffer(toType, tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var converter = buffer.ConvertUnmanagedTo(toType.GetDataType());
+            var conversion = GenericTypeMapping.BufferCopyOperation(converter, output);
             await conversion.Execute();
             return output;
         }
@@ -582,8 +583,11 @@ namespace BrightData
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToReadOnlyStringBuffer(), output);
-            else
-                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(bool)), buffer, output);
+            else {
+                var converted = buffer.ConvertUnmanagedTo(typeof(bool));
+                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
+            }
+
             await conversion.Execute();
             return output;
             static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
@@ -605,9 +609,9 @@ namespace BrightData
             uint? maxDistinctItems = null
         ) {
             var output = CreateCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = buffer.DataType == typeof(string) 
+            var conversion = buffer.DataType == typeof(string)
                 ? buffer.CreateBufferCopyOperation(output) 
-                : GenericActivator.Create<IOperation>(typeof(ToStringConversion<>).MakeGenericType(buffer.DataType), buffer, output);
+                : new BufferCopyOperation<string>(GenericTypeMapping.ToStringConverter(buffer), output, null);
             await conversion.Execute();
             return output;
         }
@@ -633,8 +637,11 @@ namespace BrightData
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
-            else
-                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateTime)), buffer, output);
+            else {
+                var converted = buffer.ConvertUnmanagedTo(typeof(DateTime));
+                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
+            }
+
             await conversion.Execute();
             return output;
 
@@ -671,8 +678,11 @@ namespace BrightData
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
-            else
-                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(DateOnly)), buffer, output);
+            else {
+                var converted = buffer.ConvertUnmanagedTo(typeof(DateOnly));
+                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
+            }
+
             await conversion.Execute();
             return output;
 
@@ -709,8 +719,11 @@ namespace BrightData
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
                 conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output);
-            else
-                conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(TimeOnly)), buffer, output);
+            else {
+                var converted = buffer.ConvertUnmanagedTo(typeof(TimeOnly));
+                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
+            }
+
             await conversion.Execute();
             return output;
 
@@ -871,7 +884,8 @@ namespace BrightData
             if (buffer.DataType == typeof(string))
                 buffer = buffer.ConvertTo<double>();
 
-            var conversion = GenericActivator.Create<IOperation>(typeof(NumericUnmanagedConversion<,>).MakeGenericType(buffer.DataType, typeof(T)), buffer, output);
+            var converted = buffer.ConvertUnmanagedTo(typeof(T));
+            var conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
             await conversion.Execute();
             return output;
         }
@@ -956,6 +970,18 @@ namespace BrightData
         public static IReadOnlyBuffer<TT> Cast<FT, TT>(this IReadOnlyBuffer<FT> buffer) where FT : notnull where TT : notnull
         {
             return new CastConverter<FT, TT>(buffer);
+        }
+
+        /// <summary>
+        /// Converts the buffer that contains an unmanaged type to the specified type
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static IReadOnlyBuffer ConvertUnmanagedTo(this IReadOnlyBuffer buffer, Type type)
+        {
+            var converter = StaticConverters.GetConverter(buffer.DataType, type);
+            return GenericTypeMapping.TypeConverter(type, buffer, converter);
         }
     }
 }

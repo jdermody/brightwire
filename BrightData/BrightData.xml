@@ -654,7 +654,7 @@
             </summary>
             <param name="operations"></param>
         </member>
-        <member name="T:BrightData.Buffer.Operations.BufferCopy`1">
+        <member name="T:BrightData.Buffer.Operations.BufferCopyOperation`1">
             <summary>
             Adds each item in the buffer to a destination
             </summary>
@@ -663,7 +663,7 @@
             <param name="to">Destination</param>
             <param name="onComplete">Optional callback on completion</param>
         </member>
-        <member name="M:BrightData.Buffer.Operations.BufferCopy`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendBlocks{`0},System.Action)">
+        <member name="M:BrightData.Buffer.Operations.BufferCopyOperation`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendBlocks{`0},System.Action)">
             <summary>
             Adds each item in the buffer to a destination
             </summary>
@@ -773,7 +773,7 @@
             <param name="input"></param>
             <param name="output"></param>
         </member>
-        <member name="T:BrightData.Buffer.Operations.Helper.CastToNumericAnalysis`1">
+        <member name="T:BrightData.Buffer.Operations.Helper.SimpleNumericAnalysis`1">
             <summary>
             Casts to double to perform numerical analysis
             </summary>
@@ -1137,6 +1137,26 @@
             <typeparam name="T"></typeparam>
             <param name="stream"></param>
         </member>
+        <member name="T:BrightData.ConstraintValidation.ColumnFilter`1">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="columnType"></param>
+            <param name="filter"></param>
+            <param name="nonConformingRowIndices"></param>
+        </member>
+        <member name="M:BrightData.ConstraintValidation.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="columnType"></param>
+            <param name="filter"></param>
+            <param name="nonConformingRowIndices"></param>
+        </member>
         <member name="T:BrightData.ConstraintValidation.DataTableSpecification">
             <summary>
             Data table specification
@@ -1348,66 +1368,21 @@
             <typeparam name="T"></typeparam>
             <param name="fallback"></param>
         </member>
+        <member name="T:BrightData.Converter.NopConverter`1">
+            <summary>
+            Converter that does not actually convert
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightData.Converter.StaticConverters">
             <summary>
             Static methods to create converters
             </summary>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToDecimal``1">
-            <summary>
-            Creates a converter to decimals
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToDouble``1">
-            <summary>
-            Creates a converter to doubles
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToFloat``1">
-            <summary>
-            Creates a converter to floats
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToInt``1">
-            <summary>
-            Creates a converter to integers
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToLong``1">
-            <summary>
-            Creates a converter to longs (Int64)
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToShort``1">
-            <summary>
-            Creates a converter to shorts (Int16)
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetConverterToSignedByte``1">
-            <summary>
-            Creates a convert to signed bytes
-            </summary>
-            <typeparam name="T">Type to convert from</typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Converter.StaticConverters.GetNumericConverter``2">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverter(System.Type,System.Type)">
             <summary>
             Creates a numeric converter from TF to TT
             </summary>
-            <typeparam name="TF">Type to convert from</typeparam>
-            <typeparam name="TT">Type to convert to</typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.Converter.StaticConverters.GetConverter``2">
@@ -1418,16 +1393,6 @@
             <typeparam name="TT"></typeparam>
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
-        </member>
-        <member name="F:BrightData.Converter.StaticConverters.GetNumericConverterMethodInfo">
-            <summary>
-            Generic method to convert numeric types
-            </summary>
-        </member>
-        <member name="F:BrightData.Converter.StaticConverters.GetConverterMethodInfo">
-            <summary>
-            Generic method to convert types
-            </summary>
         </member>
         <member name="T:BrightData.DataTable.ColumnOrientedDataTable">
             <summary>
@@ -2760,6 +2725,14 @@
             <typeparam name="FT"></typeparam>
             <typeparam name="TT"></typeparam>
             <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertUnmanagedTo(BrightData.IReadOnlyBuffer,System.Type)">
+            <summary>
+            Converts the buffer that contains an unmanaged type to the specified type
+            </summary>
+            <param name="buffer"></param>
+            <param name="type"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToType(System.TypeCode)">

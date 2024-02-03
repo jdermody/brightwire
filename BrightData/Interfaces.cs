@@ -575,7 +575,7 @@ namespace BrightData
         ref T GetNext();
     }
 
-    internal interface ICastToNumericAnalysis : IOperation
+    internal interface ISimpleNumericAnalysis : IOperation
     {
         public bool IsInteger { get; }
         public uint NanCount { get; }

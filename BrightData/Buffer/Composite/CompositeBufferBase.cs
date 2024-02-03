@@ -22,7 +22,7 @@ namespace BrightData.Buffer.Composite
         protected readonly uint?      _maxInMemoryBlocks, _maxDistinctItems;
         readonly Func<T[], bool , BT> _blockFactory;
         IProvideDataBlocks?           _dataBlockProvider;
-        protected IByteBlockSource?         _currentDataBlock;
+        protected IByteBlockSource?   _currentDataBlock;
         protected List<BT>?           _inMemoryBlocks;
         protected BT?                 _currBlock;
         protected HashSet<T>?         _distinct;

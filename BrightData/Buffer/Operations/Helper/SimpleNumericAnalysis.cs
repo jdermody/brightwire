@@ -10,14 +10,14 @@ namespace BrightData.Buffer.Operations.Helper
     /// Casts to double to perform numerical analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CastToNumericAnalysis<T> : ICastToNumericAnalysis, IAppendBlocks<T> where T : notnull
+    internal class SimpleNumericAnalysis<T> : ISimpleNumericAnalysis, IAppendBlocks<T> where T : notnull
     {
-        readonly BufferCopy<T> _scan;
+        readonly BufferCopyOperation<T> _scan;
         readonly ICanConvert<T, double> _converter;
 
-        public CastToNumericAnalysis(IReadOnlyBuffer<T> buffer)
+        public SimpleNumericAnalysis(IReadOnlyBuffer<T> buffer)
         {
-            _converter = StaticConverters.GetConverterToDouble<T>();
+            _converter = (ICanConvert<T, double>)GenericTypeMapping.ConvertToDouble(typeof(T));
             _scan = new(buffer, this, null);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using BrightData.Converter;
+using BrightData.Helper;
 
 namespace BrightData.Buffer.Operations.Vectorisation
 {
@@ -10,7 +11,7 @@ namespace BrightData.Buffer.Operations.Vectorisation
     internal class NumericVectoriser<T>() : VectorisationBase<T>(1)
         where T : notnull
     {
-        readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
+        readonly ICanConvert<T, float> _converter = (ICanConvert<T, float>)GenericTypeMapping.ConvertToFloat(typeof(T));
 
         protected override void Vectorise(in T item, Span<float> buffer)
         {
